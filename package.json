@@ -1,7 +1,7 @@
 {
-  "name": "Hi_Res_Pointing",
+  "name": "WAMS_API",
   "version": "0.0.1",
-  "description": "Hi Res Pointing",
+  "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
     "express": "^4.4.5",
     "socket.io": "^1.0.6",
