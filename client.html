@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WAMS API TESTING</title>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/hammer.js"></script>
+    <style>
+        * { margin: 0px; padding: 0px; }
+        html, body { width: 90%; height: 90%; }
+        canvas { display:block; }
+    </style>
+</head>
+
+<body>
+    <canvas id='main'></canvas>
+    <script>
+
+        var socket = io();
+
+        function ViewSpace(x, y, w, h, scale, id){
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.scale = scale;
+            this.ew = w/scale;
+            this.eh = h/scale;
+            this.id = id;
+        }
+
+        ViewSpace.prototype.reportView = function(){
+            var vsInfo = {
+                x : this.x,
+                y : this.y,
+                w : this.w,
+                h : this.h,
+                ew : this.ew,
+                eh : this.eh,
+                scale : this.scale,
+                id : this.id
+            };
+            socket.emit('reportView', vsInfo);
+        }
+
+        var canvas = document.getElementById('main');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        
+        var myViewSpace = null;
+        window.addEventListener('load', onWindowLoad, false);
+        function onWindowLoad() {
+            ctx = canvas.getContext('2d');
+            myViewSpace = new ViewSpace(0,0,canvas.width, canvas.height, 1, -1);
+            var ONE_FRAME_TIME = 1000 / 60 ;
+            setInterval(canvasDraw, ONE_FRAME_TIME);
+        }
+
+        function canvasDraw(){
+            // Clear old canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.scale(myViewSpace.scale, myViewSpace.scale);
+
+            ctx.translate(-myViewSpace.x, -myViewSpace.y);
+            ctx.rotate(myViewSpace.rotation);
+
+            switch(myViewSpace.rotation){
+                case(0): break;
+                case(Math.PI): ctx.translate((-myViewSpace.ew - myViewSpace.x*2), (-myViewSpace.eh - myViewSpace.y*2)); break;
+                case(Math.PI/2): ctx.translate(-myViewSpace.ew, -myViewSpace.x*2); break;
+                case(3*Math.PI/2): ctx.translate(-myViewSpace.y*2, -myViewSpace.ew); break;
+            }
+
+            for (var i = 0; i < wsObjects.length; i++) {
+                if(wsObjects[i].w != null && wsObjects[i].h != null){
+                    ctx.drawImage(images[wsObjects[i].id], wsObjects[i].x, wsObjects[i].y, wsObjects[i].w, wsObjects[i].h);
+                }
+                else{
+                    ctx.drawImage(images[wsObjects[i].id], wsObjects[i].x, wsObjects[i].y);
+                }
+            }
+
+            for (var i = 0; i < users.length; i++) {
+                ctx.beginPath();
+                ctx.rect(users[i].x, users[i].y, users[i].ew, users[i].eh);
+                ctx.stroke();
+            }
+
+            ctx.restore();
+
+            if(settings != null && settings.debug){
+                ctx.font = "18px Georgia";
+                ctx.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
+                ctx.fillText("ViewSpace Coordinates: " + myViewSpace.x.toFixed(2) + ", " + myViewSpace.y.toFixed(2), 10, 40);
+                ctx.fillText("Bottom Right Corner: " + (myViewSpace.x + myViewSpace.w).toFixed(2) + ", " + (myViewSpace.y + myViewSpace.h).toFixed(2), 10, 60);
+                ctx.fillText("Number of Other Users: " + users.length, 10, 80);
+                ctx.fillText("Viewspace Scale: " + myViewSpace.scale.toFixed(2), 10, 100);
+                ctx.fillText("ViewSpace Rotation: " + myViewSpace.rotation, 10, 120);
+            }
+        }
+
+        window.addEventListener('resize', onResized, false);
+        function onResized(){
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            myViewSpace.w = canvas.width;
+            myViewSpace.h = canvas.height;
+            myViewSpace.ew = myViewSpace.w/myViewSpace.scale;
+            myViewSpace.eh = myViewSpace.h/myViewSpace.scale;
+            myViewSpace.reportView();
+
+        }
+
+        window.addEventListener("mousewheel", onMouseScroll, false);
+        window.addEventListener("DOMMouseScroll", onMouseScroll, false);
+
+        function onMouseScroll(ev) {
+            var delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
+            var newScale = myViewSpace.scale + delta*0.09;
+            socket.emit('handleScale', myViewSpace, newScale);
+        }
+
+        var mouse = {x: 0, y: 0};
+        var lastMouse = {x: 0, y: 0};
+        var temp = 0;
+
+        var hammerOptions = {
+            dragLockToAxis : true,
+            dragBlockHorizontal : true,
+            preventDefault : true,
+            transform_always_block: true,
+            transform_min_scale: 1,
+            drag_block_horizontal: true,
+            drag_block_vertical: true,
+            drag_min_distance: 0
+        };
+
+        var touchEventHandler = Hammer(document.body, hammerOptions);
+
+        touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev){
+            ev.preventDefault();
+            ev.gesture.preventDefault();
+            switch(ev.type){
+                case('tap') :
+                    mouse.x = ev.gesture.center.pageX/myViewSpace.scale + myViewSpace.x;
+                    mouse.y = ev.gesture.center.pageY/myViewSpace.scale + myViewSpace.y;
+                    switch(myViewSpace.rotation){
+                        case(0): break;
+                        case(Math.PI): 
+                            mouse.x = myViewSpace.x + (myViewSpace.ew * (1 - ((mouse.x - myViewSpace.x)/myViewSpace.ew))); 
+                            mouse.y = myViewSpace.y + (myViewSpace.eh * (1 - ((mouse.y - myViewSpace.y)/myViewSpace.eh))); 
+                            break;
+                        case(Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) + (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) - (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                        case(3*Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) - (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) + (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                    }
+                    socket.emit('handleClick', mouse.x, mouse.y);
+                case 'dragstart':
+                    mouse.x = ev.gesture.center.pageX/myViewSpace.scale + myViewSpace.x;
+                    mouse.y = ev.gesture.center.pageY/myViewSpace.scale + myViewSpace.y;
+                    switch(myViewSpace.rotation){
+                        case(0): break;
+                        case(Math.PI): 
+                            mouse.x = myViewSpace.x + (myViewSpace.ew * (1 - ((mouse.x - myViewSpace.x)/myViewSpace.ew))); 
+                            mouse.y = myViewSpace.y + (myViewSpace.eh * (1 - ((mouse.y - myViewSpace.y)/myViewSpace.eh)));
+                            break;
+                        case(Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) + (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) - (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                        case(3*Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) - (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) + (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                    }
+                    break;
+                case 'drag':
+                    lastMouse.x = mouse.x;
+                    lastMouse.y = mouse.y;
+                    mouse.x = ev.gesture.center.pageX/myViewSpace.scale + myViewSpace.x;
+                    mouse.y = ev.gesture.center.pageY/myViewSpace.scale + myViewSpace.y;
+                    switch(myViewSpace.rotation){
+                        case(0): break;
+                        case(Math.PI): 
+                            mouse.x = myViewSpace.x + (myViewSpace.ew * (1 - ((mouse.x - myViewSpace.x)/myViewSpace.ew))); 
+                            mouse.y = myViewSpace.y + (myViewSpace.eh * (1 - ((mouse.y - myViewSpace.y)/myViewSpace.eh)));
+                            break;
+                        case(Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) + (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) - (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                        case(3*Math.PI/2): 
+                            temp = mouse.x;
+                            mouse.x = (myViewSpace.x + myViewSpace.ew/2) - (mouse.y - (myViewSpace.y + myViewSpace.eh/2)); 
+                            mouse.y = (myViewSpace.y + myViewSpace.eh/2) + (temp - (myViewSpace.x + myViewSpace.ew/2));
+                            break;
+                    }
+                    socket.emit('handleDrag', myViewSpace, mouse.x, mouse.y, (lastMouse.x - mouse.x), (lastMouse.y - mouse.y));
+                    break;
+                case 'dragend':
+                    break;
+            }
+        });
+
+        socket.on('init', onInit);
+        socket.on('updateUser', onUpdateUser);
+        socket.on('removeUser', onRemoveUser);
+        socket.on('updateObjects', onUpdateObjects);
+
+        var wsObjects = [];
+        var images = [];
+        var settings = null;
+        function onInit(initData){
+            settings = initData.settings;
+            if(settings.BGcolor != null){
+                document.getElementById('main').style.backgroundColor = settings.BGcolor;
+            }
+            else{
+                document.getElementById('main').style.backgroundColor = "#aaaaaa";
+            }
+            myViewSpace.id = initData.id;
+            for (var i = 0; i < initData.users.length; i++) {
+                if(initData.users[i].id != myViewSpace.id){
+                    users.push(new ViewSpace(initData.users[i].x, initData.users[i].y, initData.users[i].w, initData.users[i].h, initData.users[i].scale, initData.users[i].id));
+                }
+            }
+            for (var i = 0; i < initData.wsObjects.length; i++) {
+                wsObjects.push(initData.wsObjects[i]);
+                images[initData.wsObjects[i].id] = new Image();
+                images[initData.wsObjects[i].id].src = initData.wsObjects[i].imgsrc;
+            }
+
+            myViewSpace.reportView();
+        }
+
+        var users = [];
+        var noUserFound = true;
+        function onUpdateUser(vsInfo){
+            // socket.emit('consoleLog', "User: " + myViewSpace.id + " updating " + vsInfo.id + "'s info.");
+            if(vsInfo.id == myViewSpace.id){
+                myViewSpace.x = vsInfo.x;
+                myViewSpace.y = vsInfo.y;
+                myViewSpace.w = vsInfo.w;
+                myViewSpace.h = vsInfo.h;
+                myViewSpace.ew = vsInfo.ew;
+                myViewSpace.eh = vsInfo.eh;
+                myViewSpace.scale = vsInfo.scale;
+                myViewSpace.rotation = vsInfo.rotation;
+            }
+            else{
+                for (var i = 0; i < users.length; i++) {
+                    if(users[i].id == vsInfo.id){
+                        noUserFound = false;
+                        users[i].x = vsInfo.x;
+                        users[i].y = vsInfo.y;
+                        users[i].w = vsInfo.w;
+                        users[i].h = vsInfo.h;
+                        users[i].ew = vsInfo.ew;
+                        users[i].eh = vsInfo.eh;
+                        users[i].scale = vsInfo.scale;
+                        users[i].id = vsInfo.id;
+                        break;
+                    }
+                }
+                if(noUserFound){
+                    users.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
+                }
+                noUserFound = true;
+            }
+        }
+
+        function onRemoveUser(id){
+            for (var i = 0; i < users.length; i++) {
+                if(users[i].id == id){
+                    users.remove(i);
+                    break;
+                }
+            }
+        }
+
+        function onUpdateObjects(objects){
+            wsObjects = [];
+            for (var i = 0; i < objects.length; i++) {
+                wsObjects.push(objects[i]);
+                images[objects[i].id].src = objects[i].imgsrc;
+            }
+        }
+
+        socket.on('message', function (message) {
+            if(message === "user_disconnect"){
+                alert("Sorry we're full right now!");
+                window.location.replace("https://www.google.ca/");
+            }
+        });
+
+        Array.prototype.remove = function(from, to) {
+            var rest = this.slice((to || from) + 1 || this.length);
+            this.length = from < 0 ? this.length + from : from;
+            return this.push.apply(this, rest);
+        }
+
+
+    </script>
+</body>
+</html>

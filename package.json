@@ -1,0 +1,10 @@
+{
+  "name": "Hi_Res_Pointing",
+  "version": "0.0.1",
+  "description": "Hi Res Pointing",
+  "dependencies": {
+    "express": "^4.4.5",
+    "socket.io": "^1.0.6",
+    "require": "^0.5.0"
+  }
+}
