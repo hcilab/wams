@@ -1,6 +1,4 @@
-// What the person using the API would write
-
-var WAMS = require("./WAMS");   // Includes the WAMS API
+var WAMS = require("../WAMS/WAMS");   // Includes the WAMS API
 
 var workspace_one = new WAMS.WorkSpace(3000);    // Starts server listening on port 3000, takes in optional parameter settings = {debug: true/false, BGColor: "#000000-FFFFFF"}
     workspace_one.setBoundaries(4000, 4000);     // Set global boundaries for clients

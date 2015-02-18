@@ -3,6 +3,7 @@
 var express = require('express');
 var http = require('http');
 var io = require('socket.io');
+var path = require('path')
 
 var WSOBID = 0;
 var userID = 1;
@@ -12,11 +13,11 @@ function WorkSpace(port, settings){
     this.io = io.listen(this.http);
 
     this.app.get('/', function(req, res){
-        res.sendfile('client.html');
+        res.sendfile(path.resolve('../WAMS/client.html'));
     });
 
-    this.app.use(express.static(__dirname + '/Images'));
-    this.app.use(express.static(__dirname + '/libs'));
+    this.app.use(express.static(path.resolve('./Images')));
+    this.app.use(express.static(path.resolve('../libs')));
 
     this.users = [];
     this.wsObjects = [];
@@ -30,7 +31,6 @@ function WorkSpace(port, settings){
     this.settings = settings || this.defaultSettings();
 
     var self = this;
-
     this.io.on('connection', function(socket){
         var userVS = new ViewSpace(userID++);
             userVS.boundaries = self.boundaries;
@@ -111,7 +111,8 @@ function WorkSpace(port, settings){
         socket.on('handleClick', function(x, y){
             if(self.clickHandler != null){
                 for (var i = self.wsObjects.length - 1; i >= 0; i--) {
-                        if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
+                        if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
+                           (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
                             self.clickHandler(self.wsObjects[i], userVS, x, y);
                             socket.emit('updateUser', userVS);
                             socket.broadcast.emit('updateUser', userVS);
@@ -161,7 +162,8 @@ function WorkSpace(port, settings){
     });
 
     this.http.listen(port, function(){
-        console.log('listening on port ' + port);
+        var ip = require('ip');
+        console.log('listening on ' + ip.address() + ':' + port);
     });
 }
 

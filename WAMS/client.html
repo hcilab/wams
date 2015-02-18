@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>WAMS API TESTING</title>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="/hammer.js"></script>
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="../hammer.js"></script>
     <style>
         * { margin: 0px; padding: 0px; }
         html, body { width: 90%; height: 90%; }
@@ -57,6 +57,8 @@
             setInterval(canvasDraw, ONE_FRAME_TIME);
         }
 
+        var wsObjects = [];
+        var users = [];
         function canvasDraw(){
             // Clear old canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -219,7 +221,6 @@
         socket.on('removeUser', onRemoveUser);
         socket.on('updateObjects', onUpdateObjects);
 
-        var wsObjects = [];
         var images = [];
         var settings = null;
         function onInit(initData){
@@ -245,7 +246,6 @@
             myViewSpace.reportView();
         }
 
-        var users = [];
         var noUserFound = true;
         function onUpdateUser(vsInfo){
             // socket.emit('consoleLog', "User: " + myViewSpace.id + " updating " + vsInfo.id + "'s info.");

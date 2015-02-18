@@ -1,10 +1,10 @@
-var WAMS = require("./WAMS");
+var WAMS = require("../WAMS/WAMS");
 
 var main_ws = new WAMS.WorkSpace(3000, {debug : false, BGcolor: "green"});
     main_ws.setBoundaries(10000, 10000);
-    main_ws.setClientLimit(5);  // 4 players plus one table
+    main_ws.setClientLimit(5);  // 4 players plus one for the table
 
-// Creating and Adding Workspace objects. WSObject("Image.png", x, y, w, h)
+// Creating and Adding Workspace objects. (image, x, y, w, h)
 var joker = new WAMS.WSObject("joker.png", main_ws.getCenter().x, main_ws.getCenter().y, 200, 282);
     joker.setType("joker");   // Set your custom Object type
 
