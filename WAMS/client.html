@@ -141,6 +141,7 @@
 
         var touchEventHandler = Hammer(document.body, hammerOptions);
 
+        var transforming = false;
         touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev){
             ev.preventDefault();
             ev.gesture.preventDefault();
@@ -188,6 +189,9 @@
                     }
                     break;
                 case 'drag':
+                    if(transforming){
+                        return;
+                    }
                     lastMouse.x = mouse.x;
                     lastMouse.y = mouse.y;
                     mouse.x = ev.gesture.center.pageX/myViewSpace.scale + myViewSpace.x;
@@ -213,6 +217,22 @@
                     break;
                 case 'dragend':
                     break;
+
+                case 'transformstart':
+                    transforming = true;
+                    startScale = myViewSpace.scale;
+                    break;
+                case 'transform':
+                    var scale = ev.gesture.scale;
+                    var newScale = scale * startScale;
+                    socket.emit('handleScale', myViewSpace, newScale);
+                    break;
+                case 'transformend':
+                    transforming = false;
+                    startScale = null;
+                    break;
+
+
             }
         });
 
@@ -294,6 +314,7 @@
             wsObjects = [];
             for (var i = 0; i < objects.length; i++) {
                 wsObjects.push(objects[i]);
+                images[objects[i].id] = new Image();
                 images[objects[i].id].src = objects[i].imgsrc;
             }
         }

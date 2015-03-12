@@ -110,22 +110,27 @@ function WorkSpace(port, settings){
 
         socket.on('handleClick', function(x, y){
             if(self.clickHandler != null){
+                console.log(self.wsObjects.length);
+                foundObject = false;
                 for (var i = self.wsObjects.length - 1; i >= 0; i--) {
-                        if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
-                           (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
-                            self.clickHandler(self.wsObjects[i], userVS, x, y);
-                            socket.emit('updateUser', userVS);
-                            socket.broadcast.emit('updateUser', userVS);
-                            socket.emit('updateObjects', self.wsObjects);
-                            socket.broadcast.emit('updateObjects', self.wsObjects);
-                            break;
-                        }
-                        else if(i == 0){
-                            self.clickHandler(userVS, userVS, x, y);
-                            socket.emit('updateUser', userVS);
-                            socket.broadcast.emit('updateUser', userVS);
-                        }  
+                    if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
+                       (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
+                        self.clickHandler(self, self.wsObjects[i], userVS, x, y);
+                        socket.emit('updateUser', userVS);
+                        socket.broadcast.emit('updateUser', userVS);
+                        socket.emit('updateObjects', self.wsObjects);
+                        socket.broadcast.emit('updateObjects', self.wsObjects);
+                        foundObject = true;
+                        break;
                     }
+                }
+                if(!foundObject){
+                    self.clickHandler(self, userVS, userVS, x, y);
+                    socket.emit('updateUser', userVS);
+                    socket.broadcast.emit('updateUser', userVS);
+                    socket.emit('updateObjects', self.wsObjects);
+                    socket.broadcast.emit('updateObjects', self.wsObjects);
+                }
             }
             else{
                 console.log("Click Handler is not attached!");
@@ -188,6 +193,15 @@ WorkSpace.prototype.addWSObject = function(obj){
     this.wsObjects.push(obj);
 }
 
+WorkSpace.prototype.removeWSObject = function(obj){
+    for (var i = this.wsObjects.length - 1; i >= 0; i--) {
+        if(this.wsObjects[i].id == obj.id){
+            this.wsObjects.remove(i);
+            break;
+        }
+    }
+}
+
 WorkSpace.prototype.getUsers = function(){
     return this.users;
 }
@@ -218,19 +232,19 @@ WorkSpace.prototype.setClientLimit = function(maxUsers){
 
 WorkSpace.prototype.defaultSettings = function(){
     var defaults = {
-        debug : true,
+        debug : false,
         BGcolor : "#aaaaaa"
     };
     return defaults;
 }
 
-function WSObject(imgSRC, x, y, w, h){
+function WSObject(imgSRC, x, y, w, h, type){
     this.imgsrc = imgSRC;
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
-    this.type = "client/background";
+    this.type = type || "client/background";
 }
 
 WSObject.prototype.move = function(dx, dy){
