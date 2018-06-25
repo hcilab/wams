@@ -1,12 +1,13 @@
 var WAMS = require("../WAMS/WAMS");   // Includes the WAMS API
 
-var workspace_one = new WAMS.WorkSpace(3000);    // Starts server listening on port 3000, takes in optional parameter settings = {debug: true/false, BGColor: "#000000-FFFFFF"}
+var workspace_one = new WAMS.WorkSpace(9000);    // Starts server listening on port 3000, takes in optional parameter settings = {debug: true/false, BGColor: "#000000-FFFFFF"}
     workspace_one.setBoundaries(4000, 4000);     // Set global boundaries for clients
     workspace_one.setClientLimit(4);             // Set Client Limit
 
 // Creating and Adding Workspace objects. WSObject("Image.png", x, y, w, h)
-var monaLisa = new WAMS.WSObject("monaLisa.png", 0, 0, workspace_one.getWidth(), workspace_one.getHeight());
-    monaLisa.setType("mona");   // Set your custom Object type
+//var monaLisa = new WAMS.WSObject("monaLisa.png", 0, 0, workspace_one.getWidth(), workspace_one.getHeight());
+//    monaLisa.setType("mona");   // Set your custom Object type
+var monaLisa = new WAMS.WSObject(0,0,workspace_one.getWidth(),workspace_one.getHeight(),"mona", {"imgsrc":"monaLisa.png"});
 workspace_one.addWSObject(monaLisa);
 
 // Handle Drag, takes in the target that was dragged on and who caused the drag event

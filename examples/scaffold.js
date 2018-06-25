@@ -1,10 +1,11 @@
 // Scaffold example for WAMS
+//TODO: make sure the WAMS.js conforms to this scaffold, examples made need to be update
 
 // Includes the WAMS API
 var WAMS = require("../WAMS/WAMS");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(3000, {debug : false, BGcolor : "#aaaaaa"});
+var my_workspace = new WAMS.WorkSpace(9500, {debug : false, BGcolor : "#aaaaaa"});
 
 var handleLayout = function(ws, user){
     // Executed once every time a new user joins
