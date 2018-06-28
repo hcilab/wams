@@ -4,8 +4,8 @@
 var WAMS = require("../WAMS/WAMS");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(3000, {debug : false, BGcolor : "#aaaaaa"});
-var newSquare = new WAMS.WSObject("red.png", 32, 32, 128, 128);
+var my_workspace = new WAMS.WorkSpace(9002, {debug : false, BGcolor : "#aaaaaa"});
+var newSquare = new WAMS.WSObject(32, 32, 128, 128,'color', {'imgsrc':'red.png'});
     newSquare.setType("color");
 my_workspace.addWSObject(newSquare);
 
@@ -17,19 +17,21 @@ var handleLayout = function(ws, user){
     }
 }
 
-var handleClick = function(ws, target, user, x, y){
+var handleClick = function(target, user, x, y){
     // Executed every time a user taps or clicks a screen
+    console.log("clicked in handle click: "+target.type);
+    var ws = my_workspace;
     if(target.type == "color"){
         ws.removeWSObject(target);
     }
     else{
         switch(user.id % 6){
-            case(0) : ws.addWSObject(new WAMS.WSObject("blue.png", x-64, y-64, 128, 128, "color")); break;
-            case(1) : ws.addWSObject(new WAMS.WSObject("red.png", x-64, y-64, 128, 128, "color")); break;
-            case(2) : ws.addWSObject(new WAMS.WSObject("green.png", x-64, y-64, 128, 128, "color")); break;
-            case(3) : ws.addWSObject(new WAMS.WSObject("pink.png", x-64, y-64, 128, 128, "color")); break;
-            case(4) : ws.addWSObject(new WAMS.WSObject("cyan.png", x-64, y-64, 128, 128, "color")); break;
-            case(5) : ws.addWSObject(new WAMS.WSObject("yellow.png", x-64, y-64, 128, 128, "color")); break;
+            case(0) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc': "blue.png"})); break;
+            case(1) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"red.png"})); break;
+            case(2) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"green.png"})); break;
+            case(3) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"pink.png"})); break;
+            case(4) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc':"cyan.png"}));break;
+            case(5) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc': "yellow.png"})); break;
         }
     }
 }

@@ -1,15 +1,14 @@
 var WAMS = require("../WAMS/WAMS");   // Includes the WAMS API
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameters
-var workspace_one = new WAMS.WorkSpace(3000, {debug : false, BGcolor : "#aaaaaa"});
+var workspace_one = new WAMS.WorkSpace(9003, {debug : false, BGcolor : "#aaaaaa"});
+workspace_one.setBoundaries(1000,1000);
 
 // Define a workspace object, (image, x, y, w, h)
-var monaLisa = new WAMS.WSObject("monaLisa.png", 200, 200, 200, 200);
-    monaLisa.setType("Draggable"); // Define a custom object type, for use in event handlers
+var monaLisa = new WAMS.WSObject(200, 200, 200, 200, "Draggable", {"imgsrc":"monaLisa.png"});
 
 // Defing another workspace object
-var scream = new WAMS.WSObject("scream.png", 400, 400, 200, 200);
-    scream.setType("Draggable");
+var scream = new WAMS.WSObject(400, 400, 200, 200, "Draggable", {"imgsrc": "scream.png"});
 
 // Adding the objects to the workspace
 workspace_one.addWSObject(monaLisa);

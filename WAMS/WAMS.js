@@ -1,30 +1,49 @@
+//TODO: Update canvas to work more like this for drawings: https://simonsarris.com/making-html5-canvas-useful/
+//TODO: Stretch goal is to incorporate a canvas library: http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
+//TODO: Allow subcanvas to be drawn on top: https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
 // WAMS - An API for Multi-Surface Environments
-
 var express = require('express');
 var http = require('http');
 var io = require('socket.io');
 var path = require('path')
 
-var WSOBID = 0;
-var userID = 1;
+//globals for keeping track of IDs
+var WSID = 0;   //workspace ID
+var WSOBID = 0; //workspace Object ID
+var CLIENTID = 1;
+
+//set to false to limit console logging
+var WDEBUG = true;
+
 function WorkSpace(port, settings){
     this.app = express();
     this.http = http.createServer(this.app);
     this.io = io.listen(this.http);
+    this.id = WSID++;
+    this.viewID = 1;
 
     this.app.get('/', function(req, res){
-        res.sendfile(path.resolve('../WAMS/client.html'));
+        res.sendFile(path.resolve('../WAMS/view.html'));
+    });
+    this.app.get('/WAMS-util.js', function(req, res){
+        res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
+    });
+    this.app.get('/WAMS-view.js', function(req, res){
+        res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
     });
 
     this.app.use(express.static(path.resolve('./Images')));
     this.app.use(express.static(path.resolve('../libs')));
 
-    this.users = [];
+    this.views = [];
     this.wsObjects = [];
+    this.subWS = [];
+    
     this.boundaries = {
         x : 10000,
         y : 10000
     };
+
     this.MAX_USERS = 10;
     this.id = port;
 
@@ -32,14 +51,16 @@ function WorkSpace(port, settings){
 
     var self = this;
     this.io.on('connection', function(socket){
-        var userVS = new ViewSpace(userID++);
-            userVS.boundaries = self.boundaries;
-        console.log('User ' + userVS.id + ' connected to workspace ' + self.id);
+        
+        var viewSpace = new ViewSpace(self.viewID++);
+        viewSpace.boundaries = self.boundaries;
+        
+        if (WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
         var initData = {
-            users : self.users,
+            views : self.views,
             wsObjects : self.wsObjects,
             settings : self.settings,
-            id : userVS.id
+            id : viewSpace.id
         };
 
         socket.emit('init', initData);
@@ -47,36 +68,38 @@ function WorkSpace(port, settings){
         var initializedLayout = false;
         
         socket.on('reportView', function(vsInfo){
-            if(self.users.length < self.MAX_USERS){
-                if(userVS.id == vsInfo.id){
-                    userVS.x = vsInfo.x;
-                    userVS.y = vsInfo.y;
-                    userVS.w = vsInfo.w;
-                    userVS.h = vsInfo.h;
-                    userVS.ew = vsInfo.ew;
-                    userVS.eh = vsInfo.eh;
-                    userVS.scale = vsInfo.scale;
-                    userVS.id = vsInfo.id;
+            if(self.views.length < self.MAX_USERS){
+                if(viewSpace.id == vsInfo.id){
+                    viewSpace.x = vsInfo.x;
+                    viewSpace.y = vsInfo.y;
+                    viewSpace.w = vsInfo.w;
+                    viewSpace.h = vsInfo.h;
+                    viewSpace.ew = vsInfo.ew;
+                    viewSpace.eh = vsInfo.eh;
+                    viewSpace.scale = vsInfo.scale;
+                    viewSpace.id = vsInfo.id;
+                    viewSpace.views = [];
                 }
                 if(!initializedLayout){
                     initializedLayout = true;
                     if(self.layoutHandler != null){
-                        self.layoutHandler(self, userVS);
+                        self.layoutHandler(self, viewSpace);
                     }
                     else{
                         console.log("Layout handler is not attached!");
                     }
-                    self.users.push(userVS);
+                    self.views.push(viewSpace);
                 }
-                socket.emit('updateUser', userVS);
-                socket.broadcast.emit('updateUser', userVS);
+                socket.emit('updateUser', viewSpace);
+                socket.broadcast.emit('updateUser', viewSpace);
             }
             else if(!initializedLayout){
-                self.users.push(userVS);
+                self.views.push(viewSpace);
                 socket.send("user_disconnect");
-                for (var i = 0; i < users.length; i++) {
-                    if(self.users[i].id == userVS.id){
-                        self.users.remove(i);
+
+                for (var i = 0; i < views.length; i++) {
+                    if(self.views[i].id == viewSpace.id){
+                        self.views.remove(i);
                         break;
                     }
                 }
@@ -84,40 +107,42 @@ function WorkSpace(port, settings){
         });
 
         socket.on('handleDrag', function(vs, x, y, dx, dy){
-            if(vs.id == userVS.id){
+            if(vs.id == viewSpace.id){
                 if(self.dragHandler != null){
                     for (var i = self.wsObjects.length - 1; i >= 0; i--) {
                         if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
-                            self.dragHandler(self.wsObjects[i], userVS, x, y, dx, dy);
-                            socket.emit('updateUser', userVS);
-                            socket.broadcast.emit('updateUser', userVS);
+                            self.dragHandler(self.wsObjects[i], viewSpace, x, y, dx, dy);
+                            socket.emit('updateUser', viewSpace);
+                            socket.broadcast.emit('updateUser', viewSpace);
                             socket.emit('updateObjects', self.wsObjects);
                             socket.broadcast.emit('updateObjects', self.wsObjects);
                             break;
                         }
                         else if(i == 0){
-                            self.dragHandler(userVS, userVS, x, y, dx, dy);
-                            socket.emit('updateUser', userVS);
-                            socket.broadcast.emit('updateUser', userVS);
+                            self.dragHandler(viewSpace, viewSpace, x, y, dx, dy);
+                            socket.emit('updateUser', viewSpace);
+                            socket.broadcast.emit('updateUser', viewSpace);
                         }  
                     }
                 }
                 else{
-                    console.log("Drag handler is not attached!");
+                    console.log("Drag handler is not attached for "+vs.id);
                 }
             }
         });
 
         socket.on('handleClick', function(x, y){
             if(self.clickHandler != null){
-                console.log(self.wsObjects.length);
+                if (WDEBUG) console.log(self.wsObjects.length);
                 foundObject = false;
                 for (var i = self.wsObjects.length - 1; i >= 0; i--) {
+                    if (WDEBUG) console.log("clicked: "+self.wsObjects[i]);
+
                     if((self.wsObjects[i].x < x) && (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
                        (self.wsObjects[i].y < y) && (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
-                        self.clickHandler(self, self.wsObjects[i], userVS, x, y);
-                        socket.emit('updateUser', userVS);
-                        socket.broadcast.emit('updateUser', userVS);
+                        self.clickHandler(self.wsObjects[i],viewSpace, x, y);
+                        socket.emit('updateUser', viewSpace);
+                        socket.broadcast.emit('updateUser', viewSpace);
                         socket.emit('updateObjects', self.wsObjects);
                         socket.broadcast.emit('updateObjects', self.wsObjects);
                         foundObject = true;
@@ -125,12 +150,14 @@ function WorkSpace(port, settings){
                     }
                 }
                 if(!foundObject){
-                    self.clickHandler(self, userVS, userVS, x, y);
-                    socket.emit('updateUser', userVS);
-                    socket.broadcast.emit('updateUser', userVS);
+                    self.clickHandler(self, viewSpace, x, y);
+                    socket.emit('updateUser', viewSpace);
+                    socket.broadcast.emit('updateUser', viewSpace);
                     socket.emit('updateObjects', self.wsObjects);
                     socket.broadcast.emit('updateObjects', self.wsObjects);
+                    if (WDEBUG) console.log("not found");
                 }
+                else if (WDEBUG) console.log("found");
             }
             else{
                 console.log("Click Handler is not attached!");
@@ -138,11 +165,11 @@ function WorkSpace(port, settings){
         });
 
         socket.on('handleScale', function(vs, newScale){
-            if(vs.id == userVS.id){
+            if(vs.id == viewSpace.id){
                 if(self.scaleHandler != null){
-                    self.scaleHandler(userVS, newScale);
-                    socket.emit('updateUser', userVS);
-                    socket.broadcast.emit('updateUser', userVS);
+                    self.scaleHandler(viewSpace, newScale);
+                    socket.emit('updateUser', viewSpace);
+                    socket.broadcast.emit('updateUser', viewSpace);
                 }
                 else{
                     console.log("Scale handler is not attached!");
@@ -151,15 +178,15 @@ function WorkSpace(port, settings){
         });
 
         socket.on('consoleLog', function(toBeLogged){
-            console.log(toBeLogged);
+            if (WDEBUG) console.log(toBeLogged);
         });
 
         socket.on('disconnect', function(){
-            console.log('user ' + userVS.id + ' disconnected from workspace ' + self.id);
-            socket.broadcast.emit('removeUser', userVS.id);
-            for (var i = 0; i < self.users.length; i++) {
-                if(self.users[i].id == userVS.id){
-                    self.users.remove(i);
+            console.log('user ' + viewSpace.id + ' disconnected from workspace ' + self.id);
+            socket.broadcast.emit('removeUser', viewSpace.id);
+            for (var i = 0; i < self.views.length; i++) {
+                if(self.views[i].id == viewSpace.id){
+                    self.views.remove(i);
                     break;
                 }
             }
@@ -188,22 +215,25 @@ WorkSpace.prototype.attachScaleHandler = function(func){
     this.scaleHandler = func;
 }
 
+
 WorkSpace.prototype.addWSObject = function(obj){
     obj.id = WSOBID++;
     this.wsObjects.push(obj);
+    if (WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
 }
 
 WorkSpace.prototype.removeWSObject = function(obj){
     for (var i = this.wsObjects.length - 1; i >= 0; i--) {
         if(this.wsObjects[i].id == obj.id){
             this.wsObjects.remove(i);
+            if (WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
             break;
         }
     }
 }
 
 WorkSpace.prototype.getUsers = function(){
-    return this.users;
+    return this.views;
 }
 
 WorkSpace.prototype.setBoundaries = function(maxX, maxY){
@@ -238,13 +268,35 @@ WorkSpace.prototype.defaultSettings = function(){
     return defaults;
 }
 
-function WSObject(imgSRC, x, y, w, h, type){
-    this.imgsrc = imgSRC;
+WorkSpace.prototype.addSubWS = function(subWS) {
+    this.subWS.push(subWS);
+    //TODO: add check to make sure subWS is in bounds of the main workspace
+    //TODO: probably send a workspace update message
+}
+
+function WSObject(x, y, w, h, type, opts){
+    if (opts)
+    {
+        if (opts.imgsrc)
+        {
+            this.imgsrc = opts.imgsrc;
+        }
+
+        else
+        {
+            this.draw = opts.draw;
+
+            if (opts.drawStart)
+                this.drawStart = opts.drawStart;
+            else
+                this.drawStart = this.draw;
+        }
+    }
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
-    this.type = type || "client/background";
+    this.type = type || "view/background";
 }
 
 WSObject.prototype.move = function(dx, dy){
@@ -261,7 +313,7 @@ WSObject.prototype.moveToXY = function(x, y){
     this.y = y;
 }
 
-WSObject.prototype.setImage = function(imagePath){
+WSObject.prototype.setImgSrc = function(imagePath){
     this.imgsrc = imagePath;
 }
 
@@ -275,7 +327,7 @@ function ViewSpace(id){
     this.scale = 1;
     this.rotation = 0;
     this.id = id;
-    this.type = "client/background";
+    this.type = "view/background";
 }
 
 ViewSpace.prototype.move = function(dx, dy){
@@ -301,7 +353,7 @@ ViewSpace.prototype.rescale = function(newScale){
         this.eh = this.h/this.scale; 
     }
     else{
-        console.log("Scale out of Range!");
+        if (WDEBUG) console.log("Scale out of Range!");
     }
 }
 
