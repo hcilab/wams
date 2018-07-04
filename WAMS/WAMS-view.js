@@ -1,25 +1,58 @@
 window.addEventListener('load', onWindowLoad, false);
 
 function onWindowLoad() {
+    /*
+     * XXX: Where are these variables being defined???
+     *      Please don't tell me that hammer.js uses a bunch of globals for the 
+     *      user to configure...
+     *
+     *      + Answer: Doesn't appear to be that way, looks like we're the ones 
+     *          defining globals (accidentally / intentionally?). This should 
+     *          probably be refactored, because this is a pretty gross, and 
+     *          will not be accepted by JavaScript's strict mode, which we 
+     *          should and will be using.
+     */
     main_ws = document.getElementById('main');
     main_ws.width = main_ws.getWidth();
     main_ws.height = main_ws.getHeight();
 
+    /*
+     * XXX: We seem to be mixing our code together here in an unorganized way,
+     *      I'm not entirely comfortable with this.
+     */
     ctx = main_ws.getContext('2d');
     mainViewSpace = new ViewSpace(0,0,main_ws.getWidth(), main_ws.getHeight(), 1, -1);
     ONE_FRAME_TIME = 1000 / 60 ;
     socket = io();
 
+    /*
+     * XXX: Are we sure we want to do this right away?
+     */
     setInterval(main_wsDraw, ONE_FRAME_TIME);
+
+    /*
+     * XXX: Whoa whoa whoa what is going on here??? Is this why there are 
+     *      functions added to the HTMLCanvasElement in the utils file? Is this
+     *      really necessary? This seems risky, especially since we could just
+     *      do things the other way around, and have our client-side ViewSpace
+     *      extend the HTMLCanvasElement. At least I'm pretty sure we could...
+     */
     HTMLCanvasElement.prototype.viewSpace = new ViewSpace(0,0,main_ws.getWidth(), main_ws.getHeight(), 1, -1);
     wsObjects = [];
     views = [];
 
+    /*
+     * XXX: Why do these listeners need to be attached all the way down here
+     *      instead of adjacent to the initialization of the socket variable?
+     */
     socket.on('init', onInit);
     socket.on('updateUser', onUpdateUser);
     socket.on('removeUser', onRemoveUser);
     socket.on('updateObjects', onUpdateObjects);
 
+    /*
+     * XXX: Organize this...
+     */
     images = [];
     settings = null;
 
@@ -31,7 +64,19 @@ function onWindowLoad() {
     });
 }
 
+/*
+ * XXX: Oh my, is this 'class' given the same name as the server-side class,
+ *      but with different functionality? This might break my brain a bit.
+ *
+ *      Is it possible to define a central 'View' class that both are able
+ *      to extend? How would that work, given that one of the ViewSpaces is
+ *      sent to the client and the other is used by the server?
+ */
 function ViewSpace(x, y, w, h, scale, id){
+    /*
+     * XXX: Like in the server side ViewSpace, should update the variable
+     *      names.
+     */
     this.x = x;
     this.y = y;
     this.w = w;
@@ -67,8 +112,10 @@ ViewSpace.prototype.reportView = function(reportSubWS){
     socket.emit('reportView', vsInfo);
 }
 
-
-
+/*
+ * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
+ *      this.
+ */
 function main_wsDraw(){
     // Clear old main_ws
     ctx.clearRect(0, 0, main_ws.getWidth(), main_ws.getHeight());
@@ -172,6 +219,10 @@ var hammerOptions = {
 
 var touchEventHandler = Hammer(document.body, hammerOptions);
 
+/*
+ * XXX: I'm not sure I like this approach of attaching the same listener to all
+ *      of the events, then 'switch'ing between the events based on type...
+ */
 var transforming = false;
 touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev){
     ev.preventDefault();

@@ -1,5 +1,6 @@
 // Scaffold example for WAMS
-//TODO: make sure the WAMS.js conforms to this scaffold, examples made need to be update
+//TODO: make sure the WAMS.js conforms to this scaffold, 
+//      examples made need to be update
 
 // Includes the WAMS API
 var WAMS = require("../WAMS/WAMS");
