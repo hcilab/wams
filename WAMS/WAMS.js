@@ -120,13 +120,13 @@ class WorkSpace{
          *      obvious what's going on to anyone familiar with Express.js, but it
          *      still might be useful.
          */
-        this.app.get('/', function(req, res){
+        this.app.get('/', function(req, res) {
             res.sendFile(path.resolve('../WAMS/view.html'));
         });
-        this.app.get('/WAMS-util.js', function(req, res){
+        this.app.get('/WAMS-util.js', function(req, res) {
             res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
         });
-        this.app.get('/WAMS-view.js', function(req, res){
+        this.app.get('/WAMS-view.js', function(req, res) {
             res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
         });
 
@@ -182,7 +182,7 @@ class WorkSpace{
          *      - Most likely, I'll lift this code out into a Connection class.
          */
         const self = this;
-        this.io.on('connection', function(socket){
+        this.io.on('connection', function(socket) {
             /*
              * XXX: Make the desired boundaries an argument passed into the
              *      constructor?
@@ -206,13 +206,13 @@ class WorkSpace{
             
             let initializedLayout = false;
             
-            socket.on('reportView', function(vsInfo){
-                if(self.views.length < self.MAX_USERS){
+            socket.on('reportView', function(vsInfo) {
+                if (self.views.length < self.MAX_USERS) {
                     /*
                      * XXX: Watch out for coersive equality vs. strict equality.
                      *      Decide if coercion should be allowed for each instance.
                      */
-                    if(viewSpace.id == vsInfo.id){
+                    if (viewSpace.id == vsInfo.id) {
                         viewSpace.x = vsInfo.x;
                         viewSpace.y = vsInfo.y;
                         viewSpace.w = vsInfo.w;
@@ -223,17 +223,16 @@ class WorkSpace{
                         viewSpace.id = vsInfo.id;
                         viewSpace.views = [];
                     }
-                    if(!initializedLayout){
+                    if (!initializedLayout) {
                         initializedLayout = true;
 
                         /*
                          * XXX: Why is this check necessary? And why is the 
                          *      viewSpace pushed into the views regardless?
                          */
-                        if(self.layoutHandler != null){
+                        if (self.layoutHandler != null) {
                             self.layoutHandler(self, viewSpace);
-                        }
-                        else{
+                        } else {
                             console.log("Layout handler is not attached!");
                         }
                         self.views.push(viewSpace);
@@ -245,8 +244,7 @@ class WorkSpace{
                      */
                     socket.emit('updateUser', viewSpace);
                     socket.broadcast.emit('updateUser', viewSpace);
-                }
-                else if(!initializedLayout){
+                } else if (!initializedLayout) {
                     self.views.push(viewSpace);
                     socket.send("user_disconnect");
 
@@ -260,7 +258,7 @@ class WorkSpace{
                      *      such as indexOf() and splice().
                      */
                     for (let i = 0; i < views.length; i++) {
-                        if(self.views[i].id == viewSpace.id){
+                        if (self.views[i].id == viewSpace.id) {
                             self.views.splice(i,1);
                             break;
                         }
@@ -268,49 +266,47 @@ class WorkSpace{
                 }
             });
 
-            socket.on('handleDrag', function(vs, x, y, dx, dy){
-                if(vs.id == viewSpace.id){
+            socket.on('handleDrag', function(vs, x, y, dx, dy) {
+                if (vs.id == viewSpace.id) {
                     /*
                      * XXX: Why do we need this check? What is the dragHandler?
                      */
-                    if(self.dragHandler != null){
+                    if (self.dragHandler != null) {
                         for (let i = self.wsObjects.length - 1; i >= 0; i--) {
                             /*
                              * XXX: What's going on in this condition check? Maybe 
                              *      it should be lifted out into a function that 
                              *      returns a boolean.
                              */
-                            if((self.wsObjects[i].x < x) && 
+                            if ((self.wsObjects[i].x < x) && 
                                     (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
                                     (self.wsObjects[i].y < y) && 
-                                    (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
+                                    (self.wsObjects[i].y  + self.wsObjects[i].h > y)) {
                                 self.dragHandler(self.wsObjects[i], viewSpace, x, y, dx, dy);
                                 socket.emit('updateUser', viewSpace);
                                 socket.broadcast.emit('updateUser', viewSpace);
                                 socket.emit('updateObjects', self.wsObjects);
                                 socket.broadcast.emit('updateObjects', self.wsObjects);
                                 break;
-                            }
-                            else if(i == 0){
+                            } else if (i == 0) {
                                 self.dragHandler(viewSpace, viewSpace, x, y, dx, dy);
                                 socket.emit('updateUser', viewSpace);
                                 socket.broadcast.emit('updateUser', viewSpace);
                             }  
                         }
-                    }
-                    else{
+                    } else {
                         console.log("Drag handler is not attached for "+vs.id);
                     }
                 }
             });
 
-            socket.on('handleClick', function(x, y){
+            socket.on('handleClick', function(x, y) {
                 /*
                  * XXX: Where are these handler's getting attached that they need
                  *      to be checked for existence? Are they defined by someone
                  *      making use of the WAMS API?
                  */
-                if(self.clickHandler != null){
+                if (self.clickHandler != null) {
                     if (globals.WDEBUG) console.log(self.wsObjects.length);
                     let foundObject = false;
 
@@ -327,10 +323,10 @@ class WorkSpace{
                          *      identical to this. Should probably be lifted out
                          *      into a boolean function.
                          */
-                        if((self.wsObjects[i].x < x) && 
+                        if ((self.wsObjects[i].x < x) && 
                                 (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
                                 (self.wsObjects[i].y < y) && 
-                                (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
+                                (self.wsObjects[i].y  + self.wsObjects[i].h > y)) {
                             self.clickHandler(self.wsObjects[i],viewSpace, x, y);
                             socket.emit('updateUser', viewSpace);
                             socket.broadcast.emit('updateUser', viewSpace);
@@ -347,24 +343,24 @@ class WorkSpace{
                      *      right now, but I'll take a closer look at the code and
                      *      try to figure out what's going on here.
                      */
-                    if(!foundObject){
+                    if (!foundObject) {
                         self.clickHandler(self, viewSpace, x, y);
                         socket.emit('updateUser', viewSpace);
                         socket.broadcast.emit('updateUser', viewSpace);
                         socket.emit('updateObjects', self.wsObjects);
                         socket.broadcast.emit('updateObjects', self.wsObjects);
                         if (globals.WDEBUG) console.log("not found");
+                    } else if (globals.WDEBUG) {
+                        console.log("found");
                     }
-                    else if (globals.WDEBUG) console.log("found");
-                }
-                else{
+                } else {
                     console.log("Click Handler is not attached!");
                 }
             });
 
-            socket.on('handleScale', function(vs, newScale){
-                if(vs.id == viewSpace.id){
-                    if(self.scaleHandler != null){
+            socket.on('handleScale', function(vs, newScale) {
+                if (vs.id == viewSpace.id) {
+                    if (self.scaleHandler != null) {
                         self.scaleHandler(viewSpace, newScale);
 
                         /*
@@ -374,25 +370,24 @@ class WorkSpace{
                          */
                         socket.emit('updateUser', viewSpace);
                         socket.broadcast.emit('updateUser', viewSpace);
-                    }
-                    else{
+                    } else {
                         console.log("Scale handler is not attached!");
                     }
                 }
             });
 
-            socket.on('consoleLog', function(toBeLogged){
+            socket.on('consoleLog', function(toBeLogged) {
                 if (globals.WDEBUG) console.log(toBeLogged);
             });
 
-            socket.on('disconnect', function(){
+            socket.on('disconnect', function() {
                 console.log('user ' + viewSpace.id + ' disconnected from workspace ' + self.id);
                 socket.broadcast.emit('removeUser', viewSpace.id);
                 /*
                  * XXX: Use ES6 standard Array.prototype functions instead.
                  */
                 for (let i = 0; i < self.views.length; i++) {
-                    if(self.views[i].id == viewSpace.id){
+                    if (self.views[i].id == viewSpace.id) {
                         self.views.splice(i,1);
                         break;
                     }
@@ -400,7 +395,7 @@ class WorkSpace{
             });
         });
 
-        this.http.listen(port, function(){
+        this.http.listen(port, function() {
             /*
              * XXX: I'm not sure we need to suddenly import a library for this.
              *      Can't we just use this.http.address()?
@@ -424,31 +419,31 @@ class WorkSpace{
      *          making use of it wants to implement other kinds of interactions
      *          between the users?
      */
-    attachDragHandler(func){
+    attachDragHandler(func) {
         this.dragHandler = func;
     }
 
-    attachLayoutHandler(func){
+    attachLayoutHandler(func) {
         this.layoutHandler = func;
     }
 
-    attachClickHandler(func){
+    attachClickHandler(func) {
         this.clickHandler = func;
     }
 
-    attachScaleHandler(func){
+    attachScaleHandler(func) {
         this.scaleHandler = func;
     }
 
-    addWSObject(obj){
+    addWSObject(obj) {
         obj.id = globals.WSOBID++;
         this.wsObjects.push(obj);
         if (globals.WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
     }
 
-    removeWSObject(obj){
+    removeWSObject(obj) {
         for (let i = this.wsObjects.length - 1; i >= 0; i--) {
-            if(this.wsObjects[i].id == obj.id){
+            if (this.wsObjects[i].id == obj.id) {
                 this.wsObjects.splice(i,1);
                 if (globals.WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
                 break;
@@ -456,40 +451,39 @@ class WorkSpace{
         }
     }
 
-    getUsers(){
+    getUsers() {
         return this.views;
     }
 
-    setBoundaries(maxX, maxY){
+    setBoundaries(maxX, maxY) {
         this.boundaries.x = maxX;
         this.boundaries.y = maxY;
     }
 
-    getWidth(){
+    getWidth() {
         return this.boundaries.x;
     }
 
-    getHeight(){
+    getHeight() {
         return this.boundaries.y;
     }
 
-    getCenter(){
+    getCenter() {
         return {
             x : this.boundaries.x/2,
             y : this.boundaries.y/2
         };
     }
 
-    setClientLimit(maxUsers){
+    setClientLimit(maxUsers) {
         this.MAX_USERS = maxUsers;
     }
 
-    defaultSettings(){
-        const defaults = {
+    defaultSettings() {
+        return {
             debug : false,
             BGcolor : "#aaaaaa"
         };
-        return defaults;
     }
 
     addSubWS(subWS) {
@@ -500,25 +494,16 @@ class WorkSpace{
 }
 
 class WSObject{
-    constructor(x, y, w, h, type, opts){
-        if (opts)
-        {
-            if (opts.imgsrc)
-            {
+    constructor(x, y, w, h, type, opts) {
+        if (opts) {
+            if (opts.imgsrc) {
                 this.imgsrc = opts.imgsrc;
-            }
-
-            else
-            {
+            } else {
                 /*
                  * XXX: But what if opts.draw is also undefined??
                  */
                 this.draw = opts.draw;
-
-                if (opts.drawStart)
-                    this.drawStart = opts.drawStart;
-                else
-                    this.drawStart = this.draw;
+                this.drawStart = opts.drawStart || this.draw;
             }
         }
         this.x = x;
@@ -528,7 +513,7 @@ class WSObject{
         this.type = type || "view/background";
     }
 
-    move(dx, dy){
+    move(dx, dy) {
         this.x += dx;
         this.y += dy;
     }
@@ -537,22 +522,22 @@ class WSObject{
      * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
      *      might be more transparent to the user.
      */
-    setType(type){
+    setType(type) {
         this.type = type;
     }
 
-    moveToXY(x, y){
+    moveToXY(x, y) {
         this.x = x;
         this.y = y;
     }
 
-    setImgSrc(imagePath){
+    setImgSrc(imagePath) {
         this.imgsrc = imagePath;
     }
 }
 
 class ViewSpace {
-    constructor(id){
+    constructor(id) {
         /*
          * XXX: What's the difference between this.w and this.ew? (Same for h and 
          *      eh). The answer is somewhere in here, but I think it would help if 
@@ -575,7 +560,7 @@ class ViewSpace {
         this.type = "view/background";
     }
 
-    move(dx, dy){
+    move(dx, dy) {
         /*
          * XXX: Where does this.boundaries get defined? It should maybe be in the
          *      constructor if we're going to depend on it like this.
@@ -583,10 +568,10 @@ class ViewSpace {
          *      Also, maybe save this.x + dx and this.y + dy in a variable instead
          *      of recalculating it multiple times.
          */
-        if(this.x + dx >= 0 && (this.x + dx + this.ew) <= this.boundaries.x){
+        if (this.x + dx >= 0 && (this.x + dx + this.ew) <= this.boundaries.x) {
             this.x += dx;
         }
-        if(this.y + dy >= 0 && (this.y + dy + this.eh) <= this.boundaries.y){
+        if (this.y + dy >= 0 && (this.y + dy + this.eh) <= this.boundaries.y) {
             this.y += dy;
         }
     }
@@ -596,8 +581,8 @@ class ViewSpace {
      *      checks in the above move() function, so there should probably be checks
      *      here too.
      */
-    moveToXY(newX, newY){
-        if(newX >= 0 && newY >= 0){
+    moveToXY(newX, newY) {
+        if (newX >= 0 && newY >= 0) {
             this.x = newX;
             this.y = newY;
         }
@@ -612,34 +597,33 @@ class ViewSpace {
      *      Also at this point I really think we should have an 'isInRange' 
      *      function for checking boundaries.
      */
-    rescale(newScale){
-        if(this.x + this.w/newScale < this.boundaries.x && this.y + this.h/newScale < this.boundaries.y){
+    rescale(newScale) {
+        if (this.x + this.w/newScale < this.boundaries.x && this.y + this.h/newScale < this.boundaries.y) {
             this.scale = newScale;
             this.ew = this.w/this.scale;
             this.eh = this.h/this.scale; 
-        }
-        else{
+        } else {
             if (globals.WDEBUG) console.log("Scale out of Range!");
         }
     }
 
-    top(){
+    top() {
         return this.y;
     }
 
-    bottom(){
+    bottom() {
         return (this.y + this.eh);
     }
 
-    left(){
+    left() {
         return this.x;
     }
 
-    right(){
+    right() {
         return (this.x + this.ew);
     }
 
-    center(){
+    center() {
         return {
             x : (this.x + (this.ew/2)),
             y : (this.y + (this.eh/2))
