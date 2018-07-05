@@ -56,6 +56,7 @@ const path = require('path')
  */
 const globals = (function defineGlobals() {
     const constants = {
+        MAX_USERS: 10,
         WDEBUG: true,
     };
 
@@ -67,7 +68,6 @@ const globals = (function defineGlobals() {
      *      this is going on.
      */
     const variables = {
-        WSID: 0,
         WSOBID: 0,
     };
 
@@ -95,24 +95,28 @@ const globals = (function defineGlobals() {
 
 class WorkSpace {
     constructor(port, settings) {
-        this.app = express();
+        this.views = [];
+        this.wsObjects = [];
+        this.subWS = [];
+        this.boundaries = {
+            x : 10000,
+            y : 10000
+        };
+        this.viewID = 1;
+        this.settings = settings || this.defaultSettings();
 
         /*
-         * XXX: Are we sure we want to create the server and listen right away?
-         *      Don't we want to wait until the user has had the opportunity to
-         *      complete a few more initialization tasks? We can expose a function
-         *      which allows the user to control when these steps happen.
-         *
-         *      This is specifically because we have things set up right now such
-         *      that the user is expected to attach handlers _after_ constructing
-         *      a WorkSpace object. That is to say, _after_ the server has already
-         *      started listening for connections according to the current setup.
+         * XXX: Redefinition of this.id!! What is going on here? Which is the ID
+         *      that we actually want, and where does port come from? Is it a
+         *      global?
+         *      - Answer: Just found it! It's passed in to the constructor as
+         *          an argument, along with settings, seen below.
+         *      - I'm going to assume that the port is the ID we need.
+         *          + (But is it the ID we deserve?)
          */
-        this.http = http.createServer(this.app);
-        this.io = io.listen(this.http);
+        this.id = port;
 
-        this.id = globals.WSID++;
-        this.viewID = 1;
+        this.app = express();
 
         /* 
          * XXX: Register routes to the app for GET requests. Should this be lifted
@@ -148,34 +152,18 @@ class WorkSpace {
         this.app.use(express.static(path.resolve('./Images')));
         this.app.use(express.static(path.resolve('../libs')));
 
-        /* 
-         * XXX: Data declarations are mixed with startup routines, which I
-         *      don't think is ideal. I'll reorganize the code so that it's
-         *      more clear, more quickly what properties exist on the object.
-         */
-        this.views = [];
-        this.wsObjects = [];
-        this.subWS = [];
-        
-        this.boundaries = {
-            x : 10000,
-            y : 10000
-        };
-
-        this.MAX_USERS = 10;
-
         /*
-         * XXX: Redefinition of this.id!! What is going on here? Which is the ID
-         *      that we actually want, and where does port come from? Is it a
-         *      global?
-         *      - Answer: Just found it! It's passed in to the constructor as
-         *          an argument, along with settings, seen below.
+         * XXX: Are we sure we want to create the server and listen right away?
+         *      Don't we want to wait until the user has had the opportunity to
+         *      complete a few more initialization tasks? We can expose a function
+         *      which allows the user to control when these steps happen.
+         *
+         *      This is specifically because we have things set up right now such
+         *      that the user is expected to attach handlers _after_ constructing
+         *      a WorkSpace object. That is to say, _after_ the server has already
+         *      started listening for connections according to the current setup.
          */
-        this.id = port;
-
-        this.settings = settings || this.defaultSettings();
-
-        this.io.on('connection', (socket) => {new Connection(socket, this);});
+        this.http = http.createServer(this.app);
 
         this.http.listen(port, () => {
             /*
@@ -186,12 +174,10 @@ class WorkSpace {
             //console.log(`listening on ${ip.address()}:${port}`);
             console.log('Listening on', this.http.address());
         });
-    }
 
-    /*
-     * XXX: Oh no, classic prototype syntax!! Clean up into ES6 'class' syntax and 
-     *      define getters and setters where appropriate.
-     */
+        this.io = io.listen(this.http);
+        this.io.on('connection', (socket) => {new Connection(socket, this);});
+    }
 
     /*
      * XXX: Ahh okay, this is where the handlers get attached.
@@ -259,7 +245,7 @@ class WorkSpace {
     }
 
     setClientLimit(maxUsers) {
-        this.MAX_USERS = maxUsers;
+        globals.MAX_USERS = maxUsers;
     }
 
     defaultSettings() {
@@ -308,7 +294,7 @@ class Connection {
     }
 
     reportView(vsInfo) {
-        if (this.workspace.views.length < this.workspace.MAX_USERS) {
+        if (this.workspace.views.length < globals.MAX_USERS) {
             /*
              * XXX: Watch out for coersive equality vs. strict equality.
              *      Decide if coercion should be allowed for each instance.
