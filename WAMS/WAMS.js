@@ -234,12 +234,12 @@ class WorkSpace {
     }
 
     removeWSObject(obj) {
-        for (let i = this.wsObjects.length - 1; i >= 0; i--) {
-            if (this.wsObjects[i].id == obj.id) {
-                this.wsObjects.splice(i,1);
-                if (globals.WDEBUG) console.log(`removing object: ${obj.id} (${obj.type})`);
-                break;
+        const idx = this.wsObjects.findIndex( o => o.id === obj.id );
+        if (idx >= 0) {
+            if (globals.WDEBUG) {
+                console.log(`Removing object: ${obj.id} (${obj.type})`);
             }
+            this.wsObjects.splice(idx,1);
         }
     }
 
@@ -286,7 +286,10 @@ class Connection {
         this.workspace = workspace;
         
         if (globals.WDEBUG) {
-            console.log(`User ${this.viewSpace.id} connected to workspace ${this.workspace.id}`);
+            console.log(
+                `User ${this.viewSpace.id}` +
+                `connected to workspace ${this.workspace.id}`
+            );
         }
         
         this.socket.on('reportView', this.reportView.bind(this));
@@ -329,7 +332,10 @@ class Connection {
                  *      viewSpace pushed into the views regardless?
                  */
                 if (this.workspace.layoutHandler != null) {
-                    this.workspace.layoutHandler(this.workspace, this.viewSpace);
+                    this.workspace.layoutHandler(
+                        this.workspace, 
+                        this.viewSpace
+                    );
                 } else {
                     console.log("Layout handler is not attached!");
                 }
@@ -355,7 +361,7 @@ class Connection {
              *      use built-in Array.prototype functions to achieve this,
              *      such as indexOf() and splice().
              */
-            for (let i = 0; i < views.length; i++) {
+            for (let i = 0; i < this.workspace.views.length; i++) {
                 if (this.workspace.views[i].id == this.viewSpace.id) {
                     this.workspace.views.splice(i,1);
                     break;
@@ -370,28 +376,15 @@ class Connection {
              * XXX: Why do we need this check? What is the dragHandler?
              */
             if (this.workspace.dragHandler != null) {
-                for (let i = this.workspace.wsObjects.length - 1; i >= 0; i--) {
-                    /*
-                     * XXX: What's going on in this condition check? Maybe 
-                     *      it should be lifted out into a function that 
-                     *      returns a boolean.
-                     */
-                    if ((this.workspace.wsObjects[i].x < x) && 
-                            (this.workspace.wsObjects[i].x  + this.workspace.wsObjects[i].w > x) && 
-                            (this.workspace.wsObjects[i].y < y) && 
-                            (this.workspace.wsObjects[i].y  + this.workspace.wsObjects[i].h > y)) {
-                        this.workspace.dragHandler(this.workspace.wsObjects[i], this.viewSpace, x, y, dx, dy);
+                this.workspace.wsObjects.forEach( o => {
+                    if (o.isInBounds(x,y)) {
+                        this.workspace.dragHandler(o, this.viewSpace, x, y, dx, dy);
                         this.socket.emit('updateUser', this.viewSpace);
                         this.socket.broadcast.emit('updateUser', this.viewSpace);
                         this.socket.emit('updateObjects', this.workspace.wsObjects);
                         this.socket.broadcast.emit('updateObjects', this.workspace.wsObjects);
-                        break;
-                    } else if (i == 0) {
-                        this.workspace.dragHandler(this.viewSpace, this.viewSpace, x, y, dx, dy);
-                        this.socket.emit('updateUser', this.viewSpace);
-                        this.socket.broadcast.emit('updateUser', this.viewSpace);
-                    }  
-                }
+                    }
+                });
             } else {
                 console.log(`Drag handler is not attached for ${vs.id}`);
             }
@@ -511,6 +504,13 @@ class WSObject {
         this.w = w;
         this.h = h;
         this.type = type || "view/background";
+    }
+
+    isInBounds(x,y) {
+        return  (this.x < x) && 
+                (this.x  + this.w > x) && 
+                (this.y < y) && 
+                (this.y  + this.h > y);
     }
 
     move(dx, dy) {
