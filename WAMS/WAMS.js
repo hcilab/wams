@@ -18,14 +18,14 @@
  *      [ ] Set to use JavaScript's "strict" mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
- *      [ ] Organize globals, eliminate where possible.
+ *      [X] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
  *      [ ] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
  *           optimized.
  *      [ ] Rename variables where appropriate.
- *      [ ] Convert all prototype code into ES6 'class' style.
+ *      [X] Convert all prototype code into ES6 'class' style.
  *          - Better readability, extensibility.
  *      [ ] Write a Connection class.
  *      [ ] Eliminate use of 'self' variables, use explicit binding.
@@ -93,567 +93,558 @@ const globals = (function defineGlobals() {
     return Object.freeze(rv);
 })();
 
-function WorkSpace(port, settings){
-    this.app = express();
+class WorkSpace{
+    constructor(port, settings) {
+        this.app = express();
 
-    /*
-     * XXX: Are we sure we want to create the server and listen right away?
-     *      Don't we want to wait until the user has had the opportunity to
-     *      complete a few more initialization tasks? We can expose a function
-     *      which allows the user to control when these steps happen.
-     *
-     *      This is specifically because we have things set up right now such
-     *      that the user is expected to attach handlers _after_ constructing
-     *      a WorkSpace object. That is to say, _after_ the server has already
-     *      started listening for connections according to the current setup.
-     */
-    this.http = http.createServer(this.app);
-    this.io = io.listen(this.http);
-
-    this.id = globals.WSID++;
-    this.viewID = 1;
-
-    /* 
-     * XXX: Register routes to the app for GET requests. Should this be lifted
-     *      into a function for readability? It will probably be immediately
-     *      obvious what's going on to anyone familiar with Express.js, but it
-     *      still might be useful.
-     */
-    this.app.get('/', function(req, res){
-        res.sendFile(path.resolve('../WAMS/view.html'));
-    });
-    this.app.get('/WAMS-util.js', function(req, res){
-        res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
-    });
-    this.app.get('/WAMS-view.js', function(req, res){
-        res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
-    });
-
-    /* 
-     * XXX: express.static() generates a middleware function for serving
-     *      static assets from the directory specified.
-     *      - The order in which these functions are registered with
-     *          app.use() is important! The callbacks will be triggered
-     *          in this order!
-     *      - When app.use() is called without a 'path' argument, as it is
-     *          here, it uses the default '/' argument, with the result
-     *          that these callbacks will be executed for _every_ request
-     *          to the app!
-     *          + Should therefore consider specifying the path!!
-     *      - Should also consider specifying options. Possibly useful:
-     *          + immutable
-     *          + maxAge
-     */
-    this.app.use(express.static(path.resolve('./Images')));
-    this.app.use(express.static(path.resolve('../libs')));
-
-    /* 
-     * XXX: Data declarations are mixed with startup routines, which I
-     *      don't think is ideal. I'll reorganize the code so that it's
-     *      more clear, more quickly what properties exist on the object.
-     */
-    this.views = [];
-    this.wsObjects = [];
-    this.subWS = [];
-    
-    this.boundaries = {
-        x : 10000,
-        y : 10000
-    };
-
-    this.MAX_USERS = 10;
-
-    /*
-     * XXX: Redefinition of this.id!! What is going on here? Which is the ID
-     *      that we actually want, and where does port come from? Is it a
-     *      global?
-     *      - Answer: Just found it! It's passed in to the constructor as
-     *          an argument, along with settings, seen below.
-     */
-    this.id = port;
-
-    this.settings = settings || this.defaultSettings();
-
-    /*
-     * XXX: This is a little nasty, so I'm going to look at refactoring
-     *      it. First thing to do is to use an explicit 'this' binding
-     *      instead of a lexical 'self' reference.
-     *      - Most likely, I'll lift this code out into a Connection class.
-     */
-    const self = this;
-    this.io.on('connection', function(socket){
         /*
-         * XXX: Make the desired boundaries an argument passed into the
-         *      constructor?
+         * XXX: Are we sure we want to create the server and listen right away?
+         *      Don't we want to wait until the user has had the opportunity to
+         *      complete a few more initialization tasks? We can expose a function
+         *      which allows the user to control when these steps happen.
+         *
+         *      This is specifically because we have things set up right now such
+         *      that the user is expected to attach handlers _after_ constructing
+         *      a WorkSpace object. That is to say, _after_ the server has already
+         *      started listening for connections according to the current setup.
          */
-        const viewSpace = new ViewSpace(self.viewID++);
-        viewSpace.boundaries = self.boundaries;
-        
-        /*
-         * XXX: Use ES6 backticks instead, much cleaner and I think it's
-         *      more efficient too...
+        this.http = http.createServer(this.app);
+        this.io = io.listen(this.http);
+
+        this.id = globals.WSID++;
+        this.viewID = 1;
+
+        /* 
+         * XXX: Register routes to the app for GET requests. Should this be lifted
+         *      into a function for readability? It will probably be immediately
+         *      obvious what's going on to anyone familiar with Express.js, but it
+         *      still might be useful.
          */
-        if (globals.WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
-        const initData = {
-            views : self.views,
-            wsObjects : self.wsObjects,
-            settings : self.settings,
-            id : viewSpace.id
-        };
-
-        socket.emit('init', initData);
-        
-        let initializedLayout = false;
-        
-        socket.on('reportView', function(vsInfo){
-            if(self.views.length < self.MAX_USERS){
-                /*
-                 * XXX: Watch out for coersive equality vs. strict equality.
-                 *      Decide if coercion should be allowed for each instance.
-                 */
-                if(viewSpace.id == vsInfo.id){
-                    viewSpace.x = vsInfo.x;
-                    viewSpace.y = vsInfo.y;
-                    viewSpace.w = vsInfo.w;
-                    viewSpace.h = vsInfo.h;
-                    viewSpace.ew = vsInfo.ew;
-                    viewSpace.eh = vsInfo.eh;
-                    viewSpace.scale = vsInfo.scale;
-                    viewSpace.id = vsInfo.id;
-                    viewSpace.views = [];
-                }
-                if(!initializedLayout){
-                    initializedLayout = true;
-
-                    /*
-                     * XXX: Why is this check necessary? And why is the 
-                     *      viewSpace pushed into the views regardless?
-                     */
-                    if(self.layoutHandler != null){
-                        self.layoutHandler(self, viewSpace);
-                    }
-                    else{
-                        console.log("Layout handler is not attached!");
-                    }
-                    self.views.push(viewSpace);
-                }
-
-                /*
-                 * XXX: This might be a place where socket.io 'rooms' could
-                 *      come in handy. Look into it...
-                 */
-                socket.emit('updateUser', viewSpace);
-                socket.broadcast.emit('updateUser', viewSpace);
-            }
-            else if(!initializedLayout){
-                self.views.push(viewSpace);
-                socket.send("user_disconnect");
-
-                /*
-                 * XXX: Hold on a second... Did we just push the viewSpace into
-                 *      the views... only to remove it again right away? Why 
-                 *      are we doing that?
-                 *
-                 *      Also if we do want to keep doing this, might be wise to
-                 *      use built-in Array.prototype functions to achieve this,
-                 *      such as indexOf() and splice().
-                 */
-                for (let i = 0; i < views.length; i++) {
-                    if(self.views[i].id == viewSpace.id){
-                        self.views.remove(i);
-                        break;
-                    }
-                }
-            }
+        this.app.get('/', function(req, res){
+            res.sendFile(path.resolve('../WAMS/view.html'));
+        });
+        this.app.get('/WAMS-util.js', function(req, res){
+            res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
+        });
+        this.app.get('/WAMS-view.js', function(req, res){
+            res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
         });
 
-        socket.on('handleDrag', function(vs, x, y, dx, dy){
-            if(vs.id == viewSpace.id){
-                /*
-                 * XXX: Why do we need this check? What is the dragHandler?
-                 */
-                if(self.dragHandler != null){
-                    for (let i = self.wsObjects.length - 1; i >= 0; i--) {
+        /* 
+         * XXX: express.static() generates a middleware function for serving
+         *      static assets from the directory specified.
+         *      - The order in which these functions are registered with
+         *          app.use() is important! The callbacks will be triggered
+         *          in this order!
+         *      - When app.use() is called without a 'path' argument, as it is
+         *          here, it uses the default '/' argument, with the result
+         *          that these callbacks will be executed for _every_ request
+         *          to the app!
+         *          + Should therefore consider specifying the path!!
+         *      - Should also consider specifying options. Possibly useful:
+         *          + immutable
+         *          + maxAge
+         */
+        this.app.use(express.static(path.resolve('./Images')));
+        this.app.use(express.static(path.resolve('../libs')));
+
+        /* 
+         * XXX: Data declarations are mixed with startup routines, which I
+         *      don't think is ideal. I'll reorganize the code so that it's
+         *      more clear, more quickly what properties exist on the object.
+         */
+        this.views = [];
+        this.wsObjects = [];
+        this.subWS = [];
+        
+        this.boundaries = {
+            x : 10000,
+            y : 10000
+        };
+
+        this.MAX_USERS = 10;
+
+        /*
+         * XXX: Redefinition of this.id!! What is going on here? Which is the ID
+         *      that we actually want, and where does port come from? Is it a
+         *      global?
+         *      - Answer: Just found it! It's passed in to the constructor as
+         *          an argument, along with settings, seen below.
+         */
+        this.id = port;
+
+        this.settings = settings || this.defaultSettings();
+
+        /*
+         * XXX: This is a little nasty, so I'm going to look at refactoring
+         *      it. First thing to do is to use an explicit 'this' binding
+         *      instead of a lexical 'self' reference.
+         *      - Most likely, I'll lift this code out into a Connection class.
+         */
+        const self = this;
+        this.io.on('connection', function(socket){
+            /*
+             * XXX: Make the desired boundaries an argument passed into the
+             *      constructor?
+             */
+            const viewSpace = new ViewSpace(self.viewID++);
+            viewSpace.boundaries = self.boundaries;
+            
+            /*
+             * XXX: Use ES6 backticks instead, much cleaner and I think it's
+             *      more efficient too...
+             */
+            if (globals.WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
+            const initData = {
+                views : self.views,
+                wsObjects : self.wsObjects,
+                settings : self.settings,
+                id : viewSpace.id
+            };
+
+            socket.emit('init', initData);
+            
+            let initializedLayout = false;
+            
+            socket.on('reportView', function(vsInfo){
+                if(self.views.length < self.MAX_USERS){
+                    /*
+                     * XXX: Watch out for coersive equality vs. strict equality.
+                     *      Decide if coercion should be allowed for each instance.
+                     */
+                    if(viewSpace.id == vsInfo.id){
+                        viewSpace.x = vsInfo.x;
+                        viewSpace.y = vsInfo.y;
+                        viewSpace.w = vsInfo.w;
+                        viewSpace.h = vsInfo.h;
+                        viewSpace.ew = vsInfo.ew;
+                        viewSpace.eh = vsInfo.eh;
+                        viewSpace.scale = vsInfo.scale;
+                        viewSpace.id = vsInfo.id;
+                        viewSpace.views = [];
+                    }
+                    if(!initializedLayout){
+                        initializedLayout = true;
+
                         /*
-                         * XXX: What's going on in this condition check? Maybe 
-                         *      it should be lifted out into a function that 
-                         *      returns a boolean.
+                         * XXX: Why is this check necessary? And why is the 
+                         *      viewSpace pushed into the views regardless?
+                         */
+                        if(self.layoutHandler != null){
+                            self.layoutHandler(self, viewSpace);
+                        }
+                        else{
+                            console.log("Layout handler is not attached!");
+                        }
+                        self.views.push(viewSpace);
+                    }
+
+                    /*
+                     * XXX: This might be a place where socket.io 'rooms' could
+                     *      come in handy. Look into it...
+                     */
+                    socket.emit('updateUser', viewSpace);
+                    socket.broadcast.emit('updateUser', viewSpace);
+                }
+                else if(!initializedLayout){
+                    self.views.push(viewSpace);
+                    socket.send("user_disconnect");
+
+                    /*
+                     * XXX: Hold on a second... Did we just push the viewSpace into
+                     *      the views... only to remove it again right away? Why 
+                     *      are we doing that?
+                     *
+                     *      Also if we do want to keep doing this, might be wise to
+                     *      use built-in Array.prototype functions to achieve this,
+                     *      such as indexOf() and splice().
+                     */
+                    for (let i = 0; i < views.length; i++) {
+                        if(self.views[i].id == viewSpace.id){
+                            self.views.splice(i,1);
+                            break;
+                        }
+                    }
+                }
+            });
+
+            socket.on('handleDrag', function(vs, x, y, dx, dy){
+                if(vs.id == viewSpace.id){
+                    /*
+                     * XXX: Why do we need this check? What is the dragHandler?
+                     */
+                    if(self.dragHandler != null){
+                        for (let i = self.wsObjects.length - 1; i >= 0; i--) {
+                            /*
+                             * XXX: What's going on in this condition check? Maybe 
+                             *      it should be lifted out into a function that 
+                             *      returns a boolean.
+                             */
+                            if((self.wsObjects[i].x < x) && 
+                                    (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
+                                    (self.wsObjects[i].y < y) && 
+                                    (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
+                                self.dragHandler(self.wsObjects[i], viewSpace, x, y, dx, dy);
+                                socket.emit('updateUser', viewSpace);
+                                socket.broadcast.emit('updateUser', viewSpace);
+                                socket.emit('updateObjects', self.wsObjects);
+                                socket.broadcast.emit('updateObjects', self.wsObjects);
+                                break;
+                            }
+                            else if(i == 0){
+                                self.dragHandler(viewSpace, viewSpace, x, y, dx, dy);
+                                socket.emit('updateUser', viewSpace);
+                                socket.broadcast.emit('updateUser', viewSpace);
+                            }  
+                        }
+                    }
+                    else{
+                        console.log("Drag handler is not attached for "+vs.id);
+                    }
+                }
+            });
+
+            socket.on('handleClick', function(x, y){
+                /*
+                 * XXX: Where are these handler's getting attached that they need
+                 *      to be checked for existence? Are they defined by someone
+                 *      making use of the WAMS API?
+                 */
+                if(self.clickHandler != null){
+                    if (globals.WDEBUG) console.log(self.wsObjects.length);
+                    let foundObject = false;
+
+                    /*
+                     * XXX: Switch to using Array.prototype.forEach().
+                     *      - Check that, looks like there's a "break" statement,
+                     *          perhaps Array.prototype.some() would be better.
+                     */
+                    for (let i = self.wsObjects.length - 1; i >= 0; i--) {
+                        if (globals.WDEBUG) console.log("clicked: "+self.wsObjects[i]);
+
+                        /*
+                         * XXX: Second time seeing a condition check essentially
+                         *      identical to this. Should probably be lifted out
+                         *      into a boolean function.
                          */
                         if((self.wsObjects[i].x < x) && 
                                 (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
                                 (self.wsObjects[i].y < y) && 
                                 (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
-                            self.dragHandler(self.wsObjects[i], viewSpace, x, y, dx, dy);
+                            self.clickHandler(self.wsObjects[i],viewSpace, x, y);
                             socket.emit('updateUser', viewSpace);
                             socket.broadcast.emit('updateUser', viewSpace);
                             socket.emit('updateObjects', self.wsObjects);
                             socket.broadcast.emit('updateObjects', self.wsObjects);
+                            foundObject = true;
                             break;
                         }
-                        else if(i == 0){
-                            self.dragHandler(viewSpace, viewSpace, x, y, dx, dy);
-                            socket.emit('updateUser', viewSpace);
-                            socket.broadcast.emit('updateUser', viewSpace);
-                        }  
                     }
-                }
-                else{
-                    console.log("Drag handler is not attached for "+vs.id);
-                }
-            }
-        });
-
-        socket.on('handleClick', function(x, y){
-            /*
-             * XXX: Where are these handler's getting attached that they need
-             *      to be checked for existence? Are they defined by someone
-             *      making use of the WAMS API?
-             */
-            if(self.clickHandler != null){
-                if (globals.WDEBUG) console.log(self.wsObjects.length);
-                foundObject = false;
-
-                /*
-                 * XXX: Switch to using Array.prototype.forEach().
-                 *      - Check that, looks like there's a "break" statement,
-                 *          perhaps Array.prototype.some() would be better.
-                 */
-                for (let i = self.wsObjects.length - 1; i >= 0; i--) {
-                    if (globals.WDEBUG) console.log("clicked: "+self.wsObjects[i]);
 
                     /*
-                     * XXX: Second time seeing a condition check essentially
-                     *      identical to this. Should probably be lifted out
-                     *      into a boolean function.
+                     * XXX: Hang on... Are we sending update events regardless of
+                     *      whether we find the object or not? I'm not 100% sure
+                     *      right now, but I'll take a closer look at the code and
+                     *      try to figure out what's going on here.
                      */
-                    if((self.wsObjects[i].x < x) && 
-                            (self.wsObjects[i].x  + self.wsObjects[i].w > x) && 
-                            (self.wsObjects[i].y < y) && 
-                            (self.wsObjects[i].y  + self.wsObjects[i].h > y)){
-                        self.clickHandler(self.wsObjects[i],viewSpace, x, y);
+                    if(!foundObject){
+                        self.clickHandler(self, viewSpace, x, y);
                         socket.emit('updateUser', viewSpace);
                         socket.broadcast.emit('updateUser', viewSpace);
                         socket.emit('updateObjects', self.wsObjects);
                         socket.broadcast.emit('updateObjects', self.wsObjects);
-                        foundObject = true;
+                        if (globals.WDEBUG) console.log("not found");
+                    }
+                    else if (globals.WDEBUG) console.log("found");
+                }
+                else{
+                    console.log("Click Handler is not attached!");
+                }
+            });
+
+            socket.on('handleScale', function(vs, newScale){
+                if(vs.id == viewSpace.id){
+                    if(self.scaleHandler != null){
+                        self.scaleHandler(viewSpace, newScale);
+
+                        /*
+                         * XXX: I'm not liking seeing these 'updateUser' strings 
+                         *      all over the place. Place the string in a global 
+                         *      constant.
+                         */
+                        socket.emit('updateUser', viewSpace);
+                        socket.broadcast.emit('updateUser', viewSpace);
+                    }
+                    else{
+                        console.log("Scale handler is not attached!");
+                    }
+                }
+            });
+
+            socket.on('consoleLog', function(toBeLogged){
+                if (globals.WDEBUG) console.log(toBeLogged);
+            });
+
+            socket.on('disconnect', function(){
+                console.log('user ' + viewSpace.id + ' disconnected from workspace ' + self.id);
+                socket.broadcast.emit('removeUser', viewSpace.id);
+                /*
+                 * XXX: Use ES6 standard Array.prototype functions instead.
+                 */
+                for (let i = 0; i < self.views.length; i++) {
+                    if(self.views[i].id == viewSpace.id){
+                        self.views.splice(i,1);
                         break;
                     }
                 }
-
-                /*
-                 * XXX: Hang on... Are we sending update events regardless of
-                 *      whether we find the object or not? I'm not 100% sure
-                 *      right now, but I'll take a closer look at the code and
-                 *      try to figure out what's going on here.
-                 */
-                if(!foundObject){
-                    self.clickHandler(self, viewSpace, x, y);
-                    socket.emit('updateUser', viewSpace);
-                    socket.broadcast.emit('updateUser', viewSpace);
-                    socket.emit('updateObjects', self.wsObjects);
-                    socket.broadcast.emit('updateObjects', self.wsObjects);
-                    if (globals.WDEBUG) console.log("not found");
-                }
-                else if (globals.WDEBUG) console.log("found");
-            }
-            else{
-                console.log("Click Handler is not attached!");
-            }
+            });
         });
 
-        socket.on('handleScale', function(vs, newScale){
-            if(vs.id == viewSpace.id){
-                if(self.scaleHandler != null){
-                    self.scaleHandler(viewSpace, newScale);
-
-                    /*
-                     * XXX: I'm not liking seeing these 'updateUser' strings 
-                     *      all over the place. Place the string in a global 
-                     *      constant.
-                     */
-                    socket.emit('updateUser', viewSpace);
-                    socket.broadcast.emit('updateUser', viewSpace);
-                }
-                else{
-                    console.log("Scale handler is not attached!");
-                }
-            }
-        });
-
-        socket.on('consoleLog', function(toBeLogged){
-            if (globals.WDEBUG) console.log(toBeLogged);
-        });
-
-        socket.on('disconnect', function(){
-            console.log('user ' + viewSpace.id + ' disconnected from workspace ' + self.id);
-            socket.broadcast.emit('removeUser', viewSpace.id);
+        this.http.listen(port, function(){
             /*
-             * XXX: Use ES6 standard Array.prototype functions instead.
+             * XXX: I'm not sure we need to suddenly import a library for this.
+             *      Can't we just use this.http.address()?
              */
-            for (let i = 0; i < self.views.length; i++) {
-                if(self.views[i].id == viewSpace.id){
-                    self.views.remove(i);
-                    break;
-                }
-            }
+            const ip = require('ip');
+            console.log('listening on ' + ip.address() + ':' + port);
         });
-    });
+    }
 
-    this.http.listen(port, function(){
-        /*
-         * XXX: I'm not sure we need to suddenly import a library for this.
-         *      Can't we just use this.http.address()?
-         */
-        const ip = require('ip');
-        console.log('listening on ' + ip.address() + ':' + port);
-    });
-}
+    /*
+     * XXX: Oh no, classic prototype syntax!! Clean up into ES6 'class' syntax and 
+     *      define getters and setters where appropriate.
+     */
 
-/*
- * XXX: Oh no, classic prototype syntax!! Clean up into ES6 'class' syntax and 
- *      define getters and setters where appropriate.
- */
+    /*
+     * XXX: Ahh okay, this is where the handlers get attached.
+     *      Do we really need separate functions for attaching each one? Would it
+     *      be beneficial to define a single attachHandler function which takes
+     *      an argument describing which handler to attach?
+     *      - Also, is there a way to not limit our API like this? What if someone
+     *          making use of it wants to implement other kinds of interactions
+     *          between the users?
+     */
+    attachDragHandler(func){
+        this.dragHandler = func;
+    }
 
-/*
- * XXX: Ahh okay, this is where the handlers get attached.
- *      Do we really need separate functions for attaching each one? Would it
- *      be beneficial to define a single attachHandler function which takes
- *      an argument describing which handler to attach?
- *      - Also, is there a way to not limit our API like this? What if someone
- *          making use of it wants to implement other kinds of interactions
- *          between the users?
- */
-WorkSpace.prototype.attachDragHandler = function(func){
-    this.dragHandler = func;
-}
+    attachLayoutHandler(func){
+        this.layoutHandler = func;
+    }
 
-WorkSpace.prototype.attachLayoutHandler = function(func){
-    this.layoutHandler = func;
-}
+    attachClickHandler(func){
+        this.clickHandler = func;
+    }
 
-WorkSpace.prototype.attachClickHandler = function(func){
-    this.clickHandler = func;
-}
+    attachScaleHandler(func){
+        this.scaleHandler = func;
+    }
 
-WorkSpace.prototype.attachScaleHandler = function(func){
-    this.scaleHandler = func;
-}
+    addWSObject(obj){
+        obj.id = globals.WSOBID++;
+        this.wsObjects.push(obj);
+        if (globals.WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
+    }
 
-
-WorkSpace.prototype.addWSObject = function(obj){
-    obj.id = globals.WSOBID++;
-    this.wsObjects.push(obj);
-    if (globals.WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
-}
-
-WorkSpace.prototype.removeWSObject = function(obj){
-    for (let i = this.wsObjects.length - 1; i >= 0; i--) {
-        if(this.wsObjects[i].id == obj.id){
-            this.wsObjects.remove(i);
-            if (globals.WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
-            break;
+    removeWSObject(obj){
+        for (let i = this.wsObjects.length - 1; i >= 0; i--) {
+            if(this.wsObjects[i].id == obj.id){
+                this.wsObjects.splice(i,1);
+                if (globals.WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
+                break;
+            }
         }
+    }
+
+    getUsers(){
+        return this.views;
+    }
+
+    setBoundaries(maxX, maxY){
+        this.boundaries.x = maxX;
+        this.boundaries.y = maxY;
+    }
+
+    getWidth(){
+        return this.boundaries.x;
+    }
+
+    getHeight(){
+        return this.boundaries.y;
+    }
+
+    getCenter(){
+        return {
+            x : this.boundaries.x/2,
+            y : this.boundaries.y/2
+        };
+    }
+
+    setClientLimit(maxUsers){
+        this.MAX_USERS = maxUsers;
+    }
+
+    defaultSettings(){
+        const defaults = {
+            debug : false,
+            BGcolor : "#aaaaaa"
+        };
+        return defaults;
+    }
+
+    addSubWS(subWS) {
+        this.subWS.push(subWS);
+        //TODO: add check to make sure subWS is in bounds of the main workspace
+        //TODO: probably send a workspace update message
     }
 }
 
-WorkSpace.prototype.getUsers = function(){
-    return this.views;
-}
-
-WorkSpace.prototype.setBoundaries = function(maxX, maxY){
-    this.boundaries.x = maxX;
-    this.boundaries.y = maxY;
-}
-
-WorkSpace.prototype.getWidth = function(){
-    return this.boundaries.x;
-}
-
-WorkSpace.prototype.getHeight = function(){
-    return this.boundaries.y;
-}
-
-WorkSpace.prototype.getCenter = function(){
-    return {
-        x : this.boundaries.x/2,
-        y : this.boundaries.y/2
-    };
-}
-
-WorkSpace.prototype.setClientLimit = function(maxUsers){
-    this.MAX_USERS = maxUsers;
-}
-
-WorkSpace.prototype.defaultSettings = function(){
-    const defaults = {
-        debug : false,
-        BGcolor : "#aaaaaa"
-    };
-    return defaults;
-}
-
-WorkSpace.prototype.addSubWS = function(subWS) {
-    this.subWS.push(subWS);
-    //TODO: add check to make sure subWS is in bounds of the main workspace
-    //TODO: probably send a workspace update message
-}
-
-function WSObject(x, y, w, h, type, opts){
-    if (opts)
-    {
-        if (opts.imgsrc)
+class WSObject{
+    constructor(x, y, w, h, type, opts){
+        if (opts)
         {
-            this.imgsrc = opts.imgsrc;
-        }
+            if (opts.imgsrc)
+            {
+                this.imgsrc = opts.imgsrc;
+            }
 
-        else
-        {
-            /*
-             * XXX: But what if opts.draw is also undefined??
-             */
-            this.draw = opts.draw;
-
-            if (opts.drawStart)
-                this.drawStart = opts.drawStart;
             else
-                this.drawStart = this.draw;
+            {
+                /*
+                 * XXX: But what if opts.draw is also undefined??
+                 */
+                this.draw = opts.draw;
+
+                if (opts.drawStart)
+                    this.drawStart = opts.drawStart;
+                else
+                    this.drawStart = this.draw;
+            }
         }
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.type = type || "view/background";
     }
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.type = type || "view/background";
-}
 
-WSObject.prototype.move = function(dx, dy){
-    this.x += dx;
-    this.y += dy;
-}
-
-/*
- * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
- *      might be more transparent to the user.
- */
-WSObject.prototype.setType = function(type){
-    this.type = type;
-}
-
-WSObject.prototype.moveToXY = function(x, y){
-    this.x = x;
-    this.y = y;
-}
-
-WSObject.prototype.setImgSrc = function(imagePath){
-    this.imgsrc = imagePath;
-}
-
-function ViewSpace(id){
-    /*
-     * XXX: What's the difference between this.w and this.ew? (Same for h and 
-     *      eh). The answer is somewhere in here, but I think it would help if 
-     *      the variables had more intuitive names.
-     *      
-     *      + Answer: It appears that:
-     *                  - w and h refer to the 'base' width and height. 
-     *                  - ew and eh refer to a 'scaled' width and height.
-     *                      + Maybe the 'e' stands for 'effective'?
-     */
-    this.x = 0;
-    this.y = 0;
-    this.w = 0;
-    this.h = 0;
-    this.ew = 0;
-    this.eh = 0;
-    this.scale = 1;
-    this.rotation = 0;
-    this.id = id;
-    this.type = "view/background";
-}
-
-ViewSpace.prototype.move = function(dx, dy){
-    /*
-     * XXX: Where does this.boundaries get defined? It should maybe be in the
-     *      constructor if we're going to depend on it like this.
-     *
-     *      Also, maybe save this.x + dx and this.y + dy in a variable instead
-     *      of recalculating it multiple times.
-     */
-    if(this.x + dx >= 0 && (this.x + dx + this.ew) <= this.boundaries.x){
+    move(dx, dy){
         this.x += dx;
-    }
-    if(this.y + dy >= 0 && (this.y + dy + this.eh) <= this.boundaries.y){
         this.y += dy;
     }
-}
 
-/*
- * XXX: Why are there no boundary checks in this function? There are boundary 
- *      checks in the above move() function, so there should probably be checks
- *      here too.
- */
-ViewSpace.prototype.moveToXY = function(newX, newY){
-    if(newX >= 0 && newY >= 0){
-        this.x = newX;
-        this.y = newY;
-    }
-}
-
-/*
- * XXX: Divide by? Maybe I need to refresh my understanding of the word 
- *      'scale', because my intuition is to say that this the reverse of what 
- *      we actually want. I could very easily be wrong about this though. I'll 
- *      look it up.
- *
- *      Also at this point I really think we should have an 'isInRange' 
- *      function for checking boundaries.
- */
-ViewSpace.prototype.rescale = function(newScale){
-    if(this.x + this.w/newScale < this.boundaries.x && this.y + this.h/newScale < this.boundaries.y){
-        this.scale = newScale;
-        this.ew = this.w/this.scale;
-        this.eh = this.h/this.scale; 
-    }
-    else{
-        if (globals.WDEBUG) console.log("Scale out of Range!");
-    }
-}
-
-ViewSpace.prototype.top = function(){
-    return this.y;
-}
-
-ViewSpace.prototype.bottom = function(){
-    return (this.y + this.eh);
-}
-
-ViewSpace.prototype.left = function(){
-    return this.x;
-}
-
-ViewSpace.prototype.right = function(){
-    return (this.x + this.ew);
-}
-
-ViewSpace.prototype.center = function(){
     /*
-     * XXX: Why not just return it directly?
+     * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
+     *      might be more transparent to the user.
      */
-    const returnValue = {
-        x : (this.x + (this.ew/2)),
-        y : (this.y + (this.eh/2))
-    };
-    return returnValue;
+    setType(type){
+        this.type = type;
+    }
+
+    moveToXY(x, y){
+        this.x = x;
+        this.y = y;
+    }
+
+    setImgSrc(imagePath){
+        this.imgsrc = imagePath;
+    }
 }
 
-/*
- * XXX: Isn't this exactly the same as what's in the WAMS-util.js file?
- */
-// Array Remove - By John Resig (MIT Licensed)
-Array.prototype.remove = function(from, to) {
-    const rest = this.slice((to || from) + 1 || this.length);
-    this.length = from < 0 ? this.length + from : from;
-    return this.push.apply(this, rest);
+class ViewSpace {
+    constructor(id){
+        /*
+         * XXX: What's the difference between this.w and this.ew? (Same for h and 
+         *      eh). The answer is somewhere in here, but I think it would help if 
+         *      the variables had more intuitive names.
+         *      
+         *      + Answer: It appears that:
+         *                  - w and h refer to the 'base' width and height. 
+         *                  - ew and eh refer to a 'scaled' width and height.
+         *                      + Maybe the 'e' stands for 'effective'?
+         */
+        this.x = 0;
+        this.y = 0;
+        this.w = 0;
+        this.h = 0;
+        this.ew = 0;
+        this.eh = 0;
+        this.scale = 1;
+        this.rotation = 0;
+        this.id = id;
+        this.type = "view/background";
+    }
+
+    move(dx, dy){
+        /*
+         * XXX: Where does this.boundaries get defined? It should maybe be in the
+         *      constructor if we're going to depend on it like this.
+         *
+         *      Also, maybe save this.x + dx and this.y + dy in a variable instead
+         *      of recalculating it multiple times.
+         */
+        if(this.x + dx >= 0 && (this.x + dx + this.ew) <= this.boundaries.x){
+            this.x += dx;
+        }
+        if(this.y + dy >= 0 && (this.y + dy + this.eh) <= this.boundaries.y){
+            this.y += dy;
+        }
+    }
+
+    /*
+     * XXX: Why are there no boundary checks in this function? There are boundary 
+     *      checks in the above move() function, so there should probably be checks
+     *      here too.
+     */
+    moveToXY(newX, newY){
+        if(newX >= 0 && newY >= 0){
+            this.x = newX;
+            this.y = newY;
+        }
+    }
+
+    /*
+     * XXX: Divide by? Maybe I need to refresh my understanding of the word 
+     *      'scale', because my intuition is to say that this the reverse of what 
+     *      we actually want. I could very easily be wrong about this though. I'll 
+     *      look it up.
+     *
+     *      Also at this point I really think we should have an 'isInRange' 
+     *      function for checking boundaries.
+     */
+    rescale(newScale){
+        if(this.x + this.w/newScale < this.boundaries.x && this.y + this.h/newScale < this.boundaries.y){
+            this.scale = newScale;
+            this.ew = this.w/this.scale;
+            this.eh = this.h/this.scale; 
+        }
+        else{
+            if (globals.WDEBUG) console.log("Scale out of Range!");
+        }
+    }
+
+    top(){
+        return this.y;
+    }
+
+    bottom(){
+        return (this.y + this.eh);
+    }
+
+    left(){
+        return this.x;
+    }
+
+    right(){
+        return (this.x + this.ew);
+    }
+
+    center(){
+        return {
+            x : (this.x + (this.ew/2)),
+            y : (this.y + (this.eh/2))
+        };
+    }
 }
 
 exports.WorkSpace = WorkSpace;
