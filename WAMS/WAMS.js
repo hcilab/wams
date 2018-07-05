@@ -12,12 +12,12 @@
  */
 
 /*
- * XXX: General TODO list for myself, as part of code cleanup, brining this
+ * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [ ] Set all files to use JavaScript's "strict" mode.
+ *      [ ] Set to use JavaScript's "strict" mode.
  *          - Do this last, otherwise there will be problems...
- *      [ ] Eliminate all use of 'var', replace with 'const' or 'let'.
+ *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [ ] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
  *      [ ] Switch to using functional style wherever possible, using ES6
@@ -43,39 +43,55 @@
  * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
  *      might make some of this work a lot easier.
  */
+const express = require('express');
+const http = require('http');
+const io = require('socket.io');
+const path = require('path')
 
 /*
- * XXX: Eliminate all use of 'var'.
- *      Most uses can be converted to 'const' for explicit immutability.
- *      Other cases can use 'let' for more standard block scoping.
+ * I'm using a frozen 'globals' object with all global constants and variables 
+ * defined as properties on it, to make global references explicit. I've been 
+ * toying with this design pattern in my other JavaScript code and I think I 
+ * quite like it.
  */
-var express = require('express');
-var http = require('http');
-var io = require('socket.io');
-var path = require('path')
+const globals = (function defineGlobals() {
+    const constants = {
+        WDEBUG: true,
+    };
 
-/*
- * XXX: I'm getting confused about what's global and what isn't while reading
- *      this code. I think I will switch to using a frozen 'globals' object
- *      with all global variables defined as properties on it, to make global
- *      references explicit. I've been toying with this design pattern in my
- *      other JavaScript code and I think I quite like it.
- */
+    /* 
+     * XXX: There are several instances where IDs are created by incrementing
+     *      some value, often a global. I think these would probably be
+     *      better supplied by generators, so I think I'll write a function
+     *      in the utils file which creates ID generators to be used anywhere
+     *      this is going on.
+     */
+    const variables = {
+        WSID: 0,
+        WSOBID: 0,
+    };
 
-/* 
- * XXX: There are several instances where IDs are created by incrementing
- *      some value, often a global. I think these would probably be
- *      better supplied by generators, so I think I'll write a function
- *      in the utils file which creates ID generators to be used anywhere
- *      this is going on.
- */
-//globals for keeping track of IDs
-var WSID = 0;   //workspace ID
-var WSOBID = 0; //workspace Object ID
-var CLIENTID = 1;
+    const rv = {};
+    Object.entries(constants).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            value: v,
+            configurable: false,
+            enumerable: true,
+            writable: false
+        });
+    });
 
-//set to false to limit console logging
-var WDEBUG = true;
+    Object.entries(variables).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            get() { return variables[p]; },
+            set(val) { variables[p] = val; },
+            configurable: false,
+            enumerable: true
+        });
+    });
+
+    return Object.freeze(rv);
+})();
 
 function WorkSpace(port, settings){
     this.app = express();
@@ -94,7 +110,7 @@ function WorkSpace(port, settings){
     this.http = http.createServer(this.app);
     this.io = io.listen(this.http);
 
-    this.id = WSID++;
+    this.id = globals.WSID++;
     this.viewID = 1;
 
     /* 
@@ -164,22 +180,21 @@ function WorkSpace(port, settings){
      *      instead of a lexical 'self' reference.
      *      - Most likely, I'll lift this code out into a Connection class.
      */
-    var self = this;
+    const self = this;
     this.io.on('connection', function(socket){
-        
         /*
          * XXX: Make the desired boundaries an argument passed into the
          *      constructor?
          */
-        var viewSpace = new ViewSpace(self.viewID++);
+        const viewSpace = new ViewSpace(self.viewID++);
         viewSpace.boundaries = self.boundaries;
         
         /*
          * XXX: Use ES6 backticks instead, much cleaner and I think it's
          *      more efficient too...
          */
-        if (WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
-        var initData = {
+        if (globals.WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
+        const initData = {
             views : self.views,
             wsObjects : self.wsObjects,
             settings : self.settings,
@@ -188,7 +203,7 @@ function WorkSpace(port, settings){
 
         socket.emit('init', initData);
         
-        var initializedLayout = false;
+        let initializedLayout = false;
         
         socket.on('reportView', function(vsInfo){
             if(self.views.length < self.MAX_USERS){
@@ -243,7 +258,7 @@ function WorkSpace(port, settings){
                  *      use built-in Array.prototype functions to achieve this,
                  *      such as indexOf() and splice().
                  */
-                for (var i = 0; i < views.length; i++) {
+                for (let i = 0; i < views.length; i++) {
                     if(self.views[i].id == viewSpace.id){
                         self.views.remove(i);
                         break;
@@ -258,7 +273,7 @@ function WorkSpace(port, settings){
                  * XXX: Why do we need this check? What is the dragHandler?
                  */
                 if(self.dragHandler != null){
-                    for (var i = self.wsObjects.length - 1; i >= 0; i--) {
+                    for (let i = self.wsObjects.length - 1; i >= 0; i--) {
                         /*
                          * XXX: What's going on in this condition check? Maybe 
                          *      it should be lifted out into a function that 
@@ -295,7 +310,7 @@ function WorkSpace(port, settings){
              *      making use of the WAMS API?
              */
             if(self.clickHandler != null){
-                if (WDEBUG) console.log(self.wsObjects.length);
+                if (globals.WDEBUG) console.log(self.wsObjects.length);
                 foundObject = false;
 
                 /*
@@ -303,8 +318,8 @@ function WorkSpace(port, settings){
                  *      - Check that, looks like there's a "break" statement,
                  *          perhaps Array.prototype.some() would be better.
                  */
-                for (var i = self.wsObjects.length - 1; i >= 0; i--) {
-                    if (WDEBUG) console.log("clicked: "+self.wsObjects[i]);
+                for (let i = self.wsObjects.length - 1; i >= 0; i--) {
+                    if (globals.WDEBUG) console.log("clicked: "+self.wsObjects[i]);
 
                     /*
                      * XXX: Second time seeing a condition check essentially
@@ -337,9 +352,9 @@ function WorkSpace(port, settings){
                     socket.broadcast.emit('updateUser', viewSpace);
                     socket.emit('updateObjects', self.wsObjects);
                     socket.broadcast.emit('updateObjects', self.wsObjects);
-                    if (WDEBUG) console.log("not found");
+                    if (globals.WDEBUG) console.log("not found");
                 }
-                else if (WDEBUG) console.log("found");
+                else if (globals.WDEBUG) console.log("found");
             }
             else{
                 console.log("Click Handler is not attached!");
@@ -366,7 +381,7 @@ function WorkSpace(port, settings){
         });
 
         socket.on('consoleLog', function(toBeLogged){
-            if (WDEBUG) console.log(toBeLogged);
+            if (globals.WDEBUG) console.log(toBeLogged);
         });
 
         socket.on('disconnect', function(){
@@ -375,7 +390,7 @@ function WorkSpace(port, settings){
             /*
              * XXX: Use ES6 standard Array.prototype functions instead.
              */
-            for (var i = 0; i < self.views.length; i++) {
+            for (let i = 0; i < self.views.length; i++) {
                 if(self.views[i].id == viewSpace.id){
                     self.views.remove(i);
                     break;
@@ -389,7 +404,7 @@ function WorkSpace(port, settings){
          * XXX: I'm not sure we need to suddenly import a library for this.
          *      Can't we just use this.http.address()?
          */
-        var ip = require('ip');
+        const ip = require('ip');
         console.log('listening on ' + ip.address() + ':' + port);
     });
 }
@@ -426,16 +441,16 @@ WorkSpace.prototype.attachScaleHandler = function(func){
 
 
 WorkSpace.prototype.addWSObject = function(obj){
-    obj.id = WSOBID++;
+    obj.id = globals.WSOBID++;
     this.wsObjects.push(obj);
-    if (WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
+    if (globals.WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
 }
 
 WorkSpace.prototype.removeWSObject = function(obj){
-    for (var i = this.wsObjects.length - 1; i >= 0; i--) {
+    for (let i = this.wsObjects.length - 1; i >= 0; i--) {
         if(this.wsObjects[i].id == obj.id){
             this.wsObjects.remove(i);
-            if (WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
+            if (globals.WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
             break;
         }
     }
@@ -470,7 +485,7 @@ WorkSpace.prototype.setClientLimit = function(maxUsers){
 }
 
 WorkSpace.prototype.defaultSettings = function(){
-    var defaults = {
+    const defaults = {
         debug : false,
         BGcolor : "#aaaaaa"
     };
@@ -600,7 +615,7 @@ ViewSpace.prototype.rescale = function(newScale){
         this.eh = this.h/this.scale; 
     }
     else{
-        if (WDEBUG) console.log("Scale out of Range!");
+        if (globals.WDEBUG) console.log("Scale out of Range!");
     }
 }
 
@@ -624,7 +639,7 @@ ViewSpace.prototype.center = function(){
     /*
      * XXX: Why not just return it directly?
      */
-    var returnValue = {
+    const returnValue = {
         x : (this.x + (this.ew/2)),
         y : (this.y + (this.eh/2))
     };
@@ -636,7 +651,7 @@ ViewSpace.prototype.center = function(){
  */
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function(from, to) {
-    var rest = this.slice((to || from) + 1 || this.length);
+    const rest = this.slice((to || from) + 1 || this.length);
     this.length = from < 0 ? this.length + from : from;
     return this.push.apply(this, rest);
 }
