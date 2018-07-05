@@ -106,9 +106,9 @@ class WorkSpace {
         this.settings = settings || this.defaultSettings();
 
         /*
-         * XXX: Redefinition of this.id!! What is going on here? Which is the ID
-         *      that we actually want, and where does port come from? Is it a
-         *      global?
+         * XXX: Redefinition of this.id!! What is going on here? Which is the 
+         *      ID that we actually want, and where does port come from? Is it 
+         *      a global?
          *      - Answer: Just found it! It's passed in to the constructor as
          *          an argument, along with settings, seen below.
          *      - I'm going to assume that the port is the ID we need.
@@ -119,10 +119,10 @@ class WorkSpace {
         this.app = express();
 
         /* 
-         * XXX: Register routes to the app for GET requests. Should this be lifted
-         *      into a function for readability? It will probably be immediately
-         *      obvious what's going on to anyone familiar with Express.js, but it
-         *      still might be useful.
+         * XXX: Register routes to the app for GET requests. Should this be 
+         *      lifted into a function for readability? It will probably be 
+         *      immediately obvious what's going on to anyone familiar with 
+         *      Express.js, but it still might be useful.
          */
         this.app.get('/', function(req, res) {
             res.sendFile(path.resolve('../WAMS/view.html'));
@@ -155,28 +155,42 @@ class WorkSpace {
         /*
          * XXX: Are we sure we want to create the server and listen right away?
          *      Don't we want to wait until the user has had the opportunity to
-         *      complete a few more initialization tasks? We can expose a function
-         *      which allows the user to control when these steps happen.
+         *      complete a few more initialization tasks? We can expose a 
+         *      function which allows the user to control when these steps 
+         *      happen.
          *
-         *      This is specifically because we have things set up right now such
-         *      that the user is expected to attach handlers _after_ constructing
-         *      a WorkSpace object. That is to say, _after_ the server has already
-         *      started listening for connections according to the current setup.
+         *      This is specifically because we have things set up right now 
+         *      such that the user is expected to attach handlers _after_ 
+         *      constructing a WorkSpace object. That is to say, _after_ the 
+         *      server has already started listening for connections according 
+         *      to the current setup.
          */
         this.http = http.createServer(this.app);
-
-        this.http.listen(port, () => {
-            /*
-             * XXX: I'm not sure we need to suddenly import a library for this.
-             *      Can't we just use this.http.address()?
-             */
-            //const ip = require('ip');
-            //console.log(`listening on ${ip.address()}:${port}`);
+        this.http.listen(port, get_local_ip(), () => {
             console.log('Listening on', this.http.address());
         });
 
         this.io = io.listen(this.http);
         this.io.on('connection', (socket) => {new Connection(socket, this);});
+
+        /*
+         * XXX: I'd written this in my other project. With this, we can get rid
+         *      of the 'ip' dependency.
+         */
+        function get_local_ip() {
+            let ipaddr = null;
+            const os = require('os');
+            Object.values(os.networkInterfaces()).some( f => {
+                f.some( a => {
+                    if (a.family === 'IPv4' && a.internal === false) {
+                        ipaddr = a.address;
+                    }
+                    return ipaddr;
+                });
+                return ipaddr;
+            });
+            return ipaddr;
+        }
     }
 
     get users() { return this.views; }
