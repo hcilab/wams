@@ -13,6 +13,10 @@ function onWindowLoad() {
      *          should and will be using.
      */
     main_ws = document.getElementById('main');
+
+    /*
+     * XXX: Wait... what??? Something seems broken here...
+     */
     main_ws.width = main_ws.getWidth();
     main_ws.height = main_ws.getHeight();
 
@@ -36,6 +40,22 @@ function onWindowLoad() {
      *      really necessary? This seems risky, especially since we could just
      *      do things the other way around, and have our client-side ViewSpace
      *      extend the HTMLCanvasElement. At least I'm pretty sure we could...
+     *
+     *      Also I know that this file and the WAMS.js file will be used in 
+     *      entirely different contexts, but this still makes me incredibly
+     *      uncomfortable that they both use an identically named but different
+     *      ViewSpace class.
+     *
+     *      This makes me really want to write a ViewSpace.js file which the
+     *      WAMS.js file will 'require()' and which can be included as a script
+     *      in the view, which will include a parent class which the two 
+     *      current ViewSpace classes can extend.
+     *
+     *      ...
+     *
+     *      Okay timeout. This value is never used!!!
+     *
+     *      I'll just delete this.
      */
     HTMLCanvasElement.prototype.viewSpace = new ViewSpace(0,0,main_ws.getWidth(), main_ws.getHeight(), 1, -1);
     wsObjects = [];
@@ -101,6 +121,10 @@ ViewSpace.prototype.reportView = function(reportSubWS){
         id : this.id
     };
 
+    /*
+     * XXX: Do we want to connect the subviews in this view somehow, so that
+     *      they are clearly linked in the report?
+     */
     if (reportSubWS)
     {
         this.subViews.forEach(
@@ -109,6 +133,7 @@ ViewSpace.prototype.reportView = function(reportSubWS){
             }
         );
     }
+
     socket.emit('reportView', vsInfo);
 }
 
@@ -125,7 +150,9 @@ function main_wsDraw(){
     ctx.translate(-mainViewSpace.x, -mainViewSpace.y);
     ctx.rotate(mainViewSpace.rotation);
 
-
+    /*
+     * XXX: I think maybe this should be a 'rotate' function.
+     */
     switch(mainViewSpace.rotation){
         case(0): break;
         case(Math.PI): ctx.translate((-mainViewSpace.ew - mainViewSpace.x*2), (-mainViewSpace.eh - mainViewSpace.y*2)); break;
@@ -133,6 +160,10 @@ function main_wsDraw(){
         case(3*Math.PI/2): ctx.translate(-mainViewSpace.y*2, -mainViewSpace.ew); break;
     }
 
+    /*
+     * XXX: Each WSObject should have a draw() function defined on it, which
+     *      can then be called from inside a simple forEach().
+     */
     for (var i = 0; i < wsObjects.length; i++) {
         //console.log(wsObjects);
         if (wsObjects[i].w != null && wsObjects[i].h != null){
@@ -143,6 +174,16 @@ function main_wsDraw(){
             else
             {   
             //console.log(wsObjects[i].draw);
+                /*
+                 * XXX: Yikes!!! eval()? And we want this to be a usable API?
+                 *      For people to work together over networks? Pardon my
+                 *      French, but how the f*** are we going to make sure that
+                 *      no one is injecting malicious code here? 
+                 *
+                 *      Where is draw defined, and how does it end up here?
+                 *
+                 *      There must be a better way...
+                 */
                 eval(wsObjects[i].draw+';');
                 eval(wsObjects[i].drawStart+';');
             }
@@ -155,6 +196,10 @@ function main_wsDraw(){
 
             else
             {
+                /*
+                 * XXX: Same eval() complaint as above, but with the added
+                 *      complaint that this is duplicated code.
+                 */
                 eval(wsObjects[i].draw+';');
                 eval(wsObjects[i].startStart+';');
             }
@@ -162,6 +207,10 @@ function main_wsDraw(){
 
     }
 
+    /*
+     * XXX: What exactly is going on here? Is this where we draw the rectangles
+     *      showing users where the other users are looking?
+     */
     for (var i = 0; i < views.length; i++) {
         ctx.beginPath();
         ctx.rect(views[i].x, views[i].y, views[i].ew, views[i].eh);
@@ -170,6 +219,9 @@ function main_wsDraw(){
 
     ctx.restore();
 
+    /*
+     * XXX: This should be a function.
+     */
     if(settings != null && settings.debug){
         ctx.font = "18px Georgia";
         ctx.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
@@ -183,8 +235,20 @@ function main_wsDraw(){
 
 window.addEventListener('resize', onResized, false);
 function onResized(){
+    /*
+     * XXX: See here this at least sort of makes sense, yet earlier there was
+     *      some kind of main_ws.width = main_ws.getWidth() nonsense.
+     */
     main_ws.width = window.innerWidth;
     main_ws.height = window.innerHeight;
+
+    /*
+     * XXX: main_ws is a <canvas>
+     *      mainViewSpace is a client-side ViewSpace
+     *
+     *      Can we clarify this? This really confused me. Is there a reason we
+     *      need both?
+     */
     mainViewSpace.w = main_ws.getWidth();
     mainViewSpace.h = main_ws.getHeight();
     mainViewSpace.ew = mainViewSpace.w/mainViewSpace.scale;
@@ -193,15 +257,29 @@ function onResized(){
 
 }
 
+/*
+ * XXX: Can we organize this code to put all the listener attachments together?
+ */
 window.addEventListener("mousewheel", onMouseScroll, false);
 window.addEventListener("DOMMouseScroll", onMouseScroll, false);
 
 function onMouseScroll(ev) {
+    /*
+     * XXX: Let's have a close look at this. With no comments, I'm not sure
+     *      why a Math.max(Math.min()) structure is necessary. We might be able
+     *      to simplify this.
+     */
     var delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
     var newScale = mainViewSpace.scale + delta*0.09;
     socket.emit('handleScale', mainViewSpace, newScale);
 }
 
+/*
+ * XXX: More globals, yet for some reason they've been (more) correctly defined
+ *      as such this time around, instead of just crossing our fingers and
+ *      hoping the JS fairies hoist our variables to the global scope...
+ *      (That's a good thing, but this code still needs to be organized).
+ */
 var mouse = {x: 0, y: 0};
 var lastMouse = {x: 0, y: 0};
 var temp = 0;
@@ -231,6 +309,9 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
         case('tap') :
             mouse.x = ev.gesture.center.pageX/mainViewSpace.scale + mainViewSpace.x;
             mouse.y = ev.gesture.center.pageY/mainViewSpace.scale + mainViewSpace.y;
+            /*
+             * XXX: Is this code just copy-pasted across three of the cases???
+             */
             switch(mainViewSpace.rotation){
                 case(0): break;
                 case(Math.PI): 
@@ -271,6 +352,13 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             }
             break;
         case 'drag':
+            /*
+             * XXX: Where is transforming defined, where does it get modified?
+             *
+             *      + Answer: Defined before this listener attachment, modified
+             *          about 30 lines down in the transformstart and 
+             *          transformend cases.
+             */
             if(transforming){
                 return;
             }
@@ -298,8 +386,10 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             socket.emit('handleDrag', mainViewSpace, mouse.x, mouse.y, (lastMouse.x - mouse.x), (lastMouse.y - mouse.y));
             break;
         case 'dragend':
+            /*
+             * XXX: Why listen at all? Is it just to prevent default?
+             */
             break;
-
         case 'transformstart':
             transforming = true;
             startScale = mainViewSpace.scale;
@@ -318,21 +408,42 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
     }
 });
 
-
 function onInit(initData){
     settings = initData.settings;
+    /*
+     * XXX: Clean this up.
+     */
     if(settings.BGcolor != null){
         document.getElementById('main').style.backgroundColor = settings.BGcolor;
     }
     else{
         document.getElementById('main').style.backgroundColor = "#aaaaaa";
     }
+
+    /*
+     * XXX: Look everywhere and make sure that mainViewSpace.id isn't getting
+     *      set anywhere else!
+     *
+     *      Should make sure that all IDs anywhere are immutable once assigned.
+     *      Perhaps an 'assignID' function? It could take an object to assign
+     *      and an ID generator (preferably also immutable).
+     */
     mainViewSpace.id = initData.id;
     for (var i = 0; i < initData.views.length; i++) {
+        /*
+         * XXX: I'm not exactly sure what's going on here. Are we pushing in
+         *      subviews? What are the initData.views? Why are we generating
+         *      new ViewSpaces instead of pushing in the ViewSpace from
+         *      initData?
+         */
         if(initData.views[i].id != mainViewSpace.id){
             views.push(new ViewSpace(initData.views[i].x, initData.views[i].y, initData.views[i].w, initData.views[i].h, initData.views[i].scale, initData.views[i].id));
         }
     }
+
+    /*
+     * XXX: What kind of Image() is this? Where is it defined?
+     */
     for (var i = 0; i < initData.wsObjects.length; i++) {
         wsObjects.push(initData.wsObjects[i]);
         
@@ -345,9 +456,14 @@ function onInit(initData){
     mainViewSpace.reportView(true);
 }
 
-
+/*
+ * XXX: Unless used elsewhere, this global variable should almost certainly be
+ *      tucked into the listener.
+ *
+ *      + Answer: A quick grep reveals that no, it is not used elsewhere. Put
+ *          it inside the listener.
+ */
 var noUserFound = true;
-
 function onUpdateUser(vsInfo){
     // socket.emit('consoleLog', "User: " + mainViewSpace.id + " updating " + vsInfo.id + "'s info.");
     if(vsInfo.id == mainViewSpace.id){
@@ -391,6 +507,16 @@ function onRemoveUser(id){
     }
 }
 
+/*
+ * XXX: Update, eh? If we're just pushing every object from one array into the
+ *      other (after it has been emptied), maybe we should just copy the array
+ *      over?
+ *
+ *      I think maybe what happened is the author wanted to actually update
+ *      the array, but ran into problems so ended up just resetting. I think
+ *      a proper update would probably be more efficient than this mechanism
+ *      of trashing, copying, and regenerating.
+ */
 function onUpdateObjects(objects){
     wsObjects = [];
     for (var i = 0; i < objects.length; i++) {
