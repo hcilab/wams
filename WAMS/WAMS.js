@@ -31,7 +31,7 @@
  *      [ ] Eliminate use of 'self' variables, use explicit binding.
  *      [ ] Look at all interior functions, would they benefit from being
  *           ES6 arrow functions?
- *      [ ] Replace classic JS concatenated strings with ES6 backtick strings,
+ *      [X] Replace classic JS concatenated strings with ES6 backtick strings,
  *           where necessary. (Or everywhere for consistency?)
  *      [ ] Switch to using strict equality unless coercive equality is clearly
  *           beneficial in a given circumstance.
@@ -190,11 +190,10 @@ class WorkSpace{
             const viewSpace = new ViewSpace(self.viewID++);
             viewSpace.boundaries = self.boundaries;
             
-            /*
-             * XXX: Use ES6 backticks instead, much cleaner and I think it's
-             *      more efficient too...
-             */
-            if (globals.WDEBUG) console.log('User ' + viewSpace.id + ' connected to workspace ' + self.id);
+            if (globals.WDEBUG) {
+                console.log(`User ${viewSpace.id} connected to workspace ${self.id}`);
+            }
+
             const initData = {
                 views : self.views,
                 wsObjects : self.wsObjects,
@@ -295,7 +294,7 @@ class WorkSpace{
                             }  
                         }
                     } else {
-                        console.log("Drag handler is not attached for "+vs.id);
+                        console.log(`Drag handler is not attached for ${vs.id}`);
                     }
                 }
             });
@@ -381,7 +380,7 @@ class WorkSpace{
             });
 
             socket.on('disconnect', function() {
-                console.log('user ' + viewSpace.id + ' disconnected from workspace ' + self.id);
+                console.log(`user ${viewSpace.id} disconnected from workspace ${self.id}`);
                 socket.broadcast.emit('removeUser', viewSpace.id);
                 /*
                  * XXX: Use ES6 standard Array.prototype functions instead.
@@ -401,7 +400,7 @@ class WorkSpace{
              *      Can't we just use this.http.address()?
              */
             const ip = require('ip');
-            console.log('listening on ' + ip.address() + ':' + port);
+            console.log(`listening on ${ip.address()}:${port}`);
         });
     }
 
@@ -438,14 +437,14 @@ class WorkSpace{
     addWSObject(obj) {
         obj.id = globals.WSOBID++;
         this.wsObjects.push(obj);
-        if (globals.WDEBUG) console.log("adding object: "+obj.id+" ("+obj.type+")");
+        if (globals.WDEBUG) console.log(`Adding object: ${obj.id} (${obj.type})`);
     }
 
     removeWSObject(obj) {
         for (let i = this.wsObjects.length - 1; i >= 0; i--) {
             if (this.wsObjects[i].id == obj.id) {
                 this.wsObjects.splice(i,1);
-                if (globals.WDEBUG) console.log("removing object: "+obj.id+" ("+obj.type+")");
+                if (globals.WDEBUG) console.log(`removing object: ${obj.id} (${obj.type})`);
                 break;
             }
         }
