@@ -5,9 +5,9 @@ var workspace_one = new WAMS.WorkSpace(9000);    // Starts server listening on p
     workspace_one.setClientLimit(4);             // Set Client Limit
 
 // Creating and Adding Workspace objects. WSObject("Image.png", x, y, w, h)
-//var monaLisa = new WAMS.WSObject("monaLisa.png", 0, 0, workspace_one.getWidth(), workspace_one.getHeight());
+//var monaLisa = new WAMS.WSObject("monaLisa.png", 0, 0, workspace_one.width, workspace_one.height);
 //    monaLisa.setType("mona");   // Set your custom Object type
-var monaLisa = new WAMS.WSObject(0,0,workspace_one.getWidth(),workspace_one.getHeight(),"mona", {"imgsrc":"monaLisa.png"});
+var monaLisa = new WAMS.WSObject(0,0,workspace_one.width,workspace_one.height,"mona", {"imgsrc":"monaLisa.png"});
 workspace_one.addWSObject(monaLisa);
 
 // Handle Drag, takes in the target that was dragged on and who caused the drag event
@@ -23,7 +23,7 @@ var handleDrag = function(target, client, x, y, dx, dy){
 // Example Layout function that takes in the newly added client and which workspace they joined
 // Lays out users in a decending staircase pattern
 var handleLayout = function(ws, client){
-    var otherUsers = ws.getUsers();   // How you get the users of the project
+    var otherUsers = ws.users;   // How you get the users of the project
     
     if(otherUsers.length == 0){ // First user don't move
         // Do Nothing

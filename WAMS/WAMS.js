@@ -56,7 +56,6 @@ const path = require('path')
  */
 const globals = (function defineGlobals() {
     const constants = {
-        MAX_USERS: 10,
         WDEBUG: true,
     };
 
@@ -95,6 +94,7 @@ const globals = (function defineGlobals() {
 
 class WorkSpace {
     constructor(port, settings) {
+        this.clientLimit = 10;
         this.views = [];
         this.wsObjects = [];
         this.subWS = [];
@@ -179,14 +179,21 @@ class WorkSpace {
         this.io.on('connection', (socket) => {new Connection(socket, this);});
     }
 
+    get users() { return this.views; }
+    get width() { return this.boundaries.x; }
+    get height() { return this.boundaries.y; }
+
+    set width(w) { this.boundaries.x = w; }
+    set height(h) { this.boundaries.y = h; }
+
     /*
      * XXX: Ahh okay, this is where the handlers get attached.
-     *      Do we really need separate functions for attaching each one? Would it
-     *      be beneficial to define a single attachHandler function which takes
-     *      an argument describing which handler to attach?
-     *      - Also, is there a way to not limit our API like this? What if someone
-     *          making use of it wants to implement other kinds of interactions
-     *          between the users?
+     *      Do we really need separate functions for attaching each one? Would 
+     *      it be beneficial to define a single attachHandler function which 
+     *      takes an argument describing which handler to attach?
+     *      - Also, is there a way to not limit our API like this? What if 
+     *          someone making use of it wants to implement other kinds of 
+     *          interactions between the users?
      */
     attachDragHandler(func) {
         this.dragHandler = func;
@@ -207,7 +214,9 @@ class WorkSpace {
     addWSObject(obj) {
         obj.id = globals.WSOBID++;
         this.wsObjects.push(obj);
-        if (globals.WDEBUG) console.log(`Adding object: ${obj.id} (${obj.type})`);
+        if (globals.WDEBUG) { 
+            console.log(`Adding object: ${obj.id} (${obj.type})`);
+        }
     }
 
     removeWSObject(obj) {
@@ -220,21 +229,9 @@ class WorkSpace {
         }
     }
 
-    getUsers() {
-        return this.views;
-    }
-
     setBoundaries(maxX, maxY) {
         this.boundaries.x = maxX;
         this.boundaries.y = maxY;
-    }
-
-    getWidth() {
-        return this.boundaries.x;
-    }
-
-    getHeight() {
-        return this.boundaries.y;
     }
 
     getCenter() {
@@ -245,7 +242,7 @@ class WorkSpace {
     }
 
     setClientLimit(maxUsers) {
-        globals.MAX_USERS = maxUsers;
+        this.clientLimit = maxUsers;
     }
 
     defaultSettings() {
@@ -294,7 +291,7 @@ class Connection {
     }
 
     reportView(vsInfo) {
-        if (this.workspace.views.length < globals.MAX_USERS) {
+        if (this.workspace.views.length < this.workspace.clientLimit) {
             /*
              * XXX: Watch out for coersive equality vs. strict equality.
              *      Decide if coercion should be allowed for each instance.

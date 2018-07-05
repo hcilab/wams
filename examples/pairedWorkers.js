@@ -21,7 +21,7 @@ var handleDrag = function(target, client, x, y, dx, dy){
 }
 
 var handleLayout = function(ws, client){
-    var otherUsers = ws.getUsers();
+    var otherUsers = ws.users;
     if(otherUsers.length != 0){
         client.moveToXY(otherUsers[otherUsers.length-1].right() - 30, otherUsers[otherUsers.length-1].top()); 
     }

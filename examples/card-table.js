@@ -39,7 +39,7 @@ main_ws.addWSObject(drawing);
 var table = null;
 
 var handleLayout = function(ws, view){
-    var otherUsers = ws.getUsers();
+    var otherUsers = ws.users;
 
     switch(otherUsers.length){  // Positions are based on how many other users there are
         case(0): // First view will be the table

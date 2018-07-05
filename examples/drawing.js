@@ -11,7 +11,7 @@ my_workspace.addWSObject(newSquare);
 
 var handleLayout = function(ws, user){
     // Executed once every time a new user joins
-    var otherUsers = ws.getUsers();
+    var otherUsers = ws.users;
     if(otherUsers.length > 1){
         user.moveToXY(ws.getCenter().x, ws.getCenter().y);
     }
