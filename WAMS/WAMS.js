@@ -23,16 +23,16 @@
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
- *      [ ] Switch to using functional style wherever possible, using ES6
+ *      [X] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
  *           optimized.
- *      [ ] Rename variables where appropriate.
+ *      [X] Rename variables where appropriate.
  *      [X] Convert all prototype code into ES6 'class' style.
  *          - Better readability, extensibility.
  *      [X] Write a Connection class.
- *      [ ] Eliminate use of 'self' variables, use explicit binding.
- *      [ ] Look at all interior functions, would they benefit from being
+ *      [X] Eliminate use of 'self' variables, use explicit binding.
+ *      [X] Look at all interior functions, would they benefit from being
  *           ES6 arrow functions?
  *      [X] Replace classic JS concatenated strings with ES6 backtick strings,
  *           where necessary. (Or everywhere for consistency?)
@@ -100,64 +100,21 @@ const globals = (function defineGlobals() {
 })();
 
 class WorkSpace {
-    constructor(port, settings) {
-        this.clientLimit = 10;
-        this.views = [];
-        this.wsObjects = [];
-        this.subWS = [];
+    constructor(port, settings = {debug: false, BGcolor: '#aaaaaa'}) {
+        // Data
         this.boundaries = {
             x : 10000,
             y : 10000
         };
-        this.viewID = 1;
-        this.settings = settings || this.defaultSettings();
-
-        /*
-         * XXX: Redefinition of this.id!! What is going on here? Which is the 
-         *      ID that we actually want, and where does port come from? Is it 
-         *      a global?
-         *      - Answer: Just found it! It's passed in to the constructor as
-         *          an argument, along with settings, seen below.
-         *      - I'm going to assume that the port is the ID we need.
-         *          + (But is it the ID we deserve?)
-         */
+        this.clientLimit = 10;
         this.id = port;
+        this.settings = settings;
+        this.viewID = 1;
 
-        this.app = express();
-
-        /* 
-         * XXX: Register routes to the app for GET requests. Should this be 
-         *      lifted into a function for readability? It will probably be 
-         *      immediately obvious what's going on to anyone familiar with 
-         *      Express.js, but it still might be useful.
-         */
-        this.app.get('/', function(req, res) {
-            res.sendFile(path.resolve('../WAMS/view.html'));
-        });
-        this.app.get('/WAMS-util.js', function(req, res) {
-            res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
-        });
-        this.app.get('/WAMS-view.js', function(req, res) {
-            res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
-        });
-
-        /* 
-         * XXX: express.static() generates a middleware function for serving
-         *      static assets from the directory specified.
-         *      - The order in which these functions are registered with
-         *          app.use() is important! The callbacks will be triggered
-         *          in this order!
-         *      - When app.use() is called without a 'path' argument, as it is
-         *          here, it uses the default '/' argument, with the result
-         *          that these callbacks will be executed for _every_ request
-         *          to the app!
-         *          + Should therefore consider specifying the path!!
-         *      - Should also consider specifying options. Possibly useful:
-         *          + immutable
-         *          + maxAge
-         */
-        this.app.use(express.static(path.resolve('./Images')));
-        this.app.use(express.static(path.resolve('../libs')));
+        // Things to track.
+        this.views = [];
+        this.wsObjects = [];
+        this.subWS = [];
 
         /*
          * XXX: Are we sure we want to create the server and listen right away?
@@ -172,13 +129,52 @@ class WorkSpace {
          *      server has already started listening for connections according 
          *      to the current setup.
          */
-        this.http = http.createServer(this.app);
+        this.http = http.createServer(generateRequestHandler());
         this.http.listen(port, get_local_ip(), () => {
             console.log('Listening on', this.http.address());
         });
-
         this.io = io.listen(this.http);
         this.io.on('connection', (socket) => {new Connection(socket, this);});
+
+        /* ================================================================
+         * Some local functions to the constructor. Still deciding if this
+         *      is really that good of an idea.
+         * ================================================================
+         */
+        function generateRequestHandler() {
+            const app = express();
+
+            // Establish routes.
+            app.get('/', (req, res) => {
+                res.sendFile(path.resolve('../WAMS/view.html'));
+            });
+            app.get('/WAMS-util.js', (req, res) => {
+                res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
+            });
+            app.get('/WAMS-view.js', (req, res) => {
+                res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
+            });
+
+            /* 
+             * XXX: express.static() generates a middleware function for 
+             *      serving static assets from the directory specified.
+             *      - The order in which these functions are registered with
+             *          app.use() is important! The callbacks will be triggered
+             *          in this order!
+             *      - When app.use() is called without a 'path' argument, as it 
+             *          is here, it uses the default '/' argument, with the 
+             *          result that these callbacks will be executed for 
+             *          _every_ request to the app!
+             *          + Should therefore consider specifying the path!!
+             *      - Should also consider specifying options. Possibly useful:
+             *          + immutable
+             *          + maxAge
+             */
+            app.use(express.static(path.resolve('./Images')));
+            app.use(express.static(path.resolve('../libs')));
+
+            return app;
+        }
 
         /*
          * XXX: I'd written this in my other project. With this, we can get rid
@@ -204,8 +200,8 @@ class WorkSpace {
     get width() { return this.boundaries.x; }
     get height() { return this.boundaries.y; }
 
-    set width(w) { this.boundaries.x = w; }
-    set height(h) { this.boundaries.y = h; }
+    set width(width) { this.boundaries.x = width; }
+    set height(height) { this.boundaries.y = height; }
 
     /*
      * XXX: Ahh okay, this is where the handlers get attached.
@@ -215,6 +211,11 @@ class WorkSpace {
      *      - Also, is there a way to not limit our API like this? What if 
      *          someone making use of it wants to implement other kinds of 
      *          interactions between the users?
+     *
+     * XXX: Also! These attachHanlder functions can be doing more! We can
+     *      probably eliminate all those "is a handler attached" checks later
+     *      if we don't even call the function which calls the handler unless
+     *      a handler is attached. Trippy, I know. Something to think about!
      */
     attachDragHandler(func) {
         this.dragHandler = func;
@@ -257,20 +258,13 @@ class WorkSpace {
 
     getCenter() {
         return {
-            x : this.boundaries.x/2,
-            y : this.boundaries.y/2
+            x: this.boundaries.x / 2,
+            y: this.boundaries.y / 2
         };
     }
 
     setClientLimit(maxUsers) {
         this.clientLimit = maxUsers;
-    }
-
-    defaultSettings() {
-        return {
-            debug : false,
-            BGcolor : "#aaaaaa"
-        };
     }
 
     addSubWS(subWS) {
@@ -309,10 +303,10 @@ class Connection {
         this.socket.on('disconnect', this.disconnect.bind(this));
 
         this.socket.emit('init', {
-            views : this.workspace.views,
-            wsObjects : this.workspace.wsObjects,
-            settings : this.workspace.settings,
-            id : this.viewSpace.id
+            views: this.workspace.views,
+            wsObjects: this.workspace.wsObjects,
+            settings: this.workspace.settings,
+            id: this.viewSpace.id
         });
     }
 
@@ -332,15 +326,7 @@ class Connection {
              *      Decide if coercion should be allowed for each instance.
              */
             if (this.viewSpace.id == vsInfo.id) {
-                this.viewSpace.x = vsInfo.x;
-                this.viewSpace.y = vsInfo.y;
-                this.viewSpace.w = vsInfo.w;
-                this.viewSpace.h = vsInfo.h;
-                this.viewSpace.ew = vsInfo.ew;
-                this.viewSpace.eh = vsInfo.eh;
-                this.viewSpace.scale = vsInfo.scale;
-                this.viewSpace.id = vsInfo.id;
-                this.viewSpace.views = [];
+                this.viewSpace.assign(vsInfo);
             }
 
             if (!this.initializedLayout) {
@@ -360,6 +346,10 @@ class Connection {
 
             this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
         } else if (!this.initializedLayout) {
+            /* XXX: Hang on, look at that condition check in 'else if'
+             *      statement above. Why are we only disconnecting if we
+             *      haven't been initialized?
+             */
             this.workspace.views.push(this.viewSpace);
             this.socket.send(globals.EVENT_DC_USER);
 
@@ -367,17 +357,11 @@ class Connection {
              * XXX: Hold on a second... Did we just push the viewSpace into
              *      the views... only to remove it again right away? Why 
              *      are we doing that?
-             *
-             *      Also if we do want to keep doing this, might be wise to
-             *      use built-in Array.prototype functions to achieve this,
-             *      such as indexOf() and splice().
              */
-            for (let i = 0; i < this.workspace.views.length; i++) {
-                if (this.workspace.views[i].id == this.viewSpace.id) {
-                    this.workspace.views.splice(i,1);
-                    break;
-                }
-            }
+            const idx = this.workspace.views.findIndex( v => 
+                v.id === this.viewSpace.id
+            );
+            if (idx >= 0) this.workspace.views.splice(idx,1);
         }
     }
 
@@ -422,10 +406,10 @@ class Connection {
             return;
         }
 
-        const clickbg = !this.workspace.wsObjects.some( o => {
+        const clickCanvas = !this.workspace.wsObjects.some( o => {
             if (o.containsPoint(x,y)) {
                 if (globals.WDEBUG) {
-                    console.log('Clicked on', this.workspace.wsObjects[i]);
+                    console.log('Clicked on', o);
                 }
                 this.workspace.clickHandler(o, this.viewSpace, x, y);
                 return true;
@@ -433,7 +417,7 @@ class Connection {
             return false;
         });
 
-        if (clickbg) {
+        if (clickCanvas) {
             this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
             if (globals.WDEBUG) {
                 console.log("Clicked on the background.");
@@ -478,7 +462,10 @@ class Connection {
 }
 
 class WSObject {
-    constructor(x, y, w, h, type, opts) {
+    constructor(x, y, width, height, type = 'view/background', opts) {
+        /*
+         * XXX: What is the object supposed to be if opts is not defined?
+         */
         if (opts) {
             if (opts.imgsrc) {
                 this.imgsrc = opts.imgsrc;
@@ -492,16 +479,16 @@ class WSObject {
         }
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
-        this.type = type || "view/background";
+        this.width = width;
+        this.height = height;
+        this.type = type;
     }
 
     containsPoint(x,y) {
         return  (this.x < x) && 
-                (this.x  + this.w > x) && 
+                (this.x  + this.width > x) && 
                 (this.y < y) && 
-                (this.y  + this.h > y);
+                (this.y  + this.height > y);
     }
 
     move(dx, dy) {
@@ -529,55 +516,49 @@ class WSObject {
 
 class ViewSpace {
     constructor(id, boundaries) {
-        /*
-         * XXX: What's the difference between this.w and this.ew? (Same for h and 
-         *      eh). The answer is somewhere in here, but I think it would help if 
-         *      the variables had more intuitive names.
-         *      
-         *      + Answer: It appears that:
-         *                  - w and h refer to the 'base' width and height. 
-         *                  - ew and eh refer to a 'scaled' width and height.
-         *                      + Maybe the 'e' stands for 'effective'?
-         */
-        this.x = 0;
-        this.y = 0;
-        this.w = 0;
-        this.h = 0;
-        this.ew = 0;
-        this.eh = 0;
-        this.scale = 1;
-        this.rotation = 0;
         this.id = id;
         this.boundaries = boundaries;
-        this.type = "view/background";
+
+        this.x = 0;
+        this.y = 0;
+        this.width = 0;
+        this.height = 0;
+        this.effectiveWidth = 0;
+        this.effectiveHeight = 0;
+
+        this.scale = 1;
+        this.rotation = 0;
+
+        this.type = 'view/background';
+    }
+
+    assign(vsInfo) {
+        this.x = vsInfo.x;
+        this.y = vsInfo.y;
+        this.width = vsInfo.width;
+        this.height = vsInfo.height;
+        this.effectiveWidth = vsInfo.effectiveWidth;
+        this.effectiveHeight = vsInfo.effectiveHeight;
+        this.scale = vsInfo.scale;
+    }
+
+    canMoveToX(value) {
+        return (value >= 0) &&
+            (value + this.effectiveWidth <= this.boundaries.x);
+    }
+
+    canMoveToY(value) {
+        return (value >= 0) &&
+            (value + this.effectiveHeight <= this.boundaries.y);
     }
 
     move(dx, dy) {
-        /*
-         * XXX: Where does this.boundaries get defined? It should maybe be in the
-         *      constructor if we're going to depend on it like this.
-         *
-         *      Also, maybe save this.x + dx and this.y + dy in a variable instead
-         *      of recalculating it multiple times.
-         */
-        if (this.x + dx >= 0 && (this.x + dx + this.ew) <= this.boundaries.x) {
-            this.x += dx;
-        }
-        if (this.y + dy >= 0 && (this.y + dy + this.eh) <= this.boundaries.y) {
-            this.y += dy;
-        }
+        this.moveToXY(this.x + dx, this.y + dy);
     }
 
-    /*
-     * XXX: Why are there no boundary checks in this function? There are boundary 
-     *      checks in the above move() function, so there should probably be checks
-     *      here too.
-     */
     moveToXY(newX, newY) {
-        if (newX >= 0 && newY >= 0) {
-            this.x = newX;
-            this.y = newY;
-        }
+        if (this.canMoveToX(newX)) this.x = newX;
+        if (this.canMoveToY(newY)) this.y = newY;
     }
 
     /*
@@ -590,10 +571,14 @@ class ViewSpace {
      *      function for checking boundaries.
      */
     rescale(newScale) {
-        if (this.x + this.w/newScale < this.boundaries.x && this.y + this.h/newScale < this.boundaries.y) {
+        const newWidth = this.width / newScale;
+        const newHeight = this.height / newScale;
+
+        if (this.x + newWidth < this.boundaries.x && 
+                this.y + newHeight < this.boundaries.y) {
             this.scale = newScale;
-            this.ew = this.w/this.scale;
-            this.eh = this.h/this.scale; 
+            this.effectiveWidth = newWidth;
+            this.effectiveHeight = newHeight;
         } else {
             if (globals.WDEBUG) console.log("Scale out of Range!");
         }
@@ -604,7 +589,7 @@ class ViewSpace {
     }
 
     bottom() {
-        return (this.y + this.eh);
+        return (this.y + this.effectiveHeight);
     }
 
     left() {
@@ -612,13 +597,13 @@ class ViewSpace {
     }
 
     right() {
-        return (this.x + this.ew);
+        return (this.x + this.effectiveWidth);
     }
 
     center() {
         return {
-            x : (this.x + (this.ew/2)),
-            y : (this.y + (this.eh/2))
+            x : (this.x + (this.effectiveWidth / 2)),
+            y : (this.y + (this.effectiveHeight / 2))
         };
     }
 }
