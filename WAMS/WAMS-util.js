@@ -71,6 +71,12 @@ const IDStamper = (function defineIDStamper() {
     return IDStamper;
 })();
 
+/*
+ * Conditionally export this file if we are running server-side with node.js
+ *
+ * XXX: Look into JS Modules. How do they work, and how widely supported are
+ *      they?
+ */
 if (typeof exports !== 'undefined') {
     exports.IDStamper = IDStamper;
 }
