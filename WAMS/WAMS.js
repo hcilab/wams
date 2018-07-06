@@ -24,7 +24,7 @@
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
- *      [ ] Write ID generator factory, use for all IDs.
+ *      [X] Write ID generator factory, use for all IDs.
  *      [X] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
@@ -54,6 +54,36 @@ const io = require('socket.io');
 const path = require('path')
 
 /*
+ * I wrote this generator class to make ID generation more controlled.
+ *
+ */
+const IDStamper = (function defineIDStamper() {
+    function* id_gen() {
+        let id = 0;
+        while (1) yield ++id;
+    }
+    const sym = Symbol('generator');
+
+    class IDStamper {
+        constructor() {
+            this[sym] = id_gen();
+            console.log(this);
+        }
+
+        stamp(obj) {
+            Object.defineProperty(obj, 'id', {
+                value: this[sym].next().value,
+                configurable: false,
+                enumerable: true,
+                writable: false
+            });
+        }
+    }
+
+    return IDStamper;
+})();
+
+/*
  * I'm using a frozen 'globals' object with all global constants and variables 
  * defined as properties on it, to make global references explicit. I've been 
  * toying with this design pattern in my other JavaScript code and I think I 
@@ -66,17 +96,7 @@ const globals = (function defineGlobals() {
         EVENT_UD_OBJS: 'updateObjects',
         EVENT_UD_USER: 'updateUser',
         WDEBUG: true,
-    };
-
-    /* 
-     * XXX: There are several instances where IDs are created by incrementing
-     *      some value, often a global. I think these would probably be
-     *      better supplied by generators, so I think I'll write a function
-     *      in the utils file which creates ID generators to be used anywhere
-     *      this is going on.
-     */
-    const variables = {
-        WSOBID: 0,
+        WS_OBJ_ID_STAMPER: new IDStamper(),
     };
 
     const rv = {};
@@ -86,15 +106,6 @@ const globals = (function defineGlobals() {
             configurable: false,
             enumerable: true,
             writable: false
-        });
-    });
-
-    Object.entries(variables).forEach( ([p,v]) => {
-        Object.defineProperty(rv, p, {
-            get() { return variables[p]; },
-            set(val) { variables[p] = val; },
-            configurable: false,
-            enumerable: true
         });
     });
 
@@ -237,7 +248,9 @@ class WorkSpace {
     }
 
     addWSObject(obj) {
-        obj.id = globals.WSOBID++;
+        //obj.id = globals.WS_OBJ_ID_STAMPER.next;
+        globals.WS_OBJ_ID_STAMPER.stamp(obj);
+
         this.wsObjects.push(obj);
         if (globals.WDEBUG) { 
             console.log(`Adding object: ${obj.id} (${obj.type})`);
@@ -332,6 +345,10 @@ class Connection {
         this.socket.broadcast.emit(event, data);
     }
 
+    /*
+     * XXX: What exactly does reportView do? The name is ambiguous, so once I
+     *      figure this out I will definitely change it.
+     */
     reportView(vsInfo) {
         if (this.workspace.views.length < this.workspace.clientLimit) {
             /*
