@@ -32,105 +32,73 @@
 window.addEventListener('load', onWindowLoad, false);
 
 /*
- * XXX: Wait... are these really necessary? Why are we accessing the window's
- *      innerWidth instead of the canvas element's innerWidth? Does the canvas
- *      element even have an innerWidth? I'll look into it...
+ * I'm using a frozen 'globals' object with all global constants and variables 
+ * defined as properties on it, to make global references explicit. I've been 
+ * toying with this design pattern in my other JavaScript code and I think I 
+ * quite like it.
  */
-HTMLCanvasElement.prototype.getWidth = function() {
-    return window.innerWidth;
-};
-
-HTMLCanvasElement.prototype.getHeight = function() {
-    return window.innerHeight;
-};
-
-HTMLCanvasElement.prototype.getCenter = function(){
-    return {
-        x : this.getWidth()/2,
-        y : this.getHeight()/2
+const globals = (function defineGlobals() {
+    const canvas = document.querySelector('#main');
+    const constants = {
+        CANVAS_CONTEXT: canvas.getContext('2d'),
+        EVENT_DC_USER: 'user_disconnect',
+        EVENT_RM_USER: 'removeUser',
+        EVENT_UD_OBJS: 'updateObjects',
+        EVENT_UD_USER: 'updateUser',
+        FRAMERATE: 1000 / 60,
+        IMAGES: [],
+        MAIN_VIEWSPACE: new ViewSpace(
+            0,
+            0,
+            window.innerWidth,
+            window.innerHeight,
+            1,
+            -1,
+        ),
+        MAIN_WORKSPACE: canvas,
+        SETTINGS: null,
+        SOCKET: io(),
+        VIEWS: [],
+        WDEBUG: true,
+        WS_OJECTS: [],
+        WS_OBJ_ID_STAMPER: new utils.IDStamper(),
     };
-}
+
+    const rv = {};
+    Object.entries(constants).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            value: v,
+            configurable: false,
+            enumerable: true,
+            writable: false
+        });
+    });
+
+    return Object.freeze(rv);
+})();
 
 function onWindowLoad() {
-    /*
-     * XXX: Where are these variables being defined???
-     *      Please don't tell me that hammer.js uses a bunch of globals for the 
-     *      user to configure...
-     *
-     *      + Answer: Doesn't appear to be that way, looks like we're the ones 
-     *          defining globals (accidentally / intentionally?). This should 
-     *          probably be refactored, because this is a pretty gross, and 
-     *          will not be accepted by JavaScript's strict mode, which we 
-     *          should and will be using.
-     */
-    main_ws = document.getElementById('main');
-
-    /*
-     * XXX: Wait... what??? Something seems broken here...
-     */
-    main_ws.width = main_ws.getWidth();
-    main_ws.height = main_ws.getHeight();
-
-    /*
-     * XXX: We seem to be mixing our code together here in an unorganized way,
-     *      I'm not entirely comfortable with this.
-     */
-    ctx = main_ws.getContext('2d');
-    mainViewSpace = new ViewSpace(0,0,main_ws.getWidth(), main_ws.getHeight(), 1, -1);
-    ONE_FRAME_TIME = 1000 / 60 ;
-    socket = io();
+    globals.MAIN_WORKSPACE.width = window.innerWidth;
+    globals.MAIN_WORKSPACE.height = window.innerHeight;
 
     /*
      * XXX: Are we sure we want to do this right away?
      */
-    setInterval(main_wsDraw, ONE_FRAME_TIME);
-
-    /*
-     * XXX: Whoa whoa whoa what is going on here??? Is this why there are 
-     *      functions added to the HTMLCanvasElement in the utils file? Is this
-     *      really necessary? This seems risky, especially since we could just
-     *      do things the other way around, and have our client-side ViewSpace
-     *      extend the HTMLCanvasElement. At least I'm pretty sure we could...
-     *
-     *      Also I know that this file and the WAMS.js file will be used in 
-     *      entirely different contexts, but this still makes me incredibly
-     *      uncomfortable that they both use an identically named but different
-     *      ViewSpace class.
-     *
-     *      This makes me really want to write a ViewSpace.js file which the
-     *      WAMS.js file will 'require()' and which can be included as a script
-     *      in the view, which will include a parent class which the two 
-     *      current ViewSpace classes can extend.
-     *
-     *      ...
-     *
-     *      Okay timeout. This value is never used!!!
-     *
-     *      I'll just delete this.
-     */
-    HTMLCanvasElement.prototype.viewSpace = new ViewSpace(0,0,main_ws.getWidth(), main_ws.getHeight(), 1, -1);
-    wsObjects = [];
-    views = [];
+    window.setInterval(main_wsDraw, globals.FRAMERATE);
 
     /*
      * XXX: Why do these listeners need to be attached all the way down here
      *      instead of adjacent to the initialization of the socket variable?
      */
-    socket.on('init', onInit);
-    socket.on('updateUser', onUpdateUser);
-    socket.on('removeUser', onRemoveUser);
-    socket.on('updateObjects', onUpdateObjects);
-
-    /*
-     * XXX: Organize this...
-     */
-    images = [];
-    settings = null;
-
-    socket.on('message', function (message) {
-        if(message === "user_disconnect"){
-            alert("Sorry we're full right now!");
-            document.body.innerHTML = "<H1>Application has reached capacity.</H1>";
+    globals.SOCKET.on('init', onInit);
+    globals.SOCKET.on('updateUser', onUpdateUser);
+    globals.SOCKET.on('removeUser', onRemoveUser);
+    globals.SOCKET.on('updateObjects', onUpdateObjects);
+    globals.SOCKET.on('message', (message) => {
+        if(message === globals.EVENT_DC_USER){
+            document.body.innerHTML = "<H1>" +
+                "Application has reached capacity." +
+                "</H1>";
         }
     });
 }
@@ -162,14 +130,14 @@ function ViewSpace(x, y, w, h, scale, id){
 
 ViewSpace.prototype.reportView = function(reportSubWS){
     var vsInfo = {
-        x : this.x,
-        y : this.y,
-        w : this.w,
-        h : this.h,
-        ew : this.ew,
-        eh : this.eh,
-        scale : this.scale,
-        id : this.id
+        x: this.x,
+        y: this.y,
+        w: this.w,
+        h: this.h,
+        ew: this.ew,
+        eh: this.eh,
+        scale: this.scale,
+        id: this.id
     };
 
     /*
@@ -178,53 +146,49 @@ ViewSpace.prototype.reportView = function(reportSubWS){
      */
     if (reportSubWS)
     {
-        this.subViews.forEach(
-            function(subWS,index){
-                subWS.reportView(true);
-            }
-        );
+        this.subViews.forEach( subWS => subWS.reportView(true) );
     }
 
-    socket.emit('reportView', vsInfo);
+    globals.SOCKET.emit('reportView', vsInfo);
 }
 
 /*
  * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
  *      this.
  */
-function main_wsDraw(){
-    // Clear old main_ws
-    ctx.clearRect(0, 0, main_ws.getWidth(), main_ws.getHeight());
-    ctx.save();
-    ctx.scale(mainViewSpace.scale, mainViewSpace.scale);
+function globals.MAIN_WORKSPACEDraw(){
+    // Clear old globals.MAIN_WORKSPACE
+    globals.CANVAS_CONTEXT.clearRect(0, 0, globals.MAIN_WORKSPACE.getWidth(), globals.MAIN_WORKSPACE.getHeight());
+    globals.CANVAS_CONTEXT.save();
+    globals.CANVAS_CONTEXT.scale(globals.MAIN_VIEWSPACE.scale, globals.MAIN_VIEWSPACE.scale);
 
-    ctx.translate(-mainViewSpace.x, -mainViewSpace.y);
-    ctx.rotate(mainViewSpace.rotation);
+    globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.x, -globals.MAIN_VIEWSPACE.y);
+    globals.CANVAS_CONTEXT.rotate(globals.MAIN_VIEWSPACE.rotation);
 
     /*
      * XXX: I think maybe this should be a 'rotate' function.
      */
-    switch(mainViewSpace.rotation){
+    switch(globals.MAIN_VIEWSPACE.rotation){
         case(0): break;
-        case(Math.PI): ctx.translate((-mainViewSpace.ew - mainViewSpace.x*2), (-mainViewSpace.eh - mainViewSpace.y*2)); break;
-        case(Math.PI/2): ctx.translate(-mainViewSpace.ew, -mainViewSpace.x*2); break;
-        case(3*Math.PI/2): ctx.translate(-mainViewSpace.y*2, -mainViewSpace.ew); break;
+        case(Math.PI): globals.CANVAS_CONTEXT.translate((-globals.MAIN_VIEWSPACE.ew - globals.MAIN_VIEWSPACE.x*2), (-globals.MAIN_VIEWSPACE.eh - globals.MAIN_VIEWSPACE.y*2)); break;
+        case(Math.PI/2): globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.ew, -globals.MAIN_VIEWSPACE.x*2); break;
+        case(3*Math.PI/2): globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.y*2, -globals.MAIN_VIEWSPACE.ew); break;
     }
 
     /*
      * XXX: Each WSObject should have a draw() function defined on it, which
      *      can then be called from inside a simple forEach().
      */
-    for (var i = 0; i < wsObjects.length; i++) {
-        //console.log(wsObjects);
-        if (wsObjects[i].w != null && wsObjects[i].h != null){
-            if (wsObjects[i].imgsrc)
+    for (var i = 0; i < globals.WS_OBJECTS.length; i++) {
+        //console.log(globals.WS_OBJECTS);
+        if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null){
+            if (globals.WS_OBJECTS[i].imgsrc)
             {
-                ctx.drawImage(images[wsObjects[i].id], wsObjects[i].x, wsObjects[i].y, wsObjects[i].w, wsObjects[i].h);
+                globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y, globals.WS_OBJECTS[i].w, globals.WS_OBJECTS[i].h);
             }
             else
             {   
-            //console.log(wsObjects[i].draw);
+            //console.log(globals.WS_OBJECTS[i].draw);
                 /*
                  * XXX: Yikes!!! eval()? And we want this to be a usable API?
                  *      For people to work together over networks? Pardon my
@@ -235,14 +199,14 @@ function main_wsDraw(){
                  *
                  *      There must be a better way...
                  */
-                eval(wsObjects[i].draw+';');
-                eval(wsObjects[i].drawStart+';');
+                eval(globals.WS_OBJECTS[i].draw+';');
+                eval(globals.WS_OBJECTS[i].drawStart+';');
             }
         }
         else{
-            if (wsObjects[i].imgsrc)
+            if (globals.WS_OBJECTS[i].imgsrc)
             {
-                ctx.drawImage(images[wsObjects[i].id], wsObjects[i].x, wsObjects[i].y);
+                globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y);
             }
 
             else
@@ -251,8 +215,8 @@ function main_wsDraw(){
                  * XXX: Same eval() complaint as above, but with the added
                  *      complaint that this is duplicated code.
                  */
-                eval(wsObjects[i].draw+';');
-                eval(wsObjects[i].startStart+';');
+                eval(globals.WS_OBJECTS[i].draw+';');
+                eval(globals.WS_OBJECTS[i].startStart+';');
             }
         }
 
@@ -262,25 +226,25 @@ function main_wsDraw(){
      * XXX: What exactly is going on here? Is this where we draw the rectangles
      *      showing users where the other users are looking?
      */
-    for (var i = 0; i < views.length; i++) {
-        ctx.beginPath();
-        ctx.rect(views[i].x, views[i].y, views[i].ew, views[i].eh);
-        ctx.stroke();
+    for (var i = 0; i < globals.VIEWS.length; i++) {
+        globals.CANVAS_CONTEXT.beginPath();
+        globals.CANVAS_CONTEXT.rect(globals.VIEWS[i].x, globals.VIEWS[i].y, globals.VIEWS[i].ew, globals.VIEWS[i].eh);
+        globals.CANVAS_CONTEXT.stroke();
     }
 
-    ctx.restore();
+    globals.CANVAS_CONTEXT.restore();
 
     /*
      * XXX: This should be a function.
      */
-    if(settings != null && settings.debug){
-        ctx.font = "18px Georgia";
-        ctx.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
-        ctx.fillText("ViewSpace Coordinates: " + mainViewSpace.x.toFixed(2) + ", " + mainViewSpace.y.toFixed(2), 10, 40);
-        ctx.fillText("Bottom Right Corner: " + (mainViewSpace.x + mainViewSpace.w).toFixed(2) + ", " + (mainViewSpace.y + mainViewSpace.h).toFixed(2), 10, 60);
-        ctx.fillText("Number of Other Users: " + views.length, 10, 80);
-        ctx.fillText("Viewspace Scale: " + mainViewSpace.scale.toFixed(2), 10, 100);
-        ctx.fillText("ViewSpace Rotation: " + mainViewSpace.rotation, 10, 120);
+    if(globals.SETTINGS != null && globals.SETTINGS.debug){
+        globals.CANVAS_CONTEXT.font = "18px Georgia";
+        globals.CANVAS_CONTEXT.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
+        globals.CANVAS_CONTEXT.fillText("ViewSpace Coordinates: " + globals.MAIN_VIEWSPACE.x.toFixed(2) + ", " + globals.MAIN_VIEWSPACE.y.toFixed(2), 10, 40);
+        globals.CANVAS_CONTEXT.fillText("Bottom Right Corner: " + (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.w).toFixed(2) + ", " + (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.h).toFixed(2), 10, 60);
+        globals.CANVAS_CONTEXT.fillText("Number of Other Users: " + globals.VIEWS.length, 10, 80);
+        globals.CANVAS_CONTEXT.fillText("Viewspace Scale: " + globals.MAIN_VIEWSPACE.scale.toFixed(2), 10, 100);
+        globals.CANVAS_CONTEXT.fillText("ViewSpace Rotation: " + globals.MAIN_VIEWSPACE.rotation, 10, 120);
     }
 }
 
@@ -288,23 +252,23 @@ window.addEventListener('resize', onResized, false);
 function onResized(){
     /*
      * XXX: See here this at least sort of makes sense, yet earlier there was
-     *      some kind of main_ws.width = main_ws.getWidth() nonsense.
+     *      some kind of globals.MAIN_WORKSPACE.width = globals.MAIN_WORKSPACE.getWidth() nonsense.
      */
-    main_ws.width = window.innerWidth;
-    main_ws.height = window.innerHeight;
+    globals.MAIN_WORKSPACE.width = window.innerWidth;
+    globals.MAIN_WORKSPACE.height = window.innerHeight;
 
     /*
-     * XXX: main_ws is a <canvas>
-     *      mainViewSpace is a client-side ViewSpace
+     * XXX: globals.MAIN_WORKSPACE is a <canvas>
+     *      globals.MAIN_VIEWSPACE is a client-side ViewSpace
      *
      *      Can we clarify this? This really confused me. Is there a reason we
      *      need both?
      */
-    mainViewSpace.w = main_ws.getWidth();
-    mainViewSpace.h = main_ws.getHeight();
-    mainViewSpace.ew = mainViewSpace.w/mainViewSpace.scale;
-    mainViewSpace.eh = mainViewSpace.h/mainViewSpace.scale;
-    mainViewSpace.reportView();
+    globals.MAIN_VIEWSPACE.w = globals.MAIN_WORKSPACE.getWidth();
+    globals.MAIN_VIEWSPACE.h = globals.MAIN_WORKSPACE.getHeight();
+    globals.MAIN_VIEWSPACE.ew = globals.MAIN_VIEWSPACE.w/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.eh = globals.MAIN_VIEWSPACE.h/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.reportView();
 
 }
 
@@ -321,8 +285,8 @@ function onMouseScroll(ev) {
      *      to simplify this.
      */
     var delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
-    var newScale = mainViewSpace.scale + delta*0.09;
-    socket.emit('handleScale', mainViewSpace, newScale);
+    var newScale = globals.MAIN_VIEWSPACE.scale + delta*0.09;
+    globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
 }
 
 /*
@@ -358,47 +322,47 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
     ev.gesture.preventDefault();
     switch(ev.type){
         case('tap') :
-            mouse.x = ev.gesture.center.pageX/mainViewSpace.scale + mainViewSpace.x;
-            mouse.y = ev.gesture.center.pageY/mainViewSpace.scale + mainViewSpace.y;
+            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             /*
              * XXX: Is this code just copy-pasted across three of the cases???
              */
-            switch(mainViewSpace.rotation){
+            switch(globals.MAIN_VIEWSPACE.rotation){
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = mainViewSpace.x + (mainViewSpace.ew * (1 - ((mouse.x - mainViewSpace.x)/mainViewSpace.ew))); 
-                    mouse.y = mainViewSpace.y + (mainViewSpace.eh * (1 - ((mouse.y - mainViewSpace.y)/mainViewSpace.eh))); 
+                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh))); 
                     break;
                 case(Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) + (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) - (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) - (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) + (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
-            socket.emit('handleClick', mouse.x, mouse.y);
+            globals.SOCKET.emit('handleClick', mouse.x, mouse.y);
         case 'dragstart':
-            mouse.x = ev.gesture.center.pageX/mainViewSpace.scale + mainViewSpace.x;
-            mouse.y = ev.gesture.center.pageY/mainViewSpace.scale + mainViewSpace.y;
-            switch(mainViewSpace.rotation){
+            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+            switch(globals.MAIN_VIEWSPACE.rotation){
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = mainViewSpace.x + (mainViewSpace.ew * (1 - ((mouse.x - mainViewSpace.x)/mainViewSpace.ew))); 
-                    mouse.y = mainViewSpace.y + (mainViewSpace.eh * (1 - ((mouse.y - mainViewSpace.y)/mainViewSpace.eh)));
+                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) + (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) - (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) - (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) + (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
             break;
@@ -415,26 +379,26 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             }
             lastMouse.x = mouse.x;
             lastMouse.y = mouse.y;
-            mouse.x = ev.gesture.center.pageX/mainViewSpace.scale + mainViewSpace.x;
-            mouse.y = ev.gesture.center.pageY/mainViewSpace.scale + mainViewSpace.y;
-            switch(mainViewSpace.rotation){
+            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+            switch(globals.MAIN_VIEWSPACE.rotation){
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = mainViewSpace.x + (mainViewSpace.ew * (1 - ((mouse.x - mainViewSpace.x)/mainViewSpace.ew))); 
-                    mouse.y = mainViewSpace.y + (mainViewSpace.eh * (1 - ((mouse.y - mainViewSpace.y)/mainViewSpace.eh)));
+                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) + (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) - (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
                     temp = mouse.x;
-                    mouse.x = (mainViewSpace.x + mainViewSpace.ew/2) - (mouse.y - (mainViewSpace.y + mainViewSpace.eh/2)); 
-                    mouse.y = (mainViewSpace.y + mainViewSpace.eh/2) + (temp - (mainViewSpace.x + mainViewSpace.ew/2));
+                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
-            socket.emit('handleDrag', mainViewSpace, mouse.x, mouse.y, (lastMouse.x - mouse.x), (lastMouse.y - mouse.y));
+            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, mouse.x, mouse.y, (lastMouse.x - mouse.x), (lastMouse.y - mouse.y));
             break;
         case 'dragend':
             /*
@@ -443,12 +407,12 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             break;
         case 'transformstart':
             transforming = true;
-            startScale = mainViewSpace.scale;
+            startScale = globals.MAIN_VIEWSPACE.scale;
             break;
         case 'transform':
             var scale = ev.gesture.scale;
             var newScale = scale * startScale;
-            socket.emit('handleScale', mainViewSpace, newScale);
+            globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
             break;
         case 'transformend':
             transforming = false;
@@ -460,26 +424,26 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
 });
 
 function onInit(initData){
-    settings = initData.settings;
+    globals.SETTINGS = initData.settings;
     /*
      * XXX: Clean this up.
      */
-    if(settings.BGcolor != null){
-        document.getElementById('main').style.backgroundColor = settings.BGcolor;
+    if(globals.SETTINGS.BGcolor != null){
+        document.getElementById('main').style.backgroundColor = globals.SETTINGS.BGcolor;
     }
     else{
         document.getElementById('main').style.backgroundColor = "#aaaaaa";
     }
 
     /*
-     * XXX: Look everywhere and make sure that mainViewSpace.id isn't getting
+     * XXX: Look everywhere and make sure that globals.MAIN_VIEWSPACE.id isn't getting
      *      set anywhere else!
      *
      *      Should make sure that all IDs anywhere are immutable once assigned.
      *      Perhaps an 'assignID' function? It could take an object to assign
      *      and an ID generator (preferably also immutable).
      */
-    mainViewSpace.id = initData.id;
+    globals.MAIN_VIEWSPACE.id = initData.id;
     for (var i = 0; i < initData.views.length; i++) {
         /*
          * XXX: I'm not exactly sure what's going on here. Are we pushing in
@@ -487,24 +451,24 @@ function onInit(initData){
          *      new ViewSpaces instead of pushing in the ViewSpace from
          *      initData?
          */
-        if(initData.views[i].id != mainViewSpace.id){
-            views.push(new ViewSpace(initData.views[i].x, initData.views[i].y, initData.views[i].w, initData.views[i].h, initData.views[i].scale, initData.views[i].id));
+        if(initData.views[i].id != globals.MAIN_VIEWSPACE.id){
+            globals.VIEWS.push(new ViewSpace(initData.views[i].x, initData.views[i].y, initData.views[i].w, initData.views[i].h, initData.views[i].scale, initData.views[i].id));
         }
     }
 
     /*
      * XXX: What kind of Image() is this? Where is it defined?
      */
-    for (var i = 0; i < initData.wsObjects.length; i++) {
-        wsObjects.push(initData.wsObjects[i]);
+    for (var i = 0; i < initData.globals.WS_OBJECTS.length; i++) {
+        globals.WS_OBJECTS.push(initData.globals.WS_OBJECTS[i]);
         
-        if (wsObjects[i].imgsrc){
-            images[initData.wsObjects[i].id] = new Image();
-            images[initData.wsObjects[i].id].src = initData.wsObjects[i].imgsrc;
+        if (globals.WS_OBJECTS[i].imgsrc){
+            globals.IMAGES[initData.globals.WS_OBJECTS[i].id] = new Image();
+            globals.IMAGES[initData.globals.WS_OBJECTS[i].id].src = initData.globals.WS_OBJECTS[i].imgsrc;
         }
     }
 
-    mainViewSpace.reportView(true);
+    globals.MAIN_VIEWSPACE.reportView(true);
 }
 
 /*
@@ -516,43 +480,43 @@ function onInit(initData){
  */
 var noUserFound = true;
 function onUpdateUser(vsInfo){
-    // socket.emit('consoleLog', "User: " + mainViewSpace.id + " updating " + vsInfo.id + "'s info.");
-    if(vsInfo.id == mainViewSpace.id){
-        mainViewSpace.x = vsInfo.x;
-        mainViewSpace.y = vsInfo.y;
-        mainViewSpace.w = vsInfo.w;
-        mainViewSpace.h = vsInfo.h;
-        mainViewSpace.ew = vsInfo.ew;
-        mainViewSpace.eh = vsInfo.eh;
-        mainViewSpace.scale = vsInfo.scale;
-        mainViewSpace.rotation = vsInfo.rotation;
+    // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + " updating " + vsInfo.id + "'s info.");
+    if(vsInfo.id == globals.MAIN_VIEWSPACE.id){
+        globals.MAIN_VIEWSPACE.x = vsInfo.x;
+        globals.MAIN_VIEWSPACE.y = vsInfo.y;
+        globals.MAIN_VIEWSPACE.w = vsInfo.w;
+        globals.MAIN_VIEWSPACE.h = vsInfo.h;
+        globals.MAIN_VIEWSPACE.ew = vsInfo.ew;
+        globals.MAIN_VIEWSPACE.eh = vsInfo.eh;
+        globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
+        globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
     }
     else{
-        for (var i = 0; i < views.length; i++) {
-            if(views[i].id == vsInfo.id){
+        for (var i = 0; i < globals.VIEWS.length; i++) {
+            if(globals.VIEWS[i].id == vsInfo.id){
                 noUserFound = false;
-                views[i].x = vsInfo.x;
-                views[i].y = vsInfo.y;
-                views[i].w = vsInfo.w;
-                views[i].h = vsInfo.h;
-                views[i].ew = vsInfo.ew;
-                views[i].eh = vsInfo.eh;
-                views[i].scale = vsInfo.scale;
-                views[i].id = vsInfo.id;
+                globals.VIEWS[i].x = vsInfo.x;
+                globals.VIEWS[i].y = vsInfo.y;
+                globals.VIEWS[i].w = vsInfo.w;
+                globals.VIEWS[i].h = vsInfo.h;
+                globals.VIEWS[i].ew = vsInfo.ew;
+                globals.VIEWS[i].eh = vsInfo.eh;
+                globals.VIEWS[i].scale = vsInfo.scale;
+                globals.VIEWS[i].id = vsInfo.id;
                 break;
             }
         }
         if(noUserFound){
-            views.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
+            globals.VIEWS.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
         }
         noUserFound = true;
     }
 }
 
 function onRemoveUser(id){
-    for (var i = 0; i < views.length; i++) {
-        if(views[i].id == id){
-            views.remove(i);
+    for (var i = 0; i < globals.VIEWS.length; i++) {
+        if(globals.VIEWS[i].id == id){
+            globals.VIEWS.remove(i);
             break;
         }
     }
@@ -569,14 +533,34 @@ function onRemoveUser(id){
  *      of trashing, copying, and regenerating.
  */
 function onUpdateObjects(objects){
-    wsObjects = [];
+    globals.WS_OBJECTS = [];
     for (var i = 0; i < objects.length; i++) {
-        wsObjects.push(objects[i]);
+        globals.WS_OBJECTS.push(objects[i]);
 
-        if (wsObjects[i].imgsrc){
-            images[objects[i].id] = new Image();
-            images[objects[i].id].src = objects[i].imgsrc;
+        if (globals.WS_OBJECTS[i].imgsrc){
+            globals.IMAGES[objects[i].id] = new Image();
+            globals.IMAGES[objects[i].id].src = objects[i].imgsrc;
         }
     }
+}
+
+/*
+ * XXX: Wait... are these really necessary? Why are we accessing the window's
+ *      innerWidth instead of the canvas element's innerWidth? Does the canvas
+ *      element even have an innerWidth? I'll look into it...
+ */
+HTMLCanvasElement.prototype.getWidth = function() {
+    return window.innerWidth;
+};
+
+HTMLCanvasElement.prototype.getHeight = function() {
+    return window.innerHeight;
+};
+
+HTMLCanvasElement.prototype.getCenter = function(){
+    return {
+        x : this.getWidth()/2,
+        y : this.getHeight()/2
+    };
 }
 

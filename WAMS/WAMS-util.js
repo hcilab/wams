@@ -55,7 +55,6 @@ const IDStamper = (function defineIDStamper() {
     class IDStamper {
         constructor() {
             this[sym] = id_gen();
-            console.log(this);
         }
 
         stamp(obj) {
