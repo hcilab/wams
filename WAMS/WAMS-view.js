@@ -9,7 +9,7 @@
  *      [ ] Set to use JavaScript's "strict" mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
- *      [ ] Organize globals, eliminate where possible.
+ *      [X] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
  *      [ ] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
@@ -29,7 +29,10 @@
  *           with the standard Array.prototype.splice().
  */
 
+window.addEventListener("DOMMouseScroll", onMouseScroll, false);
 window.addEventListener('load', onWindowLoad, false);
+window.addEventListener("mousewheel", onMouseScroll, false);
+window.addEventListener('resize', onResized, false);
 
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
@@ -140,50 +143,52 @@ function onWindowLoad() {
  *      to extend? How would that work, given that one of the ViewSpaces is
  *      sent to the client and the other is used by the server?
  */
-function ViewSpace(x, y, w, h, scale, id) {
-    /*
-     * XXX: Like in the server side ViewSpace, should update the variable
-     *      names.
-     */
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.scale = scale;
-    this.ew = w/scale;
-    this.eh = h/scale;
-    this.id = id;
-    this.subViews = [];
-}
-
-ViewSpace.prototype.reportView = function(reportSubWS) {
-    const vsInfo = {
-        x: this.x,
-        y: this.y,
-        w: this.w,
-        h: this.h,
-        ew: this.ew,
-        eh: this.eh,
-        scale: this.scale,
-        id: this.id
-    };
-
-    /*
-     * XXX: Do we want to connect the subviews in this view somehow, so that
-     *      they are clearly linked in the report?
-     */
-    if (reportSubWS) {
-        this.subViews.forEach( subWS => subWS.reportView(true) );
+class ViewSpace {
+    constructor(x, y, w, h, scale, id) {
+        /*
+         * XXX: Like in the server side ViewSpace, should update the variable
+         *      names.
+         */
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.scale = scale;
+        this.ew = w/scale;
+        this.eh = h/scale;
+        this.id = id;
+        this.subViews = [];
     }
 
-    globals.SOCKET.emit('reportView', vsInfo);
+    reportView(reportSubWS) {
+        const vsInfo = {
+            x: this.x,
+            y: this.y,
+            w: this.w,
+            h: this.h,
+            ew: this.ew,
+            eh: this.eh,
+            scale: this.scale,
+            id: this.id
+        };
+
+        /*
+         * XXX: Do we want to connect the subviews in this view somehow, so 
+         *      that they are clearly linked in the report?
+         */
+        if (reportSubWS) {
+            this.subViews.forEach( subWS => subWS.reportView(true) );
+        }
+
+        globals.SOCKET.emit('reportView', vsInfo);
+    }
 }
 
 /*
  * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
  *      this.
  */
-function globals.MAIN_WORKSPACEDraw() {
+function main_wsDraw() {
     // Clear old globals.MAIN_WORKSPACE
     globals.CANVAS_CONTEXT.clearRect(0, 0, globals.MAIN_WORKSPACE.getWidth(), globals.MAIN_WORKSPACE.getHeight());
     globals.CANVAS_CONTEXT.save();
@@ -267,7 +272,6 @@ function globals.MAIN_WORKSPACEDraw() {
     }
 }
 
-window.addEventListener('resize', onResized, false);
 function onResized() {
     /*
      * XXX: See here this at least sort of makes sense, yet earlier there was
@@ -294,8 +298,6 @@ function onResized() {
 /*
  * XXX: Can we organize this code to put all the listener attachments together?
  */
-window.addEventListener("mousewheel", onMouseScroll, false);
-window.addEventListener("DOMMouseScroll", onMouseScroll, false);
 
 function onMouseScroll(ev) {
     /*
