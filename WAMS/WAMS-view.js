@@ -129,7 +129,7 @@ function ViewSpace(x, y, w, h, scale, id) {
 
 
 ViewSpace.prototype.reportView = function(reportSubWS) {
-    var vsInfo = {
+    const vsInfo = {
         x: this.x,
         y: this.y,
         w: this.w,
@@ -178,7 +178,7 @@ function globals.MAIN_WORKSPACEDraw() {
      * XXX: Each WSObject should have a draw() function defined on it, which
      *      can then be called from inside a simple forEach().
      */
-    for (var i = 0; i < globals.WS_OBJECTS.length; i++) {
+    for (let i = 0; i < globals.WS_OBJECTS.length; i++) {
         //console.log(globals.WS_OBJECTS);
         if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null) {
             if (globals.WS_OBJECTS[i].imgsrc) {
@@ -217,7 +217,7 @@ function globals.MAIN_WORKSPACEDraw() {
      * XXX: What exactly is going on here? Is this where we draw the rectangles
      *      showing users where the other users are looking?
      */
-    for (var i = 0; i < globals.VIEWS.length; i++) {
+    for (let i = 0; i < globals.VIEWS.length; i++) {
         globals.CANVAS_CONTEXT.beginPath();
         globals.CANVAS_CONTEXT.rect(globals.VIEWS[i].x, globals.VIEWS[i].y, globals.VIEWS[i].ew, globals.VIEWS[i].eh);
         globals.CANVAS_CONTEXT.stroke();
@@ -275,8 +275,8 @@ function onMouseScroll(ev) {
      *      why a Math.max(Math.min()) structure is necessary. We might be able
      *      to simplify this.
      */
-    var delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
-    var newScale = globals.MAIN_VIEWSPACE.scale + delta*0.09;
+    const delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
+    const newScale = globals.MAIN_VIEWSPACE.scale + delta*0.09;
     globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
 }
 
@@ -286,11 +286,11 @@ function onMouseScroll(ev) {
  *      hoping the JS fairies hoist our variables to the global scope...
  *      (That's a good thing, but this code still needs to be organized).
  */
-var mouse = {x: 0, y: 0};
-var lastMouse = {x: 0, y: 0};
-var temp = 0;
+const mouse = {x: 0, y: 0};
+const lastMouse = {x: 0, y: 0};
+let temp = 0;
 
-var hammerOptions = {
+const hammerOptions = {
     dragLockToAxis : true,
     dragBlockHorizontal : true,
     preventDefault : true,
@@ -301,13 +301,13 @@ var hammerOptions = {
     drag_min_distance: 0
 };
 
-var touchEventHandler = Hammer(document.body, hammerOptions);
+const touchEventHandler = Hammer(document.body, hammerOptions);
 
 /*
  * XXX: I'm not sure I like this approach of attaching the same listener to all
  *      of the events, then 'switch'ing between the events based on type...
  */
-var transforming = false;
+let transforming = false;
 touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev) {
     ev.preventDefault();
     ev.gesture.preventDefault();
@@ -401,8 +401,8 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             startScale = globals.MAIN_VIEWSPACE.scale;
             break;
         case 'transform':
-            var scale = ev.gesture.scale;
-            var newScale = scale * startScale;
+            const scale = ev.gesture.scale;
+            const newScale = scale * startScale;
             globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
             break;
         case 'transformend':
@@ -434,7 +434,7 @@ function onInit(initData) {
      *      and an ID generator (preferably also immutable).
      */
     globals.MAIN_VIEWSPACE.id = initData.id;
-    for (var i = 0; i < initData.views.length; i++) {
+    for (let i = 0; i < initData.views.length; i++) {
         /*
          * XXX: I'm not exactly sure what's going on here. Are we pushing in
          *      subviews? What are the initData.views? Why are we generating
@@ -449,7 +449,7 @@ function onInit(initData) {
     /*
      * XXX: What kind of Image() is this? Where is it defined?
      */
-    for (var i = 0; i < initData.globals.WS_OBJECTS.length; i++) {
+    for (let i = 0; i < initData.globals.WS_OBJECTS.length; i++) {
         globals.WS_OBJECTS.push(initData.globals.WS_OBJECTS[i]);
         
         if (globals.WS_OBJECTS[i].imgsrc) {
@@ -468,7 +468,7 @@ function onInit(initData) {
  *      + Answer: A quick grep reveals that no, it is not used elsewhere. Put
  *          it inside the listener.
  */
-var noUserFound = true;
+let noUserFound = true;
 function onUpdateUser(vsInfo) {
     // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + " updating " + vsInfo.id + "'s info.");
     if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
@@ -481,7 +481,7 @@ function onUpdateUser(vsInfo) {
         globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
         globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
     } else {
-        for (var i = 0; i < globals.VIEWS.length; i++) {
+        for (let i = 0; i < globals.VIEWS.length; i++) {
             if (globals.VIEWS[i].id == vsInfo.id) {
                 noUserFound = false;
                 globals.VIEWS[i].x = vsInfo.x;
@@ -503,7 +503,7 @@ function onUpdateUser(vsInfo) {
 }
 
 function onRemoveUser(id) {
-    for (var i = 0; i < globals.VIEWS.length; i++) {
+    for (let i = 0; i < globals.VIEWS.length; i++) {
         if (globals.VIEWS[i].id == id) {
             globals.VIEWS.remove(i);
             break;
@@ -523,7 +523,7 @@ function onRemoveUser(id) {
  */
 function onUpdateObjects(objects) {
     globals.WS_OBJECTS = [];
-    for (var i = 0; i < objects.length; i++) {
+    for (let i = 0; i < objects.length; i++) {
         globals.WS_OBJECTS.push(objects[i]);
 
         if (globals.WS_OBJECTS[i].imgsrc) {
