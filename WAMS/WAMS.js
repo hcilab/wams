@@ -307,6 +307,15 @@ class Connection {
         });
     }
 
+    /*
+     * XXX: This might be a place where socket.io 'rooms' could
+     *      come in handy. Look into it...
+     */
+    broadcast(event, data) {
+        this.socket.emit(event, data);
+        this.socket.broadcast.emit(event, data);
+    }
+
     reportView(vsInfo) {
         if (this.workspace.views.length < this.workspace.clientLimit) {
             /*
@@ -324,6 +333,7 @@ class Connection {
                 this.viewSpace.id = vsInfo.id;
                 this.viewSpace.views = [];
             }
+
             if (!this.initializedLayout) {
                 this.initializedLayout = true;
 
@@ -342,12 +352,7 @@ class Connection {
                 this.workspace.views.push(this.viewSpace);
             }
 
-            /*
-             * XXX: This might be a place where socket.io 'rooms' could
-             *      come in handy. Look into it...
-             */
-            this.socket.emit('updateUser', this.viewSpace);
-            this.socket.broadcast.emit('updateUser', this.viewSpace);
+            this.broadcast('updateUser', this.viewSpace);
         } else if (!this.initializedLayout) {
             this.workspace.views.push(this.viewSpace);
             this.socket.send("user_disconnect");
@@ -371,23 +376,38 @@ class Connection {
     }
 
     handleDrag(vs, x, y, dx, dy) {
-        if (vs.id == this.viewSpace.id) {
+        if (vs.id !== this.viewSpace.id) return;
+
+        /*
+         * XXX: Why do we need this check? What is the dragHandler?
+         */
+        if (typeof this.workspace.dragHandler === "function") {
+            const dragCanvas = !this.workspace.wsObjects.some( o => {
+                if (o.containsPoint(x,y)) {
+                    this.workspace.dragHandler(
+                        o, this.viewSpace, 
+                        x, y, dx, dy
+                    );
+                    this.broadcast('updateUser', this.viewSpace);
+                    this.broadcast('updateObjects', this.workspace.wsObjects);
+                    return true;
+                }
+                return false;
+            });
+
             /*
-             * XXX: Why do we need this check? What is the dragHandler?
+             * XXX: This is causing jitter. Will have to look in the 
+             *      debugger, perhaps multiple events are firing on drags.
              */
-            if (this.workspace.dragHandler != null) {
-                this.workspace.wsObjects.forEach( o => {
-                    if (o.isInBounds(x,y)) {
-                        this.workspace.dragHandler(o, this.viewSpace, x, y, dx, dy);
-                        this.socket.emit('updateUser', this.viewSpace);
-                        this.socket.broadcast.emit('updateUser', this.viewSpace);
-                        this.socket.emit('updateObjects', this.workspace.wsObjects);
-                        this.socket.broadcast.emit('updateObjects', this.workspace.wsObjects);
-                    }
-                });
-            } else {
-                console.log(`Drag handler is not attached for ${vs.id}`);
+            if (dragCanvas) {
+                this.workspace.dragHandler(
+                    this.viewSpace, this.viewSpace,
+                    x, y, dx, dy
+                );
+                this.broadcast('updateUser', this.viewSpace);
             }
+        } else {
+            console.log(`Drag handler is not attached for ${vs.id}`);
         }
     }
 
@@ -506,7 +526,7 @@ class WSObject {
         this.type = type || "view/background";
     }
 
-    isInBounds(x,y) {
+    containsPoint(x,y) {
         return  (this.x < x) && 
                 (this.x  + this.w > x) && 
                 (this.y < y) && 
