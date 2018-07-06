@@ -20,7 +20,7 @@
  * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [ ] Set to use JavaScript's 'strict' mode.
+ *      [X] Set to use JavaScript's 'strict' mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
