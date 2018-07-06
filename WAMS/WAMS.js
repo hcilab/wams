@@ -285,9 +285,11 @@ class Connection {
          */
         this.initializedLayout = false;
         this.socket = socket;
-        this.viewSpace = new ViewSpace(workspace.viewID++);
-        this.viewSpace.boundaries = workspace.boundaries;
         this.workspace = workspace;
+        this.viewSpace = new ViewSpace(
+            this.workspace.viewID++, 
+            this.workspace.boundaries
+        );
         
         if (globals.WDEBUG) {
             console.log(
@@ -523,7 +525,7 @@ class WSObject {
 }
 
 class ViewSpace {
-    constructor(id) {
+    constructor(id, boundaries) {
         /*
          * XXX: What's the difference between this.w and this.ew? (Same for h and 
          *      eh). The answer is somewhere in here, but I think it would help if 
@@ -543,6 +545,7 @@ class ViewSpace {
         this.scale = 1;
         this.rotation = 0;
         this.id = id;
+        this.boundaries = boundaries;
         this.type = "view/background";
     }
 
