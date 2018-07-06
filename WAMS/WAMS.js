@@ -14,11 +14,13 @@
  *  |-> Date: July/August 2018
  */
 
+'use strict';
+
 /*
  * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [ ] Set to use JavaScript's "strict" mode.
+ *      [ ] Set to use JavaScript's 'strict' mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
@@ -36,7 +38,7 @@
  *           ES6 arrow functions?
  *      [X] Replace classic JS concatenated strings with ES6 backtick strings,
  *           where necessary. (Or everywhere for consistency?)
- *      [ ] Switch to using strict equality unless coercive equality is clearly
+ *      [X] Switch to using strict equality unless coercive equality is clearly
  *           beneficial in a given circumstance.
  *      [X] Replace all use of the custom Array.prototype.remove() function
  *           with the standard Array.prototype.splice().
@@ -214,7 +216,7 @@ class WorkSpace {
      *          interactions between the users?
      *
      * XXX: Also! These attachHanlder functions can be doing more! We can
-     *      probably eliminate all those "is a handler attached" checks later
+     *      probably eliminate all those 'is a handler attached' checks later
      *      if we don't even call the function which calls the handler unless
      *      a handler is attached. Trippy, I know. Something to think about!
      */
@@ -336,20 +338,20 @@ class Connection {
              * XXX: Watch out for coersive equality vs. strict equality.
              *      Decide if coercion should be allowed for each instance.
              */
-            if (this.viewSpace.id == vsInfo.id) {
+            if (this.viewSpace.id === vsInfo.id) {
                 this.viewSpace.assign(vsInfo);
             }
 
             if (!this.initializedLayout) {
                 this.initializedLayout = true;
 
-                if (typeof this.workspace.layoutHandler === "function") {
+                if (typeof this.workspace.layoutHandler === 'function') {
                     this.workspace.layoutHandler(
                         this.workspace, 
                         this.viewSpace
                     );
                 } else {
-                    console.log("Layout handler is not attached!");
+                    console.log('Layout handler is not attached!');
                 }
 
                 this.workspace.views.push(this.viewSpace);
@@ -379,7 +381,7 @@ class Connection {
     handleDrag(vs, x, y, dx, dy) {
         // Failsafe checks.
         if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.dragHandler !== "function") {
+        if (typeof this.workspace.dragHandler !== 'function') {
             console.log(`Drag handler is not attached for ${vs.id}`);
             return;
         }
@@ -412,8 +414,8 @@ class Connection {
 
     handleClick(x, y) {
         // Failsafe.
-        if (typeof this.workspace.clickHandler !== "function") {
-            console.log("Click Handler is not attached!");
+        if (typeof this.workspace.clickHandler !== 'function') {
+            console.log('Click Handler is not attached!');
             return;
         }
 
@@ -431,7 +433,7 @@ class Connection {
         if (clickCanvas) {
             this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
             if (globals.WDEBUG) {
-                console.log("Clicked on the background.");
+                console.log('Clicked on the background.');
             }
         } 
 
@@ -442,8 +444,8 @@ class Connection {
     handleScale(vs, newScale) {
         // Failsafe checks.
         if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.scaleHandler !== "function") {
-            console.log("Scale handler is not attached!");
+        if (typeof this.workspace.scaleHandler !== 'function') {
+            console.log('Scale handler is not attached!');
             return;
         }
 
@@ -591,7 +593,7 @@ class ViewSpace {
             this.effectiveWidth = newWidth;
             this.effectiveHeight = newHeight;
         } else {
-            if (globals.WDEBUG) console.log("Scale out of Range!");
+            if (globals.WDEBUG) console.log('Scale out of Range!');
         }
     }
 
