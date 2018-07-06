@@ -190,21 +190,49 @@ class ViewSpace {
  */
 function main_wsDraw() {
     // Clear old globals.MAIN_WORKSPACE
-    globals.CANVAS_CONTEXT.clearRect(0, 0, globals.MAIN_WORKSPACE.getWidth(), globals.MAIN_WORKSPACE.getHeight());
+    globals.CANVAS_CONTEXT.clearRect(
+        0, 
+        0, 
+        globals.MAIN_WORKSPACE.getWidth(), 
+        globals.MAIN_WORKSPACE.getHeight()
+    );
     globals.CANVAS_CONTEXT.save();
-    globals.CANVAS_CONTEXT.scale(globals.MAIN_VIEWSPACE.scale, globals.MAIN_VIEWSPACE.scale);
-
-    globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.x, -globals.MAIN_VIEWSPACE.y);
-    globals.CANVAS_CONTEXT.rotate(globals.MAIN_VIEWSPACE.rotation);
+    globals.CANVAS_CONTEXT.scale(
+        globals.MAIN_VIEWSPACE.scale, 
+        globals.MAIN_VIEWSPACE.scale
+    );
+    globals.CANVAS_CONTEXT.translate(
+        -globals.MAIN_VIEWSPACE.x, 
+        -globals.MAIN_VIEWSPACE.y
+    );
+    globals.CANVAS_CONTEXT.rotate(
+        globals.MAIN_VIEWSPACE.rotation
+    );
 
     /*
      * XXX: I think maybe this should be a 'rotate' function.
      */
     switch(globals.MAIN_VIEWSPACE.rotation) {
-        case(0): break;
-        case(Math.PI): globals.CANVAS_CONTEXT.translate((-globals.MAIN_VIEWSPACE.ew - globals.MAIN_VIEWSPACE.x*2), (-globals.MAIN_VIEWSPACE.eh - globals.MAIN_VIEWSPACE.y*2)); break;
-        case(Math.PI/2): globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.ew, -globals.MAIN_VIEWSPACE.x*2); break;
-        case(3*Math.PI/2): globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.y*2, -globals.MAIN_VIEWSPACE.ew); break;
+        case(0): 
+            break;
+        case(Math.PI): 
+            globals.CANVAS_CONTEXT.translate(
+                (-globals.MAIN_VIEWSPACE.ew - globals.MAIN_VIEWSPACE.x*2), 
+                (-globals.MAIN_VIEWSPACE.eh - globals.MAIN_VIEWSPACE.y*2)
+            ); 
+            break;
+        case(Math.PI/2): 
+            globals.CANVAS_CONTEXT.translate(
+                -globals.MAIN_VIEWSPACE.ew, 
+                -globals.MAIN_VIEWSPACE.x*2
+            ); 
+            break;
+        case(3*Math.PI/2): 
+            globals.CANVAS_CONTEXT.translate(
+                -globals.MAIN_VIEWSPACE.y*2, 
+                -globals.MAIN_VIEWSPACE.ew
+            ); 
+            break;
     }
 
     /*
@@ -215,7 +243,13 @@ function main_wsDraw() {
         //console.log(globals.WS_OBJECTS);
         if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null) {
             if (globals.WS_OBJECTS[i].imgsrc) {
-                globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y, globals.WS_OBJECTS[i].w, globals.WS_OBJECTS[i].h);
+                globals.CANVAS_CONTEXT.drawImage(
+                    globals.IMAGES[globals.WS_OBJECTS[i].id], 
+                    globals.WS_OBJECTS[i].x, 
+                    globals.WS_OBJECTS[i].y, 
+                    globals.WS_OBJECTS[i].w, 
+                    globals.WS_OBJECTS[i].h
+                );
             } else {   
             //console.log(globals.WS_OBJECTS[i].draw);
                 /*
@@ -233,7 +267,10 @@ function main_wsDraw() {
             }
         } else {
             if (globals.WS_OBJECTS[i].imgsrc) {
-                globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y);
+                globals.CANVAS_CONTEXT.drawImage(
+                    globals.IMAGES[globals.WS_OBJECTS[i].id], 
+                    globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y
+                );
             } else {
                 /*
                  * XXX: Same eval() complaint as above, but with the added
@@ -252,7 +289,12 @@ function main_wsDraw() {
      */
     for (let i = 0; i < globals.VIEWS.length; i++) {
         globals.CANVAS_CONTEXT.beginPath();
-        globals.CANVAS_CONTEXT.rect(globals.VIEWS[i].x, globals.VIEWS[i].y, globals.VIEWS[i].ew, globals.VIEWS[i].eh);
+        globals.CANVAS_CONTEXT.rect(
+            globals.VIEWS[i].x, 
+            globals.VIEWS[i].y, 
+            globals.VIEWS[i].ew, 
+            globals.VIEWS[i].eh
+        );
         globals.CANVAS_CONTEXT.stroke();
     }
 
@@ -263,19 +305,54 @@ function main_wsDraw() {
      */
     if (globals.SETTINGS != null && globals.SETTINGS.debug) {
         globals.CANVAS_CONTEXT.font = "18px Georgia";
-        globals.CANVAS_CONTEXT.fillText("Mouse Coordinates: " + globals.MOUSE.x.toFixed(2) + ", " + globals.MOUSE.y.toFixed(2), 10, 20);
-        globals.CANVAS_CONTEXT.fillText("ViewSpace Coordinates: " + globals.MAIN_VIEWSPACE.x.toFixed(2) + ", " + globals.MAIN_VIEWSPACE.y.toFixed(2), 10, 40);
-        globals.CANVAS_CONTEXT.fillText("Bottom Right Corner: " + (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.w).toFixed(2) + ", " + (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.h).toFixed(2), 10, 60);
-        globals.CANVAS_CONTEXT.fillText("Number of Other Users: " + globals.VIEWS.length, 10, 80);
-        globals.CANVAS_CONTEXT.fillText("Viewspace Scale: " + globals.MAIN_VIEWSPACE.scale.toFixed(2), 10, 100);
-        globals.CANVAS_CONTEXT.fillText("ViewSpace Rotation: " + globals.MAIN_VIEWSPACE.rotation, 10, 120);
+        globals.CANVAS_CONTEXT.fillText(
+            "Mouse Coordinates: " + 
+                globals.MOUSE.x.toFixed(2) + 
+                ", " + 
+                globals.MOUSE.y.toFixed(2), 
+            10, 
+            20
+        );
+        globals.CANVAS_CONTEXT.fillText(
+            "ViewSpace Coordinates: " + 
+                globals.MAIN_VIEWSPACE.x.toFixed(2) + 
+                ", " + 
+                globals.MAIN_VIEWSPACE.y.toFixed(2), 
+            10, 
+            40
+        );
+        globals.CANVAS_CONTEXT.fillText(
+            "Bottom Right Corner: " + 
+                (globals.MAIN_VIEWSPACE.x + 
+                    globals.MAIN_VIEWSPACE.w).toFixed(2) + 
+                ", " + 
+                (globals.MAIN_VIEWSPACE.y + 
+                    globals.MAIN_VIEWSPACE.h).toFixed(2), 
+            10, 
+            60);
+        globals.CANVAS_CONTEXT.fillText(
+            "Number of Other Users: " + globals.VIEWS.length, 
+            10, 
+            80
+        );
+        globals.CANVAS_CONTEXT.fillText(
+            "Viewspace Scale: " + globals.MAIN_VIEWSPACE.scale.toFixed(2), 
+            10, 
+            100
+        );
+        globals.CANVAS_CONTEXT.fillText(
+            "ViewSpace Rotation: " + globals.MAIN_VIEWSPACE.rotation, 
+            10, 
+            120
+        );
     }
 }
 
 function onResized() {
     /*
      * XXX: See here this at least sort of makes sense, yet earlier there was
-     *      some kind of globals.MAIN_WORKSPACE.width = globals.MAIN_WORKSPACE.getWidth() nonsense.
+     *      some kind of globals.MAIN_WORKSPACE.width = 
+     *      globals.MAIN_WORKSPACE.getWidth() nonsense.
      */
     globals.MAIN_WORKSPACE.width = window.innerWidth;
     globals.MAIN_WORKSPACE.height = window.innerHeight;
@@ -289,8 +366,10 @@ function onResized() {
      */
     globals.MAIN_VIEWSPACE.w = globals.MAIN_WORKSPACE.getWidth();
     globals.MAIN_VIEWSPACE.h = globals.MAIN_WORKSPACE.getHeight();
-    globals.MAIN_VIEWSPACE.ew = globals.MAIN_VIEWSPACE.w/globals.MAIN_VIEWSPACE.scale;
-    globals.MAIN_VIEWSPACE.eh = globals.MAIN_VIEWSPACE.h/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.ew = 
+        globals.MAIN_VIEWSPACE.w/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.eh = 
+        globals.MAIN_VIEWSPACE.h/globals.MAIN_VIEWSPACE.scale;
     globals.MAIN_VIEWSPACE.reportView();
 
 }
@@ -314,111 +393,185 @@ function onMouseScroll(ev) {
  * XXX: I'm not sure I like this approach of attaching the same listener to all
  *      of the events, then 'switch'ing between the events based on type...
  */
-globals.TOUCH_EVENT_HANDLER.on('tap dragstart drag dragend transformstart transform transformend', function(ev) {
-    ev.preventDefault();
-    ev.gesture.preventDefault();
-    switch(ev.type) {
-        case('tap') :
-            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-            /*
-             * XXX: Is this code just copy-pasted across three of the cases???
-             */
-            switch(globals.MAIN_VIEWSPACE.rotation) {
-                case(0): break;
-                case(Math.PI): 
-                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh))); 
-                    break;
-                case(Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-                case(3*Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-            }
-            globals.SOCKET.emit('handleClick', globals.MOUSE.x, globals.MOUSE.y);
-        case 'dragstart':
-            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-            switch(globals.MAIN_VIEWSPACE.rotation) {
-                case(0): break;
-                case(Math.PI): 
-                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
-                    break;
-                case(Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-                case(3*Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-            }
-            break;
-        case 'drag':
-            /*
-             * XXX: Where is globals.transforming defined, where does it get modified?
-             *
-             *      + Answer: Defined before this listener attachment, modified
-             *          about 30 lines down in the transformstart and 
-             *          transformend cases.
-             */
-            if (globals.transforming) {
-                return;
-            }
-            globals.LAST_MOUSE.x = globals.MOUSE.x;
-            globals.LAST_MOUSE.y = globals.MOUSE.y;
-            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-            switch(globals.MAIN_VIEWSPACE.rotation) {
-                case(0): break;
-                case(Math.PI): 
-                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
-                    break;
-                case(Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-                case(3*Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                    break;
-            }
-            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (globals.LAST_MOUSE.x - globals.MOUSE.x), (globals.LAST_MOUSE.y - globals.MOUSE.y));
-            break;
-        case 'dragend':
-            /*
-             * XXX: Why listen at all? Is it just to prevent default?
-             */
-            break;
-        case 'transformstart':
-            globals.transforming = true;
-            startScale = globals.MAIN_VIEWSPACE.scale;
-            break;
-        case 'transform':
-            const scale = ev.gesture.scale;
-            const newScale = scale * startScale;
-            globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
-            break;
-        case 'transformend':
-            globals.transforming = false;
-            startScale = null;
-            break;
+globals.TOUCH_EVENT_HANDLER.on(
+    'tap dragstart drag dragend transformstart transform transformend', 
+    function(ev) {
+        ev.preventDefault();
+        ev.gesture.preventDefault();
+        switch(ev.type) {
+            case('tap') :
+                globals.MOUSE.x = 
+                    ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.x;
+                globals.MOUSE.y = 
+                    ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.y;
+                /*
+                 * XXX: Is this code just copy-pasted across three of the 
+                 *      cases???
+                 */
+                switch(globals.MAIN_VIEWSPACE.rotation) {
+                    case(0): break;
+                    case(Math.PI): 
+                        globals.MOUSE.x = 
+                            globals.MAIN_VIEWSPACE.x + 
+                            (globals.MAIN_VIEWSPACE.ew * 
+                                (1 - 
+                                    ((globals.MOUSE.x - 
+                                        globals.MAIN_VIEWSPACE.x) /
+                                        globals.MAIN_VIEWSPACE.ew
+                                    )
+                                )
+                            ); 
+                        globals.MOUSE.y = 
+                            globals.MAIN_VIEWSPACE.y + 
+                            (globals.MAIN_VIEWSPACE.eh * 
+                                (1 - 
+                                    ((globals.MOUSE.y - 
+                                        globals.MAIN_VIEWSPACE.y) /
+                                        globals.MAIN_VIEWSPACE.eh
+                                    )
+                                )
+                            ); 
+                        break;
+                    case(Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = 
+                            (globals.MAIN_VIEWSPACE.x + 
+                                globals.MAIN_VIEWSPACE.ew/2) + 
+                            (globals.MOUSE.y - 
+                                (globals.MAIN_VIEWSPACE.y + 
+                                    globals.MAIN_VIEWSPACE.eh/2
+                                )
+                            ); 
+                        globals.MOUSE.y = 
+                            (globals.MAIN_VIEWSPACE.y + 
+                                globals.MAIN_VIEWSPACE.eh/2) - 
+                            (globals.temp - 
+                                (globals.MAIN_VIEWSPACE.x + 
+                                    globals.MAIN_VIEWSPACE.ew/2
+                                )
+                            );
+                        break;
+                    case(3*Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = 
+                            (globals.MAIN_VIEWSPACE.x + 
+                                globals.MAIN_VIEWSPACE.ew/2) - 
+                            (globals.MOUSE.y - 
+                                (globals.MAIN_VIEWSPACE.y 
+                                    + globals.MAIN_VIEWSPACE.eh/2
+                                )
+                            ); 
+                        globals.MOUSE.y = 
+                            (globals.MAIN_VIEWSPACE.y + 
+                                globals.MAIN_VIEWSPACE.eh/2) + 
+                            (globals.temp - 
+                                (globals.MAIN_VIEWSPACE.x + 
+                                    globals.MAIN_VIEWSPACE.ew/2
+                                )
+                            );
+                        break;
+                }
+                globals.SOCKET.emit(
+                    'handleClick', 
+                    globals.MOUSE.x, 
+                    globals.MOUSE.y
+                );
+            case 'dragstart':
+                globals.MOUSE.x = ev.gesture.center.pageX/
+                    globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.x;
+                globals.MOUSE.y = ev.gesture.center.pageY/
+                    globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.y;
+                switch(globals.MAIN_VIEWSPACE.rotation) {
+                    case(0): break;
+                    case(Math.PI): 
+                        globals.MOUSE.x = 
+                            globals.MAIN_VIEWSPACE.x + 
+                            (globals.MAIN_VIEWSPACE.ew * 
+                                (1 - 
+                                    ((globals.MOUSE.x - 
+                                        globals.MAIN_VIEWSPACE.x)/
+                                        globals.MAIN_VIEWSPACE.ew
+                                    )
+                                )
+                            ); 
+                        globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
+                        break;
+                    case(Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                        break;
+                    case(3*Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                        break;
+                }
+                break;
+            case 'drag':
+                /*
+                 * XXX: Where is globals.transforming defined, where does it get modified?
+                 *
+                 *      + Answer: Defined before this listener attachment, modified
+                 *          about 30 lines down in the transformstart and 
+                 *          transformend cases.
+                 */
+                if (globals.transforming) {
+                    return;
+                }
+                globals.LAST_MOUSE.x = globals.MOUSE.x;
+                globals.LAST_MOUSE.y = globals.MOUSE.y;
+                globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+                globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+                switch(globals.MAIN_VIEWSPACE.rotation) {
+                    case(0): break;
+                    case(Math.PI): 
+                        globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                        globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
+                        break;
+                    case(Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                        break;
+                    case(3*Math.PI/2): 
+                        globals.temp = globals.MOUSE.x;
+                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                        break;
+                }
+                globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (globals.LAST_MOUSE.x - globals.MOUSE.x), (globals.LAST_MOUSE.y - globals.MOUSE.y));
+                break;
+            case 'dragend':
+                /*
+                 * XXX: Why listen at all? Is it just to prevent default?
+                 */
+                break;
+            case 'transformstart':
+                globals.transforming = true;
+                startScale = globals.MAIN_VIEWSPACE.scale;
+                break;
+            case 'transform':
+                const scale = ev.gesture.scale;
+                const newScale = scale * startScale;
+                globals.SOCKET.emit(
+                    'handleScale', 
+                    globals.MAIN_VIEWSPACE, 
+                    newScale
+                );
+                break;
+            case 'transformend':
+                globals.transforming = false;
+                startScale = null;
+                break;
 
 
-    }
-});
+        }
+    });
 
 function onInit(initData) {
     globals.SETTINGS = initData.settings;
@@ -426,14 +579,15 @@ function onInit(initData) {
      * XXX: Clean this up.
      */
     if (globals.SETTINGS.BGcolor != null) {
-        document.getElementById('main').style.backgroundColor = globals.SETTINGS.BGcolor;
+        document.getElementById('main').style.backgroundColor = 
+            globals.SETTINGS.BGcolor;
     } else {
         document.getElementById('main').style.backgroundColor = "#aaaaaa";
     }
 
     /*
-     * XXX: Look everywhere and make sure that globals.MAIN_VIEWSPACE.id isn't getting
-     *      set anywhere else!
+     * XXX: Look everywhere and make sure that globals.MAIN_VIEWSPACE.id isn't 
+     *      getting set anywhere else!
      *
      *      Should make sure that all IDs anywhere are immutable once assigned.
      *      Perhaps an 'assignID' function? It could take an object to assign
@@ -448,7 +602,16 @@ function onInit(initData) {
          *      initData?
          */
         if (initData.views[i].id != globals.MAIN_VIEWSPACE.id) {
-            globals.VIEWS.push(new ViewSpace(initData.views[i].x, initData.views[i].y, initData.views[i].w, initData.views[i].h, initData.views[i].scale, initData.views[i].id));
+            globals.VIEWS.push(
+                new ViewSpace(
+                    initData.views[i].x, 
+                    initData.views[i].y, 
+                    initData.views[i].w, 
+                    initData.views[i].h, 
+                    initData.views[i].scale, 
+                    initData.views[i].id
+                )
+            );
         }
     }
 
@@ -460,7 +623,8 @@ function onInit(initData) {
         
         if (globals.WS_OBJECTS[i].imgsrc) {
             globals.IMAGES[initData.globals.WS_OBJECTS[i].id] = new Image();
-            globals.IMAGES[initData.globals.WS_OBJECTS[i].id].src = initData.globals.WS_OBJECTS[i].imgsrc;
+            globals.IMAGES[initData.globals.WS_OBJECTS[i].id].src = 
+                initData.globals.WS_OBJECTS[i].imgsrc;
         }
     }
 
@@ -475,7 +639,8 @@ function onInit(initData) {
  *          it inside the listener.
  */
 function onUpdateUser(vsInfo) {
-    // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + " updating " + vsInfo.id + "'s info.");
+    // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + 
+    // " updating " + vsInfo.id + "'s info.");
     if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
         globals.MAIN_VIEWSPACE.x = vsInfo.x;
         globals.MAIN_VIEWSPACE.y = vsInfo.y;
@@ -501,7 +666,16 @@ function onUpdateUser(vsInfo) {
             }
         }
         if (globals.noUserFound) {
-            globals.VIEWS.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
+            globals.VIEWS.push(
+                new ViewSpace(
+                    vsInfo.x, 
+                    vsInfo.y, 
+                    vsInfo.w, 
+                    vsInfo.h, 
+                    vsInfo.scale, 
+                    vsInfo.id
+                )
+            );
         }
         globals.noUserFound = true;
     }
