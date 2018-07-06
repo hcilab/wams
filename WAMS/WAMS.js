@@ -1,6 +1,9 @@
-//TODO: Update canvas to work more like this for drawings: https://simonsarris.com/making-html5-canvas-useful/
-//TODO: Stretch goal is to incorporate a canvas library: http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
-//TODO: Allow subcanvas to be drawn on top: https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
+//TODO: Update canvas to work more like this for drawings: 
+// https://simonsarris.com/making-html5-canvas-useful/
+//TODO: Stretch goal is to incorporate a canvas library: 
+// http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
+//TODO: Allow subcanvas to be drawn on top: 
+// https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
 
 /*
  * WAMS - An API for Multi-Surface Environments
