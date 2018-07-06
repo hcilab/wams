@@ -137,8 +137,8 @@ class WorkSpace {
         this.io.on('connection', (socket) => {new Connection(socket, this);});
 
         /* ================================================================
-         * Some local functions to the constructor. Still deciding if this
-         *      is really that good of an idea.
+         * Some local functions to the constructor. 
+         * Still deciding if this is really that good of an idea.
          * ================================================================
          */
         function generateRequestHandler() {
@@ -181,16 +181,17 @@ class WorkSpace {
          *      of the 'ip' dependency.
          */
         function get_local_ip() {
-            let ipaddr = null;
             const os = require('os');
+
+            let ipaddr = null;
             Object.values(os.networkInterfaces()).some( f => {
-                f.some( a => {
+                return f.some( a => {
                     if (a.family === 'IPv4' && a.internal === false) {
                         ipaddr = a.address;
+                        return true;
                     }
-                    return ipaddr;
+                    return false;
                 });
-                return ipaddr;
             });
             return ipaddr;
         }
