@@ -56,6 +56,10 @@ const path = require('path')
  */
 const globals = (function defineGlobals() {
     const constants = {
+        EVENT_DC_USER: 'user_disconnect',
+        EVENT_RM_USER: 'removeUser',
+        EVENT_UD_OBJS: 'updateObjects',
+        EVENT_UD_USER: 'updateUser',
         WDEBUG: true,
     };
 
@@ -337,11 +341,7 @@ class Connection {
             if (!this.initializedLayout) {
                 this.initializedLayout = true;
 
-                /*
-                 * XXX: Why is this check necessary? And why is the 
-                 *      viewSpace pushed into the views regardless?
-                 */
-                if (this.workspace.layoutHandler != null) {
+                if (typeof this.workspace.layoutHandler === "function") {
                     this.workspace.layoutHandler(
                         this.workspace, 
                         this.viewSpace
@@ -349,13 +349,14 @@ class Connection {
                 } else {
                     console.log("Layout handler is not attached!");
                 }
+
                 this.workspace.views.push(this.viewSpace);
             }
 
-            this.broadcast('updateUser', this.viewSpace);
+            this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
         } else if (!this.initializedLayout) {
             this.workspace.views.push(this.viewSpace);
-            this.socket.send("user_disconnect");
+            this.socket.send(globals.EVENT_DC_USER);
 
             /*
              * XXX: Hold on a second... Did we just push the viewSpace into
@@ -389,7 +390,7 @@ class Connection {
                     o, this.viewSpace, 
                     x, y, dx, dy
                 );
-                this.broadcast('updateObjects', this.workspace.wsObjects);
+                this.broadcast(globals.EVENT_UD_OBJS, this.workspace.wsObjects);
                 return true;
             }
             return false;
@@ -406,7 +407,7 @@ class Connection {
             );
         }
         
-        this.broadcast('updateUser', this.viewSpace);
+        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
     }
 
     handleClick(x, y) {
@@ -427,12 +428,6 @@ class Connection {
             return false;
         });
 
-        /*
-         * XXX: Hang on... Are we sending update events regardless of
-         *      whether we find the object or not? I'm not 100% sure
-         *      right now, but I'll take a closer look at the code and
-         *      try to figure out what's going on here.
-         */
         if (clickbg) {
             this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
             if (globals.WDEBUG) {
@@ -440,8 +435,8 @@ class Connection {
             }
         } 
 
-        this.broadcast('updateUser', this.viewSpace);
-        this.broadcast('updateObjects', this.workspace.wsObjects);
+        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
+        this.broadcast(globals.EVENT_UD_OBJS, this.workspace.wsObjects);
     }
 
     handleScale(vs, newScale) {
@@ -453,13 +448,7 @@ class Connection {
         }
 
         this.workspace.scaleHandler(this.viewSpace, newScale);
-
-        /*
-         * XXX: I'm not liking seeing these 'updateUser' strings 
-         *      all over the place. Place the string in a global 
-         *      constant.
-         */
-        this.broadcast('updateUser', this.viewSpace);
+        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
     }
 
     consoleLog(toBeLogged) {
@@ -478,7 +467,7 @@ class Connection {
             );
 
             this.workspace.views.splice(idx,1);
-            this.broadcast('removeUser', this.viewSpace.id);
+            this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
         }
     }
 }
