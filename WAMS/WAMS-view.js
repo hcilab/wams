@@ -38,6 +38,17 @@ window.addEventListener('load', onWindowLoad, false);
  * quite like it.
  */
 const globals = (function defineGlobals() {
+    const hammerOptions = {
+        dragLockToAxis : true,
+        dragBlockHorizontal : true,
+        preventDefault : true,
+        transform_always_block: true,
+        transform_min_scale: 1,
+        drag_block_horizontal: true,
+        drag_block_vertical: true,
+        drag_min_distance: 0
+    };
+
     const canvas = document.querySelector('#main');
     const constants = {
         CANVAS_CONTEXT: canvas.getContext('2d'),
@@ -47,6 +58,7 @@ const globals = (function defineGlobals() {
         EVENT_UD_USER: 'updateUser',
         FRAMERATE: 1000 / 60,
         IMAGES: [],
+        LAST_MOUSE: {x: 0, y: 0},
         MAIN_VIEWSPACE: new ViewSpace(
             0,
             0,
@@ -59,11 +71,18 @@ const globals = (function defineGlobals() {
         MOUSE: {x: 0, y: 0},
         SETTINGS: null,
         SOCKET: io(),
+        TOUCH_EVENT_HANDLER: Hammer(document.body, hammerOptions),
         VIEWS: [],
         WDEBUG: true,
         WS_OJECTS: [],
         WS_OBJ_ID_STAMPER: new utils.IDStamper(),
     };
+
+    const variables = {
+        noUserFound: true,
+        temp: 0,
+        transforming: false,
+    }
 
     const rv = {};
     Object.entries(constants).forEach( ([p,v]) => {
@@ -72,6 +91,15 @@ const globals = (function defineGlobals() {
             configurable: false,
             enumerable: true,
             writable: false
+        });
+    });
+
+    Object.entries(variables).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            get() { return variables[p]; },
+            set(value) { variables[p] = value; },
+            configurable: false,
+            enumerable: true
         });
     });
 
@@ -127,7 +155,6 @@ function ViewSpace(x, y, w, h, scale, id) {
     this.id = id;
     this.subViews = [];
 }
-
 
 ViewSpace.prototype.reportView = function(reportSubWS) {
     const vsInfo = {
@@ -282,33 +309,10 @@ function onMouseScroll(ev) {
 }
 
 /*
- * XXX: More globals, yet for some reason they've been (more) correctly defined
- *      as such this time around, instead of just crossing our fingers and
- *      hoping the JS fairies hoist our variables to the global scope...
- *      (That's a good thing, but this code still needs to be organized).
- */
-const lastMouse = {x: 0, y: 0};
-let temp = 0;
-
-const hammerOptions = {
-    dragLockToAxis : true,
-    dragBlockHorizontal : true,
-    preventDefault : true,
-    transform_always_block: true,
-    transform_min_scale: 1,
-    drag_block_horizontal: true,
-    drag_block_vertical: true,
-    drag_min_distance: 0
-};
-
-const touchEventHandler = Hammer(document.body, hammerOptions);
-
-/*
  * XXX: I'm not sure I like this approach of attaching the same listener to all
  *      of the events, then 'switch'ing between the events based on type...
  */
-let transforming = false;
-touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev) {
+globals.TOUCH_EVENT_HANDLER.on('tap dragstart drag dragend transformstart transform transformend', function(ev) {
     ev.preventDefault();
     ev.gesture.preventDefault();
     switch(ev.type) {
@@ -325,14 +329,14 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
                     globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh))); 
                     break;
                 case(Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
             globals.SOCKET.emit('handleClick', globals.MOUSE.x, globals.MOUSE.y);
@@ -346,30 +350,30 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
                     globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
             break;
         case 'drag':
             /*
-             * XXX: Where is transforming defined, where does it get modified?
+             * XXX: Where is globals.transforming defined, where does it get modified?
              *
              *      + Answer: Defined before this listener attachment, modified
              *          about 30 lines down in the transformstart and 
              *          transformend cases.
              */
-            if (transforming) {
+            if (globals.transforming) {
                 return;
             }
-            lastMouse.x = globals.MOUSE.x;
-            lastMouse.y = globals.MOUSE.y;
+            globals.LAST_MOUSE.x = globals.MOUSE.x;
+            globals.LAST_MOUSE.y = globals.MOUSE.y;
             globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
             globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             switch(globals.MAIN_VIEWSPACE.rotation) {
@@ -379,17 +383,17 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
                     globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = globals.MOUSE.x;
+                    globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
-            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (lastMouse.x - globals.MOUSE.x), (lastMouse.y - globals.MOUSE.y));
+            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (globals.LAST_MOUSE.x - globals.MOUSE.x), (globals.LAST_MOUSE.y - globals.MOUSE.y));
             break;
         case 'dragend':
             /*
@@ -397,7 +401,7 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
              */
             break;
         case 'transformstart':
-            transforming = true;
+            globals.transforming = true;
             startScale = globals.MAIN_VIEWSPACE.scale;
             break;
         case 'transform':
@@ -406,7 +410,7 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
             break;
         case 'transformend':
-            transforming = false;
+            globals.transforming = false;
             startScale = null;
             break;
 
@@ -468,7 +472,6 @@ function onInit(initData) {
  *      + Answer: A quick grep reveals that no, it is not used elsewhere. Put
  *          it inside the listener.
  */
-let noUserFound = true;
 function onUpdateUser(vsInfo) {
     // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + " updating " + vsInfo.id + "'s info.");
     if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
@@ -483,7 +486,7 @@ function onUpdateUser(vsInfo) {
     } else {
         for (let i = 0; i < globals.VIEWS.length; i++) {
             if (globals.VIEWS[i].id == vsInfo.id) {
-                noUserFound = false;
+                globals.noUserFound = false;
                 globals.VIEWS[i].x = vsInfo.x;
                 globals.VIEWS[i].y = vsInfo.y;
                 globals.VIEWS[i].w = vsInfo.w;
@@ -495,10 +498,10 @@ function onUpdateUser(vsInfo) {
                 break;
             }
         }
-        if (noUserFound) {
+        if (globals.noUserFound) {
             globals.VIEWS.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
         }
-        noUserFound = true;
+        globals.noUserFound = true;
     }
 }
 
