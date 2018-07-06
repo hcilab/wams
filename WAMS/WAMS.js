@@ -445,21 +445,21 @@ class Connection {
     }
 
     handleScale(vs, newScale) {
-        if (vs.id == this.viewSpace.id) {
-            if (this.workspace.scaleHandler != null) {
-                this.workspace.scaleHandler(this.viewSpace, newScale);
-
-                /*
-                 * XXX: I'm not liking seeing these 'updateUser' strings 
-                 *      all over the place. Place the string in a global 
-                 *      constant.
-                 */
-                this.socket.emit('updateUser', this.viewSpace);
-                this.socket.broadcast.emit('updateUser', this.viewSpace);
-            } else {
-                console.log("Scale handler is not attached!");
-            }
+        // Failsafe checks.
+        if (vs.id !== this.viewSpace.id) return;
+        if (typeof this.workspace.scaleHandler !== "function") {
+            console.log("Scale handler is not attached!");
+            return;
         }
+
+        this.workspace.scaleHandler(this.viewSpace, newScale);
+
+        /*
+         * XXX: I'm not liking seeing these 'updateUser' strings 
+         *      all over the place. Place the string in a global 
+         *      constant.
+         */
+        this.broadcast('updateUser', this.viewSpace);
     }
 
     consoleLog(toBeLogged) {
@@ -467,16 +467,18 @@ class Connection {
     }
 
     disconnect() {
-        console.log(`user ${this.viewSpace.id} disconnected from workspace ${this.workspace.id}`);
-        this.socket.broadcast.emit('removeUser', this.viewSpace.id);
-        /*
-         * XXX: Use ES6 standard Array.prototype functions instead.
-         */
-        for (let i = 0; i < this.workspace.views.length; i++) {
-            if (this.workspace.views[i].id == this.viewSpace.id) {
-                this.workspace.views.splice(i,1);
-                break;
-            }
+        const idx = this.workspace.views.findIndex( 
+            v => v.id === this.viewSpace.id
+        );
+
+        if (idx >= 0) {
+            console.log(
+                `user ${this.viewSpace.id} ` +
+                `disconnected from workspace ${this.workspace.id}`
+            );
+
+            this.workspace.views.splice(idx,1);
+            this.broadcast('removeUser', this.viewSpace.id);
         }
     }
 }
