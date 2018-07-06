@@ -376,97 +376,72 @@ class Connection {
     }
 
     handleDrag(vs, x, y, dx, dy) {
+        // Failsafe checks.
         if (vs.id !== this.viewSpace.id) return;
+        if (typeof this.workspace.dragHandler !== "function") {
+            console.log(`Drag handler is not attached for ${vs.id}`);
+            return;
+        }
 
-        /*
-         * XXX: Why do we need this check? What is the dragHandler?
-         */
-        if (typeof this.workspace.dragHandler === "function") {
-            const dragCanvas = !this.workspace.wsObjects.some( o => {
-                if (o.containsPoint(x,y)) {
-                    this.workspace.dragHandler(
-                        o, this.viewSpace, 
-                        x, y, dx, dy
-                    );
-                    this.broadcast('updateUser', this.viewSpace);
-                    this.broadcast('updateObjects', this.workspace.wsObjects);
-                    return true;
-                }
-                return false;
-            });
-
-            /*
-             * XXX: This is causing jitter. Will have to look in the 
-             *      debugger, perhaps multiple events are firing on drags.
-             */
-            if (dragCanvas) {
+        const dragCanvas = !this.workspace.wsObjects.some( o => {
+            if (o.containsPoint(x,y)) {
                 this.workspace.dragHandler(
-                    this.viewSpace, this.viewSpace,
+                    o, this.viewSpace, 
                     x, y, dx, dy
                 );
-                this.broadcast('updateUser', this.viewSpace);
+                this.broadcast('updateObjects', this.workspace.wsObjects);
+                return true;
             }
-        } else {
-            console.log(`Drag handler is not attached for ${vs.id}`);
+            return false;
+        });
+
+        /*
+         * XXX: This is causing jitter. Will have to look in the 
+         *      debugger, perhaps multiple events are firing on drags.
+         */
+        if (dragCanvas) {
+            this.workspace.dragHandler(
+                this.viewSpace, this.viewSpace,
+                x, y, dx, dy
+            );
         }
+        
+        this.broadcast('updateUser', this.viewSpace);
     }
 
     handleClick(x, y) {
-        /*
-         * XXX: Where are these handler's getting attached that they need
-         *      to be checked for existence? Are they defined by someone
-         *      making use of the WAMS API?
-         */
-        if (this.workspace.clickHandler != null) {
-            if (globals.WDEBUG) console.log(this.workspace.wsObjects.length);
-            let foundObject = false;
-
-            /*
-             * XXX: Switch to using Array.prototype.forEach().
-             *      - Check that, looks like there's a "break" statement,
-             *          perhaps Array.prototype.some() would be better.
-             */
-            for (let i = this.workspace.wsObjects.length - 1; i >= 0; i--) {
-                if (globals.WDEBUG) console.log("clicked: "+this.workspace.wsObjects[i]);
-
-                /*
-                 * XXX: Second time seeing a condition check essentially
-                 *      identical to this. Should probably be lifted out
-                 *      into a boolean function.
-                 */
-                if ((this.workspace.wsObjects[i].x < x) && 
-                        (this.workspace.wsObjects[i].x  + this.workspace.wsObjects[i].w > x) && 
-                        (this.workspace.wsObjects[i].y < y) && 
-                        (this.workspace.wsObjects[i].y  + this.workspace.wsObjects[i].h > y)) {
-                    this.workspace.clickHandler(this.workspace.wsObjects[i],this.viewSpace, x, y);
-                    this.socket.emit('updateUser', this.viewSpace);
-                    this.socket.broadcast.emit('updateUser', this.viewSpace);
-                    this.socket.emit('updateObjects', this.workspace.wsObjects);
-                    this.socket.broadcast.emit('updateObjects', this.workspace.wsObjects);
-                    foundObject = true;
-                    break;
-                }
-            }
-
-            /*
-             * XXX: Hang on... Are we sending update events regardless of
-             *      whether we find the object or not? I'm not 100% sure
-             *      right now, but I'll take a closer look at the code and
-             *      try to figure out what's going on here.
-             */
-            if (!foundObject) {
-                this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
-                this.socket.emit('updateUser', this.viewSpace);
-                this.socket.broadcast.emit('updateUser', this.viewSpace);
-                this.socket.emit('updateObjects', this.workspace.wsObjects);
-                this.socket.broadcast.emit('updateObjects', this.workspace.wsObjects);
-                if (globals.WDEBUG) console.log("not found");
-            } else if (globals.WDEBUG) {
-                console.log("found");
-            }
-        } else {
+        // Failsafe.
+        if (typeof this.workspace.clickHandler !== "function") {
             console.log("Click Handler is not attached!");
+            return;
         }
+
+        const clickbg = !this.workspace.wsObjects.some( o => {
+            if (o.containsPoint(x,y)) {
+                if (globals.WDEBUG) {
+                    console.log('Clicked on', this.workspace.wsObjects[i]);
+                }
+                this.workspace.clickHandler(o, this.viewSpace, x, y);
+                return true;
+            }
+            return false;
+        });
+
+        /*
+         * XXX: Hang on... Are we sending update events regardless of
+         *      whether we find the object or not? I'm not 100% sure
+         *      right now, but I'll take a closer look at the code and
+         *      try to figure out what's going on here.
+         */
+        if (clickbg) {
+            this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
+            if (globals.WDEBUG) {
+                console.log("Clicked on the background.");
+            }
+        } 
+
+        this.broadcast('updateUser', this.viewSpace);
+        this.broadcast('updateObjects', this.workspace.wsObjects);
     }
 
     handleScale(vs, newScale) {
