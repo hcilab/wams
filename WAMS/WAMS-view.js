@@ -95,7 +95,7 @@ function onWindowLoad() {
     globals.SOCKET.on('removeUser', onRemoveUser);
     globals.SOCKET.on('updateObjects', onUpdateObjects);
     globals.SOCKET.on('message', (message) => {
-        if(message === globals.EVENT_DC_USER){
+        if (message === globals.EVENT_DC_USER) {
             document.body.innerHTML = "<H1>" +
                 "Application has reached capacity." +
                 "</H1>";
@@ -111,7 +111,7 @@ function onWindowLoad() {
  *      to extend? How would that work, given that one of the ViewSpaces is
  *      sent to the client and the other is used by the server?
  */
-function ViewSpace(x, y, w, h, scale, id){
+function ViewSpace(x, y, w, h, scale, id) {
     /*
      * XXX: Like in the server side ViewSpace, should update the variable
      *      names.
@@ -128,7 +128,7 @@ function ViewSpace(x, y, w, h, scale, id){
 }
 
 
-ViewSpace.prototype.reportView = function(reportSubWS){
+ViewSpace.prototype.reportView = function(reportSubWS) {
     var vsInfo = {
         x: this.x,
         y: this.y,
@@ -144,8 +144,7 @@ ViewSpace.prototype.reportView = function(reportSubWS){
      * XXX: Do we want to connect the subviews in this view somehow, so that
      *      they are clearly linked in the report?
      */
-    if (reportSubWS)
-    {
+    if (reportSubWS) {
         this.subViews.forEach( subWS => subWS.reportView(true) );
     }
 
@@ -156,7 +155,7 @@ ViewSpace.prototype.reportView = function(reportSubWS){
  * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
  *      this.
  */
-function globals.MAIN_WORKSPACEDraw(){
+function globals.MAIN_WORKSPACEDraw() {
     // Clear old globals.MAIN_WORKSPACE
     globals.CANVAS_CONTEXT.clearRect(0, 0, globals.MAIN_WORKSPACE.getWidth(), globals.MAIN_WORKSPACE.getHeight());
     globals.CANVAS_CONTEXT.save();
@@ -168,7 +167,7 @@ function globals.MAIN_WORKSPACEDraw(){
     /*
      * XXX: I think maybe this should be a 'rotate' function.
      */
-    switch(globals.MAIN_VIEWSPACE.rotation){
+    switch(globals.MAIN_VIEWSPACE.rotation) {
         case(0): break;
         case(Math.PI): globals.CANVAS_CONTEXT.translate((-globals.MAIN_VIEWSPACE.ew - globals.MAIN_VIEWSPACE.x*2), (-globals.MAIN_VIEWSPACE.eh - globals.MAIN_VIEWSPACE.y*2)); break;
         case(Math.PI/2): globals.CANVAS_CONTEXT.translate(-globals.MAIN_VIEWSPACE.ew, -globals.MAIN_VIEWSPACE.x*2); break;
@@ -181,13 +180,10 @@ function globals.MAIN_WORKSPACEDraw(){
      */
     for (var i = 0; i < globals.WS_OBJECTS.length; i++) {
         //console.log(globals.WS_OBJECTS);
-        if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null){
-            if (globals.WS_OBJECTS[i].imgsrc)
-            {
+        if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null) {
+            if (globals.WS_OBJECTS[i].imgsrc) {
                 globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y, globals.WS_OBJECTS[i].w, globals.WS_OBJECTS[i].h);
-            }
-            else
-            {   
+            } else {   
             //console.log(globals.WS_OBJECTS[i].draw);
                 /*
                  * XXX: Yikes!!! eval()? And we want this to be a usable API?
@@ -202,15 +198,10 @@ function globals.MAIN_WORKSPACEDraw(){
                 eval(globals.WS_OBJECTS[i].draw+';');
                 eval(globals.WS_OBJECTS[i].drawStart+';');
             }
-        }
-        else{
-            if (globals.WS_OBJECTS[i].imgsrc)
-            {
+        } else {
+            if (globals.WS_OBJECTS[i].imgsrc) {
                 globals.CANVAS_CONTEXT.drawImage(globals.IMAGES[globals.WS_OBJECTS[i].id], globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y);
-            }
-
-            else
-            {
+            } else {
                 /*
                  * XXX: Same eval() complaint as above, but with the added
                  *      complaint that this is duplicated code.
@@ -237,7 +228,7 @@ function globals.MAIN_WORKSPACEDraw(){
     /*
      * XXX: This should be a function.
      */
-    if(globals.SETTINGS != null && globals.SETTINGS.debug){
+    if (globals.SETTINGS != null && globals.SETTINGS.debug) {
         globals.CANVAS_CONTEXT.font = "18px Georgia";
         globals.CANVAS_CONTEXT.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
         globals.CANVAS_CONTEXT.fillText("ViewSpace Coordinates: " + globals.MAIN_VIEWSPACE.x.toFixed(2) + ", " + globals.MAIN_VIEWSPACE.y.toFixed(2), 10, 40);
@@ -249,7 +240,7 @@ function globals.MAIN_WORKSPACEDraw(){
 }
 
 window.addEventListener('resize', onResized, false);
-function onResized(){
+function onResized() {
     /*
      * XXX: See here this at least sort of makes sense, yet earlier there was
      *      some kind of globals.MAIN_WORKSPACE.width = globals.MAIN_WORKSPACE.getWidth() nonsense.
@@ -317,17 +308,17 @@ var touchEventHandler = Hammer(document.body, hammerOptions);
  *      of the events, then 'switch'ing between the events based on type...
  */
 var transforming = false;
-touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev){
+touchEventHandler.on('tap dragstart drag dragend transformstart transform transformend', function(ev) {
     ev.preventDefault();
     ev.gesture.preventDefault();
-    switch(ev.type){
+    switch(ev.type) {
         case('tap') :
             mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
             mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             /*
              * XXX: Is this code just copy-pasted across three of the cases???
              */
-            switch(globals.MAIN_VIEWSPACE.rotation){
+            switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
                     mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
@@ -348,7 +339,7 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
         case 'dragstart':
             mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
             mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-            switch(globals.MAIN_VIEWSPACE.rotation){
+            switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
                     mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
@@ -374,14 +365,14 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
              *          about 30 lines down in the transformstart and 
              *          transformend cases.
              */
-            if(transforming){
+            if (transforming) {
                 return;
             }
             lastMouse.x = mouse.x;
             lastMouse.y = mouse.y;
             mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
             mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-            switch(globals.MAIN_VIEWSPACE.rotation){
+            switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
                     mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
@@ -423,15 +414,14 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
     }
 });
 
-function onInit(initData){
+function onInit(initData) {
     globals.SETTINGS = initData.settings;
     /*
      * XXX: Clean this up.
      */
-    if(globals.SETTINGS.BGcolor != null){
+    if (globals.SETTINGS.BGcolor != null) {
         document.getElementById('main').style.backgroundColor = globals.SETTINGS.BGcolor;
-    }
-    else{
+    } else {
         document.getElementById('main').style.backgroundColor = "#aaaaaa";
     }
 
@@ -451,7 +441,7 @@ function onInit(initData){
          *      new ViewSpaces instead of pushing in the ViewSpace from
          *      initData?
          */
-        if(initData.views[i].id != globals.MAIN_VIEWSPACE.id){
+        if (initData.views[i].id != globals.MAIN_VIEWSPACE.id) {
             globals.VIEWS.push(new ViewSpace(initData.views[i].x, initData.views[i].y, initData.views[i].w, initData.views[i].h, initData.views[i].scale, initData.views[i].id));
         }
     }
@@ -462,7 +452,7 @@ function onInit(initData){
     for (var i = 0; i < initData.globals.WS_OBJECTS.length; i++) {
         globals.WS_OBJECTS.push(initData.globals.WS_OBJECTS[i]);
         
-        if (globals.WS_OBJECTS[i].imgsrc){
+        if (globals.WS_OBJECTS[i].imgsrc) {
             globals.IMAGES[initData.globals.WS_OBJECTS[i].id] = new Image();
             globals.IMAGES[initData.globals.WS_OBJECTS[i].id].src = initData.globals.WS_OBJECTS[i].imgsrc;
         }
@@ -479,9 +469,9 @@ function onInit(initData){
  *          it inside the listener.
  */
 var noUserFound = true;
-function onUpdateUser(vsInfo){
+function onUpdateUser(vsInfo) {
     // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + " updating " + vsInfo.id + "'s info.");
-    if(vsInfo.id == globals.MAIN_VIEWSPACE.id){
+    if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
         globals.MAIN_VIEWSPACE.x = vsInfo.x;
         globals.MAIN_VIEWSPACE.y = vsInfo.y;
         globals.MAIN_VIEWSPACE.w = vsInfo.w;
@@ -490,10 +480,9 @@ function onUpdateUser(vsInfo){
         globals.MAIN_VIEWSPACE.eh = vsInfo.eh;
         globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
         globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
-    }
-    else{
+    } else {
         for (var i = 0; i < globals.VIEWS.length; i++) {
-            if(globals.VIEWS[i].id == vsInfo.id){
+            if (globals.VIEWS[i].id == vsInfo.id) {
                 noUserFound = false;
                 globals.VIEWS[i].x = vsInfo.x;
                 globals.VIEWS[i].y = vsInfo.y;
@@ -506,16 +495,16 @@ function onUpdateUser(vsInfo){
                 break;
             }
         }
-        if(noUserFound){
+        if (noUserFound) {
             globals.VIEWS.push(new ViewSpace(vsInfo.x, vsInfo.y, vsInfo.w, vsInfo.h, vsInfo.scale, vsInfo.id));
         }
         noUserFound = true;
     }
 }
 
-function onRemoveUser(id){
+function onRemoveUser(id) {
     for (var i = 0; i < globals.VIEWS.length; i++) {
-        if(globals.VIEWS[i].id == id){
+        if (globals.VIEWS[i].id == id) {
             globals.VIEWS.remove(i);
             break;
         }
@@ -532,12 +521,12 @@ function onRemoveUser(id){
  *      a proper update would probably be more efficient than this mechanism
  *      of trashing, copying, and regenerating.
  */
-function onUpdateObjects(objects){
+function onUpdateObjects(objects) {
     globals.WS_OBJECTS = [];
     for (var i = 0; i < objects.length; i++) {
         globals.WS_OBJECTS.push(objects[i]);
 
-        if (globals.WS_OBJECTS[i].imgsrc){
+        if (globals.WS_OBJECTS[i].imgsrc) {
             globals.IMAGES[objects[i].id] = new Image();
             globals.IMAGES[objects[i].id].src = objects[i].imgsrc;
         }
@@ -557,7 +546,7 @@ HTMLCanvasElement.prototype.getHeight = function() {
     return window.innerHeight;
 };
 
-HTMLCanvasElement.prototype.getCenter = function(){
+HTMLCanvasElement.prototype.getCenter = function() {
     return {
         x : this.getWidth()/2,
         y : this.getHeight()/2
