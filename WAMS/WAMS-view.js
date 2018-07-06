@@ -8,7 +8,7 @@
  *
  *      [ ] Set to use JavaScript's "strict" mode.
  *          - Do this last, otherwise there will be problems...
- *      [ ] Eliminate all use of 'var', replace with 'const' or 'let'.
+ *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [ ] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
  *      [ ] Switch to using functional style wherever possible, using ES6
@@ -56,6 +56,7 @@ const globals = (function defineGlobals() {
             -1,
         ),
         MAIN_WORKSPACE: canvas,
+        MOUSE: {x: 0, y: 0},
         SETTINGS: null,
         SOCKET: io(),
         VIEWS: [],
@@ -230,7 +231,7 @@ function globals.MAIN_WORKSPACEDraw() {
      */
     if (globals.SETTINGS != null && globals.SETTINGS.debug) {
         globals.CANVAS_CONTEXT.font = "18px Georgia";
-        globals.CANVAS_CONTEXT.fillText("Mouse Coordinates: " + mouse.x.toFixed(2) + ", " + mouse.y.toFixed(2), 10, 20);
+        globals.CANVAS_CONTEXT.fillText("Mouse Coordinates: " + globals.MOUSE.x.toFixed(2) + ", " + globals.MOUSE.y.toFixed(2), 10, 20);
         globals.CANVAS_CONTEXT.fillText("ViewSpace Coordinates: " + globals.MAIN_VIEWSPACE.x.toFixed(2) + ", " + globals.MAIN_VIEWSPACE.y.toFixed(2), 10, 40);
         globals.CANVAS_CONTEXT.fillText("Bottom Right Corner: " + (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.w).toFixed(2) + ", " + (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.h).toFixed(2), 10, 60);
         globals.CANVAS_CONTEXT.fillText("Number of Other Users: " + globals.VIEWS.length, 10, 80);
@@ -286,7 +287,6 @@ function onMouseScroll(ev) {
  *      hoping the JS fairies hoist our variables to the global scope...
  *      (That's a good thing, but this code still needs to be organized).
  */
-const mouse = {x: 0, y: 0};
 const lastMouse = {x: 0, y: 0};
 let temp = 0;
 
@@ -313,47 +313,47 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
     ev.gesture.preventDefault();
     switch(ev.type) {
         case('tap') :
-            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             /*
              * XXX: Is this code just copy-pasted across three of the cases???
              */
             switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh))); 
+                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh))); 
                     break;
                 case(Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
-            globals.SOCKET.emit('handleClick', mouse.x, mouse.y);
+            globals.SOCKET.emit('handleClick', globals.MOUSE.x, globals.MOUSE.y);
         case 'dragstart':
-            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
+                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
             break;
@@ -368,28 +368,28 @@ touchEventHandler.on('tap dragstart drag dragend transformstart transform transf
             if (transforming) {
                 return;
             }
-            lastMouse.x = mouse.x;
-            lastMouse.y = mouse.y;
-            mouse.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-            mouse.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
+            lastMouse.x = globals.MOUSE.x;
+            lastMouse.y = globals.MOUSE.y;
+            globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
+            globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
             switch(globals.MAIN_VIEWSPACE.rotation) {
                 case(0): break;
                 case(Math.PI): 
-                    mouse.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((mouse.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                    mouse.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((mouse.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
+                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
+                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
                     break;
                 case(Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
                 case(3*Math.PI/2): 
-                    temp = mouse.x;
-                    mouse.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (mouse.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                    mouse.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
+                    temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
+                    globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
                     break;
             }
-            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, mouse.x, mouse.y, (lastMouse.x - mouse.x), (lastMouse.y - mouse.y));
+            globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (lastMouse.x - globals.MOUSE.x), (lastMouse.y - globals.MOUSE.y));
             break;
         case 'dragend':
             /*
