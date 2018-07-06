@@ -296,12 +296,22 @@ class Connection {
             );
         }
         
-        this.socket.on('reportView', this.reportView.bind(this));
-        this.socket.on('handleDrag', this.handleDrag.bind(this));
-        this.socket.on('handleClick', this.handleClick.bind(this));
-        this.socket.on('handleScale', this.handleScale.bind(this));
-        this.socket.on('consoleLog', this.consoleLog.bind(this));
-        this.socket.on('disconnect', this.disconnect.bind(this));
+        /*
+         * XXX: This is a nifty way of making it easy to add and remove
+         *      event strings to this list, but is it really that good of an
+         *      idea? Is it readable?
+         */
+        // For each of the event strings listed here, there must be an
+        // identically named function on the Connection prototype to attach
+        // as a listener in the forEach loop.
+        [   
+            'consoleLog',
+            'disconnect',
+            'handleClick',
+            'handleDrag',
+            'handleScale',
+            'reportView',
+        ].forEach( e => this.socket.on(e, this[e].bind(this)) );
 
         this.socket.emit('init', {
             views: this.workspace.views,
