@@ -45,6 +45,10 @@
  */
 
 /*
+ * XXX: BUG! Disconnects aren't actually disconnecting!!!
+ */
+
+/*
  * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
  *      might make some of this work a lot easier.
  */
@@ -52,36 +56,7 @@ const express = require('express');
 const http = require('http');
 const io = require('socket.io');
 const path = require('path')
-
-/*
- * I wrote this generator class to make ID generation more controlled.
- *
- */
-const IDStamper = (function defineIDStamper() {
-    function* id_gen() {
-        let id = 0;
-        while (1) yield ++id;
-    }
-    const sym = Symbol('generator');
-
-    class IDStamper {
-        constructor() {
-            this[sym] = id_gen();
-            console.log(this);
-        }
-
-        stamp(obj) {
-            Object.defineProperty(obj, 'id', {
-                value: this[sym].next().value,
-                configurable: false,
-                enumerable: true,
-                writable: false
-            });
-        }
-    }
-
-    return IDStamper;
-})();
+const utils = require('./WAMS-util.js');
 
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
@@ -96,7 +71,7 @@ const globals = (function defineGlobals() {
         EVENT_UD_OBJS: 'updateObjects',
         EVENT_UD_USER: 'updateUser',
         WDEBUG: true,
-        WS_OBJ_ID_STAMPER: new IDStamper(),
+        WS_OBJ_ID_STAMPER: new utils.IDStamper(),
     };
 
     const rv = {};

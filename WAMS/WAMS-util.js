@@ -31,22 +31,47 @@ Array.prototype.remove = function(from, to) {
 };
 
 /*
- * XXX: Wait... are these really necessary? Why are we accessing the window's
- *      innerWidth instead of the canvas element's innerWidth? Does the canvas
- *      element even have an innerWidth? I'll look into it...
+ * I wrote this generator class to make ID generation more controlled.
+ * The class has access to a private (local lexical scope) generator function
+ *  and Symbol for generators, and exposes a stamp() method that stamps an
+ *  immutable ID onto the given object.
+ *
+ * For example:
+ *  
+ *      const stamper = new IDStamper();
+ *      const obj = {};
+ *      stamper.stamp(obj);
+ *      console.log(obj.id); // an integer unique to IDs stamped by stamper.
+ *      obj.id = 2;          // has no effect.
+ *      delete obj.id;       // false
  */
-HTMLCanvasElement.prototype.getWidth = function() {
-    return window.innerWidth;
-};
+const IDStamper = (function defineIDStamper() {
+    function* id_gen() {
+        let id = 0;
+        while (1) yield ++id;
+    }
+    const sym = Symbol('generator');
 
-HTMLCanvasElement.prototype.getHeight = function() {
-    return window.innerHeight;
-};
+    class IDStamper {
+        constructor() {
+            this[sym] = id_gen();
+            console.log(this);
+        }
 
-HTMLCanvasElement.prototype.getCenter = function(){
-    return {
-        x : this.getWidth()/2,
-        y : this.getHeight()/2
-    };
+        stamp(obj) {
+            Object.defineProperty(obj, 'id', {
+                value: this[sym].next().value,
+                configurable: false,
+                enumerable: true,
+                writable: false
+            });
+        }
+    }
+
+    return IDStamper;
+})();
+
+if (typeof exports !== 'undefined') {
+    exports.IDStamper = IDStamper;
 }
 

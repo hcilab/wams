@@ -31,6 +31,26 @@
 
 window.addEventListener('load', onWindowLoad, false);
 
+/*
+ * XXX: Wait... are these really necessary? Why are we accessing the window's
+ *      innerWidth instead of the canvas element's innerWidth? Does the canvas
+ *      element even have an innerWidth? I'll look into it...
+ */
+HTMLCanvasElement.prototype.getWidth = function() {
+    return window.innerWidth;
+};
+
+HTMLCanvasElement.prototype.getHeight = function() {
+    return window.innerHeight;
+};
+
+HTMLCanvasElement.prototype.getCenter = function(){
+    return {
+        x : this.getWidth()/2,
+        y : this.getHeight()/2
+    };
+}
+
 function onWindowLoad() {
     /*
      * XXX: Where are these variables being defined???
