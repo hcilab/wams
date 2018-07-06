@@ -34,8 +34,11 @@ case $1 in
         printUsage;
         ;;
     *)
-        egrep -rnH --colour --exclude-dir='(node_modules|libs)' "$1" \
-            --include='*.js'
+        egrep -rnH --colour \
+            --exclude-dir='node_modules' \
+            --exclude-dir='libs' \
+            --include='*.js' \
+            "$1"
         ;;
 esac
 
