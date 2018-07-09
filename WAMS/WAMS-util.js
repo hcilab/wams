@@ -53,6 +53,42 @@ const IDStamper = (function defineIDStamper() {
 })();
 
 /*
+ * This ViewSpace class provides a common interface between the client and the
+ *  server by which the ViewSpaces can interact safely.
+ */
+const ViewSpace = (function defineViewSpace() {
+    const _coreProperties = [
+        'x',
+        'y',
+        'width',
+        'height',
+        'effectiveWidth',
+        'effectiveHeight',
+        'scale',
+        'rotation',
+    ];
+
+    class ViewSpace {
+        constructor() {
+            _coreProperties.forEach( p => this[p] = 0 );
+            this.scale = 1;
+        }
+
+        assign(data) {
+            _coreProperties.forEach( p => this[p] = data[p] );
+        }
+
+        retrieve() {
+            const data = {};
+            _coreProperties.forEach( p => data[p] = this[p] );
+            return data; 
+        }
+    }
+
+    return ViewSpace;
+})();
+
+/*
  * Conditionally export this file if we are running server-side with node.js
  *
  * XXX: Look into JS Modules. How do they work, and how widely supported are
@@ -60,5 +96,6 @@ const IDStamper = (function defineIDStamper() {
  */
 if (typeof exports !== 'undefined') {
     exports.IDStamper = IDStamper;
+    exports.ViewSpace = ViewSpace;
 }
 
