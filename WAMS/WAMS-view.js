@@ -65,37 +65,24 @@ window.addEventListener(
  *      to extend? How would that work, given that one of the ViewSpaces 
  *      is sent to the client and the other is used by the server?
  */
-class ClientViewSpace {
+class ClientViewSpace extends ViewSpace {
     constructor(x, y, width, height, scale, id) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.scale = scale;
-        this.effectiveWidth = width/scale;
-        this.effectiveHeight = height/scale;
+        super();
         this.id = id;
-        this.subViews = [];
-
         this.canvas = document.querySelector('#main');
         this.context = this.canvas.getContext('2d');
-        this.rotation = 0;
         this.wsObjects = [];
-        this.startScale = this.scale;
+        this.subViews = [];
+        this.startScale = null;
+    }
+
+    retrieve() {
+        const data = super.retrieve();
+        data.id = this.id;
+        return data;
     }
 
     reportView(reportSubWS) {
-        const vsInfo = {
-            x: this.x,
-            y: this.y,
-            width: this.width,
-            height: this.height,
-            effectiveWidth: this.effectiveWidth,
-            effectiveHeight: this.effectiveHeight,
-            scale: this.scale,
-            id: this.id
-        };
-
         /*
          * XXX: Do we want to connect the subviews in this view somehow, so 
          *      that they are clearly linked in the report?
@@ -104,7 +91,7 @@ class ClientViewSpace {
             this.subViews.forEach( subWS => subWS.reportView(true) );
         }
 
-        globals.SOCKET.emit('reportView', vsInfo);
+        globals.SOCKET.emit('reportView', this.retrieve());
     }
 
     /*
@@ -432,15 +419,9 @@ class ClientViewSpace {
 
     onInit(initData) {
         globals.settings = initData.settings;
-        /*
-         * XXX: Clean this up.
-         */
-        if (globals.settings.BGcolor !== null) {
-            document.getElementById('main').style.backgroundColor = 
-                globals.settings.BGcolor;
-        } else {
-            document.getElementById('main').style.backgroundColor = '#aaaaaa';
-        }
+
+        const colour = globals.settings.BGcolor || '#aaaaaa';
+        this.canvas.style.backgroundColor = colour;
 
         /*
          * XXX: Look everywhere and make sure that this.id 
@@ -491,27 +472,18 @@ class ClientViewSpace {
         this.reportView(true);
     }
 
+    /*
+     * XXX: This is side-effecting!! We should have an 'addUser' event, not
+     *      just an updateUser event, unless there's some very good reason not
+     *      to do so.
+     */
     onUpdateUser(vsInfo) {
         if (vsInfo.id === this.id) {
-            this.x = vsInfo.x;
-            this.y = vsInfo.y;
-            this.width = vsInfo.width;
-            this.height = vsInfo.height;
-            this.effectiveWidth = vsInfo.effectiveWidth;
-            this.effectiveHeight = vsInfo.effectiveHeight;
-            this.scale = vsInfo.scale;
-            this.rotation = vsInfo.rotation;
+            this.assign(vsInfo);
         } else {
             const noUserFound = !globals.VIEWS.some( v => {
                 if (v.id === vsInfo.id) {
-                    v.x = vsInfo.x;
-                    v.y = vsInfo.y;
-                    v.width = vsInfo.width;
-                    v.height = vsInfo.height;
-                    v.effectiveWidth = vsInfo.effectiveWidth;
-                    v.effectiveHeight = vsInfo.effectiveHeight;
-                    v.scale = vsInfo.scale;
-                    v.id = vsInfo.id;
+                    v.assign(vsInfo);
                     return true;
                 }
                 return false;
@@ -645,8 +617,6 @@ class ClientViewSpace {
 const globals = (function defineGlobals() {
     const canvas = document.querySelector('#main');
     const constants = {
-        CANVAS: canvas,
-        CANVAS_CONTEXT: canvas.getContext('2d'),
         EVENT_DC_USER: 'user_disconnect',
         EVENT_RM_USER: 'removeUser',
         EVENT_UD_OBJS: 'updateObjects',
@@ -658,7 +628,6 @@ const globals = (function defineGlobals() {
         SOCKET: io(),
         VIEWS: [],
         WDEBUG: true,
-        WS_OBJECTS: [],
     };
 
     const variables = {
