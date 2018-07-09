@@ -6,7 +6,7 @@
  * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [ ] Set to use JavaScript's "strict" mode.
+ *      [ ] Set to use JavaScript's 'strict' mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
@@ -29,9 +29,9 @@
  *           with the standard Array.prototype.splice().
  */
 
-window.addEventListener("DOMMouseScroll", onMouseScroll, false);
+window.addEventListener('DOMMouseScroll', onMouseScroll, false);
 window.addEventListener('load', onWindowLoad, false);
-window.addEventListener("mousewheel", onMouseScroll, false);
+window.addEventListener('mousewheel', onMouseScroll, false);
 window.addEventListener('resize', onResized, false);
 
 /*
@@ -177,9 +177,9 @@ function onWindowLoad() {
     globals.SOCKET.on('updateObjects', onUpdateObjects);
     globals.SOCKET.on('message', (message) => {
         if (message === globals.EVENT_DC_USER) {
-            document.body.innerHTML = "<H1>" +
-                "Application has reached capacity." +
-                "</H1>";
+            document.body.innerHTML = '<H1>' +
+                'Application has reached capacity.' +
+                '</H1>';
         }
     });
 }
@@ -288,44 +288,38 @@ function main_wsDraw() {
      * XXX: This should be a function.
      */
     if (globals.settings != null && globals.settings.debug) {
-        globals.CANVAS_CONTEXT.font = "18px Georgia";
+        globals.CANVAS_CONTEXT.font = '18px Georgia';
         globals.CANVAS_CONTEXT.fillText(
-            "Mouse Coordinates: " + 
-                globals.MOUSE.x.toFixed(2) + 
-                ", " + 
-                globals.MOUSE.y.toFixed(2), 
+            `Mouse Coordinates: ${globals.MOUSE.x.toFixed(2)}, ` + 
+                `${globals.MOUSE.y.toFixed(2)}`, 
             10, 
             20
         );
         globals.CANVAS_CONTEXT.fillText(
-            "ViewSpace Coordinates: " + 
-                globals.MAIN_VIEWSPACE.x.toFixed(2) + 
-                ", " + 
-                globals.MAIN_VIEWSPACE.y.toFixed(2), 
+            `ViewSpace Coordinates: ${globals.MAIN_VIEWSPACE.x.toFixed(2)}, ` + 
+                `${globals.MAIN_VIEWSPACE.y.toFixed(2)}`, 
             10, 
             40
         );
         globals.CANVAS_CONTEXT.fillText(
-            "Bottom Right Corner: " + 
-                (globals.MAIN_VIEWSPACE.x + 
-                    globals.MAIN_VIEWSPACE.w).toFixed(2) + 
-                ", " + 
-                (globals.MAIN_VIEWSPACE.y + 
-                    globals.MAIN_VIEWSPACE.h).toFixed(2), 
+            `Bottom Right Corner: ${(globals.MAIN_VIEWSPACE.x + 
+                globals.MAIN_VIEWSPACE.w).toFixed(2)}, ` + 
+                `${(globals.MAIN_VIEWSPACE.y + 
+                globals.MAIN_VIEWSPACE.h).toFixed(2)}`,
             10, 
             60);
         globals.CANVAS_CONTEXT.fillText(
-            "Number of Other Users: " + globals.VIEWS.length, 
+            `Number of Other Users: ${globals.VIEWS.length}`, 
             10, 
             80
         );
         globals.CANVAS_CONTEXT.fillText(
-            "Viewspace Scale: " + globals.MAIN_VIEWSPACE.scale.toFixed(2), 
+            `Viewspace Scale: ${globals.MAIN_VIEWSPACE.scale.toFixed(2)}`, 
             10, 
             100
         );
         globals.CANVAS_CONTEXT.fillText(
-            "ViewSpace Rotation: " + globals.MAIN_VIEWSPACE.rotation, 
+            `ViewSpace Rotation: ${globals.MAIN_VIEWSPACE.rotation}`, 
             10, 
             120
         );
@@ -537,7 +531,7 @@ function onInit(initData) {
         document.getElementById('main').style.backgroundColor = 
             globals.settings.BGcolor;
     } else {
-        document.getElementById('main').style.backgroundColor = "#aaaaaa";
+        document.getElementById('main').style.backgroundColor = '#aaaaaa';
     }
 
     /*
