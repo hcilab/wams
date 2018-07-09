@@ -17,7 +17,7 @@
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
- *      [ ] Write ID generator factory, use for all IDs.
+ *      [X] Write ID generator factory, use for all IDs.
  *      [X] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
@@ -36,6 +36,7 @@
  *           with the standard Array.prototype.splice().
  */
 
+// Entry point!
 window.addEventListener(
     'load', 
     function run() {
@@ -77,7 +78,7 @@ class ClientViewSpace extends ViewSpace {
     retrieve() {
         const data = super.retrieve();
         globals.VS_ID_STAMPER.stamp(data, this.id);
-        return Object.freeze(data);
+        return data;
     }
 
     reportView(reportSubWS) {
@@ -177,8 +178,8 @@ class ClientViewSpace extends ViewSpace {
         });
 
         /*
-         * XXX: What exactly is going on here? Is this where we draw the rectangles
-         *      showing users where the other users are looking?
+         * XXX: What exactly is going on here? Is this where we draw the 
+         *      rectangles showing users where the other users are looking?
          */
         globals.VIEWS.forEach( v => {
             this.context.beginPath();
@@ -190,6 +191,7 @@ class ClientViewSpace extends ViewSpace {
             );
             this.context.stroke();
         });
+
         this.context.restore();
 
         this.showStatus();
@@ -424,22 +426,8 @@ class ClientViewSpace extends ViewSpace {
         globals.VS_ID_STAMPER.stamp(this, initData.id);
 
         initData.views.forEach( v => {
-            /*
-             * XXX: I'm not exactly sure what's going on here. Are we pushing 
-             *      in subviews? What are the initData.views? Why are we 
-             *      generating new ClientViewSpaces instead of pushing in the 
-             *      ClientViewSpace from initData?
-             */
             if (v.id !== this.id) {
-                const nvs = new ClientViewSpace(
-                    v.x, 
-                    v.y, 
-                    v.width, 
-                    v.height, 
-                    v.scale, 
-                );
-                globals.VS_ID_STAMPER.stamp(nvs, v.id);
-                globals.VIEWS.push(nvs);
+                this.addUser(v);
             }
         });
 
@@ -479,17 +467,25 @@ class ClientViewSpace extends ViewSpace {
             });
 
             if (noUserFound) {
-                const nvs = new ClientViewSpace(
-                    vsInfo.x, 
-                    vsInfo.y, 
-                    vsInfo.width, 
-                    vsInfo.height, 
-                    vsInfo.scale, 
-                );
-                globals.VS_ID_STAMPER.stamp(nvs, vsInfo.id);
-                globals.VIEWS.push();
+                this.addUser(vsInfo);
             }
         }
+    }
+
+    /*
+     * XXX: These can probably be some kind of "shadow" viewspace,
+     *      as very little of their data seems to be needed.
+     */
+    addUser(info) {
+        const nvs = new ClientViewSpace(
+            info.x, 
+            info.y, 
+            info.width, 
+            info.height, 
+            info.scale, 
+        );
+        globals.VS_ID_STAMPER.stamp(nvs, info.id);
+        globals.VIEWS.push(nvs);
     }
 
     onRemoveUser(id) {

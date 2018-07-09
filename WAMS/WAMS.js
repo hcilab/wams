@@ -333,6 +333,7 @@ class Connection {
 
             if (!this.initializedLayout) {
                 this.initializedLayout = true;
+                this.workspace.views.push(this.viewSpace);
 
                 if (typeof this.workspace.layoutHandler === 'function') {
                     this.workspace.layoutHandler(
@@ -342,8 +343,6 @@ class Connection {
                 } else {
                     console.log('Layout handler is not attached!');
                 }
-
-                this.workspace.views.push(this.viewSpace);
             }
 
             this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
