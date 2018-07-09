@@ -52,18 +52,18 @@ window.addEventListener('resize', onResized, false);
  *      sent to the client and the other is used by the server?
  */
 class ViewSpace {
-    constructor(x, y, w, h, scale, id) {
+    constructor(x, y, width, height, scale, id) {
         /*
          * XXX: Like in the server side ViewSpace, should update the variable
          *      names.
          */
         this.x = x;
         this.y = y;
-        this.w = w;
-        this.h = h;
+        this.width = width;
+        this.height = height;
         this.scale = scale;
-        this.ew = w/scale;
-        this.eh = h/scale;
+        this.effectiveWidth = width/scale;
+        this.effectiveHeight = height/scale;
         this.id = id;
         this.subViews = [];
     }
@@ -72,10 +72,10 @@ class ViewSpace {
         const vsInfo = {
             x: this.x,
             y: this.y,
-            w: this.w,
-            h: this.h,
-            ew: this.ew,
-            eh: this.eh,
+            width: this.width,
+            height: this.height,
+            effectiveWidth: this.effectiveWidth,
+            effectiveHeight: this.effectiveHeight,
             scale: this.scale,
             id: this.id
         };
@@ -223,20 +223,20 @@ function main_wsDraw() {
             break;
         case(Math.PI): 
             globals.CANVAS_CONTEXT.translate(
-                (-globals.MAIN_VIEWSPACE.ew - globals.MAIN_VIEWSPACE.x*2), 
-                (-globals.MAIN_VIEWSPACE.eh - globals.MAIN_VIEWSPACE.y*2)
+                (-globals.MAIN_VIEWSPACE.effectiveWidth - globals.MAIN_VIEWSPACE.x*2), 
+                (-globals.MAIN_VIEWSPACE.effectiveHeight - globals.MAIN_VIEWSPACE.y*2)
             ); 
             break;
         case(Math.PI/2): 
             globals.CANVAS_CONTEXT.translate(
-                -globals.MAIN_VIEWSPACE.ew, 
+                -globals.MAIN_VIEWSPACE.effectiveWidth, 
                 -globals.MAIN_VIEWSPACE.x*2
             ); 
             break;
         case(3*Math.PI/2): 
             globals.CANVAS_CONTEXT.translate(
                 -globals.MAIN_VIEWSPACE.y*2, 
-                -globals.MAIN_VIEWSPACE.ew
+                -globals.MAIN_VIEWSPACE.effectiveWidth
             ); 
             break;
     }
@@ -247,8 +247,8 @@ function main_wsDraw() {
      */
     globals.WS_OBJECTS.forEach( o => {
         const img = globals.IMAGES[o.id];
-        const width = o.w || img.width;
-        const height = o.h || img.height;
+        const width = o.width || img.width;
+        const height = o.height || img.height;
 
         if (o.imgsrc) {
             globals.CANVAS_CONTEXT.drawImage(
@@ -283,8 +283,8 @@ function main_wsDraw() {
         globals.CANVAS_CONTEXT.rect(
             v.x,
             v.y,
-            v.ew,
-            v.eh
+            v.effectiveWidth,
+            v.effectiveHeight
         );
         globals.CANVAS_CONTEXT.stroke();
     });
@@ -309,9 +309,9 @@ function main_wsDraw() {
         );
         globals.CANVAS_CONTEXT.fillText(
             `Bottom Right Corner: ${(globals.MAIN_VIEWSPACE.x + 
-                globals.MAIN_VIEWSPACE.w).toFixed(2)}, ` + 
+                globals.MAIN_VIEWSPACE.width).toFixed(2)}, ` + 
                 `${(globals.MAIN_VIEWSPACE.y + 
-                globals.MAIN_VIEWSPACE.h).toFixed(2)}`,
+                globals.MAIN_VIEWSPACE.height).toFixed(2)}`,
             10, 
             60);
         globals.CANVAS_CONTEXT.fillText(
@@ -335,12 +335,12 @@ function main_wsDraw() {
 function onResized() {
     globals.CANVAS.width = window.innerWidth;
     globals.CANVAS.height = window.innerHeight;
-    globals.MAIN_VIEWSPACE.w = window.innerWidth;
-    globals.MAIN_VIEWSPACE.h = window.innerHeight;
-    globals.MAIN_VIEWSPACE.ew = 
-        globals.MAIN_VIEWSPACE.w/globals.MAIN_VIEWSPACE.scale;
-    globals.MAIN_VIEWSPACE.eh = 
-        globals.MAIN_VIEWSPACE.h/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.width = window.innerWidth;
+    globals.MAIN_VIEWSPACE.height = window.innerHeight;
+    globals.MAIN_VIEWSPACE.effectiveWidth = 
+        globals.MAIN_VIEWSPACE.width/globals.MAIN_VIEWSPACE.scale;
+    globals.MAIN_VIEWSPACE.effectiveHeight = 
+        globals.MAIN_VIEWSPACE.height/globals.MAIN_VIEWSPACE.scale;
     globals.MAIN_VIEWSPACE.reportView();
 
 }
@@ -372,20 +372,20 @@ globals.TOUCH_EVENT_HANDLER.on(
                 case(0): break;
                 case(Math.PI): 
                     globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (
-                        globals.MAIN_VIEWSPACE.ew * (
+                        globals.MAIN_VIEWSPACE.effectiveWidth * (
                             1 - (
                                 (
                                     globals.MOUSE.x - globals.MAIN_VIEWSPACE.x
-                                ) / globals.MAIN_VIEWSPACE.ew
+                                ) / globals.MAIN_VIEWSPACE.effectiveWidth
                             )
                         )
                     ); 
                     globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (
-                        globals.MAIN_VIEWSPACE.eh * (
+                        globals.MAIN_VIEWSPACE.effectiveHeight * (
                             1 - (
                                 (
                                     globals.MOUSE.y - globals.MAIN_VIEWSPACE.y
-                                ) / globals.MAIN_VIEWSPACE.eh
+                                ) / globals.MAIN_VIEWSPACE.effectiveHeight
                             )
                         )
                     ); 
@@ -393,34 +393,34 @@ globals.TOUCH_EVENT_HANDLER.on(
                 case(Math.PI/2): 
                     globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (
-                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
                     ) + (
                         globals.MOUSE.y - (
-                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
                         )
                     ); 
                     globals.MOUSE.y = (
-                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
                     ) - (
                         globals.temp - (
-                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
                         )
                     );
                     break;
                 case(3*Math.PI/2): 
                     globals.temp = globals.MOUSE.x;
                     globals.MOUSE.x = (
-                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
                     ) - (
                         globals.MOUSE.y - (
-                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
                         )
                     ); 
                     globals.MOUSE.y = (
-                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
                     ) + (
                         globals.temp - (
-                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
                         )
                     );
                     break;
@@ -548,8 +548,8 @@ function onInit(initData) {
                 new ViewSpace(
                     v.x, 
                     v.y, 
-                    v.w, 
-                    v.h, 
+                    v.width, 
+                    v.height, 
                     v.scale, 
                     v.id
                 )
@@ -575,21 +575,14 @@ function onInit(initData) {
     globals.MAIN_VIEWSPACE.reportView(true);
 }
 
-/*
- * XXX: Unless used elsewhere, this global variable should almost certainly be
- *      tucked into the listener.
- *
- *      + Answer: A quick grep reveals that no, it is not used elsewhere. Put
- *          it inside the listener.
- */
 function onUpdateUser(vsInfo) {
     if (vsInfo.id === globals.MAIN_VIEWSPACE.id) {
         globals.MAIN_VIEWSPACE.x = vsInfo.x;
         globals.MAIN_VIEWSPACE.y = vsInfo.y;
-        globals.MAIN_VIEWSPACE.w = vsInfo.w;
-        globals.MAIN_VIEWSPACE.h = vsInfo.h;
-        globals.MAIN_VIEWSPACE.ew = vsInfo.ew;
-        globals.MAIN_VIEWSPACE.eh = vsInfo.eh;
+        globals.MAIN_VIEWSPACE.width = vsInfo.width;
+        globals.MAIN_VIEWSPACE.height = vsInfo.height;
+        globals.MAIN_VIEWSPACE.effectiveWidth = vsInfo.effectiveWidth;
+        globals.MAIN_VIEWSPACE.effectiveHeight = vsInfo.effectiveHeight;
         globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
         globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
     } else {
@@ -597,10 +590,10 @@ function onUpdateUser(vsInfo) {
             if (v.id === vsInfo.id) {
                 v.x = vsInfo.x;
                 v.y = vsInfo.y;
-                v.w = vsInfo.w;
-                v.h = vsInfo.h;
-                v.ew = vsInfo.ew;
-                v.eh = vsInfo.eh;
+                v.width = vsInfo.width;
+                v.height = vsInfo.height;
+                v.effectiveWidth = vsInfo.effectiveWidth;
+                v.effectiveHeight = vsInfo.effectiveHeight;
                 v.scale = vsInfo.scale;
                 v.id = vsInfo.id;
                 return true;
@@ -613,8 +606,8 @@ function onUpdateUser(vsInfo) {
                 new ViewSpace(
                     vsInfo.x, 
                     vsInfo.y, 
-                    vsInfo.w, 
-                    vsInfo.h, 
+                    vsInfo.width, 
+                    vsInfo.height, 
                     vsInfo.scale, 
                     vsInfo.id
                 )
@@ -631,7 +624,7 @@ function onRemoveUser(id) {
 }
 
 /*
- * XXX: Update, eh? If we're just pushing every object from one array into the
+ * XXX: Update, effectiveHeight? If we're just pushing every object from one array into the
  *      other (after it has been emptied), maybe we should just copy the array
  *      over?
  *
