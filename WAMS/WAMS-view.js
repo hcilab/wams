@@ -634,7 +634,7 @@ function onRemoveUser(id) {
  *      of trashing, copying, and regenerating.
  */
 function onUpdateObjects(objects) {
-    globals.WS_OBJECTS = [];
+    globals.WS_OBJECTS.splice(0, globals.WS_OBJECTS.length);
 
     objects.forEach( o => {
         globals.WS_OBJECTS.push(o);
