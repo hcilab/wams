@@ -105,6 +105,7 @@ const globals = (function defineGlobals() {
 
     const canvas = document.querySelector('#main');
     const constants = {
+        CANVAS: canvas,
         CANVAS_CONTEXT: canvas.getContext('2d'),
         EVENT_DC_USER: 'user_disconnect',
         EVENT_RM_USER: 'removeUser',
@@ -121,7 +122,6 @@ const globals = (function defineGlobals() {
             1,
             -1,
         ),
-        MAIN_WORKSPACE: canvas,
         MOUSE: {x: 0, y: 0},
         SOCKET: io(),
         TOUCH_EVENT_HANDLER: Hammer(document.body, hammerOptions),
@@ -159,8 +159,8 @@ const globals = (function defineGlobals() {
 })();
 
 function onWindowLoad() {
-    globals.MAIN_WORKSPACE.width = window.innerWidth;
-    globals.MAIN_WORKSPACE.height = window.innerHeight;
+    globals.CANVAS.width = window.innerWidth;
+    globals.CANVAS.height = window.innerHeight;
 
     /*
      * XXX: Are we sure we want to do this right away?
@@ -189,12 +189,11 @@ function onWindowLoad() {
  *      this.
  */
 function main_wsDraw() {
-    // Clear old globals.MAIN_WORKSPACE
     globals.CANVAS_CONTEXT.clearRect(
         0, 
         0, 
-        globals.MAIN_WORKSPACE.getWidth(), 
-        globals.MAIN_WORKSPACE.getHeight()
+        window.innerWidth,
+        window.innerHeight
     );
     globals.CANVAS_CONTEXT.save();
     globals.CANVAS_CONTEXT.scale(
@@ -327,23 +326,10 @@ function main_wsDraw() {
 }
 
 function onResized() {
-    /*
-     * XXX: See here this at least sort of makes sense, yet earlier there was
-     *      some kind of globals.MAIN_WORKSPACE.width = 
-     *      globals.MAIN_WORKSPACE.getWidth() nonsense.
-     */
-    globals.MAIN_WORKSPACE.width = window.innerWidth;
-    globals.MAIN_WORKSPACE.height = window.innerHeight;
-
-    /*
-     * XXX: globals.MAIN_WORKSPACE is a <canvas>
-     *      globals.MAIN_VIEWSPACE is a client-side ViewSpace
-     *
-     *      Can we clarify this? This really confused me. Is there a reason we
-     *      need both?
-     */
-    globals.MAIN_VIEWSPACE.w = globals.MAIN_WORKSPACE.getWidth();
-    globals.MAIN_VIEWSPACE.h = globals.MAIN_WORKSPACE.getHeight();
+    globals.CANVAS.width = window.innerWidth;
+    globals.CANVAS.height = window.innerHeight;
+    globals.MAIN_VIEWSPACE.w = window.innerWidth;
+    globals.MAIN_VIEWSPACE.h = window.innerHeight;
     globals.MAIN_VIEWSPACE.ew = 
         globals.MAIN_VIEWSPACE.w/globals.MAIN_VIEWSPACE.scale;
     globals.MAIN_VIEWSPACE.eh = 
