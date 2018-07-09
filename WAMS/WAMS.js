@@ -274,7 +274,7 @@ class Connection {
         this.initializedLayout = false;
         this.socket = socket;
         this.workspace = workspace;
-        this.viewSpace = new ViewSpace(
+        this.viewSpace = new ServerViewSpace(
             this.workspace.viewID++, 
             this.workspace.boundaries
         );
@@ -519,32 +519,12 @@ class WSObject {
     }
 }
 
-class ViewSpace {
+class ServerViewSpace extends utils.ViewSpace {
     constructor(id, boundaries) {
+        super();
         this.id = id;
         this.boundaries = boundaries;
-
-        this.x = 0;
-        this.y = 0;
-        this.width = 0;
-        this.height = 0;
-        this.effectiveWidth = 0;
-        this.effectiveHeight = 0;
-
-        this.scale = 1;
-        this.rotation = 0;
-
         this.type = 'view/background';
-    }
-
-    assign(vsInfo) {
-        this.x = vsInfo.x;
-        this.y = vsInfo.y;
-        this.width = vsInfo.width;
-        this.height = vsInfo.height;
-        this.effectiveWidth = vsInfo.effectiveWidth;
-        this.effectiveHeight = vsInfo.effectiveHeight;
-        this.scale = vsInfo.scale;
     }
 
     canMoveToX(value) {
