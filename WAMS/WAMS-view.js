@@ -22,7 +22,7 @@
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
  *           optimized.
- *      [ ] Rename variables where appropriate.
+ *      [X] Rename variables where appropriate.
  *      [X] Convert all prototype code into ES6 'class' style.
  *          - Better readability, extensibility.
  *      [X] Eliminate use of 'self' variables, use explicit binding.
@@ -36,10 +36,18 @@
  *           with the standard Array.prototype.splice().
  */
 
-window.addEventListener('DOMMouseScroll', onMouseScroll, false);
-window.addEventListener('load', onWindowLoad, false);
-window.addEventListener('mousewheel', onMouseScroll, false);
-window.addEventListener('resize', onResized, false);
+function run() {
+    new ClientViewSpace(
+        0,
+        0,
+        window.innerWidth,
+        window.innerHeight,
+        1,
+        -1,
+    ).onWindowLoad();
+}
+
+window.addEventListener('load', run, false);
 
 /*
  * XXX: I'm putting this code up here, for now, until I break the code out into
@@ -48,15 +56,11 @@ window.addEventListener('resize', onResized, false);
  *      but with different functionality? This might break my brain a bit.
  *
  *      Is it possible to define a central 'View' class that both are able
- *      to extend? How would that work, given that one of the ViewSpaces is
- *      sent to the client and the other is used by the server?
+ *      to extend? How would that work, given that one of the ViewSpaces 
+ *      is sent to the client and the other is used by the server?
  */
-class ViewSpace {
+class ClientViewSpace {
     constructor(x, y, width, height, scale, id) {
-        /*
-         * XXX: Like in the server side ViewSpace, should update the variable
-         *      names.
-         */
         this.x = x;
         this.y = y;
         this.width = width;
@@ -66,6 +70,12 @@ class ViewSpace {
         this.effectiveHeight = height/scale;
         this.id = id;
         this.subViews = [];
+
+        this.canvas = document.querySelector('#main');
+        this.context = this.canvas.getContext('2d');
+        this.rotation = 0;
+        this.wsObjects = [];
+        this.startScale = this.scale;
     }
 
     reportView(reportSubWS) {
@@ -90,6 +100,534 @@ class ViewSpace {
 
         globals.SOCKET.emit('reportView', vsInfo);
     }
+
+    /*
+     * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
+     *      this.
+     */
+    draw() {
+        function setOrientation() {
+            switch(this.rotation) {
+                case(0): 
+                    break;
+                case(Math.PI): 
+                    this.context.translate(
+                        (-this.effectiveWidth - this.x*2), 
+                        (-this.effectiveHeight - this.y*2)
+                    ); 
+                    break;
+                case(Math.PI/2): 
+                    this.context.translate(
+                        -this.effectiveWidth, 
+                        -this.x*2
+                    ); 
+                    break;
+                case(3*Math.PI/2): 
+                    this.context.translate(
+                        -this.y*2, 
+                        -this.effectiveWidth
+                    ); 
+                    break;
+            }
+        }
+
+        this.context.clearRect(
+            0, 
+            0, 
+            window.innerWidth,
+            window.innerHeight
+        );
+        
+        this.context.save();
+
+        this.context.scale(
+            this.scale, 
+            this.scale
+        );
+        this.context.translate(
+            -this.x, 
+            -this.y
+        );
+        this.context.rotate(this.rotation);
+
+        setOrientation.call(this);
+
+        /*
+         * XXX: Each WSObject should have a draw() function defined on it, which
+         *      can then be called from inside a simple forEach().
+         */
+        this.wsObjects.forEach( o => {
+            const img = globals.IMAGES[o.id];
+            const width = o.width || img.width;
+            const height = o.height || img.height;
+
+            if (o.imgsrc) {
+                this.context.drawImage(
+                    img,
+                    o.x,
+                    o.y,
+                    width,
+                    height
+                );
+            } else {
+                /*
+                 * XXX: Yikes!!! eval()? And we want this to be a usable API?
+                 *      For people to work together over networks? Pardon my
+                 *      French, but how the f*** are we going to make sure that
+                 *      no one is injecting malicious code here? 
+                 *
+                 *      Where is draw defined, and how does it end up here?
+                 *
+                 *      There must be a better way...
+                 */
+                eval(`${o.draw};`);
+                eval(`${o.drawStart};`);
+            }
+        });
+
+        /*
+         * XXX: What exactly is going on here? Is this where we draw the rectangles
+         *      showing users where the other users are looking?
+         */
+        globals.VIEWS.forEach( v => {
+            this.context.beginPath();
+            this.context.rect(
+                v.x,
+                v.y,
+                v.effectiveWidth,
+                v.effectiveHeight
+            );
+            this.context.stroke();
+        });
+        this.context.restore();
+
+        this.showStatus();
+    }
+
+    showStatus() {
+        /*
+         * XXX: This should be a function.
+         */
+        if (globals.settings !== null && globals.settings.debug) {
+            this.context.font = '18px Georgia';
+            this.context.fillText(
+                `Mouse Coordinates: ${globals.MOUSE.x.toFixed(2)}, ` + 
+                    `${globals.MOUSE.y.toFixed(2)}`, 
+                10, 
+                20
+            );
+            this.context.fillText(
+                `ClientViewSpace Coordinates: ${this.x.toFixed(2)}, ` + 
+                    `${this.y.toFixed(2)}`, 
+                10, 
+                40
+            );
+            this.context.fillText(
+                `Bottom Right Corner: ${(this.x + this.width).toFixed(2)}, ` + 
+                    `${(this.y + this.height).toFixed(2)}`,
+                10, 
+                60);
+            this.context.fillText(
+                `Number of Other Users: ${globals.VIEWS.length}`, 
+                10, 
+                80
+            );
+            this.context.fillText(
+                `Viewspace Scale: ${this.scale.toFixed(2)}`, 
+                10, 
+                100
+            );
+            this.context.fillText(
+                `ClientViewSpace Rotation: ${this.rotation}`, 
+                10, 
+                120
+            );
+        }
+    }
+
+    onMouseScroll(event) {
+        /*
+         * XXX: Let's have a close look at this. With no comments, I'm not sure
+         *      why a Math.max(Math.min()) structure is necessary. We might be 
+         *      able to simplify this.
+         */
+        const delta = Math.max(
+            -1, 
+            Math.min(
+                1, 
+                (event.wheelDelta || -event.detail)
+            )
+        );
+        const newScale = this.scale + delta * 0.09;
+        globals.SOCKET.emit('handleScale', this, newScale);
+    }
+
+    onResized(event) {
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width; 
+        this.canvas.height = this.height;
+        this.effectiveWidth = this.width / this.scale;
+        this.effectiveHeight = this.height / this.scale;
+        this.reportView();
+    }
+
+    setMouse(event) {
+        switch (this.rotation) {
+            case(0): break;
+            case(Math.PI): 
+                /*
+                 * XXX: This is _nasty_.
+                 *      This math can almost certainly be cleaned up.
+                 *
+                 *      let mx = globals.MOUSE.x
+                 *      let x = this.x
+                 *      let ew = this.effectiveWidth
+                 *      let old = globals.MOUSE.x (before assignment).
+                 *
+                 *      mx = x + (ew * [1 - {(old - x) / ew}])
+                 *      mx = x + ew - {[ew * (old - x)] / ew}
+                 *      mx = x + ew - (old - x)
+                 *      mx = x + ew - old + x
+                 *      mx = 2x + ew - old
+                 *
+                 *      See? Much simpler. What exactly this math is supposed
+                 *      to represent is still beyond me though. This code reeks
+                 *      to high heaven.
+                 */
+                globals.MOUSE.x = this.x + (
+                    this.effectiveWidth * (
+                        1 - (
+                            (
+                                globals.MOUSE.x - this.x
+                            ) / this.effectiveWidth
+                        )
+                    )
+                ); 
+                globals.MOUSE.y = this.y + (
+                    this.effectiveHeight * (
+                        1 - (
+                            (
+                                globals.MOUSE.y - this.y
+                            ) / this.effectiveHeight
+                        )
+                    )
+                ); 
+                break;
+            case(Math.PI/2): 
+                globals.temp = globals.MOUSE.x;
+                globals.MOUSE.x = (
+                    this.x + this.effectiveWidth/2
+                ) + (
+                    globals.MOUSE.y - (
+                        this.y + this.effectiveHeight/2
+                    )
+                ); 
+                globals.MOUSE.y = (
+                    this.y + this.effectiveHeight/2
+                ) - (
+                    globals.temp - (
+                        this.x + this.effectiveWidth/2
+                    )
+                );
+                break;
+            case(3*Math.PI/2): 
+                globals.temp = globals.MOUSE.x;
+                globals.MOUSE.x = (
+                    this.x + this.effectiveWidth/2
+                ) - (
+                    globals.MOUSE.y - (
+                        this.y + this.effectiveHeight/2
+                    )
+                ); 
+                globals.MOUSE.y = (
+                    this.y + this.effectiveHeight/2
+                ) + (
+                    globals.temp - (
+                        this.x + this.effectiveWidth/2
+                    )
+                );
+                break;
+        }
+    }
+
+    ontap(event) {
+        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
+        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
+
+        this.setMouse();
+
+        globals.SOCKET.emit(
+            'handleClick', 
+            globals.MOUSE.x, 
+            globals.MOUSE.y
+        );
+    }
+
+    ondragstart(event) {
+        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
+        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
+
+        this.setMouse();
+    }
+
+    ondrag(event) {
+        /*
+         * XXX: Where is globals.transforming defined, where does it 
+         *      get modified?
+         *
+         *      + Answer: Defined before this listener attachment, 
+         *          modified about 30 lines down in the transformstart 
+         *          and transformend cases.
+         */
+        if (globals.transforming) {
+            return;
+        }
+
+        globals.LAST_MOUSE.x = globals.MOUSE.x;
+        globals.LAST_MOUSE.y = globals.MOUSE.y;
+        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
+        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
+
+        this.setMouse();
+        
+        globals.SOCKET.emit('handleDrag', 
+            this, 
+            globals.MOUSE.x, 
+            globals.MOUSE.y, 
+            (globals.LAST_MOUSE.x - globals.MOUSE.x), 
+            (globals.LAST_MOUSE.y - globals.MOUSE.y)
+        );
+    }
+
+    ondragend(event) {
+        /*
+         * NOP for now, here for consistency though.
+         */
+    }
+
+    ontransformstart(event) {
+        globals.transforming = true;
+        this.startScale = this.scale;
+    }
+
+    ontransform(event) {
+        globals.SOCKET.emit(
+            'handleScale', 
+            this, 
+            event.gesture.scale * this.startScale
+        );
+    }
+
+    ontransformend(event) {
+        globals.transforming = false;
+        this.startScale = null;
+    }
+
+    onInit(initData) {
+        globals.settings = initData.settings;
+        /*
+         * XXX: Clean this up.
+         */
+        if (globals.settings.BGcolor !== null) {
+            document.getElementById('main').style.backgroundColor = 
+                globals.settings.BGcolor;
+        } else {
+            document.getElementById('main').style.backgroundColor = '#aaaaaa';
+        }
+
+        /*
+         * XXX: Look everywhere and make sure that this.id 
+         *      isn't getting set anywhere else!
+         *
+         *      Should make sure that all IDs anywhere are immutable once 
+         *      assigned. Perhaps an 'assignID' function? It could take an 
+         *      object to assign and an ID generator (preferably also 
+         *      immutable).
+         */
+        this.id = initData.id;
+        initData.views.forEach( v => {
+            /*
+             * XXX: I'm not exactly sure what's going on here. Are we pushing 
+             *      in subviews? What are the initData.views? Why are we 
+             *      generating new ClientViewSpaces instead of pushing in the 
+             *      ClientViewSpace from initData?
+             */
+            if (v.id !== this.id) {
+                globals.VIEWS.push(
+                    new ClientViewSpace(
+                        v.x, 
+                        v.y, 
+                        v.width, 
+                        v.height, 
+                        v.scale, 
+                        v.id
+                    )
+                );
+            }
+        });
+
+        /*
+         * XXX: What kind of Image() is this? Where is it defined?
+         *
+         *      + Answer: Turns out, this is part of the DOM API!! You can
+         *          generate <img> elements by calling new Image()! Pretty cool
+         *          actually! I'll probably make use of that!
+         */
+        initData.wsObjects.forEach( o => {
+            this.wsObjects.push(o);
+            if (o.imgsrc) {
+                globals.IMAGES[o.id] = new Image();
+                globals.IMAGES[o.id].src = o.imgsrc;
+            }
+        });
+
+        this.reportView(true);
+    }
+
+    onUpdateUser(vsInfo) {
+        if (vsInfo.id === this.id) {
+            this.x = vsInfo.x;
+            this.y = vsInfo.y;
+            this.width = vsInfo.width;
+            this.height = vsInfo.height;
+            this.effectiveWidth = vsInfo.effectiveWidth;
+            this.effectiveHeight = vsInfo.effectiveHeight;
+            this.scale = vsInfo.scale;
+            this.rotation = vsInfo.rotation;
+        } else {
+            const noUserFound = !globals.VIEWS.some( v => {
+                if (v.id === vsInfo.id) {
+                    v.x = vsInfo.x;
+                    v.y = vsInfo.y;
+                    v.width = vsInfo.width;
+                    v.height = vsInfo.height;
+                    v.effectiveWidth = vsInfo.effectiveWidth;
+                    v.effectiveHeight = vsInfo.effectiveHeight;
+                    v.scale = vsInfo.scale;
+                    v.id = vsInfo.id;
+                    return true;
+                }
+                return false;
+            });
+
+            if (noUserFound) {
+                globals.VIEWS.push(
+                    new ClientViewSpace(
+                        vsInfo.x, 
+                        vsInfo.y, 
+                        vsInfo.width, 
+                        vsInfo.height, 
+                        vsInfo.scale, 
+                        vsInfo.id
+                    )
+                );
+            }
+        }
+    }
+
+    onRemoveUser(id) {
+        const index = globals.VIEWS.findIndex( v => v.id === id );
+        if (index >= 0) {
+            globals.VIEWS.splice(index,1);
+        }
+    }
+
+    /*
+     * XXX: Update, effectiveHeight? If we're just pushing every object from one 
+     *      array into the other (after it has been emptied), maybe we should just 
+     *      copy the array over?
+     *
+     *      I think maybe what happened is the author wanted to actually update
+     *      the array, but ran into problems so ended up just resetting. I think
+     *      a proper update would probably be more efficient than this mechanism
+     *      of trashing, copying, and regenerating.
+     */
+    onUpdateObjects(objects) {
+        this.wsObjects.splice(0, this.wsObjects.length);
+
+        objects.forEach( o => {
+            this.wsObjects.push(o);
+
+            if (o.imgsrc) {
+                globals.IMAGES[o.id] = new Image();
+                globals.IMAGES[o.id].src = o.imgsrc;
+            }
+        });
+    }
+
+    onWindowLoad() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+
+        /*
+         * XXX: Are we sure we want to do this right away?
+         */
+        window.setInterval(this.draw.bind(this), globals.FRAMERATE);
+
+        /*
+         * XXX: Why do these listeners need to be attached all the way down here
+         *      instead of adjacent to the initialization of the socket variable?
+         */
+        globals.SOCKET.on('init', this.onInit.bind(this));
+        globals.SOCKET.on('updateUser', this.onUpdateUser.bind(this));
+        globals.SOCKET.on('removeUser', this.onRemoveUser.bind(this));
+        globals.SOCKET.on('updateObjects', this.onUpdateObjects.bind(this));
+        globals.SOCKET.on('message', (message) => {
+            if (message === globals.EVENT_DC_USER) {
+                document.body.innerHTML = '<H1>' +
+                    'Application has reached capacity.' +
+                    '</H1>';
+            }
+        });
+
+        window.addEventListener(
+            'DOMMouseScroll', 
+            this.onMouseScroll.bind(this), 
+            false
+        );
+        window.addEventListener(
+            'mousewheel', 
+            this.onMouseScroll.bind(this), 
+            false
+        );
+        window.addEventListener(
+            'resize', 
+            this.onResized.bind(this), 
+            false
+        );
+
+        // Hammer listeners.
+        function preventGestureEventDefaults(e) {
+            e.preventDefault();
+            e.gesture.preventDefault();
+        }
+
+        const hammer = Hammer(document.body, {
+            dragLockToAxis : true,
+            dragBlockHorizontal : true,
+            preventDefault : true,
+            transform_always_block: true,
+            transform_min_scale: 1,
+            drag_block_horizontal: true,
+            drag_block_vertical: true,
+            drag_min_distance: 0
+        });
+
+        [
+            'tap',
+            'dragstart',
+            'drag',
+            'dragend',
+            'transformstart',
+            'transform',
+            'transformend',
+        ].forEach( e => {
+            hammer.on(e, preventGestureEventDefaults);
+            hammer.on(e, this[`on${e}`].bind(this));
+        });
+    }
+
 }
 
 /*
@@ -99,17 +637,6 @@ class ViewSpace {
  * quite like it.
  */
 const globals = (function defineGlobals() {
-    const hammerOptions = {
-        dragLockToAxis : true,
-        dragBlockHorizontal : true,
-        preventDefault : true,
-        transform_always_block: true,
-        transform_min_scale: 1,
-        drag_block_horizontal: true,
-        drag_block_vertical: true,
-        drag_min_distance: 0
-    };
-
     const canvas = document.querySelector('#main');
     const constants = {
         CANVAS: canvas,
@@ -121,17 +648,8 @@ const globals = (function defineGlobals() {
         FRAMERATE: 1000 / 60,
         IMAGES: [],
         LAST_MOUSE: {x: 0, y: 0},
-        MAIN_VIEWSPACE: new ViewSpace(
-            0,
-            0,
-            window.innerWidth,
-            window.innerHeight,
-            1,
-            -1,
-        ),
         MOUSE: {x: 0, y: 0},
         SOCKET: io(),
-        TOUCH_EVENT_HANDLER: Hammer(document.body, hammerOptions),
         VIEWS: [],
         WDEBUG: true,
         WS_OBJECTS: [],
@@ -165,484 +683,4 @@ const globals = (function defineGlobals() {
     return Object.freeze(rv);
 })();
 
-function onWindowLoad() {
-    globals.CANVAS.width = window.innerWidth;
-    globals.CANVAS.height = window.innerHeight;
-
-    /*
-     * XXX: Are we sure we want to do this right away?
-     */
-    window.setInterval(main_wsDraw, globals.FRAMERATE);
-
-    /*
-     * XXX: Why do these listeners need to be attached all the way down here
-     *      instead of adjacent to the initialization of the socket variable?
-     */
-    globals.SOCKET.on('init', onInit);
-    globals.SOCKET.on('updateUser', onUpdateUser);
-    globals.SOCKET.on('removeUser', onRemoveUser);
-    globals.SOCKET.on('updateObjects', onUpdateObjects);
-    globals.SOCKET.on('message', (message) => {
-        if (message === globals.EVENT_DC_USER) {
-            document.body.innerHTML = '<H1>' +
-                'Application has reached capacity.' +
-                '</H1>';
-        }
-    });
-}
-
-/*
- * XXX: Okay, I'll need to dig into the canvas API if I'm going to understand
- *      this.
- */
-function main_wsDraw() {
-    globals.CANVAS_CONTEXT.clearRect(
-        0, 
-        0, 
-        window.innerWidth,
-        window.innerHeight
-    );
-    globals.CANVAS_CONTEXT.save();
-    globals.CANVAS_CONTEXT.scale(
-        globals.MAIN_VIEWSPACE.scale, 
-        globals.MAIN_VIEWSPACE.scale
-    );
-    globals.CANVAS_CONTEXT.translate(
-        -globals.MAIN_VIEWSPACE.x, 
-        -globals.MAIN_VIEWSPACE.y
-    );
-    globals.CANVAS_CONTEXT.rotate(
-        globals.MAIN_VIEWSPACE.rotation
-    );
-
-    /*
-     * XXX: I think maybe this should be a 'rotate' function.
-     */
-    switch(globals.MAIN_VIEWSPACE.rotation) {
-        case(0): 
-            break;
-        case(Math.PI): 
-            globals.CANVAS_CONTEXT.translate(
-                (-globals.MAIN_VIEWSPACE.effectiveWidth - globals.MAIN_VIEWSPACE.x*2), 
-                (-globals.MAIN_VIEWSPACE.effectiveHeight - globals.MAIN_VIEWSPACE.y*2)
-            ); 
-            break;
-        case(Math.PI/2): 
-            globals.CANVAS_CONTEXT.translate(
-                -globals.MAIN_VIEWSPACE.effectiveWidth, 
-                -globals.MAIN_VIEWSPACE.x*2
-            ); 
-            break;
-        case(3*Math.PI/2): 
-            globals.CANVAS_CONTEXT.translate(
-                -globals.MAIN_VIEWSPACE.y*2, 
-                -globals.MAIN_VIEWSPACE.effectiveWidth
-            ); 
-            break;
-    }
-
-    /*
-     * XXX: Each WSObject should have a draw() function defined on it, which
-     *      can then be called from inside a simple forEach().
-     */
-    globals.WS_OBJECTS.forEach( o => {
-        const img = globals.IMAGES[o.id];
-        const width = o.width || img.width;
-        const height = o.height || img.height;
-
-        if (o.imgsrc) {
-            globals.CANVAS_CONTEXT.drawImage(
-                img,
-                o.x,
-                o.y,
-                width,
-                height
-            );
-        } else {
-            /*
-             * XXX: Yikes!!! eval()? And we want this to be a usable API?
-             *      For people to work together over networks? Pardon my
-             *      French, but how the f*** are we going to make sure that
-             *      no one is injecting malicious code here? 
-             *
-             *      Where is draw defined, and how does it end up here?
-             *
-             *      There must be a better way...
-             */
-            eval(`${o.draw};`);
-            eval(`${o.drawStart};`);
-        }
-    });
-
-    /*
-     * XXX: What exactly is going on here? Is this where we draw the rectangles
-     *      showing users where the other users are looking?
-     */
-    globals.VIEWS.forEach( v => {
-        globals.CANVAS_CONTEXT.beginPath();
-        globals.CANVAS_CONTEXT.rect(
-            v.x,
-            v.y,
-            v.effectiveWidth,
-            v.effectiveHeight
-        );
-        globals.CANVAS_CONTEXT.stroke();
-    });
-    globals.CANVAS_CONTEXT.restore();
-
-    /*
-     * XXX: This should be a function.
-     */
-    if (globals.settings !== null && globals.settings.debug) {
-        globals.CANVAS_CONTEXT.font = '18px Georgia';
-        globals.CANVAS_CONTEXT.fillText(
-            `Mouse Coordinates: ${globals.MOUSE.x.toFixed(2)}, ` + 
-                `${globals.MOUSE.y.toFixed(2)}`, 
-            10, 
-            20
-        );
-        globals.CANVAS_CONTEXT.fillText(
-            `ViewSpace Coordinates: ${globals.MAIN_VIEWSPACE.x.toFixed(2)}, ` + 
-                `${globals.MAIN_VIEWSPACE.y.toFixed(2)}`, 
-            10, 
-            40
-        );
-        globals.CANVAS_CONTEXT.fillText(
-            `Bottom Right Corner: ${(globals.MAIN_VIEWSPACE.x + 
-                globals.MAIN_VIEWSPACE.width).toFixed(2)}, ` + 
-                `${(globals.MAIN_VIEWSPACE.y + 
-                globals.MAIN_VIEWSPACE.height).toFixed(2)}`,
-            10, 
-            60);
-        globals.CANVAS_CONTEXT.fillText(
-            `Number of Other Users: ${globals.VIEWS.length}`, 
-            10, 
-            80
-        );
-        globals.CANVAS_CONTEXT.fillText(
-            `Viewspace Scale: ${globals.MAIN_VIEWSPACE.scale.toFixed(2)}`, 
-            10, 
-            100
-        );
-        globals.CANVAS_CONTEXT.fillText(
-            `ViewSpace Rotation: ${globals.MAIN_VIEWSPACE.rotation}`, 
-            10, 
-            120
-        );
-    }
-}
-
-function onResized() {
-    globals.CANVAS.width = window.innerWidth;
-    globals.CANVAS.height = window.innerHeight;
-    globals.MAIN_VIEWSPACE.width = window.innerWidth;
-    globals.MAIN_VIEWSPACE.height = window.innerHeight;
-    globals.MAIN_VIEWSPACE.effectiveWidth = 
-        globals.MAIN_VIEWSPACE.width/globals.MAIN_VIEWSPACE.scale;
-    globals.MAIN_VIEWSPACE.effectiveHeight = 
-        globals.MAIN_VIEWSPACE.height/globals.MAIN_VIEWSPACE.scale;
-    globals.MAIN_VIEWSPACE.reportView();
-
-}
-
-/*
- * XXX: Can we organize this code to put all the listener attachments together?
- */
-
-function onMouseScroll(ev) {
-    /*
-     * XXX: Let's have a close look at this. With no comments, I'm not sure
-     *      why a Math.max(Math.min()) structure is necessary. We might be able
-     *      to simplify this.
-     */
-    const delta = Math.max(-1, Math.min(1, (ev.wheelDelta || -ev.detail)));
-    const newScale = globals.MAIN_VIEWSPACE.scale + delta*0.09;
-    globals.SOCKET.emit('handleScale', globals.MAIN_VIEWSPACE, newScale);
-}
-
-/*
- * XXX: I'm not sure I like this approach of attaching the same listener to all
- *      of the events, then 'switch'ing between the events based on type...
- */
-globals.TOUCH_EVENT_HANDLER.on(
-    'tap dragstart drag dragend transformstart transform transformend', 
-    function(ev) {
-        function rotate(rotation) {
-            switch (rotation) {
-                case(0): break;
-                case(Math.PI): 
-                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (
-                        globals.MAIN_VIEWSPACE.effectiveWidth * (
-                            1 - (
-                                (
-                                    globals.MOUSE.x - globals.MAIN_VIEWSPACE.x
-                                ) / globals.MAIN_VIEWSPACE.effectiveWidth
-                            )
-                        )
-                    ); 
-                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (
-                        globals.MAIN_VIEWSPACE.effectiveHeight * (
-                            1 - (
-                                (
-                                    globals.MOUSE.y - globals.MAIN_VIEWSPACE.y
-                                ) / globals.MAIN_VIEWSPACE.effectiveHeight
-                            )
-                        )
-                    ); 
-                    break;
-                case(Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (
-                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
-                    ) + (
-                        globals.MOUSE.y - (
-                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
-                        )
-                    ); 
-                    globals.MOUSE.y = (
-                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
-                    ) - (
-                        globals.temp - (
-                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
-                        )
-                    );
-                    break;
-                case(3*Math.PI/2): 
-                    globals.temp = globals.MOUSE.x;
-                    globals.MOUSE.x = (
-                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
-                    ) - (
-                        globals.MOUSE.y - (
-                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
-                        )
-                    ); 
-                    globals.MOUSE.y = (
-                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.effectiveHeight/2
-                    ) + (
-                        globals.temp - (
-                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.effectiveWidth/2
-                        )
-                    );
-                    break;
-            }
-        }
-
-        ev.preventDefault();
-        ev.gesture.preventDefault();
-        switch(ev.type) {
-            case('tap') :
-                globals.MOUSE.x = 
-                    ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.x;
-                globals.MOUSE.y = 
-                    ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.y;
-
-                rotate(globals.MAIN_VIEWSPACE.rotation);
-
-                globals.SOCKET.emit(
-                    'handleClick', 
-                    globals.MOUSE.x, 
-                    globals.MOUSE.y
-                );
-            case 'dragstart':
-                globals.MOUSE.x = ev.gesture.center.pageX/
-                    globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.x;
-                globals.MOUSE.y = ev.gesture.center.pageY/
-                    globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.y;
-
-                rotate(globals.MAIN_VIEWSPACE.rotation);
-                
-                break;
-            case 'drag':
-                /*
-                 * XXX: Where is globals.transforming defined, where does it 
-                 *      get modified?
-                 *
-                 *      + Answer: Defined before this listener attachment, 
-                 *          modified about 30 lines down in the transformstart 
-                 *          and transformend cases.
-                 */
-                if (globals.transforming) {
-                    return;
-                }
-
-                globals.LAST_MOUSE.x = globals.MOUSE.x;
-                globals.LAST_MOUSE.y = globals.MOUSE.y;
-                globals.MOUSE.x = 
-                    ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.x;
-                globals.MOUSE.y = 
-                    ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + 
-                    globals.MAIN_VIEWSPACE.y;
-
-                rotate(globals.MAIN_VIEWSPACE.rotation);
-                
-                globals.SOCKET.emit('handleDrag', 
-                    globals.MAIN_VIEWSPACE, 
-                    globals.MOUSE.x, 
-                    globals.MOUSE.y, 
-                    (globals.LAST_MOUSE.x - globals.MOUSE.x), 
-                    (globals.LAST_MOUSE.y - globals.MOUSE.y)
-                );
-                break;
-            case 'dragend':
-                /*
-                 * XXX: Why listen at all? Is it just to prevent default?
-                 */
-                break;
-            case 'transformstart':
-                globals.transforming = true;
-                startScale = globals.MAIN_VIEWSPACE.scale;
-                break;
-            case 'transform':
-                const scale = ev.gesture.scale;
-                const newScale = scale * startScale;
-                globals.SOCKET.emit(
-                    'handleScale', 
-                    globals.MAIN_VIEWSPACE, 
-                    newScale
-                );
-                break;
-            case 'transformend':
-                globals.transforming = false;
-                startScale = null;
-                break;
-
-
-        }
-    });
-
-function onInit(initData) {
-    globals.settings = initData.settings;
-    /*
-     * XXX: Clean this up.
-     */
-    if (globals.settings.BGcolor !== null) {
-        document.getElementById('main').style.backgroundColor = 
-            globals.settings.BGcolor;
-    } else {
-        document.getElementById('main').style.backgroundColor = '#aaaaaa';
-    }
-
-    /*
-     * XXX: Look everywhere and make sure that globals.MAIN_VIEWSPACE.id isn't 
-     *      getting set anywhere else!
-     *
-     *      Should make sure that all IDs anywhere are immutable once assigned.
-     *      Perhaps an 'assignID' function? It could take an object to assign
-     *      and an ID generator (preferably also immutable).
-     */
-    globals.MAIN_VIEWSPACE.id = initData.id;
-    initData.views.forEach( v => {
-        /*
-         * XXX: I'm not exactly sure what's going on here. Are we pushing in
-         *      subviews? What are the initData.views? Why are we generating
-         *      new ViewSpaces instead of pushing in the ViewSpace from
-         *      initData?
-         */
-        if (v.id !== globals.MAIN_VIEWSPACE.id) {
-            globals.VIEWS.push(
-                new ViewSpace(
-                    v.x, 
-                    v.y, 
-                    v.width, 
-                    v.height, 
-                    v.scale, 
-                    v.id
-                )
-            );
-        }
-    });
-
-    /*
-     * XXX: What kind of Image() is this? Where is it defined?
-     *
-     *      + Answer: Turns out, this is part of the DOM API!! You can
-     *          generate <img> elements by calling new Image()! Pretty cool
-     *          actually! I'll probably make use of that!
-     */
-    initData.wsObjects.forEach( o => {
-        globals.WS_OBJECTS.push(o);
-        if (o.imgsrc) {
-            globals.IMAGES[o.id] = new Image();
-            globals.IMAGES[o.id].src = o.imgsrc;
-        }
-    });
-
-    globals.MAIN_VIEWSPACE.reportView(true);
-}
-
-function onUpdateUser(vsInfo) {
-    if (vsInfo.id === globals.MAIN_VIEWSPACE.id) {
-        globals.MAIN_VIEWSPACE.x = vsInfo.x;
-        globals.MAIN_VIEWSPACE.y = vsInfo.y;
-        globals.MAIN_VIEWSPACE.width = vsInfo.width;
-        globals.MAIN_VIEWSPACE.height = vsInfo.height;
-        globals.MAIN_VIEWSPACE.effectiveWidth = vsInfo.effectiveWidth;
-        globals.MAIN_VIEWSPACE.effectiveHeight = vsInfo.effectiveHeight;
-        globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
-        globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
-    } else {
-        const noUserFound = !globals.VIEWS.some( v => {
-            if (v.id === vsInfo.id) {
-                v.x = vsInfo.x;
-                v.y = vsInfo.y;
-                v.width = vsInfo.width;
-                v.height = vsInfo.height;
-                v.effectiveWidth = vsInfo.effectiveWidth;
-                v.effectiveHeight = vsInfo.effectiveHeight;
-                v.scale = vsInfo.scale;
-                v.id = vsInfo.id;
-                return true;
-            }
-            return false;
-        });
-
-        if (noUserFound) {
-            globals.VIEWS.push(
-                new ViewSpace(
-                    vsInfo.x, 
-                    vsInfo.y, 
-                    vsInfo.width, 
-                    vsInfo.height, 
-                    vsInfo.scale, 
-                    vsInfo.id
-                )
-            );
-        }
-    }
-}
-
-function onRemoveUser(id) {
-    const index = globals.VIEWS.findIndex( v => v.id === id );
-    if (index >= 0) {
-        globals.VIEWS.splice(index,1);
-    }
-}
-
-/*
- * XXX: Update, effectiveHeight? If we're just pushing every object from one array into the
- *      other (after it has been emptied), maybe we should just copy the array
- *      over?
- *
- *      I think maybe what happened is the author wanted to actually update
- *      the array, but ran into problems so ended up just resetting. I think
- *      a proper update would probably be more efficient than this mechanism
- *      of trashing, copying, and regenerating.
- */
-function onUpdateObjects(objects) {
-    globals.WS_OBJECTS.splice(0, globals.WS_OBJECTS.length);
-
-    objects.forEach( o => {
-        globals.WS_OBJECTS.push(o);
-
-        if (o.imgsrc) {
-            globals.IMAGES[o.id] = new Image();
-            globals.IMAGES[o.id].src = o.imgsrc;
-        }
-    });
-}
 
