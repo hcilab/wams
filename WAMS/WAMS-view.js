@@ -1,12 +1,19 @@
 /*
  * WAMS code to be executed in the client browser.
+ *
+ * Original author: Jesse Rolheiser
+ * Revised by: Scott Bateman
+ * Latest edition by: Michael van der Kamp
+ *  |-> Date: July/August 2018
  */
+
+'use strict';
 
 /*
  * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [ ] Set to use JavaScript's 'strict' mode.
+ *      [X] Set to use JavaScript's 'strict' mode.
  *          - Do this last, otherwise there will be problems...
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
