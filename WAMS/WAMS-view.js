@@ -11,12 +11,12 @@
  *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
  *      [X] Organize globals, eliminate where possible.
  *      [ ] Write ID generator factory, use for all IDs.
- *      [ ] Switch to using functional style wherever possible, using ES6
+ *      [X] Switch to using functional style wherever possible, using ES6
  *           standard methods. This should make for more readable code, and
  *           probably faster code too, because the operations will already be
  *           optimized.
  *      [ ] Rename variables where appropriate.
- *      [ ] Convert all prototype code into ES6 'class' style.
+ *      [X] Convert all prototype code into ES6 'class' style.
  *          - Better readability, extensibility.
  *      [ ] Eliminate use of 'self' variables, use explicit binding.
  *      [ ] Look at all interior functions, would they benefit from being
@@ -33,6 +33,57 @@ window.addEventListener("DOMMouseScroll", onMouseScroll, false);
 window.addEventListener('load', onWindowLoad, false);
 window.addEventListener("mousewheel", onMouseScroll, false);
 window.addEventListener('resize', onResized, false);
+
+/*
+ * XXX: I'm putting this code up here, for now, until I break the code out into
+ *      separate source files.
+ * XXX: Oh my, is this 'class' given the same name as the server-side class,
+ *      but with different functionality? This might break my brain a bit.
+ *
+ *      Is it possible to define a central 'View' class that both are able
+ *      to extend? How would that work, given that one of the ViewSpaces is
+ *      sent to the client and the other is used by the server?
+ */
+class ViewSpace {
+    constructor(x, y, w, h, scale, id) {
+        /*
+         * XXX: Like in the server side ViewSpace, should update the variable
+         *      names.
+         */
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.scale = scale;
+        this.ew = w/scale;
+        this.eh = h/scale;
+        this.id = id;
+        this.subViews = [];
+    }
+
+    reportView(reportSubWS) {
+        const vsInfo = {
+            x: this.x,
+            y: this.y,
+            w: this.w,
+            h: this.h,
+            ew: this.ew,
+            eh: this.eh,
+            scale: this.scale,
+            id: this.id
+        };
+
+        /*
+         * XXX: Do we want to connect the subviews in this view somehow, so 
+         *      that they are clearly linked in the report?
+         */
+        if (reportSubWS) {
+            this.subViews.forEach( subWS => subWS.reportView(true) );
+        }
+
+        globals.SOCKET.emit('reportView', vsInfo);
+    }
+}
 
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
@@ -72,17 +123,15 @@ const globals = (function defineGlobals() {
         ),
         MAIN_WORKSPACE: canvas,
         MOUSE: {x: 0, y: 0},
-        SETTINGS: null,
         SOCKET: io(),
         TOUCH_EVENT_HANDLER: Hammer(document.body, hammerOptions),
         VIEWS: [],
         WDEBUG: true,
-        WS_OJECTS: [],
-        WS_OBJ_ID_STAMPER: new utils.IDStamper(),
+        WS_OBJECTS: [],
     };
 
     const variables = {
-        noUserFound: true,
+        settings: null,
         temp: 0,
         transforming: false,
     }
@@ -133,55 +182,6 @@ function onWindowLoad() {
                 "</H1>";
         }
     });
-}
-
-/*
- * XXX: Oh my, is this 'class' given the same name as the server-side class,
- *      but with different functionality? This might break my brain a bit.
- *
- *      Is it possible to define a central 'View' class that both are able
- *      to extend? How would that work, given that one of the ViewSpaces is
- *      sent to the client and the other is used by the server?
- */
-class ViewSpace {
-    constructor(x, y, w, h, scale, id) {
-        /*
-         * XXX: Like in the server side ViewSpace, should update the variable
-         *      names.
-         */
-        this.x = x;
-        this.y = y;
-        this.w = w;
-        this.h = h;
-        this.scale = scale;
-        this.ew = w/scale;
-        this.eh = h/scale;
-        this.id = id;
-        this.subViews = [];
-    }
-
-    reportView(reportSubWS) {
-        const vsInfo = {
-            x: this.x,
-            y: this.y,
-            w: this.w,
-            h: this.h,
-            ew: this.ew,
-            eh: this.eh,
-            scale: this.scale,
-            id: this.id
-        };
-
-        /*
-         * XXX: Do we want to connect the subviews in this view somehow, so 
-         *      that they are clearly linked in the report?
-         */
-        if (reportSubWS) {
-            this.subViews.forEach( subWS => subWS.reportView(true) );
-        }
-
-        globals.SOCKET.emit('reportView', vsInfo);
-    }
 }
 
 /*
@@ -239,71 +239,55 @@ function main_wsDraw() {
      * XXX: Each WSObject should have a draw() function defined on it, which
      *      can then be called from inside a simple forEach().
      */
-    for (let i = 0; i < globals.WS_OBJECTS.length; i++) {
-        //console.log(globals.WS_OBJECTS);
-        if (globals.WS_OBJECTS[i].w != null && globals.WS_OBJECTS[i].h != null) {
-            if (globals.WS_OBJECTS[i].imgsrc) {
-                globals.CANVAS_CONTEXT.drawImage(
-                    globals.IMAGES[globals.WS_OBJECTS[i].id], 
-                    globals.WS_OBJECTS[i].x, 
-                    globals.WS_OBJECTS[i].y, 
-                    globals.WS_OBJECTS[i].w, 
-                    globals.WS_OBJECTS[i].h
-                );
-            } else {   
-            //console.log(globals.WS_OBJECTS[i].draw);
-                /*
-                 * XXX: Yikes!!! eval()? And we want this to be a usable API?
-                 *      For people to work together over networks? Pardon my
-                 *      French, but how the f*** are we going to make sure that
-                 *      no one is injecting malicious code here? 
-                 *
-                 *      Where is draw defined, and how does it end up here?
-                 *
-                 *      There must be a better way...
-                 */
-                eval(globals.WS_OBJECTS[i].draw+';');
-                eval(globals.WS_OBJECTS[i].drawStart+';');
-            }
-        } else {
-            if (globals.WS_OBJECTS[i].imgsrc) {
-                globals.CANVAS_CONTEXT.drawImage(
-                    globals.IMAGES[globals.WS_OBJECTS[i].id], 
-                    globals.WS_OBJECTS[i].x, globals.WS_OBJECTS[i].y
-                );
-            } else {
-                /*
-                 * XXX: Same eval() complaint as above, but with the added
-                 *      complaint that this is duplicated code.
-                 */
-                eval(globals.WS_OBJECTS[i].draw+';');
-                eval(globals.WS_OBJECTS[i].startStart+';');
-            }
-        }
+    globals.WS_OBJECTS.forEach( o => {
+        const img = globals.IMAGES[o.id];
+        const width = o.w || img.width;
+        const height = o.h || img.height;
 
-    }
+        if (o.imgsrc) {
+            globals.CANVAS_CONTEXT.drawImage(
+                img,
+                o.x,
+                o.y,
+                width,
+                height
+            );
+        } else {
+            /*
+             * XXX: Yikes!!! eval()? And we want this to be a usable API?
+             *      For people to work together over networks? Pardon my
+             *      French, but how the f*** are we going to make sure that
+             *      no one is injecting malicious code here? 
+             *
+             *      Where is draw defined, and how does it end up here?
+             *
+             *      There must be a better way...
+             */
+            eval(`${o.draw};`);
+            eval(`${o.drawStart};`);
+        }
+    });
 
     /*
      * XXX: What exactly is going on here? Is this where we draw the rectangles
      *      showing users where the other users are looking?
      */
-    for (let i = 0; i < globals.VIEWS.length; i++) {
+    globals.VIEWS.forEach( v => {
         globals.CANVAS_CONTEXT.beginPath();
         globals.CANVAS_CONTEXT.rect(
-            globals.VIEWS[i].x, 
-            globals.VIEWS[i].y, 
-            globals.VIEWS[i].ew, 
-            globals.VIEWS[i].eh
+            v.x,
+            v.y,
+            v.ew,
+            v.eh
         );
         globals.CANVAS_CONTEXT.stroke();
-    }
-
+    });
     globals.CANVAS_CONTEXT.restore();
 
     /*
      * XXX: This should be a function.
      */
-    if (globals.SETTINGS != null && globals.SETTINGS.debug) {
+    if (globals.settings != null && globals.settings.debug) {
         globals.CANVAS_CONTEXT.font = "18px Georgia";
         globals.CANVAS_CONTEXT.fillText(
             "Mouse Coordinates: " + 
@@ -396,6 +380,66 @@ function onMouseScroll(ev) {
 globals.TOUCH_EVENT_HANDLER.on(
     'tap dragstart drag dragend transformstart transform transformend', 
     function(ev) {
+        function rotate(rotation) {
+            switch (rotation) {
+                case(0): break;
+                case(Math.PI): 
+                    globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (
+                        globals.MAIN_VIEWSPACE.ew * (
+                            1 - (
+                                (
+                                    globals.MOUSE.x - globals.MAIN_VIEWSPACE.x
+                                ) / globals.MAIN_VIEWSPACE.ew
+                            )
+                        )
+                    ); 
+                    globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (
+                        globals.MAIN_VIEWSPACE.eh * (
+                            1 - (
+                                (
+                                    globals.MOUSE.y - globals.MAIN_VIEWSPACE.y
+                                ) / globals.MAIN_VIEWSPACE.eh
+                            )
+                        )
+                    ); 
+                    break;
+                case(Math.PI/2): 
+                    globals.temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (
+                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                    ) + (
+                        globals.MOUSE.y - (
+                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                        )
+                    ); 
+                    globals.MOUSE.y = (
+                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                    ) - (
+                        globals.temp - (
+                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                        )
+                    );
+                    break;
+                case(3*Math.PI/2): 
+                    globals.temp = globals.MOUSE.x;
+                    globals.MOUSE.x = (
+                        globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                    ) - (
+                        globals.MOUSE.y - (
+                            globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                        )
+                    ); 
+                    globals.MOUSE.y = (
+                        globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2
+                    ) + (
+                        globals.temp - (
+                            globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2
+                        )
+                    );
+                    break;
+            }
+        }
+
         ev.preventDefault();
         ev.gesture.preventDefault();
         switch(ev.type) {
@@ -406,73 +450,9 @@ globals.TOUCH_EVENT_HANDLER.on(
                 globals.MOUSE.y = 
                     ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + 
                     globals.MAIN_VIEWSPACE.y;
-                /*
-                 * XXX: Is this code just copy-pasted across three of the 
-                 *      cases???
-                 */
-                switch(globals.MAIN_VIEWSPACE.rotation) {
-                    case(0): break;
-                    case(Math.PI): 
-                        globals.MOUSE.x = 
-                            globals.MAIN_VIEWSPACE.x + 
-                            (globals.MAIN_VIEWSPACE.ew * 
-                                (1 - 
-                                    ((globals.MOUSE.x - 
-                                        globals.MAIN_VIEWSPACE.x) /
-                                        globals.MAIN_VIEWSPACE.ew
-                                    )
-                                )
-                            ); 
-                        globals.MOUSE.y = 
-                            globals.MAIN_VIEWSPACE.y + 
-                            (globals.MAIN_VIEWSPACE.eh * 
-                                (1 - 
-                                    ((globals.MOUSE.y - 
-                                        globals.MAIN_VIEWSPACE.y) /
-                                        globals.MAIN_VIEWSPACE.eh
-                                    )
-                                )
-                            ); 
-                        break;
-                    case(Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = 
-                            (globals.MAIN_VIEWSPACE.x + 
-                                globals.MAIN_VIEWSPACE.ew/2) + 
-                            (globals.MOUSE.y - 
-                                (globals.MAIN_VIEWSPACE.y + 
-                                    globals.MAIN_VIEWSPACE.eh/2
-                                )
-                            ); 
-                        globals.MOUSE.y = 
-                            (globals.MAIN_VIEWSPACE.y + 
-                                globals.MAIN_VIEWSPACE.eh/2) - 
-                            (globals.temp - 
-                                (globals.MAIN_VIEWSPACE.x + 
-                                    globals.MAIN_VIEWSPACE.ew/2
-                                )
-                            );
-                        break;
-                    case(3*Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = 
-                            (globals.MAIN_VIEWSPACE.x + 
-                                globals.MAIN_VIEWSPACE.ew/2) - 
-                            (globals.MOUSE.y - 
-                                (globals.MAIN_VIEWSPACE.y 
-                                    + globals.MAIN_VIEWSPACE.eh/2
-                                )
-                            ); 
-                        globals.MOUSE.y = 
-                            (globals.MAIN_VIEWSPACE.y + 
-                                globals.MAIN_VIEWSPACE.eh/2) + 
-                            (globals.temp - 
-                                (globals.MAIN_VIEWSPACE.x + 
-                                    globals.MAIN_VIEWSPACE.ew/2
-                                )
-                            );
-                        break;
-                }
+
+                rotate(globals.MAIN_VIEWSPACE.rotation);
+
                 globals.SOCKET.emit(
                     'handleClick', 
                     globals.MOUSE.x, 
@@ -485,66 +465,41 @@ globals.TOUCH_EVENT_HANDLER.on(
                 globals.MOUSE.y = ev.gesture.center.pageY/
                     globals.MAIN_VIEWSPACE.scale + 
                     globals.MAIN_VIEWSPACE.y;
-                switch(globals.MAIN_VIEWSPACE.rotation) {
-                    case(0): break;
-                    case(Math.PI): 
-                        globals.MOUSE.x = 
-                            globals.MAIN_VIEWSPACE.x + 
-                            (globals.MAIN_VIEWSPACE.ew * 
-                                (1 - 
-                                    ((globals.MOUSE.x - 
-                                        globals.MAIN_VIEWSPACE.x)/
-                                        globals.MAIN_VIEWSPACE.ew
-                                    )
-                                )
-                            ); 
-                        globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
-                        break;
-                    case(Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                        break;
-                    case(3*Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                        break;
-                }
+
+                rotate(globals.MAIN_VIEWSPACE.rotation);
+                
                 break;
             case 'drag':
                 /*
-                 * XXX: Where is globals.transforming defined, where does it get modified?
+                 * XXX: Where is globals.transforming defined, where does it 
+                 *      get modified?
                  *
-                 *      + Answer: Defined before this listener attachment, modified
-                 *          about 30 lines down in the transformstart and 
-                 *          transformend cases.
+                 *      + Answer: Defined before this listener attachment, 
+                 *          modified about 30 lines down in the transformstart 
+                 *          and transformend cases.
                  */
                 if (globals.transforming) {
                     return;
                 }
+
                 globals.LAST_MOUSE.x = globals.MOUSE.x;
                 globals.LAST_MOUSE.y = globals.MOUSE.y;
-                globals.MOUSE.x = ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.x;
-                globals.MOUSE.y = ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + globals.MAIN_VIEWSPACE.y;
-                switch(globals.MAIN_VIEWSPACE.rotation) {
-                    case(0): break;
-                    case(Math.PI): 
-                        globals.MOUSE.x = globals.MAIN_VIEWSPACE.x + (globals.MAIN_VIEWSPACE.ew * (1 - ((globals.MOUSE.x - globals.MAIN_VIEWSPACE.x)/globals.MAIN_VIEWSPACE.ew))); 
-                        globals.MOUSE.y = globals.MAIN_VIEWSPACE.y + (globals.MAIN_VIEWSPACE.eh * (1 - ((globals.MOUSE.y - globals.MAIN_VIEWSPACE.y)/globals.MAIN_VIEWSPACE.eh)));
-                        break;
-                    case(Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) + (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) - (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                        break;
-                    case(3*Math.PI/2): 
-                        globals.temp = globals.MOUSE.x;
-                        globals.MOUSE.x = (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2) - (globals.MOUSE.y - (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2)); 
-                        globals.MOUSE.y = (globals.MAIN_VIEWSPACE.y + globals.MAIN_VIEWSPACE.eh/2) + (globals.temp - (globals.MAIN_VIEWSPACE.x + globals.MAIN_VIEWSPACE.ew/2));
-                        break;
-                }
-                globals.SOCKET.emit('handleDrag', globals.MAIN_VIEWSPACE, globals.MOUSE.x, globals.MOUSE.y, (globals.LAST_MOUSE.x - globals.MOUSE.x), (globals.LAST_MOUSE.y - globals.MOUSE.y));
+                globals.MOUSE.x = 
+                    ev.gesture.center.pageX/globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.x;
+                globals.MOUSE.y = 
+                    ev.gesture.center.pageY/globals.MAIN_VIEWSPACE.scale + 
+                    globals.MAIN_VIEWSPACE.y;
+
+                rotate(globals.MAIN_VIEWSPACE.rotation);
+                
+                globals.SOCKET.emit('handleDrag', 
+                    globals.MAIN_VIEWSPACE, 
+                    globals.MOUSE.x, 
+                    globals.MOUSE.y, 
+                    (globals.LAST_MOUSE.x - globals.MOUSE.x), 
+                    (globals.LAST_MOUSE.y - globals.MOUSE.y)
+                );
                 break;
             case 'dragend':
                 /*
@@ -574,13 +529,13 @@ globals.TOUCH_EVENT_HANDLER.on(
     });
 
 function onInit(initData) {
-    globals.SETTINGS = initData.settings;
+    globals.settings = initData.settings;
     /*
      * XXX: Clean this up.
      */
-    if (globals.SETTINGS.BGcolor != null) {
+    if (globals.settings.BGcolor != null) {
         document.getElementById('main').style.backgroundColor = 
-            globals.SETTINGS.BGcolor;
+            globals.settings.BGcolor;
     } else {
         document.getElementById('main').style.backgroundColor = "#aaaaaa";
     }
@@ -594,39 +549,41 @@ function onInit(initData) {
      *      and an ID generator (preferably also immutable).
      */
     globals.MAIN_VIEWSPACE.id = initData.id;
-    for (let i = 0; i < initData.views.length; i++) {
+    initData.views.forEach( v => {
         /*
          * XXX: I'm not exactly sure what's going on here. Are we pushing in
          *      subviews? What are the initData.views? Why are we generating
          *      new ViewSpaces instead of pushing in the ViewSpace from
          *      initData?
          */
-        if (initData.views[i].id != globals.MAIN_VIEWSPACE.id) {
+        if (v.id !== globals.MAIN_VIEWSPACE.id) {
             globals.VIEWS.push(
                 new ViewSpace(
-                    initData.views[i].x, 
-                    initData.views[i].y, 
-                    initData.views[i].w, 
-                    initData.views[i].h, 
-                    initData.views[i].scale, 
-                    initData.views[i].id
+                    v.x, 
+                    v.y, 
+                    v.w, 
+                    v.h, 
+                    v.scale, 
+                    v.id
                 )
             );
         }
-    }
+    });
 
     /*
      * XXX: What kind of Image() is this? Where is it defined?
+     *
+     *      + Answer: Turns out, this is part of the DOM API!! You can
+     *          generate <img> elements by calling new Image()! Pretty cool
+     *          actually! I'll probably make use of that!
      */
-    for (let i = 0; i < initData.globals.WS_OBJECTS.length; i++) {
-        globals.WS_OBJECTS.push(initData.globals.WS_OBJECTS[i]);
-        
-        if (globals.WS_OBJECTS[i].imgsrc) {
-            globals.IMAGES[initData.globals.WS_OBJECTS[i].id] = new Image();
-            globals.IMAGES[initData.globals.WS_OBJECTS[i].id].src = 
-                initData.globals.WS_OBJECTS[i].imgsrc;
+    initData.wsObjects.forEach( o => {
+        globals.WS_OBJECTS.push(o);
+        if (o.imgsrc) {
+            globals.IMAGES[o.id] = new Image();
+            globals.IMAGES[o.id].src = o.imgsrc;
         }
-    }
+    });
 
     globals.MAIN_VIEWSPACE.reportView(true);
 }
@@ -639,8 +596,6 @@ function onInit(initData) {
  *          it inside the listener.
  */
 function onUpdateUser(vsInfo) {
-    // globals.SOCKET.emit('consoleLog', "User: " + globals.MAIN_VIEWSPACE.id + 
-    // " updating " + vsInfo.id + "'s info.");
     if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
         globals.MAIN_VIEWSPACE.x = vsInfo.x;
         globals.MAIN_VIEWSPACE.y = vsInfo.y;
@@ -651,21 +606,22 @@ function onUpdateUser(vsInfo) {
         globals.MAIN_VIEWSPACE.scale = vsInfo.scale;
         globals.MAIN_VIEWSPACE.rotation = vsInfo.rotation;
     } else {
-        for (let i = 0; i < globals.VIEWS.length; i++) {
-            if (globals.VIEWS[i].id == vsInfo.id) {
-                globals.noUserFound = false;
-                globals.VIEWS[i].x = vsInfo.x;
-                globals.VIEWS[i].y = vsInfo.y;
-                globals.VIEWS[i].w = vsInfo.w;
-                globals.VIEWS[i].h = vsInfo.h;
-                globals.VIEWS[i].ew = vsInfo.ew;
-                globals.VIEWS[i].eh = vsInfo.eh;
-                globals.VIEWS[i].scale = vsInfo.scale;
-                globals.VIEWS[i].id = vsInfo.id;
-                break;
+        const noUserFound = !globals.VIEWS.some( v => {
+            if (v.id === vsInfo.id) {
+                v.x = vsInfo.x;
+                v.y = vsInfo.y;
+                v.w = vsInfo.w;
+                v.h = vsInfo.h;
+                v.ew = vsInfo.ew;
+                v.eh = vsInfo.eh;
+                v.scale = vsInfo.scale;
+                v.id = vsInfo.id;
+                return true;
             }
-        }
-        if (globals.noUserFound) {
+            return false;
+        });
+
+        if (noUserFound) {
             globals.VIEWS.push(
                 new ViewSpace(
                     vsInfo.x, 
@@ -677,16 +633,13 @@ function onUpdateUser(vsInfo) {
                 )
             );
         }
-        globals.noUserFound = true;
     }
 }
 
 function onRemoveUser(id) {
-    for (let i = 0; i < globals.VIEWS.length; i++) {
-        if (globals.VIEWS[i].id == id) {
-            globals.VIEWS.remove(i);
-            break;
-        }
+    const index = globals.VIEWS.findIndex( v => v.id === id );
+    if (index >= 0) {
+        globals.VIEWS.splice(index,1);
     }
 }
 
@@ -702,14 +655,15 @@ function onRemoveUser(id) {
  */
 function onUpdateObjects(objects) {
     globals.WS_OBJECTS = [];
-    for (let i = 0; i < objects.length; i++) {
-        globals.WS_OBJECTS.push(objects[i]);
 
-        if (globals.WS_OBJECTS[i].imgsrc) {
-            globals.IMAGES[objects[i].id] = new Image();
-            globals.IMAGES[objects[i].id].src = objects[i].imgsrc;
+    objects.forEach( o => {
+        globals.WS_OBJECTS.push(o);
+
+        if (o.imgsrc) {
+            globals.IMAGES[o.id] = new Image();
+            globals.IMAGES[o.id].src = o.imgsrc;
         }
-    }
+    });
 }
 
 /*
