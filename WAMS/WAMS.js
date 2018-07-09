@@ -71,7 +71,9 @@ const globals = (function defineGlobals() {
         EVENT_UD_OBJS: 'updateObjects',
         EVENT_UD_USER: 'updateUser',
         WDEBUG: true,
-        WS_OBJ_ID_STAMPER: new utils.IDStamper(),
+        OBJ_ID_STAMPER: new utils.IDStamper(),
+        VIEW_ID_STAMPER: new utils.IDStamper(),
+        WS_ID_STAMPER: new utils.IDStamper(),
     };
 
     const rv = {};
@@ -95,9 +97,8 @@ class WorkSpace {
             y : 10000
         };
         this.clientLimit = 10;
-        this.id = port;
         this.settings = settings;
-        this.viewID = 1;
+        globals.WS_ID_STAMPER.stamp(this, port);
 
         // Things to track.
         this.views = [];
@@ -223,9 +224,7 @@ class WorkSpace {
     }
 
     addWSObject(obj) {
-        //obj.id = globals.WS_OBJ_ID_STAMPER.next;
-        globals.WS_OBJ_ID_STAMPER.stamp(obj);
-
+        globals.OBJ_ID_STAMPER.stamp(obj);
         this.wsObjects.push(obj);
         if (globals.WDEBUG) { 
             console.log(`Adding object: ${obj.id} (${obj.type})`);
@@ -274,10 +273,8 @@ class Connection {
         this.initializedLayout = false;
         this.socket = socket;
         this.workspace = workspace;
-        this.viewSpace = new ServerViewSpace(
-            this.workspace.viewID++, 
-            this.workspace.boundaries
-        );
+        this.viewSpace = new ServerViewSpace(this.workspace.boundaries);
+        globals.VIEW_ID_STAMPER.stamp(this.viewSpace);
         
         if (globals.WDEBUG) {
             console.log(
@@ -520,9 +517,8 @@ class WSObject {
 }
 
 class ServerViewSpace extends utils.ViewSpace {
-    constructor(id, boundaries) {
+    constructor(boundaries) {
         super();
-        this.id = id;
         this.boundaries = boundaries;
         this.type = 'view/background';
     }

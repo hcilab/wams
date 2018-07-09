@@ -45,7 +45,6 @@ window.addEventListener(
             window.innerWidth,
             window.innerHeight,
             1,
-            -1,
         ).onWindowLoad();
     },
     {
@@ -66,9 +65,8 @@ window.addEventListener(
  *      is sent to the client and the other is used by the server?
  */
 class ClientViewSpace extends ViewSpace {
-    constructor(x, y, width, height, scale, id) {
+    constructor(x, y, width, height, scale) {
         super();
-        this.id = id;
         this.canvas = document.querySelector('#main');
         this.context = this.canvas.getContext('2d');
         this.wsObjects = [];
@@ -78,8 +76,8 @@ class ClientViewSpace extends ViewSpace {
 
     retrieve() {
         const data = super.retrieve();
-        data.id = this.id;
-        return data;
+        globals.VS_ID_STAMPER.stamp(data, this.id);
+        return Object.freeze(data);
     }
 
     reportView(reportSubWS) {
@@ -423,16 +421,8 @@ class ClientViewSpace extends ViewSpace {
         const colour = globals.settings.BGcolor || '#aaaaaa';
         this.canvas.style.backgroundColor = colour;
 
-        /*
-         * XXX: Look everywhere and make sure that this.id 
-         *      isn't getting set anywhere else!
-         *
-         *      Should make sure that all IDs anywhere are immutable once 
-         *      assigned. Perhaps an 'assignID' function? It could take an 
-         *      object to assign and an ID generator (preferably also 
-         *      immutable).
-         */
-        this.id = initData.id;
+        globals.VS_ID_STAMPER.stamp(this, initData.id);
+
         initData.views.forEach( v => {
             /*
              * XXX: I'm not exactly sure what's going on here. Are we pushing 
@@ -441,16 +431,15 @@ class ClientViewSpace extends ViewSpace {
              *      ClientViewSpace from initData?
              */
             if (v.id !== this.id) {
-                globals.VIEWS.push(
-                    new ClientViewSpace(
-                        v.x, 
-                        v.y, 
-                        v.width, 
-                        v.height, 
-                        v.scale, 
-                        v.id
-                    )
+                const nvs = new ClientViewSpace(
+                    v.x, 
+                    v.y, 
+                    v.width, 
+                    v.height, 
+                    v.scale, 
                 );
+                globals.VS_ID_STAMPER.stamp(nvs, v.id);
+                globals.VIEWS.push(nvs);
             }
         });
 
@@ -490,16 +479,15 @@ class ClientViewSpace extends ViewSpace {
             });
 
             if (noUserFound) {
-                globals.VIEWS.push(
-                    new ClientViewSpace(
-                        vsInfo.x, 
-                        vsInfo.y, 
-                        vsInfo.width, 
-                        vsInfo.height, 
-                        vsInfo.scale, 
-                        vsInfo.id
-                    )
+                const nvs = new ClientViewSpace(
+                    vsInfo.x, 
+                    vsInfo.y, 
+                    vsInfo.width, 
+                    vsInfo.height, 
+                    vsInfo.scale, 
                 );
+                globals.VS_ID_STAMPER.stamp(nvs, vsInfo.id);
+                globals.VIEWS.push();
             }
         }
     }
@@ -627,6 +615,7 @@ const globals = (function defineGlobals() {
         MOUSE: {x: 0, y: 0},
         SOCKET: io(),
         VIEWS: [],
+        VS_ID_STAMPER: new IDStamper(),
         WDEBUG: true,
     };
 
