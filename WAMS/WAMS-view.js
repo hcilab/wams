@@ -36,18 +36,24 @@
  *           with the standard Array.prototype.splice().
  */
 
-function run() {
-    new ClientViewSpace(
-        0,
-        0,
-        window.innerWidth,
-        window.innerHeight,
-        1,
-        -1,
-    ).onWindowLoad();
-}
-
-window.addEventListener('load', run, false);
+window.addEventListener(
+    'load', 
+    function run() {
+        new ClientViewSpace(
+            0,
+            0,
+            window.innerWidth,
+            window.innerHeight,
+            1,
+            -1,
+        ).onWindowLoad();
+    },
+    {
+        capture: false,
+        once: true,
+        passive: true,
+    }
+);
 
 /*
  * XXX: I'm putting this code up here, for now, until I break the code out into
