@@ -13,24 +13,6 @@
  */
 
 /*
- * XXX: Isn't this just a less useful Array.prototype.splice() ???
- *      - Not a criticism, splice() might have been an ES6 addition, and this 
- *          seems to rather neatly achieve some of the functionality of splice, 
- *          though I'm not entirely clear on what the full usage is supposed to
- *          be.
- *      - I think this is going for a python-esque approach to the arguments, 
- *          in that it appears to use negative array indexing to refer to 
- *          indexes from the end of the array. I'm not sure I like this, but
- *          we'll see. If this is only ever used akin to splice() then I'll 
- *          simply replace it with calls to splice().
- */
-Array.prototype.remove = function(from, to) {
-    var rest = this.slice((to || from) + 1 || this.length);
-    this.length = from < 0 ? this.length + from : from;
-    return this.push.apply(this, rest);
-};
-
-/*
  * I wrote this generator class to make ID generation more controlled.
  * The class has access to a private (local lexical scope) generator function
  *  and Symbol for generators, and exposes a stamp() method that stamps an

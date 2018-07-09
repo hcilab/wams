@@ -18,14 +18,14 @@
  *      [ ] Rename variables where appropriate.
  *      [X] Convert all prototype code into ES6 'class' style.
  *          - Better readability, extensibility.
- *      [ ] Eliminate use of 'self' variables, use explicit binding.
- *      [ ] Look at all interior functions, would they benefit from being
+ *      [X] Eliminate use of 'self' variables, use explicit binding.
+ *      [X] Look at all interior functions, would they benefit from being
  *           ES6 arrow functions?
- *      [ ] Replace classic JS concatenated strings with ES6 backtick strings,
+ *      [X] Replace classic JS concatenated strings with ES6 backtick strings,
  *           where necessary. (Or everywhere for consistency?)
- *      [ ] Switch to using strict equality unless coercive equality is clearly
+ *      [X] Switch to using strict equality unless coercive equality is clearly
  *           beneficial in a given circumstance.
- *      [ ] Replace all use of the custom Array.prototype.remove() function
+ *      [X] Replace all use of the custom Array.prototype.remove() function
  *           with the standard Array.prototype.splice().
  */
 
@@ -286,7 +286,7 @@ function main_wsDraw() {
     /*
      * XXX: This should be a function.
      */
-    if (globals.settings != null && globals.settings.debug) {
+    if (globals.settings !== null && globals.settings.debug) {
         globals.CANVAS_CONTEXT.font = '18px Georgia';
         globals.CANVAS_CONTEXT.fillText(
             `Mouse Coordinates: ${globals.MOUSE.x.toFixed(2)}, ` + 
@@ -513,7 +513,7 @@ function onInit(initData) {
     /*
      * XXX: Clean this up.
      */
-    if (globals.settings.BGcolor != null) {
+    if (globals.settings.BGcolor !== null) {
         document.getElementById('main').style.backgroundColor = 
             globals.settings.BGcolor;
     } else {
@@ -576,7 +576,7 @@ function onInit(initData) {
  *          it inside the listener.
  */
 function onUpdateUser(vsInfo) {
-    if (vsInfo.id == globals.MAIN_VIEWSPACE.id) {
+    if (vsInfo.id === globals.MAIN_VIEWSPACE.id) {
         globals.MAIN_VIEWSPACE.x = vsInfo.x;
         globals.MAIN_VIEWSPACE.y = vsInfo.y;
         globals.MAIN_VIEWSPACE.w = vsInfo.w;
@@ -644,25 +644,5 @@ function onUpdateObjects(objects) {
             globals.IMAGES[o.id].src = o.imgsrc;
         }
     });
-}
-
-/*
- * XXX: Wait... are these really necessary? Why are we accessing the window's
- *      innerWidth instead of the canvas element's innerWidth? Does the canvas
- *      element even have an innerWidth? I'll look into it...
- */
-HTMLCanvasElement.prototype.getWidth = function() {
-    return window.innerWidth;
-};
-
-HTMLCanvasElement.prototype.getHeight = function() {
-    return window.innerHeight;
-};
-
-HTMLCanvasElement.prototype.getCenter = function() {
-    return {
-        x : this.getWidth()/2,
-        y : this.getHeight()/2
-    };
 }
 
