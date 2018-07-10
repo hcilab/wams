@@ -53,6 +53,7 @@ class ClientViewSpace extends ViewSpace {
         this.subViews = [];
         this.startScale = null;
         this.transforming = false;
+        this.mouse = {x: 0, y: 0};
     }
 
     retrieve() {
@@ -184,12 +185,6 @@ class ClientViewSpace extends ViewSpace {
         if (globals.settings !== null && globals.settings.debug) {
             this.context.font = '18px Georgia';
             this.context.fillText(
-                `Mouse Coordinates: ${globals.MOUSE.x.toFixed(2)}, ` + 
-                    `${globals.MOUSE.y.toFixed(2)}`, 
-                10, 
-                20
-            );
-            this.context.fillText(
                 `ClientViewSpace Coordinates: ${this.x.toFixed(2)}, ` + 
                     `${this.y.toFixed(2)}`, 
                 10, 
@@ -245,18 +240,20 @@ class ClientViewSpace extends ViewSpace {
         this.reportView();
     }
 
-    setMouse(event) {
-        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
-        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
-
-        const old = {
-            x: globals.MOUSE.x,
-            y: globals.MOUSE.y,
+    getMouseCoordinates(event) {
+        const base = {
+            x: event.gesture.center.pageX / this.scale + this.x,
+            y: event.gesture.center.pageY / this.scale + this.y,
         };
 
         const center = {
             x: (this.effectiveWidth / 2) + this.x,
             y: (this.effectiveHeight / 2) + this.y,
+        };
+
+        const coords = {
+            x: -1, 
+            y: -1,
         };
 
         /*
@@ -265,34 +262,38 @@ class ClientViewSpace extends ViewSpace {
          */
         switch (this.rotation) {
             case(0): 
+                coords.x = base.x;
+                coords.y = base.y;
                 break;
             case(Math.PI): 
-                globals.MOUSE.x = (2 * this.x) + this.effectiveWidth - old.x;
-                globals.MOUSE.y = (2 * this.y) + this.effectiveHeight - old.y;
+                coords.x = (2 * this.x) + this.effectiveWidth - base.x;
+                coords.y = (2 * this.y) + this.effectiveHeight - base.y;
                 break;
             case(Math.PI/2): 
-                globals.MOUSE.x = center.x - center.y + old.y;
-                globals.MOUSE.y = center.y + center.x - old.x;
+                coords.x = center.x - center.y + base.y;
+                coords.y = center.y + center.x - base.x;
                 break;
             case(3*Math.PI/2): 
-                globals.MOUSE.x = center.x + center.y - old.y;
-                globals.MOUSE.y = center.y - center.x + old.x;
+                coords.x = center.x + center.y - base.y;
+                coords.y = center.y - center.x + base.x;
                 break;
         }
+
+        return coords;
     }
 
     ontap(event) {
-        this.setMouse(event);
+        this.mouse = this.getMouseCoordinates(event);
 
         globals.SOCKET.emit(
             'handleClick', 
-            globals.MOUSE.x, 
-            globals.MOUSE.y
+            this.mouse.x,
+            this.mouse.y
         );
     }
 
     ondragstart(event) {
-        this.setMouse(event);
+        this.mouse = this.getMouseCoordinates(event);
     }
 
     ondrag(event) {
@@ -300,16 +301,15 @@ class ClientViewSpace extends ViewSpace {
             return;
         }
 
-        globals.LAST_MOUSE.x = globals.MOUSE.x;
-        globals.LAST_MOUSE.y = globals.MOUSE.y;
-        this.setMouse(event);
+        const lastMouse = this.mouse;
+        this.mouse = this.getMouseCoordinates(event);
         
         globals.SOCKET.emit('handleDrag', 
             this, 
-            globals.MOUSE.x, 
-            globals.MOUSE.y, 
-            (globals.LAST_MOUSE.x - globals.MOUSE.x), 
-            (globals.LAST_MOUSE.y - globals.MOUSE.y)
+            this.mouse.x,
+            this.mouse.y,
+            (lastMouse.x - this.mouse.x), 
+            (lastMouse.y - this.mouse.y)
         );
     }
 
@@ -527,8 +527,6 @@ const globals = (function defineGlobals() {
         EVENT_UD_USER: 'updateUser',
         FRAMERATE: 1000 / 60,
         IMAGES: [],
-        LAST_MOUSE: {x: 0, y: 0},
-        MOUSE: {x: 0, y: 0},
         SOCKET: io(),
         VIEWS: [],
         VS_ID_STAMPER: new IDStamper(),
