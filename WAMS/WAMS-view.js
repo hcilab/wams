@@ -252,35 +252,6 @@ class ClientViewSpace extends ViewSpace {
         switch (this.rotation) {
             case(0): break;
             case(Math.PI): 
-                /*
-                 * XXX: This is _nasty_.
-                 *      This math can almost certainly be cleaned up.
-                 *
-                 *      let mx  = globals.MOUSE.x
-                 *      let my  = globals.MOUSE.y
-                 *      let x   = this.x
-                 *      let y   = this.y
-                 *      let ew  = this.effectiveWidth
-                 *      let eh  = this.effectiveHeight
-                 *      let ox  = original globals.MOUSE.x
-                 *      let oy  = original globals.MOUSE.y
-                 *
-                 *      mx = x + (ew * [1 - {(ox - x) / ew}])
-                 *      mx = x + ew - {[ew * (ox - x)] / ew}
-                 *      mx = x + ew - (ox - x)
-                 *      mx = x + ew - ox + x
-                 *      mx = 2x + ew - ox
-                 *
-                 *      my = y + (eh * [1 - {(oy - y) / eh}])
-                 *      my = y + eh - {[eh * (oy - y)] / eh}
-                 *      my = y + eh - (oy - y)
-                 *      my = y + eh - oy + y
-                 *      my = 2y + eh - oy
-                 *
-                 *      See? Much simpler. What exactly this math is supposed
-                 *      to represent is still beyond me though. This code reeks
-                 *      to high heaven.
-                 */
                 const old = {
                     x: globals.MOUSE.x,
                     y: globals.MOUSE.y,
