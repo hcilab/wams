@@ -281,24 +281,14 @@ class ClientViewSpace extends ViewSpace {
                  *      to represent is still beyond me though. This code reeks
                  *      to high heaven.
                  */
-                globals.MOUSE.x = this.x + (
-                    this.effectiveWidth * (
-                        1 - (
-                            (
-                                globals.MOUSE.x - this.x
-                            ) / this.effectiveWidth
-                        )
-                    )
-                ); 
-                globals.MOUSE.y = this.y + (
-                    this.effectiveHeight * (
-                        1 - (
-                            (
-                                globals.MOUSE.y - this.y
-                            ) / this.effectiveHeight
-                        )
-                    )
-                ); 
+                const old = {
+                    x: globals.MOUSE.x,
+                    y: globals.MOUSE.y,
+                };
+
+                globals.MOUSE.x = (2 * this.x) + this.effectiveWidth - old.x;
+                globals.MOUSE.y = (2 * this.y) + this.effectiveHeight - old.y;
+
                 break;
             case(Math.PI/2): 
                 const old = {
