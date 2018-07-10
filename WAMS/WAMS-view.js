@@ -301,39 +301,6 @@ class ClientViewSpace extends ViewSpace {
                 ); 
                 break;
             case(Math.PI/2): 
-                /*
-                 * XXX: Once again, this is _nasty_. Let's examine the math
-                 *      again.
-                 *
-                 *      let mx  = globals.MOUSE.x
-                 *      let my  = globals.MOUSE.y
-                 *      let x   = this.x
-                 *      let y   = this.y
-                 *      let ew  = this.effectiveWidth
-                 *      let eh  = this.effectiveHeight
-                 *      let ox  = original globals.MOUSE.x
-                 *      let oy  = original globals.MOUSE.y
-                 *
-                 *      mx = (x + [ew / 2]) + (oy - [y + {eh / 2}])
-                 *      my = (y + [eh / 2]) - (ox - [x + {ew / 2}])
-                 *
-                 *      Thoughts:
-                 *          + Rename temp to oldX, use oldY to be explicit.
-                 *          + Save ew/2 and eh/2 in centerX and centerY.
-                 *          + Save (x + [ew / 2]) and (y + [eh / 2]) in
-                 *              constants, as they get reused.
-                 *
-                 *      let cx  = x + (ew / 2)
-                 *      let cy  = y + (eh / 2)
-                 *
-                 *      Therefore:
-                 *
-                 *      mx = cx + (oy - cy)
-                 *      mx = cx - cy + oy
-                 *
-                 *      my = cy - (ox - cx)
-                 *      my = cy + cx - ox
-                 */
                 const old = {
                     x: globals.MOUSE.x,
                     y: globals.MOUSE.y,
@@ -348,37 +315,6 @@ class ClientViewSpace extends ViewSpace {
 
                 break;
             case(3*Math.PI/2): 
-                /*
-                 * XXX: Once again, this is _nasty_. Let's examine the math
-                 *      again.
-                 *
-                 *      let mx  = globals.MOUSE.x
-                 *      let my  = globals.MOUSE.y
-                 *      let x   = this.x
-                 *      let y   = this.y
-                 *      let ew  = this.effectiveWidth
-                 *      let eh  = this.effectiveHeight
-                 *      let ox  = original globals.MOUSE.x
-                 *      let oy  = original globals.MOUSE.y
-                 *
-                 *      mx = (x + [ew / 2]) - (oy - [y + {eh / 2}])
-                 *      my = (y + [eh / 2]) + (ox - [x + {ew / 2}])
-                 *
-                 *      Very similar to the previous case, just a swapped sign.
-                 *      We should be able to extract functions for some of this
-                 *      math therefore.
-                 *
-                 *      let cx  = x + (ew / 2)
-                 *      let cy  = y + (eh / 2)
-                 *
-                 *      Therefore:
-                 *
-                 *      mx = cx - (oy - cy)
-                 *      mx = cx + cy - oy
-                 *
-                 *      my = cy + (ox - cx)
-                 *      my = cy - cx + ox
-                 */
                 const old = {
                     x: globals.MOUSE.x,
                     y: globals.MOUSE.y,
