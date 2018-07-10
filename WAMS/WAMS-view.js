@@ -52,6 +52,7 @@ class ClientViewSpace extends ViewSpace {
         this.wsObjects = [];
         this.subViews = [];
         this.startScale = null;
+        this.transforming = false;
     }
 
     retrieve() {
@@ -344,15 +345,7 @@ class ClientViewSpace extends ViewSpace {
     }
 
     ondrag(event) {
-        /*
-         * XXX: Where is globals.transforming defined, where does it 
-         *      get modified?
-         *
-         *      + Answer: Defined before this listener attachment, 
-         *          modified about 30 lines down in the transformstart 
-         *          and transformend cases.
-         */
-        if (globals.transforming) {
+        if (this.transforming) {
             return;
         }
 
@@ -379,7 +372,7 @@ class ClientViewSpace extends ViewSpace {
     }
 
     ontransformstart(event) {
-        globals.transforming = true;
+        this.transforming = true;
         this.startScale = this.scale;
     }
 
@@ -392,7 +385,7 @@ class ClientViewSpace extends ViewSpace {
     }
 
     ontransformend(event) {
-        globals.transforming = false;
+        this.transforming = false;
         this.startScale = null;
     }
 
@@ -597,7 +590,6 @@ const globals = (function defineGlobals() {
     const variables = {
         settings: null,
         temp: 0,
-        transforming: false,
     }
 
     const rv = {};
