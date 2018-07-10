@@ -288,7 +288,7 @@ class ClientViewSpace extends ViewSpace {
                 ); 
                 break;
             case(Math.PI/2): 
-                globals.temp = globals.MOUSE.x;
+                const temp = globals.MOUSE.x;
                 globals.MOUSE.x = (
                     this.x + this.effectiveWidth/2
                 ) + (
@@ -299,13 +299,13 @@ class ClientViewSpace extends ViewSpace {
                 globals.MOUSE.y = (
                     this.y + this.effectiveHeight/2
                 ) - (
-                    globals.temp - (
+                    temp - (
                         this.x + this.effectiveWidth/2
                     )
                 );
                 break;
             case(3*Math.PI/2): 
-                globals.temp = globals.MOUSE.x;
+                const temp = globals.MOUSE.x;
                 globals.MOUSE.x = (
                     this.x + this.effectiveWidth/2
                 ) - (
@@ -316,7 +316,7 @@ class ClientViewSpace extends ViewSpace {
                 globals.MOUSE.y = (
                     this.y + this.effectiveHeight/2
                 ) + (
-                    globals.temp - (
+                    temp - (
                         this.x + this.effectiveWidth/2
                     )
                 );
@@ -589,7 +589,6 @@ const globals = (function defineGlobals() {
 
     const variables = {
         settings: null,
-        temp: 0,
     }
 
     const rv = {};
