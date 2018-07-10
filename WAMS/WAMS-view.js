@@ -256,16 +256,26 @@ class ClientViewSpace extends ViewSpace {
                  * XXX: This is _nasty_.
                  *      This math can almost certainly be cleaned up.
                  *
-                 *      let mx = globals.MOUSE.x
-                 *      let x = this.x
-                 *      let ew = this.effectiveWidth
-                 *      let old = globals.MOUSE.x (before assignment).
+                 *      let mx  = globals.MOUSE.x
+                 *      let my  = globals.MOUSE.y
+                 *      let x   = this.x
+                 *      let y   = this.y
+                 *      let ew  = this.effectiveWidth
+                 *      let eh  = this.effectiveHeight
+                 *      let ox  = original globals.MOUSE.x
+                 *      let oy  = original globals.MOUSE.y
                  *
-                 *      mx = x + (ew * [1 - {(old - x) / ew}])
-                 *      mx = x + ew - {[ew * (old - x)] / ew}
-                 *      mx = x + ew - (old - x)
-                 *      mx = x + ew - old + x
-                 *      mx = 2x + ew - old
+                 *      mx = x + (ew * [1 - {(ox - x) / ew}])
+                 *      mx = x + ew - {[ew * (ox - x)] / ew}
+                 *      mx = x + ew - (ox - x)
+                 *      mx = x + ew - ox + x
+                 *      mx = 2x + ew - ox
+                 *
+                 *      my = y + (eh * [1 - {(oy - y) / eh}])
+                 *      my = y + eh - {[eh * (oy - y)] / eh}
+                 *      my = y + eh - (oy - y)
+                 *      my = y + eh - oy + y
+                 *      my = 2y + eh - oy
                  *
                  *      See? Much simpler. What exactly this math is supposed
                  *      to represent is still beyond me though. This code reeks
@@ -291,6 +301,28 @@ class ClientViewSpace extends ViewSpace {
                 ); 
                 break;
             case(Math.PI/2): 
+                /*
+                 * XXX: Once again, this is _nasty_. Let's examine the math
+                 *      again.
+                 *
+                 *      let mx  = globals.MOUSE.x
+                 *      let my  = globals.MOUSE.y
+                 *      let x   = this.x
+                 *      let y   = this.y
+                 *      let ew  = this.effectiveWidth
+                 *      let eh  = this.effectiveHeight
+                 *      let ox  = original globals.MOUSE.x
+                 *      let oy  = original globals.MOUSE.y
+                 *
+                 *      mx = (x + [ew / 2]) + (oy - [y + {eh / 2}])
+                 *      my = (y + [eh / 2]) - (ox - [x + {ew / 2}])
+                 *
+                 *      Thoughts:
+                 *          + Rename temp to oldX, use oldY to be explicit.
+                 *          + Save ew/2 and eh/2 in centerX and centerY.
+                 *          + Save (x + [ew / 2]) and (y + [eh / 2]) in
+                 *              constants, as they get reused.
+                 */
                 const temp = globals.MOUSE.x;
                 globals.MOUSE.x = (
                     this.x + this.effectiveWidth/2
@@ -308,6 +340,26 @@ class ClientViewSpace extends ViewSpace {
                 );
                 break;
             case(3*Math.PI/2): 
+                /*
+                 * XXX: Once again, this is _nasty_. Let's examine the math
+                 *      again.
+                 *
+                 *      let mx  = globals.MOUSE.x
+                 *      let my  = globals.MOUSE.y
+                 *      let x   = this.x
+                 *      let y   = this.y
+                 *      let ew  = this.effectiveWidth
+                 *      let eh  = this.effectiveHeight
+                 *      let ox  = original globals.MOUSE.x
+                 *      let oy  = original globals.MOUSE.y
+                 *
+                 *      mx = (x + [ew / 2]) - (oy - [y + {eh / 2}])
+                 *      my = (y + [eh / 2]) + (ox - [x + {ew / 2}])
+                 *
+                 *      Very similar to the previous case, just a swapped sign.
+                 *      We should be able to extract functions for some of this
+                 *      math therefore.
+                 */
                 const temp = globals.MOUSE.x;
                 globals.MOUSE.x = (
                     this.x + this.effectiveWidth/2
