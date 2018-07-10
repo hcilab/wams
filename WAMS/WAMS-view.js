@@ -322,22 +322,30 @@ class ClientViewSpace extends ViewSpace {
                  *          + Save ew/2 and eh/2 in centerX and centerY.
                  *          + Save (x + [ew / 2]) and (y + [eh / 2]) in
                  *              constants, as they get reused.
+                 *
+                 *      let cx  = x + (ew / 2)
+                 *      let cy  = y + (eh / 2)
+                 *
+                 *      Therefore:
+                 *
+                 *      mx = cx + (oy - cy)
+                 *      mx = cx - cy + oy
+                 *
+                 *      my = cy - (ox - cx)
+                 *      my = cy + cx - ox
                  */
-                const temp = globals.MOUSE.x;
-                globals.MOUSE.x = (
-                    this.x + this.effectiveWidth/2
-                ) + (
-                    globals.MOUSE.y - (
-                        this.y + this.effectiveHeight/2
-                    )
-                ); 
-                globals.MOUSE.y = (
-                    this.y + this.effectiveHeight/2
-                ) - (
-                    temp - (
-                        this.x + this.effectiveWidth/2
-                    )
-                );
+                const old = {
+                    x: globals.MOUSE.x,
+                    y: globals.MOUSE.y,
+                };
+                const center = {
+                    x: (this.effectiveWidth / 2) + this.x,
+                    y: (this.effectiveHeight / 2) + this.y,
+                };
+
+                globals.MOUSE.x = center.x - center.y + old.y;
+                globals.MOUSE.y = center.y + center.x - old.x;
+
                 break;
             case(3*Math.PI/2): 
                 /*
@@ -359,22 +367,30 @@ class ClientViewSpace extends ViewSpace {
                  *      Very similar to the previous case, just a swapped sign.
                  *      We should be able to extract functions for some of this
                  *      math therefore.
+                 *
+                 *      let cx  = x + (ew / 2)
+                 *      let cy  = y + (eh / 2)
+                 *
+                 *      Therefore:
+                 *
+                 *      mx = cx - (oy - cy)
+                 *      mx = cx + cy - oy
+                 *
+                 *      my = cy + (ox - cx)
+                 *      my = cy - cx + ox
                  */
-                const temp = globals.MOUSE.x;
-                globals.MOUSE.x = (
-                    this.x + this.effectiveWidth/2
-                ) - (
-                    globals.MOUSE.y - (
-                        this.y + this.effectiveHeight/2
-                    )
-                ); 
-                globals.MOUSE.y = (
-                    this.y + this.effectiveHeight/2
-                ) + (
-                    temp - (
-                        this.x + this.effectiveWidth/2
-                    )
-                );
+                const old = {
+                    x: globals.MOUSE.x,
+                    y: globals.MOUSE.y,
+                };
+                const center = {
+                    x: (this.effectiveWidth / 2) + this.x,
+                    y: (this.effectiveHeight / 2) + this.y,
+                };
+
+                globals.MOUSE.x = center.x + center.y - old.y;
+                globals.MOUSE.y = center.y - center.x + old.x;
+
                 break;
         }
     }
