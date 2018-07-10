@@ -81,23 +81,23 @@ class ClientViewSpace extends ViewSpace {
     draw() {
         function setOrientation() {
             switch(this.rotation) {
-                case(0): 
+                case(globals.ROTATE_0): 
                     break;
-                case(Math.PI): 
+                case(globals.ROTATE_90): 
                     this.context.translate(
-                        (-this.effectiveWidth - this.x*2), 
-                        (-this.effectiveHeight - this.y*2)
+                        (-this.effectiveWidth - (this.x * 2)), 
+                        (-this.effectiveHeight - (this.y * 2))
                     ); 
                     break;
-                case(Math.PI/2): 
+                case(globals.ROTATE_180): 
                     this.context.translate(
                         -this.effectiveWidth, 
-                        -this.x*2
+                        -(this.x * 2)
                     ); 
                     break;
-                case(3*Math.PI/2): 
+                case(globals.ROTATE_270): 
                     this.context.translate(
-                        -this.y*2, 
+                        -(this.y * 2), 
                         -this.effectiveWidth
                     ); 
                     break;
@@ -261,19 +261,19 @@ class ClientViewSpace extends ViewSpace {
          *      that, I will write up a comment explaining it.
          */
         switch (this.rotation) {
-            case(0): 
+            case(globals.ROTATE_0): 
                 coords.x = base.x;
                 coords.y = base.y;
                 break;
-            case(Math.PI): 
+            case(globals.ROTATE_90): 
                 coords.x = (2 * this.x) + this.effectiveWidth - base.x;
                 coords.y = (2 * this.y) + this.effectiveHeight - base.y;
                 break;
-            case(Math.PI/2): 
+            case(globals.ROTATE_180):
                 coords.x = center.x - center.y + base.y;
                 coords.y = center.y + center.x - base.x;
                 break;
-            case(3*Math.PI/2): 
+            case(globals.ROTATE_270): 
                 coords.x = center.x + center.y - base.y;
                 coords.y = center.y - center.x + base.x;
                 break;
@@ -527,6 +527,10 @@ const globals = (function defineGlobals() {
         EVENT_UD_USER: 'updateUser',
         FRAMERATE: 1000 / 60,
         IMAGES: [],
+        ROTATE_0: 0,
+        ROTATE_90: Math.PI / 2,
+        ROTATE_180: Math.PI,
+        ROTATE_270: Math.PI * 1.5,
         SOCKET: io(),
         VIEWS: [],
         VS_ID_STAMPER: new IDStamper(),
