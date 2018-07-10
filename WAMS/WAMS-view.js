@@ -249,45 +249,34 @@ class ClientViewSpace extends ViewSpace {
         globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
         globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
 
-        switch (this.rotation) {
-            case(0): break;
-            case(Math.PI): 
-                const old = {
-                    x: globals.MOUSE.x,
-                    y: globals.MOUSE.y,
-                };
+        const old = {
+            x: globals.MOUSE.x,
+            y: globals.MOUSE.y,
+        };
 
+        const center = {
+            x: (this.effectiveWidth / 2) + this.x,
+            y: (this.effectiveHeight / 2) + this.y,
+        };
+
+        /*
+         * XXX: Still need to figure out the "why" of this math. Once I've done
+         *      that, I will write up a comment explaining it.
+         */
+        switch (this.rotation) {
+            case(0): 
+                break;
+            case(Math.PI): 
                 globals.MOUSE.x = (2 * this.x) + this.effectiveWidth - old.x;
                 globals.MOUSE.y = (2 * this.y) + this.effectiveHeight - old.y;
-
                 break;
             case(Math.PI/2): 
-                const old = {
-                    x: globals.MOUSE.x,
-                    y: globals.MOUSE.y,
-                };
-                const center = {
-                    x: (this.effectiveWidth / 2) + this.x,
-                    y: (this.effectiveHeight / 2) + this.y,
-                };
-
                 globals.MOUSE.x = center.x - center.y + old.y;
                 globals.MOUSE.y = center.y + center.x - old.x;
-
                 break;
             case(3*Math.PI/2): 
-                const old = {
-                    x: globals.MOUSE.x,
-                    y: globals.MOUSE.y,
-                };
-                const center = {
-                    x: (this.effectiveWidth / 2) + this.x,
-                    y: (this.effectiveHeight / 2) + this.y,
-                };
-
                 globals.MOUSE.x = center.x + center.y - old.y;
                 globals.MOUSE.y = center.y - center.x + old.x;
-
                 break;
         }
     }
