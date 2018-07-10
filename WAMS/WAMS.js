@@ -20,28 +20,6 @@
  * XXX: General TODO list for myself, as part of code cleanup, bringing this
  *      code up to date:
  *
- *      [X] Set to use JavaScript's 'strict' mode.
- *          - Do this last, otherwise there will be problems...
- *      [X] Eliminate all use of 'var', replace with 'const' or 'let'.
- *      [X] Organize globals, eliminate where possible.
- *      [X] Write ID generator factory, use for all IDs.
- *      [X] Switch to using functional style wherever possible, using ES6
- *           standard methods. This should make for more readable code, and
- *           probably faster code too, because the operations will already be
- *           optimized.
- *      [X] Rename variables where appropriate.
- *      [X] Convert all prototype code into ES6 'class' style.
- *          - Better readability, extensibility.
- *      [X] Write a Connection class.
- *      [X] Eliminate use of 'self' variables, use explicit binding.
- *      [X] Look at all interior functions, would they benefit from being
- *           ES6 arrow functions?
- *      [X] Replace classic JS concatenated strings with ES6 backtick strings,
- *           where necessary. (Or everywhere for consistency?)
- *      [X] Switch to using strict equality unless coercive equality is clearly
- *           beneficial in a given circumstance.
- *      [X] Replace all use of the custom Array.prototype.remove() function
- *           with the standard Array.prototype.splice().
  */
 
 /*
