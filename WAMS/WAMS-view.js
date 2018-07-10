@@ -246,6 +246,9 @@ class ClientViewSpace extends ViewSpace {
     }
 
     setMouse(event) {
+        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
+        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
+
         switch (this.rotation) {
             case(0): break;
             case(Math.PI): 
@@ -325,10 +328,7 @@ class ClientViewSpace extends ViewSpace {
     }
 
     ontap(event) {
-        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
-        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
-
-        this.setMouse();
+        this.setMouse(event);
 
         globals.SOCKET.emit(
             'handleClick', 
@@ -338,10 +338,7 @@ class ClientViewSpace extends ViewSpace {
     }
 
     ondragstart(event) {
-        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
-        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
-
-        this.setMouse();
+        this.setMouse(event);
     }
 
     ondrag(event) {
@@ -351,10 +348,7 @@ class ClientViewSpace extends ViewSpace {
 
         globals.LAST_MOUSE.x = globals.MOUSE.x;
         globals.LAST_MOUSE.y = globals.MOUSE.y;
-        globals.MOUSE.x = event.gesture.center.pageX / this.scale + this.x;
-        globals.MOUSE.y = event.gesture.center.pageY / this.scale + this.y;
-
-        this.setMouse();
+        this.setMouse(event);
         
         globals.SOCKET.emit('handleDrag', 
             this, 
