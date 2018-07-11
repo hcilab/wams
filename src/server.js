@@ -34,7 +34,7 @@ const express = require('express');
 const http = require('http');
 const io = require('socket.io');
 const path = require('path')
-const utils = require('./WAMS-util.js');
+const utils = require('./shared.js');
 
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
@@ -115,8 +115,8 @@ class WorkSpace {
             app.get('/', (req, res) => {
                 res.sendFile(path.resolve('../src/view.html'));
             });
-            app.get('/WAMS-util.js', (req, res) => {
-                res.sendFile(path.resolve('../src/WAMS-util.js'));
+            app.get('/shared.js', (req, res) => {
+                res.sendFile(path.resolve('../src/shared.js'));
             });
             app.get('/WAMS-view.js', (req, res) => {
                 res.sendFile(path.resolve('../src/WAMS-view.js'));
