@@ -118,8 +118,8 @@ class WorkSpace {
             app.get('/shared.js', (req, res) => {
                 res.sendFile(path.resolve('../src/shared.js'));
             });
-            app.get('/WAMS-view.js', (req, res) => {
-                res.sendFile(path.resolve('../src/WAMS-view.js'));
+            app.get('/client.js', (req, res) => {
+                res.sendFile(path.resolve('../src/client.js'));
             });
 
             /* 
