@@ -128,6 +128,7 @@ const ViewSpace = (function defineViewSpace() {
 
         assign(data) {
             _coreProperties.forEach( p => this[p] = data[p] );
+            return this;
         }
 
         retrieve() {

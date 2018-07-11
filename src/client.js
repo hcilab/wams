@@ -54,6 +54,7 @@ class ClientViewSpace extends ViewSpace {
         this.startScale = null;
         this.transforming = false;
         this.mouse = {x: 0, y: 0};
+        this.otherUsers = [];
     }
 
     retrieve() {
@@ -162,7 +163,7 @@ class ClientViewSpace extends ViewSpace {
          * XXX: What exactly is going on here? Is this where we draw the 
          *      rectangles showing users where the other users are looking?
          */
-        globals.VIEWS.forEach( v => {
+        this.otherUsers.forEach( v => {
             this.context.beginPath();
             this.context.rect(
                 v.x,
@@ -196,7 +197,7 @@ class ClientViewSpace extends ViewSpace {
                 10, 
                 60);
             this.context.fillText(
-                `Number of Other Users: ${globals.VIEWS.length}`, 
+                `Number of Other Users: ${this.otherUsers.length}`, 
                 10, 
                 80
             );
@@ -378,17 +379,9 @@ class ClientViewSpace extends ViewSpace {
         if (vsInfo.id === this.id) {
             this.assign(vsInfo);
         } else {
-            const noUserFound = !globals.VIEWS.some( v => {
-                if (v.id === vsInfo.id) {
-                    v.assign(vsInfo);
-                    return true;
-                }
-                return false;
-            });
-
-            if (noUserFound) {
-                this.addUser(vsInfo);
-            }
+            const user = this.otherUsers.find( v => v.id === vsInfo.id );
+            if (user) user.assign(vsInfo);
+            else this.addUser(vsInfo);
         }
     }
 
@@ -397,21 +390,15 @@ class ClientViewSpace extends ViewSpace {
      *      as very little of their data seems to be needed.
      */
     addUser(info) {
-        const nvs = new ClientViewSpace(
-            info.x, 
-            info.y, 
-            info.width, 
-            info.height, 
-            info.scale, 
-        );
+        const nvs = new ViewSpace().assign(info);
         globals.VS_ID_STAMPER.stamp(nvs, info.id);
-        globals.VIEWS.push(nvs);
+        this.otherUsers.push(nvs);
     }
 
     onRemoveUser(id) {
-        const index = globals.VIEWS.findIndex( v => v.id === id );
+        const index = this.otherUsers.findIndex( v => v.id === id );
         if (index >= 0) {
-            globals.VIEWS.splice(index,1);
+            this.otherUsers.splice(index,1);
         }
     }
 
@@ -531,7 +518,6 @@ const globals = (function defineGlobals() {
         ROTATE_180: Math.PI,
         ROTATE_270: Math.PI * 1.5,
         SOCKET: io(),
-        VIEWS: [],
         VS_ID_STAMPER: new IDStamper(),
         WDEBUG: true,
     };
