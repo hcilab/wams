@@ -113,13 +113,13 @@ class WorkSpace {
 
             // Establish routes.
             app.get('/', (req, res) => {
-                res.sendFile(path.resolve('../WAMS/view.html'));
+                res.sendFile(path.resolve('../src/view.html'));
             });
             app.get('/WAMS-util.js', (req, res) => {
-                res.sendFile(path.resolve('../WAMS/WAMS-util.js'));
+                res.sendFile(path.resolve('../src/WAMS-util.js'));
             });
             app.get('/WAMS-view.js', (req, res) => {
-                res.sendFile(path.resolve('../WAMS/WAMS-view.js'));
+                res.sendFile(path.resolve('../src/WAMS-view.js'));
             });
 
             /* 

@@ -1,4 +1,4 @@
-var WAMS = require("../WAMS/WAMS");
+var WAMS = require("../src/WAMS");
 
 var main_ws = new WAMS.WorkSpace(9001, {debug : false, BGcolor: "green"});
 main_ws.setBoundaries(10000, 10000);
