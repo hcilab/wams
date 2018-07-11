@@ -77,19 +77,23 @@ if (!Object.makeOwnPropertyImmutable) {
  */
 const IDStamper = (function defineIDStamper() {
     function* id_gen() {
+        function willNotOverflow(x) {
+            return x + 1 > x;
+        }
+
         let next_id = 0;
-        while (1) yield ++next_id;
+        while (willNotOverflow(next_id)) yield ++next_id;
     }
-    const sym = Symbol('generator');
+    const gen = Symbol('generator');
 
     class IDStamper {
         constructor() {
-            this[sym] = id_gen();
+            this[gen] = id_gen();
         }
 
         stamp(obj, id) {
             Object.defineProperty(obj, 'id', {
-                value: id === undefined ? this[sym].next().value : id,
+                value: id === undefined ? this[gen].next().value : id,
                 configurable: false,
                 enumerable: true,
                 writable: false
