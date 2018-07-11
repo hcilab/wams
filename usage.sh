@@ -38,6 +38,7 @@ case $1 in
             --exclude-dir='node_modules' \
             --exclude-dir='libs' \
             --include='*.js' \
+            --include='*.html' \
             "$1"
         ;;
 esac

@@ -509,7 +509,6 @@ class ClientViewSpace extends ViewSpace {
             hammer.on(e, this[`on${e}`].bind(this));
         });
     }
-
 }
 
 /*
