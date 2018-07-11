@@ -119,6 +119,7 @@ const ViewSpace = (function defineViewSpace() {
         'scale',
         'rotation',
     ];
+    const stamper = new IDStamper();
 
     class ViewSpace {
         constructor() {
@@ -134,11 +135,45 @@ const ViewSpace = (function defineViewSpace() {
         retrieve() {
             const data = {};
             _coreProperties.forEach( p => data[p] = this[p] );
+            if (this.hasOwnProperty('id')) stamper.stamp(data, this.id);
             return data; 
         }
     }
 
     return ViewSpace;
+})();
+
+const WSObject = (function defineWSObject() {
+    const _coreProperties = [
+        'x',
+        'y',
+        'width',
+        'height',
+        'imgsrc',
+        'draw',
+        'drawStart',
+    ];
+    const stamper = new IDStamper();
+
+    class WSObject {
+        constructor() {
+            _coreProperties.forEach( p => this[p] = null );
+        }
+
+        assign(data) {
+            _coreProperties.forEach( p => this[p] = data[p] );
+            return this;
+        }
+
+        retrieve() {
+            const data = {};
+            _coreProperties.forEach( p => data[p] = this[p] );
+            if (this.id) stamper.stamp(data, this.id);
+            return data;
+        }
+    }
+
+    return WSObject;
 })();
 
 /*
@@ -150,5 +185,6 @@ const ViewSpace = (function defineViewSpace() {
 if (typeof exports !== 'undefined') {
     exports.IDStamper = IDStamper;
     exports.ViewSpace = ViewSpace;
+    exports.WSObject = WSObject;
 }
 

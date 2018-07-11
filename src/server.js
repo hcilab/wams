@@ -1,10 +1,3 @@
-//TODO: Update canvas to work more like this for drawings: 
-// https://simonsarris.com/making-html5-canvas-useful/
-//TODO: Stretch goal is to incorporate a canvas library: 
-// http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
-//TODO: Allow subcanvas to be drawn on top: 
-// https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
-
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -13,6 +6,13 @@
  * Latest edition by: Michael van der Kamp
  *  |-> Date: July/August 2018
  */
+
+//TODO: Update canvas to work more like this for drawings: 
+// https://simonsarris.com/making-html5-canvas-useful/
+//TODO: Stretch goal is to incorporate a canvas library: 
+// http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
+//TODO: Allow subcanvas to be drawn on top: 
+// https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
 
 'use strict';
 
@@ -279,8 +279,8 @@ class Connection {
         ].forEach( e => this.socket.on(e, this[e].bind(this)) );
 
         this.socket.emit('init', {
-            views: this.workspace.views,
-            wsObjects: this.workspace.wsObjects,
+            views: this.workspace.views.map( v => v.retrieve() ),
+            wsObjects: this.workspace.wsObjects.map( o => o.retrieve() ),
             settings: this.workspace.settings,
             id: this.viewSpace.id
         });
@@ -323,7 +323,10 @@ class Connection {
                 }
             }
 
-            this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
+            this.broadcast(
+                globals.EVENT_UD_USER,
+                this.viewSpace.retrieve()
+            );
         } else if (!this.initializedLayout) {
             /* XXX: Hang on, look at that condition check in 'else if'
              *      statement above. Why are we only disconnecting if we
@@ -352,30 +355,31 @@ class Connection {
             return;
         }
 
-        const dragCanvas = !this.workspace.wsObjects.some( o => {
-            if (o.containsPoint(x,y)) {
-                this.workspace.dragHandler(
-                    o, this.viewSpace, 
-                    x, y, dx, dy
-                );
-                this.broadcast(globals.EVENT_UD_OBJS, this.workspace.wsObjects);
-                return true;
-            }
-            return false;
-        });
-
-        /*
-         * XXX: This is causing jitter. Will have to look in the 
-         *      debugger, perhaps multiple events are firing on drags.
-         */
-        if (dragCanvas) {
+        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        if (obj) {
+            this.workspace.dragHandler(
+                obj, this.viewSpace, 
+                x, y, dx, dy
+            );
+            this.broadcast(
+                globals.EVENT_UD_OBJS,
+                this.workspace.wsObjects.map( o => o.retrieve() )
+            );
+        } else {
+            /*
+             * XXX: This is causing jitter. Will have to look in the 
+             *      debugger, perhaps multiple events are firing on drags.
+             */
             this.workspace.dragHandler(
                 this.viewSpace, this.viewSpace,
                 x, y, dx, dy
             );
         }
         
-        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
     }
 
     handleClick(x, y) {
@@ -385,26 +389,27 @@ class Connection {
             return;
         }
 
-        const clickCanvas = !this.workspace.wsObjects.some( o => {
-            if (o.containsPoint(x,y)) {
-                if (globals.WDEBUG) {
-                    console.log('Clicked on', o);
-                }
-                this.workspace.clickHandler(o, this.viewSpace, x, y);
-                return true;
+        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        if (obj) {
+            if (globals.WDEBUG) {
+                console.log('Clicked on', obj);
             }
-            return false;
-        });
-
-        if (clickCanvas) {
+            this.workspace.clickHandler(obj, this.viewSpace, x, y);
+        } else {
             this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
             if (globals.WDEBUG) {
                 console.log('Clicked on the background.');
             }
-        } 
+        }
 
-        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
-        this.broadcast(globals.EVENT_UD_OBJS, this.workspace.wsObjects);
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
+        this.broadcast(
+            globals.EVENT_UD_OBJS,
+            this.workspace.wsObjects.map( o => o.retrieve() )
+        );
     }
 
     handleScale(vs, newScale) {
@@ -416,7 +421,10 @@ class Connection {
         }
 
         this.workspace.scaleHandler(this.viewSpace, newScale);
-        this.broadcast(globals.EVENT_UD_USER, this.viewSpace);
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
     }
 
     consoleLog(toBeLogged) {
@@ -440,8 +448,15 @@ class Connection {
     }
 }
 
-class WSObject {
+class ServerWSObject extends utils.WSObject {
     constructor(x, y, width, height, type = 'view/background', opts) {
+        super();
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.type = type;
+
         /*
          * XXX: What is the object supposed to be if opts is not defined?
          */
@@ -456,11 +471,6 @@ class WSObject {
                 this.drawStart = opts.drawStart || this.draw;
             }
         }
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.type = type;
     }
 
     containsPoint(x,y) {
@@ -567,5 +577,5 @@ class ServerViewSpace extends utils.ViewSpace {
 }
 
 exports.WorkSpace = WorkSpace;
-exports.WSObject = WSObject;
+exports.WSObject = ServerWSObject;
 

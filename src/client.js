@@ -57,12 +57,6 @@ class ClientViewSpace extends ViewSpace {
         this.otherUsers = [];
     }
 
-    retrieve() {
-        const data = super.retrieve();
-        globals.VS_ID_STAMPER.stamp(data, this.id);
-        return data;
-    }
-
     reportView(reportSubWS) {
         /*
          * XXX: Do we want to connect the subviews in this view somehow, so 
@@ -131,13 +125,12 @@ class ClientViewSpace extends ViewSpace {
          *      can then be called from inside a simple forEach().
          */
         this.wsObjects.forEach( o => {
-            const img = globals.IMAGES[o.id];
             const width = o.width || img.width;
             const height = o.height || img.height;
 
             if (o.imgsrc) {
                 this.context.drawImage(
-                    img,
+                    o.img,
                     o.x,
                     o.y,
                     width,
@@ -352,20 +345,7 @@ class ClientViewSpace extends ViewSpace {
             }
         });
 
-        /*
-         * XXX: What kind of Image() is this? Where is it defined?
-         *
-         *      + Answer: Turns out, this is part of the DOM API!! You can
-         *          generate <img> elements by calling new Image()! Pretty cool
-         *          actually! I'll probably make use of that!
-         */
-        initData.wsObjects.forEach( o => {
-            this.wsObjects.push(o);
-            if (o.imgsrc) {
-                globals.IMAGES[o.id] = new Image();
-                globals.IMAGES[o.id].src = o.imgsrc;
-            }
-        });
+        initData.wsObjects.forEach( o => this.addObject(o) );
 
         this.reportView(true);
     }
@@ -395,6 +375,19 @@ class ClientViewSpace extends ViewSpace {
         this.otherUsers.push(nvs);
     }
 
+    /*
+     * XXX: What kind of Image() is this? Where is it defined?
+     *
+     *      + Answer: Turns out, this is part of the DOM API!! You can
+     *          generate <img> elements by calling new Image()! Pretty cool
+     *          actually! I'll probably make use of that!
+     */
+    addObject(obj) {
+        const newObject = new ClientWSObject();
+        newObject.cloneFrom(obj);
+        this.wsObjects.push(newObject);
+    }
+
     onRemoveUser(id) {
         const index = this.otherUsers.findIndex( v => v.id === id );
         if (index >= 0) {
@@ -414,15 +407,7 @@ class ClientViewSpace extends ViewSpace {
      */
     onUpdateObjects(objects) {
         this.wsObjects.splice(0, this.wsObjects.length);
-
-        objects.forEach( o => {
-            this.wsObjects.push(o);
-
-            if (o.imgsrc) {
-                globals.IMAGES[o.id] = new Image();
-                globals.IMAGES[o.id].src = o.imgsrc;
-            }
-        });
+        objects.forEach( o => this.addObject(o) );
     }
 
     onWindowLoad() {
@@ -498,6 +483,24 @@ class ClientViewSpace extends ViewSpace {
     }
 }
 
+class ClientWSObject extends WSObject {
+    constructor() {
+        super();
+        this.img = null;
+    }
+
+    cloneFrom(obj) {
+        this.assign(this.retrieve.call(obj));
+        if (obj.hasOwnProperty('id')) {
+            globals.OBJ_ID_STAMPER.stamp(this, obj.id);
+        }
+        if (this.imgsrc) {
+            this.img = new Image();
+            this.img.src = this.imgsrc;
+        }
+    }
+}
+
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
  * defined as properties on it, to make global references explicit. I've been 
@@ -519,6 +522,7 @@ const globals = (function defineGlobals() {
         ROTATE_270: Math.PI * 1.5,
         SOCKET: io(),
         VS_ID_STAMPER: new IDStamper(),
+        OBJ_ID_STAMPER: new IDStamper(),
         WDEBUG: true,
     };
 
