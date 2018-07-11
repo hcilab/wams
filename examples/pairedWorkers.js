@@ -1,4 +1,4 @@
-var WAMS = require("../src/WAMS");   // Includes the WAMS API
+var WAMS = require("../src/server");   // Includes the WAMS API
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameters
 var workspace_one = new WAMS.WorkSpace(9003, {debug : false, BGcolor : "#aaaaaa"});

@@ -1,7 +1,7 @@
 // Scaffold example for WAMS
 
 // Includes the WAMS API
-var WAMS = require("../src/WAMS");
+var WAMS = require("../src/server");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
 var my_workspace = new WAMS.WorkSpace(9002, {debug : false, BGcolor : "#aaaaaa"});
