@@ -4,8 +4,6 @@
   "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
     "express": "^4.4.5",
-    "socket.io": "^1.0.6",
-    "require": "^0.5.0",
-    "ip": "^0.3.2"
+    "socket.io": "^2.1.1"
   }
 }
