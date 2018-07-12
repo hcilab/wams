@@ -3,24 +3,30 @@
 //      examples made need to be update
 
 // Includes the WAMS API
-var WAMS = require("../src/server");
+const WAMS = require("../src/server");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(9500, {debug : false, BGcolor : "#aaaaaa"});
+const my_workspace = new WAMS.WorkSpace(
+    9500, 
+    {
+        debug: false, 
+        BGcolor: "#aaaaaa"
+    }
+);
 
-var handleLayout = function(ws, user){
+const handleLayout = function(ws, user) {
     // Executed once every time a new user joins
 }
 
-var handleClick = function(target, user, x, y){
+const handleClick = function(target, user, x, y) {
     // Executed every time a user taps or clicks a screen
 }
 
-var handleDrag = function(target, user, x, y, dx, dy){
+const handleDrag = function(target, user, x, y, dx, dy) {
     // Executed every time a drag occurs on a device 
 }
 
-var handleScale = function(user, newScale){
+const handleScale = function(user, newScale) {
     // Executed when a user pinches a device, or uses the scroll wheel on a computer
 }
 
