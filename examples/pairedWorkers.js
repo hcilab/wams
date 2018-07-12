@@ -9,10 +9,14 @@ const workspace = new WAMS.WorkSpace(
     9003,
     {
         debug: false,
-        BGcolor: '#aaaaaa'
+        BGcolor: '#aaaaaa',
+        bounds: {
+            x: 1000,
+            y: 1000,
+        },
+        clientLimit: 10,
     }
 );
-workspace.setBoundaries(1000,1000);
 
 workspace.addWSObject(new WAMS.WSObject(
     200,

@@ -8,22 +8,10 @@ const main_ws = new WAMS.WorkSpace(
     9001, 
     {
         debug: false, 
-        BGcolor: 'green'
+        BGcolor: 'green',
+        clientLimit: 5, // 4 players plus one for the table
     }
 );
-main_ws.setBoundaries(10000, 10000);
-main_ws.setClientLimit(5);  // 4 players plus one for the table
-
-const second_ws = new WAMS.WorkSpace(
-    9501, 
-    {
-        debug : false, 
-        BGcolor: 'blue'
-    }
-);
-second_ws.setBoundaries(1000, 1000);
-second_ws.setClientLimit(5);  // 4 players plus one for the table
-
 main_ws.addWSObject(new WAMS.WSObject(
     main_ws.getCenter().x, 
     main_ws.getCenter().y, 
@@ -34,6 +22,19 @@ main_ws.addWSObject(new WAMS.WSObject(
         imgsrc: 'joker.png'
     }
 ));
+
+const second_ws = new WAMS.WorkSpace(
+    9501, 
+    {
+        debug : false, 
+        BGcolor: 'blue',
+        bounds: {
+            x: 1000,
+            y: 1000,
+        },
+        clientLimit: 5, // 4 players plus one for the table
+    }
+);
 main_ws.addSubWS(second_ws);
 
 const draw = `function drawFunc() {

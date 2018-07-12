@@ -4,9 +4,16 @@
  */
 const WAMS = require('../src/server');
 
-const workspace = new WAMS.WorkSpace(9000);
-workspace.setBoundaries(4000, 4000);
-workspace.setClientLimit(4);
+const workspace = new WAMS.WorkSpace(
+    9000,
+    {
+        bounds: {
+            x: 4000,
+            y: 4000,
+        },
+        clientLimit: 4,
+    }
+);
 workspace.addWSObject(new WAMS.WSObject(
     0,
     0,

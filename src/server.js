@@ -67,180 +67,193 @@ const globals = (function defineGlobals() {
     return Object.freeze(rv);
 })();
 
-class WorkSpace {
-    constructor(port, settings = {debug: false, BGcolor: '#aaaaaa'}) {
-        // Data
-        this.boundaries = {
-            x : 10000,
-            y : 10000
-        };
-        this.clientLimit = 10;
-        this.settings = settings;
-        globals.WS_ID_STAMPER.stamp(this, port);
+const WorkSpace = (function defineWorkSpace() {
+    const MIN_BOUNDARY = 100;
+    const DEFAULTS = Object.freeze({
+        DEBUG: false,
+        COLOUR: '#aaaaaa',
+        BOUNDARY: 10000,
+        CLIENT_LIMIT: 10,
+    });
 
-        // Things to track.
-        this.views = [];
-        this.wsObjects = [];
-        this.subWS = [];
-
-        /*
-         * XXX: Are we sure we want to create the server and listen right away?
-         *      Don't we want to wait until the user has had the opportunity to
-         *      complete a few more initialization tasks? We can expose a 
-         *      function which allows the user to control when these steps 
-         *      happen.
-         *
-         *      This is specifically because we have things set up right now 
-         *      such that the user is expected to attach handlers _after_ 
-         *      constructing a WorkSpace object. That is to say, _after_ the 
-         *      server has already started listening for connections according 
-         *      to the current setup.
-         */
-        this.http = http.createServer(generateRequestHandler());
-        this.http.listen(port, get_local_ip(), () => {
-            console.log('Listening on', this.http.address());
-        });
-        this.io = io.listen(this.http);
-        this.io.on('connection', (socket) => {new Connection(socket, this);});
-
-        /* ================================================================
-         * Some local functions to the constructor. 
-         * Still deciding if this is really that good of an idea.
-         * ================================================================
-         */
-        function generateRequestHandler() {
-            const app = express();
-
-            // Establish routes.
-            app.get('/', (req, res) => {
-                res.sendFile(path.resolve('../src/view.html'));
-            });
-            app.get('/shared.js', (req, res) => {
-                res.sendFile(path.resolve('../src/shared.js'));
-            });
-            app.get('/client.js', (req, res) => {
-                res.sendFile(path.resolve('../src/client.js'));
-            });
-
-            /* 
-             * XXX: express.static() generates a middleware function for 
-             *      serving static assets from the directory specified.
-             *      - The order in which these functions are registered with
-             *          app.use() is important! The callbacks will be triggered
-             *          in this order!
-             *      - When app.use() is called without a 'path' argument, as it 
-             *          is here, it uses the default '/' argument, with the 
-             *          result that these callbacks will be executed for 
-             *          _every_ request to the app!
-             *          + Should therefore consider specifying the path!!
-             *      - Should also consider specifying options. Possibly useful:
-             *          + immutable
-             *          + maxAge
-             */
-            app.use(express.static(path.resolve('./Images')));
-            app.use(express.static(path.resolve('../libs')));
-
-            return app;
+    function determineSettings(requested = {}) {
+        function boundary(x) {
+            return x >= MIN_BOUNDARY ? x : DEFAULTS.BOUNDARY;
         }
 
-        /*
-         * XXX: I'd written this in my other project. With this, we can get rid
-         *      of the 'ip' dependency.
-         */
-        function get_local_ip() {
-            const os = require('os');
-
-            let ipaddr = null;
-            Object.values(os.networkInterfaces()).some( f => {
-                return f.some( a => {
-                    if (a.family === 'IPv4' && a.internal === false) {
-                        ipaddr = a.address;
-                        return true;
-                    }
-                    return false;
-                });
-            });
-            return ipaddr;
-        }
-    }
-
-    get users() { return this.views; }
-    get width() { return this.boundaries.x; }
-    get height() { return this.boundaries.y; }
-
-    set width(width) { this.boundaries.x = width; }
-    set height(height) { this.boundaries.y = height; }
-
-    /*
-     * XXX: Ahh okay, this is where the handlers get attached.
-     *      Do we really need separate functions for attaching each one? Would 
-     *      it be beneficial to define a single attachHandler function which 
-     *      takes an argument describing which handler to attach?
-     *      - Also, is there a way to not limit our API like this? What if 
-     *          someone making use of it wants to implement other kinds of 
-     *          interactions between the users?
-     *
-     * XXX: Also! These attachHanlder functions can be doing more! We can
-     *      probably eliminate all those 'is a handler attached' checks later
-     *      if we don't even call the function which calls the handler unless
-     *      a handler is attached. Trippy, I know. Something to think about!
-     */
-    attachDragHandler(func) {
-        this.dragHandler = func;
-    }
-
-    attachLayoutHandler(func) {
-        this.layoutHandler = func;
-    }
-
-    attachClickHandler(func) {
-        this.clickHandler = func;
-    }
-
-    attachScaleHandler(func) {
-        this.scaleHandler = func;
-    }
-
-    addWSObject(obj) {
-        globals.OBJ_ID_STAMPER.stamp(obj);
-        this.wsObjects.push(obj);
-        if (globals.WDEBUG) { 
-            console.log(`Adding object: ${obj.id} (${obj.type})`);
-        }
-    }
-
-    removeWSObject(obj) {
-        const idx = this.wsObjects.findIndex( o => o.id === obj.id );
-        if (idx >= 0) {
-            if (globals.WDEBUG) {
-                console.log(`Removing object: ${obj.id} (${obj.type})`);
+        function getValidBoundaries(bounds) {
+            let x = 0, y = 0;
+            if (bounds) {
+                x = Number(bounds.x);
+                y = Number(bounds.y);
             }
-            this.wsObjects.splice(idx,1);
+            return {
+                x: boundary(x),
+                y: boundary(y),
+            };
+        }
+
+        const settings = {};
+        settings.debug = Boolean(requested.debug);
+        settings.BGcolor = requested.BGcolor || DEFAULTS.COLOUR;
+        settings.bounds = getValidBoundaries(requested.bounds);
+        settings.clientLimit = requested.clientLimit || DEFAULTS.CLIENT_LIMIT;
+
+        return settings;
+    }
+
+    function generateRequestHandler() {
+        const app = express();
+
+        // Establish routes.
+        app.get('/', (req, res) => {
+            res.sendFile(path.resolve('../src/view.html'));
+        });
+        app.get('/shared.js', (req, res) => {
+            res.sendFile(path.resolve('../src/shared.js'));
+        });
+        app.get('/client.js', (req, res) => {
+            res.sendFile(path.resolve('../src/client.js'));
+        });
+
+        /* 
+         * XXX: express.static() generates a middleware function for 
+         *      serving static assets from the directory specified.
+         *      - The order in which these functions are registered with
+         *          app.use() is important! The callbacks will be triggered
+         *          in this order!
+         *      - When app.use() is called without a 'path' argument, as it 
+         *          is here, it uses the default '/' argument, with the 
+         *          result that these callbacks will be executed for 
+         *          _every_ request to the app!
+         *          + Should therefore consider specifying the path!!
+         *      - Should also consider specifying options. Possibly useful:
+         *          + immutable
+         *          + maxAge
+         */
+        app.use(express.static(path.resolve('./Images')));
+        app.use(express.static(path.resolve('../libs')));
+
+        return app;
+    }
+
+    function get_local_ip() {
+        const os = require('os');
+        let ipaddr = null;
+        Object.values(os.networkInterfaces()).some( f => {
+            return f.some( a => {
+                if (a.family === 'IPv4' && a.internal === false) {
+                    ipaddr = a.address;
+                    return true;
+                }
+                return false;
+            });
+        });
+        return ipaddr;
+    }
+
+    class WorkSpace {
+        constructor(port, settings) {
+            this.settings = determineSettings(settings);
+            globals.WS_ID_STAMPER.stamp(this, port);
+
+            // Things to track.
+            this.views = [];
+            this.wsObjects = [];
+            this.subWS = [];
+
+            /*
+             * XXX: Are we sure we want to create the server and listen right away?
+             *      Don't we want to wait until the user has had the opportunity to
+             *      complete a few more initialization tasks? We can expose a 
+             *      function which allows the user to control when these steps 
+             *      happen.
+             *
+             *      This is specifically because we have things set up right now 
+             *      such that the user is expected to attach handlers _after_ 
+             *      constructing a WorkSpace object. That is to say, _after_ the 
+             *      server has already started listening for connections according 
+             *      to the current setup.
+             */
+            this.http = http.createServer(generateRequestHandler());
+            this.http.listen(port, get_local_ip(), () => {
+                console.log('Listening on', this.http.address());
+            });
+            this.io = io.listen(this.http);
+            this.io.on('connection', (socket) => {new Connection(socket, this);});
+        }
+
+        get users() { return this.views; }
+        get width() { return this.settings.bounds.x; }
+        get height() { return this.settings.bounds.y; }
+
+        set width(width) { this.settings.bounds.x = width; }
+        set height(height) { this.settings.bounds.y = height; }
+
+        addSubWS(subWS) {
+            this.subWS.push(subWS);
+            //TODO: add check to make sure subWS is in bounds of the main workspace
+            //TODO: probably send a workspace update message
+        }
+
+        addWSObject(obj) {
+            globals.OBJ_ID_STAMPER.stamp(obj);
+            this.wsObjects.push(obj);
+            if (globals.WDEBUG) { 
+                console.log(`Adding object: ${obj.id} (${obj.type})`);
+            }
+        }
+
+        /*
+         * XXX: Ahh okay, this is where the handlers get attached.
+         *      Do we really need separate functions for attaching each one? Would 
+         *      it be beneficial to define a single attachHandler function which 
+         *      takes an argument describing which handler to attach?
+         *      - Also, is there a way to not limit our API like this? What if 
+         *          someone making use of it wants to implement other kinds of 
+         *          interactions between the users?
+         *
+         * XXX: Also! These attachHanlder functions can be doing more! We can
+         *      probably eliminate all those 'is a handler attached' checks later
+         *      if we don't even call the function which calls the handler unless
+         *      a handler is attached. Trippy, I know. Something to think about!
+         */
+        attachClickHandler(func) {
+            this.clickHandler = func;
+        }
+
+        attachDragHandler(func) {
+            this.dragHandler = func;
+        }
+
+        attachLayoutHandler(func) {
+            this.layoutHandler = func;
+        }
+
+        attachScaleHandler(func) {
+            this.scaleHandler = func;
+        }
+
+        getCenter() {
+            return {
+                x: this.settings.bounds.x / 2,
+                y: this.settings.bounds.y / 2
+            };
+        }
+
+        removeWSObject(obj) {
+            const idx = this.wsObjects.findIndex( o => o.id === obj.id );
+            if (idx >= 0) {
+                if (globals.WDEBUG) {
+                    console.log(`Removing object: ${obj.id} (${obj.type})`);
+                }
+                this.wsObjects.splice(idx,1);
+            }
         }
     }
 
-    setBoundaries(maxX, maxY) {
-        this.boundaries.x = maxX;
-        this.boundaries.y = maxY;
-    }
-
-    getCenter() {
-        return {
-            x: this.boundaries.x / 2,
-            y: this.boundaries.y / 2
-        };
-    }
-
-    setClientLimit(maxUsers) {
-        this.clientLimit = maxUsers;
-    }
-
-    addSubWS(subWS) {
-        this.subWS.push(subWS);
-        //TODO: add check to make sure subWS is in bounds of the main workspace
-        //TODO: probably send a workspace update message
-    }
-}
+    return WorkSpace;
+})();
 
 class Connection {
     constructor(socket, workspace) {
@@ -251,7 +264,7 @@ class Connection {
         this.initializedLayout = false;
         this.socket = socket;
         this.workspace = workspace;
-        this.viewSpace = new ServerViewSpace(this.workspace.boundaries);
+        this.viewSpace = new ServerViewSpace(this.workspace.settings.bounds);
         globals.VIEW_ID_STAMPER.stamp(this.viewSpace);
         
         if (globals.WDEBUG) {
@@ -300,7 +313,7 @@ class Connection {
      *      figure this out I will definitely change it.
      */
     reportView(vsInfo) {
-        if (this.workspace.views.length < this.workspace.clientLimit) {
+        if (this.workspace.views.length < this.workspace.settings.clientLimit) {
             /*
              * XXX: Watch out for coersive equality vs. strict equality.
              *      Decide if coercion should be allowed for each instance.
