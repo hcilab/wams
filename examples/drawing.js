@@ -26,8 +26,8 @@ my_workspace.addWSObject(new WAMS.WSObject(
 
 const handleLayout = function(workspace, user) {
     // Executed once every time a new user joins
-    const otherUsers = workspace.users;
-    if (otherUsers.length > 1) {
+    const users = workspace.users;
+    if (users.length > 1) {
         user.moveToXY(workspace.getCenter().x, workspace.getCenter().y);
     }
 }

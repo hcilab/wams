@@ -47,12 +47,11 @@ const handleDrag = function(target, client, x, y, dx, dy) {
 }
 
 const handleLayout = function(workspace, client) {
-    const otherUsers = workspace.users;
-    const num_users = otherUsers.length;
+    const users = workspace.users;
+    const num_users = users.length;
 
-    if (otherUsers.length > 0) {
-        const prev_user = otherUsers[num_users - 1];
-
+    if (users.length > 0) {
+        const prev_user = users[num_users - 1];
         client.moveToXY(
             prev_user.right() - 30,
             prev_user.top()
