@@ -141,7 +141,7 @@ const handleDrag = (function makeDragHandler() {
     }
 
     function handleDrag(target, viewspace, x, y, dx, dy) {
-        if (target.type === 'viewspace/background') {
+        if (target.type === 'view/background') {
             viewspace.move(dx, dy);
         } else if (isObject(target)) {
             // Needs negative values because dx/dx are change from 

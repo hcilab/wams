@@ -71,7 +71,7 @@ const handleClick = (function makeClickHandler(workspace) {
 function handleDrag(target, user, x, y, dx, dy) {
     if (target.type === 'color') {
         target.move(-dx, -dy);
-    } else if (target.type === 'client/background') {
+    } else if (target.type === 'view/background') {
         target.move(dx, dy);
     }
 }
