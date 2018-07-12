@@ -1,31 +1,61 @@
-var WAMS = require("../src/server");   // Includes the WAMS API
+/*
+ * This is the simplest example, simply showing how an arbitrary number of
+ *  users can interact with a shared set of objects.
+ */
 
-// Defines a Workspace that will listen on port 3000, takes in optional parameters
-var workspace_one = new WAMS.WorkSpace(9003, {debug : false, BGcolor : "#aaaaaa"});
-workspace_one.setBoundaries(1000,1000);
+const WAMS = require('../src/server');
 
-// Define a workspace object, (image, x, y, w, h)
-var monaLisa = new WAMS.WSObject(200, 200, 200, 200, "Draggable", {"imgsrc":"monaLisa.png"});
+const workspace = new WAMS.WorkSpace(
+    9003,
+    {
+        debug: false,
+        BGcolor: '#aaaaaa'
+    }
+);
+workspace.setBoundaries(1000,1000);
 
-// Defing another workspace object
-var scream = new WAMS.WSObject(400, 400, 200, 200, "Draggable", {"imgsrc": "scream.png"});
+workspace.addWSObject(new WAMS.WSObject(
+    200,
+    200,
+    200,
+    200,
+    'Draggable',
+    {
+        imgsrc: 'monaLisa.png'
+    }
+));
 
-// Adding the objects to the workspace
-workspace_one.addWSObject(monaLisa);
-workspace_one.addWSObject(scream);
+workspace.addWSObject(new WAMS.WSObject(
+    400,
+    400,
+    200,
+    200,
+    'Draggable',
+    {
+        imgsrc: 'scream.png'
+    }
+));
 
-var handleDrag = function(target, client, x, y, dx, dy){
-    if(target.type == "Draggable"){
+const handleDrag = function(target, client, x, y, dx, dy) {
+    if (target.type === 'Draggable') {
         target.move(-dx, -dy);
     }
 }
 
-var handleLayout = function(ws, client){
-    var otherUsers = ws.users;
-    if(otherUsers.length != 0){
-        client.moveToXY(otherUsers[otherUsers.length-1].right() - 30, otherUsers[otherUsers.length-1].top()); 
+const handleLayout = function(workspace, client) {
+    const otherUsers = workspace.users;
+    const num_users = otherUsers.length;
+
+    if (otherUsers.length > 0) {
+        const prev_user = otherUsers[num_users - 1];
+
+        client.moveToXY(
+            prev_user.right() - 30,
+            prev_user.top()
+        ); 
     }
 }
 
-workspace_one.attachDragHandler(handleDrag);
-workspace_one.attachLayoutHandler(handleLayout);
+workspace.attachDragHandler(handleDrag);
+workspace.attachLayoutHandler(handleLayout);
+
