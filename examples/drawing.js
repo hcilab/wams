@@ -1,54 +1,83 @@
-// Scaffold example for WAMS
+/*
+ * This is a simple example showing how users can interact with a shared set
+ *  of objects.
+ */
 
-// Includes the WAMS API
-var WAMS = require("../src/server");
+const WAMS = require('../src/server');
 
-// Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(9002, {debug : false, BGcolor : "#aaaaaa"});
-var newSquare = new WAMS.WSObject(32, 32, 128, 128,'color', {'imgsrc':'red.png'});
-    newSquare.setType("color");
-my_workspace.addWSObject(newSquare);
+const my_workspace = new WAMS.WorkSpace(
+    9002, 
+    {
+        debug: false, 
+        BGcolor: '#aaaaaa'
+    }
+);
 
-var handleLayout = function(ws, user){
+my_workspace.addWSObject(new WAMS.WSObject(
+    32, 
+    32, 
+    128, 
+    128,
+    'color', 
+    {
+        imgsrc: 'red.png'
+    }
+));
+
+const handleLayout = function(workspace, user) {
     // Executed once every time a new user joins
-    var otherUsers = ws.users;
-    if(otherUsers.length > 1){
-        user.moveToXY(ws.getCenter().x, ws.getCenter().y);
+    const otherUsers = workspace.users;
+    if (otherUsers.length > 1) {
+        user.moveToXY(workspace.getCenter().x, workspace.getCenter().y);
     }
 }
 
-var handleClick = function(target, user, x, y){
-    // Executed every time a user taps or clicks a screen
-    console.log("clicked in handle click: "+target.type);
-    var ws = my_workspace;
-    if(target.type == "color"){
-        ws.removeWSObject(target);
+// Executed every time a user taps or clicks a screen
+const handleClick = (function makeClickHandler(workspace) {
+    const sources = [
+        'blue.png',
+        'red.png',
+        'green.png',
+        'pink.png',
+        'cyan.png',
+        'yellow.png',
+    ];
+
+    function square(x, y, index) {
+        return new WAMS.WSObject(
+            x - 64, 
+            y - 64, 
+            128, 
+            128, 
+            'color', 
+            {
+                imgsrc: sources[index]
+            }
+        );
     }
-    else{
-        switch(user.id % 6){
-            case(0) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc': "blue.png"})); break;
-            case(1) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"red.png"})); break;
-            case(2) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"green.png"})); break;
-            case(3) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"pink.png"})); break;
-            case(4) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc':"cyan.png"}));break;
-            case(5) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc': "yellow.png"})); break;
+
+    function handleClick(target, user, x, y) {
+        if (target.type === 'color') {
+            workspace.removeWSObject(target);
+        } else {
+            workspace.addWSObject(square(x, y, user.id % 6));
         }
     }
-}
 
-var handleDrag = function(target, user, x, y, dx, dy){
-    // Executed every time a drag occurs on a device
-    if(target.type == "color"){
+    return handleClick;
+})(my_workspace);
+
+// Executed every time a drag occurs on a device
+function handleDrag(target, user, x, y, dx, dy) {
+    if (target.type === 'color') {
         target.move(-dx, -dy);
-    }
-    else if(target.type == "client/background"){
+    } else if (target.type === 'client/background') {
         target.move(dx, dy);
     }
-    
 }
 
-var handleScale = function(user, newScale){
-    // Executed when a user pinches a device, or uses the scroll wheel on a computer
+// Executed when a user pinches a device, or uses the scroll wheel on a computer
+function handleScale(user, newScale) {
     user.rescale(newScale);
 }
 
@@ -57,3 +86,4 @@ my_workspace.attachClickHandler(handleClick);
 my_workspace.attachScaleHandler(handleScale);
 my_workspace.attachDragHandler(handleDrag);
 my_workspace.attachLayoutHandler(handleLayout);
+
