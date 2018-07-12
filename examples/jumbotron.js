@@ -50,9 +50,9 @@ const handleLayout = (function makeLayoutHandler() {
     function handleLayout(workspace, client) {
         const otherUsers = workspace.users;
         const num_users = otherUsers.length;
-        const prev_user = otherUsers[num_users - 1];
         
         if (num_users > 0) {
+            const prev_user = otherUsers[num_users - 1];
             const move = getMove(num_users, prev_user);
             client.moveToXY(move.x, move.y);
         }
