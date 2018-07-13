@@ -265,7 +265,6 @@ class Connection {
         this.socket = socket;
         this.workspace = workspace;
         this.viewSpace = new ServerViewSpace(this.workspace.settings.bounds);
-        globals.VIEW_ID_STAMPER.stamp(this.viewSpace);
         
         if (globals.WDEBUG) {
             console.log(
@@ -521,6 +520,7 @@ class ServerViewSpace extends utils.ViewSpace {
         super();
         this.boundaries = boundaries;
         this.type = 'view/background';
+        globals.VIEW_ID_STAMPER.stamp(this);
     }
 
     canMoveToX(value) {
