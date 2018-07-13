@@ -134,9 +134,18 @@ describe('initialize', () => {
 });
 
 describe('IDStamper', () => {
-    const stamper = new shared.IDStamper();
+    describe('constructor()', () => {
+        test('correctly constructs expected object', () => {
+            const stamper = new shared.IDStamper();
+            expect(stamper).toBeInstanceOf(shared.IDStamper);
+            expect(stamper).toHaveProperty('stamp');
+        });
+
+    });
 
     describe('stamp(obj)', () => {
+        const stamper = new shared.IDStamper();
+
         test('can stamp an immutable ID onto an object', () => {
             const x = {};
             expect(x).not.toHaveImmutableProperty('id');
@@ -164,6 +173,8 @@ describe('IDStamper', () => {
     });
 
     describe('stamp(obj, id)', () => {
+        const stamper = new shared.IDStamper();
+
         test('will stamp an immutable user-provided ID', () => {
             const x = {};
             expect(x).not.toHaveImmutableProperty('id');
@@ -189,6 +200,13 @@ describe('ViewSpace', () => {
     ];
 
     describe('constructor(data)', () => {
+        test('correctly constructs expected object', () => {
+            const vs = new shared.ViewSpace();
+            expect(vs).toBeInstanceOf(shared.ViewSpace);
+            expect(vs).toHaveProperty('assign');
+            expect(vs).toHaveProperty('retrieve');
+        });
+
         test('produces expected properties when no data provided', () => {
             const vs = new shared.ViewSpace();
             expect(Object.keys(vs)).toEqual(props);
@@ -296,6 +314,13 @@ describe('WSObject', () => {
     ];
 
     describe('constructor(data)', () => {
+        test('correctly constructs expected object', () => {
+            const vs = new shared.WSObject();
+            expect(vs).toBeInstanceOf(shared.WSObject);
+            expect(vs).toHaveProperty('assign');
+            expect(vs).toHaveProperty('retrieve');
+        });
+
         test('produces expected properties when no data provided', () => {
             const vs = new shared.WSObject();
             expect(Object.keys(vs)).toEqual(props);
