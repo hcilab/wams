@@ -1,4 +1,6 @@
 node_modules/
 package-lock.json
+edit_all.sh
+*.bak
 *.swp
 
