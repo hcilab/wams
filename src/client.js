@@ -15,18 +15,56 @@
  *
  */
 
-// Entry point!
-window.addEventListener(
-    'load', 
-    function run() {
-        new ClientViewSpace().onWindowLoad();
-    },
-    {
-        capture: false,
-        once: true,
-        passive: true,
+/*
+ * I'm using a frozen 'globals' object with all global constants and variables 
+ * defined as properties on it, to make global references explicit. I've been 
+ * toying with this design pattern in my other JavaScript code and I think I 
+ * quite like it.
+ */
+const globals = (function defineGlobals() {
+    const canvas = document.querySelector('#main');
+    const constants = {
+        EVENT_DC_USER: 'user_disconnect',
+        EVENT_RM_USER: 'removeUser',
+        EVENT_UD_OBJS: 'updateObjects',
+        EVENT_UD_USER: 'updateUser',
+        FRAMERATE: 1000 / 60,
+        IMAGES: [],
+        ROTATE_0: 0,
+        ROTATE_90: Math.PI / 2,
+        ROTATE_180: Math.PI,
+        ROTATE_270: Math.PI * 1.5,
+        SOCKET: io(),
+        VS_ID_STAMPER: new WamsShared.IDStamper(),
+        OBJ_ID_STAMPER: new WamsShared.IDStamper(),
+        WDEBUG: true,
+    };
+
+    const variables = {
+        settings: null,
     }
-);
+
+    const rv = {};
+    Object.entries(constants).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            value: v,
+            configurable: false,
+            enumerable: true,
+            writable: false
+        });
+    });
+
+    Object.entries(variables).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            get() { return variables[p]; },
+            set(value) { variables[p] = value; },
+            configurable: false,
+            enumerable: true
+        });
+    });
+
+    return Object.freeze(rv);
+})();
 
 /*
  * XXX: I'm putting this code up here, for now, until I break the code out into
@@ -50,7 +88,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
         scale: 1,
     };
 
-    class ClientViewSpace extends ViewSpace {
+    class ClientViewSpace extends WamsShared.ViewSpace {
         constructor(data) {
             super(WamsShared.initialize(defaults, data));
             this.canvas = document.querySelector('#main');
@@ -63,16 +101,26 @@ const ClientViewSpace = (function defineClientViewSpace() {
             this.otherUsers = [];
         }
 
-        reportView(reportSubWS) {
-            /*
-             * XXX: Do we want to connect the subviews in this view somehow, so 
-             *      that they are clearly linked in the report?
-             */
-            if (reportSubWS) {
-                this.subViews.forEach( subWS => subWS.reportView(true) );
-            }
+        /*
+         * XXX: What kind of Image() is this? Where is it defined?
+         *
+         *      + Answer: Turns out, this is part of the DOM API!! You can
+         *          generate <img> elements by calling new Image()! Pretty cool
+         *          actually! I'll probably make use of that!
+         */
+        addObject(obj) {
+            const newObject = new ClientWSObject(obj);
+            this.wsObjects.push(newObject);
+        }
 
-            globals.SOCKET.emit('reportView', this.retrieve());
+        /*
+         * XXX: These can probably be some kind of "shadow" viewspace,
+         *      as very little of their data seems to be needed.
+         */
+        addUser(info) {
+            const nvs = new ViewSpace().assign(info);
+            globals.VS_ID_STAMPER.stamp(nvs, info.id);
+            this.otherUsers.push(nvs);
         }
 
         /*
@@ -80,31 +128,6 @@ const ClientViewSpace = (function defineClientViewSpace() {
          *      understand this.
          */
         draw() {
-            function setOrientation() {
-                switch(this.rotation) {
-                    case(globals.ROTATE_0): 
-                        break;
-                    case(globals.ROTATE_90): 
-                        this.context.translate(
-                            (-this.effectiveWidth - (this.x * 2)), 
-                            (-this.effectiveHeight - (this.y * 2))
-                        ); 
-                        break;
-                    case(globals.ROTATE_180): 
-                        this.context.translate(
-                            -this.effectiveWidth, 
-                            -(this.x * 2)
-                        ); 
-                        break;
-                    case(globals.ROTATE_270): 
-                        this.context.translate(
-                            -(this.y * 2), 
-                            -this.effectiveWidth
-                        ); 
-                        break;
-                }
-            }
-
             this.context.clearRect(
                 0, 
                 0, 
@@ -124,40 +147,13 @@ const ClientViewSpace = (function defineClientViewSpace() {
             );
             this.context.rotate(this.rotation);
 
-            setOrientation.call(this);
+            this.setOrientation();
 
             /*
              * XXX: Each WSObject should have a draw() function defined on it, 
              *      which can then be called from inside a simple forEach().
              */
-            this.wsObjects.forEach( o => {
-                const width = o.width || img.width;
-                const height = o.height || img.height;
-
-                if (o.imgsrc) {
-                    this.context.drawImage(
-                        o.img,
-                        o.x,
-                        o.y,
-                        width,
-                        height
-                    );
-                } else {
-                    /*
-                     * XXX: Yikes!!! eval()? And we want this to be a usable 
-                     *      API? For people to work together over networks? 
-                     *      Pardon my French, but how the f*** are we going to 
-                     *      make sure that no one is injecting malicious code 
-                     *      here? 
-                     *
-                     *      Where is draw defined, and how does it end up here?
-                     *
-                     *      There must be a better way...
-                     */
-                    eval(`${o.draw};`);
-                    eval(`${o.drawStart};`);
-                }
-            });
+            this.wsObjects.forEach( o => o.draw() );
 
             /*
              * XXX: What exactly is going on here? Is this where we draw the 
@@ -177,69 +173,6 @@ const ClientViewSpace = (function defineClientViewSpace() {
             this.context.restore();
 
             this.showStatus();
-        }
-
-        showStatus() {
-            /*
-             * XXX: This should be a function.
-             */
-            if (globals.settings !== null && globals.settings.debug) {
-                this.context.font = '18px Georgia';
-                this.context.fillText(
-                    `ClientViewSpace Coordinates: ${this.x.toFixed(2)}, ` + 
-                        `${this.y.toFixed(2)}`, 
-                    10, 
-                    40
-                );
-                this.context.fillText(
-                    `Bottom Right Corner: ` +
-                        `${(this.x + this.width).toFixed(2)}, ` + 
-                        `${(this.y + this.height).toFixed(2)}`,
-                    10, 
-                    60);
-                this.context.fillText(
-                    `Number of Other Users: ${this.otherUsers.length}`, 
-                    10, 
-                    80
-                );
-                this.context.fillText(
-                    `Viewspace Scale: ${this.scale.toFixed(2)}`, 
-                    10, 
-                    100
-                );
-                this.context.fillText(
-                    `ClientViewSpace Rotation: ${this.rotation}`, 
-                    10, 
-                    120
-                );
-            }
-        }
-
-        onMouseScroll(event) {
-            /*
-             * XXX: Let's have a close look at this. With no comments, I'm not 
-             *      sure why a Math.max(Math.min()) structure is necessary. We 
-             *      might be able to simplify this.
-             */
-            const delta = Math.max(
-                -1, 
-                Math.min(
-                    1, 
-                    (event.wheelDelta || -event.detail)
-                )
-            );
-            const newScale = this.scale + delta * 0.09;
-            globals.SOCKET.emit('handleScale', this, newScale);
-        }
-
-        onResized(event) {
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
-            this.canvas.width = this.width; 
-            this.canvas.height = this.height;
-            this.effectiveWidth = this.width / this.scale;
-            this.effectiveHeight = this.height / this.scale;
-            this.reportView();
         }
 
         getMouseCoordinates(event) {
@@ -284,18 +217,77 @@ const ClientViewSpace = (function defineClientViewSpace() {
             return coords;
         }
 
-        ontap(event) {
-            this.mouse = this.getMouseCoordinates(event);
+        reportView(reportSubWS) {
+            /*
+             * XXX: Do we want to connect the subviews in this view somehow, so 
+             *      that they are clearly linked in the report?
+             */
+            if (reportSubWS) {
+                this.subViews.forEach( subWS => subWS.reportView(true) );
+            }
 
-            globals.SOCKET.emit(
-                'handleClick', 
-                this.mouse.x,
-                this.mouse.y
-            );
+            globals.SOCKET.emit('reportView', this.retrieve());
         }
 
-        ondragstart(event) {
-            this.mouse = this.getMouseCoordinates(event);
+        setOrientation() {
+            switch(this.rotation) {
+                case(globals.ROTATE_0): 
+                    break;
+                case(globals.ROTATE_90): 
+                    this.context.translate(
+                        (-this.effectiveWidth - (this.x * 2)), 
+                        (-this.effectiveHeight - (this.y * 2))
+                    ); 
+                    break;
+                case(globals.ROTATE_180): 
+                    this.context.translate(
+                        -this.effectiveWidth, 
+                        -(this.x * 2)
+                    ); 
+                    break;
+                case(globals.ROTATE_270): 
+                    this.context.translate(
+                        -(this.y * 2), 
+                        -this.effectiveWidth
+                    ); 
+                    break;
+            }
+        }
+
+        showStatus() {
+            /*
+             * XXX: This should be a function.
+             */
+            if (globals.settings !== null && globals.settings.debug) {
+                this.context.font = '18px Georgia';
+                this.context.fillText(
+                    `ClientViewSpace Coordinates: ${this.x.toFixed(2)}, ` + 
+                        `${this.y.toFixed(2)}`, 
+                    10, 
+                    40
+                );
+                this.context.fillText(
+                    `Bottom Right Corner: ` +
+                        `${(this.x + this.width).toFixed(2)}, ` + 
+                        `${(this.y + this.height).toFixed(2)}`,
+                    10, 
+                    60);
+                this.context.fillText(
+                    `Number of Other Users: ${this.otherUsers.length}`, 
+                    10, 
+                    80
+                );
+                this.context.fillText(
+                    `Viewspace Scale: ${this.scale.toFixed(2)}`, 
+                    10, 
+                    100
+                );
+                this.context.fillText(
+                    `ClientViewSpace Rotation: ${this.rotation}`, 
+                    10, 
+                    120
+                );
+            }
         }
 
         ondrag(event) {
@@ -321,22 +313,8 @@ const ClientViewSpace = (function defineClientViewSpace() {
              */
         }
 
-        ontransformstart(event) {
-            this.transforming = true;
-            this.startScale = this.scale;
-        }
-
-        ontransform(event) {
-            globals.SOCKET.emit(
-                'handleScale', 
-                this, 
-                event.scale * this.startScale
-            );
-        }
-
-        ontransformend(event) {
-            this.transforming = false;
-            this.startScale = null;
+        ondragstart(event) {
+            this.mouse = this.getMouseCoordinates(event);
         }
 
         onInit(initData) {
@@ -358,6 +336,84 @@ const ClientViewSpace = (function defineClientViewSpace() {
             this.reportView(true);
         }
 
+        onMouseScroll(event) {
+            /*
+             * XXX: Let's have a close look at this. With no comments, I'm not 
+             *      sure why a Math.max(Math.min()) structure is necessary. We 
+             *      might be able to simplify this.
+             */
+            const delta = Math.max(
+                -1, 
+                Math.min(
+                    1, 
+                    (event.wheelDelta || -event.detail)
+                )
+            );
+            const newScale = this.scale + delta * 0.09;
+            globals.SOCKET.emit('handleScale', this, newScale);
+        }
+
+        onRemoveUser(id) {
+            const index = this.otherUsers.findIndex( v => v.id === id );
+            if (index >= 0) {
+                this.otherUsers.splice(index,1);
+            }
+        }
+
+        onResized(event) {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+            this.canvas.width = this.width; 
+            this.canvas.height = this.height;
+            this.effectiveWidth = this.width / this.scale;
+            this.effectiveHeight = this.height / this.scale;
+            this.reportView();
+        }
+
+        ontap(event) {
+            this.mouse = this.getMouseCoordinates(event);
+
+            globals.SOCKET.emit(
+                'handleClick', 
+                this.mouse.x,
+                this.mouse.y
+            );
+        }
+
+        ontransform(event) {
+            globals.SOCKET.emit(
+                'handleScale', 
+                this, 
+                event.scale * this.startScale
+            );
+        }
+
+        ontransformend(event) {
+            this.transforming = false;
+            this.startScale = null;
+        }
+
+        ontransformstart(event) {
+            this.transforming = true;
+            this.startScale = this.scale;
+        }
+
+        /*
+         * XXX: Update? If we're just pushing every object 
+         *      from one array into the other (after it has been emptied), 
+         *      maybe we should just copy the array over?
+         *
+         *      I think maybe what happened is the author wanted to actually 
+         *      update the array, but ran into problems so ended up just 
+         *      resetting. I think a proper update would probably be more 
+         *      efficient than this mechanism of trashing, copying, and 
+         *      regenerating.
+         */
+        onUpdateObjects(objects) {
+            this.wsObjects.splice(0, this.wsObjects.length);
+            objects.forEach( o => this.addObject(o) );
+        }
+
         /*
          * XXX: This is side-effecting!! We should have an 'addUser' event, not
          *      just an updateUser event, unless there's some very good reason 
@@ -371,51 +427,6 @@ const ClientViewSpace = (function defineClientViewSpace() {
                 if (user) user.assign(vsInfo);
                 else this.addUser(vsInfo);
             }
-        }
-
-        /*
-         * XXX: These can probably be some kind of "shadow" viewspace,
-         *      as very little of their data seems to be needed.
-         */
-        addUser(info) {
-            const nvs = new ViewSpace().assign(info);
-            globals.VS_ID_STAMPER.stamp(nvs, info.id);
-            this.otherUsers.push(nvs);
-        }
-
-        /*
-         * XXX: What kind of Image() is this? Where is it defined?
-         *
-         *      + Answer: Turns out, this is part of the DOM API!! You can
-         *          generate <img> elements by calling new Image()! Pretty cool
-         *          actually! I'll probably make use of that!
-         */
-        addObject(obj) {
-            const newObject = new ClientWSObject(obj);
-            this.wsObjects.push(newObject);
-        }
-
-        onRemoveUser(id) {
-            const index = this.otherUsers.findIndex( v => v.id === id );
-            if (index >= 0) {
-                this.otherUsers.splice(index,1);
-            }
-        }
-
-        /*
-         * XXX: Update, effectiveHeight? If we're just pushing every object 
-         *      from one array into the other (after it has been emptied), 
-         *      maybe we should just copy the array over?
-         *
-         *      I think maybe what happened is the author wanted to actually 
-         *      update the array, but ran into problems so ended up just 
-         *      resetting. I think a proper update would probably be more 
-         *      efficient than this mechanism of trashing, copying, and 
-         *      regenerating.
-         */
-        onUpdateObjects(objects) {
-            this.wsObjects.splice(0, this.wsObjects.length);
-            objects.forEach( o => this.addObject(o) );
         }
 
         onWindowLoad() {
@@ -481,7 +492,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     return ClientViewSpace;
 })();
 
-class ClientWSObject extends WSObject {
+class ClientWSObject extends WamsShared.WSObject {
     constructor(data) {
         super(data);
         if (data.hasOwnProperty('id')) {
@@ -493,57 +504,42 @@ class ClientWSObject extends WSObject {
             this.img.src = this.imgsrc;
         }
     }
+
+    draw() {
+        const width = this.width || this.img.width;
+        const height = this.height || this.img.height;
+
+        if (this.imgsrc) {
+            this.context.drawImage(this.img, this.x, this.y, width, height);
+        } else {
+            /*
+             * XXX: Yikes!!! eval()? And we want this to be a usable 
+             *      API? For people to work together over networks? 
+             *      Pardon my French, but how the f*** are we going to 
+             *      make sure that no one is injecting malicious code 
+             *      here? 
+             *
+             *      Where is draw defined, and how does it end up here?
+             *
+             *      There must be a better way...
+             */
+            eval(`${this.draw};`);
+            eval(`${this.drawStart};`);
+        }
+    }
 }
 
-/*
- * I'm using a frozen 'globals' object with all global constants and variables 
- * defined as properties on it, to make global references explicit. I've been 
- * toying with this design pattern in my other JavaScript code and I think I 
- * quite like it.
- */
-const globals = (function defineGlobals() {
-    const canvas = document.querySelector('#main');
-    const constants = {
-        EVENT_DC_USER: 'user_disconnect',
-        EVENT_RM_USER: 'removeUser',
-        EVENT_UD_OBJS: 'updateObjects',
-        EVENT_UD_USER: 'updateUser',
-        FRAMERATE: 1000 / 60,
-        IMAGES: [],
-        ROTATE_0: 0,
-        ROTATE_90: Math.PI / 2,
-        ROTATE_180: Math.PI,
-        ROTATE_270: Math.PI * 1.5,
-        SOCKET: io(),
-        VS_ID_STAMPER: new IDStamper(),
-        OBJ_ID_STAMPER: new IDStamper(),
-        WDEBUG: true,
-    };
-
-    const variables = {
-        settings: null,
+// Entry point!
+window.addEventListener(
+    'load', 
+    function run() {
+        new ClientViewSpace().onWindowLoad();
+    },
+    {
+        capture: false,
+        once: true,
+        passive: true,
     }
-
-    const rv = {};
-    Object.entries(constants).forEach( ([p,v]) => {
-        Object.defineProperty(rv, p, {
-            value: v,
-            configurable: false,
-            enumerable: true,
-            writable: false
-        });
-    });
-
-    Object.entries(variables).forEach( ([p,v]) => {
-        Object.defineProperty(rv, p, {
-            get() { return variables[p]; },
-            set(value) { variables[p] = value; },
-            configurable: false,
-            enumerable: true
-        });
-    });
-
-    return Object.freeze(rv);
-})();
+);
 
 

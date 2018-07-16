@@ -307,6 +307,106 @@ class Connection {
         this.socket.broadcast.emit(event, data);
     }
 
+    consoleLog(toBeLogged) {
+        if (globals.WDEBUG) console.log(toBeLogged);
+    }
+
+    disconnect() {
+        const idx = this.workspace.views.findIndex( 
+            v => v.id === this.viewSpace.id
+        );
+
+        if (idx >= 0) {
+            console.log(
+                `user ${this.viewSpace.id} ` +
+                `disconnected from workspace ${this.workspace.id}`
+            );
+
+            this.workspace.views.splice(idx,1);
+            this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
+        }
+    }
+
+    handleClick(x, y) {
+        // Failsafe.
+        if (typeof this.workspace.clickHandler !== 'function') {
+            console.log('Click Handler is not attached!');
+            return;
+        }
+
+        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        if (obj) {
+            if (globals.WDEBUG) {
+                console.log('Clicked on', obj);
+            }
+            this.workspace.clickHandler(obj, this.viewSpace, x, y);
+        } else {
+            this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
+            if (globals.WDEBUG) {
+                console.log('Clicked on the background.');
+            }
+        }
+
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
+        this.broadcast(
+            globals.EVENT_UD_OBJS,
+            this.workspace.wsObjects.map( o => o.retrieve() )
+        );
+    }
+
+    handleDrag(vs, x, y, dx, dy) {
+        // Failsafe checks.
+        if (vs.id !== this.viewSpace.id) return;
+        if (typeof this.workspace.dragHandler !== 'function') {
+            console.log(`Drag handler is not attached for ${vs.id}`);
+            return;
+        }
+
+        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        if (obj) {
+            this.workspace.dragHandler(
+                obj, this.viewSpace, 
+                x, y, dx, dy
+            );
+            this.broadcast(
+                globals.EVENT_UD_OBJS,
+                this.workspace.wsObjects.map( o => o.retrieve() )
+            );
+        } else {
+            /*
+             * XXX: This is causing jitter. Will have to look in the 
+             *      debugger, perhaps multiple events are firing on drags.
+             */
+            this.workspace.dragHandler(
+                this.viewSpace, this.viewSpace,
+                x, y, dx, dy
+            );
+        }
+        
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
+    }
+
+    handleScale(vs, newScale) {
+        // Failsafe checks.
+        if (vs.id !== this.viewSpace.id) return;
+        if (typeof this.workspace.scaleHandler !== 'function') {
+            console.log('Scale handler is not attached!');
+            return;
+        }
+
+        this.workspace.scaleHandler(this.viewSpace, newScale);
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.retrieve()
+        );
+    }
+
     /*
      * XXX: What exactly does reportView do? The name is ambiguous, so once I
      *      figure this out I will definitely change it.
@@ -358,106 +458,6 @@ class Connection {
             if (idx >= 0) this.workspace.views.splice(idx,1);
         }
     }
-
-    handleDrag(vs, x, y, dx, dy) {
-        // Failsafe checks.
-        if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.dragHandler !== 'function') {
-            console.log(`Drag handler is not attached for ${vs.id}`);
-            return;
-        }
-
-        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
-        if (obj) {
-            this.workspace.dragHandler(
-                obj, this.viewSpace, 
-                x, y, dx, dy
-            );
-            this.broadcast(
-                globals.EVENT_UD_OBJS,
-                this.workspace.wsObjects.map( o => o.retrieve() )
-            );
-        } else {
-            /*
-             * XXX: This is causing jitter. Will have to look in the 
-             *      debugger, perhaps multiple events are firing on drags.
-             */
-            this.workspace.dragHandler(
-                this.viewSpace, this.viewSpace,
-                x, y, dx, dy
-            );
-        }
-        
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
-        );
-    }
-
-    handleClick(x, y) {
-        // Failsafe.
-        if (typeof this.workspace.clickHandler !== 'function') {
-            console.log('Click Handler is not attached!');
-            return;
-        }
-
-        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
-        if (obj) {
-            if (globals.WDEBUG) {
-                console.log('Clicked on', obj);
-            }
-            this.workspace.clickHandler(obj, this.viewSpace, x, y);
-        } else {
-            this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
-            if (globals.WDEBUG) {
-                console.log('Clicked on the background.');
-            }
-        }
-
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
-        );
-        this.broadcast(
-            globals.EVENT_UD_OBJS,
-            this.workspace.wsObjects.map( o => o.retrieve() )
-        );
-    }
-
-    handleScale(vs, newScale) {
-        // Failsafe checks.
-        if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.scaleHandler !== 'function') {
-            console.log('Scale handler is not attached!');
-            return;
-        }
-
-        this.workspace.scaleHandler(this.viewSpace, newScale);
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
-        );
-    }
-
-    consoleLog(toBeLogged) {
-        if (globals.WDEBUG) console.log(toBeLogged);
-    }
-
-    disconnect() {
-        const idx = this.workspace.views.findIndex( 
-            v => v.id === this.viewSpace.id
-        );
-
-        if (idx >= 0) {
-            console.log(
-                `user ${this.viewSpace.id} ` +
-                `disconnected from workspace ${this.workspace.id}`
-            );
-
-            this.workspace.views.splice(idx,1);
-            this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
-        }
-    }
 }
 
 class ServerWSObject extends utils.WSObject {
@@ -497,14 +497,6 @@ class ServerWSObject extends utils.WSObject {
         this.y += dy;
     }
 
-    /*
-     * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
-     *      might be more transparent to the user.
-     */
-    setType(type) {
-        this.type = type;
-    }
-
     moveToXY(x, y) {
         this.x = x;
         this.y = y;
@@ -512,6 +504,14 @@ class ServerWSObject extends utils.WSObject {
 
     setImgSrc(imagePath) {
         this.imgsrc = imagePath;
+    }
+
+    /*
+     * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
+     *      might be more transparent to the user.
+     */
+    setType(type) {
+        this.type = type;
     }
 }
 
@@ -523,6 +523,10 @@ class ServerViewSpace extends utils.ViewSpace {
         globals.VIEW_ID_STAMPER.stamp(this);
     }
 
+    bottom() {
+        return (this.y + this.effectiveHeight);
+    }
+
     canMoveToX(value) {
         return (value >= 0) &&
             (value + this.effectiveWidth <= this.boundaries.x);
@@ -531,6 +535,17 @@ class ServerViewSpace extends utils.ViewSpace {
     canMoveToY(value) {
         return (value >= 0) &&
             (value + this.effectiveHeight <= this.boundaries.y);
+    }
+
+    center() {
+        return {
+            x : (this.x + (this.effectiveWidth / 2)),
+            y : (this.y + (this.effectiveHeight / 2))
+        };
+    }
+
+    left() {
+        return this.x;
     }
 
     move(dx, dy) {
@@ -565,27 +580,12 @@ class ServerViewSpace extends utils.ViewSpace {
         }
     }
 
-    top() {
-        return this.y;
-    }
-
-    bottom() {
-        return (this.y + this.effectiveHeight);
-    }
-
-    left() {
-        return this.x;
-    }
-
     right() {
         return (this.x + this.effectiveWidth);
     }
 
-    center() {
-        return {
-            x : (this.x + (this.effectiveWidth / 2)),
-            y : (this.y + (this.effectiveHeight / 2))
-        };
+    top() {
+        return this.y;
     }
 }
 
