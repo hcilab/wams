@@ -1,9 +1,10 @@
-'use strict';
-
 /*
  * This example is intended to demonstrate how users can coordinate with the
  * workspace from several different angles.
  */
+
+'use strict';
+
 const WAMS = require('../src/server');
 
 const main_ws = new WAMS.WorkSpace(
@@ -178,4 +179,6 @@ main_ws.attachClickHandler(handleClick);
 main_ws.attachScaleHandler(handleScale);
 main_ws.attachDragHandler(handleDrag);
 main_ws.attachLayoutHandler(handleLayout);
+
+main_ws.listen();
 

@@ -1,9 +1,10 @@
-'use strict';
-
 /*
  * This example is intended to demonstrate having multiple users move their
  *  view around in a shared space.
  */
+
+'use strict';
+
 const WAMS = require('../src/server');
 
 const workspace = new WAMS.WorkSpace(
@@ -78,4 +79,6 @@ const handleScale = function(vs, newScale) {
 workspace.attachDragHandler(handleDrag);
 workspace.attachLayoutHandler(handleLayout);
 workspace.attachScaleHandler(handleScale);
+
+workspace.listen();
 

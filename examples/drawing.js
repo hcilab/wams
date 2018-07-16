@@ -1,9 +1,9 @@
-'use strict';
-
 /*
  * This is a simple example showing how users can interact with a shared set
  *  of objects.
  */
+
+'use strict';
 
 const WAMS = require('../src/server');
 
@@ -88,4 +88,6 @@ my_workspace.attachClickHandler(handleClick);
 my_workspace.attachScaleHandler(handleScale);
 my_workspace.attachDragHandler(handleDrag);
 my_workspace.attachLayoutHandler(handleLayout);
+
+my_workspace.listen();
 

@@ -1,9 +1,9 @@
-'use strict';
-
 /*
  * This is the simplest example, simply showing how an arbitrary number of
  *  users can interact with a shared set of objects.
  */
+
+'use strict';
 
 const WAMS = require('../src/server');
 
@@ -63,4 +63,6 @@ const handleLayout = function(workspace, client) {
 
 workspace.attachDragHandler(handleDrag);
 workspace.attachLayoutHandler(handleLayout);
+
+workspace.listen();
 

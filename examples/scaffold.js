@@ -37,3 +37,8 @@ my_workspace.attachClickHandler(handleClick);
 my_workspace.attachScaleHandler(handleScale);
 my_workspace.attachDragHandler(handleDrag);
 my_workspace.attachLayoutHandler(handleLayout);
+
+// Once all the handlers are attached, open up the workspace and listen for
+// connections.
+my_workspace.listen();
+
