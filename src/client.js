@@ -25,7 +25,6 @@ const globals = (function defineGlobals() {
     const canvas = document.querySelector('#main');
     const constants = {
         FRAMERATE: 1000 / 60,
-        IMAGES: [],
         ROTATE_0: 0,
         ROTATE_90: Math.PI / 2,
         ROTATE_180: Math.PI,
