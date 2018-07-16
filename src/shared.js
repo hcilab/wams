@@ -15,12 +15,13 @@
  *  the server.
  */
 const WamsShared = (function defineSharedWamsModule() {
-    const events = {
+    const constants = {
         EVENT_DC_USER: 'wams-disconnect',
         EVENT_INIT:    'wams-initialize',
         EVENT_RM_USER: 'wams-remove-user',
         EVENT_UD_OBJS: 'wams-update-objects',
         EVENT_UD_USER: 'wams-update-user',
+        MSG_LAYOUT:  'wams-layout',
     };
 
     /*

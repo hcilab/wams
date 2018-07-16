@@ -57,10 +57,10 @@ const globals = (function defineGlobals() {
     });
 
     /*
-     * I centralized the event descriptions in the shared file, so collect them
-     * from there.
+     * I centralized some constant descriptions in the shared file, so collect 
+     * them from there.
      */
-    Object.entries(WamsShared.events).forEach( ([p,v]) => {
+    Object.entries(WamsShared.constants).forEach( ([p,v]) => {
         Object.defineProperty(rv, p, {
             value: v,
             configurable: false,
@@ -222,7 +222,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
             return coords;
         }
 
-        reportView(reportSubWS) {
+        reportView(reportSubWS = false) {
             /*
              * XXX: Do we want to connect the subviews in this view somehow, so 
              *      that they are clearly linked in the report?
@@ -324,13 +324,11 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
         onInit(initData) {
             globals.settings = initData.settings;
-            this.canvas.style.backgroundColor = globals.settings.BGcolor;
             globals.VS_ID_STAMPER.stamp(this, initData.id);
-            initData.views.forEach( v => {
-                if (v.id !== this.id) this.addUser(v);
-            });
+            initData.views.forEach( v => this.addUser(v) );
             initData.wsObjects.forEach( o => this.addObject(o) );
-            this.reportView(true);
+            this.canvas.style.backgroundColor = globals.settings.BGcolor;
+            globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
         }
 
         onMouseScroll(event) {

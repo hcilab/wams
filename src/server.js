@@ -60,10 +60,10 @@ const globals = (function defineGlobals() {
     });
 
     /*
-     * I centralized the event descriptions in the shared file, so collect them
-     * from there.
+     * I centralized some constant descriptions in the shared file, so collect 
+     * them from there.
      */
-    Object.entries(WamsShared.events).forEach( ([p,v]) => {
+    Object.entries(WamsShared.constants).forEach( ([p,v]) => {
         Object.defineProperty(rv, p, {
             value: v,
             configurable: false,
@@ -280,16 +280,14 @@ class Connection {
          *      event strings to this list, but is it really that good of an
          *      idea? Is it readable?
          */
-        // For each of the event strings listed here, there must be an
-        // identically named function on the Connection prototype to attach
-        // as a listener in the forEach loop.
         [   
-            'disconnect',
-            'handleClick',
-            'handleDrag',
-            'handleScale',
-            'reportView',
-        ].forEach( e => this.socket.on(e, this[e].bind(this)) );
+            {event: 'disconnect', handler: 'disconnect'},
+            {event: 'handleClick', handler: 'handleClick'},
+            {event: 'handleDrag', handler: 'handleDrag'},
+            {event: 'handleScale', handler: 'handleScale'},
+            {event: 'reportView', handler: 'reportView'},
+            {event: globals.MSG_LAYOUT, handler: 'handleLayout'},
+        ].forEach( e => this.socket.on(e.event, this[e.handler].bind(this)) );
 
         this.socket.emit(globals.EVENT_INIT, {
             views: this.workspace.reportViews(),
@@ -322,6 +320,9 @@ class Connection {
         );
     }
 
+    /*
+     * XXX: Shouldn't we disconnect the socket???
+     */
     disconnect() {
         if (this.workspace.removeView(this.viewSpace.id)) {
             console.log(
@@ -334,6 +335,15 @@ class Connection {
         }
     }
 
+    /*
+     * XXX: handleClick and handleDrag can probably be collapsed down to more
+     *      or less the same function. The only difference is the name of
+     *      the handler and the arguments, but I think we can just pass the
+     *      arguments through with some JavaScript operator or function...
+     *
+     *      That said, we should probably figure out why handleDrag is checking
+     *      the viewSpace id but handleClick is not...
+     */
     handleClick(x, y) {
         // Failsafe.
         if (typeof this.workspace.clickHandler !== 'function') {
@@ -341,13 +351,9 @@ class Connection {
             return;
         }
 
-        const obj = this.workspace.findObjectByCoordinates(x,y);
-        if (obj) {
-            this.workspace.clickHandler(obj, this.viewSpace, x, y);
-        } else {
-            this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
-        }
-
+        const object = this.workspace.findObjectByCoordinates(x,y);
+        const target = object || this.workspace;
+        this.workspace.clickHandler(target, this.viewSpace, x, y);
         this.broadcastUserReport();
         this.broadcastObjectReport();
     }
@@ -360,24 +366,17 @@ class Connection {
             return;
         }
 
-        const obj = this.workspace.findObjectByCoordinates(x,y);
-        if (obj) {
-            this.workspace.dragHandler(
-                obj, this.viewSpace, 
-                x, y, dx, dy
-            );
-            this.broadcastObjectReport()
-        } else {
-            /*
-             * XXX: This is causing jitter. Will have to look in the 
-             *      debugger, perhaps multiple events are firing on drags.
-             */
-            this.workspace.dragHandler(
-                this.viewSpace, this.viewSpace,
-                x, y, dx, dy
-            );
-        }
-        
+        /*
+         * XXX: This is causing jitter. Will have to look in the 
+         *      debugger, perhaps multiple events are firing on drags.
+         *
+         *      The source of the jitter seems to be when the background is
+         *      dragged.
+         */
+        const object = this.workspace.findObjectByCoordinates(x,y);
+        const target = object || this.workspace;
+        this.workspace.dragHandler(target, this.viewSpace, x, y, dx, dy);
+        this.broadcastObjectReport()
         this.broadcastUserReport();
     }
 
@@ -393,41 +392,30 @@ class Connection {
         this.broadcastUserReport()
     }
 
+    handleLayout() {
+        if (this.workspace.views.length < this.workspace.settings.clientLimit) {
+            this.workspace.addView(this.viewSpace);
+            if (typeof this.workspace.layoutHandler === 'function') {
+                this.workspace.layoutHandler(
+                    this.workspace, 
+                    this.viewSpace
+                );
+            } else {
+                console.log('Layout handler is not attached!');
+            }
+        } else {
+            this.socket.send(globals.EVENT_DC_USER);
+        }
+    }
+
     /*
      * XXX: What exactly does reportView do? The name is ambiguous, so once I
      *      figure this out I will definitely change it.
      */
     reportView(vsInfo) {
-        if (this.workspace.views.length < this.workspace.settings.clientLimit) {
-            /*
-             * XXX: Watch out for coersive equality vs. strict equality.
-             *      Decide if coercion should be allowed for each instance.
-             */
-            if (this.viewSpace.id === vsInfo.id) {
-                this.viewSpace.assign(vsInfo);
-            }
-
-            if (!this.initializedLayout) {
-                this.initializedLayout = true;
-                this.workspace.addView(this.viewSpace);
-
-                if (typeof this.workspace.layoutHandler === 'function') {
-                    this.workspace.layoutHandler(
-                        this.workspace, 
-                        this.viewSpace
-                    );
-                } else {
-                    console.log('Layout handler is not attached!');
-                }
-            }
-
+        if (this.viewSpace.id === vsInfo.id) {
+            this.viewSpace.assign(vsInfo);
             this.broadcastUserReport()
-        } else {
-            /* XXX: Hang on, look at that condition check in 'else if'
-             *      statement above. Why are we only disconnecting if we
-             *      haven't been initialized?
-             */
-            this.socket.send(globals.EVENT_DC_USER);
         }
     }
 }
