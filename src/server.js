@@ -49,7 +49,6 @@ const globals = (function defineGlobals() {
         EVENT_RM_USER: 'wams-remove-user',
         EVENT_UD_OBJS: 'wams-update-objects',
         EVENT_UD_USER: 'wams-update-user',
-        WDEBUG: true,
         OBJ_ID_STAMPER: new WamsShared.IDStamper(),
         VIEW_ID_STAMPER: new WamsShared.IDStamper(),
         WS_ID_STAMPER: new WamsShared.IDStamper(),
@@ -230,12 +229,7 @@ const WorkSpace = (function defineWorkSpace() {
 
         removeWSObject(obj) {
             const idx = this.wsObjects.findIndex( o => o.id === obj.id );
-            if (idx >= 0) {
-                if (globals.WDEBUG) {
-                    console.log(`Removing object: ${obj.id} (${obj.type})`);
-                }
-                this.wsObjects.splice(idx,1);
-            }
+            if (idx >= 0) this.wsObjects.splice(idx,1);
         }
 
         reportViews() {
