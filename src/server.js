@@ -135,9 +135,10 @@ const WorkSpace = (function defineWorkSpace() {
             globals.WS_ID_STAMPER.stamp(this, port);
 
             // Things to track.
+            this.connections = [];
+            this.subWS = [];
             this.views = [];
             this.wsObjects = [];
-            this.subWS = [];
 
             // Will be used for establishing a server on which to listen.
             this.http = null;
@@ -177,7 +178,7 @@ const WorkSpace = (function defineWorkSpace() {
          *          someone making use of it wants to implement other kinds of 
          *          interactions between the users?
          *
-         * XXX: Also! These attachHanlder functions can be doing more! We can
+         * XXX: Also! These attachHandler functions can be doing more! We can
          *      probably eliminate all those 'is a handler attached' checks later
          *      if we don't even call the function which calls the handler unless
          *      a handler is attached. Trippy, I know. Something to think about!
@@ -215,7 +216,9 @@ const WorkSpace = (function defineWorkSpace() {
                 console.log('Listening on', this.http.address());
             });
             this.io = io.listen(this.http);
-            this.io.on('connection', (socket) => {new Connection(socket, this);});
+            this.io.on('connection', (socket) => {
+                this.connections.push(new Connection(socket, this));
+            });
         }
 
         removeView(view) {
@@ -229,7 +232,11 @@ const WorkSpace = (function defineWorkSpace() {
 
         removeWSObject(obj) {
             const idx = this.wsObjects.findIndex( o => o.id === obj.id );
-            if (idx >= 0) this.wsObjects.splice(idx,1);
+            if (idx >= 0) {
+                this.wsObjects.splice(idx,1);
+                return true;
+            }
+            return false;
         }
 
         reportViews() {
