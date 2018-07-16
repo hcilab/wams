@@ -33,7 +33,6 @@ const globals = (function defineGlobals() {
         SOCKET: io(),
         VS_ID_STAMPER: new WamsShared.IDStamper(),
         OBJ_ID_STAMPER: new WamsShared.IDStamper(),
-        WDEBUG: true,
     };
 
     const variables = {
