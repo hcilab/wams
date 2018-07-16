@@ -15,6 +15,14 @@
  *  the server.
  */
 const WamsShared = (function defineSharedWamsModule() {
+    const events = {
+        EVENT_DC_USER: 'wams-disconnect',
+        EVENT_INIT:    'wams-initialize',
+        EVENT_RM_USER: 'wams-remove-user',
+        EVENT_UD_OBJS: 'wams-update-objects',
+        EVENT_UD_USER: 'wams-update-user',
+    };
+
     /*
      * This method will set an already-existing property on an object to be 
      *  immutable. In other words, it will configure it as such:
@@ -196,6 +204,7 @@ const WamsShared = (function defineSharedWamsModule() {
      * Package up the module and freeze it for delivery.
      */
     return Object.freeze({
+        events,
         makeOwnPropertyImmutable,
         initialize,
         IDStamper,

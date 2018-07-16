@@ -24,11 +24,6 @@
 const globals = (function defineGlobals() {
     const canvas = document.querySelector('#main');
     const constants = {
-        EVENT_DC_USER: 'wams-disconnect',
-        EVENT_INIT:    'wams-initialize',
-        EVENT_RM_USER: 'wams-remove-user',
-        EVENT_UD_OBJS: 'wams-update-objects',
-        EVENT_UD_USER: 'wams-update-user',
         FRAMERATE: 1000 / 60,
         IMAGES: [],
         ROTATE_0: 0,
@@ -61,6 +56,19 @@ const globals = (function defineGlobals() {
             set(value) { variables[p] = value; },
             configurable: false,
             enumerable: true
+        });
+    });
+
+    /*
+     * I centralized the event descriptions in the shared file, so collect them
+     * from there.
+     */
+    Object.entries(WamsShared.events).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            value: v,
+            configurable: false,
+            enumerable: true,
+            writable: false
         });
     });
 

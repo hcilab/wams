@@ -43,19 +43,27 @@ const WamsShared = require('./shared.js');
  * quite like it.
  */
 const globals = (function defineGlobals() {
+    const rv = {};
     const constants = {
-        EVENT_DC_USER: 'wams-disconnect',
-        EVENT_INIT:    'wams-initialize',
-        EVENT_RM_USER: 'wams-remove-user',
-        EVENT_UD_OBJS: 'wams-update-objects',
-        EVENT_UD_USER: 'wams-update-user',
         OBJ_ID_STAMPER: new WamsShared.IDStamper(),
         VIEW_ID_STAMPER: new WamsShared.IDStamper(),
         WS_ID_STAMPER: new WamsShared.IDStamper(),
     };
 
-    const rv = {};
     Object.entries(constants).forEach( ([p,v]) => {
+        Object.defineProperty(rv, p, {
+            value: v,
+            configurable: false,
+            enumerable: true,
+            writable: false
+        });
+    });
+
+    /*
+     * I centralized the event descriptions in the shared file, so collect them
+     * from there.
+     */
+    Object.entries(WamsShared.events).forEach( ([p,v]) => {
         Object.defineProperty(rv, p, {
             value: v,
             configurable: false,
