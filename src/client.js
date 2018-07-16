@@ -22,7 +22,6 @@
  * quite like it.
  */
 const globals = (function defineGlobals() {
-    const canvas = document.querySelector('#main');
     const constants = {
         FRAMERATE: 1000 / 60,
         ROTATE_0: 0,
