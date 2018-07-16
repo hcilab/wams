@@ -34,7 +34,7 @@ const express = require('express');
 const http = require('http');
 const io = require('socket.io');
 const path = require('path')
-const utils = require('./shared.js');
+const WamsShared = require('./shared.js');
 
 /*
  * I'm using a frozen 'globals' object with all global constants and variables 
@@ -49,9 +49,9 @@ const globals = (function defineGlobals() {
         EVENT_UD_OBJS: 'updateObjects',
         EVENT_UD_USER: 'updateUser',
         WDEBUG: true,
-        OBJ_ID_STAMPER: new utils.IDStamper(),
-        VIEW_ID_STAMPER: new utils.IDStamper(),
-        WS_ID_STAMPER: new utils.IDStamper(),
+        OBJ_ID_STAMPER: new WamsShared.IDStamper(),
+        VIEW_ID_STAMPER: new WamsShared.IDStamper(),
+        WS_ID_STAMPER: new WamsShared.IDStamper(),
     };
 
     const rv = {};
@@ -68,34 +68,16 @@ const globals = (function defineGlobals() {
 })();
 
 const WorkSpace = (function defineWorkSpace() {
-    const MIN_BOUNDARY = 100;
+    const PORT = 9000;
     const DEFAULTS = Object.freeze({
-        DEBUG: false,
-        COLOUR: '#aaaaaa',
-        BOUNDARY: 10000,
-        CLIENT_LIMIT: 10,
+        debug: false,
+        color: '#aaaaaa',
+        boundaries: {
+            x: 10000,
+            y: 10000,
+        },
+        clientLimit: 10,
     });
-
-    function determineSettings(requested = {}) {
-        function boundary(x) {
-            return x >= MIN_BOUNDARY ? x : DEFAULTS.BOUNDARY;
-        }
-
-        function getValidBoundaries(bounds = {}) {
-            return {
-                x: boundary(Number(bounds.x)),
-                y: boundary(Number(bounds.y)),
-            };
-        }
-
-        const settings = {};
-        settings.debug = Boolean(requested.debug);
-        settings.BGcolor = requested.BGcolor || DEFAULTS.COLOUR;
-        settings.bounds = getValidBoundaries(requested.bounds);
-        settings.clientLimit = requested.clientLimit || DEFAULTS.CLIENT_LIMIT;
-
-        return settings;
-    }
 
     function generateRequestHandler() {
         const app = express();
@@ -148,8 +130,8 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     class WorkSpace {
-        constructor(port, settings) {
-            this.settings = determineSettings(settings);
+        constructor(port = PORT, settings) {
+            this.settings = WamsShared.initialize(DEFAULTS, settings);
             globals.WS_ID_STAMPER.stamp(this, port);
 
             // Things to track.
@@ -160,6 +142,8 @@ const WorkSpace = (function defineWorkSpace() {
             // Will be used for establishing a server on which to listen.
             this.http = null;
             this.io = null;
+            this.port = this.id;
+            WamsShared.makeOwnPropertyImmutable(this, 'port');
         }
 
         get users() { return this.views; }
@@ -448,7 +432,7 @@ class Connection {
     }
 }
 
-class ServerWSObject extends utils.WSObject {
+class ServerWSObject extends WamsShared.WSObject {
     constructor(x, y, width, height, type = 'view/background', opts) {
         super();
         const values = {x, y, width, height, type};
@@ -487,7 +471,7 @@ class ServerWSObject extends utils.WSObject {
     }
 }
 
-class ServerViewSpace extends utils.ViewSpace {
+class ServerViewSpace extends WamsShared.ViewSpace {
     constructor(boundaries, type = 'view/background') {
         super();
         this.boundaries = boundaries;
@@ -571,4 +555,11 @@ class ServerViewSpace extends utils.ViewSpace {
 
 exports.WorkSpace = WorkSpace;
 exports.WSObject = ServerWSObject;
+
+/*
+ * For testing:
+ */
+exports.Connection = Connection;
+exports.ServerWSObject = ServerWSObject;
+exports.ServerViewSpace = ServerViewSpace;
 
