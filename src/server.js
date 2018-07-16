@@ -207,6 +207,37 @@ const WorkSpace = (function defineWorkSpace() {
             this.scaleHandler = func;
         }
 
+        click(viewspace, x, y) {
+            // Failsafe.
+            if (typeof this.clickHandler !== 'function') {
+                console.log('Click Handler is not attached!');
+                return;
+            }
+
+            const object = this.findObjectByCoordinates(x,y);
+            const target = object || this;
+            this.clickHandler(target, viewspace, x, y);
+        }
+
+        drag(viewspace, x, y, dx, dy) {
+            // Failsafe checks.
+            if (typeof this.dragHandler !== 'function') {
+                console.log(`Drag handler is not attached for ${vs.id}`);
+                return;
+            }
+
+            /*
+             * XXX: This is causing jitter. Will have to look in the 
+             *      debugger, perhaps multiple events are firing on drags.
+             *
+             *      The source of the jitter seems to be when the background is
+             *      dragged.
+             */
+            const object = this.findObjectByCoordinates(x,y);
+            const target = object || this;
+            this.dragHandler(target, viewspace, x, y, dx, dy);
+        }
+
         findObjectByCoordinates(x,y) {
             return this.wsObjects.find( o => o.containsPoint(x,y) );
         }
@@ -216,6 +247,22 @@ const WorkSpace = (function defineWorkSpace() {
                 x: this.settings.bounds.x / 2,
                 y: this.settings.bounds.y / 2
             };
+        }
+
+        layout(viewspace) {
+            if (this.views.length < this.settings.clientLimit) {
+                this.addView(viewspace);
+                if (typeof this.layoutHandler === 'function') {
+                    this.layoutHandler(
+                        this, 
+                        viewspace
+                    );
+                } else {
+                    console.log('Layout handler is not attached!');
+                }
+                return true;
+            } 
+            return false;
         }
 
         listen() {
@@ -254,6 +301,15 @@ const WorkSpace = (function defineWorkSpace() {
         reportWSObjects() {
             return this.wsObjects.map( o => o.report() );
         }
+
+        scale(viewspace, newScale) {
+            // Failsafe checks.
+            if (typeof this.scaleHandler !== 'function') {
+                console.log('Scale handler is not attached!');
+                return;
+            }
+            this.scaleHandler(viewspace, newScale);
+        }
     }
 
     return WorkSpace;
@@ -281,13 +337,13 @@ class Connection {
          *      idea? Is it readable?
          */
         [   
-            {event: 'disconnect', handler: 'disconnect'},
-            {event: 'handleClick', handler: 'handleClick'},
-            {event: 'handleDrag', handler: 'handleDrag'},
-            {event: 'handleScale', handler: 'handleScale'},
-            {event: 'reportView', handler: 'reportView'},
-            {event: globals.MSG_LAYOUT, handler: 'handleLayout'},
-        ].forEach( e => this.socket.on(e.event, this[e.handler].bind(this)) );
+            {msg: 'disconnect',         handler: 'disconnect'},
+            {msg: 'handleClick',        handler: 'click'},
+            {msg: 'handleDrag',         handler: 'drag'},
+            {msg: 'handleScale',        handler: 'scale'},
+            {msg: 'reportView',         handler: 'update'},
+            {msg: globals.MSG_LAYOUT,   handler: 'layout'},
+        ].forEach( e => this.socket.on(e.msg, this[e.handler].bind(this)) );
 
         this.socket.emit(globals.EVENT_INIT, {
             views: this.workspace.reportViews(),
@@ -330,6 +386,7 @@ class Connection {
                 `disconnected from workspace ${this.workspace.id}`
             );
             this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
+            this.socket.disconnect(true);
         } else {
             throw 'Failed to disconnect.'
         }
@@ -344,66 +401,28 @@ class Connection {
      *      That said, we should probably figure out why handleDrag is checking
      *      the viewSpace id but handleClick is not...
      */
-    handleClick(x, y) {
-        // Failsafe.
-        if (typeof this.workspace.clickHandler !== 'function') {
-            console.log('Click Handler is not attached!');
-            return;
-        }
-
-        const object = this.workspace.findObjectByCoordinates(x,y);
-        const target = object || this.workspace;
-        this.workspace.clickHandler(target, this.viewSpace, x, y);
+    click(x, y) {
+        this.workspace.click(this.viewSpace, x, y);
         this.broadcastUserReport();
         this.broadcastObjectReport();
     }
 
-    handleDrag(vs, x, y, dx, dy) {
-        // Failsafe checks.
-        if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.dragHandler !== 'function') {
-            console.log(`Drag handler is not attached for ${vs.id}`);
-            return;
-        }
-
-        /*
-         * XXX: This is causing jitter. Will have to look in the 
-         *      debugger, perhaps multiple events are firing on drags.
-         *
-         *      The source of the jitter seems to be when the background is
-         *      dragged.
-         */
-        const object = this.workspace.findObjectByCoordinates(x,y);
-        const target = object || this.workspace;
-        this.workspace.dragHandler(target, this.viewSpace, x, y, dx, dy);
+    drag(viewspace, x, y, dx, dy) {
+        if (viewspace.id !== this.viewSpace.id) return;
+        this.workspace.drag(viewspace, x, y, dx, dy);
         this.broadcastObjectReport()
         this.broadcastUserReport();
     }
 
-    handleScale(vs, newScale) {
+    scale(vs, newScale) {
         // Failsafe checks.
         if (vs.id !== this.viewSpace.id) return;
-        if (typeof this.workspace.scaleHandler !== 'function') {
-            console.log('Scale handler is not attached!');
-            return;
-        }
-
-        this.workspace.scaleHandler(this.viewSpace, newScale);
+        this.workspace.scale(vs, newScale);
         this.broadcastUserReport()
     }
 
-    handleLayout() {
-        if (this.workspace.views.length < this.workspace.settings.clientLimit) {
-            this.workspace.addView(this.viewSpace);
-            if (typeof this.workspace.layoutHandler === 'function') {
-                this.workspace.layoutHandler(
-                    this.workspace, 
-                    this.viewSpace
-                );
-            } else {
-                console.log('Layout handler is not attached!');
-            }
-        } else {
+    layout() {
+        if (!this.workspace.layout(this.viewSpace)) {
             this.socket.send(globals.EVENT_DC_USER);
         }
     }
@@ -412,7 +431,7 @@ class Connection {
      * XXX: What exactly does reportView do? The name is ambiguous, so once I
      *      figure this out I will definitely change it.
      */
-    reportView(vsInfo) {
+    update(vsInfo) {
         if (this.viewSpace.id === vsInfo.id) {
             this.viewSpace.assign(vsInfo);
             this.broadcastUserReport()
