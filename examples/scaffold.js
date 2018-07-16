@@ -8,7 +8,7 @@
 const WAMS = require("../src/server");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
-const my_workspace = new WAMS.WorkSpace(
+const workspace = new WAMS.WorkSpace(
     9500, 
     {
         debug: false, 
@@ -33,12 +33,12 @@ const handleScale = function(user, newScale) {
 }
 
 // Attaches the defferent function handlers
-my_workspace.attachClickHandler(handleClick);
-my_workspace.attachScaleHandler(handleScale);
-my_workspace.attachDragHandler(handleDrag);
-my_workspace.attachLayoutHandler(handleLayout);
+workspace.attachClickHandler(handleClick);
+workspace.attachScaleHandler(handleScale);
+workspace.attachDragHandler(handleDrag);
+workspace.attachLayoutHandler(handleLayout);
 
 // Once all the handlers are attached, open up the workspace and listen for
 // connections.
-my_workspace.listen();
+workspace.listen();
 

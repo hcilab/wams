@@ -7,7 +7,7 @@
 
 const WAMS = require('../src/server');
 
-const my_workspace = new WAMS.WorkSpace(
+const workspace = new WAMS.WorkSpace(
     9002, 
     {
         debug: false, 
@@ -15,7 +15,7 @@ const my_workspace = new WAMS.WorkSpace(
     }
 );
 
-my_workspace.addWSObject(new WAMS.WSObject(
+workspace.addWSObject(new WAMS.WSObject(
     32, 
     32, 
     128, 
@@ -67,7 +67,7 @@ const handleClick = (function makeClickHandler(workspace) {
     }
 
     return handleClick;
-})(my_workspace);
+})(workspace);
 
 // Executed every time a drag occurs on a device
 function handleDrag(target, user, x, y, dx, dy) {
@@ -84,10 +84,10 @@ function handleScale(user, newScale) {
 }
 
 // Attaches the defferent function handlers
-my_workspace.attachClickHandler(handleClick);
-my_workspace.attachScaleHandler(handleScale);
-my_workspace.attachDragHandler(handleDrag);
-my_workspace.attachLayoutHandler(handleLayout);
+workspace.attachClickHandler(handleClick);
+workspace.attachScaleHandler(handleScale);
+workspace.attachDragHandler(handleDrag);
+workspace.attachLayoutHandler(handleLayout);
 
-my_workspace.listen();
+workspace.listen();
 

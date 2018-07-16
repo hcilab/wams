@@ -26,20 +26,6 @@ main_ws.addWSObject(new WAMS.WSObject(
     }
 ));
 
-const second_ws = new WAMS.WorkSpace(
-    9501, 
-    {
-        debug : false, 
-        BGcolor: 'blue',
-        bounds: {
-            x: 1000,
-            y: 1000,
-        },
-        clientLimit: 5, // 4 players plus one for the table
-    }
-);
-main_ws.addSubWS(second_ws);
-
 const draw = `function drawFunc() {
     ctx.beginPath();
     ctx.arc(
@@ -181,4 +167,18 @@ main_ws.attachDragHandler(handleDrag);
 main_ws.attachLayoutHandler(handleLayout);
 
 main_ws.listen();
+
+// const second_ws = new WAMS.WorkSpace(
+//     9501,
+//     {
+//         debug : false,
+//         BGcolor: 'blue',
+//         bounds: {
+//             x: 1000,
+//             y: 1000,
+//         },
+//         clientLimit: 5, // 4 players plus one for the table
+//     }
+// );
+// main_ws.addSubWS(second_ws);
 
