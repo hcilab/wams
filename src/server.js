@@ -81,15 +81,10 @@ const WorkSpace = (function defineWorkSpace() {
             return x >= MIN_BOUNDARY ? x : DEFAULTS.BOUNDARY;
         }
 
-        function getValidBoundaries(bounds) {
-            let x = 0, y = 0;
-            if (bounds) {
-                x = Number(bounds.x);
-                y = Number(bounds.y);
-            }
+        function getValidBoundaries(bounds = {}) {
             return {
-                x: boundary(x),
-                y: boundary(y),
+                x: boundary(Number(bounds.x)),
+                y: boundary(Number(bounds.y)),
             };
         }
 
@@ -463,64 +458,53 @@ class Connection {
 class ServerWSObject extends utils.WSObject {
     constructor(x, y, width, height, type = 'view/background', opts) {
         super();
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.type = type;
+        const values = {x, y, width, height, type};
 
         /*
          * XXX: What is the object supposed to be if opts is not defined?
          */
         if (opts) {
             if (opts.imgsrc) {
-                this.imgsrc = opts.imgsrc;
+                values.imgsrc = opts.imgsrc;
             } else {
                 /*
                  * XXX: But what if opts.draw is also undefined??
                  */
-                this.draw = opts.draw;
-                this.drawStart = opts.drawStart || this.draw;
+                values.draw = opts.draw;
+                values.drawStart = opts.drawStart || values.draw;
             }
         }
+
+        this.assign(values);
     }
 
     containsPoint(x,y) {
         return  (this.x < x) && 
-                (this.x  + this.width > x) && 
+                (this.x + this.width > x) && 
                 (this.y < y) && 
-                (this.y  + this.height > y);
+                (this.y + this.height > y);
     }
 
     move(dx, dy) {
-        this.x += dx;
-        this.y += dy;
+        this.moveToXY(this.x + dx, this.y + dy);
     }
 
     moveToXY(x, y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    setImgSrc(imagePath) {
-        this.imgsrc = imagePath;
-    }
-
-    /*
-     * XXX: If we really want to ensure a layer of abstraction, perhaps a setter
-     *      might be more transparent to the user.
-     */
-    setType(type) {
-        this.type = type;
+        this.assign({x,y});
     }
 }
 
 class ServerViewSpace extends utils.ViewSpace {
-    constructor(boundaries) {
+    constructor(boundaries, type = 'view/background') {
         super();
         this.boundaries = boundaries;
-        this.type = 'view/background';
+        this.type = type;
         globals.VIEW_ID_STAMPER.stamp(this);
+    }
+
+    areValidDimensions(width, height) {
+        return (this.x + width < this.boundaries.x) &&
+            (this.y + height < this.boundaries.y);
     }
 
     bottom() {
@@ -553,8 +537,13 @@ class ServerViewSpace extends utils.ViewSpace {
     }
 
     moveToXY(newX, newY) {
-        if (this.canMoveToX(newX)) this.x = newX;
-        if (this.canMoveToY(newY)) this.y = newY;
+        const values = {
+            x: this.x, 
+            y: this.y
+        };
+        if (this.canMoveToX(newX)) values.x = newX;
+        if (this.canMoveToY(newY)) values.y = newY;
+        this.assign(values);
     }
 
     /*
@@ -569,15 +558,13 @@ class ServerViewSpace extends utils.ViewSpace {
     rescale(newScale) {
         const newWidth = this.width / newScale;
         const newHeight = this.height / newScale;
-
-        if (this.x + newWidth < this.boundaries.x && 
-                this.y + newHeight < this.boundaries.y) {
-            this.scale = newScale;
-            this.effectiveWidth = newWidth;
-            this.effectiveHeight = newHeight;
-        } else {
-            if (globals.WDEBUG) console.log('Scale out of Range!');
-        }
+        if (this.areValidDimensions(newWidth, newHeight)) {
+            this.assign({
+                scale: newScale,
+                effectiveWidth: newWidth,
+                effectiveHeight: newHeight,
+            });
+        } 
     }
 
     right() {

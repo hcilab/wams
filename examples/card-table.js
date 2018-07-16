@@ -165,8 +165,8 @@ const handleClick = (function makeClickHandler() {
 
     function handleClick(target, viewspace, x, y) {
         if (target.type === 'joker') {
-            const img = faceUp ? 'card-back.png' : 'joker.png';
-            target.setImgSrc(img);
+            const imgsrc = faceUp ? 'card-back.png' : 'joker.png';
+            target.assign({imgsrc});
             faceUp = !faceUp;
         }
     }
