@@ -24,10 +24,11 @@
 const globals = (function defineGlobals() {
     const canvas = document.querySelector('#main');
     const constants = {
-        EVENT_DC_USER: 'user_disconnect',
-        EVENT_RM_USER: 'removeUser',
-        EVENT_UD_OBJS: 'updateObjects',
-        EVENT_UD_USER: 'updateUser',
+        EVENT_DC_USER: 'wams-disconnect',
+        EVENT_INIT:    'wams-initialize',
+        EVENT_RM_USER: 'wams-remove-user',
+        EVENT_UD_OBJS: 'wams-update-objects',
+        EVENT_UD_USER: 'wams-update-user',
         FRAMERATE: 1000 / 60,
         IMAGES: [],
         ROTATE_0: 0,
@@ -109,8 +110,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
          *          actually! I'll probably make use of that!
          */
         addObject(obj) {
-            const newObject = new ClientWSObject(obj);
-            this.wsObjects.push(newObject);
+            this.wsObjects.push(new ClientWSObject(obj));
         }
 
         /*
@@ -319,20 +319,12 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
         onInit(initData) {
             globals.settings = initData.settings;
-
-            const colour = globals.settings.BGcolor || '#aaaaaa';
-            this.canvas.style.backgroundColor = colour;
-
+            this.canvas.style.backgroundColor = globals.settings.BGcolor;
             globals.VS_ID_STAMPER.stamp(this, initData.id);
-
             initData.views.forEach( v => {
-                if (v.id !== this.id) {
-                    this.addUser(v);
-                }
+                if (v.id !== this.id) this.addUser(v);
             });
-
             initData.wsObjects.forEach( o => this.addObject(o) );
-
             this.reportView(true);
         }
 
@@ -416,7 +408,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
         /*
          * XXX: This is side-effecting!! We should have an 'addUser' event, not
-         *      just an updateUser event, unless there's some very good reason 
+         *      just an wams-update-user event, unless there's some very good reason 
          *      not to do so.
          */
         onUpdateUser(vsInfo) {
@@ -443,10 +435,10 @@ const ClientViewSpace = (function defineClientViewSpace() {
              *      here instead of adjacent to the initialization of the 
              *      socket variable?
              */
-            globals.SOCKET.on('init', this.onInit.bind(this));
-            globals.SOCKET.on('updateUser', this.onUpdateUser.bind(this));
-            globals.SOCKET.on('removeUser', this.onRemoveUser.bind(this));
-            globals.SOCKET.on('updateObjects', this.onUpdateObjects.bind(this));
+            globals.SOCKET.on(globals.EVENT_INIT, this.onInit.bind(this));
+            globals.SOCKET.on(globals.EVENT_UD_USER, this.onUpdateUser.bind(this));
+            globals.SOCKET.on(globals.EVENT_RM_USER, this.onRemoveUser.bind(this));
+            globals.SOCKET.on(globals.EVENT_UD_OBJS, this.onUpdateObjects.bind(this));
             globals.SOCKET.on('message', (message) => {
                 if (message === globals.EVENT_DC_USER) {
                     document.body.innerHTML = '<H1>' +

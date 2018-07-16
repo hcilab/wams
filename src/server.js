@@ -44,10 +44,11 @@ const WamsShared = require('./shared.js');
  */
 const globals = (function defineGlobals() {
     const constants = {
-        EVENT_DC_USER: 'user_disconnect',
-        EVENT_RM_USER: 'removeUser',
-        EVENT_UD_OBJS: 'updateObjects',
-        EVENT_UD_USER: 'updateUser',
+        EVENT_DC_USER: 'wams-disconnect',
+        EVENT_INIT:    'wams-initialize',
+        EVENT_RM_USER: 'wams-remove-user',
+        EVENT_UD_OBJS: 'wams-update-objects',
+        EVENT_UD_USER: 'wams-update-user',
         WDEBUG: true,
         OBJ_ID_STAMPER: new WamsShared.IDStamper(),
         VIEW_ID_STAMPER: new WamsShared.IDStamper(),
@@ -72,7 +73,7 @@ const WorkSpace = (function defineWorkSpace() {
     const DEFAULTS = Object.freeze({
         debug: false,
         color: '#aaaaaa',
-        boundaries: {
+        bounds: {
             x: 10000,
             y: 10000,
         },
@@ -159,12 +160,13 @@ const WorkSpace = (function defineWorkSpace() {
             //TODO: probably send a workspace update message
         }
 
+        addView(view) {
+            this.views.push(view);
+        }
+
         addWSObject(obj) {
             globals.OBJ_ID_STAMPER.stamp(obj);
             this.wsObjects.push(obj);
-            if (globals.WDEBUG) { 
-                console.log(`Adding object: ${obj.id} (${obj.type})`);
-            }
         }
 
         /*
@@ -197,6 +199,10 @@ const WorkSpace = (function defineWorkSpace() {
             this.scaleHandler = func;
         }
 
+        findObjectByCoordinates(x,y) {
+            return this.wsObjects.find( o => o.containsPoint(x,y) );
+        }
+
         getCenter() {
             return {
                 x: this.settings.bounds.x / 2,
@@ -213,6 +219,15 @@ const WorkSpace = (function defineWorkSpace() {
             this.io.on('connection', (socket) => {new Connection(socket, this);});
         }
 
+        removeView(view) {
+            const idx = this.views.findIndex( v => v.id === view.id );
+            if (idx >= 0) {
+                this.views.splice(idx,1);
+                return true;
+            }
+            return false;
+        }
+
         removeWSObject(obj) {
             const idx = this.wsObjects.findIndex( o => o.id === obj.id );
             if (idx >= 0) {
@@ -222,6 +237,14 @@ const WorkSpace = (function defineWorkSpace() {
                 this.wsObjects.splice(idx,1);
             }
         }
+
+        reportViews() {
+            return this.views.map( v => v.report() );
+        }
+
+        reportWSObjects() {
+            return this.wsObjects.map( o => o.report() );
+        }
     }
 
     return WorkSpace;
@@ -230,7 +253,7 @@ const WorkSpace = (function defineWorkSpace() {
 class Connection {
     constructor(socket, workspace) {
         /*
-         * XXX: Make the desired boundaries an argument passed into the
+         * XXX: Make the desired bounds an argument passed into the
          *      constructor?
          */
         this.initializedLayout = false;
@@ -238,13 +261,11 @@ class Connection {
         this.workspace = workspace;
         this.viewSpace = new ServerViewSpace(this.workspace.settings.bounds);
         
-        if (globals.WDEBUG) {
-            console.log(
-                `User ${this.viewSpace.id}` +
-                `connected to workspace ${this.workspace.id}`
-            );
-        }
-        
+        console.log(
+            `User ${this.viewSpace.id} ` +
+            `connected to workspace ${this.workspace.id}`
+        );
+    
         /*
          * XXX: This is a nifty way of making it easy to add and remove
          *      event strings to this list, but is it really that good of an
@@ -254,7 +275,6 @@ class Connection {
         // identically named function on the Connection prototype to attach
         // as a listener in the forEach loop.
         [   
-            'consoleLog',
             'disconnect',
             'handleClick',
             'handleDrag',
@@ -262,11 +282,11 @@ class Connection {
             'reportView',
         ].forEach( e => this.socket.on(e, this[e].bind(this)) );
 
-        this.socket.emit('init', {
-            views: this.workspace.views.map( v => v.report() ),
-            wsObjects: this.workspace.wsObjects.map( o => o.report() ),
+        this.socket.emit(globals.EVENT_INIT, {
+            views: this.workspace.reportViews(),
+            wsObjects: this.workspace.reportWSObjects(),
             settings: this.workspace.settings,
-            id: this.viewSpace.id
+            id: this.viewSpace.id,
         });
     }
 
@@ -279,23 +299,29 @@ class Connection {
         this.socket.broadcast.emit(event, data);
     }
 
-    consoleLog(toBeLogged) {
-        if (globals.WDEBUG) console.log(toBeLogged);
+    broadcastUserReport() {
+        this.broadcast(
+            globals.EVENT_UD_USER,
+            this.viewSpace.report()
+        );
+    }
+
+    broadcastObjectReport() {
+        this.broadcast(
+            globals.EVENT_UD_OBJS,
+            this.workspace.reportWSObjects();
+        );
     }
 
     disconnect() {
-        const idx = this.workspace.views.findIndex( 
-            v => v.id === this.viewSpace.id
-        );
-
-        if (idx >= 0) {
+        if (this.workspace.removeView(this.viewSpace.id)) {
             console.log(
                 `user ${this.viewSpace.id} ` +
                 `disconnected from workspace ${this.workspace.id}`
             );
-
-            this.workspace.views.splice(idx,1);
             this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
+        } else {
+            throw 'Failed to disconnect.'
         }
     }
 
@@ -306,27 +332,15 @@ class Connection {
             return;
         }
 
-        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        const obj = this.workspace.findObjectByCoordinates(x,y);
         if (obj) {
-            if (globals.WDEBUG) {
-                console.log('Clicked on', obj);
-            }
             this.workspace.clickHandler(obj, this.viewSpace, x, y);
         } else {
             this.workspace.clickHandler(this.workspace, this.viewSpace, x, y);
-            if (globals.WDEBUG) {
-                console.log('Clicked on the background.');
-            }
         }
 
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.report()
-        );
-        this.broadcast(
-            globals.EVENT_UD_OBJS,
-            this.workspace.wsObjects.map( o => o.report() )
-        );
+        this.broadcastUserReport();
+        this.broadcastObjectReport();
     }
 
     handleDrag(vs, x, y, dx, dy) {
@@ -337,16 +351,13 @@ class Connection {
             return;
         }
 
-        const obj = this.workspace.wsObjects.find( o => o.containsPoint(x,y) );
+        const obj = this.workspace.findObjectByCoordinates(x,y);
         if (obj) {
             this.workspace.dragHandler(
                 obj, this.viewSpace, 
                 x, y, dx, dy
             );
-            this.broadcast(
-                globals.EVENT_UD_OBJS,
-                this.workspace.wsObjects.map( o => o.report() )
-            );
+            this.broadcastObjectReport()
         } else {
             /*
              * XXX: This is causing jitter. Will have to look in the 
@@ -358,10 +369,7 @@ class Connection {
             );
         }
         
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.report()
-        );
+        this.broadcastUserReport();
     }
 
     handleScale(vs, newScale) {
@@ -373,10 +381,7 @@ class Connection {
         }
 
         this.workspace.scaleHandler(this.viewSpace, newScale);
-        this.broadcast(
-            globals.EVENT_UD_USER,
-            this.viewSpace.report()
-        );
+        this.broadcastUserReport()
     }
 
     /*
@@ -395,7 +400,7 @@ class Connection {
 
             if (!this.initializedLayout) {
                 this.initializedLayout = true;
-                this.workspace.views.push(this.viewSpace);
+                this.workspace.addView(this.viewSpace);
 
                 if (typeof this.workspace.layoutHandler === 'function') {
                     this.workspace.layoutHandler(
@@ -407,27 +412,13 @@ class Connection {
                 }
             }
 
-            this.broadcast(
-                globals.EVENT_UD_USER,
-                this.viewSpace.report()
-            );
-        } else if (!this.initializedLayout) {
+            this.broadcastUserReport()
+        } else {
             /* XXX: Hang on, look at that condition check in 'else if'
              *      statement above. Why are we only disconnecting if we
              *      haven't been initialized?
              */
-            this.workspace.views.push(this.viewSpace);
             this.socket.send(globals.EVENT_DC_USER);
-
-            /*
-             * XXX: Hold on a second... Did we just push the viewSpace into
-             *      the views... only to remove it again right away? Why 
-             *      are we doing that?
-             */
-            const idx = this.workspace.views.findIndex( v => 
-                v.id === this.viewSpace.id
-            );
-            if (idx >= 0) this.workspace.views.splice(idx,1);
         }
     }
 }
@@ -472,16 +463,16 @@ class ServerWSObject extends WamsShared.WSObject {
 }
 
 class ServerViewSpace extends WamsShared.ViewSpace {
-    constructor(boundaries, type = 'view/background') {
+    constructor(bounds, type = 'view/background') {
         super();
-        this.boundaries = boundaries;
+        this.bounds = bounds;
         this.type = type;
         globals.VIEW_ID_STAMPER.stamp(this);
     }
 
     areValidDimensions(width, height) {
-        return (this.x + width < this.boundaries.x) &&
-            (this.y + height < this.boundaries.y);
+        return (this.x + width < this.bounds.x) &&
+            (this.y + height < this.bounds.y);
     }
 
     bottom() {
@@ -490,12 +481,12 @@ class ServerViewSpace extends WamsShared.ViewSpace {
 
     canMoveToX(value) {
         return (value >= 0) &&
-            (value + this.effectiveWidth <= this.boundaries.x);
+            (value + this.effectiveWidth <= this.bounds.x);
     }
 
     canMoveToY(value) {
         return (value >= 0) &&
-            (value + this.effectiveHeight <= this.boundaries.y);
+            (value + this.effectiveHeight <= this.bounds.y);
     }
 
     center() {
@@ -530,7 +521,7 @@ class ServerViewSpace extends WamsShared.ViewSpace {
      *      look it up.
      *
      *      Also at this point I really think we should have an 'isInRange' 
-     *      function for checking boundaries.
+     *      function for checking bounds.
      */
     rescale(newScale) {
         const newWidth = this.width / newScale;

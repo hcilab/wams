@@ -30,7 +30,7 @@ describe('WorkSpace', () => {
     const DEFAULTS = Object.freeze({
         debug: false,
         color: '#aaaaaa',
-        boundaries: {
+        bounds: {
             x: 10000,
             y: 10000,
         },
@@ -76,7 +76,7 @@ describe('WorkSpace', () => {
             const custom = {
                 debug: true,
                 color: 'rgb(155,72, 84)',
-                boundaries: {
+                bounds: {
                     x: 1080,
                     y: 1920,
                 },
@@ -88,7 +88,7 @@ describe('WorkSpace', () => {
             expect(ws.settings).not.toEqual(DEFAULTS);
             expect(ws.settings.debug).toEqual(DEFAULTS.debug);
             expect(ws.settings.color).toEqual(DEFAULTS.color);
-            expect(ws.settings.boundaries).toEqual(DEFAULTS.boundaries);
+            expect(ws.settings.bounds).toEqual(DEFAULTS.bounds);
             expect(ws.settings.clientLimit).toBe(7);
         });
     });
