@@ -183,7 +183,7 @@ describe('ViewSpace', () => {
             const vs = new shared.ViewSpace();
             expect(vs).toBeInstanceOf(shared.ViewSpace);
             expect(vs).toHaveProperty('assign');
-            expect(vs).toHaveProperty('retrieve');
+            expect(vs).toHaveProperty('report');
         });
 
         test('produces expected properties when no data provided', () => {
@@ -254,10 +254,10 @@ describe('ViewSpace', () => {
         });
     });
 
-    describe('retrieve()', () => {
+    describe('report()', () => {
         const vs = new shared.ViewSpace({x:100, y:50, width:200, height:300});
-        test('retrieves data', () => {
-            const data = vs.retrieve();
+        test('reports data', () => {
+            const data = vs.report();
             expect(Object.keys(data)).toEqual(props);
             expect(data.x).toBe(100);
             expect(data.y).toBe(50);
@@ -266,14 +266,14 @@ describe('ViewSpace', () => {
             expect(data.scale).toBeNull();
         });
 
-        test('does not retrieve an ID if none exists on the object', () => {
-            const data = vs.retrieve();
+        test('does not report an ID if none exists on the object', () => {
+            const data = vs.report();
             expect(data).not.toHaveProperty('id');
         });
 
-        test('retrieves an immutable ID if one exists on the object', () => {
+        test('reports an immutable ID if one exists on the object', () => {
             vs.id = 1;
-            const data = vs.retrieve();
+            const data = vs.report();
             expect(data).toHaveProperty('id');
             expect(data.id).toBe(1);
             expect(data).toHaveImmutableProperty('id');
@@ -297,7 +297,7 @@ describe('WSObject', () => {
             const vs = new shared.WSObject();
             expect(vs).toBeInstanceOf(shared.WSObject);
             expect(vs).toHaveProperty('assign');
-            expect(vs).toHaveProperty('retrieve');
+            expect(vs).toHaveProperty('report');
         });
 
         test('produces expected properties when no data provided', () => {
@@ -368,10 +368,10 @@ describe('WSObject', () => {
         });
     });
 
-    describe('retrieve()', () => {
+    describe('report()', () => {
         const vs = new shared.WSObject({x:100, y:50, width:200, height:300});
-        test('retrieves data', () => {
-            const data = vs.retrieve();
+        test('reports data', () => {
+            const data = vs.report();
             expect(Object.keys(data)).toEqual(props);
             expect(data.x).toBe(100);
             expect(data.y).toBe(50);
@@ -380,14 +380,14 @@ describe('WSObject', () => {
             expect(data.imgsrc).toBeNull();
         });
 
-        test('does not retrieve an ID if none exists on the object', () => {
-            const data = vs.retrieve();
+        test('does not report an ID if none exists on the object', () => {
+            const data = vs.report();
             expect(data).not.toHaveProperty('id');
         });
 
-        test('retrieves an immutable ID if one exists on the object', () => {
+        test('reports an immutable ID if one exists on the object', () => {
             vs.id = 1;
-            const data = vs.retrieve();
+            const data = vs.report();
             expect(data).toHaveProperty('id');
             expect(data.id).toBe(1);
             expect(data).toHaveImmutableProperty('id');

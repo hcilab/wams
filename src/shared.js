@@ -152,7 +152,7 @@ const WamsShared = (function defineSharedWamsModule() {
                 return this;
             }
 
-            retrieve() {
+            report() {
                 const data = {};
                 _coreProperties.forEach( p => data[p] = this[p] );
                 if (this.hasOwnProperty('id')) stamper.stamp(data, this.id);

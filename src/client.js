@@ -226,7 +226,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
                 this.subViews.forEach( subWS => subWS.reportView(true) );
             }
 
-            globals.SOCKET.emit('reportView', this.retrieve());
+            globals.SOCKET.emit('reportView', this.report());
         }
 
         setOrientation() {

@@ -132,7 +132,7 @@ const WorkSpace = (function defineWorkSpace() {
         return app;
     }
 
-    function get_local_ip() {
+    function getLocalIP() {
         const os = require('os');
         let ipaddr = null;
         Object.values(os.networkInterfaces()).some( f => {
@@ -157,25 +157,9 @@ const WorkSpace = (function defineWorkSpace() {
             this.wsObjects = [];
             this.subWS = [];
 
-            /*
-             * XXX: Are we sure we want to create the server and listen right away?
-             *      Don't we want to wait until the user has had the opportunity to
-             *      complete a few more initialization tasks? We can expose a 
-             *      function which allows the user to control when these steps 
-             *      happen.
-             *
-             *      This is specifically because we have things set up right now 
-             *      such that the user is expected to attach handlers _after_ 
-             *      constructing a WorkSpace object. That is to say, _after_ the 
-             *      server has already started listening for connections according 
-             *      to the current setup.
-             */
-            this.http = http.createServer(generateRequestHandler());
-            this.http.listen(port, get_local_ip(), () => {
-                console.log('Listening on', this.http.address());
-            });
-            this.io = io.listen(this.http);
-            this.io.on('connection', (socket) => {new Connection(socket, this);});
+            // Will be used for establishing a server on which to listen.
+            this.http = null;
+            this.io = null;
         }
 
         get users() { return this.views; }
@@ -236,6 +220,15 @@ const WorkSpace = (function defineWorkSpace() {
             };
         }
 
+        listen() {
+            this.http = http.createServer(generateRequestHandler());
+            this.http.listen(this.id, getLocalIP(), () => {
+                console.log('Listening on', this.http.address());
+            });
+            this.io = io.listen(this.http);
+            this.io.on('connection', (socket) => {new Connection(socket, this);});
+        }
+
         removeWSObject(obj) {
             const idx = this.wsObjects.findIndex( o => o.id === obj.id );
             if (idx >= 0) {
@@ -286,8 +279,8 @@ class Connection {
         ].forEach( e => this.socket.on(e, this[e].bind(this)) );
 
         this.socket.emit('init', {
-            views: this.workspace.views.map( v => v.retrieve() ),
-            wsObjects: this.workspace.wsObjects.map( o => o.retrieve() ),
+            views: this.workspace.views.map( v => v.report() ),
+            wsObjects: this.workspace.wsObjects.map( o => o.report() ),
             settings: this.workspace.settings,
             id: this.viewSpace.id
         });
@@ -344,11 +337,11 @@ class Connection {
 
         this.broadcast(
             globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
+            this.viewSpace.report()
         );
         this.broadcast(
             globals.EVENT_UD_OBJS,
-            this.workspace.wsObjects.map( o => o.retrieve() )
+            this.workspace.wsObjects.map( o => o.report() )
         );
     }
 
@@ -368,7 +361,7 @@ class Connection {
             );
             this.broadcast(
                 globals.EVENT_UD_OBJS,
-                this.workspace.wsObjects.map( o => o.retrieve() )
+                this.workspace.wsObjects.map( o => o.report() )
             );
         } else {
             /*
@@ -383,7 +376,7 @@ class Connection {
         
         this.broadcast(
             globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
+            this.viewSpace.report()
         );
     }
 
@@ -398,7 +391,7 @@ class Connection {
         this.workspace.scaleHandler(this.viewSpace, newScale);
         this.broadcast(
             globals.EVENT_UD_USER,
-            this.viewSpace.retrieve()
+            this.viewSpace.report()
         );
     }
 
@@ -432,7 +425,7 @@ class Connection {
 
             this.broadcast(
                 globals.EVENT_UD_USER,
-                this.viewSpace.retrieve()
+                this.viewSpace.report()
             );
         } else if (!this.initializedLayout) {
             /* XXX: Hang on, look at that condition check in 'else if'
