@@ -1,3 +1,5 @@
+'use strict';
+
 // Scaffold example for WAMS
 //TODO: make sure the WAMS.js conforms to this scaffold, 
 //      examples made need to be update

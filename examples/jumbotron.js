@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  * This example is intended to demonstrate having multiple users move their
  *  view around in a shared space.

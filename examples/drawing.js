@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  * This is a simple example showing how users can interact with a shared set
  *  of objects.

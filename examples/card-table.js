@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  * This example is intended to demonstrate how users can coordinate with the
  * workspace from several different angles.
