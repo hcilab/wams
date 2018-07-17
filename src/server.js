@@ -240,14 +240,6 @@ const WorkSpace = (function defineWorkSpace() {
       //TODO: probably send a workspace update message
     }
 
-    addUser(newUser) {
-      if (this.users.length < this.settings.clientLimit) {
-        this.users.push(newUser);
-        return true;
-      }
-      return false;
-    }
-
     addWSObject(obj) {
       globals.OBJ_ID_STAMPER.stamp(obj);
       this.wsObjects.push(obj);
@@ -266,6 +258,10 @@ const WorkSpace = (function defineWorkSpace() {
 
     hasUser(user) {
       return this.users.some( u => u.id === user.id );
+    }
+
+    isFull() {
+      return this.users.length >= this.settings.clientLimit;  
     }
 
     listen() {
@@ -301,6 +297,16 @@ const WorkSpace = (function defineWorkSpace() {
     reportWSObjects() {
       return this.wsObjects.map( o => o.report() );
     }
+
+    spawnUser() {
+      if (!this.isFull()) {
+        const u = new ServerViewSpace(this.settings.bounds);
+        this.users.push(u);
+        return u;
+      }
+      return false;
+    }
+
   }
 
   return WorkSpace;
@@ -315,7 +321,11 @@ class Connection {
     this.initializedLayout = false;
     this.socket = socket;
     this.workspace = workspace;
-    this.viewSpace = new ServerViewSpace(this.workspace.settings.bounds);
+    this.viewSpace = this.workspace.spawnUser();
+    if (!this.viewSpace) {
+      this.socket.disconnect(true);
+      return undefined;
+    }
 
     console.log(
       `User ${this.viewSpace.id} ` +
@@ -430,44 +440,49 @@ class Connection {
   }
 }
 
-class ServerWSObject extends WamsShared.WSObject {
-  constructor(x, y, width, height, type = 'view/background', opts) {
-    super();
-    const values = {x, y, width, height, type};
+const ServerWSObject = (function defineServerWSObject() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      width: 128,
+      height: 128,
+      type: 'view/background',
+      imgsrc: '',
+      drawCustom: '',
+      drawStart: '',
+    }),
 
+  });
+
+  class ServerWSObject extends WamsShared.WSObject {
     /*
-     * XXX: What is the object supposed to be if opts is not defined?
+     * XXX: What is the object supposed to be if the draw strings are not 
+     *      defined?
      */
-    if (opts) {
-      if (opts.imgsrc) {
-        values.imgsrc = opts.imgsrc;
-      } else {
-        /*
-         * XXX: But what if opts.draw is also undefined??
-         */
-        values.drawCustom = opts.drawCustom;
-        values.drawStart = opts.drawStart || values.drawCustom;
-      }
+    constructor(values = {}) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      this.type = values.type || locals.DEFAULTS.type;
     }
 
-    this.assign(values);
+    containsPoint(x,y) {
+      return  (this.x <= x) && 
+        (this.x + this.width >= x) && 
+        (this.y <= y) && 
+        (this.y + this.height >= y);
+    }
+
+    moveToXY(x = this.x, y = this.y) {
+      this.assign({x,y});
+    }
+
+    move(dx = 0, dy = 0) {
+      this.moveToXY(this.x + dx, this.y + dy);
+    }
   }
 
-  containsPoint(x,y) {
-    return  (this.x < x) && 
-      (this.x + this.width > x) && 
-      (this.y < y) && 
-      (this.y + this.height > y);
-  }
-
-  move(dx, dy) {
-    this.moveToXY(this.x + dx, this.y + dy);
-  }
-
-  moveToXY(x, y) {
-    this.assign({x,y});
-  }
-}
+  return ServerWSObject;
+})();
 
 class ServerViewSpace extends WamsShared.ViewSpace {
   constructor(bounds, type = 'view/background') {
