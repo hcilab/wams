@@ -24,6 +24,8 @@ const WamsShared = (function defineSharedWamsModule() {
         MSG_LAYOUT:  'wams-layout',
     };
 
+    const NOP = () => {};
+
     /*
      * This method will set an already-existing property on an object to be 
      *  immutable. In other words, it will configure it as such:
@@ -197,7 +199,7 @@ const WamsShared = (function defineSharedWamsModule() {
         'width',
         'height',
         'imgsrc',
-        'draw',
+        'drawCustom',
         'drawStart',
     ]);
 
@@ -205,10 +207,11 @@ const WamsShared = (function defineSharedWamsModule() {
      * Package up the module and freeze it for delivery.
      */
     return Object.freeze({
-        events,
-        makeOwnPropertyImmutable,
-        initialize,
+        constants,
         IDStamper,
+        initialize,
+        makeOwnPropertyImmutable,
+        NOP,
         ViewSpace,
         WSObject,
     });
