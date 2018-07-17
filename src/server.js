@@ -549,26 +549,33 @@ const ServerViewSpace = (function defineServerViewSpace() {
               (this.y + height <= this.bounds.y);
     }
 
-    canMoveToX(value) {
-      return (value >= 0) && (value + this.effectiveWidth <= this.bounds.x);
+    /*
+     * The canMoveTo[XY] functions are split up in order to allow for the x and
+     * y dimensions to be independently moved. In other words, if a move fails
+     * in the x direction, it can still succeed in the y direction. This makes
+     * it easier to push the viewspace into the boundaries.
+     */
+    canMoveToX(x) {
+      return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
     }
 
-    canMoveToY(value) {
-      return (value >= 0) && (value + this.effectiveHeight <= this.bounds.y);
+    canMoveToY(y) {
+      return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
     /*
      * ViewSpaces are constrained to stay within the boundaries of the
-     * workspace, to protect the render.
+     * workspace, to protect the render. To ensure this safety, extra
+     * potentially redundant checks and fallbacks are used in this function.
      */
-    moveTo(newX, newY) {
-      const values = {
+    moveTo(x = this.x, y = this.y) {
+      const coordinates = {
         x: this.x, 
         y: this.y
       };
-      if (this.canMoveToX(newX)) values.x = newX;
-      if (this.canMoveToY(newY)) values.y = newY;
-      this.assign(values);
+      if (this.canMoveToX(x)) coordinates.x = x;
+      if (this.canMoveToY(y)) coordinates.y = y;
+      this.assign(coordinates);
     }
 
     moveBy(dx, dy) {
