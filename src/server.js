@@ -452,7 +452,6 @@ const ServerWSObject = (function defineServerWSObject() {
       drawCustom: '',
       drawStart: '',
     }),
-
   });
 
   class ServerWSObject extends WamsShared.WSObject {
@@ -462,7 +461,6 @@ const ServerWSObject = (function defineServerWSObject() {
      */
     constructor(values = {}) {
       super(WamsShared.initialize(locals.DEFAULTS, values));
-      this.type = values.type || locals.DEFAULTS.type;
     }
 
     containsPoint(x,y) {

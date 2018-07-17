@@ -198,6 +198,7 @@ const WamsShared = (function defineSharedWamsModule() {
     'y',
     'width',
     'height',
+    'type',
     'imgsrc',
     'drawCustom',
     'drawStart',

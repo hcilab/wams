@@ -287,8 +287,9 @@ describe('WSObject', () => {
     'y',
     'width',
     'height',
+    'type',
     'imgsrc',
-    'draw',
+    'drawCustom',
     'drawStart',
   ];
 
