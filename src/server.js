@@ -17,12 +17,6 @@
 'use strict';
 
 /*
- * XXX: General TODO list for myself, as part of code cleanup, bringing this
- *      code up to date:
- *
- */
-
-/*
  * XXX: BUG! Disconnects aren't actually disconnecting!!!
  */
 
@@ -47,7 +41,6 @@ const globals = (function defineGlobals() {
     const constants = {
         OBJ_ID_STAMPER: new WamsShared.IDStamper(),
         VIEW_ID_STAMPER: new WamsShared.IDStamper(),
-        WS_ID_STAMPER: new WamsShared.IDStamper(),
     };
 
     Object.entries(constants).forEach( ([p,v]) => {
@@ -76,76 +69,102 @@ const globals = (function defineGlobals() {
 })();
 
 const WorkSpace = (function defineWorkSpace() {
-    const PORT = 9000;
-    const DEFAULTS = Object.freeze({
-        debug: false,
-        color: '#aaaaaa',
-        bounds: {
-            x: 10000,
-            y: 10000,
+    const locals = Object.freeze({
+        DEFAULTS: Object.freeze({
+            debug: false,
+            color: '#aaaaaa',
+            bounds: {
+                x: 10000,
+                y: 10000,
+            },
+            clientLimit: 10,
+        }),
+
+        PORT: 9000,
+
+        STAMPER: new WamsShared.IDStamper(),
+
+        VALID_EVENTS: Object.freeze([
+            'click',
+            'drag',
+            'scale',
+            'layout',
+        ]),
+
+        generateRequestHandler() {
+            const app = express();
+
+            // Establish routes.
+            app.get('/', (req, res) => {
+                res.sendFile(path.resolve('../src/view.html'));
+            });
+            app.get('/shared.js', (req, res) => {
+                res.sendFile(path.resolve('../src/shared.js'));
+            });
+            app.get('/client.js', (req, res) => {
+                res.sendFile(path.resolve('../src/client.js'));
+            });
+
+            /* 
+             * XXX: express.static() generates a middleware function for 
+             *      serving static assets from the directory specified.
+             *      - The order in which these functions are registered with
+             *          app.use() is important! The callbacks will be triggered
+             *          in this order!
+             *      - When app.use() is called without a 'path' argument, as it 
+             *          is here, it uses the default '/' argument, with the 
+             *          result that these callbacks will be executed for 
+             *          _every_ request to the app!
+             *          + Should therefore consider specifying the path!!
+             *      - Should also consider specifying options. Possibly useful:
+             *          + immutable
+             *          + maxAge
+             */
+            app.use(express.static(path.resolve('./Images')));
+            app.use(express.static(path.resolve('../libs')));
+
+            return app;
         },
-        clientLimit: 10,
+
+        getLocalIP() {
+            const os = require('os');
+            let ipaddr = null;
+            Object.values(os.networkInterfaces()).some( f => {
+                return f.some( a => {
+                    if (a.family === 'IPv4' && a.internal === false) {
+                        ipaddr = a.address;
+                        return true;
+                    }
+                    return false;
+                });
+            });
+            return ipaddr;
+        },
+
+        isValidEvent(event) {
+            return locals.VALID_EVENTS.some(v => v === event);
+        },
+
+        removeByItemID(array, item) {
+            const idx = array.findIndex( o => o.id === item.id );
+            if (idx >= 0) {
+                array.splice(idx, 1);
+                return true;
+            }
+            return false;
+        },
+
     });
 
-    function generateRequestHandler() {
-        const app = express();
-
-        // Establish routes.
-        app.get('/', (req, res) => {
-            res.sendFile(path.resolve('../src/view.html'));
-        });
-        app.get('/shared.js', (req, res) => {
-            res.sendFile(path.resolve('../src/shared.js'));
-        });
-        app.get('/client.js', (req, res) => {
-            res.sendFile(path.resolve('../src/client.js'));
-        });
-
-        /* 
-         * XXX: express.static() generates a middleware function for 
-         *      serving static assets from the directory specified.
-         *      - The order in which these functions are registered with
-         *          app.use() is important! The callbacks will be triggered
-         *          in this order!
-         *      - When app.use() is called without a 'path' argument, as it 
-         *          is here, it uses the default '/' argument, with the 
-         *          result that these callbacks will be executed for 
-         *          _every_ request to the app!
-         *          + Should therefore consider specifying the path!!
-         *      - Should also consider specifying options. Possibly useful:
-         *          + immutable
-         *          + maxAge
-         */
-        app.use(express.static(path.resolve('./Images')));
-        app.use(express.static(path.resolve('../libs')));
-
-        return app;
-    }
-
-    function getLocalIP() {
-        const os = require('os');
-        let ipaddr = null;
-        Object.values(os.networkInterfaces()).some( f => {
-            return f.some( a => {
-                if (a.family === 'IPv4' && a.internal === false) {
-                    ipaddr = a.address;
-                    return true;
-                }
-                return false;
-            });
-        });
-        return ipaddr;
-    }
-
     class WorkSpace {
-        constructor(port = PORT, settings) {
-            this.settings = WamsShared.initialize(DEFAULTS, settings);
-            globals.WS_ID_STAMPER.stamp(this, port);
+        constructor(port = locals.PORT, settings) {
+            this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
+            locals.STAMPER.stamp(this, port);
 
             // Things to track.
             this.connections = [];
             this.subWS = [];
-            this.views = [];
+            this.users = [];
             this.wsObjects = [];
 
             // Will be used for establishing a server on which to listen.
@@ -153,9 +172,14 @@ const WorkSpace = (function defineWorkSpace() {
             this.io = null;
             this.port = this.id;
             WamsShared.makeOwnPropertyImmutable(this, 'port');
+
+            // Attach NOPs for the event listeners, so they are callable.
+            this.handlers = {};
+            locals.VALID_EVENTS.forEach( ev => {
+                this.handlers[ev] = WamsShared.NOP;
+            });
         }
 
-        get users() { return this.views; }
         get width() { return this.settings.bounds.x; }
         get height() { return this.settings.bounds.y; }
 
@@ -168,74 +192,17 @@ const WorkSpace = (function defineWorkSpace() {
             //TODO: probably send a workspace update message
         }
 
-        addView(view) {
-            this.views.push(view);
+        addUser(newUser) {
+            if (this.users.length < this.settings.clientLimit) {
+                this.users.push(newUser);
+                return true;
+            }
+            return false;
         }
 
         addWSObject(obj) {
             globals.OBJ_ID_STAMPER.stamp(obj);
             this.wsObjects.push(obj);
-        }
-
-        /*
-         * XXX: Ahh okay, this is where the handlers get attached.
-         *      Do we really need separate functions for attaching each one? Would 
-         *      it be beneficial to define a single attachHandler function which 
-         *      takes an argument describing which handler to attach?
-         *      - Also, is there a way to not limit our API like this? What if 
-         *          someone making use of it wants to implement other kinds of 
-         *          interactions between the users?
-         *
-         * XXX: Also! These attachHandler functions can be doing more! We can
-         *      probably eliminate all those 'is a handler attached' checks later
-         *      if we don't even call the function which calls the handler unless
-         *      a handler is attached. Trippy, I know. Something to think about!
-         */
-        attachClickHandler(func) {
-            this.clickHandler = func;
-        }
-
-        attachDragHandler(func) {
-            this.dragHandler = func;
-        }
-
-        attachLayoutHandler(func) {
-            this.layoutHandler = func;
-        }
-
-        attachScaleHandler(func) {
-            this.scaleHandler = func;
-        }
-
-        click(viewspace, x, y) {
-            // Failsafe.
-            if (typeof this.clickHandler !== 'function') {
-                console.log('Click Handler is not attached!');
-                return;
-            }
-
-            const object = this.findObjectByCoordinates(x,y);
-            const target = object || this;
-            this.clickHandler(target, viewspace, x, y);
-        }
-
-        drag(viewspace, x, y, dx, dy) {
-            // Failsafe checks.
-            if (typeof this.dragHandler !== 'function') {
-                console.log(`Drag handler is not attached for ${vs.id}`);
-                return;
-            }
-
-            /*
-             * XXX: This is causing jitter. Will have to look in the 
-             *      debugger, perhaps multiple events are firing on drags.
-             *
-             *      The source of the jitter seems to be when the background is
-             *      dragged.
-             */
-            const object = this.findObjectByCoordinates(x,y);
-            const target = object || this;
-            this.dragHandler(target, viewspace, x, y, dx, dy);
         }
 
         findObjectByCoordinates(x,y) {
@@ -249,22 +216,6 @@ const WorkSpace = (function defineWorkSpace() {
             };
         }
 
-        layout(viewspace) {
-            if (this.views.length < this.settings.clientLimit) {
-                this.addView(viewspace);
-                if (typeof this.layoutHandler === 'function') {
-                    this.layoutHandler(
-                        this, 
-                        viewspace
-                    );
-                } else {
-                    console.log('Layout handler is not attached!');
-                }
-                return true;
-            } 
-            return false;
-        }
-
         listen() {
             this.http = http.createServer(generateRequestHandler());
             this.http.listen(this.id, getLocalIP(), () => {
@@ -276,39 +227,66 @@ const WorkSpace = (function defineWorkSpace() {
             });
         }
 
-        removeView(view) {
-            const idx = this.views.findIndex( v => v.id === view.id );
-            if (idx >= 0) {
-                this.views.splice(idx,1);
-                return true;
+        on(event, listener = WamsShared.NOP) {
+            const builder = {
+                click(fn) {
+                    return function handleClick(viewspace, x, y) {
+                        const target = this.findObjectByCoordinates(x,y) || this;
+                        fn(target, viewspace, x, y);
+                    };
+                },
+
+                drag(fn) {
+                    return function handleDrag(viewspace, x, y, dx, dy) {
+                        /*
+                         * XXX: This is causing jitter. Will have to look in the 
+                         *      debugger, perhaps multiple events are firing on drags.
+                         *
+                         *      The source of the jitter seems to be when the 
+                         *      background is dragged.
+                         */
+                        const target = this.findObjectByCoordinates(x,y) || this;
+                        fn(target, viewspace, x, y, dx, dy);
+                    };
+                },
+
+                layout(fn) {
+                    return function handleLayout(viewspace) {
+                        if (this.addUser(viewspace)) {
+                            fn(this, viewspace);
+                            return true;
+                        }
+                        return false;
+                    };
+                },
+
+                scale(fn) {
+                    return function(viewspace, newScale) {
+                        fn(viewspace, newScale);
+                    };
+                },
+            };
+            
+            const key = event.toLowerCase();
+            if (locals.isValidEvent(key)) {
+                this.handlers[key] = builder[key](listener);
             }
-            return false;
+        }
+
+        removeUser(view) {
+            return locals.removeByItemID(this.users, view);
         }
 
         removeWSObject(obj) {
-            const idx = this.wsObjects.findIndex( o => o.id === obj.id );
-            if (idx >= 0) {
-                this.wsObjects.splice(idx,1);
-                return true;
-            }
-            return false;
+            return locals.removeByItemID(this.wsObjects, obj);
         }
 
-        reportViews() {
-            return this.views.map( v => v.report() );
+        reportUsers() {
+            return this.users.map( v => v.report() );
         }
 
         reportWSObjects() {
             return this.wsObjects.map( o => o.report() );
-        }
-
-        scale(viewspace, newScale) {
-            // Failsafe checks.
-            if (typeof this.scaleHandler !== 'function') {
-                console.log('Scale handler is not attached!');
-                return;
-            }
-            this.scaleHandler(viewspace, newScale);
         }
     }
 
@@ -372,7 +350,7 @@ class Connection {
     broadcastObjectReport() {
         this.broadcast(
             globals.EVENT_UD_OBJS,
-            this.workspace.reportWSObjects();
+            this.workspace.reportWSObjects()
         );
     }
 
@@ -454,8 +432,8 @@ class ServerWSObject extends WamsShared.WSObject {
                 /*
                  * XXX: But what if opts.draw is also undefined??
                  */
-                values.draw = opts.draw;
-                values.drawStart = opts.drawStart || values.draw;
+                values.drawCustom = opts.drawCustom;
+                values.drawStart = opts.drawStart || values.drawCustom;
             }
         }
 
