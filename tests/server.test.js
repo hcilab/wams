@@ -42,7 +42,7 @@ describe('WorkSpace', () => {
       expect(new WorkSpace()).toBeInstanceOf(WorkSpace);
     });
 
-    test('Uses default port 9000 if none provided', () => {
+    test('Uses default port if none provided', () => {
       expect(new WorkSpace().port).toBe(9000);
     });
 
@@ -133,6 +133,10 @@ describe('ServerWSObject', () => {
       let item;
       expect(() => item = new ServerWSObject()).not.toThrow();
       expect(item).toEqual(DEFAULTS);
+    });
+
+    test('Creates correct type of object', () => {
+      expect(new ServerWSObject()).toBeInstanceOf(ServerWSObject);
     });
 
     test('Uses user-defined values, if provided', () => {
