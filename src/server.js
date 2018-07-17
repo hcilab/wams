@@ -40,7 +40,6 @@ const globals = (function defineGlobals() {
   const rv = {};
   const constants = {
     OBJ_ID_STAMPER: new WamsShared.IDStamper(),
-    VIEW_ID_STAMPER: new WamsShared.IDStamper(),
   };
 
   Object.entries(constants).forEach( ([p,v]) => {
@@ -470,6 +469,10 @@ const ServerWSObject = (function defineServerWSObject() {
         (this.y + this.height >= y);
     }
 
+    /*
+     * Items are allowed to be moved off screen, so limitations on where
+     * items can be moved to.
+     */
     moveToXY(x = this.x, y = this.y) {
       this.assign({x,y});
     }
@@ -482,87 +485,120 @@ const ServerWSObject = (function defineServerWSObject() {
   return ServerWSObject;
 })();
 
-class ServerViewSpace extends WamsShared.ViewSpace {
-  constructor(bounds, type = 'view/background') {
-    super();
-    this.bounds = bounds;
-    this.type = type;
-    globals.VIEW_ID_STAMPER.stamp(this);
+const ServerViewSpace = (function defineServerViewSpace() {
+  const locals = Object.freeze({
+    DEFAULTS: {
+      x: 0,
+      y: 0,
+      width: 1600,
+      height: 900,
+      type: 'view/background',
+      effectiveWidth: 1600,
+      effectiveHeight: 900,
+      scale: 1,
+      rotation: 0,
+    },
+
+    MIN_DIMENSION: 100,
+
+    STAMPER: new WamsShared.IDStamper(),
+
+    resolveBounds(bounds = {}) {
+      function safeNumber(x) {
+        return Number(x) || 0; // Prevents NaN from falling through.
+      }
+      const x = safeNumber(bounds.x);
+      const y = safeNumber(bounds.y);
+      if (x < 100 || y < 100) throw 'Invalid bounds received';
+      return {x,y};
+    }
+  });
+
+  class ServerViewSpace extends WamsShared.ViewSpace {
+    constructor(bounds, values) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      this.bounds = locals.resolveBounds(bounds);
+      this.effectiveWidth = this.width / this.scale;
+      this.effectiveHeight = this.height / this.scale;
+      locals.STAMPER.stamp(this);
+    }
+
+    get bottom()  { return this.y + this.effectiveHeight; }
+    get left()    { return this.x; }
+    get right()   { return this.x + this.effectiveWidth; }
+    get top()     { return this.y; }
+
+    /*
+     * The center() getter returns an object that exposes x and y getters which
+     * will always return the _current_ (at the moment the getter is called)
+     * center of the viewspace along that dimension.
+     */
+    get center()  {
+      return ((view) => {
+        return Object.freeze({
+          get x() { return view.x + (view.effectiveWidth  / 2); },
+          get y() { return view.y + (view.effectiveHeight / 2); },
+        });
+      })(this);
+    }
+
+    canBeScaledTo(width, height) {
+      return  (width  >= locals.MIN_DIMENSION) &&
+              (height >= locals.MIN_DIMENSION) &&
+              (this.x + width  <= this.bounds.x) &&
+              (this.y + height <= this.bounds.y);
+    }
+
+    canMoveToX(value) {
+      return (value >= 0) && (value + this.effectiveWidth <= this.bounds.x);
+    }
+
+    canMoveToY(value) {
+      return (value >= 0) && (value + this.effectiveHeight <= this.bounds.y);
+    }
+
+    /*
+     * ViewSpaces are constrained to stay within the boundaries of the
+     * workspace, to protect the render.
+     */
+    moveToXY(newX, newY) {
+      const values = {
+        x: this.x, 
+        y: this.y
+      };
+      if (this.canMoveToX(newX)) values.x = newX;
+      if (this.canMoveToY(newY)) values.y = newY;
+      this.assign(values);
+    }
+
+    move(dx, dy) {
+      this.moveToXY(this.x + dx, this.y + dy);
+    }
+
+    /*
+     * XXX: Divide by? Maybe I need to refresh my understanding of the word 
+     *    'scale', because my intuition is to say that this the reverse of what 
+     *    we actually want. I could very easily be wrong about this though. 
+     *    I'll look it up.
+     *
+     *    Also at this point I really think we should have an 'isInRange' 
+     *    function for checking bounds.
+     */
+    rescale(newScale) {
+      const newWidth = this.width / newScale;
+      const newHeight = this.height / newScale;
+      if (this.canBeScaledTo(newWidth, newHeight)) {
+        this.assign({
+          scale: newScale,
+          effectiveWidth: newWidth,
+          effectiveHeight: newHeight,
+        });
+      } 
+    }
   }
 
-  areValidDimensions(width, height) {
-    return (this.x + width < this.bounds.x) &&
-      (this.y + height < this.bounds.y);
-  }
-
-  bottom() {
-    return (this.y + this.effectiveHeight);
-  }
-
-  canMoveToX(value) {
-    return (value >= 0) &&
-      (value + this.effectiveWidth <= this.bounds.x);
-  }
-
-  canMoveToY(value) {
-    return (value >= 0) &&
-      (value + this.effectiveHeight <= this.bounds.y);
-  }
-
-  center() {
-    return {
-      x : (this.x + (this.effectiveWidth / 2)),
-      y : (this.y + (this.effectiveHeight / 2))
-    };
-  }
-
-  left() {
-    return this.x;
-  }
-
-  move(dx, dy) {
-    this.moveToXY(this.x + dx, this.y + dy);
-  }
-
-  moveToXY(newX, newY) {
-    const values = {
-      x: this.x, 
-      y: this.y
-    };
-    if (this.canMoveToX(newX)) values.x = newX;
-    if (this.canMoveToY(newY)) values.y = newY;
-    this.assign(values);
-  }
-
-  /*
-   * XXX: Divide by? Maybe I need to refresh my understanding of the word 
-   *    'scale', because my intuition is to say that this the reverse of what 
-   *    we actually want. I could very easily be wrong about this though. I'll 
-   *    look it up.
-   *
-   *    Also at this point I really think we should have an 'isInRange' 
-   *    function for checking bounds.
-   */
-  rescale(newScale) {
-    const newWidth = this.width / newScale;
-    const newHeight = this.height / newScale;
-    if (this.areValidDimensions(newWidth, newHeight)) {
-      this.assign({
-        scale: newScale,
-        effectiveWidth: newWidth,
-        effectiveHeight: newHeight,
-      });
-    } 
-  }
-
-  right() {
-    return (this.x + this.effectiveWidth);
-  }
-
-  top() {
-    return this.y;
-  }
-}
+  return ServerViewSpace;
+})();
 
 exports.WorkSpace = WorkSpace;
 exports.WSObject = ServerWSObject;

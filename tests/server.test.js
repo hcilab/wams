@@ -272,3 +272,155 @@ describe('ServerWSObject', () => {
   });
 });
 
+describe('ServerViewSpace', () => {
+  const DEFAULTS = {
+    x: 0,
+    y: 0,
+    width: 1600,
+    height: 900,
+    type: 'view/background',
+    effectiveWidth: 1600,
+    effectiveHeight: 900,
+    scale: 1,
+    rotation: 0,
+  };
+
+  describe('constructor(bounds, values)', () => {
+    test('Throws exception if bounds not provided.', () => {
+      expect(() => new ServerViewSpace()).toThrow();
+    });
+
+    test('Throws exception if invalid bounds provided.', () => {
+      expect(() => new ServerViewSpace({})).toThrow();
+      expect(() => new ServerViewSpace({x:1500})).toThrow();
+      expect(() => new ServerViewSpace({y:1500})).toThrow();
+      expect(() => new ServerViewSpace({x:0, y:0})).toThrow();
+      expect(() => new ServerViewSpace({x:100, y:99})).toThrow();
+      expect(() => new ServerViewSpace({x:-1, y:100})).toThrow();
+      expect(() => new ServerViewSpace({x:100, y:100})).not.toThrow();
+    });
+
+    test('Creates correct object type if bounds provided.', () => {
+      expect(
+        new ServerViewSpace({x:100, y:100})
+      ).toBeInstanceOf(ServerViewSpace);
+    });
+
+    test('Uses provided bounds', () => {
+      let vs;
+      expect(() => vs = new ServerViewSpace({x:1150, y:799})).not.toThrow();
+      expect(vs.bounds).toBeDefined();
+      expect(vs.bounds.x).toBe(1150);
+      expect(vs.bounds.y).toBe(799);
+    });
+
+    test('Uses default values if none provided', () => {
+      let vs;
+      expect(() => vs = new ServerViewSpace({x:150, y:150})).not.toThrow();
+      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+        expect(vs[p]).toEqual(v);
+      });
+    });
+
+    test('Uses user-defined values, if provided', () => {
+      let vs;
+      expect(() => {
+        vs = new ServerViewSpace({x:150, y:150}, {type:'joker'});
+      }).not.toThrow();
+      expect(vs.type).toBe('joker');
+      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+        if (p !== 'type') expect(vs[p]).toEqual(v);
+      });
+    });
+
+    test('Ignores inaplicable values', () => {
+      const vs = new ServerViewSpace({x:150, y:150}, {alpha:3});
+      expect(vs.hasOwnProperty('alpha')).toBe(false);
+      expect(vs.alpha).toBeUndefined();
+    });
+
+    test('Appropriately sets effective width and height', () => {
+      const vs = new ServerViewSpace({x:100, y:100}, {
+        width: 200,
+        height: 100,
+        scale: 2,
+      });
+      expect(vs.effectiveWidth).toBe(100);
+      expect(vs.effectiveHeight).toBe(50);
+    });
+
+    test('Stamps an immutable ID onto the object', () => {
+      const vs = new ServerViewSpace({x:150, y:150});
+      expect(vs).toHaveImmutableProperty('id');
+      expect(vs.id).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  describe('getters', () => {
+    const vs = new ServerViewSpace({x:100,y:100}, {
+      x: 0,
+      y: 0,
+      width: 50,
+      height: 50,
+      scale: 1,
+    });
+
+    test('Can get bottom', () => {
+      expect(vs.y + vs.effectiveHeight).toBe(50);
+      expect(vs.bottom).toBe(50);
+    });
+    
+    test('Can get left', () => {
+      expect(vs.x).toBe(0);
+      expect(vs.left).toBe(0);
+      vs.x = 22;
+      expect(vs.left).toBe(22);
+      vs.x = 0;
+      expect(vs.left).toBe(0);
+    });
+
+    test('Can get right', () => {
+      expect(vs.x + vs.effectiveWidth).toBe(50);
+      expect(vs.right).toBe(50);
+    });
+
+    test('Can get top', () => {
+      expect(vs.y).toBe(0);
+      expect(vs.top).toBe(0);
+      vs.y = 42;
+      expect(vs.top).toBe(42);
+      vs.y = 0;
+      expect(vs.top).toBe(0);
+    });
+
+    test('Can get center.x', () => {
+      let center;
+      expect(() => center = vs.center).not.toThrow();
+      expect(center.x).toBeDefined();
+      expect(center.x).toBe(25);
+    });
+
+    test('Can get center.y', () => {
+      let center;
+      expect(() => center = vs.center).not.toThrow();
+      expect(center.y).toBeDefined();
+      expect(center.y).toBe(25);
+    });
+
+    test('Center dynamically updates with viewspace changes', () => {
+      const center = vs.center;
+      expect(center.x).toBe(25);
+      expect(center.y).toBe(25);
+      vs.move(10,10);
+      expect(center.x).toBe(35);
+      expect(center.y).toBe(35);
+      vs.move(-5,2.2);
+      expect(center.x).toBe(30);
+      expect(center.y).toBe(37.2);
+      vs.move(0,-7.2);
+      expect(center.x).toBe(30);
+      expect(center.y).toBe(30);
+    });
+  });
+});
+

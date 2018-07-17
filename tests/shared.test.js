@@ -172,6 +172,7 @@ describe('ViewSpace', () => {
     'y',
     'width',
     'height',
+    'type',
     'effectiveWidth',
     'effectiveHeight',
     'scale',
