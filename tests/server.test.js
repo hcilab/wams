@@ -93,4 +93,26 @@ describe('WorkSpace', () => {
     });
   });
 
+  describe('getters and setters', () => {
+    const ws = new WorkSpace(8080, {bounds: {x:7,y:8}});
+
+    test('can get width', () => {
+      expect(ws.width).toBe(7);
+    });
+
+    test('can get height', () => {
+      expect(ws.height).toBe(8);
+    });
+
+    test('can set width', () => {
+      ws.width = 42;
+      expect(ws.width).toBe(42);
+    });
+
+    test('can set height', () => {
+      ws.height = 43;
+      expect(ws.height).toBe(43);
+    });
+  });
+
 });
