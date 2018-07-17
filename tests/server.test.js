@@ -407,7 +407,7 @@ describe('ServerViewSpace', () => {
       expect(center.y).toBe(25);
     });
 
-    test('Center dynamically updates with viewspace changes', () => {
+    test('center dynamically updates with viewspace changes', () => {
       const center = vs.center;
       expect(center.x).toBe(25);
       expect(center.y).toBe(25);
@@ -422,5 +422,51 @@ describe('ServerViewSpace', () => {
       expect(center.y).toBe(30);
     });
   });
+
+  describe('canBeScaledTo(width, height)', () => {
+    const vs = new ServerViewSpace({x:100,y:100}, {
+      x: 0,
+      y: 0,
+    });
+
+    test('Accepts midrange widths and heights', () => {
+      expect(vs.canBeScaledTo(75,50)).toBe(true);
+      expect(vs.canBeScaledTo(25,90)).toBe(true);
+    });
+
+    test('Accepts scale that uses full space', () => {
+      expect(vs.canBeScaledTo(100,100)).toBe(true);
+    });
+
+    test('Accepts widths and heights greater than 0', () => {
+      expect(vs.canBeScaledTo(1,1)).toBe(true);
+      expect(vs.canBeScaledTo(0.1,0.1)).toBe(true);
+    });
+
+    test('Rejects if width or height is 0', () => {
+      expect(vs.canBeScaledTo(0,0)).toBe(false);
+      expect(vs.canBeScaledTo(50,0)).toBe(false);
+      expect(vs.canBeScaledTo(0,50)).toBe(false);
+    });
+
+    test('Rejects if width or height exceeds bounds', () => {
+      expect(vs.canBeScaledTo(999,999)).toBe(false);
+      expect(vs.canBeScaledTo(50,999)).toBe(false);
+      expect(vs.canBeScaledTo(999,50)).toBe(false);
+      expect(vs.canBeScaledTo(100,101)).toBe(false);
+      expect(vs.canBeScaledTo(101,100)).toBe(false);
+      expect(vs.canBeScaledTo(100,100.1)).toBe(false);
+      expect(vs.canBeScaledTo(100.1,100)).toBe(false);
+    });
+
+    test('Works with x and y not equal to 0', () => {
+      vs.x = 50;
+      vs.y = 50;
+      expect(vs.canBeScaledTo(50,50)).toBe(true);
+      expect(vs.canBeScaledTo(51,50)).toBe(false);
+      expect(vs.canBeScaledTo(50,51)).toBe(false);
+    });
+  });
 });
+
 

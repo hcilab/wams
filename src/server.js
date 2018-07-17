@@ -543,8 +543,8 @@ const ServerViewSpace = (function defineServerViewSpace() {
     }
 
     canBeScaledTo(width, height) {
-      return  (width  >= locals.MIN_DIMENSION) &&
-              (height >= locals.MIN_DIMENSION) &&
+      return  (width  > 0) &&
+              (height > 0) &&
               (this.x + width  <= this.bounds.x) &&
               (this.y + height <= this.bounds.y);
     }
