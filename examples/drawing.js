@@ -30,7 +30,7 @@ const handleLayout = function(workspace, user) {
   // Executed once every time a new user joins
   const users = workspace.users;
   if (users.length > 1) {
-    user.moveToXY(workspace.getCenter().x, workspace.getCenter().y);
+    user.moveTo(workspace.getCenter().x, workspace.getCenter().y);
   }
 }
 
@@ -72,9 +72,9 @@ const handleClick = (function makeClickHandler(workspace) {
 // Executed every time a drag occurs on a device
 function handleDrag(target, user, x, y, dx, dy) {
   if (target.type === 'color') {
-    target.move(-dx, -dy);
+    target.moveBy(-dx, -dy);
   } else if (target.type === 'view/background') {
-    target.move(dx, dy);
+    target.moveBy(dx, dy);
   }
 }
 

@@ -204,7 +204,7 @@ describe('ServerWSObject', () => {
     });
   });
 
-  describe('moveToXY(x, y)', () => {
+  describe('moveTo(x, y)', () => {
     const item = new ServerWSObject({
       x: 0,
       y: 0,
@@ -213,60 +213,60 @@ describe('ServerWSObject', () => {
     test('Has no effect if parameters left out', () => {
       expect(item.x).toBe(0);
       expect(item.y).toBe(0);
-      expect(() => item.moveToXY()).not.toThrow();
+      expect(() => item.moveTo()).not.toThrow();
       expect(item.x).toBe(0);
       expect(item.y).toBe(0);
     });
 
     test('Moves the object to the given coordinates.', () => {
-      expect(() => item.moveToXY(1000,9999)).not.toThrow();
+      expect(() => item.moveTo(1000,9999)).not.toThrow();
       expect(item.x).toBe(1000);
       expect(item.y).toBe(9999);
     });
 
     test('Works with negative values', () => {
-      expect(() => item.moveToXY(-50, -1000)).not.toThrow();
+      expect(() => item.moveTo(-50, -1000)).not.toThrow();
       expect(item.x).toBe(-50);
       expect(item.y).toBe(-1000);
     });
 
     test('Does not affect other values', () => {
-      expect(() => item.moveToXY(DEFAULTS.x, DEFAULTS.y)).not.toThrow();
+      expect(() => item.moveTo(DEFAULTS.x, DEFAULTS.y)).not.toThrow();
       expect(item).toEqual(DEFAULTS);
     });
   });
 
-  describe('move(dx, dy)', () => {
+  describe('moveBy(dx, dy)', () => {
     const item = new ServerWSObject();
 
     test('Has no effect if parameters left out', () => {
       expect(item.x).toBe(0);
       expect(item.y).toBe(0);
-      expect(() => item.move()).not.toThrow();
+      expect(() => item.moveBy()).not.toThrow();
       expect(item.x).toBe(0);
       expect(item.y).toBe(0);
     });
 
     test('Moves the object by the given amount', () => {
-      expect(() => item.move(10,20)).not.toThrow();
+      expect(() => item.moveBy(10,20)).not.toThrow();
       expect(item.x).toBe(10);
       expect(item.y).toBe(20);
-      expect(() => item.move(13,27)).not.toThrow();
+      expect(() => item.moveBy(13,27)).not.toThrow();
       expect(item.x).toBe(23);
       expect(item.y).toBe(47);
     });
 
     test('Works with negative values', () => {
-      expect(() => item.move(-5,-8)).not.toThrow();
+      expect(() => item.moveBy(-5,-8)).not.toThrow();
       expect(item.x).toBe(18);
       expect(item.y).toBe(39);
-      expect(() => item.move(-25,-48)).not.toThrow();
+      expect(() => item.moveBy(-25,-48)).not.toThrow();
       expect(item.x).toBe(-7);
       expect(item.y).toBe(-9);
     });
 
     test('Has no effect on other values', () => {
-      expect(() => item.move(7,9)).not.toThrow();
+      expect(() => item.moveBy(7,9)).not.toThrow();
       expect(item).toEqual(DEFAULTS);
     });
   });
@@ -411,13 +411,13 @@ describe('ServerViewSpace', () => {
       const center = vs.center;
       expect(center.x).toBe(25);
       expect(center.y).toBe(25);
-      vs.move(10,10);
+      vs.moveBy(10,10);
       expect(center.x).toBe(35);
       expect(center.y).toBe(35);
-      vs.move(-5,2.2);
+      vs.moveBy(-5,2.2);
       expect(center.x).toBe(30);
       expect(center.y).toBe(37.2);
-      vs.move(0,-7.2);
+      vs.moveBy(0,-7.2);
       expect(center.x).toBe(30);
       expect(center.y).toBe(30);
     });

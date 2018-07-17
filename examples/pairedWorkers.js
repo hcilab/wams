@@ -44,7 +44,7 @@ workspace.addWSObject(new WAMS.WSObject(
 
 const handleDrag = function(target, client, x, y, dx, dy) {
   if (target.type === 'Draggable') {
-    target.move(-dx, -dy);
+    target.moveBy(-dx, -dy);
   }
 }
 
@@ -54,7 +54,7 @@ const handleLayout = function(workspace, client) {
 
   if (users.length > 0) {
     const prev_user = users[num_users - 1];
-    client.moveToXY(
+    client.moveTo(
       prev_user.right() - 30,
       prev_user.top()
     ); 

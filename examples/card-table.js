@@ -70,7 +70,7 @@ const handleLayout = (function makeLayoutHandler() {
   const RIGHT   = 4;
 
   function layoutTable(workspace, viewspace) {
-    viewspace.moveToXY(
+    viewspace.moveTo(
       workspace.getCenter().x,
       workspace.getCenter().y
     );
@@ -78,7 +78,7 @@ const handleLayout = (function makeLayoutHandler() {
   };
 
   function layoutBottom(workspace, viewspace) {
-    viewspace.moveToXY(
+    viewspace.moveTo(
       table.left(),
       table.bottom()
     );
@@ -86,7 +86,7 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutLeft(workspace, viewspace) {
     viewspace.rotation = Math.PI;
-    viewspace.moveToXY(
+    viewspace.moveTo(
       table.left(),
       (table.top() - viewspace.effectiveHeight)
     );
@@ -94,7 +94,7 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutTop(workspace, viewspace) {
     viewspace.rotation = 3*Math.PI/2;
-    viewspace.moveToXY(
+    viewspace.moveTo(
       (table.left() - viewspace.effectiveWidth),
       table.top()
     );
@@ -102,7 +102,7 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutRight(workspace, viewspace) {
     viewspace.rotation = Math.PI/2;
-    viewspace.moveToXY(
+    viewspace.moveTo(
       table.right(),
       table.top()
     );
@@ -132,11 +132,11 @@ const handleDrag = (function makeDragHandler() {
 
   function handleDrag(target, viewspace, x, y, dx, dy) {
     if (target.type === 'view/background') {
-      viewspace.move(dx, dy);
+      viewspace.moveBy(dx, dy);
     } else if (isObject(target)) {
       // Needs negative values because dx/dx are change from 
       //  origin of drag
-      target.move(-dx, -dy);  
+      target.moveBy(-dx, -dy);  
     }
   }
 

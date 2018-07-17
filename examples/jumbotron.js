@@ -32,11 +32,11 @@ workspace.addWSObject(new WAMS.WSObject(
 const handleDrag = function(target, client, x, y, dx, dy) {
   // 'view/background' is the type if your drag isn't on any objects
   if (target.type === 'view/background') { 
-    target.move(dx, dy);
+    target.moveBy(dx, dy);
   } else if (target.type === 'mona') { 
     // We can check if target was our custom type,
     //  still just want to move the client anyway
-    client.move(dx, dy);
+    client.moveBy(dx, dy);
   }
 }
 
@@ -64,7 +64,7 @@ const handleLayout = (function makeLayoutHandler() {
     if (num_users > 0) {
       const prev_user = otherUsers[num_users - 1];
       const move = getMove(num_users, prev_user);
-      client.moveToXY(move.x, move.y);
+      client.moveTo(move.x, move.y);
     }
   }
 

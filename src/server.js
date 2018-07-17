@@ -473,12 +473,12 @@ const ServerWSObject = (function defineServerWSObject() {
      * Items are allowed to be moved off screen, so limitations on where
      * items can be moved to.
      */
-    moveToXY(x = this.x, y = this.y) {
+    moveTo(x = this.x, y = this.y) {
       this.assign({x,y});
     }
 
-    move(dx = 0, dy = 0) {
-      this.moveToXY(this.x + dx, this.y + dy);
+    moveBy(dx = 0, dy = 0) {
+      this.moveTo(this.x + dx, this.y + dy);
     }
   }
 
@@ -561,7 +561,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
      * ViewSpaces are constrained to stay within the boundaries of the
      * workspace, to protect the render.
      */
-    moveToXY(newX, newY) {
+    moveTo(newX, newY) {
       const values = {
         x: this.x, 
         y: this.y
@@ -571,8 +571,8 @@ const ServerViewSpace = (function defineServerViewSpace() {
       this.assign(values);
     }
 
-    move(dx, dy) {
-      this.moveToXY(this.x + dx, this.y + dy);
+    moveBy(dx, dy) {
+      this.moveTo(this.x + dx, this.y + dy);
     }
 
     /*
