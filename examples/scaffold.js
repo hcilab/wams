@@ -2,34 +2,34 @@
 
 // Scaffold example for WAMS
 //TODO: make sure the WAMS.js conforms to this scaffold, 
-//      examples made need to be update
+//    examples made need to be update
 
 // Includes the WAMS API
 const WAMS = require("../src/server");
 
 // Defines a Workspace that will listen on port 3000, takes in optional parameter
 const workspace = new WAMS.WorkSpace(
-    9500, 
-    {
-        debug: false, 
-        BGcolor: "#aaaaaa"
-    }
+  9500, 
+  {
+    debug: false, 
+    BGcolor: "#aaaaaa"
+  }
 );
 
 const handleLayout = function(ws, user) {
-    // Executed once every time a new user joins
+  // Executed once every time a new user joins
 }
 
 const handleClick = function(target, user, x, y) {
-    // Executed every time a user taps or clicks a screen
+  // Executed every time a user taps or clicks a screen
 }
 
 const handleDrag = function(target, user, x, y, dx, dy) {
-    // Executed every time a drag occurs on a device 
+  // Executed every time a drag occurs on a device 
 }
 
 const handleScale = function(user, newScale) {
-    // Executed when a user pinches a device, or uses the scroll wheel on a computer
+  // Executed when a user pinches a device, or uses the scroll wheel on a computer
 }
 
 // Attaches the defferent function handlers
