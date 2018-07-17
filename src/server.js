@@ -264,6 +264,10 @@ const WorkSpace = (function defineWorkSpace() {
       };
     }
 
+    hasUser(user) {
+      return this.users.some( u => u.id === user.id );
+    }
+
     listen() {
       this.http = http.createServer(generateRequestHandler());
       this.http.listen(this.id, getLocalIP(), () => {
