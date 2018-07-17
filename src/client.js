@@ -158,7 +158,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
              * XXX: Each WSObject should have a draw() function defined on it, 
              *      which can then be called from inside a simple forEach().
              */
-            this.wsObjects.forEach( o => o.draw() );
+            this.wsObjects.forEach( o => o.draw(this.context) );
 
             /*
              * XXX: What exactly is going on here? Is this where we draw the 
@@ -500,12 +500,12 @@ class ClientWSObject extends WamsShared.WSObject {
         }
     }
 
-    draw() {
+    draw(context) {
         const width = this.width || this.img.width;
         const height = this.height || this.img.height;
 
         if (this.imgsrc) {
-            this.context.drawImage(this.img, this.x, this.y, width, height);
+            context.drawImage(this.img, this.x, this.y, width, height);
         } else {
             /*
              * XXX: Yikes!!! eval()? And we want this to be a usable 
@@ -518,7 +518,7 @@ class ClientWSObject extends WamsShared.WSObject {
              *
              *      There must be a better way...
              */
-            eval(`${this.draw};`);
+            eval(`${this.drawCustom};`);
             eval(`${this.drawStart};`);
         }
     }
