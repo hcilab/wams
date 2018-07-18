@@ -132,7 +132,9 @@ describe('ServerWSObject', () => {
     test('Uses defaults if no arguments provided', () => {
       let item;
       expect(() => item = new ServerWSObject()).not.toThrow();
-      expect(item).toEqual(DEFAULTS);
+      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+        expect(item[p]).toEqual(v);
+      });
     });
 
     test('Creates correct type of object', () => {
@@ -232,7 +234,9 @@ describe('ServerWSObject', () => {
 
     test('Does not affect other values', () => {
       expect(() => item.moveTo(DEFAULTS.x, DEFAULTS.y)).not.toThrow();
-      expect(item).toEqual(DEFAULTS);
+      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+        expect(item[p]).toEqual(v);
+      });
     });
   });
 
@@ -267,7 +271,9 @@ describe('ServerWSObject', () => {
 
     test('Has no effect on other values', () => {
       expect(() => item.moveBy(7,9)).not.toThrow();
-      expect(item).toEqual(DEFAULTS);
+      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+        expect(item[p]).toEqual(v);
+      });
     });
   });
 });

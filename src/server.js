@@ -24,10 +24,8 @@
  * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
  *    might make some of this work a lot easier.
  */
-const express = require('express');
 const http = require('http');
 const io = require('socket.io');
-const path = require('path')
 const WamsShared = require('./shared.js');
 
 /*
@@ -39,7 +37,6 @@ const WamsShared = require('./shared.js');
 const globals = (function defineGlobals() {
   const rv = {};
   const constants = {
-    OBJ_ID_STAMPER: new WamsShared.IDStamper(),
   };
 
   Object.entries(constants).forEach( ([p,v]) => {
@@ -68,15 +65,6 @@ const globals = (function defineGlobals() {
 })();
 
 const WorkSpace = (function defineWorkSpace() {
-  /*
-   * This 'locals' object defines some values and functions that will be used
-   * by the class definition. Because it is specified here inside an IIFE, only
-   * one instance of this locals object will ever exist, and its contents will
-   * be private (unless deliberately exposed) to the WorkSpace class
-   * definition.
-   *
-   * Think of these as 'private constants and functions'.
-   */
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
       debug: false,
@@ -128,9 +116,7 @@ const WorkSpace = (function defineWorkSpace() {
     }),
 
     PORT: 9000,
-
     STAMPER: new WamsShared.IDStamper(),
-
     VALID_EVENTS: Object.freeze([
       'click',
       'drag',
@@ -139,36 +125,43 @@ const WorkSpace = (function defineWorkSpace() {
     ]),
 
     generateRequestHandler() {
+      const path = require('path');
+      const express = require('express');
       const app = express();
 
-      // Establish routes.
-      app.get('/', (req, res) => {
-        res.sendFile(path.resolve('../src/view.html'));
-      });
-      app.get('/shared.js', (req, res) => {
-        res.sendFile(path.resolve('../src/shared.js'));
-      });
-      app.get('/client.js', (req, res) => {
-        res.sendFile(path.resolve('../src/client.js'));
-      });
+      function establishMainRoutes() {
+        const view =   path.resolve('../src/view.html');
+        const shared = path.resolve('../src/shared.js');
+        const client = path.resolve('../src/client.js');
+        app.get('/',          (req, res) => res.sendFile(view)    );
+        app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+        app.get('/client.js', (req, res) => res.sendFile()        );
+      }
 
-      /* 
-       * XXX: express.static() generates a middleware function for 
-       *    serving static assets from the directory specified.
-       *    - The order in which these functions are registered with
-       *      app.use() is important! The callbacks will be triggered
-       *      in this order!
-       *    - When app.use() is called without a 'path' argument, as it 
-       *      is here, it uses the default '/' argument, with the 
-       *      result that these callbacks will be executed for 
-       *      _every_ request to the app!
-       *      + Should therefore consider specifying the path!!
-       *    - Should also consider specifying options. Possibly useful:
-       *      + immutable
-       *      + maxAge
-       */
-      app.use(express.static(path.resolve('./Images')));
-      app.use(express.static(path.resolve('../libs')));
+      function establishAuxiliaryRoutes() {
+        /* 
+         * XXX: express.static() generates a middleware function for 
+         *    serving static assets from the directory specified.
+         *    - The order in which these functions are registered with
+         *      app.use() is important! The callbacks will be triggered
+         *      in this order!
+         *    - When app.use() is called without a 'path' argument, as it 
+         *      is here, it uses the default '/' argument, with the 
+         *      result that these callbacks will be executed for 
+         *      _every_ request to the app!
+         *      + Should therefore consider specifying the path!!
+         *    - Should also consider specifying options. Possibly useful:
+         *      + immutable
+         *      + maxAge
+         */
+        const images = path.resolve('./Images');
+        const libs = path.resolve('../libs');
+        app.use(express.static(images));
+        app.use(express.static(libs));
+      }
+
+      establishMainRoutes();
+      establishAuxiliaryRoutes();
 
       return app;
     },
@@ -451,6 +444,7 @@ const ServerWSObject = (function defineServerWSObject() {
       drawCustom: '',
       drawStart: '',
     }),
+    STAMPER: new WamsShared.IDStamper(),
   });
 
   class ServerWSObject extends WamsShared.WSObject {
@@ -460,6 +454,7 @@ const ServerWSObject = (function defineServerWSObject() {
      */
     constructor(values = {}) {
       super(WamsShared.initialize(locals.DEFAULTS, values));
+      locals.STAMPER.stamp(this);
     }
 
     containsPoint(x,y) {
