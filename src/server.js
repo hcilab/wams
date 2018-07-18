@@ -638,4 +638,5 @@ exports.WSObject = ServerWSObject;
 exports.Connection = Connection;
 exports.ServerWSObject = ServerWSObject;
 exports.ServerViewSpace = ServerViewSpace;
+exports.RequestHandler = RequestHandler;
 

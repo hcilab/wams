@@ -12,6 +12,7 @@ const WorkSpace = wams.WorkSpace;
 const Connection = wams.Connection;
 const ServerWSObject = wams.ServerWSObject;
 const ServerViewSpace = wams.ServerViewSpace;
+const RequestHandler = wams.RequestHandler;
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -679,4 +680,7 @@ describe('ServerViewSpace', () => {
   });
 });
 
+describe('RequestHandler', () => {
+   
+});
 
