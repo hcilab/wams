@@ -156,6 +156,12 @@ describe('ServerWSObject', () => {
       expect(item.type).toBe('joker');
       expect(item.imgsrc).toBe('');
     });
+
+    test('Stamps the object with an immutable ID', () => {
+      const item = new ServerWSObject();
+      expect(item).toHaveImmutableProperty('id');
+      expect(item.id).toBeGreaterThanOrEqual(0);
+    });
   });
 
   describe('containsPoint(x,y)', () => {
