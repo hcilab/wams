@@ -33,20 +33,12 @@ const WamsShared = require('./shared.js');
  * defined as properties on it, to make global references explicit. I've been 
  * toying with this design pattern in my other JavaScript code and I think I 
  * quite like it.
+ *
+ * Right now all it does though is copy the constants from WamsShared, so I
+ * might simplify it a bit.
  */
 const globals = (function defineGlobals() {
   const rv = {};
-  const constants = {
-  };
-
-  Object.entries(constants).forEach( ([p,v]) => {
-    Object.defineProperty(rv, p, {
-      value: v,
-      configurable: false,
-      enumerable: true,
-      writable: false
-    });
-  });
 
   /*
    * I centralized some constant descriptions in the shared file, so collect 
@@ -459,9 +451,9 @@ const ServerWSObject = (function defineServerWSObject() {
 
     containsPoint(x,y) {
       return  (this.x <= x) && 
-        (this.x + this.width >= x) && 
-        (this.y <= y) && 
-        (this.y + this.height >= y);
+              (this.y <= y) && 
+              (this.x + this.width  >= x) && 
+              (this.y + this.height >= y);
     }
 
     /*
@@ -493,9 +485,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
       scale: 1,
       rotation: 0,
     },
-
     MIN_DIMENSION: 100,
-
     STAMPER: new WamsShared.IDStamper(),
 
     resolveBounds(bounds = {}) {
