@@ -107,6 +107,57 @@ const RequestHandler = (function defineRequestHandler() {
   return RequestHandler;
 })();
 
+const Handler = (function defineHandler() {
+  const locals = Object.freeze({
+    BLUEPRINTS: {
+      click(listener, workspace) {
+        return function handleClick(viewspace, x, y) {
+          const target = workspace.findObjectByCoordinates(x,y) || workspace;
+          listener(target, viewspace, x, y);
+        };
+      },
+
+      drag(listener, workspace) {
+        return function handleDrag(viewspace, x, y, dx, dy) {
+          /*
+           * XXX: This is causing jitter. Will have to look in the 
+           *    debugger, perhaps multiple events are firing on drags.
+           *
+           *    The source of the jitter seems to be when the 
+           *    background is dragged.
+           */
+          const target = workspace.findObjectByCoordinates(x,y) || workspace;
+          listener(target, viewspace, x, y, dx, dy);
+        };
+      },
+
+      layout(listener, workspace) {
+        return function handleLayout(viewspace) {
+          if (workspace.addUser(viewspace)) {
+            listener(workspace, viewspace);
+            return true;
+          }
+          return false;
+        };
+      },
+
+      scale(listener, workspace) {
+        return function handleScale(viewspace, newScale) {
+          listener(viewspace, newScale);
+        };
+      },
+    },
+  });
+
+  class Handler {
+    constructor(type, listener, workspace) {
+      return locals.BLUEPRINTS[type](listener, workspace);
+    };
+  }
+
+  return Handler;
+})();
+
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -118,54 +169,8 @@ const WorkSpace = (function defineWorkSpace() {
       },
       clientLimit: 10,
     }),
-
-    HANDLER_FACTORY: Object.freeze({
-      click(listener) {
-        return function handleClick(viewspace, x, y) {
-          const target = this.findObjectByCoordinates(x,y) || this;
-          listener(target, viewspace, x, y);
-        };
-      },
-
-      drag(listener) {
-        return function handleDrag(viewspace, x, y, dx, dy) {
-          /*
-           * XXX: This is causing jitter. Will have to look in the 
-           *    debugger, perhaps multiple events are firing on drags.
-           *
-           *    The source of the jitter seems to be when the 
-           *    background is dragged.
-           */
-          const target = this.findObjectByCoordinates(x,y) || this;
-          listener(target, viewspace, x, y, dx, dy);
-        };
-      },
-
-      layout(listener) {
-        return function handleLayout(viewspace) {
-          if (this.addUser(viewspace)) {
-            listener(this, viewspace);
-            return true;
-          }
-          return false;
-        };
-      },
-
-      scale(listener) {
-        return function handleScale(viewspace, newScale) {
-          listener(viewspace, newScale);
-        };
-      },
-    }),
-
     PORT: 9000,
     STAMPER: new WamsShared.IDStamper(),
-    VALID_EVENTS: Object.freeze([
-      'click',
-      'drag',
-      'scale',
-      'layout',
-    ]),
 
     getLocalIP() {
       const os = require('os');
@@ -182,10 +187,6 @@ const WorkSpace = (function defineWorkSpace() {
       return ipaddr;
     },
 
-    isValidEvent(event) {
-      return locals.VALID_EVENTS.some(v => v === event);
-    },
-
     removeByItemID(array, item) {
       const idx = array.findIndex( o => o.id === item.id );
       if (idx >= 0) {
@@ -194,7 +195,6 @@ const WorkSpace = (function defineWorkSpace() {
       }
       return false;
     },
-
   });
 
   class WorkSpace {
@@ -240,13 +240,6 @@ const WorkSpace = (function defineWorkSpace() {
       return this.wsObjects.find( o => o.containsPoint(x,y) );
     }
 
-    getCenter() {
-      return {
-        x: this.settings.bounds.x / 2,
-        y: this.settings.bounds.y / 2
-      };
-    }
-
     hasUser(user) {
       return this.users.some( u => u.id === user.id );
     }
@@ -257,7 +250,7 @@ const WorkSpace = (function defineWorkSpace() {
 
     listen() {
       this.http = http.createServer(new RequestHandler());
-      this.http.listen(this.id, getLocalIP(), () => {
+      this.http.listen(this.id, locals.getLocalIP(), () => {
         console.log('Listening on', this.http.address());
       });
       this.io = io.listen(this.http);
@@ -266,11 +259,9 @@ const WorkSpace = (function defineWorkSpace() {
       });
     }
 
-    on(event, listener = WamsShared.NOP) {
-      const key = event.toLowerCase();
-      if (locals.isValidEvent(key)) {
-        this.handlers[key] = locals.HANDLER_FACTORY[key](listener).bind(this);
-      }
+    on(event, listener) {
+      const type = event.toLowerCase();
+      this.handlers[type] = new Handler(type, listener, this);
     }
 
     removeUser(view) {
@@ -297,7 +288,6 @@ const WorkSpace = (function defineWorkSpace() {
       }
       return false;
     }
-
   }
 
   return WorkSpace;
