@@ -13,6 +13,7 @@ const Connection = wams.Connection;
 const ServerWSObject = wams.ServerWSObject;
 const ServerViewSpace = wams.ServerViewSpace;
 const RequestHandler = wams.RequestHandler;
+const ListenerFactory = wams.ListenerFactory;
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -680,4 +681,21 @@ describe('WorkSpace', () => {
   });
 });
 
+describe('ListenerFactory Object', () => {
+  describe('.build(type, listener, workspace)', () => {
+    test('Throws exception if no arguments provided', () => {
+      expect(() => ListenerFactory.build()).toThrow();
+    });
+
+    test('Throws exception if invalid event type supplied', () => {
+      expect(() => ListenerFactory.build('resize')).toThrow();
+    });
+
+    test('Returns a function', () => {
+      expect(
+        ListenerFactory.build('click', jest.fn(), new WorkSpace())
+      ).toBeInstanceOf(Function);
+    });
+  });
+});
 

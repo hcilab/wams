@@ -107,7 +107,7 @@ const RequestHandler = (function defineRequestHandler() {
   return RequestHandler;
 })();
 
-const Handler = (function defineHandler() {
+const ListenerFactory = (function defineListenerFactory() {
   const locals = Object.freeze({
     BLUEPRINTS: {
       click(listener, workspace) {
@@ -149,13 +149,14 @@ const Handler = (function defineHandler() {
     },
   });
 
-  class Handler {
-    constructor(type, listener, workspace) {
+  const ListenerFactory = Object.freeze({
+    build(type, listener, workspace) {
       return locals.BLUEPRINTS[type](listener, workspace);
-    };
-  }
+    },
+    TYPES: Object.keys(locals.BLUEPRINTS),
+  });
 
-  return Handler;
+  return ListenerFactory;
 })();
 
 const WorkSpace = (function defineWorkSpace() {
@@ -216,7 +217,7 @@ const WorkSpace = (function defineWorkSpace() {
 
       // Attach NOPs for the event listeners, so they are callable.
       this.handlers = {};
-      locals.VALID_EVENTS.forEach( ev => {
+      ListenerFactory.TYPES.forEach( ev => {
         this.handlers[ev] = WamsShared.NOP;
       });
     }
@@ -261,7 +262,7 @@ const WorkSpace = (function defineWorkSpace() {
 
     on(event, listener) {
       const type = event.toLowerCase();
-      this.handlers[type] = new Handler(type, listener, this);
+      this.handlers[type] = ListenerFactory.build(type, listener, this);
     }
 
     removeUser(view) {
@@ -672,4 +673,5 @@ exports.Connection = Connection;
 exports.ServerWSObject = ServerWSObject;
 exports.ServerViewSpace = ServerViewSpace;
 exports.RequestHandler = RequestHandler;
+exports.ListenerFactory = ListenerFactory;
 
