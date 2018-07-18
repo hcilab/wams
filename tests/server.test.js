@@ -682,6 +682,12 @@ describe('WorkSpace', () => {
 });
 
 describe('ListenerFactory Object', () => {
+  const ws = new WorkSpace();
+  const vs = ws.spawnUser();
+  test('Throws exception if used with "new" operator', () => {
+    expect(() => new ListenerFactory()).toThrow();
+  });
+
   describe('.build(type, listener, workspace)', () => {
     test('Throws exception if no arguments provided', () => {
       expect(() => ListenerFactory.build()).toThrow();
@@ -691,11 +697,89 @@ describe('ListenerFactory Object', () => {
       expect(() => ListenerFactory.build('resize')).toThrow();
     });
 
+    test('Will throw if listener is invalid', () => {
+      expect(
+        () => fn = ListenerFactory.build('click', 5, ws)
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('drag', 5, ws)
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('layout', 5, ws)
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('scale', 5, ws)
+      ).toThrow();
+    });
+
+    test('Will throw if workspace is invalid', () => {
+      expect(
+        () => fn = ListenerFactory.build('click', jest.fn(), 'a')
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('drag', jest.fn(), 'a')
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('layout', jest.fn(), 'a')
+      ).toThrow();
+      expect(
+        () => fn = ListenerFactory.build('scale', jest.fn(), 'a')
+      ).toThrow();
+    });
+
     test('Returns a function', () => {
       expect(
-        ListenerFactory.build('click', jest.fn(), new WorkSpace())
+        ListenerFactory.build('click', jest.fn(), ws)
+      ).toBeInstanceOf(Function);
+      expect(
+        ListenerFactory.build('drag', jest.fn(), ws)
+      ).toBeInstanceOf(Function);
+      expect(
+        ListenerFactory.build('layout', jest.fn(), ws)
+      ).toBeInstanceOf(Function);
+      expect(
+        ListenerFactory.build('scale', jest.fn(), ws)
       ).toBeInstanceOf(Function);
     });
   });
+
+  describe('BLUEPRINTS', () => {
+    describe('click', () => {
+      test('calls the listener', () => {
+        const handler = jest.fn();
+        const listener = ListenerFactory.build('click', handler, ws);
+        expect(() => listener(vs)).not.toThrow();
+        expect(handler).toHaveBeenCalled();
+      });
+    });
+
+    describe('drag', () => {
+      test('calls the listener', () => {
+        const handler = jest.fn();
+        const listener = ListenerFactory.build('drag', handler, ws);
+        expect(() => listener(vs)).not.toThrow();
+        expect(handler).toHaveBeenCalled();
+      });
+    });
+
+    describe('layout', () => {
+      test('calls the listener', () => {
+        const handler = jest.fn();
+        const listener = ListenerFactory.build('layout', handler, ws);
+        expect(() => listener(vs)).not.toThrow();
+        expect(handler).toHaveBeenCalled();
+      });
+    });
+
+    describe('scale', () => {
+      test('calls the listener', () => {
+        const handler = jest.fn();
+        const listener = ListenerFactory.build('scale', handler, ws);
+        expect(() => listener(vs)).not.toThrow();
+        expect(handler).toHaveBeenCalled();
+      });
+    });
+  });
+
 });
 

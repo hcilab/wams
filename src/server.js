@@ -107,9 +107,14 @@ const RequestHandler = (function defineRequestHandler() {
   return RequestHandler;
 })();
 
+/*
+ * Treat this factory as a static class with no constructor. If you try to
+ * instantiate it with the 'new' keyword you will get an exception. Its primary
+ * usage is for generating appropriate listeners via its 'build' function.
+ */
 const ListenerFactory = (function defineListenerFactory() {
   const locals = Object.freeze({
-    BLUEPRINTS: {
+    BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewspace, x, y) {
           const target = workspace.findObjectByCoordinates(x,y) || workspace;
@@ -133,7 +138,7 @@ const ListenerFactory = (function defineListenerFactory() {
 
       layout(listener, workspace) {
         return function handleLayout(viewspace) {
-          if (workspace.addUser(viewspace)) {
+          if (workspace.hasUser(viewspace)) { 
             listener(workspace, viewspace);
             return true;
           }
@@ -142,15 +147,20 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       scale(listener, workspace) {
-        return function handleScale(viewspace, newScale) {
-          listener(viewspace, newScale);
+        return function handleScale(viewspace, scale) {
+          listener(viewspace, scale);
         };
       },
-    },
+    }),
   });
 
   const ListenerFactory = Object.freeze({
     build(type, listener, workspace) {
+      if (typeof listener !== 'function') {
+        throw 'Attached listener must be a function';
+      } else if (!workspace instanceof WorkSpace) {
+        throw 'Cannot listen with an invalid workspace';
+      }
       return locals.BLUEPRINTS[type](listener, workspace);
     },
     TYPES: Object.keys(locals.BLUEPRINTS),
