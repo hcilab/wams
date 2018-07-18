@@ -56,6 +56,52 @@ const globals = (function defineGlobals() {
   return Object.freeze(rv);
 })();
 
+const RequestHandler = (function defineRequestHandler() {
+  const path = require('path');
+  const express = require('express');
+
+  class RequestHandler {
+    constructor() {
+      this.app = express();
+      this.establishMainRoutes();
+      this.establishAuxiliaryRoutes();
+    }
+
+    establishMainRoutes() {
+      const view =   path.resolve('../src/view.html');
+      const shared = path.resolve('../src/shared.js');
+      const client = path.resolve('../src/client.js');
+      this.app.get('/',          (req, res) => res.sendFile(view)    );
+      this.app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+      this.app.get('/client.js', (req, res) => res.sendFile()        );
+    }
+
+    establishAuxiliaryRoutes() {
+      /* 
+       * XXX: express.static() generates a middleware function for 
+       *    serving static assets from the directory specified.
+       *    - The order in which these functions are registered with
+       *      this.app.use() is important! The callbacks will be triggered
+       *      in this order!
+       *    - When this.app.use() is called without a 'path' argument, as it 
+       *      is here, it uses the default '/' argument, with the 
+       *      result that these callbacks will be executed for 
+       *      _every_ request to the app!
+       *      + Should therefore consider specifying the path!!
+       *    - Should also consider specifying options. Possibly useful:
+       *      + immutable
+       *      + maxAge
+       */
+      const images = path.resolve('./Images');
+      const libs = path.resolve('../libs');
+      this.app.use(express.static(images));
+      this.app.use(express.static(libs));
+    }
+  }
+
+  return RequestHandler;
+})();
+
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -115,48 +161,6 @@ const WorkSpace = (function defineWorkSpace() {
       'scale',
       'layout',
     ]),
-
-    generateRequestHandler() {
-      const path = require('path');
-      const express = require('express');
-      const app = express();
-
-      function establishMainRoutes() {
-        const view =   path.resolve('../src/view.html');
-        const shared = path.resolve('../src/shared.js');
-        const client = path.resolve('../src/client.js');
-        app.get('/',          (req, res) => res.sendFile(view)    );
-        app.get('/shared.js', (req, res) => res.sendFile(shared)  );
-        app.get('/client.js', (req, res) => res.sendFile()        );
-      }
-
-      function establishAuxiliaryRoutes() {
-        /* 
-         * XXX: express.static() generates a middleware function for 
-         *    serving static assets from the directory specified.
-         *    - The order in which these functions are registered with
-         *      app.use() is important! The callbacks will be triggered
-         *      in this order!
-         *    - When app.use() is called without a 'path' argument, as it 
-         *      is here, it uses the default '/' argument, with the 
-         *      result that these callbacks will be executed for 
-         *      _every_ request to the app!
-         *      + Should therefore consider specifying the path!!
-         *    - Should also consider specifying options. Possibly useful:
-         *      + immutable
-         *      + maxAge
-         */
-        const images = path.resolve('./Images');
-        const libs = path.resolve('../libs');
-        app.use(express.static(images));
-        app.use(express.static(libs));
-      }
-
-      establishMainRoutes();
-      establishAuxiliaryRoutes();
-
-      return app;
-    },
 
     getLocalIP() {
       const os = require('os');
@@ -249,7 +253,7 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     listen() {
-      this.http = http.createServer(generateRequestHandler());
+      this.http = http.createServer(new RequestHandler());
       this.http.listen(this.id, getLocalIP(), () => {
         console.log('Listening on', this.http.address());
       });
