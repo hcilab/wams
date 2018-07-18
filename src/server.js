@@ -564,7 +564,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
       })(this);
     }
 
-    canBeScaledTo(width, height) {
+    canBeScaledTo(width = this.width, height = this.height) {
       return  (width  > 0) &&
               (height > 0) &&
               (this.x + width  <= this.bounds.x) &&
@@ -576,12 +576,15 @@ const ServerViewSpace = (function defineServerViewSpace() {
      * y dimensions to be independently moved. In other words, if a move fails
      * in the x direction, it can still succeed in the y direction. This makes
      * it easier to push the viewspace into the boundaries.
+     *
+     * XXX: Can they be unified simply while still allowing this kind of 
+     *      separation?
      */
-    canMoveToX(x) {
+    canMoveToX(x = this.x) {
       return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
     }
 
-    canMoveToY(y) {
+    canMoveToY(y = this.y) {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
@@ -600,29 +603,37 @@ const ServerViewSpace = (function defineServerViewSpace() {
       this.assign(coordinates);
     }
 
-    moveBy(dx, dy) {
+    moveBy(dx = 0, dy = 0) {
       this.moveTo(this.x + dx, this.y + dy);
     }
 
     /*
-     * XXX: Divide by? Maybe I need to refresh my understanding of the word 
-     *    'scale', because my intuition is to say that this the reverse of what 
-     *    we actually want. I could very easily be wrong about this though. 
-     *    I'll look it up.
+     * The scaled width and height (stored permanently as effective width and
+     * height) are determined by dividing the width or height by the scale.
+     * This might seem odd at first, as that seems to be the opposite of what
+     * should be done. But what these variables are actually representing is 
+     * the amount of the underlying workspace that can be displayed inside the
+     * viewspace. So a larger scale means that each portion of the workspace
+     * takes up more of the viewspace, therefore _less_ of the workspace is
+     * visible. Hence, division.
      *
-     *    Also at this point I really think we should have an 'isInRange' 
-     *    function for checking bounds.
+     * XXX: One thing that could be done in this function is to try anchoring
+     *      on the right / bottom if anchoring on the left / top produces a
+     *      failure. (By anchoring, I mean that the given position remains
+     *      constant while the scaling is occurring).
      */
-    rescale(newScale) {
-      const newWidth = this.width / newScale;
-      const newHeight = this.height / newScale;
-      if (this.canBeScaledTo(newWidth, newHeight)) {
+    rescale(scale = this.scale) {
+      const scaledWidth = this.width / scale;
+      const scaledHeight = this.height / scale;
+      if (this.canBeScaledTo(scaledWidth, scaledHeight)) {
         this.assign({
-          scale: newScale,
-          effectiveWidth: newWidth,
-          effectiveHeight: newHeight,
+          scale: scale,
+          effectiveWidth: scaledWidth,
+          effectiveHeight: scaledHeight,
         });
-      } 
+        return true;
+      }
+      return false;
     }
   }
 
