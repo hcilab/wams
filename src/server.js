@@ -459,7 +459,7 @@ const ServerWSObject = (function defineServerWSObject() {
      *      context.
      *      + This eliminates the arbitrary code problem, and allows us to
      *        write an API for this behaviour through which we can exercise
-     *        some control over what is done with out WAMS API.
+     *        some control over what is done with our WAMS API.
      *      + For example, a sequence could look like:
      *        
      *          const seq = [
