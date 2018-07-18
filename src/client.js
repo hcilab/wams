@@ -303,7 +303,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       const lastMouse = this.mouse;
       this.mouse = this.getMouseCoordinates(event);
 
-      globals.SOCKET.emit('handleDrag', 
+      globals.SOCKET.emit(globals.MSG_DRAG, 
         this, 
         this.mouse.x,
         this.mouse.y,
@@ -345,7 +345,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
         )
       );
       const newScale = this.scale + delta * 0.09;
-      globals.SOCKET.emit('handleScale', this, newScale);
+      globals.SOCKET.emit(globals.MSG_SCALE, this, newScale);
     }
 
     onRemoveUser(id) {
@@ -367,9 +367,8 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
     ontap(event) {
       this.mouse = this.getMouseCoordinates(event);
-
       globals.SOCKET.emit(
-        'handleClick', 
+        globals.MSG_CLICK, 
         this.mouse.x,
         this.mouse.y
       );
@@ -377,7 +376,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
     ontransform(event) {
       globals.SOCKET.emit(
-        'handleScale', 
+        globals.MSG_SCALE, 
         this, 
         event.scale * this.startScale
       );
@@ -438,12 +437,12 @@ const ClientViewSpace = (function defineClientViewSpace() {
        *    here instead of adjacent to the initialization of the 
        *    socket variable?
        */
-      globals.SOCKET.on(globals.EVENT_INIT, this.onInit.bind(this));
-      globals.SOCKET.on(globals.EVENT_UD_USER, this.onUpdateUser.bind(this));
-      globals.SOCKET.on(globals.EVENT_RM_USER, this.onRemoveUser.bind(this));
-      globals.SOCKET.on(globals.EVENT_UD_OBJS, this.onUpdateObjects.bind(this));
+      globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_USER, this.onUpdateUser.bind(this));
+      globals.SOCKET.on(globals.MSG_RM_USER, this.onRemoveUser.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_OBJS, this.onUpdateObjects.bind(this));
       globals.SOCKET.on('message', (message) => {
-        if (message === globals.EVENT_DC_USER) {
+        if (message === globals.MSG_DC_USER) {
           document.body.innerHTML = '<H1>' +
             'Application has reached capacity.' +
             '</H1>';

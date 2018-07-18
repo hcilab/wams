@@ -16,12 +16,17 @@
  */
 const WamsShared = (function defineSharedWamsModule() {
   const constants = {
-    EVENT_DC_USER: 'wams-disconnect',
-    EVENT_INIT:  'wams-initialize',
-    EVENT_RM_USER: 'wams-remove-user',
-    EVENT_UD_OBJS: 'wams-update-objects',
-    EVENT_UD_USER: 'wams-update-user',
-    MSG_LAYOUT:  'wams-layout',
+    MSG_CLICK:      'wams-click',
+    MSG_DC_USER:    'wams-disconnect',
+    MSG_DISCONNECT: 'wams-disconnect',
+    MSG_DRAG:       'wams-drag',
+    MSG_INIT:       'wams-initialize',
+    MSG_LAYOUT:     'wams-layout',
+    MSG_RM_USER:    'wams-remove-user',
+    MSG_SCALE:      'wams-scale',
+    MSG_UD_OBJS:    'wams-update-objects',
+    MSG_UD_USER:    'wams-update-user',
+    MSG_UPDATE:     'wams-update',
   };
 
   const NOP = () => {};

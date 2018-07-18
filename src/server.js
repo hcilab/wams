@@ -64,42 +64,43 @@ const RequestHandler = (function defineRequestHandler() {
   const path = require('path');
   const express = require('express');
 
+  function establishMainRoutes(app) {
+    const view   = path.join(__dirname, '../src/view.html');
+    const shared = path.join(__dirname, '../src/shared.js');
+    const client = path.join(__dirname, '../src/client.js');
+    app.get('/',          (req, res) => res.sendFile(view)    );
+    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+    app.get('/client.js', (req, res) => res.sendFile()        );
+  }
+
+  function establishAuxiliaryRoutes(app) {
+    /* 
+     * XXX: express.static() generates a middleware function for 
+     *    serving static assets from the directory specified.
+     *    - The order in which these functions are registered with
+     *      this.app.use() is important! The callbacks will be triggered
+     *      in this order!
+     *    - When this.app.use() is called without a 'path' argument, as it 
+     *      is here, it uses the default '/' argument, with the 
+     *      result that these callbacks will be executed for 
+     *      _every_ request to the app!
+     *      + Should therefore consider specifying the path!!
+     *    - Should also consider specifying options. Possibly useful:
+     *      + immutable
+     *      + maxAge
+     */
+    const images = path.join(__dirname, './Images');
+    const libs = path.join(__dirname, '../libs');
+    app.use(express.static(images));
+    app.use(express.static(libs));
+  }
+
   class RequestHandler {
     constructor() {
-      this.app = express();
-      this.establishMainRoutes();
-      this.establishAuxiliaryRoutes();
-    }
-
-    establishMainRoutes() {
-      const view   = path.join(__dirname, '../src/view.html');
-      const shared = path.join(__dirname, '../src/shared.js');
-      const client = path.join(__dirname, '../src/client.js');
-      this.app.get('/',          (req, res) => res.sendFile(view)    );
-      this.app.get('/shared.js', (req, res) => res.sendFile(shared)  );
-      this.app.get('/client.js', (req, res) => res.sendFile()        );
-    }
-
-    establishAuxiliaryRoutes() {
-      /* 
-       * XXX: express.static() generates a middleware function for 
-       *    serving static assets from the directory specified.
-       *    - The order in which these functions are registered with
-       *      this.app.use() is important! The callbacks will be triggered
-       *      in this order!
-       *    - When this.app.use() is called without a 'path' argument, as it 
-       *      is here, it uses the default '/' argument, with the 
-       *      result that these callbacks will be executed for 
-       *      _every_ request to the app!
-       *      + Should therefore consider specifying the path!!
-       *    - Should also consider specifying options. Possibly useful:
-       *      + immutable
-       *      + maxAge
-       */
-      const images = path.join(__dirname, './Images');
-      const libs = path.join(__dirname, '../libs');
-      this.app.use(express.static(images));
-      this.app.use(express.static(libs));
+      const app = express();
+      establishMainRoutes(app);
+      establishAuxiliaryRoutes(app);
+      return app;
     }
   }
 
@@ -220,10 +221,9 @@ const WorkSpace = (function defineWorkSpace() {
       });
     }
 
-    get width() { return this.settings.bounds.x; }
+    get width()  { return this.settings.bounds.x; }
     get height() { return this.settings.bounds.y; }
-
-    set width(width) { this.settings.bounds.x = width; }
+    set width(width)   { this.settings.bounds.x = width;  }
     set height(height) { this.settings.bounds.y = height; }
 
     addSubWS(subWS) {
@@ -233,7 +233,6 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     addWSObject(obj) {
-      globals.OBJ_ID_STAMPER.stamp(obj);
       this.wsObjects.push(obj);
     }
 
@@ -326,19 +325,21 @@ class Connection {
 
     /*
      * XXX: This is a nifty way of making it easy to add and remove
-     *    event strings to this list, but is it really that good of an
-     *    idea? Is it readable?
+     *      event strings to this list, but is it really that good of an
+     *      idea? Is it readable?
+     *
+     *      Maybe this needs to be extracted into its own class!
      */
     [   
-      {msg: 'disconnect',     handler: 'disconnect'},
-      {msg: 'handleClick',    handler: 'click'},
-      {msg: 'handleDrag',     handler: 'drag'},
-      {msg: 'handleScale',    handler: 'scale'},
-      {msg: 'reportView',     handler: 'update'},
-      {msg: globals.MSG_LAYOUT,   handler: 'layout'},
+      {msg: globals.MSG_DISCONNECT, handler: 'disconnect'},
+      {msg: globals.MSG_CLICK,      handler: 'click'},
+      {msg: globals.MSG_DRAG,       handler: 'drag'},
+      {msg: globals.MSG_SCALE,      handler: 'scale'},
+      {msg: globals.MSG_UPDATE,     handler: 'update'},
+      {msg: globals.MSG_LAYOUT,     handler: 'layout'},
     ].forEach( e => this.socket.on(e.msg, this[e.handler].bind(this)) );
 
-    this.socket.emit(globals.EVENT_INIT, {
+    this.socket.emit(globals.MSG_INIT, {
       views: this.workspace.reportViews(),
       wsObjects: this.workspace.reportWSObjects(),
       settings: this.workspace.settings,
@@ -357,14 +358,14 @@ class Connection {
 
   broadcastUserReport() {
     this.broadcast(
-      globals.EVENT_UD_USER,
+      globals.MSG_UD_USER,
       this.viewSpace.report()
     );
   }
 
   broadcastObjectReport() {
     this.broadcast(
-      globals.EVENT_UD_OBJS,
+      globals.MSG_UD_OBJS,
       this.workspace.reportWSObjects()
     );
   }
@@ -378,7 +379,7 @@ class Connection {
         `user ${this.viewSpace.id} ` +
         `disconnected from workspace ${this.workspace.id}`
       );
-      this.broadcast(globals.EVENT_RM_USER, this.viewSpace.id);
+      this.broadcast(globals.MSG_RM_USER, this.viewSpace.id);
       this.socket.disconnect(true);
     } else {
       throw 'Failed to disconnect.'
@@ -416,7 +417,7 @@ class Connection {
 
   layout() {
     if (!this.workspace.layout(this.viewSpace)) {
-      this.socket.send(globals.EVENT_DC_USER);
+      this.socket.send(globals.MSG_DC_USER);
     }
   }
 
