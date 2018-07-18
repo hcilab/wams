@@ -680,7 +680,4 @@ describe('ServerViewSpace', () => {
   });
 });
 
-describe('RequestHandler', () => {
-   
-});
 
