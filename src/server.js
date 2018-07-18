@@ -515,6 +515,28 @@ const ServerViewSpace = (function defineServerViewSpace() {
   });
 
   class ServerViewSpace extends WamsShared.ViewSpace {
+    /*
+     * XXX: At some point, the effective width and height should be made to be
+     *      updated whenever either the width, height, or scale of the
+     *      viewspace get updated. This could be achieve with getters and 
+     *      setters on those three values. Might need to think through all the
+     *      possible complications though.
+     *
+     *      The same thing could maybe be done with the 'center' getter, so
+     *      that it refers to an actual stored value that gets updated whenever
+     *      the effective width or height gets updated, or when the x or y
+     *      values get updated. This would prevent having to recompute every
+     *      time the value is accessed, which is the way things are working
+     *      currently.
+     *
+     *      Perhaps one technique would be to find a way of storing the actual
+     *      x, y, width, height, effectiveWidth, effectiveHeight, and scale
+     *      using some private data technique with alternative names for the
+     *      variables (or some other storage method) and have the original 
+     *      names be used for the getters and setters. Might want to have a
+     *      look at the shared Reporter factory definition to see if this can
+     *      be handled at a more general level.
+     */
     constructor(bounds, values) {
       super(WamsShared.initialize(locals.DEFAULTS, values));
       this.bounds = locals.resolveBounds(bounds);
