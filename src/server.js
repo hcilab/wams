@@ -475,7 +475,7 @@ const ServerWSObject = (function defineServerWSObject() {
      *            ['fillText', ['HTML5 Canvas Text', 132, 182]],
      *          ];
      *
-     *      + This sequence would be exucuted in the client as follows (assume
+     *      + This sequence could be exucuted in the client as follows (assume
      *        a CanvasRenderingContext2D is stored in ctx):
      *        
      *          seq.forEach( ([p,v]) => {
