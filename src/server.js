@@ -172,31 +172,13 @@ const ListenerFactory = (function defineListenerFactory() {
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
-      debug: false,
       color: '#aaaaaa',
       bounds: {
         x: 10000,
         y: 10000,
       },
-      clientLimit: 10,
     }),
-    PORT: 9000,
     STAMPER: new WamsShared.IDStamper(),
-
-    getLocalIP() {
-      const os = require('os');
-      let ipaddr = null;
-      Object.values(os.networkInterfaces()).some( f => {
-        return f.some( a => {
-          if (a.family === 'IPv4' && a.internal === false) {
-            ipaddr = a.address;
-            return true;
-          }
-          return false;
-        });
-      });
-      return ipaddr;
-    },
 
     removeByItemID(array, item) {
       const idx = array.findIndex( o => o.id === item.id );
@@ -209,21 +191,14 @@ const WorkSpace = (function defineWorkSpace() {
   });
 
   class WorkSpace {
-    constructor(port = locals.PORT, settings) {
+    constructor(settings) {
       this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
-      locals.STAMPER.stamp(this, port);
+      locals.STAMPER.stamp(this);
 
       // Things to track.
-      this.connections = [];
-      this.subWS = [];
+      // this.subWS = [];
       this.views = [];
       this.wsObjects = [];
-
-      // Will be used for establishing a server on which to listen.
-      this.http = null;
-      this.io = null;
-      this.port = this.id;
-      WamsShared.makeOwnPropertyImmutable(this, 'port');
 
       // Attach NOPs for the event listeners, so they are callable.
       this.handlers = {};
@@ -237,15 +212,11 @@ const WorkSpace = (function defineWorkSpace() {
     set width(width)   { this.settings.bounds.x = width;  }
     set height(height) { this.settings.bounds.y = height; }
 
-    addSubWS(subWS) {
-      this.subWS.push(subWS);
-      //TODO: add check to make sure subWS is in bounds of the main workspace
-      //TODO: probably send a workspace update message
-    }
-
-    addWSObject(obj) {
-      this.wsObjects.push(obj);
-    }
+    // addSubWS(subWS) {
+    //   this.subWS.push(subWS);
+    //   //TODO: add check to make sure subWS is in bounds of the main workspace
+    //   //TODO: probably send a workspace update message
+    // }
 
     findObjectByCoordinates(x,y) {
       return this.wsObjects.find( o => o.containsPoint(x,y) );
@@ -257,17 +228,6 @@ const WorkSpace = (function defineWorkSpace() {
 
     isFull() {
       return this.views.length >= this.settings.clientLimit;  
-    }
-
-    listen() {
-      this.http = http.createServer(new RequestHandler());
-      this.http.listen(this.id, locals.getLocalIP(), () => {
-        console.log('Listening on', this.http.address());
-      });
-      this.io = io.listen(this.http);
-      this.io.on('connection', (socket) => {
-        this.connections.push(new Connection(socket, this));
-      });
     }
 
     on(event, listener) {
@@ -291,38 +251,101 @@ const WorkSpace = (function defineWorkSpace() {
       return this.wsObjects.map( o => o.report() );
     }
 
-    spawnView() {
+    spawnView(values) {
       if (!this.isFull()) {
-        const u = new ServerViewSpace(this.settings.bounds);
+        const u = new ServerViewSpace(this.settings.bounds, values);
         this.views.push(u);
         return u;
       }
       return false;
+    }
+
+    spawnWSObject(values) {
+      const o = new ServerWSObject(values);
+      this.wsObjects.push(o);
+      return o;
     }
   }
 
   return WorkSpace;
 })();
 
+const WamsServer = (function defineWamsServer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      debug: false,
+      clientLimit: 10,
+    }),
+    PORT: 9000,
+
+    getLocalIP() {
+      const os = require('os');
+      let ipaddr = null;
+      Object.values(os.networkInterfaces()).some( f => {
+        return f.some( a => {
+          if (a.family === 'IPv4' && a.internal === false) {
+            ipaddr = a.address;
+            return true;
+          }
+          return false;
+        });
+      });
+      return ipaddr;
+    },
+  });
+
+  class WamsServer {
+    constructor(port = locals.PORT, settings) {
+      this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
+      this.workspace = null;
+
+      // Will be used for establishing a server on which to listen.
+      this.http = null;
+      this.io = null;
+      this.port = port;
+
+      /*
+       * XXX: Not necessary to actually track connections like this, doing it
+       *      for debugging assistance, for now.
+       */
+      this.connections = [];
+    }
+
+    listen() {
+      this.http = http.createServer(new RequestHandler());
+      this.http.listen(this.id, locals.getLocalIP(), () => {
+        console.log('Listening on', this.http.address());
+      });
+      this.io = io.listen(this.http);
+      this.io.on('connection', (socket) => {
+        const c = new Connection(socket, this.workspace);
+        if (c) {
+          this.connections.push(c);
+          console.log(
+            `View ${c.viewspace.id} ` +
+            `connected to workspace ${this.workspace.id}`
+          );
+        }
+      });
+    }
+
+    on(event, listener) {
+      this.workspace.on(event, listener);
+    }
+  }
+
+  return WamsServer;
+})();
+
 class Connection {
   constructor(socket, workspace) {
-    /*
-     * XXX: Make the desired bounds an argument passed into the
-     *    constructor?
-     */
-    this.initializedLayout = false;
     this.socket = socket;
     this.workspace = workspace;
-    this.viewSpace = this.workspace.spawnView();
-    if (!this.viewSpace) {
+    this.viewspace = this.workspace.spawnView();
+    if (!this.viewspace) {
       this.socket.disconnect(true);
       return undefined;
     }
-
-    console.log(
-      `View ${this.viewSpace.id} ` +
-      `connected to workspace ${this.workspace.id}`
-    );
 
     /*
      * XXX: This is a nifty way of making it easy to add and remove
@@ -344,7 +367,7 @@ class Connection {
       views: this.workspace.reportViews(),
       wsObjects: this.workspace.reportWSObjects(),
       settings: this.workspace.settings,
-      id: this.viewSpace.id,
+      id: this.viewspace.id,
     });
   }
 
@@ -360,7 +383,7 @@ class Connection {
   broadcastViewReport() {
     this.broadcast(
       globals.MSG_UD_VIEW,
-      this.viewSpace.report()
+      this.viewspace.report()
     );
   }
 
@@ -375,12 +398,12 @@ class Connection {
    * XXX: Shouldn't we disconnect the socket???
    */
   disconnect() {
-    if (this.workspace.removeView(this.viewSpace.id)) {
+    if (this.workspace.removeView(this.viewspace.id)) {
       console.log(
-        `view ${this.viewSpace.id} ` +
+        `view ${this.viewspace.id} ` +
         `disconnected from workspace ${this.workspace.id}`
       );
-      this.broadcast(globals.MSG_RM_VIEW, this.viewSpace.id);
+      this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
       this.socket.disconnect(true);
     } else {
       throw 'Failed to disconnect.'
@@ -394,30 +417,30 @@ class Connection {
    *    arguments through with some JavaScript operator or function...
    *
    *    That said, we should probably figure out why handleDrag is checking
-   *    the viewSpace id but handleClick is not...
+   *    the viewspace id but handleClick is not...
    */
   click(x, y) {
-    this.workspace.click(this.viewSpace, x, y);
+    this.workspace.click(this.viewspace, x, y);
     this.broadcastViewReport();
     this.broadcastObjectReport();
   }
 
   drag(viewspace, x, y, dx, dy) {
-    if (viewspace.id !== this.viewSpace.id) return;
+    if (viewspace.id !== this.viewspace.id) return;
     this.workspace.drag(viewspace, x, y, dx, dy);
     this.broadcastObjectReport()
     this.broadcastViewReport();
   }
 
-  scale(vs, newScale) {
+  scale(viewspace, newScale) {
     // Failsafe checks.
-    if (vs.id !== this.viewSpace.id) return;
-    this.workspace.scale(vs, newScale);
+    if (viewspace.id !== this.viewspace.id) return;
+    this.workspace.scale(viewspace, newScale);
     this.broadcastViewReport()
   }
 
   layout() {
-    if (!this.workspace.layout(this.viewSpace)) {
+    if (!this.workspace.layout(this.viewspace)) {
       this.socket.send(globals.MSG_DC_VIEW);
     }
   }
@@ -426,9 +449,9 @@ class Connection {
    * XXX: What exactly does reportView do? The name is ambiguous, so once I
    *    figure this out I will definitely change it.
    */
-  update(vsInfo) {
-    if (this.viewSpace.id === vsInfo.id) {
-      this.viewSpace.assign(vsInfo);
+  update(data) {
+    if (this.viewspace.id === data.id) {
+      this.viewspace.assign(data);
       this.broadcastViewReport()
     }
   }
@@ -499,9 +522,9 @@ const ServerWSObject = (function defineServerWSObject() {
 
     containsPoint(x,y) {
       return  (this.x <= x) && 
-              (this.y <= y) && 
-              (this.x + this.width  >= x) && 
-              (this.y + this.height >= y);
+        (this.y <= y) && 
+        (this.x + this.width  >= x) && 
+        (this.y + this.height >= y);
     }
 
     /*
@@ -599,9 +622,9 @@ const ServerViewSpace = (function defineServerViewSpace() {
 
     canBeScaledTo(width = this.width, height = this.height) {
       return  (width  > 0) &&
-              (height > 0) &&
-              (this.x + width  <= this.bounds.x) &&
-              (this.y + height <= this.bounds.y);
+        (height > 0) &&
+        (this.x + width  <= this.bounds.x) &&
+        (this.y + height <= this.bounds.y);
     }
 
     /*
