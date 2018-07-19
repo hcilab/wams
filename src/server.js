@@ -138,7 +138,7 @@ const ListenerFactory = (function defineListenerFactory() {
 
       layout(listener, workspace) {
         return function handleLayout(viewspace) {
-          if (workspace.hasUser(viewspace)) { 
+          if (workspace.hasView(viewspace)) { 
             listener(workspace, viewspace);
             return true;
           }
@@ -216,7 +216,7 @@ const WorkSpace = (function defineWorkSpace() {
       // Things to track.
       this.connections = [];
       this.subWS = [];
-      this.users = [];
+      this.views = [];
       this.wsObjects = [];
 
       // Will be used for establishing a server on which to listen.
@@ -251,12 +251,12 @@ const WorkSpace = (function defineWorkSpace() {
       return this.wsObjects.find( o => o.containsPoint(x,y) );
     }
 
-    hasUser(user) {
-      return this.users.some( u => u.id === user.id );
+    hasView(view) {
+      return this.views.some( u => u.id === view.id );
     }
 
     isFull() {
-      return this.users.length >= this.settings.clientLimit;  
+      return this.views.length >= this.settings.clientLimit;  
     }
 
     listen() {
@@ -275,26 +275,26 @@ const WorkSpace = (function defineWorkSpace() {
       this.handlers[type] = ListenerFactory.build(type, listener, this);
     }
 
-    removeUser(view) {
-      return locals.removeByItemID(this.users, view);
+    removeView(view) {
+      return locals.removeByItemID(this.views, view);
     }
 
     removeWSObject(obj) {
       return locals.removeByItemID(this.wsObjects, obj);
     }
 
-    reportUsers() {
-      return this.users.map( v => v.report() );
+    reportViews() {
+      return this.views.map( v => v.report() );
     }
 
     reportWSObjects() {
       return this.wsObjects.map( o => o.report() );
     }
 
-    spawnUser() {
+    spawnView() {
       if (!this.isFull()) {
         const u = new ServerViewSpace(this.settings.bounds);
-        this.users.push(u);
+        this.views.push(u);
         return u;
       }
       return false;
@@ -313,14 +313,14 @@ class Connection {
     this.initializedLayout = false;
     this.socket = socket;
     this.workspace = workspace;
-    this.viewSpace = this.workspace.spawnUser();
+    this.viewSpace = this.workspace.spawnView();
     if (!this.viewSpace) {
       this.socket.disconnect(true);
       return undefined;
     }
 
     console.log(
-      `User ${this.viewSpace.id} ` +
+      `View ${this.viewSpace.id} ` +
       `connected to workspace ${this.workspace.id}`
     );
 
@@ -357,9 +357,9 @@ class Connection {
     this.socket.broadcast.emit(event, data);
   }
 
-  broadcastUserReport() {
+  broadcastViewReport() {
     this.broadcast(
-      globals.MSG_UD_USER,
+      globals.MSG_UD_VIEW,
       this.viewSpace.report()
     );
   }
@@ -377,10 +377,10 @@ class Connection {
   disconnect() {
     if (this.workspace.removeView(this.viewSpace.id)) {
       console.log(
-        `user ${this.viewSpace.id} ` +
+        `view ${this.viewSpace.id} ` +
         `disconnected from workspace ${this.workspace.id}`
       );
-      this.broadcast(globals.MSG_RM_USER, this.viewSpace.id);
+      this.broadcast(globals.MSG_RM_VIEW, this.viewSpace.id);
       this.socket.disconnect(true);
     } else {
       throw 'Failed to disconnect.'
@@ -398,7 +398,7 @@ class Connection {
    */
   click(x, y) {
     this.workspace.click(this.viewSpace, x, y);
-    this.broadcastUserReport();
+    this.broadcastViewReport();
     this.broadcastObjectReport();
   }
 
@@ -406,19 +406,19 @@ class Connection {
     if (viewspace.id !== this.viewSpace.id) return;
     this.workspace.drag(viewspace, x, y, dx, dy);
     this.broadcastObjectReport()
-    this.broadcastUserReport();
+    this.broadcastViewReport();
   }
 
   scale(vs, newScale) {
     // Failsafe checks.
     if (vs.id !== this.viewSpace.id) return;
     this.workspace.scale(vs, newScale);
-    this.broadcastUserReport()
+    this.broadcastViewReport()
   }
 
   layout() {
     if (!this.workspace.layout(this.viewSpace)) {
-      this.socket.send(globals.MSG_DC_USER);
+      this.socket.send(globals.MSG_DC_VIEW);
     }
   }
 
@@ -429,7 +429,7 @@ class Connection {
   update(vsInfo) {
     if (this.viewSpace.id === vsInfo.id) {
       this.viewSpace.assign(vsInfo);
-      this.broadcastUserReport()
+      this.broadcastViewReport()
     }
   }
 }

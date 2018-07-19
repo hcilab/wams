@@ -49,14 +49,14 @@ const handleDrag = function(target, client, x, y, dx, dy) {
 }
 
 const handleLayout = function(workspace, client) {
-  const users = workspace.users;
-  const num_users = users.length;
+  const views = workspace.views;
+  const num_views = views.length;
 
-  if (users.length > 0) {
-    const prev_user = users[num_users - 1];
+  if (views.length > 0) {
+    const prev_view = views[num_views - 1];
     client.moveTo(
-      prev_user.right() - 30,
-      prev_user.top()
+      prev_view.right() - 30,
+      prev_view.top()
     ); 
   }
 }

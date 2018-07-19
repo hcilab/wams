@@ -116,7 +116,7 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[RIGHT]   = layoutRight;
 
   function handleLayout(workspace, viewspace) {
-    const index = workspace.users.length;
+    const index = workspace.views.length;
     if (index <= 4) {
       user_fns[index](workspace, viewspace);
     }

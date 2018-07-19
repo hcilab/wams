@@ -104,7 +104,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       this.startScale = null;
       this.transforming = false;
       this.mouse = {x: 0, y: 0};
-      this.otherUsers = [];
+      this.otherViews = [];
     }
 
     /*
@@ -122,10 +122,10 @@ const ClientViewSpace = (function defineClientViewSpace() {
      * XXX: These can probably be some kind of "shadow" viewspace,
      *    as very little of their data seems to be needed.
      */
-    addUser(info) {
+    addView(info) {
       const nvs = new ViewSpace().assign(info);
       globals.VS_ID_STAMPER.stamp(nvs, info.id);
-      this.otherUsers.push(nvs);
+      this.otherViews.push(nvs);
     }
 
     /*
@@ -162,9 +162,9 @@ const ClientViewSpace = (function defineClientViewSpace() {
 
       /*
        * XXX: What exactly is going on here? Is this where we draw the 
-       *    rectangles showing users where the other users are looking?
+       *    rectangles showing views where the other views are looking?
        */
-      this.otherUsers.forEach( v => {
+      this.otherViews.forEach( v => {
         this.context.beginPath();
         this.context.rect(
           v.x,
@@ -278,7 +278,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
           10, 
           60);
         this.context.fillText(
-          `Number of Other Users: ${this.otherUsers.length}`, 
+          `Number of Other Views: ${this.otherViews.length}`, 
           10, 
           80
         );
@@ -325,7 +325,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     onInit(initData) {
       globals.settings = initData.settings;
       globals.VS_ID_STAMPER.stamp(this, initData.id);
-      initData.views.forEach( v => this.addUser(v) );
+      initData.views.forEach( v => this.addView(v) );
       initData.wsObjects.forEach( o => this.addObject(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
       globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
@@ -348,10 +348,10 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.SOCKET.emit(globals.MSG_SCALE, this, newScale);
     }
 
-    onRemoveUser(id) {
-      const index = this.otherUsers.findIndex( v => v.id === id );
+    onRemoveView(id) {
+      const index = this.otherViews.findIndex( v => v.id === id );
       if (index >= 0) {
-        this.otherUsers.splice(index,1);
+        this.otherViews.splice(index,1);
       }
     }
 
@@ -409,17 +409,17 @@ const ClientViewSpace = (function defineClientViewSpace() {
     }
 
     /*
-     * XXX: This is side-effecting!! We should have an 'addUser' event, not
-     *    just an wams-update-user event, unless there's some very good reason 
+     * XXX: This is side-effecting!! We should have an 'addView' event, not
+     *    just an wams-update-view event, unless there's some very good reason 
      *    not to do so.
      */
-    onUpdateUser(vsInfo) {
+    onUpdateView(vsInfo) {
       if (vsInfo.id === this.id) {
         this.assign(vsInfo);
       } else {
-        const user = this.otherUsers.find( v => v.id === vsInfo.id );
-        if (user) user.assign(vsInfo);
-        else this.addUser(vsInfo);
+        const view = this.otherViews.find( v => v.id === vsInfo.id );
+        if (view) view.assign(vsInfo);
+        else this.addView(vsInfo);
       }
     }
 
@@ -438,11 +438,11 @@ const ClientViewSpace = (function defineClientViewSpace() {
        *    socket variable?
        */
       globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_USER, this.onUpdateUser.bind(this));
-      globals.SOCKET.on(globals.MSG_RM_USER, this.onRemoveUser.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateView.bind(this));
+      globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveView.bind(this));
       globals.SOCKET.on(globals.MSG_UD_OBJS, this.onUpdateObjects.bind(this));
       globals.SOCKET.on('message', (message) => {
-        if (message === globals.MSG_DC_USER) {
+        if (message === globals.MSG_DC_VIEW) {
           document.body.innerHTML = '<H1>' +
             'Application has reached capacity.' +
             '</H1>';

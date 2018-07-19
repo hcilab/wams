@@ -683,7 +683,7 @@ describe('WorkSpace', () => {
 
 describe('ListenerFactory Object', () => {
   const ws = new WorkSpace();
-  const vs = ws.spawnUser();
+  const vs = ws.spawnView();
   test('Throws exception if used with "new" operator', () => {
     expect(() => new ListenerFactory()).toThrow();
   });
