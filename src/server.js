@@ -222,6 +222,10 @@ const WorkSpace = (function defineWorkSpace() {
       return this.wsObjects.find( o => o.containsPoint(x,y) );
     }
 
+    handle(message) {
+
+    }
+
     hasView(view) {
       return this.views.some( u => u.id === view.id );
     }
@@ -337,125 +341,128 @@ const WamsServer = (function defineWamsServer() {
   return WamsServer;
 })();
 
-class Connection {
-  constructor(socket, workspace) {
-    this.socket = socket;
-    this.workspace = workspace;
-    this.viewspace = this.workspace.spawnView();
-    if (!this.viewspace) {
-      this.socket.disconnect(true);
-      return undefined;
+const Connection = (function defineConnection() {
+  const locals = Object.freeze({
+    MESSAGE_HANDLERS: Object.freeze([
+        {msg: globals.MSG_DISCONNECT, handler: 'disconnect'},
+        {msg: globals.MSG_CLICK,      handler: 'click'},
+        {msg: globals.MSG_DRAG,       handler: 'drag'},
+        {msg: globals.MSG_SCALE,      handler: 'scale'},
+        {msg: globals.MSG_UPDATE,     handler: 'update'},
+        {msg: globals.MSG_LAYOUT,     handler: 'layout'},
+    ]),
+  });
+
+  class Connection {
+    constructor(socket, workspace) {
+      this.socket = socket;
+      this.workspace = workspace;
+      this.viewspace = this.workspace.spawnView();
+      if (!this.viewspace) {
+        this.socket.disconnect(true);
+        return undefined;
+      }
+
+      locals.MESSAGE_HANDLERS.forEach( e => {
+        this.socket.on(e.msg, this[e.handler].bind(this)) 
+      });
+
+      this.socket.emit(globals.MSG_INIT, {
+        views: this.workspace.reportViews(),
+        wsObjects: this.workspace.reportWSObjects(),
+        settings: this.workspace.settings,
+        id: this.viewspace.id,
+      });
     }
 
     /*
-     * XXX: This is a nifty way of making it easy to add and remove
-     *      event strings to this list, but is it really that good of an
-     *      idea? Is it readable?
-     *
-     *      Maybe this needs to be extracted into its own class!
+     * XXX: This might be a place where socket.io 'rooms' could
+     *    come in handy. Look into it...
      */
-    [   
-      {msg: globals.MSG_DISCONNECT, handler: 'disconnect'},
-      {msg: globals.MSG_CLICK,      handler: 'click'},
-      {msg: globals.MSG_DRAG,       handler: 'drag'},
-      {msg: globals.MSG_SCALE,      handler: 'scale'},
-      {msg: globals.MSG_UPDATE,     handler: 'update'},
-      {msg: globals.MSG_LAYOUT,     handler: 'layout'},
-    ].forEach( e => this.socket.on(e.msg, this[e.handler].bind(this)) );
+    broadcast(event, data) {
+      this.socket.emit(event, data);
+      this.socket.broadcast.emit(event, data);
+    }
 
-    this.socket.emit(globals.MSG_INIT, {
-      views: this.workspace.reportViews(),
-      wsObjects: this.workspace.reportWSObjects(),
-      settings: this.workspace.settings,
-      id: this.viewspace.id,
-    });
-  }
-
-  /*
-   * XXX: This might be a place where socket.io 'rooms' could
-   *    come in handy. Look into it...
-   */
-  broadcast(event, data) {
-    this.socket.emit(event, data);
-    this.socket.broadcast.emit(event, data);
-  }
-
-  broadcastViewReport() {
-    this.broadcast(
-      globals.MSG_UD_VIEW,
-      this.viewspace.report()
-    );
-  }
-
-  broadcastObjectReport() {
-    this.broadcast(
-      globals.MSG_UD_OBJS,
-      this.workspace.reportWSObjects()
-    );
-  }
-
-  /*
-   * XXX: Shouldn't we disconnect the socket???
-   */
-  disconnect() {
-    if (this.workspace.removeView(this.viewspace.id)) {
-      console.log(
-        `view ${this.viewspace.id} ` +
-        `disconnected from workspace ${this.workspace.id}`
+    broadcastViewReport() {
+      this.broadcast(
+        globals.MSG_UD_VIEW,
+        this.viewspace.report()
       );
-      this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
-      this.socket.disconnect(true);
-    } else {
-      throw 'Failed to disconnect.'
     }
-  }
 
-  /*
-   * XXX: handleClick and handleDrag can probably be collapsed down to more
-   *    or less the same function. The only difference is the name of
-   *    the handler and the arguments, but I think we can just pass the
-   *    arguments through with some JavaScript operator or function...
-   *
-   *    That said, we should probably figure out why handleDrag is checking
-   *    the viewspace id but handleClick is not...
-   */
-  click(x, y) {
-    this.workspace.click(this.viewspace, x, y);
-    this.broadcastViewReport();
-    this.broadcastObjectReport();
-  }
-
-  drag(viewspace, x, y, dx, dy) {
-    if (viewspace.id !== this.viewspace.id) return;
-    this.workspace.drag(viewspace, x, y, dx, dy);
-    this.broadcastObjectReport()
-    this.broadcastViewReport();
-  }
-
-  scale(viewspace, newScale) {
-    // Failsafe checks.
-    if (viewspace.id !== this.viewspace.id) return;
-    this.workspace.scale(viewspace, newScale);
-    this.broadcastViewReport()
-  }
-
-  layout() {
-    if (!this.workspace.layout(this.viewspace)) {
-      this.socket.send(globals.MSG_DC_VIEW);
+    broadcastObjectReport() {
+      this.broadcast(
+        globals.MSG_UD_OBJS,
+        this.workspace.reportWSObjects()
+      );
     }
-  }
 
-  /*
-   * XXX: What exactly does reportView do? The name is ambiguous, so once I
-   *    figure this out I will definitely change it.
-   */
-  update(data) {
-    if (this.viewspace.id === data.id) {
-      this.viewspace.assign(data);
+    /*
+     * XXX: Shouldn't we disconnect the socket???
+     */
+    disconnect() {
+      if (this.workspace.removeView(this.viewspace.id)) {
+        console.log(
+          `view ${this.viewspace.id} ` +
+          `disconnected from workspace ${this.workspace.id}`
+        );
+        this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
+        this.socket.disconnect(true);
+      } else {
+        throw 'Failed to disconnect.'
+      }
+    }
+
+    /*
+     * XXX: handleClick and handleDrag can probably be collapsed down to more
+     *    or less the same function. The only difference is the name of
+     *    the handler and the arguments, but I think we can just pass the
+     *    arguments through with some JavaScript operator or function...
+     *
+     *    That said, we should probably figure out why handleDrag is checking
+     *    the viewspace id but handleClick is not...
+     */
+    click(x, y) {
+      this.workspace.click(this.viewspace, x, y);
+      this.broadcastObjectReport();
+      this.broadcastViewReport();
+    }
+
+    drag(viewspace, x, y, dx, dy) {
+      if (viewspace.id !== this.viewspace.id) return;
+      this.workspace.drag(viewspace, x, y, dx, dy);
+      this.broadcastObjectReport()
+      this.broadcastViewReport();
+    }
+
+    scale(viewspace, newScale) {
+      // Failsafe checks.
+      if (viewspace.id !== this.viewspace.id) return;
+      this.workspace.scale(viewspace, newScale);
       this.broadcastViewReport()
     }
+
+    layout() {
+      if (!this.workspace.layout(this.viewspace)) {
+        this.socket.send(globals.MSG_DC_VIEW);
+      }
+    }
+
+    /*
+     * XXX: What exactly does reportView do? The name is ambiguous, so once I
+     *    figure this out I will definitely change it.
+     */
+    update(data) {
+      if (this.viewspace.id === data.id) {
+        this.viewspace.assign(data);
+        this.broadcastViewReport()
+      }
+    }
   }
-}
+
+  return Connection;
+})();
 
 const ServerWSObject = (function defineServerWSObject() {
   const locals = Object.freeze({

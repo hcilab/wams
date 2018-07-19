@@ -591,6 +591,7 @@ describe('ServerViewSpace', () => {
   });
 });
 
+/*
 describe('WorkSpace', () => {
   const DEFAULTS = Object.freeze({
     debug: false,
@@ -680,6 +681,7 @@ describe('WorkSpace', () => {
     });
   });
 });
+*/
 
 describe('ListenerFactory Object', () => {
   const ws = new WorkSpace();
