@@ -118,7 +118,7 @@ const ListenerFactory = (function defineListenerFactory() {
       click(listener, workspace) {
         return function handleClick(viewspace, x, y) {
           const target = workspace.findObjectByCoordinates(x,y) || workspace;
-          listener(target, viewspace, x, y);
+          listener(viewspace, target, x, y);
         };
       },
 
@@ -132,14 +132,14 @@ const ListenerFactory = (function defineListenerFactory() {
            *    background is dragged.
            */
           const target = workspace.findObjectByCoordinates(x,y) || workspace;
-          listener(target, viewspace, x, y, dx, dy);
+          listener(viewspace, target, x, y, dx, dy);
         };
       },
 
       layout(listener, workspace) {
         return function handleLayout(viewspace) {
           if (workspace.hasView(viewspace)) { 
-            listener(workspace, viewspace);
+            listener(viewspace);
             return true;
           }
           return false;
@@ -158,7 +158,8 @@ const ListenerFactory = (function defineListenerFactory() {
     build(type, listener, workspace) {
       if (typeof listener !== 'function') {
         throw 'Attached listener must be a function';
-      } else if (!workspace instanceof WorkSpace) {
+      } 
+      if (!(workspace instanceof WorkSpace)) {
         throw 'Cannot listen with an invalid workspace';
       }
       return locals.BLUEPRINTS[type](listener, workspace);
@@ -222,8 +223,8 @@ const WorkSpace = (function defineWorkSpace() {
       return this.wsObjects.find( o => o.containsPoint(x,y) );
     }
 
-    handle(message) {
-
+    handle(message, ...args) {
+      this.handlers[message](...args);
     }
 
     hasView(view) {
@@ -325,8 +326,7 @@ const WamsServer = (function defineWamsServer() {
         const c = new Connection(socket, this.workspace);
         if (c) {
           this.connections.push(c);
-          console.log(
-            `View ${c.viewspace.id} ` +
+          console.log(`View ${c.viewspace.id} ` +
             `connected to workspace ${this.workspace.id}`
           );
         }
@@ -343,12 +343,15 @@ const WamsServer = (function defineWamsServer() {
 
 const Connection = (function defineConnection() {
   const locals = Object.freeze({
-    MESSAGE_HANDLERS: Object.freeze([
+    LOCAL_HANDLERS: Object.freeze([
         {msg: globals.MSG_DISCONNECT, handler: 'disconnect'},
+        {msg: globals.MSG_UPDATE,     handler: 'update'},
+    ]),
+
+    WORKSPACE_HANDLERS: Object.freeze([
         {msg: globals.MSG_CLICK,      handler: 'click'},
         {msg: globals.MSG_DRAG,       handler: 'drag'},
         {msg: globals.MSG_SCALE,      handler: 'scale'},
-        {msg: globals.MSG_UPDATE,     handler: 'update'},
         {msg: globals.MSG_LAYOUT,     handler: 'layout'},
     ]),
   });
@@ -363,8 +366,14 @@ const Connection = (function defineConnection() {
         return undefined;
       }
 
-      locals.MESSAGE_HANDLERS.forEach( e => {
-        this.socket.on(e.msg, this[e.handler].bind(this)) 
+      locals.LOCAL_HANDLERS.forEach( e => {
+        this.socket.on(e.msg, this[e.handler].bind(this));
+      });
+
+      locals.WORKSPACE_HANDLERS.forEach( e => {
+        this.socket.on(e.msg, (...args) => {
+          this.passMessageToWorkspace(e.handler, ...args);
+        }); 
       });
 
       this.socket.emit(globals.MSG_INIT, {
@@ -398,61 +407,27 @@ const Connection = (function defineConnection() {
       );
     }
 
-    /*
-     * XXX: Shouldn't we disconnect the socket???
-     */
-    disconnect() {
-      if (this.workspace.removeView(this.viewspace.id)) {
-        console.log(
-          `view ${this.viewspace.id} ` +
-          `disconnected from workspace ${this.workspace.id}`
-        );
-        this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
-        this.socket.disconnect(true);
-      } else {
-        throw 'Failed to disconnect.'
-      }
-    }
-
-    /*
-     * XXX: handleClick and handleDrag can probably be collapsed down to more
-     *    or less the same function. The only difference is the name of
-     *    the handler and the arguments, but I think we can just pass the
-     *    arguments through with some JavaScript operator or function...
-     *
-     *    That said, we should probably figure out why handleDrag is checking
-     *    the viewspace id but handleClick is not...
-     */
-    click(x, y) {
-      this.workspace.click(this.viewspace, x, y);
+    passMessageToWorkspace(message, ...args) {
+      this.workspace.handle(message, this.viewspace, ...args);
       this.broadcastObjectReport();
       this.broadcastViewReport();
     }
 
-    drag(viewspace, x, y, dx, dy) {
-      if (viewspace.id !== this.viewspace.id) return;
-      this.workspace.drag(viewspace, x, y, dx, dy);
-      this.broadcastObjectReport()
-      this.broadcastViewReport();
-    }
-
-    scale(viewspace, newScale) {
-      // Failsafe checks.
-      if (viewspace.id !== this.viewspace.id) return;
-      this.workspace.scale(viewspace, newScale);
-      this.broadcastViewReport()
-    }
-
-    layout() {
-      if (!this.workspace.layout(this.viewspace)) {
-        this.socket.send(globals.MSG_DC_VIEW);
+    /*
+     * XXX: Shouldn't we disconnect the socket???
+     */
+    disconnect() {
+      if (this.workspace.removeView(this.viewspace)) {
+        this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
+        this.socket.disconnect(true);
+        console.log(`view ${this.viewspace.id} ` +
+          `disconnected from workspace ${this.workspace.id}`
+        );
+      } else {
+        console.error('Failed to disconnect:', this);
       }
     }
 
-    /*
-     * XXX: What exactly does reportView do? The name is ambiguous, so once I
-     *    figure this out I will definitely change it.
-     */
     update(data) {
       if (this.viewspace.id === data.id) {
         this.viewspace.assign(data);
