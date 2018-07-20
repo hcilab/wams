@@ -24,7 +24,7 @@ const WamsShared = (function defineSharedWamsModule() {
     MSG_LAYOUT:     'wams-layout',
     MSG_RM_VIEW:    'wams-remove-view',
     MSG_SCALE:      'wams-scale',
-    MSG_UD_OBJS:    'wams-update-objects',
+    MSG_UD_ITEMS:    'wams-update-items',
     MSG_UD_VIEW:    'wams-update-view',
     MSG_UPDATE:     'wams-update',
   };

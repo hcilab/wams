@@ -24,7 +24,7 @@ const globals = (function defineGlobals() {
     ROTATE_270: Math.PI * 1.5,
     SOCKET: io(),
     VS_ID_STAMPER: new WamsShared.IDStamper(),
-    OBJ_ID_STAMPER: new WamsShared.IDStamper(),
+    ITEM_ID_STAMPER: new WamsShared.IDStamper(),
   };
 
   const variables = {
@@ -108,8 +108,8 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *      generate <img> elements by calling new Image()! Pretty cool
      *      actually! I'll probably make use of that!
      */
-    addItem(obj) {
-      this.items.push(new ClientItem(obj));
+    addItem(item) {
+      this.items.push(new ClientItem(item));
     }
 
     /*
@@ -387,7 +387,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     }
 
     /*
-     * XXX: Update? If we're just pushing every object 
+     * XXX: Update? If we're just pushing every item 
      *    from one array into the other (after it has been emptied), 
      *    maybe we should just copy the array over?
      *
@@ -397,9 +397,9 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *    efficient than this mechanism of trashing, copying, and 
      *    regenerating.
      */
-    onUpdateItems(objects) {
+    onUpdateItems(items) {
       this.items.splice(0, this.items.length);
-      objects.forEach( o => this.addItem(o) );
+      items.forEach( o => this.addItem(o) );
     }
 
     /*
@@ -434,7 +434,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
       globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateView.bind(this));
       globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveView.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_OBJS, this.onUpdateItems.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_ITEMS, this.onUpdateItems.bind(this));
       globals.SOCKET.on('message', (message) => {
         if (message === globals.MSG_DC_VIEW) {
           document.body.innerHTML = '<H1>' +
@@ -484,7 +484,7 @@ class ClientItem extends WamsShared.Item {
   constructor(data) {
     super(data);
     if (data.hasOwnProperty('id')) {
-      globals.OBJ_ID_STAMPER.stamp(this, data.id);
+      globals.ITEM_ID_STAMPER.stamp(this, data.id);
     }
     this.img = null;
     if (this.imgsrc) {

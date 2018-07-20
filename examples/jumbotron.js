@@ -30,7 +30,7 @@ workspace.addItem(new WAMS.Item(
 
 // Takes in the target that was dragged on and who caused the drag event
 const handleDrag = function(target, client, x, y, dx, dy) {
-  // 'view/background' is the type if your drag isn't on any objects
+  // 'view/background' is the type if your drag isn't on any items
   if (target.type === 'view/background') { 
     target.moveBy(dx, dy);
   } else if (target.type === 'mona') { 

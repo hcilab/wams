@@ -77,7 +77,7 @@ const ServerItem = (function defineServerItem() {
 
   class ServerItem extends WamsShared.Item {
     /*
-     * XXX: What is the object supposed to be if the draw strings are not 
+     * XXX: What is the item supposed to be if the draw strings are not 
      *      defined?
      *
      * IDEA: Instead of using strings of code and running 'eval()' on them to
@@ -445,8 +445,8 @@ const WorkSpace = (function defineWorkSpace() {
       return locals.removeByItemID(this.views, view);
     }
 
-    removeItem(obj) {
-      return locals.removeByItemID(this.items, obj);
+    removeItem(item) {
+      return locals.removeByItemID(this.items, item);
     }
 
     reportViews() {
@@ -648,7 +648,7 @@ const Connection = (function defineConnection() {
 
     broadcastItemReport() {
       this.broadcast(
-        globals.MSG_UD_OBJS,
+        globals.MSG_UD_ITEMS,
         this.workspace.reportItems()
       );
     }

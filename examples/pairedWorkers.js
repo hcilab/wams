@@ -1,6 +1,6 @@
 /*
  * This is the simplest example, simply showing how an arbitrary number of
- *  users can interact with a shared set of objects.
+ *  users can interact with a shared set of items.
  */
 
 'use strict';

@@ -49,7 +49,7 @@ describe('ServerItem', () => {
       });
     });
 
-    test('Creates correct type of object', () => {
+    test('Creates correct type of item', () => {
       expect(new ServerItem()).toBeInstanceOf(ServerItem);
     });
 
@@ -69,7 +69,7 @@ describe('ServerItem', () => {
       expect(item.imgsrc).toBe('');
     });
 
-    test('Stamps the object with an immutable ID', () => {
+    test('Stamps the item with an immutable ID', () => {
       const item = new ServerItem();
       expect(item).toHaveImmutableProperty('id');
       expect(item.id).toBeGreaterThanOrEqual(0);
@@ -138,7 +138,7 @@ describe('ServerItem', () => {
       expect(item.y).toBe(0);
     });
 
-    test('Moves the object to the given coordinates.', () => {
+    test('Moves the item to the given coordinates.', () => {
       expect(() => item.moveTo(1000,9999)).not.toThrow();
       expect(item.x).toBe(1000);
       expect(item.y).toBe(9999);
@@ -169,7 +169,7 @@ describe('ServerItem', () => {
       expect(item.y).toBe(0);
     });
 
-    test('Moves the object by the given amount', () => {
+    test('Moves the item by the given amount', () => {
       expect(() => item.moveBy(10,20)).not.toThrow();
       expect(item.x).toBe(10);
       expect(item.y).toBe(20);
@@ -224,7 +224,7 @@ describe('ServerViewSpace', () => {
       expect(() => new ServerViewSpace({x:100, y:100})).not.toThrow();
     });
 
-    test('Creates correct object type if bounds provided.', () => {
+    test('Creates correct item type if bounds provided.', () => {
       expect(
         new ServerViewSpace({x:100, y:100})
       ).toBeInstanceOf(ServerViewSpace);
@@ -273,7 +273,7 @@ describe('ServerViewSpace', () => {
       expect(vs.effectiveHeight).toBe(50);
     });
 
-    test('Stamps an immutable ID onto the object', () => {
+    test('Stamps an immutable ID onto the item', () => {
       const vs = new ServerViewSpace({x:150, y:150});
       expect(vs).toHaveImmutableProperty('id');
       expect(vs.id).toBeGreaterThanOrEqual(0);
@@ -820,7 +820,7 @@ describe('WorkSpace', () => {
     });
   });
 
-  describe('removeItem(obj)', () => {
+  describe('removeItem(item)', () => {
   });
 
 });

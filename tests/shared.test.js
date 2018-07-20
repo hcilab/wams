@@ -382,12 +382,12 @@ describe('Item', () => {
       expect(data.imgsrc).toBeNull();
     });
 
-    test('does not report an ID if none exists on the object', () => {
+    test('does not report an ID if none exists on the item', () => {
       const data = vs.report();
       expect(data).not.toHaveProperty('id');
     });
 
-    test('reports an immutable ID if one exists on the object', () => {
+    test('reports an immutable ID if one exists on the item', () => {
       vs.id = 1;
       const data = vs.report();
       expect(data).toHaveProperty('id');
