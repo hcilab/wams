@@ -10,12 +10,6 @@
 'use strict';
 
 /*
- * XXX: General TODO list for myself, as part of code cleanup, bringing this
- *    code up to date:
- *
- */
-
-/*
  * I'm using a frozen 'globals' object with all global constants and variables 
  * defined as properties on it, to make global references explicit. I've been 
  * toying with this design pattern in my other JavaScript code and I think I 
