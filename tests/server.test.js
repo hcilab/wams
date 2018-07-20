@@ -1014,6 +1014,30 @@ describe('WorkSpace', () => {
     });
   });
 
+  describe('isFull()', () => {
+    let ws, view;
+    beforeAll(() => {
+      ws = new WorkSpace({clientLimit: 2});
+    });
+
+    test('Returns false when clientLimit has not been reached', () => {
+      expect(ws.isFull()).toBe(false);
+      view = ws.spawnView();
+      expect(ws.isFull()).toBe(false);
+    });
+
+    test('Returns true once clientLimit has been reached', () => {
+      ws.spawnView();
+      expect(ws.isFull()).toBe(true);
+      expect(ws.spawnView()).toBeFalsy();
+    });
+
+    test('Returns false after a view is removed', () => {
+      ws.removeView(view);
+      expect(ws.isFull()).toBe(false);
+    });
+  });
+
   describe('on(event, listener)', () => {
     let ws;
     let vs;
