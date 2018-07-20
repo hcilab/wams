@@ -14,6 +14,7 @@ const ServerItem = wams.ServerItem;
 const ServerViewSpace = wams.ServerViewSpace;
 const RequestHandler = wams.RequestHandler;
 const ListenerFactory = wams.ListenerFactory;
+const WamsServer = require('../src/shared.js');
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -625,12 +626,13 @@ describe('ListenerFactory Object', () => {
         ).toBeInstanceOf(Function);
       });
 
-      test(`Calls the listener`, () => {
+      test('Calls the listener', () => {
         const handler = jest.fn();
         const listener = ListenerFactory.build(s, handler, ws);
         const vs = ws.spawnView();
         expect(() => listener(vs,1,2,3,4)).not.toThrow();
         expect(handler).toHaveBeenCalledTimes(1);
+        expect(handler.mock.calls[0][0]).toBe(vs);
       });
     });
   });
@@ -1010,14 +1012,136 @@ describe('WorkSpace', () => {
     test('Throws exception if provided view is not a ServerViewSpace', () => {
       expect(() => ws.removeView({id:1})).toThrow();
     });
-
-
   });
 
-  describe('Handlers', () => {
-    describe(, () => {
+  describe('on(event, listener)', () => {
+    let ws;
+    let vs;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      vs = ws.spawnView();
     });
 
+    test('Throws if invalid event supplied', () => {
+      expect(() => ws.on()).toThrow();
+      expect(() => ws.on('rag')).toThrow();
+    });
+
+    describe.each([['click'],['drag'],['layout'],['scale']])('%s', (s) => {
+      test('Handler starts as a NOP', () => {
+        expect(ws.handlers[s]).toBe(WamsServer.NOP);
+      });
+
+      test('Throws if invalid listener supplied', () => {
+        expect(() => ws.on(s, 'a')).toThrow();
+      });
+
+      test('Attaches a handler in the appropriate place', () => {
+        const fn = jest.fn();
+        ws.on(s, fn);
+        expect(ws.handlers[s]).not.toBe(WamsServer.NOP);
+        expect(ws.handlers[s]).toBeInstanceOf(Function);
+      });
+
+      test('Attached handler will call the listener when invoked', () => {
+        const fn = jest.fn();
+        ws.on(s, fn);
+        ws.handlers[s](vs);
+        expect(fn).toHaveBeenCalledTimes(1);
+        expect(fn.mock.calls[0][0]).toBe(vs);
+      });
+    });
+  });
+
+  describe('handle(message, ...args)', () => {
+    let ws;
+    let vs;
+    let x, y, dx, dy, scale;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      vs = ws.spawnView();
+      x = 42;
+      y = 78;
+      dx = 5.2;
+      dy = -8.79;
+      scale = 0.883;
+    });
+
+    test('Throws if invalid message type provided', () => {
+      expect(() => ws.handle('rag')).toThrow();
+    });
+
+    describe('click', () => {
+      let fn;
+      beforeAll(() => {
+        fn = jest.fn();
+        ws.on('click', fn);
+      });
+
+      test('Calls the appropriate listener', () => {
+        expect(() => ws.handle('click', vs, x, y)).not.toThrow();
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+
+      test('Calls the listener with the expected arguments', () => {
+        expect(() => ws.handle('click', vs, x, y)).not.toThrow();
+        expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y);
+      });
+    });
+
+    describe('drag', () => {
+      let fn;
+      beforeAll(() => {
+        fn = jest.fn();
+        ws.on('drag', fn);
+      });
+
+      test('Calls the appropriate listener', () => {
+        expect(() => ws.handle('drag', vs, x, y, dx, dy)).not.toThrow();
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+
+      test('Calls the listener with the expected arguments', () => {
+        expect(() => ws.handle('drag', vs, x, y, dx, dy)).not.toThrow();
+        expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y, dx, dy);
+      });
+    });
+
+    describe('layout', () => {
+      let fn;
+      beforeAll(() => {
+        fn = jest.fn();
+        ws.on('layout', fn);
+      });
+
+      test('Calls the appropriate listener', () => {
+        expect(() => ws.handle('layout', vs)).not.toThrow();
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+
+      test('Calls the listener with the expected arguments', () => {
+        expect(() => ws.handle('layout', vs)).not.toThrow();
+        expect(fn).toHaveBeenLastCalledWith(vs);
+      });
+    });
+
+    describe('scale', () => {
+      let fn;
+      beforeAll(() => {
+        fn = jest.fn();
+        ws.on('scale', fn);
+      });
+
+      test('Calls the appropriate listener', () => {
+        expect(() => ws.handle('scale', vs, scale)).not.toThrow();
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+
+      test('Calls the listener with the expected arguments', () => {
+        expect(() => ws.handle('scale', vs, scale)).not.toThrow();
+        expect(fn).toHaveBeenLastCalledWith(vs, scale);
+      });
+    });
   });
 
 });
