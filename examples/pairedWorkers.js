@@ -7,62 +7,54 @@
 
 const WAMS = require('../src/server');
 
-const workspace = new WAMS.WorkSpace(
-  9003,
-  {
-    debug: false,
-    BGcolor: '#aaaaaa',
-    bounds: {
-      x: 1000,
-      y: 1000,
-    },
-    clientLimit: 10,
-  }
-);
+const workspace = new WAMS.WorkSpace({
+  bounds: {
+    x: 1000,
+    y: 1000,
+  },
+  clientLimit: 10,
+  color: '#aaaaaa',
+});
 
-workspace.addItem(new WAMS.Item(
-  200,
-  200,
-  200,
-  200,
-  'Draggable',
-  {
-    imgsrc: 'monaLisa.png'
-  }
-));
+workspace.spawnItem({
+  x: 200,
+  y: 200,
+  width: 200,
+  height: 200,
+  type: 'Draggable',
+  imgsrc: 'monaLisa.png',
+});
 
-workspace.addItem(new WAMS.Item(
-  400,
-  400,
-  200,
-  200,
-  'Draggable',
-  {
-    imgsrc: 'scream.png'
-  }
-));
+workspace.spawnItem({
+  x: 400,
+  y: 400,
+  width: 200,
+  height: 200,
+  type: 'Draggable',
+  imgsrc: 'scream.png'
+});
 
-const handleDrag = function(target, client, x, y, dx, dy) {
+function handleDrag(viewspace, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
     target.moveBy(-dx, -dy);
   }
 }
 
-const handleLayout = function(workspace, client) {
-  const views = workspace.views;
-  const num_views = views.length;
+function handleLayout(viewspace) {
+  const viewers = workspace.viewers;
+  const num_viewers = viewers.length;
 
-  if (views.length > 0) {
-    const prev_view = views[num_views - 1];
-    client.moveTo(
+  if (viewers.length > 0) {
+    viewspace.moveTo(
       prev_view.right() - 30,
       prev_view.top()
     ); 
   }
 }
 
-workspace.attachDragHandler(handleDrag);
-workspace.attachLayoutHandler(handleLayout);
+workspace.on('drag', handleDrag);
+workspace.on('layout', handleLayout);
 
-workspace.listen();
+new WAMS.WamsServer(workspace).listen(9003);
+
 
