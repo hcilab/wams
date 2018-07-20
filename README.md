@@ -36,17 +36,17 @@ This readme will get updated as I work with the latest developments. For now, I'
     + **type:** 'view/background'
     + **scale:** 1
     + **rotation:** 0
-* #### get bottom()
-* #### get left()
-* #### get right()
-* #### get top()
-* #### get center()
-* #### canBeScaledTo(width, height)
-* #### canMoveToX(x)
-* #### canMoveToY(y)
-* #### moveTo(x,y)
-* #### moveBy(dx,dy)
-* #### rescale(scale)
+* #### .bottom
+* #### .left
+* #### .right
+* #### .top
+* #### .center
+* #### .canBeScaledTo(width, height)
+* #### .canMoveToX(x)
+* #### .canMoveToY(y)
+* #### .moveTo(x,y)
+* #### .moveBy(dx,dy)
+* #### .rescale(scale)
     
 ## ListenerFactory
 
