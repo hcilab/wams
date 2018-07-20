@@ -56,6 +56,10 @@ const globals = (function defineGlobals() {
   return Object.freeze(rv);
 })();
 
+/*
+ * The ServerItem provides operations for the server to locate and move items
+ * around.
+ */
 const ServerItem = (function defineServerItem() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -142,6 +146,10 @@ const ServerItem = (function defineServerItem() {
   return ServerItem;
 })();
 
+/*
+ * The ServerViewSpace provides operations for the server to locate, move,
+ * and rescale views.
+ */
 const ServerViewSpace = (function defineServerViewSpace() {
   const locals = Object.freeze({
     DEFAULTS: {
@@ -358,6 +366,10 @@ const ListenerFactory = (function defineListenerFactory() {
   return ListenerFactory;
 })();
 
+/*
+ * The WorkSpace keeps track of views and items, and can handle events on those
+ * items and views which allow them to be interacted with.
+ */
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
