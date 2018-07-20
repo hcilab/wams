@@ -446,6 +446,7 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeItem(item) {
+      if (!(item instanceof ServerItem)) throw 'Invalid ServerItem received';
       return locals.removeByItemID(this.items, item);
     }
 

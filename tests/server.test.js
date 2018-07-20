@@ -821,6 +821,35 @@ describe('WorkSpace', () => {
   });
 
   describe('removeItem(item)', () => {
+    let ws;
+    let item;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnItem({x:0,y:0,width:100,height:100});
+      ws.spawnItem({x:20,y:40,width:100,height:100});
+      ws.spawnItem({x:220,y:240,width:50,height:50});
+      item = ws.findItemByCoordinates(101,101);
+    });
+
+    test('Removes an item if it is found', () => {
+      expect(ws.removeItem(item)).toBe(true);
+      expect(ws.items).not.toContain(item);
+    });
+  
+    test('Does not remove anything if item not found', () => {
+      const is = Array.from(ws.items);
+      expect(ws.removeItem(item)).toBe(false);
+      expect(ws.items).toMatchObject(is);
+    });
+
+    test('Throws exception if no item provided', () => {
+      expect(() => ws.removeItem()).toThrow();
+    });
+
+    test('Throws exception if provided item is not a ServerItem', () => {
+      expect(() => ws.removeItem({id:0})).toThrow();
+      expect(() => ws.removeItem(ws.reportItems()[0])).toThrow();
+    });
   });
 
 });
