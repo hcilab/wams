@@ -719,8 +719,7 @@ describe('WorkSpace', () => {
     });
 
     test('Uses default Item values if none provided', () => {
-      const i = ws.spawnItem();
-      expect(i).toMatchObject(DEFAULTS);
+      expect(ws.spawnItem()).toMatchObject(DEFAULTS);
     });
 
     test('Uses user-defined Item values, if provided', () => {
@@ -851,6 +850,57 @@ describe('WorkSpace', () => {
       expect(() => ws.removeItem(ws.reportItems()[0])).toThrow();
     });
   });
+
+  describe('spawnView(values)', () => {
+    let DEFAULTS;
+    let ws;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      DEFAULTS = {
+        x: 0,
+        y: 0,
+        width: 1600,
+        height: 900,
+        type: 'view/background',
+        effectiveWidth: 1600,
+        effectiveHeight: 900,
+        scale: 1,
+        rotation: 0,
+      };
+    });
+
+    test('Returns a ServerViewSpace', () => {
+      expect(ws.spawnView()).toBeInstanceOf(ServerViewSpace);
+    });
+
+    test('Uses default ViewSpace values if none provided', () => {
+      expect(ws.spawnView()).toMatchObject(DEFAULTS);
+    });
+
+    test('Uses user-defined ViewSpace values, if provided', () => {
+      const vs = ws.spawnView({
+        x: 42,
+        y: 71,
+        scale: 3.5,
+      });
+      expect(vs.x).toBe(42);
+      expect(vs.y).toBe(71);
+      expect(vs.scale).toBe(3.5);
+      expect(vs.width).toBe(DEFAULTS.width);
+      expect(vs.height).toBe(DEFAULTS.height);
+    });
+
+    test('Keeps track of ViewSpace', () => {
+      const vs = ws.spawnView({
+        x:7,
+        y:9,
+        width: 42,
+        height: 870,
+      });
+      expect(ws.views).toContain(vs);
+    });
+  });
+
 
 });
 
