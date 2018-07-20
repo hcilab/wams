@@ -20,7 +20,7 @@ const workspace = new WAMS.WorkSpace(
   }
 );
 
-workspace.addWSObject(new WAMS.WSObject(
+workspace.addItem(new WAMS.Item(
   200,
   200,
   200,
@@ -31,7 +31,7 @@ workspace.addWSObject(new WAMS.WSObject(
   }
 ));
 
-workspace.addWSObject(new WAMS.WSObject(
+workspace.addItem(new WAMS.Item(
   400,
   400,
   200,

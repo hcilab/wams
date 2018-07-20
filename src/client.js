@@ -99,7 +99,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       super(WamsShared.initialize(defaults, data));
       this.canvas = document.querySelector('#main');
       this.context = this.canvas.getContext('2d');
-      this.wsObjects = [];
+      this.items = [];
       this.subViews = [];
       this.startScale = null;
       this.transforming = false;
@@ -115,7 +115,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *      actually! I'll probably make use of that!
      */
     addObject(obj) {
-      this.wsObjects.push(new ClientWSObject(obj));
+      this.items.push(new ClientItem(obj));
     }
 
     /*
@@ -155,10 +155,10 @@ const ClientViewSpace = (function defineClientViewSpace() {
       this.setOrientation();
 
       /*
-       * XXX: Each WSObject should have a draw() function defined on it, 
+       * XXX: Each Item should have a draw() function defined on it, 
        *    which can then be called from inside a simple forEach().
        */
-      this.wsObjects.forEach( o => o.draw(this.context) );
+      this.items.forEach( o => o.draw(this.context) );
 
       /*
        * XXX: What exactly is going on here? Is this where we draw the 
@@ -326,7 +326,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.settings = initData.settings;
       globals.VS_ID_STAMPER.stamp(this, initData.id);
       initData.views.forEach( v => this.addView(v) );
-      initData.wsObjects.forEach( o => this.addObject(o) );
+      initData.items.forEach( o => this.addObject(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
       globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
     }
@@ -404,7 +404,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *    regenerating.
      */
     onUpdateObjects(objects) {
-      this.wsObjects.splice(0, this.wsObjects.length);
+      this.items.splice(0, this.items.length);
       objects.forEach( o => this.addObject(o) );
     }
 
@@ -486,7 +486,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
   return ClientViewSpace;
 })();
 
-class ClientWSObject extends WamsShared.WSObject {
+class ClientItem extends WamsShared.Item {
   constructor(data) {
     super(data);
     if (data.hasOwnProperty('id')) {

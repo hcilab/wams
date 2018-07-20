@@ -17,7 +17,7 @@ const workspace = new WAMS.WorkSpace(
     clientLimit: 4,
   }
 );
-workspace.addWSObject(new WAMS.WSObject(
+workspace.addItem(new WAMS.Item(
   0,
   0,
   workspace.width,

@@ -15,7 +15,7 @@ const main_ws = new WAMS.WorkSpace(
     clientLimit: 5, // 4 players plus one for the table
   }
 );
-main_ws.addWSObject(new WAMS.WSObject(
+main_ws.addItem(new WAMS.Item(
   main_ws.getCenter().x, 
   main_ws.getCenter().y, 
   200, 
@@ -49,7 +49,7 @@ const draw = `function drawFunc() {
   );
 };`;
 
-main_ws.addWSObject(new WAMS.WSObject(
+main_ws.addItem(new WAMS.Item(
   main_ws.getCenter().x, 
   main_ws.getCenter().y, 
   500, 

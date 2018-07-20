@@ -15,7 +15,7 @@ const workspace = new WAMS.WorkSpace(
   }
 );
 
-workspace.addWSObject(new WAMS.WSObject(
+workspace.addItem(new WAMS.Item(
   32, 
   32, 
   128, 
@@ -46,7 +46,7 @@ const handleClick = (function makeClickHandler(workspace) {
   ];
 
   function square(x, y, index) {
-    return new WAMS.WSObject(
+    return new WAMS.Item(
       x - 64, 
       y - 64, 
       128, 
@@ -60,9 +60,9 @@ const handleClick = (function makeClickHandler(workspace) {
 
   function handleClick(target, view, x, y) {
     if (target.type === 'color') {
-      workspace.removeWSObject(target);
+      workspace.removeItem(target);
     } else {
-      workspace.addWSObject(square(x, y, view.id % 6));
+      workspace.addItem(square(x, y, view.id % 6));
     }
   }
 

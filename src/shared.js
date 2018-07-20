@@ -196,10 +196,10 @@ const WamsShared = (function defineSharedWamsModule() {
   ]);
 
   /*
-   * This WSObject class provides a common interface between the client and 
-   * the server by which the WSObjects can interact safely.
+   * This Item class provides a common interface between the client and 
+   * the server by which the Items can interact safely.
    */
-  const WSObject = reporterClassFactory([
+  const Item = reporterClassFactory([
     'x',
     'y',
     'width',
@@ -220,7 +220,7 @@ const WamsShared = (function defineSharedWamsModule() {
     makeOwnPropertyImmutable,
     NOP,
     ViewSpace,
-    WSObject,
+    Item,
   });
 })();
 

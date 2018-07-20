@@ -56,7 +56,7 @@ const globals = (function defineGlobals() {
   return Object.freeze(rv);
 })();
 
-const ServerWSObject = (function defineServerWSObject() {
+const ServerItem = (function defineServerItem() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
       x: 0,
@@ -71,7 +71,7 @@ const ServerWSObject = (function defineServerWSObject() {
     STAMPER: new WamsShared.IDStamper(),
   });
 
-  class ServerWSObject extends WamsShared.WSObject {
+  class ServerItem extends WamsShared.Item {
     /*
      * XXX: What is the object supposed to be if the draw strings are not 
      *      defined?
@@ -139,7 +139,7 @@ const ServerWSObject = (function defineServerWSObject() {
     }
   }
 
-  return ServerWSObject;
+  return ServerItem;
 })();
 
 const ServerViewSpace = (function defineServerViewSpace() {
@@ -361,11 +361,12 @@ const ListenerFactory = (function defineListenerFactory() {
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
-      color: '#aaaaaa',
       bounds: {
         x: 10000,
         y: 10000,
       },
+      clientLimit: 10,
+      color: '#aaaaaa',
     }),
     STAMPER: new WamsShared.IDStamper(),
 
@@ -387,7 +388,7 @@ const WorkSpace = (function defineWorkSpace() {
       // Things to track.
       // this.subWS = [];
       this.views = [];
-      this.wsObjects = [];
+      this.items = [];
 
       // Attach NOPs for the event listeners, so they are callable.
       this.handlers = {};
@@ -408,7 +409,7 @@ const WorkSpace = (function defineWorkSpace() {
     // }
 
     findObjectByCoordinates(x,y) {
-      return this.wsObjects.find( o => o.containsPoint(x,y) );
+      return this.items.find( o => o.containsPoint(x,y) );
     }
 
     handle(message, ...args) {
@@ -432,16 +433,16 @@ const WorkSpace = (function defineWorkSpace() {
       return locals.removeByItemID(this.views, view);
     }
 
-    removeWSObject(obj) {
-      return locals.removeByItemID(this.wsObjects, obj);
+    removeItem(obj) {
+      return locals.removeByItemID(this.items, obj);
     }
 
     reportViews() {
       return this.views.map( v => v.report() );
     }
 
-    reportWSObjects() {
-      return this.wsObjects.map( o => o.report() );
+    reportItems() {
+      return this.items.map( o => o.report() );
     }
 
     spawnView(values) {
@@ -453,9 +454,9 @@ const WorkSpace = (function defineWorkSpace() {
       return false;
     }
 
-    spawnWSObject(values) {
-      const o = new ServerWSObject(values);
-      this.wsObjects.push(o);
+    spawnItem(values) {
+      const o = new ServerItem(values);
+      this.items.push(o);
       return o;
     }
   }
@@ -517,7 +518,6 @@ const RequestHandler = (function defineRequestHandler() {
 const WamsServer = (function defineWamsServer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
-      clientLimit: 10,
     }),
     PORT: 9000,
 
@@ -612,7 +612,7 @@ const Connection = (function defineConnection() {
 
       this.socket.emit(globals.MSG_INIT, {
         views: this.workspace.reportViews(),
-        wsObjects: this.workspace.reportWSObjects(),
+        items: this.workspace.reportItems(),
         settings: this.workspace.settings,
         id: this.viewspace.id,
       });
@@ -637,7 +637,7 @@ const Connection = (function defineConnection() {
     broadcastObjectReport() {
       this.broadcast(
         globals.MSG_UD_OBJS,
-        this.workspace.reportWSObjects()
+        this.workspace.reportItems()
       );
     }
 
@@ -674,13 +674,13 @@ const Connection = (function defineConnection() {
 })();
 
 exports.WorkSpace = WorkSpace;
-exports.WSObject = ServerWSObject;
+exports.Item = ServerItem;
 
 /*
  * For testing:
  */
 exports.Connection = Connection;
-exports.ServerWSObject = ServerWSObject;
+exports.ServerItem = ServerItem;
 exports.ServerViewSpace = ServerViewSpace;
 exports.RequestHandler = RequestHandler;
 exports.ListenerFactory = ListenerFactory;

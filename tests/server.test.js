@@ -10,7 +10,7 @@
 const wams = require('../src/server.js');
 const WorkSpace = wams.WorkSpace;
 const Connection = wams.Connection;
-const ServerWSObject = wams.ServerWSObject;
+const ServerItem = wams.ServerItem;
 const ServerViewSpace = wams.ServerViewSpace;
 const RequestHandler = wams.RequestHandler;
 const ListenerFactory = wams.ListenerFactory;
@@ -28,7 +28,7 @@ expect.extend({
   },
 });
 
-describe('ServerWSObject', () => {
+describe('ServerItem', () => {
   const DEFAULTS = Object.freeze({
     x: 0,
     y: 0,
@@ -43,20 +43,20 @@ describe('ServerWSObject', () => {
   describe('constructor(settings)', () => {
     test('Uses defaults if no arguments provided', () => {
       let item;
-      expect(() => item = new ServerWSObject()).not.toThrow();
+      expect(() => item = new ServerItem()).not.toThrow();
       Object.entries(DEFAULTS).forEach( ([p,v]) => {
         expect(item[p]).toEqual(v);
       });
     });
 
     test('Creates correct type of object', () => {
-      expect(new ServerWSObject()).toBeInstanceOf(ServerWSObject);
+      expect(new ServerItem()).toBeInstanceOf(ServerItem);
     });
 
     test('Uses user-defined values, if provided', () => {
       let item;
       expect(() => {
-        item = new ServerWSObject({
+        item = new ServerItem({
           y: 75,
           type: 'joker',
         });
@@ -70,14 +70,14 @@ describe('ServerWSObject', () => {
     });
 
     test('Stamps the object with an immutable ID', () => {
-      const item = new ServerWSObject();
+      const item = new ServerItem();
       expect(item).toHaveImmutableProperty('id');
       expect(item.id).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('containsPoint(x,y)', () => {
-    const item = new ServerWSObject({
+    const item = new ServerItem({
       x: 50,
       y: 50,
       width: 100,
@@ -125,7 +125,7 @@ describe('ServerWSObject', () => {
   });
 
   describe('moveTo(x, y)', () => {
-    const item = new ServerWSObject({
+    const item = new ServerItem({
       x: 0,
       y: 0,
     });
@@ -159,7 +159,7 @@ describe('ServerWSObject', () => {
   });
 
   describe('moveBy(dx, dy)', () => {
-    const item = new ServerWSObject();
+    const item = new ServerItem();
 
     test('Has no effect if parameters left out', () => {
       expect(item.x).toBe(0);
@@ -638,11 +638,12 @@ describe('ListenerFactory Object', () => {
 
 describe('WorkSpace', () => {
   const DEFAULTS = Object.freeze({
-    color: '#aaaaaa',
     bounds: {
       x: 10000,
       y: 10000,
     },
+    clientLimit: 10,
+    color: '#aaaaaa',
   });
 
   describe('constructor(port, settings)', () => {
@@ -697,5 +698,39 @@ describe('WorkSpace', () => {
       expect(ws.height).toBe(43);
     });
   });
+
+  // Use one workspace for the rest of the tests.
+  const ws = new WorkSpace();
+  describe('spawnItem(values)', () => {
+    const DEFAULTS = Object.freeze({
+      x: 0,
+      y: 0,
+      width: 128,
+      height: 128,
+      type: 'view/background',
+      imgsrc: '',
+      drawCustom: '',
+      drawStart: '',
+    });
+
+    test('Uses default Item values if none provided', () => {
+      const i = ws.spawnItem();
+      expect(i).toMatchObject(DEFAULTS);
+    });
+
+    test('Uses user-defined Item values, if provided', () => {
+      const i = ws.spawnItem({x:70,y:40});
+      expect(i.x).toBe(70);
+      expect(i.y).toBe(40);
+      expect(i.width).toBe(DEFAULTS.width);
+      expect(i.height).toBe(DEFAULTS.height);
+    });
+
+    test('Keeps track of the item', () => {
+      const i = ws.spawnItem({x:155,y:155});
+      expect(ws.items).toContain(i);
+    });
+  });
+
 });
 

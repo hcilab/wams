@@ -14,7 +14,7 @@
  *   + initialize,
  *   + IDStamper,
  *   + ViewSpace,
- *   + WSObject,
+ *   + Item,
  */
 const shared = require('../src/shared.js');
 
@@ -282,7 +282,7 @@ describe('ViewSpace', () => {
   });
 });
 
-describe('WSObject', () => {
+describe('Item', () => {
   const props = [
     'x',
     'y',
@@ -296,19 +296,19 @@ describe('WSObject', () => {
 
   describe('constructor(data)', () => {
     test('correctly constructs expected object', () => {
-      const vs = new shared.WSObject();
-      expect(vs).toBeInstanceOf(shared.WSObject);
+      const vs = new shared.Item();
+      expect(vs).toBeInstanceOf(shared.Item);
       expect(vs).toHaveProperty('assign');
       expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
-      const vs = new shared.WSObject();
+      const vs = new shared.Item();
       expect(Object.keys(vs)).toEqual(props);
     });
 
     test('uses provided data', () => {
-      const vs = new shared.WSObject({x:100, y:100, imgsrc: 'a'});
+      const vs = new shared.Item({x:100, y:100, imgsrc: 'a'});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -318,7 +318,7 @@ describe('WSObject', () => {
     });
 
     test('does not use incorrect property names in data', () => {
-      const vs = new shared.WSObject({x: 100, y:100, z:100});
+      const vs = new shared.Item({x: 100, y:100, z:100});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -327,7 +327,7 @@ describe('WSObject', () => {
   });
 
   describe('assign(data)', () => {
-    const vs = new shared.WSObject();
+    const vs = new shared.Item();
 
     test('throws exception if no data passed', () => {
       expect(() => vs.assign()).toThrow(); 
@@ -371,7 +371,7 @@ describe('WSObject', () => {
   });
 
   describe('report()', () => {
-    const vs = new shared.WSObject({x:100, y:50, width:200, height:300});
+    const vs = new shared.Item({x:100, y:50, width:200, height:300});
     test('reports data', () => {
       const data = vs.report();
       expect(Object.keys(data)).toEqual(props);
