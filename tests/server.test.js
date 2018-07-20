@@ -855,7 +855,7 @@ describe('WorkSpace', () => {
     let DEFAULTS;
     let ws;
     beforeAll(() => {
-      ws = new WorkSpace();
+      ws = new WorkSpace({clientLimit:4});
       DEFAULTS = {
         x: 0,
         y: 0,
@@ -899,8 +899,126 @@ describe('WorkSpace', () => {
       });
       expect(ws.views).toContain(vs);
     });
+
+    test('Does not spawn a view if clientLimit reached', () => {
+      /*
+       * 4 views have been spawned by this workspace and none removed.
+       * The clientLimit was set to 4.
+       * Therefore, trying to spawn another one should fail.
+       */
+      const v = ws.spawnView();
+      expect(v).toBeFalsy();
+      expect(ws.views).not.toContain(v);
+    });
   });
 
+  describe('hasView(view)', () => {
+    let ws;
+    let view;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnView();
+      view = ws.spawnView({y:43});
+      ws.spawnView({x:2});
+    });
+
+    test('Accepts views that have been spawned by the workspace', () => {
+      expect(ws.hasView(view)).toBe(true);
+    });
+
+    test('Rejects views that were not spawned by the workspace', () => {
+      const v = new ServerViewSpace({x:200,y:200});
+      expect(ws.hasView(v)).toBe(false);
+      const f = new ServerViewSpace({x:200,y:200},{x:2});
+      expect(ws.hasView(f)).toBe(false);
+    });
+  });
+
+  describe('reportViews()', () => {
+    let ws;
+    const expectedProperties = [
+      'x',
+      'y',
+      'width',
+      'height',
+      'type',
+      'effectiveWidth',
+      'effectiveHeight',
+      'scale',
+      'rotation',
+      'id',
+    ];
+    
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnView();
+      ws.spawnView({x:2});
+      ws.spawnView({x:42,y:43});
+    });
+
+    test('Returns an array', () => {
+      expect(ws.reportViews()).toBeInstanceOf(Array);
+    });
+
+    test('Does not return the actual ViewSpaces, but simple Objects', () => {
+      ws.reportViews().forEach( v => {
+        expect(v).not.toBeInstanceOf(ServerViewSpace);
+        expect(v).toBeInstanceOf(Object);
+      });
+    });
+
+    test('Objects returned contain only the expected data', () => {
+      ws.reportViews().forEach( v => {
+        expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
+      });
+    });
+
+    test('Returns data for each ViewSpace in the workspace', () => {
+      expect(ws.reportViews().length).toBe(ws.views.length);
+    });
+
+  });
+
+  describe('removeView(view)', () => {
+    let ws;
+    let view;
+
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnView();
+      view = ws.spawnView({x:2});
+      ws.spawnView({x:42,y:43});
+    });
+
+    test('Removes a view if it is found', () => {
+      expect(ws.removeView(view)).toBe(true);
+      expect(ws.views).not.toContain(view);
+      expect(ws.hasView(view)).toBe(false);
+    });
+
+    test('Does not remove anything if view not found', () => {
+      const v = new ServerViewSpace({x:200,y:200});
+      const curr = Array.from(ws.views);
+      expect(ws.removeView(v)).toBe(false);
+      expect(ws.views).toMatchObject(curr);
+    });
+
+    test('Throws exception if not view provided', () => {
+      expect(() => ws.removeView()).toThrow();
+    });
+
+    test('Throws exception if provided view is not a ServerViewSpace', () => {
+      expect(() => ws.removeView({id:1})).toThrow();
+    });
+
+
+  });
+
+  describe('Handlers', () => {
+    describe(, () => {
+    });
+
+  });
 
 });
 

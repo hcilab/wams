@@ -442,11 +442,16 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeView(view) {
+      if (!(view instanceof ServerViewSpace)) {
+        throw 'Invalid ServerViewSpace received';
+      }
       return locals.removeByItemID(this.views, view);
     }
 
     removeItem(item) {
-      if (!(item instanceof ServerItem)) throw 'Invalid ServerItem received';
+      if (!(item instanceof ServerItem)) {
+        throw 'Invalid ServerItem received';
+      }
       return locals.removeByItemID(this.items, item);
     }
 
