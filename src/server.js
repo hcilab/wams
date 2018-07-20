@@ -24,8 +24,6 @@
  * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
  *    might make some of this work a lot easier.
  */
-const http = require('http');
-const io = require('socket.io');
 const WamsShared = require('./shared.js');
 
 /*
@@ -482,117 +480,6 @@ const WorkSpace = (function defineWorkSpace() {
   return WorkSpace;
 })();
 
-/*
- * XXX: The paths being used in the request handler are a little hacky and all
- *      over the place right now. Look into how to normalize them.
- */
-const RequestHandler = (function defineRequestHandler() {
-  const path = require('path');
-  const express = require('express');
-
-  function establishMainRoutes(app) {
-    const view   = path.join(__dirname, '../src/view.html');
-    const shared = path.join(__dirname, '../src/shared.js');
-    const client = path.join(__dirname, '../src/client.js');
-    app.get('/',          (req, res) => res.sendFile(view)    );
-    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
-    app.get('/client.js', (req, res) => res.sendFile()        );
-  }
-
-  function establishAuxiliaryRoutes(app) {
-    /* 
-     * XXX: express.static() generates a middleware function for 
-     *    serving static assets from the directory specified.
-     *    - The order in which these functions are registered with
-     *      this.app.use() is important! The callbacks will be triggered
-     *      in this order!
-     *    - When this.app.use() is called without a 'path' argument, as it 
-     *      is here, it uses the default '/' argument, with the 
-     *      result that these callbacks will be executed for 
-     *      _every_ request to the app!
-     *      + Should therefore consider specifying the path!!
-     *    - Should also consider specifying options. Possibly useful:
-     *      + immutable
-     *      + maxAge
-     */
-    const images = path.join(__dirname, './Images');
-    const libs = path.join(__dirname, '../libs');
-    app.use(express.static(images));
-    app.use(express.static(libs));
-  }
-
-  class RequestHandler {
-    constructor() {
-      const app = express();
-      establishMainRoutes(app);
-      establishAuxiliaryRoutes(app);
-      return app;
-    }
-  }
-
-  return RequestHandler;
-})();
-
-const WamsServer = (function defineWamsServer() {
-  const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-    }),
-    PORT: 9000,
-
-    getLocalIP() {
-      const os = require('os');
-      let ipaddr = null;
-      Object.values(os.networkInterfaces()).some( f => {
-        return f.some( a => {
-          if (a.family === 'IPv4' && a.internal === false) {
-            ipaddr = a.address;
-            return true;
-          }
-          return false;
-        });
-      });
-      return ipaddr;
-    },
-  });
-
-  class WamsServer {
-    constructor(port = locals.PORT, settings) {
-      this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
-      this.workspace = null;
-
-      // Will be used for establishing a server on which to listen.
-      this.http = null;
-      this.io = null;
-      this.port = port;
-
-      /*
-       * XXX: Not necessary to actually track connections like this, doing it
-       *      for debugging assistance, for now.
-       */
-      this.connections = [];
-    }
-
-    listen() {
-      this.http = http.createServer(new RequestHandler());
-      this.http.listen(this.id, locals.getLocalIP(), () => {
-        console.log('Listening on', this.http.address());
-      });
-      this.io = io.listen(this.http);
-      this.io.on('connection', (socket) => {
-        const c = new Connection(socket, this.workspace);
-        if (c) {
-          this.connections.push(c);
-          console.log(`View ${c.viewspace.id} ` +
-            `connected to workspace ${this.workspace.id}`
-          );
-        }
-      });
-    }
-  }
-
-  return WamsServer;
-})();
-
 const Connection = (function defineConnection() {
   const locals = Object.freeze({
     LOCAL_HANDLERS: Object.freeze([
@@ -691,15 +578,124 @@ const Connection = (function defineConnection() {
   return Connection;
 })();
 
-exports.WorkSpace = WorkSpace;
-exports.Item = ServerItem;
-
 /*
- * For testing:
+ * XXX: The paths being used in the request handler are a little hacky and all
+ *      over the place right now. Look into how to normalize them.
  */
-exports.Connection = Connection;
+const RequestHandler = (function defineRequestHandler() {
+  const path = require('path');
+  const express = require('express');
+
+  function establishMainRoutes(app) {
+    const view   = path.join(__dirname, '../src/view.html');
+    const shared = path.join(__dirname, '../src/shared.js');
+    const client = path.join(__dirname, '../src/client.js');
+    app.get('/',          (req, res) => res.sendFile(view)    );
+    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+    app.get('/client.js', (req, res) => res.sendFile(client)  );
+  }
+
+  function establishAuxiliaryRoutes(app) {
+    /* 
+     * XXX: express.static() generates a middleware function for 
+     *    serving static assets from the directory specified.
+     *    - The order in which these functions are registered with
+     *      this.app.use() is important! The callbacks will be triggered
+     *      in this order!
+     *    - When this.app.use() is called without a 'path' argument, as it 
+     *      is here, it uses the default '/' argument, with the 
+     *      result that these callbacks will be executed for 
+     *      _every_ request to the app!
+     *      + Should therefore consider specifying the path!!
+     *    - Should also consider specifying options. Possibly useful:
+     *      + immutable
+     *      + maxAge
+     */
+    const images = path.join(__dirname, './Images');
+    const libs = path.join(__dirname, '../libs');
+    app.use(express.static(images));
+    app.use(express.static(libs));
+  }
+
+  class RequestHandler {
+    constructor() {
+      const app = express();
+      establishMainRoutes(app);
+      establishAuxiliaryRoutes(app);
+      return app;
+    }
+  }
+
+  return RequestHandler;
+})();
+
+const WamsServer = (function defineWamsServer() {
+  const http = require('http');
+  const io = require('socket.io');
+  const os = require('os');
+
+  const locals = Object.freeze({
+    PORT: 9000,
+    getLocalIP() {
+      let ipaddr = null;
+      Object.values(os.networkInterfaces()).some( f => {
+        return f.some( a => {
+          if (a.family === 'IPv4' && a.internal === false) {
+            ipaddr = a.address;
+            return true;
+          }
+          return false;
+        });
+      });
+      return ipaddr;
+    },
+  });
+
+  class WamsServer {
+    constructor(workspace) {
+      this.workspace = workspace;
+      this.server = http.createServer(new RequestHandler());
+
+      this.io = io.listen(this.server);
+      this.io.on('connection', (socket) => {
+        const c = new Connection(socket, this.workspace);
+        if (c) {
+          this.connections.push(c);
+          console.log(
+            `View ${c.viewspace.id} connected to workspace listening on port`,
+            this.server.address().port
+          );
+        }
+      });
+
+      /*
+       * XXX: Not necessary to actually track connections like this, doing it
+       *      for debugging assistance, for now.
+       */
+      this.connections = [];
+    }
+
+    /*
+     * For modularity, may want to refactor this to allow the user to have more
+     * control over server establishment.
+     */
+    listen(port = locals.PORT, host = locals.getLocalIP()) {
+      this.server.listen(port, host, () => {
+        console.log('Listening on', this.server.address());
+      });
+    }
+  }
+
+  return WamsServer;
+})();
+
 exports.ServerItem = ServerItem;
 exports.ServerViewSpace = ServerViewSpace;
-exports.RequestHandler = RequestHandler;
 exports.ListenerFactory = ListenerFactory;
+exports.WorkSpace = WorkSpace;
+exports.Connection = Connection;
+exports.RequestHandler = RequestHandler;
+exports.WamsServer = WamsServer;
+
+exports.Item = ServerItem;
 
