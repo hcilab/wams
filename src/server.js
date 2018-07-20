@@ -156,8 +156,6 @@ const ServerViewer = (function defineServerViewer() {
       width: 1600,
       height: 900,
       type: 'view/background',
-      effectiveWidth: 1600,
-      effectiveHeight: 900,
       scale: 1,
       rotation: 0,
     },
