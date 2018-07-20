@@ -11,7 +11,7 @@ const wams = require('../src/server.js');
 const WorkSpace = wams.WorkSpace;
 const Connection = wams.Connection;
 const ServerItem = wams.ServerItem;
-const ServerViewSpace = wams.ServerViewSpace;
+const ServerViewer = wams.ServerViewer;
 const RequestHandler = wams.RequestHandler;
 const ListenerFactory = wams.ListenerFactory;
 const WamsServer = require('../src/shared.js');
@@ -197,7 +197,7 @@ describe('ServerItem', () => {
   });
 });
 
-describe('ServerViewSpace', () => {
+describe('ServerViewer', () => {
   const DEFAULTS = {
     x: 0,
     y: 0,
@@ -212,28 +212,28 @@ describe('ServerViewSpace', () => {
 
   describe('constructor(bounds, values)', () => {
     test('Throws exception if bounds not provided.', () => {
-      expect(() => new ServerViewSpace()).toThrow();
+      expect(() => new ServerViewer()).toThrow();
     });
 
     test('Throws exception if invalid bounds provided.', () => {
-      expect(() => new ServerViewSpace({})).toThrow();
-      expect(() => new ServerViewSpace({x:1500})).toThrow();
-      expect(() => new ServerViewSpace({y:1500})).toThrow();
-      expect(() => new ServerViewSpace({x:0, y:0})).toThrow();
-      expect(() => new ServerViewSpace({x:100, y:99})).toThrow();
-      expect(() => new ServerViewSpace({x:-1, y:100})).toThrow();
-      expect(() => new ServerViewSpace({x:100, y:100})).not.toThrow();
+      expect(() => new ServerViewer({})).toThrow();
+      expect(() => new ServerViewer({x:1500})).toThrow();
+      expect(() => new ServerViewer({y:1500})).toThrow();
+      expect(() => new ServerViewer({x:0, y:0})).toThrow();
+      expect(() => new ServerViewer({x:100, y:99})).toThrow();
+      expect(() => new ServerViewer({x:-1, y:100})).toThrow();
+      expect(() => new ServerViewer({x:100, y:100})).not.toThrow();
     });
 
     test('Creates correct item type if bounds provided.', () => {
       expect(
-        new ServerViewSpace({x:100, y:100})
-      ).toBeInstanceOf(ServerViewSpace);
+        new ServerViewer({x:100, y:100})
+      ).toBeInstanceOf(ServerViewer);
     });
 
     test('Uses provided bounds', () => {
       let vs;
-      expect(() => vs = new ServerViewSpace({x:1150, y:799})).not.toThrow();
+      expect(() => vs = new ServerViewer({x:1150, y:799})).not.toThrow();
       expect(vs.bounds).toBeDefined();
       expect(vs.bounds.x).toBe(1150);
       expect(vs.bounds.y).toBe(799);
@@ -241,7 +241,7 @@ describe('ServerViewSpace', () => {
 
     test('Uses default values if none provided', () => {
       let vs;
-      expect(() => vs = new ServerViewSpace({x:150, y:150})).not.toThrow();
+      expect(() => vs = new ServerViewer({x:150, y:150})).not.toThrow();
       Object.entries(DEFAULTS).forEach( ([p,v]) => {
         expect(vs[p]).toEqual(v);
       });
@@ -250,7 +250,7 @@ describe('ServerViewSpace', () => {
     test('Uses user-defined values, if provided', () => {
       let vs;
       expect(() => {
-        vs = new ServerViewSpace({x:150, y:150}, {type:'joker'});
+        vs = new ServerViewer({x:150, y:150}, {type:'joker'});
       }).not.toThrow();
       expect(vs.type).toBe('joker');
       Object.entries(DEFAULTS).forEach( ([p,v]) => {
@@ -259,13 +259,13 @@ describe('ServerViewSpace', () => {
     });
 
     test('Ignores inaplicable values', () => {
-      const vs = new ServerViewSpace({x:150, y:150}, {alpha:3});
+      const vs = new ServerViewer({x:150, y:150}, {alpha:3});
       expect(vs.hasOwnProperty('alpha')).toBe(false);
       expect(vs.alpha).toBeUndefined();
     });
 
     test('Appropriately sets effective width and height', () => {
-      const vs = new ServerViewSpace({x:100, y:100}, {
+      const vs = new ServerViewer({x:100, y:100}, {
         width: 200,
         height: 100,
         scale: 2,
@@ -275,14 +275,14 @@ describe('ServerViewSpace', () => {
     });
 
     test('Stamps an immutable ID onto the item', () => {
-      const vs = new ServerViewSpace({x:150, y:150});
+      const vs = new ServerViewer({x:150, y:150});
       expect(vs).toHaveImmutableProperty('id');
       expect(vs.id).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('getters', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
       width: 50,
@@ -332,7 +332,7 @@ describe('ServerViewSpace', () => {
       expect(center.y).toBe(25);
     });
 
-    test('center dynamically updates with viewspace changes', () => {
+    test('center dynamically updates with viewer changes', () => {
       const center = vs.center;
       expect(center.x).toBe(25);
       expect(center.y).toBe(25);
@@ -349,7 +349,7 @@ describe('ServerViewSpace', () => {
   });
 
   describe('canBeScaledTo(width, height)', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
     });
@@ -394,7 +394,7 @@ describe('ServerViewSpace', () => {
   });
 
   describe('rescale(scale)', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
       width: 50,
@@ -437,7 +437,7 @@ describe('ServerViewSpace', () => {
   });
 
   describe('canMoveTo[X|Y](x|y)', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
       width: 50,
@@ -473,7 +473,7 @@ describe('ServerViewSpace', () => {
       expect(vs.canMoveToY(-1)).toBe(false);
     });
 
-    test('Works on a rescaled viewspace', () => {
+    test('Works on a rescaled viewer', () => {
       vs.rescale(2);
       expect(vs.canMoveToX(75)).toBe(true);
       expect(vs.canMoveToY(75)).toBe(true);
@@ -488,7 +488,7 @@ describe('ServerViewSpace', () => {
   });
 
   describe('moveTo(x,y)', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
       width: 50,
@@ -540,7 +540,7 @@ describe('ServerViewSpace', () => {
   });
 
   describe('moveBy(dx,dy)', () => {
-    const vs = new ServerViewSpace({x:100,y:100}, {
+    const vs = new ServerViewer({x:100,y:100}, {
       x: 0,
       y: 0,
       width: 50,
@@ -629,7 +629,7 @@ describe('ListenerFactory Object', () => {
       test('Calls the listener', () => {
         const handler = jest.fn();
         const listener = ListenerFactory.build(s, handler, ws);
-        const vs = ws.spawnView();
+        const vs = ws.spawnViewer();
         expect(() => listener(vs,1,2,3,4)).not.toThrow();
         expect(handler).toHaveBeenCalledTimes(1);
         expect(handler.mock.calls[0][0]).toBe(vs);
@@ -852,7 +852,7 @@ describe('WorkSpace', () => {
     });
   });
 
-  describe('spawnView(values)', () => {
+  describe('spawnViewer(values)', () => {
     let DEFAULTS;
     let ws;
     beforeAll(() => {
@@ -870,16 +870,16 @@ describe('WorkSpace', () => {
       };
     });
 
-    test('Returns a ServerViewSpace', () => {
-      expect(ws.spawnView()).toBeInstanceOf(ServerViewSpace);
+    test('Returns a ServerViewer', () => {
+      expect(ws.spawnViewer()).toBeInstanceOf(ServerViewer);
     });
 
-    test('Uses default ViewSpace values if none provided', () => {
-      expect(ws.spawnView()).toMatchObject(DEFAULTS);
+    test('Uses default Viewer values if none provided', () => {
+      expect(ws.spawnViewer()).toMatchObject(DEFAULTS);
     });
 
-    test('Uses user-defined ViewSpace values, if provided', () => {
-      const vs = ws.spawnView({
+    test('Uses user-defined Viewer values, if provided', () => {
+      const vs = ws.spawnViewer({
         x: 42,
         y: 71,
         scale: 3.5,
@@ -891,8 +891,8 @@ describe('WorkSpace', () => {
       expect(vs.height).toBe(DEFAULTS.height);
     });
 
-    test('Keeps track of ViewSpace', () => {
-      const vs = ws.spawnView({
+    test('Keeps track of Viewer', () => {
+      const vs = ws.spawnViewer({
         x:7,
         y:9,
         width: 42,
@@ -901,37 +901,37 @@ describe('WorkSpace', () => {
       expect(ws.views).toContain(vs);
     });
 
-    test('Does not spawn a view if clientLimit reached', () => {
+    test('Does not spawn a viewer if clientLimit reached', () => {
       /*
        * 4 views have been spawned by this workspace and none removed.
        * The clientLimit was set to 4.
        * Therefore, trying to spawn another one should fail.
        */
-      const v = ws.spawnView();
+      const v = ws.spawnViewer();
       expect(v).toBeFalsy();
       expect(ws.views).not.toContain(v);
     });
   });
 
-  describe('hasView(view)', () => {
+  describe('hasViewer(viewer)', () => {
     let ws;
-    let view;
+    let viewer;
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnView();
-      view = ws.spawnView({y:43});
-      ws.spawnView({x:2});
+      ws.spawnViewer();
+      viewer = ws.spawnViewer({y:43});
+      ws.spawnViewer({x:2});
     });
 
     test('Accepts views that have been spawned by the workspace', () => {
-      expect(ws.hasView(view)).toBe(true);
+      expect(ws.hasViewer(viewer)).toBe(true);
     });
 
     test('Rejects views that were not spawned by the workspace', () => {
-      const v = new ServerViewSpace({x:200,y:200});
-      expect(ws.hasView(v)).toBe(false);
-      const f = new ServerViewSpace({x:200,y:200},{x:2});
-      expect(ws.hasView(f)).toBe(false);
+      const v = new ServerViewer({x:200,y:200});
+      expect(ws.hasViewer(v)).toBe(false);
+      const f = new ServerViewer({x:200,y:200},{x:2});
+      expect(ws.hasViewer(f)).toBe(false);
     });
   });
 
@@ -952,18 +952,18 @@ describe('WorkSpace', () => {
     
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnView();
-      ws.spawnView({x:2});
-      ws.spawnView({x:42,y:43});
+      ws.spawnViewer();
+      ws.spawnViewer({x:2});
+      ws.spawnViewer({x:42,y:43});
     });
 
     test('Returns an array', () => {
       expect(ws.reportViews()).toBeInstanceOf(Array);
     });
 
-    test('Does not return the actual ViewSpaces, but simple Objects', () => {
+    test('Does not return the actual Viewers, but simple Objects', () => {
       ws.reportViews().forEach( v => {
-        expect(v).not.toBeInstanceOf(ServerViewSpace);
+        expect(v).not.toBeInstanceOf(ServerViewer);
         expect(v).toBeInstanceOf(Object);
       });
     });
@@ -974,65 +974,65 @@ describe('WorkSpace', () => {
       });
     });
 
-    test('Returns data for each ViewSpace in the workspace', () => {
+    test('Returns data for each Viewer in the workspace', () => {
       expect(ws.reportViews().length).toBe(ws.views.length);
     });
 
   });
 
-  describe('removeView(view)', () => {
+  describe('removeViewer(viewer)', () => {
     let ws;
-    let view;
+    let viewer;
 
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnView();
-      view = ws.spawnView({x:2});
-      ws.spawnView({x:42,y:43});
+      ws.spawnViewer();
+      viewer = ws.spawnViewer({x:2});
+      ws.spawnViewer({x:42,y:43});
     });
 
-    test('Removes a view if it is found', () => {
-      expect(ws.removeView(view)).toBe(true);
-      expect(ws.views).not.toContain(view);
-      expect(ws.hasView(view)).toBe(false);
+    test('Removes a viewer if it is found', () => {
+      expect(ws.removeViewer(viewer)).toBe(true);
+      expect(ws.views).not.toContain(viewer);
+      expect(ws.hasViewer(viewer)).toBe(false);
     });
 
-    test('Does not remove anything if view not found', () => {
-      const v = new ServerViewSpace({x:200,y:200});
+    test('Does not remove anything if viewer not found', () => {
+      const v = new ServerViewer({x:200,y:200});
       const curr = Array.from(ws.views);
-      expect(ws.removeView(v)).toBe(false);
+      expect(ws.removeViewer(v)).toBe(false);
       expect(ws.views).toMatchObject(curr);
     });
 
-    test('Throws exception if not view provided', () => {
-      expect(() => ws.removeView()).toThrow();
+    test('Throws exception if not viewer provided', () => {
+      expect(() => ws.removeViewer()).toThrow();
     });
 
-    test('Throws exception if provided view is not a ServerViewSpace', () => {
-      expect(() => ws.removeView({id:1})).toThrow();
+    test('Throws exception if provided viewer is not a ServerViewer', () => {
+      expect(() => ws.removeViewer({id:1})).toThrow();
     });
   });
 
   describe('isFull()', () => {
-    let ws, view;
+    let ws, viewer;
     beforeAll(() => {
       ws = new WorkSpace({clientLimit: 2});
     });
 
     test('Returns false when clientLimit has not been reached', () => {
       expect(ws.isFull()).toBe(false);
-      view = ws.spawnView();
+      viewer = ws.spawnViewer();
       expect(ws.isFull()).toBe(false);
     });
 
     test('Returns true once clientLimit has been reached', () => {
-      ws.spawnView();
+      ws.spawnViewer();
       expect(ws.isFull()).toBe(true);
-      expect(ws.spawnView()).toBeFalsy();
+      expect(ws.spawnViewer()).toBeFalsy();
     });
 
-    test('Returns false after a view is removed', () => {
-      ws.removeView(view);
+    test('Returns false after a viewer is removed', () => {
+      ws.removeViewer(viewer);
       expect(ws.isFull()).toBe(false);
     });
   });
@@ -1042,7 +1042,7 @@ describe('WorkSpace', () => {
     let vs;
     beforeAll(() => {
       ws = new WorkSpace();
-      vs = ws.spawnView();
+      vs = ws.spawnViewer();
     });
 
     test('Throws if invalid event supplied', () => {
@@ -1082,7 +1082,7 @@ describe('WorkSpace', () => {
     let x, y, dx, dy, scale;
     beforeAll(() => {
       ws = new WorkSpace();
-      vs = ws.spawnView();
+      vs = ws.spawnViewer();
       x = 42;
       y = 78;
       dx = 5.2;

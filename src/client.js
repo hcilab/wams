@@ -72,11 +72,11 @@ const globals = (function defineGlobals() {
  * XXX: Oh my, is this 'class' given the same name as the server-side class,
  *    but with different functionality? This might break my brain a bit.
  *
- *    Is it possible to define a central 'View' class that both are able
- *    to extend? How would that work, given that one of the ViewSpaces 
+ *    Is it possible to define a central 'Viewer' class that both are able
+ *    to extend? How would that work, given that one of the Viewers 
  *    is sent to the client and the other is used by the server?
  */
-const ClientViewSpace = (function defineClientViewSpace() {
+const ClientViewer = (function defineClientViewer() {
   const defaults = {
     x: 0,
     y: 0,
@@ -88,7 +88,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     scale: 1,
   };
 
-  class ClientViewSpace extends WamsShared.ViewSpace {
+  class ClientViewer extends WamsShared.Viewer {
     constructor(data) {
       super(WamsShared.initialize(defaults, data));
       this.canvas = document.querySelector('#main');
@@ -113,11 +113,11 @@ const ClientViewSpace = (function defineClientViewSpace() {
     }
 
     /*
-     * XXX: These can probably be some kind of "shadow" viewspace,
+     * XXX: These can probably be some kind of "shadow" viewer,
      *    as very little of their data seems to be needed.
      */
-    addView(info) {
-      const nvs = new ViewSpace().assign(info);
+    addViewer(info) {
+      const nvs = new Viewer().assign(info);
       globals.VS_ID_STAMPER.stamp(nvs, info.id);
       this.otherViews.push(nvs);
     }
@@ -216,16 +216,16 @@ const ClientViewSpace = (function defineClientViewSpace() {
       return coords;
     }
 
-    reportView(reportSubWS = false) {
+    reportViewer(reportSubWS = false) {
       /*
-       * XXX: Do we want to connect the subviews in this view somehow, so 
+       * XXX: Do we want to connect the subviews in this viewer somehow, so 
        *    that they are clearly linked in the report?
        */
       if (reportSubWS) {
-        this.subViews.forEach( subWS => subWS.reportView(true) );
+        this.subViews.forEach( subWS => subWS.reportViewer(true) );
       }
 
-      globals.SOCKET.emit('reportView', this.report());
+      globals.SOCKET.emit('reportViewer', this.report());
     }
 
     setOrientation() {
@@ -260,7 +260,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       if (globals.settings !== null && globals.settings.debug) {
         this.context.font = '18px Georgia';
         this.context.fillText(
-          `ClientViewSpace Coordinates: ${this.x.toFixed(2)}, ` + 
+          `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
           `${this.y.toFixed(2)}`, 
           10, 
           40
@@ -277,12 +277,12 @@ const ClientViewSpace = (function defineClientViewSpace() {
           80
         );
         this.context.fillText(
-          `Viewspace Scale: ${this.scale.toFixed(2)}`, 
+          `Viewer Scale: ${this.scale.toFixed(2)}`, 
           10, 
           100
         );
         this.context.fillText(
-          `ClientViewSpace Rotation: ${this.rotation}`, 
+          `ClientViewer Rotation: ${this.rotation}`, 
           10, 
           120
         );
@@ -319,7 +319,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     onInit(initData) {
       globals.settings = initData.settings;
       globals.VS_ID_STAMPER.stamp(this, initData.id);
-      initData.views.forEach( v => this.addView(v) );
+      initData.views.forEach( v => this.addViewer(v) );
       initData.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
       globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
@@ -342,7 +342,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.SOCKET.emit(globals.MSG_SCALE, this, newScale);
     }
 
-    onRemoveView(id) {
+    onRemoveViewer(id) {
       const index = this.otherViews.findIndex( v => v.id === id );
       if (index >= 0) {
         this.otherViews.splice(index,1);
@@ -356,7 +356,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       this.canvas.height = this.height;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      this.reportView();
+      this.reportViewer();
     }
 
     ontap(event) {
@@ -403,17 +403,17 @@ const ClientViewSpace = (function defineClientViewSpace() {
     }
 
     /*
-     * XXX: This is side-effecting!! We should have an 'addView' event, not
-     *    just an wams-update-view event, unless there's some very good reason 
+     * XXX: This is side-effecting!! We should have an 'addViewer' event, not
+     *    just an wams-update-viewer event, unless there's some very good reason 
      *    not to do so.
      */
-    onUpdateView(vsInfo) {
+    onUpdateViewer(vsInfo) {
       if (vsInfo.id === this.id) {
         this.assign(vsInfo);
       } else {
-        const view = this.otherViews.find( v => v.id === vsInfo.id );
-        if (view) view.assign(vsInfo);
-        else this.addView(vsInfo);
+        const viewer = this.otherViews.find( v => v.id === vsInfo.id );
+        if (viewer) viewer.assign(vsInfo);
+        else this.addViewer(vsInfo);
       }
     }
 
@@ -432,8 +432,8 @@ const ClientViewSpace = (function defineClientViewSpace() {
        *    socket variable?
        */
       globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateView.bind(this));
-      globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveView.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateViewer.bind(this));
+      globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveViewer.bind(this));
       globals.SOCKET.on(globals.MSG_UD_ITEMS, this.onUpdateItems.bind(this));
       globals.SOCKET.on('message', (message) => {
         if (message === globals.MSG_DC_VIEW) {
@@ -477,7 +477,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
     }
   }
 
-  return ClientViewSpace;
+  return ClientViewer;
 })();
 
 class ClientItem extends WamsShared.Item {
@@ -521,7 +521,7 @@ class ClientItem extends WamsShared.Item {
 window.addEventListener(
   'load', 
   function run() {
-    new ClientViewSpace().onWindowLoad();
+    new ClientViewer().onWindowLoad();
   },
   {
     capture: false,

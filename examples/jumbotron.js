@@ -1,6 +1,6 @@
 /*
  * This example is intended to demonstrate having multiple users move their
- *  view around in a shared space.
+ *  viewer around in a shared space.
  */
 
 'use strict';
@@ -44,16 +44,16 @@ const handleDrag = function(target, client, x, y, dx, dy) {
 //  workspace they joined.
 // Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
-  function getMove(num_views, prev_view) {
+  function getMove(num_views, prev_viewer) {
     if (num_views % 2 === 0) { 
       return {
-        x: prev_view.right() - 10;
-        y: prev_view.top();
+        x: prev_viewer.right() - 10;
+        y: prev_viewer.top();
       };
     }
     return {
-      x: prev_view.left();
-      y: prev_view.bottom() - 10;
+      x: prev_viewer.left();
+      y: prev_viewer.bottom() - 10;
     };
   }
 
@@ -62,8 +62,8 @@ const handleLayout = (function makeLayoutHandler() {
     const num_views = otherViews.length;
     
     if (num_views > 0) {
-      const prev_view = otherViews[num_views - 1];
-      const move = getMove(num_views, prev_view);
+      const prev_viewer = otherViews[num_views - 1];
+      const move = getMove(num_views, prev_viewer);
       client.moveTo(move.x, move.y);
     }
   }
@@ -71,7 +71,7 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-// Handle Scale, uses the built in viewspace method rescale
+// Handle Scale, uses the built in viewer method rescale
 const handleScale = function(vs, newScale) {
   vs.rescale(newScale);
 }

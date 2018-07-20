@@ -22,10 +22,10 @@ const WamsShared = (function defineSharedWamsModule() {
     MSG_DRAG:       'wams-drag',
     MSG_INIT:       'wams-initialize',
     MSG_LAYOUT:     'wams-layout',
-    MSG_RM_VIEW:    'wams-remove-view',
+    MSG_RM_VIEW:    'wams-remove-viewer',
     MSG_SCALE:      'wams-scale',
     MSG_UD_ITEMS:    'wams-update-items',
-    MSG_UD_VIEW:    'wams-update-view',
+    MSG_UD_VIEW:    'wams-update-viewer',
     MSG_UPDATE:     'wams-update',
   };
 
@@ -180,10 +180,10 @@ const WamsShared = (function defineSharedWamsModule() {
   }
 
   /*
-   * This ViewSpace class provides a common interface between the client and 
-   * the server by which the ViewSpaces can interact safely.
+   * This Viewer class provides a common interface between the client and 
+   * the server by which the Viewers can interact safely.
    */
-  const ViewSpace = reporterClassFactory([
+  const Viewer = reporterClassFactory([
     'x',
     'y',
     'width',
@@ -219,7 +219,7 @@ const WamsShared = (function defineSharedWamsModule() {
     initialize,
     makeOwnPropertyImmutable,
     NOP,
-    ViewSpace,
+    Viewer,
     Item,
   });
 })();

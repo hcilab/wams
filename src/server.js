@@ -145,10 +145,10 @@ const ServerItem = (function defineServerItem() {
 })();
 
 /*
- * The ServerViewSpace provides operations for the server to locate, move,
+ * The ServerViewer provides operations for the server to locate, move,
  * and rescale views.
  */
-const ServerViewSpace = (function defineServerViewSpace() {
+const ServerViewer = (function defineServerViewer() {
   const locals = Object.freeze({
     DEFAULTS: {
       x: 0,
@@ -175,11 +175,11 @@ const ServerViewSpace = (function defineServerViewSpace() {
     }
   });
 
-  class ServerViewSpace extends WamsShared.ViewSpace {
+  class ServerViewer extends WamsShared.Viewer {
     /*
      * XXX: At some point, the effective width and height should be made to be
      *      updated whenever either the width, height, or scale of the
-     *      viewspace get updated. This could be achieve with getters and 
+     *      viewer get updated. This could be achieve with getters and 
      *      setters on those three values. Might need to think through all the
      *      possible complications though.
      *
@@ -214,13 +214,13 @@ const ServerViewSpace = (function defineServerViewSpace() {
     /*
      * The center() getter returns an object that exposes x and y getters which
      * will always return the _current_ (at the moment the getter is called)
-     * center of the viewspace along that dimension.
+     * center of the viewer along that dimension.
      */
     get center()  {
-      return ((view) => {
+      return ((viewer) => {
         return Object.freeze({
-          get x() { return view.x + (view.effectiveWidth  / 2); },
-          get y() { return view.y + (view.effectiveHeight / 2); },
+          get x() { return viewer.x + (viewer.effectiveWidth  / 2); },
+          get y() { return viewer.y + (viewer.effectiveHeight / 2); },
         });
       })(this);
     }
@@ -236,7 +236,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
      * The canMoveTo[XY] functions are split up in order to allow for the x and
      * y dimensions to be independently moved. In other words, if a move fails
      * in the x direction, it can still succeed in the y direction. This makes
-     * it easier to push the viewspace into the boundaries.
+     * it easier to push the viewer into the boundaries.
      *
      * XXX: Can they be unified simply while still allowing this kind of 
      *      separation?
@@ -250,7 +250,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
     }
 
     /*
-     * ViewSpaces are constrained to stay within the boundaries of the
+     * Viewers are constrained to stay within the boundaries of the
      * workspace, to protect the render. To ensure this safety, extra
      * potentially redundant checks and fallbacks are used in this function.
      */
@@ -274,8 +274,8 @@ const ServerViewSpace = (function defineServerViewSpace() {
      * This might seem odd at first, as that seems to be the opposite of what
      * should be done. But what these variables are actually representing is 
      * the amount of the underlying workspace that can be displayed inside the
-     * viewspace. So a larger scale means that each portion of the workspace
-     * takes up more of the viewspace, therefore _less_ of the workspace is
+     * viewer. So a larger scale means that each portion of the workspace
+     * takes up more of the viewer, therefore _less_ of the workspace is
      * visible. Hence, division.
      *
      * XXX: One thing that could be done in this function is to try anchoring
@@ -298,7 +298,7 @@ const ServerViewSpace = (function defineServerViewSpace() {
     }
   }
 
-  return ServerViewSpace;
+  return ServerViewer;
 })();
 
 /*
@@ -310,14 +310,14 @@ const ListenerFactory = (function defineListenerFactory() {
   const locals = Object.freeze({
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
-        return function handleClick(viewspace, x, y) {
+        return function handleClick(viewer, x, y) {
           const target = workspace.findItemByCoordinates(x,y) || workspace;
-          listener(viewspace, target, x, y);
+          listener(viewer, target, x, y);
         };
       },
 
       drag(listener, workspace) {
-        return function handleDrag(viewspace, x, y, dx, dy) {
+        return function handleDrag(viewer, x, y, dx, dy) {
           /*
            * XXX: This is causing jitter. Will have to look in the 
            *    debugger, perhaps multiple events are firing on drags.
@@ -326,14 +326,14 @@ const ListenerFactory = (function defineListenerFactory() {
            *    background is dragged.
            */
           const target = workspace.findItemByCoordinates(x,y) || workspace;
-          listener(viewspace, target, x, y, dx, dy);
+          listener(viewer, target, x, y, dx, dy);
         };
       },
 
       layout(listener, workspace) {
-        return function handleLayout(viewspace) {
-          if (workspace.hasView(viewspace)) { 
-            listener(viewspace);
+        return function handleLayout(viewer) {
+          if (workspace.hasViewer(viewer)) { 
+            listener(viewer);
             return true;
           }
           return false;
@@ -341,8 +341,8 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       scale(listener, workspace) {
-        return function handleScale(viewspace, scale) {
-          listener(viewspace, scale);
+        return function handleScale(viewer, scale) {
+          listener(viewer, scale);
         };
       },
     }),
@@ -426,8 +426,8 @@ const WorkSpace = (function defineWorkSpace() {
       this.handlers[message](...args);
     }
 
-    hasView(view) {
-      return this.views.some( u => u.id === view.id );
+    hasViewer(viewer) {
+      return this.views.some( u => u.id === viewer.id );
     }
 
     isFull() {
@@ -439,11 +439,11 @@ const WorkSpace = (function defineWorkSpace() {
       this.handlers[type] = ListenerFactory.build(type, listener, this);
     }
 
-    removeView(view) {
-      if (!(view instanceof ServerViewSpace)) {
-        throw 'Invalid ServerViewSpace received';
+    removeViewer(viewer) {
+      if (!(viewer instanceof ServerViewer)) {
+        throw 'Invalid ServerViewer received';
       }
-      return locals.removeByItemID(this.views, view);
+      return locals.removeByItemID(this.views, viewer);
     }
 
     removeItem(item) {
@@ -461,9 +461,9 @@ const WorkSpace = (function defineWorkSpace() {
       return this.items.map( o => o.report() );
     }
 
-    spawnView(values) {
+    spawnViewer(values) {
       if (!this.isFull()) {
-        const u = new ServerViewSpace(this.settings.bounds, values);
+        const u = new ServerViewer(this.settings.bounds, values);
         this.views.push(u);
         return u;
       }
@@ -499,8 +499,8 @@ const Connection = (function defineConnection() {
     constructor(socket, workspace) {
       this.socket = socket;
       this.workspace = workspace;
-      this.viewspace = this.workspace.spawnView();
-      if (!this.viewspace) {
+      this.viewer = this.workspace.spawnViewer();
+      if (!this.viewer) {
         this.socket.disconnect(true);
         return undefined;
       }
@@ -519,7 +519,7 @@ const Connection = (function defineConnection() {
         views: this.workspace.reportViews(),
         items: this.workspace.reportItems(),
         settings: this.workspace.settings,
-        id: this.viewspace.id,
+        id: this.viewer.id,
       });
     }
 
@@ -535,7 +535,7 @@ const Connection = (function defineConnection() {
     broadcastViewReport() {
       this.broadcast(
         globals.MSG_UD_VIEW,
-        this.viewspace.report()
+        this.viewer.report()
       );
     }
 
@@ -547,7 +547,7 @@ const Connection = (function defineConnection() {
     }
 
     passMessageToWorkspace(message, ...args) {
-      this.workspace.handle(message, this.viewspace, ...args);
+      this.workspace.handle(message, this.viewer, ...args);
       this.broadcastItemReport();
       this.broadcastViewReport();
     }
@@ -556,10 +556,10 @@ const Connection = (function defineConnection() {
      * XXX: Shouldn't we disconnect the socket???
      */
     disconnect() {
-      if (this.workspace.removeView(this.viewspace)) {
-        this.broadcast(globals.MSG_RM_VIEW, this.viewspace.id);
+      if (this.workspace.removeViewer(this.viewer)) {
+        this.broadcast(globals.MSG_RM_VIEW, this.viewer.id);
         this.socket.disconnect(true);
-        console.log(`view ${this.viewspace.id} ` +
+        console.log(`viewer ${this.viewer.id} ` +
           `disconnected from workspace ${this.workspace.id}`
         );
       } else {
@@ -568,8 +568,8 @@ const Connection = (function defineConnection() {
     }
 
     update(data) {
-      if (this.viewspace.id === data.id) {
-        this.viewspace.assign(data);
+      if (this.viewer.id === data.id) {
+        this.viewer.assign(data);
         this.broadcastViewReport()
       }
     }
@@ -587,10 +587,10 @@ const RequestHandler = (function defineRequestHandler() {
   const express = require('express');
 
   function establishMainRoutes(app) {
-    const view   = path.join(__dirname, '../src/view.html');
+    const viewer = path.join(__dirname, '../src/view.html');
     const shared = path.join(__dirname, '../src/shared.js');
     const client = path.join(__dirname, '../src/client.js');
-    app.get('/',          (req, res) => res.sendFile(view)    );
+    app.get('/',          (req, res) => res.sendFile(viewer)    );
     app.get('/shared.js', (req, res) => res.sendFile(shared)  );
     app.get('/client.js', (req, res) => res.sendFile(client)  );
   }
@@ -662,7 +662,7 @@ const WamsServer = (function defineWamsServer() {
         if (c) {
           this.connections.push(c);
           console.log(
-            `View ${c.viewspace.id} connected to workspace listening on port`,
+            `Viewer ${c.viewer.id} connected to workspace listening on port`,
             this.server.address().port
           );
         }
@@ -690,7 +690,7 @@ const WamsServer = (function defineWamsServer() {
 })();
 
 exports.ServerItem = ServerItem;
-exports.ServerViewSpace = ServerViewSpace;
+exports.ServerViewer = ServerViewer;
 exports.ListenerFactory = ListenerFactory;
 exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;

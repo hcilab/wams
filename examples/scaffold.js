@@ -16,15 +16,15 @@ const workspace = new WAMS.WorkSpace(
   }
 );
 
-const handleLayout = function(ws, view) {
+const handleLayout = function(ws, viewer) {
   // Executed once every time a new user joins
 }
 
-const handleClick = function(target, view, x, y) {
+const handleClick = function(target, viewer, x, y) {
   // Executed every time a user taps or clicks a screen
 }
 
-const handleDrag = function(target, view, x, y, dx, dy) {
+const handleDrag = function(target, viewer, x, y, dx, dy) {
   // Executed every time a drag occurs on a device 
 }
 

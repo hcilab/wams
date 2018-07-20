@@ -13,7 +13,7 @@
  *   + makeOwnPropertyImmutable,
  *   + initialize,
  *   + IDStamper,
- *   + ViewSpace,
+ *   + Viewer,
  *   + Item,
  */
 const shared = require('../src/shared.js');
@@ -166,7 +166,7 @@ describe('IDStamper', () => {
   });
 });
 
-describe('ViewSpace', () => {
+describe('Viewer', () => {
   const props = [
     'x',
     'y',
@@ -181,19 +181,19 @@ describe('ViewSpace', () => {
 
   describe('constructor(data)', () => {
     test('correctly constructs expected object', () => {
-      const vs = new shared.ViewSpace();
-      expect(vs).toBeInstanceOf(shared.ViewSpace);
+      const vs = new shared.Viewer();
+      expect(vs).toBeInstanceOf(shared.Viewer);
       expect(vs).toHaveProperty('assign');
       expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
-      const vs = new shared.ViewSpace();
+      const vs = new shared.Viewer();
       expect(Object.keys(vs)).toEqual(props);
     });
 
     test('uses provided data', () => {
-      const vs = new shared.ViewSpace({x:100, y:100, rotation: 90});
+      const vs = new shared.Viewer({x:100, y:100, rotation: 90});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -203,7 +203,7 @@ describe('ViewSpace', () => {
     });
 
     test('does not use incorrect property names in data', () => {
-      const vs = new shared.ViewSpace({x: 100, y:100, z:100});
+      const vs = new shared.Viewer({x: 100, y:100, z:100});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -212,7 +212,7 @@ describe('ViewSpace', () => {
   });
 
   describe('assign(data)', () => {
-    const vs = new shared.ViewSpace();
+    const vs = new shared.Viewer();
 
     test('throws exception if no data passed', () => {
       expect(() => vs.assign()).toThrow(); 
@@ -256,7 +256,7 @@ describe('ViewSpace', () => {
   });
 
   describe('report()', () => {
-    const vs = new shared.ViewSpace({x:100, y:50, width:200, height:300});
+    const vs = new shared.Viewer({x:100, y:50, width:200, height:300});
     test('reports data', () => {
       const data = vs.report();
       expect(Object.keys(data)).toEqual(props);

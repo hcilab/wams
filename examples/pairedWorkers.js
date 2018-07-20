@@ -34,20 +34,20 @@ workspace.spawnItem({
   imgsrc: 'scream.png'
 });
 
-function handleDrag(viewspace, target, x, y, dx, dy) {
+function handleDrag(viewer, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
     target.moveBy(-dx, -dy);
   }
 }
 
-function handleLayout(viewspace) {
+function handleLayout(viewer) {
   const viewers = workspace.viewers;
   const num_viewers = viewers.length;
 
   if (viewers.length > 0) {
-    viewspace.moveTo(
-      prev_view.right() - 30,
-      prev_view.top()
+    viewer.moveTo(
+      prev_viewer.right() - 30,
+      prev_viewer.top()
     ); 
   }
 }

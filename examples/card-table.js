@@ -69,40 +69,40 @@ const handleLayout = (function makeLayoutHandler() {
   const TOP     = 3;
   const RIGHT   = 4;
 
-  function layoutTable(workspace, viewspace) {
-    viewspace.moveTo(
+  function layoutTable(workspace, viewer) {
+    viewer.moveTo(
       workspace.getCenter().x,
       workspace.getCenter().y
     );
-    table = viewspace;
+    table = viewer;
   };
 
-  function layoutBottom(workspace, viewspace) {
-    viewspace.moveTo(
+  function layoutBottom(workspace, viewer) {
+    viewer.moveTo(
       table.left(),
       table.bottom()
     );
   };
 
-  function layoutLeft(workspace, viewspace) {
-    viewspace.rotation = Math.PI;
-    viewspace.moveTo(
+  function layoutLeft(workspace, viewer) {
+    viewer.rotation = Math.PI;
+    viewer.moveTo(
       table.left(),
-      (table.top() - viewspace.effectiveHeight)
+      (table.top() - viewer.effectiveHeight)
     );
   };
 
-  function layoutTop(workspace, viewspace) {
-    viewspace.rotation = 3*Math.PI/2;
-    viewspace.moveTo(
-      (table.left() - viewspace.effectiveWidth),
+  function layoutTop(workspace, viewer) {
+    viewer.rotation = 3*Math.PI/2;
+    viewer.moveTo(
+      (table.left() - viewer.effectiveWidth),
       table.top()
     );
   };
 
-  function layoutRight(workspace, viewspace) {
-    viewspace.rotation = Math.PI/2;
-    viewspace.moveTo(
+  function layoutRight(workspace, viewer) {
+    viewer.rotation = Math.PI/2;
+    viewer.moveTo(
       table.right(),
       table.top()
     );
@@ -115,10 +115,10 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[TOP]     = layoutTop;
   user_fns[RIGHT]   = layoutRight;
 
-  function handleLayout(workspace, viewspace) {
+  function handleLayout(workspace, viewer) {
     const index = workspace.views.length;
     if (index <= 4) {
-      user_fns[index](workspace, viewspace);
+      user_fns[index](workspace, viewer);
     }
   }
 
@@ -130,9 +130,9 @@ const handleDrag = (function makeDragHandler() {
     return tgt.type === 'joker' || target.type === 'text';
   }
 
-  function handleDrag(target, viewspace, x, y, dx, dy) {
+  function handleDrag(target, viewer, x, y, dx, dy) {
     if (target.type === 'view/background') {
-      viewspace.moveBy(dx, dy);
+      viewer.moveBy(dx, dy);
     } else if (isItem(target)) {
       // Needs negative values because dx/dx are change from 
       //  origin of drag
@@ -143,14 +143,14 @@ const handleDrag = (function makeDragHandler() {
   return handleDrag;
 })();
 
-const handleScale = function(viewspace, newScale) {
-  viewspace.rescale(newScale);
+const handleScale = function(viewer, newScale) {
+  viewer.rescale(newScale);
 }
 
 const handleClick = (function makeClickHandler() {
   let faceUp = true;
 
-  function handleClick(target, viewspace, x, y) {
+  function handleClick(target, viewer, x, y) {
     if (target.type === 'joker') {
       const imgsrc = faceUp ? 'card-back.png' : 'joker.png';
       target.assign({imgsrc});

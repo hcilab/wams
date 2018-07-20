@@ -26,11 +26,11 @@ workspace.addItem(new WAMS.Item(
   }
 ));
 
-const handleLayout = function(workspace, view) {
+const handleLayout = function(workspace, viewer) {
   // Executed once every time a new user joins
   const views = workspace.views;
   if (views.length > 1) {
-    view.moveTo(workspace.getCenter().x, workspace.getCenter().y);
+    viewer.moveTo(workspace.getCenter().x, workspace.getCenter().y);
   }
 }
 
@@ -58,11 +58,11 @@ const handleClick = (function makeClickHandler(workspace) {
     );
   }
 
-  function handleClick(target, view, x, y) {
+  function handleClick(target, viewer, x, y) {
     if (target.type === 'color') {
       workspace.removeItem(target);
     } else {
-      workspace.addItem(square(x, y, view.id % 6));
+      workspace.addItem(square(x, y, viewer.id % 6));
     }
   }
 
@@ -70,7 +70,7 @@ const handleClick = (function makeClickHandler(workspace) {
 })(workspace);
 
 // Executed every time a drag occurs on a device
-function handleDrag(target, view, x, y, dx, dy) {
+function handleDrag(target, viewer, x, y, dx, dy) {
   if (target.type === 'color') {
     target.moveBy(-dx, -dy);
   } else if (target.type === 'view/background') {
@@ -79,8 +79,8 @@ function handleDrag(target, view, x, y, dx, dy) {
 }
 
 // Executed when a user pinches a device, or uses the scroll wheel on a computer
-function handleScale(view, newScale) {
-  view.rescale(newScale);
+function handleScale(viewer, newScale) {
+  viewer.rescale(newScale);
 }
 
 // Attaches the defferent function handlers
