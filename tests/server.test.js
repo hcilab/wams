@@ -702,7 +702,6 @@ describe('WorkSpace', () => {
     });
   });
 
-  // Use one workspace for the rest of the tests.
   describe('spawnItem(values)', () => {
     const ws = new WorkSpace();
     const DEFAULTS = Object.freeze({
@@ -1167,6 +1166,5 @@ describe('WorkSpace', () => {
       });
     });
   });
-
 });
 
