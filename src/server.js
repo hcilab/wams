@@ -296,57 +296,6 @@ const ServerViewSpace = (function defineServerViewSpace() {
 })();
 
 /*
- * XXX: The paths being used in the request handler are a little hacky and all
- *      over the place right now. Look into how to normalize them.
- */
-const RequestHandler = (function defineRequestHandler() {
-  const path = require('path');
-  const express = require('express');
-
-  function establishMainRoutes(app) {
-    const view   = path.join(__dirname, '../src/view.html');
-    const shared = path.join(__dirname, '../src/shared.js');
-    const client = path.join(__dirname, '../src/client.js');
-    app.get('/',          (req, res) => res.sendFile(view)    );
-    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
-    app.get('/client.js', (req, res) => res.sendFile()        );
-  }
-
-  function establishAuxiliaryRoutes(app) {
-    /* 
-     * XXX: express.static() generates a middleware function for 
-     *    serving static assets from the directory specified.
-     *    - The order in which these functions are registered with
-     *      this.app.use() is important! The callbacks will be triggered
-     *      in this order!
-     *    - When this.app.use() is called without a 'path' argument, as it 
-     *      is here, it uses the default '/' argument, with the 
-     *      result that these callbacks will be executed for 
-     *      _every_ request to the app!
-     *      + Should therefore consider specifying the path!!
-     *    - Should also consider specifying options. Possibly useful:
-     *      + immutable
-     *      + maxAge
-     */
-    const images = path.join(__dirname, './Images');
-    const libs = path.join(__dirname, '../libs');
-    app.use(express.static(images));
-    app.use(express.static(libs));
-  }
-
-  class RequestHandler {
-    constructor() {
-      const app = express();
-      establishMainRoutes(app);
-      establishAuxiliaryRoutes(app);
-      return app;
-    }
-  }
-
-  return RequestHandler;
-})();
-
-/*
  * Treat this factory as a static class with no constructor. If you try to
  * instantiate it with the 'new' keyword you will get an exception. Its primary
  * usage is for generating appropriate listeners via its 'build' function.
@@ -512,6 +461,57 @@ const WorkSpace = (function defineWorkSpace() {
   }
 
   return WorkSpace;
+})();
+
+/*
+ * XXX: The paths being used in the request handler are a little hacky and all
+ *      over the place right now. Look into how to normalize them.
+ */
+const RequestHandler = (function defineRequestHandler() {
+  const path = require('path');
+  const express = require('express');
+
+  function establishMainRoutes(app) {
+    const view   = path.join(__dirname, '../src/view.html');
+    const shared = path.join(__dirname, '../src/shared.js');
+    const client = path.join(__dirname, '../src/client.js');
+    app.get('/',          (req, res) => res.sendFile(view)    );
+    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+    app.get('/client.js', (req, res) => res.sendFile()        );
+  }
+
+  function establishAuxiliaryRoutes(app) {
+    /* 
+     * XXX: express.static() generates a middleware function for 
+     *    serving static assets from the directory specified.
+     *    - The order in which these functions are registered with
+     *      this.app.use() is important! The callbacks will be triggered
+     *      in this order!
+     *    - When this.app.use() is called without a 'path' argument, as it 
+     *      is here, it uses the default '/' argument, with the 
+     *      result that these callbacks will be executed for 
+     *      _every_ request to the app!
+     *      + Should therefore consider specifying the path!!
+     *    - Should also consider specifying options. Possibly useful:
+     *      + immutable
+     *      + maxAge
+     */
+    const images = path.join(__dirname, './Images');
+    const libs = path.join(__dirname, '../libs');
+    app.use(express.static(images));
+    app.use(express.static(libs));
+  }
+
+  class RequestHandler {
+    constructor() {
+      const app = express();
+      establishMainRoutes(app);
+      establishAuxiliaryRoutes(app);
+      return app;
+    }
+  }
+
+  return RequestHandler;
 })();
 
 const WamsServer = (function defineWamsServer() {
