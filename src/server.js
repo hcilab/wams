@@ -517,7 +517,6 @@ const RequestHandler = (function defineRequestHandler() {
 const WamsServer = (function defineWamsServer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
-      debug: false,
       clientLimit: 10,
     }),
     PORT: 9000,
@@ -570,10 +569,6 @@ const WamsServer = (function defineWamsServer() {
           );
         }
       });
-    }
-
-    on(event, listener) {
-      this.workspace.on(event, listener);
     }
   }
 
