@@ -126,14 +126,14 @@ const handleLayout = (function makeLayoutHandler() {
 })();
 
 const handleDrag = (function makeDragHandler() {
-  function isObject(tgt) {
+  function isItem(tgt) {
     return tgt.type === 'joker' || target.type === 'text';
   }
 
   function handleDrag(target, viewspace, x, y, dx, dy) {
     if (target.type === 'view/background') {
       viewspace.moveBy(dx, dy);
-    } else if (isObject(target)) {
+    } else if (isItem(target)) {
       // Needs negative values because dx/dx are change from 
       //  origin of drag
       target.moveBy(-dx, -dy);  

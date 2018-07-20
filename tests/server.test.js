@@ -663,6 +663,7 @@ describe('WorkSpace', () => {
     test('Uses user-defined settings, if provided', () => {
       const custom = {
         color: 'rgb(155,72, 84)',
+        clientLimit: 4,
         bounds: {
           x: 1080,
           y: 1920,
@@ -700,8 +701,8 @@ describe('WorkSpace', () => {
   });
 
   // Use one workspace for the rest of the tests.
-  const ws = new WorkSpace();
   describe('spawnItem(values)', () => {
+    const ws = new WorkSpace();
     const DEFAULTS = Object.freeze({
       x: 0,
       y: 0,
@@ -711,6 +712,10 @@ describe('WorkSpace', () => {
       imgsrc: '',
       drawCustom: '',
       drawStart: '',
+    });
+
+    test('Returns a ServerItem', () => {
+      expect(ws.spawnItem()).toBeInstanceOf(ServerItem);
     });
 
     test('Uses default Item values if none provided', () => {
@@ -730,6 +735,92 @@ describe('WorkSpace', () => {
       const i = ws.spawnItem({x:155,y:155});
       expect(ws.items).toContain(i);
     });
+  });
+
+  describe('reportItems()', () => {
+    let ws;
+    const expectedProperties = [
+      'x',
+      'y',
+      'width',
+      'height',
+      'type',
+      'imgsrc',
+      'drawCustom',
+      'drawStart',
+      'id',
+    ];
+
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnItem();
+      ws.spawnItem({x:20,y:40});
+      ws.spawnItem({x:220,y:240,width:50,height:50});
+    });
+
+    test('Returns an array', () => {
+      expect(ws.reportItems()).toBeInstanceOf(Array);
+    });
+
+    test('Does not return the actual items, but simple Objects', () => {
+      const r = ws.reportItems();
+      r.forEach( i => {
+        expect(i).not.toBeInstanceOf(ServerItem);
+        expect(i).toBeInstanceOf(Object);
+      });
+    });
+
+    test('Objects returned contain only the expected data', () => {
+      const r = ws.reportItems();
+      r.forEach( i => {
+        expect(Object.getOwnPropertyNames(i)).toEqual(expectedProperties);
+      });
+    });
+
+    test('Returns data for each item that exists in the workspace', () => {
+      expect(ws.reportItems().length).toBe(ws.items.length);
+    });
+  });
+
+  describe('findItemByCoordinates(x,y)', () => {
+    let ws;
+    beforeAll(() => {
+      ws = new WorkSpace();
+      ws.spawnItem({x:0,y:0,width:100,height:100});
+      ws.spawnItem({x:20,y:40,width:100,height:100});
+      ws.spawnItem({x:220,y:240,width:50,height:50});
+    });
+
+    test('Finds an item at the given coordinates, if one exists', () => {
+      let i = ws.findItemByCoordinates(0,0);
+      expect(i).toBeDefined();
+      expect(i).toBeInstanceOf(ServerItem);
+      expect(i).toBe(ws.items[0]);
+
+      i = ws.findItemByCoordinates(110,110);
+      expect(i).toBeDefined();
+      expect(i).toBeInstanceOf(ServerItem);
+      expect(i).toBe(ws.items[1]);
+
+      i = ws.findItemByCoordinates(250,250);
+      expect(i).toBeDefined();
+      expect(i).toBeInstanceOf(ServerItem);
+      expect(i).toBe(ws.items[2]);
+    });
+
+    test('Finds the first item at the given coordinates', () => {
+      const i = ws.findItemByCoordinates(25,45);
+      expect(i).toBeDefined();
+      expect(i).toBeInstanceOf(ServerItem);
+      expect(i).toBe(ws.items[0]);
+    });
+
+    test('Returns undefined if no item at given coordinates', () => {
+      expect(ws.findItemByCoordinates(150,150)).toBeUndefined();
+    });
+  });
+
+  describe('removeItem(obj)', () => {
   });
 
 });

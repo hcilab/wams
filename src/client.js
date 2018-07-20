@@ -108,7 +108,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *      generate <img> elements by calling new Image()! Pretty cool
      *      actually! I'll probably make use of that!
      */
-    addObject(obj) {
+    addItem(obj) {
       this.items.push(new ClientItem(obj));
     }
 
@@ -320,7 +320,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.settings = initData.settings;
       globals.VS_ID_STAMPER.stamp(this, initData.id);
       initData.views.forEach( v => this.addView(v) );
-      initData.items.forEach( o => this.addObject(o) );
+      initData.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
       globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
     }
@@ -397,9 +397,9 @@ const ClientViewSpace = (function defineClientViewSpace() {
      *    efficient than this mechanism of trashing, copying, and 
      *    regenerating.
      */
-    onUpdateObjects(objects) {
+    onUpdateItems(objects) {
       this.items.splice(0, this.items.length);
-      objects.forEach( o => this.addObject(o) );
+      objects.forEach( o => this.addItem(o) );
     }
 
     /*
@@ -434,7 +434,7 @@ const ClientViewSpace = (function defineClientViewSpace() {
       globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
       globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateView.bind(this));
       globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveView.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_OBJS, this.onUpdateObjects.bind(this));
+      globals.SOCKET.on(globals.MSG_UD_OBJS, this.onUpdateItems.bind(this));
       globals.SOCKET.on('message', (message) => {
         if (message === globals.MSG_DC_VIEW) {
           document.body.innerHTML = '<H1>' +

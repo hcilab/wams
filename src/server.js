@@ -313,7 +313,7 @@ const ListenerFactory = (function defineListenerFactory() {
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewspace, x, y) {
-          const target = workspace.findObjectByCoordinates(x,y) || workspace;
+          const target = workspace.findItemByCoordinates(x,y) || workspace;
           listener(viewspace, target, x, y);
         };
       },
@@ -327,7 +327,7 @@ const ListenerFactory = (function defineListenerFactory() {
            *    The source of the jitter seems to be when the 
            *    background is dragged.
            */
-          const target = workspace.findObjectByCoordinates(x,y) || workspace;
+          const target = workspace.findItemByCoordinates(x,y) || workspace;
           listener(viewspace, target, x, y, dx, dy);
         };
       },
@@ -420,7 +420,7 @@ const WorkSpace = (function defineWorkSpace() {
     //   //TODO: probably send a workspace update message
     // }
 
-    findObjectByCoordinates(x,y) {
+    findItemByCoordinates(x,y) {
       return this.items.find( o => o.containsPoint(x,y) );
     }
 
@@ -646,7 +646,7 @@ const Connection = (function defineConnection() {
       );
     }
 
-    broadcastObjectReport() {
+    broadcastItemReport() {
       this.broadcast(
         globals.MSG_UD_OBJS,
         this.workspace.reportItems()
@@ -655,7 +655,7 @@ const Connection = (function defineConnection() {
 
     passMessageToWorkspace(message, ...args) {
       this.workspace.handle(message, this.viewspace, ...args);
-      this.broadcastObjectReport();
+      this.broadcastItemReport();
       this.broadcastViewReport();
     }
 
