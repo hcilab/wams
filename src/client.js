@@ -18,10 +18,6 @@
 const globals = (function defineGlobals() {
   const constants = {
     FRAMERATE: 1000 / 60,
-    ROTATE_0: 0,
-    ROTATE_90: Math.PI / 2,
-    ROTATE_180: Math.PI,
-    ROTATE_270: Math.PI * 1.5,
     SOCKET: io(),
     VS_ID_STAMPER: new WamsShared.IDStamper(),
     ITEM_ID_STAMPER: new WamsShared.IDStamper(),

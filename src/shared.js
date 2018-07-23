@@ -27,6 +27,10 @@ const WamsShared = (function defineSharedWamsModule() {
     MSG_UD_ITEMS:    'wams-update-items',
     MSG_UD_VIEW:    'wams-update-viewer',
     MSG_UPDATE:     'wams-update',
+    ROTATE_0:   0,
+    ROTATE_90:  Math.PI / 2,
+    ROTATE_180: Math.PI,
+    ROTATE_270: Math.PI * 1.5,
   };
 
   const NOP = () => {};
