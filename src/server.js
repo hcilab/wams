@@ -478,19 +478,24 @@ const WorkSpace = (function defineWorkSpace() {
   return WorkSpace;
 })();
 
+/*
+ * A Connection maintains a socket.io connection between a client and the
+ * server. It tracks a viewer associated with the client, as well as the 
+ * associated workspace.
+ */
 const Connection = (function defineConnection() {
   const locals = Object.freeze({
-    LOCAL_HANDLERS: Object.freeze([
-        {msg: globals.MSG_DISCONNECT, handler: 'disconnect'},
-        {msg: globals.MSG_UPDATE,     handler: 'update'},
-    ]),
+    LOCAL_HANDLERS: Object.freeze({ 
+      [globals.MSG_DISCONNECT]: 'disconnect',
+      [globals.MSG_UPDATE]:     'update',
+    }),
 
-    WORKSPACE_HANDLERS: Object.freeze([
-        {msg: globals.MSG_CLICK,      handler: 'click'},
-        {msg: globals.MSG_DRAG,       handler: 'drag'},
-        {msg: globals.MSG_SCALE,      handler: 'scale'},
-        {msg: globals.MSG_LAYOUT,     handler: 'layout'},
-    ]),
+    WORKSPACE_HANDLERS: Object.freeze({ 
+      [globals.MSG_CLICK]:  'click',
+      [globals.MSG_DRAG]:   'drag',
+      [globals.MSG_SCALE]:  'scale',
+      [globals.MSG_LAYOUT]: 'layout',
+    }),
   });
 
   class Connection {
@@ -503,13 +508,13 @@ const Connection = (function defineConnection() {
         return undefined;
       }
 
-      locals.LOCAL_HANDLERS.forEach( e => {
-        this.socket.on(e.msg, this[e.handler].bind(this));
+      Object.entries(locals.LOCAL_HANDLERS).forEach( ([p,v]) => {
+        this.socket.on(p, this[v].bind(this));
       });
 
-      locals.WORKSPACE_HANDLERS.forEach( e => {
-        this.socket.on(e.msg, (...args) => {
-          this.passMessageToWorkspace(e.handler, ...args);
+      Object.entries(locals.WORKSPACE_HANDLERS).forEach( ([p,v]) => {
+        this.socket.on(p, (...args) => {
+          this.passMessageToWorkspace(v, ...args);
         }); 
       });
 
@@ -627,6 +632,13 @@ const RequestHandler = (function defineRequestHandler() {
   return RequestHandler;
 })();
 
+/*
+ * A WamsServer handles the core server operations of a Wams program,
+ * including server establishment, and establishing Connections when new
+ * clients connect to the server, as well as tracking the workspace
+ * associated with the server so that Connections can be linked to the 
+ * workspace.
+ */
 const WamsServer = (function defineWamsServer() {
   const http = require('http');
   const io = require('socket.io');
