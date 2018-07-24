@@ -15,7 +15,7 @@
  *  the server.
  */
 const WamsShared = (function defineSharedWamsModule() {
-  const constants = {
+  const constants = Object.freeze({
     MSG_CLICK:      'wams-click',
     MSG_DC_VIEW:    'wams-disconnect',
     MSG_DISCONNECT: 'wams-disconnect',
@@ -31,7 +31,7 @@ const WamsShared = (function defineSharedWamsModule() {
     ROTATE_90:  Math.PI / 2,
     ROTATE_180: Math.PI,
     ROTATE_270: Math.PI * 1.5,
-  };
+  });
 
   const NOP = () => {};
 

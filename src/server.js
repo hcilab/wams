@@ -27,32 +27,9 @@
 const WamsShared = require('./shared.js');
 
 /*
- * I'm using a frozen 'globals' object with all global constants and variables 
- * defined as properties on it, to make global references explicit. I've been 
- * toying with this design pattern in my other JavaScript code and I think I 
- * quite like it.
- *
- * Right now all it does though is copy the constants from WamsShared, so I
- * might simplify it a bit.
+ * Shorthand for the shared set of constants between server and client.
  */
-const globals = (function defineGlobals() {
-  const rv = {};
-
-  /*
-   * I centralized some constant descriptions in the shared file, so collect 
-   * them from there.
-   */
-  Object.entries(WamsShared.constants).forEach( ([p,v]) => {
-    Object.defineProperty(rv, p, {
-      value: v,
-      configurable: false,
-      enumerable: true,
-      writable: false
-    });
-  });
-
-  return Object.freeze(rv);
-})();
+const globals = Object.freeze(WamsShared.constants);
 
 /*
  * The ServerItem provides operations for the server to locate and move items
