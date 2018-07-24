@@ -146,7 +146,7 @@ const ServerItem = (function defineServerItem() {
 
 /*
  * The ServerViewer provides operations for the server to locate, move,
- * and rescale views.
+ * and rescale viewers.
  */
 const ServerViewer = (function defineServerViewer() {
   const locals = Object.freeze({
@@ -363,8 +363,8 @@ const ListenerFactory = (function defineListenerFactory() {
 })();
 
 /*
- * The WorkSpace keeps track of views and items, and can handle events on those
- * items and views which allow them to be interacted with.
+ * The WorkSpace keeps track of viewers and items, and can handle events on those
+ * items and viewers which allow them to be interacted with.
  */
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
@@ -395,7 +395,7 @@ const WorkSpace = (function defineWorkSpace() {
 
       // Things to track.
       // this.subWS = [];
-      this.views = [];
+      this.viewers = [];
       this.items = [];
 
       // Attach NOPs for the event listeners, so they are callable.
@@ -425,11 +425,11 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     hasViewer(viewer) {
-      return this.views.some( u => u.id === viewer.id );
+      return this.viewers.some( u => u.id === viewer.id );
     }
 
     isFull() {
-      return this.views.length >= this.settings.clientLimit;  
+      return this.viewers.length >= this.settings.clientLimit;  
     }
 
     on(event, listener) {
@@ -441,7 +441,7 @@ const WorkSpace = (function defineWorkSpace() {
       if (!(viewer instanceof ServerViewer)) {
         throw 'Invalid ServerViewer received';
       }
-      return locals.removeByItemID(this.views, viewer);
+      return locals.removeByItemID(this.viewers, viewer);
     }
 
     removeItem(item) {
@@ -451,8 +451,8 @@ const WorkSpace = (function defineWorkSpace() {
       return locals.removeByItemID(this.items, item);
     }
 
-    reportViews() {
-      return this.views.map( v => v.report() );
+    reportViewers() {
+      return this.viewers.map( v => v.report() );
     }
 
     reportItems() {
@@ -462,7 +462,7 @@ const WorkSpace = (function defineWorkSpace() {
     spawnViewer(values) {
       if (!this.isFull()) {
         const u = new ServerViewer(this.settings.bounds, values);
-        this.views.push(u);
+        this.viewers.push(u);
         return u;
       }
       return false;
@@ -519,7 +519,7 @@ const Connection = (function defineConnection() {
       });
 
       this.socket.emit(globals.MSG_INIT, {
-        views: this.workspace.reportViews(),
+        viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         settings: this.workspace.settings,
         id: this.viewer.id,

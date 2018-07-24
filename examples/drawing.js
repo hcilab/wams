@@ -28,8 +28,8 @@ workspace.addItem(new WAMS.Item(
 
 const handleLayout = function(workspace, viewer) {
   // Executed once every time a new user joins
-  const views = workspace.views;
-  if (views.length > 1) {
+  const viewers = workspace.viewers;
+  if (viewers.length > 1) {
     viewer.moveTo(workspace.getCenter().x, workspace.getCenter().y);
   }
 }

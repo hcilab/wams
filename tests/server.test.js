@@ -898,18 +898,18 @@ describe('WorkSpace', () => {
         width: 42,
         height: 870,
       });
-      expect(ws.views).toContain(vs);
+      expect(ws.viewers).toContain(vs);
     });
 
     test('Does not spawn a viewer if clientLimit reached', () => {
       /*
-       * 4 views have been spawned by this workspace and none removed.
+       * 4 viewers have been spawned by this workspace and none removed.
        * The clientLimit was set to 4.
        * Therefore, trying to spawn another one should fail.
        */
       const v = ws.spawnViewer();
       expect(v).toBeFalsy();
-      expect(ws.views).not.toContain(v);
+      expect(ws.viewers).not.toContain(v);
     });
   });
 
@@ -923,11 +923,11 @@ describe('WorkSpace', () => {
       ws.spawnViewer({x:2});
     });
 
-    test('Accepts views that have been spawned by the workspace', () => {
+    test('Accepts viewers that have been spawned by the workspace', () => {
       expect(ws.hasViewer(viewer)).toBe(true);
     });
 
-    test('Rejects views that were not spawned by the workspace', () => {
+    test('Rejects viewers that were not spawned by the workspace', () => {
       const v = new ServerViewer({x:200,y:200});
       expect(ws.hasViewer(v)).toBe(false);
       const f = new ServerViewer({x:200,y:200},{x:2});
@@ -935,7 +935,7 @@ describe('WorkSpace', () => {
     });
   });
 
-  describe('reportViews()', () => {
+  describe('reportViewers()', () => {
     let ws;
     const expectedProperties = [
       'x',
@@ -958,24 +958,24 @@ describe('WorkSpace', () => {
     });
 
     test('Returns an array', () => {
-      expect(ws.reportViews()).toBeInstanceOf(Array);
+      expect(ws.reportViewers()).toBeInstanceOf(Array);
     });
 
     test('Does not return the actual Viewers, but simple Objects', () => {
-      ws.reportViews().forEach( v => {
+      ws.reportViewers().forEach( v => {
         expect(v).not.toBeInstanceOf(ServerViewer);
         expect(v).toBeInstanceOf(Object);
       });
     });
 
     test('Objects returned contain only the expected data', () => {
-      ws.reportViews().forEach( v => {
+      ws.reportViewers().forEach( v => {
         expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
       });
     });
 
     test('Returns data for each Viewer in the workspace', () => {
-      expect(ws.reportViews().length).toBe(ws.views.length);
+      expect(ws.reportViewers().length).toBe(ws.viewers.length);
     });
 
   });
@@ -993,15 +993,15 @@ describe('WorkSpace', () => {
 
     test('Removes a viewer if it is found', () => {
       expect(ws.removeViewer(viewer)).toBe(true);
-      expect(ws.views).not.toContain(viewer);
+      expect(ws.viewers).not.toContain(viewer);
       expect(ws.hasViewer(viewer)).toBe(false);
     });
 
     test('Does not remove anything if viewer not found', () => {
       const v = new ServerViewer({x:200,y:200});
-      const curr = Array.from(ws.views);
+      const curr = Array.from(ws.viewers);
       expect(ws.removeViewer(v)).toBe(false);
-      expect(ws.views).toMatchObject(curr);
+      expect(ws.viewers).toMatchObject(curr);
     });
 
     test('Throws exception if not viewer provided', () => {

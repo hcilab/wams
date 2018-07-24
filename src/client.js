@@ -27,9 +27,7 @@ if (typeof require === 'function') {
  */
 const globals = (function defineGlobals() {
   const constants = {
-    FRAMERATE: 1000 / 60,
     SOCKET: io(),
-    ITEM_ID_STAMPER: new WamsShared.IDStamper(),
   };
 
   const variables = {
@@ -83,6 +81,7 @@ const ClientViewer = (function defineClientViewer() {
       rotation: globals.ROTATE_0,
       scale: 1,
     }),
+    FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
   });
 
@@ -92,25 +91,21 @@ const ClientViewer = (function defineClientViewer() {
       this.canvas = document.querySelector('#main');
       this.context = this.canvas.getContext('2d');
       this.items = [];
-      // this.subViews = [];
+      // this.subViewers = [];
       this.startScale = null;
       this.transforming = false;
       this.mouse = {x: 0, y: 0};
-      this.otherViews = [];
+      this.otherViewers = [];
     }
 
     addItem(item) {
       this.items.push(new ClientItem(item));
     }
 
-    /*
-     * XXX: These can probably be some kind of "shadow" viewer,
-     *    as very little of their data seems to be needed.
-     */
     addViewer(info) {
       const nvs = new Viewer().assign(info);
       locals.STAMPER.stamp(nvs, info.id);
-      this.otherViews.push(nvs);
+      this.otherViewers.push(nvs);
     }
 
     /*
@@ -147,9 +142,9 @@ const ClientViewer = (function defineClientViewer() {
 
       /*
        * XXX: What exactly is going on here? Is this where we draw the 
-       *    rectangles showing views where the other views are looking?
+       *    rectangles showing viewers where the other viewers are looking?
        */
-      this.otherViews.forEach( v => {
+      this.otherViewers.forEach( v => {
         this.context.beginPath();
         this.context.rect(
           v.x,
@@ -211,11 +206,11 @@ const ClientViewer = (function defineClientViewer() {
 
     reportViewer(reportSubWS = false) {
       /*
-       * XXX: Do we want to connect the subviews in this viewer somehow, so 
+       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
        *    that they are clearly linked in the report?
        */
       // if (reportSubWS) {
-      //   this.subViews.forEach( subWS => subWS.reportViewer(true) );
+      //   this.subViewers.forEach( subWS => subWS.reportViewer(true) );
       // }
 
       globals.SOCKET.emit('reportViewer', this.report());
@@ -264,7 +259,7 @@ const ClientViewer = (function defineClientViewer() {
           10, 60
         );
         this.context.fillText(
-          `Number of Other Views: ${this.otherViews.length}`, 
+          `Number of Other Viewers: ${this.otherViewers.length}`, 
           10, 80
         );
         this.context.fillText(
@@ -308,7 +303,7 @@ const ClientViewer = (function defineClientViewer() {
     onInit(initData) {
       globals.settings = initData.settings;
       globals.VS_ID_STAMPER.stamp(this, initData.id);
-      initData.views.forEach( v => this.addViewer(v) );
+      initData.viewers.forEach( v => this.addViewer(v) );
       initData.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
       globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
@@ -332,9 +327,9 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     onRemoveViewer(id) {
-      const index = this.otherViews.findIndex( v => v.id === id );
+      const index = this.otherViewers.findIndex( v => v.id === id );
       if (index >= 0) {
-        this.otherViews.splice(index,1);
+        this.otherViewers.splice(index,1);
       }
     }
 
@@ -400,7 +395,7 @@ const ClientViewer = (function defineClientViewer() {
       if (vsInfo.id === this.id) {
         this.assign(vsInfo);
       } else {
-        const viewer = this.otherViews.find( v => v.id === vsInfo.id );
+        const viewer = this.otherViewers.find( v => v.id === vsInfo.id );
         if (viewer) viewer.assign(vsInfo);
         else this.addViewer(vsInfo);
       }
@@ -413,7 +408,7 @@ const ClientViewer = (function defineClientViewer() {
       /*
        * XXX: Are we sure we want to do this right away?
        */
-      window.setInterval(this.draw.bind(this), globals.FRAMERATE);
+      window.setInterval(this.draw.bind(this), locals.FRAMERATE);
 
       /*
        * XXX: Why do these listeners need to be attached all the way down 

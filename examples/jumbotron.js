@@ -42,10 +42,10 @@ const handleDrag = function(target, client, x, y, dx, dy) {
 
 // Example Layout function that takes in the newly added client and which 
 //  workspace they joined.
-// Lays out views in a decending staircase pattern
+// Lays out viewers in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
-  function getMove(num_views, prev_viewer) {
-    if (num_views % 2 === 0) { 
+  function getMove(num_viewers, prev_viewer) {
+    if (num_viewers % 2 === 0) { 
       return {
         x: prev_viewer.right() - 10;
         y: prev_viewer.top();
@@ -58,12 +58,12 @@ const handleLayout = (function makeLayoutHandler() {
   }
 
   function handleLayout(workspace, client) {
-    const otherViews = workspace.views;
-    const num_views = otherViews.length;
+    const otherViewers = workspace.viewers;
+    const num_viewers = otherViewers.length;
     
-    if (num_views > 0) {
-      const prev_viewer = otherViews[num_views - 1];
-      const move = getMove(num_views, prev_viewer);
+    if (num_viewers > 0) {
+      const prev_viewer = otherViewers[num_viewers - 1];
+      const move = getMove(num_viewers, prev_viewer);
       client.moveTo(move.x, move.y);
     }
   }
