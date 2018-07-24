@@ -26,19 +26,7 @@ if (typeof require === 'function') {
  * quite like it.
  */
 const globals = (function defineGlobals() {
-  const variables = {
-    settings: null,
-  }
-
   const rv = {};
-  Object.entries(variables).forEach( ([p,v]) => {
-    Object.defineProperty(rv, p, {
-      get() { return variables[p]; },
-      set(value) { variables[p] = value; },
-      configurable: false,
-      enumerable: true
-    });
-  });
 
   /*
    * I centralized some constant descriptions in the shared file, so collect 
@@ -125,7 +113,7 @@ const ClientViewer = (function defineClientViewer() {
       this.context.translate(-this.x, -this.y);
       this.context.rotate(this.rotation);
 
-      this.setOrientation();
+      this.locate();
 
       this.items.forEach( o => o.draw(this.context) );
       locals.drawOutlineRectangles(this.context, this.otherViewers);
@@ -145,10 +133,7 @@ const ClientViewer = (function defineClientViewer() {
         y: (this.effectiveHeight / 2) + this.y,
       };
 
-      const coords = {
-        x: -1, 
-        y: -1,
-      };
+      const coords = { x: -1, y: -1, };
 
       /*
        * XXX: Still need to figure out the "why" of this math. Once I've 
@@ -190,7 +175,7 @@ const ClientViewer = (function defineClientViewer() {
       this.socket.emit('reportViewer', this.report());
     }
 
-    setOrientation() {
+    locate() {
       switch(this.rotation) {
         case(globals.ROTATE_0): 
           break;
@@ -216,41 +201,34 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     showStatus() {
-      /*
-       * XXX: This should be a function.
-       */
-      if (globals.settings !== null && globals.settings.debug) {
-        this.context.font = '18px Georgia';
-        this.context.fillText(
-          `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
-          `${this.y.toFixed(2)}`, 
-          10, 40
-        );
-        this.context.fillText(
-          `Bottom Right Corner: ` +
-          `${(this.x + this.width).toFixed(2)}, ` + 
-          `${(this.y + this.height).toFixed(2)}`,
-          10, 60
-        );
-        this.context.fillText(
-          `Number of Other Viewers: ${this.otherViewers.length}`, 
-          10, 80
-        );
-        this.context.fillText(
-          `Viewer Scale: ${this.scale.toFixed(2)}`, 
-          10, 100
-        );
-        this.context.fillText(
-          `ClientViewer Rotation: ${this.rotation}`, 
-          10, 120
-        );
-      }
+      this.context.font = '18px Georgia';
+      this.context.fillText(
+        `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
+        `${this.y.toFixed(2)}`, 
+        10, 40
+      );
+      this.context.fillText(
+        `Bottom Right Corner: ` +
+        `${(this.x + this.width).toFixed(2)}, ` + 
+        `${(this.y + this.height).toFixed(2)}`,
+        10, 60
+      );
+      this.context.fillText(
+        `Number of Other Viewers: ${this.otherViewers.length}`, 
+        10, 80
+      );
+      this.context.fillText(
+        `Viewer Scale: ${this.scale.toFixed(2)}`, 
+        10, 100
+      );
+      this.context.fillText(
+        `ClientViewer Rotation: ${this.rotation}`, 
+        10, 120
+      );
     }
 
     drag(event) {
-      if (this.transforming) {
-        return;
-      }
+      if (this.transforming) { return; }
 
       const lastMouse = this.mouse;
       this.mouse = this.getMouseCoordinates(event);
@@ -274,16 +252,15 @@ const ClientViewer = (function defineClientViewer() {
       this.mouse = this.getMouseCoordinates(event);
     }
 
-    onInit(initData) {
-      globals.settings = initData.settings;
-      globals.VS_ID_STAMPER.stamp(this, initData.id);
+    setup(initData) {
+      locals.STAMPER.stamp(this, initData.id);
       initData.viewers.forEach( v => this.addViewer(v) );
       initData.items.forEach( o => this.addItem(o) );
-      this.canvas.style.backgroundColor = globals.settings.BGcolor;
+      this.canvas.style.backgroundColor = initData.settings.BGcolor;
       this.socket.emit(globals.MSG_LAYOUT, this.report());
     }
 
-    onMouseScroll(event) {
+    mouseScroll(event) {
       /*
        * XXX: Let's have a close look at this. With no comments, I'm not 
        *    sure why a Math.max(Math.min()) structure is necessary. We 
@@ -300,14 +277,14 @@ const ClientViewer = (function defineClientViewer() {
       this.socket.emit(globals.MSG_SCALE, this, newScale);
     }
 
-    onRemoveViewer(id) {
+    removeViewer(id) {
       const index = this.otherViewers.findIndex( v => v.id === id );
       if (index >= 0) {
         this.otherViewers.splice(index,1);
       }
     }
 
-    onResized(event) {
+    resize(event) {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
       this.canvas.width = this.width; 
@@ -355,7 +332,7 @@ const ClientViewer = (function defineClientViewer() {
      *    efficient than this mechanism of trashing, copying, and 
      *    regenerating.
      */
-    onUpdateItems(items) {
+    updateItems(items) {
       this.items.splice(0, this.items.length);
       items.forEach( o => this.addItem(o) );
     }
@@ -365,7 +342,7 @@ const ClientViewer = (function defineClientViewer() {
      *    just an wams-update-viewer event, unless there's some very good reason 
      *    not to do so.
      */
-    onUpdateViewer(vsInfo) {
+    updateViewer(vsInfo) {
       if (vsInfo.id === this.id) {
         this.assign(vsInfo);
       } else {
@@ -375,7 +352,7 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
-    onWindowLoad() {
+    run() {
       this.canvas.width = window.innerWidth;
       this.canvas.height = window.innerHeight;
 
@@ -385,10 +362,10 @@ const ClientViewer = (function defineClientViewer() {
       window.setInterval(this.draw.bind(this), locals.FRAMERATE);
 
       this.socket = io();
-      this.socket.on(globals.MSG_INIT, this.onInit.bind(this));
-      this.socket.on(globals.MSG_UD_VIEW, this.onUpdateViewer.bind(this));
-      this.socket.on(globals.MSG_RM_VIEW, this.onRemoveViewer.bind(this));
-      this.socket.on(globals.MSG_UD_ITEMS, this.onUpdateItems.bind(this));
+      this.socket.on(globals.MSG_INIT, this.setup.bind(this));
+      this.socket.on(globals.MSG_UD_VIEW, this.updateViewer.bind(this));
+      this.socket.on(globals.MSG_RM_VIEW, this.removeViewer.bind(this));
+      this.socket.on(globals.MSG_UD_ITEMS, this.updateItems.bind(this));
       this.socket.on('message', (message) => {
         if (message === globals.MSG_DC_VIEW) {
           document.body.innerHTML = '<H1>' +
@@ -399,17 +376,17 @@ const ClientViewer = (function defineClientViewer() {
 
       window.addEventListener(
         'DOMMouseScroll', 
-        this.onMouseScroll.bind(this), 
+        this.mouseScroll.bind(this), 
         false
       );
       window.addEventListener(
         'mousewheel', 
-        this.onMouseScroll.bind(this), 
+        this.mouseScroll.bind(this), 
         false
       );
       window.addEventListener(
         'resize', 
-        this.onResized.bind(this), 
+        this.resize.bind(this), 
         false
       );
 
@@ -486,7 +463,7 @@ const ClientItem = (function defineClientItem() {
 // window.addEventListener(
 //   'load', 
 //   function run() {
-//     new ClientViewer().onWindowLoad();
+//     new ClientViewer().run();
 //   },
 //   {
 //     capture: false,
