@@ -47,6 +47,109 @@ const globals = (function defineGlobals() {
   return Object.freeze(rv);
 })();
 
+const ClientItem = (function defineClientItem() {
+  /*
+   * I'm not defining a 'defaults' object here, because the data going into
+   * the creation of items should always come from the server, where it has
+   * already gone through an initialization against a defaults object.
+   */
+  const locals = Object.freeze({
+    STAMPER: new WamsShared.IDStamper(),
+
+    createImage(src) {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+        return img;
+      }
+      return null;
+    }
+  });
+
+  class ClientItem extends WamsShared.Item {
+    constructor(data = {}) {
+      super(data);
+      if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
+      this.img = locals.createImage(this.imgsrc);
+    }
+
+    draw(context) {
+      const width = this.width || this.img.width;
+      const height = this.height || this.img.height;
+
+      if (this.imgsrc) {
+        context.drawImage(this.img, this.x, this.y, width, height);
+      } else {
+        /*
+         * XXX: Yikes!!! eval()? And we want this to be a usable 
+         *    API? For people to work together over networks? 
+         *    Pardon my French, but how the f*** are we going to 
+         *    make sure that no one is injecting malicious code 
+         *    here? 
+         *
+         *    Where is draw defined, and how does it end up here?
+         *
+         *    There must be a better way...
+         *
+         *    + Answer: I believe there is! Check out the canvas
+         *      sequencer library I'm working on!
+         */
+        // eval(`${this.drawCustom};`);
+        // eval(`${this.drawStart};`);
+      }
+    }
+  }
+
+  return ClientItem;
+})();
+
+const WamsClient = (function defineWamsClient() {
+
+  class WamsClient {
+    constructor() {
+      this.socket = null;
+      this.viewer = null;
+    }
+
+    sendUpdate(reportSubWS = false) {
+      /*
+       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
+       *    that they are clearly linked in the report?
+       */
+      // if (reportSubWS) {
+      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
+      // }
+
+      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
+    }
+
+    establishSocket() {
+      this.socket = io();
+      this.socket.on(globals.MSG_INIT,
+        this.viewer.setup.bind(this.viewer)
+      );
+      this.socket.on(globals.MSG_UD_VIEW,
+        this.viewer.updateViewer.bind(this.viewer)
+      );
+      this.socket.on(globals.MSG_RM_VIEW,
+        this.viewer.removeViewer.bind(this.viewer)
+      );
+      this.socket.on(globals.MSG_UD_ITEMS,
+        this.viewer.updateItems.bind(this.viewer)
+      );
+      this.socket.on('message', (message) => {
+        if (message === globals.MSG_DC_VIEW) {
+          document.body.innerHTML = '<H1>' +
+            'Application has reached capacity.' +
+            '</H1>';
+        }
+      });
+    };
+  }
+
+  return WamsClient;
+})();
+
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -79,6 +182,39 @@ const ClientViewer = (function defineClientViewer() {
       });
     },
 
+    attachWindowListeners(viewer) {
+      window.addEventListener(
+        'DOMMouseScroll', 
+        viewer.mouseScroll.bind(viewer), 
+        false
+      );
+      window.addEventListener(
+        'mousewheel', 
+        viewer.mouseScroll.bind(viewer), 
+        false
+      );
+      window.addEventListener(
+        'resize', 
+        viewer.resize.bind(viewer), 
+        false
+      );
+    },
+
+    establishHammer(viewer) {
+      viewer.hammer = new Hammer(viewer.canvas);
+      viewer.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      viewer.hammer.get('pinch').set({ enable: true });
+      locals.HAMMER_EVENTS.forEach( e => {
+        viewer.hammer.on(e, (event) => event.preventDefault() );
+        viewer.hammer.on(e, viewer[e].bind(viewer));
+      });
+    },
+
+    establish(viewer) {
+      this.establishHammer(viewer);
+      this.establishSocket(viewer);
+      this.attachWindowListeners(viewer);
+    },
   });
 
   class ClientViewer extends WamsShared.Viewer {
@@ -92,7 +228,12 @@ const ClientViewer = (function defineClientViewer() {
       this.transforming = false;
       this.mouse = {x: 0, y: 0};
       this.otherViewers = [];
-      this.socket = null;
+      this.hammer = null;
+      this.animator = null;
+
+      // Initialize data.
+      this.resize();
+      locals.establish(this);
     }
 
     addItem(item) {
@@ -100,9 +241,12 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addViewer(info) {
-      const nvs = new Viewer(info);
-      locals.STAMPER.stamp(nvs, info.id);
-      this.otherViewers.push(nvs);
+      /*
+       * Adding plain viewers because we really only need to draw outlines.
+       */
+      const v = new Viewer(info);
+      locals.STAMPER.stamp(v, info.id);
+      this.otherViewers.push(v);
     }
 
     drag(event) {
@@ -240,80 +384,29 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
-    resize(event) {
+    resize() {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
       this.canvas.width = this.width; 
       this.canvas.height = this.height;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      this.sendUpdate();
+      // this.sendUpdate();
     }
 
     run() {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-
-      /*
-       * XXX: Are we sure we want to do this right away?
-       */
-      window.setInterval(this.draw.bind(this), locals.FRAMERATE);
-
-      this.socket = io();
-      this.socket.on(globals.MSG_INIT, this.setup.bind(this));
-      this.socket.on(globals.MSG_UD_VIEW, this.updateViewer.bind(this));
-      this.socket.on(globals.MSG_RM_VIEW, this.removeViewer.bind(this));
-      this.socket.on(globals.MSG_UD_ITEMS, this.updateItems.bind(this));
-      this.socket.on('message', (message) => {
-        if (message === globals.MSG_DC_VIEW) {
-          document.body.innerHTML = '<H1>' +
-            'Application has reached capacity.' +
-            '</H1>';
-        }
-      });
-
-      window.addEventListener(
-        'DOMMouseScroll', 
-        this.mouseScroll.bind(this), 
-        false
+      window.clearInterval(this.animator);
+      this.animator = window.setInterval(
+        this.draw.bind(this), locals.FRAMERATE
       );
-      window.addEventListener(
-        'mousewheel', 
-        this.mouseScroll.bind(this), 
-        false
-      );
-      window.addEventListener(
-        'resize', 
-        this.resize.bind(this), 
-        false
-      );
-
-      const hammer = new Hammer(this.canvas);
-      hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-      hammer.get('pinch').set({ enable: true });
-      locals.HAMMER_EVENTS.forEach( e => {
-        hammer.on(e, (event) => event.preventDefault() );
-        hammer.on(e, this[e].bind(this));
-      });
     }
 
-    sendUpdate(reportSubWS = false) {
-      /*
-       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
-       *    that they are clearly linked in the report?
-       */
-      // if (reportSubWS) {
-      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
-      // }
+    setup(data) {
+      locals.STAMPER.stamp(this, data.id);
+      data.viewers.forEach( v => this.addViewer(v) );
+      data.items.forEach( o => this.addItem(o) );
+      this.canvas.style.backgroundColor = data.color;
 
-      this.socket.emit(globals.MSG_UPDATE, this.report());
-    }
-
-    setup(initData) {
-      locals.STAMPER.stamp(this, initData.id);
-      initData.viewers.forEach( v => this.addViewer(v) );
-      initData.items.forEach( o => this.addItem(o) );
-      this.canvas.style.backgroundColor = initData.settings.BGcolor;
       this.socket.emit(globals.MSG_LAYOUT, this.report());
     }
 
@@ -404,62 +497,6 @@ const ClientViewer = (function defineClientViewer() {
   }
 
   return ClientViewer;
-})();
-
-const ClientItem = (function defineClientItem() {
-  /*
-   * I'm not defining a 'defaults' object here, because the data going into
-   * the creation of items should always come from the server, where it has
-   * already gone through an initialization against a defaults object.
-   */
-  const locals = Object.freeze({
-    STAMPER: new WamsShared.IDStamper(),
-
-    createImage(src) {
-      if (src) {
-        const img = new Image();
-        img.src = src;
-        return img;
-      }
-      return null;
-    }
-  });
-
-  class ClientItem extends WamsShared.Item {
-    constructor(data = {}) {
-      super(data);
-      if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
-      this.img = locals.createImage(this.imgsrc);
-    }
-
-    draw(context) {
-      const width = this.width || this.img.width;
-      const height = this.height || this.img.height;
-
-      if (this.imgsrc) {
-        context.drawImage(this.img, this.x, this.y, width, height);
-      } else {
-        /*
-         * XXX: Yikes!!! eval()? And we want this to be a usable 
-         *    API? For people to work together over networks? 
-         *    Pardon my French, but how the f*** are we going to 
-         *    make sure that no one is injecting malicious code 
-         *    here? 
-         *
-         *    Where is draw defined, and how does it end up here?
-         *
-         *    There must be a better way...
-         *
-         *    + Answer: I believe there is! Check out the canvas
-         *      sequencer library I'm working on!
-         */
-        // eval(`${this.drawCustom};`);
-        // eval(`${this.drawStart};`);
-      }
-    }
-  }
-
-  return ClientItem;
 })();
 
 // Entry point!

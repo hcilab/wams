@@ -521,7 +521,7 @@ const Connection = (function defineConnection() {
       this.socket.emit(globals.MSG_INIT, {
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
-        settings: this.workspace.settings,
+        color: this.workspace.settings.color,
         id: this.viewer.id,
       });
     }
