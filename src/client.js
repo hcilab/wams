@@ -24,6 +24,9 @@ if (typeof require === 'function') {
  * defined as properties on it, to make global references explicit. I've been 
  * toying with this design pattern in my other JavaScript code and I think I 
  * quite like it.
+ *
+ * Currently all it's doing though is copying over the constants from the
+ * WamsShared module...
  */
 const globals = (function defineGlobals() {
   const rv = {};
@@ -97,7 +100,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addViewer(info) {
-      const nvs = new Viewer().assign(info);
+      const nvs = new Viewer(info);
       locals.STAMPER.stamp(nvs, info.id);
       this.otherViewers.push(nvs);
     }
@@ -163,16 +166,16 @@ const ClientViewer = (function defineClientViewer() {
       return coords;
     }
 
-    reportViewer(reportSubWS = false) {
+    sendUpdate(reportSubWS = false) {
       /*
        * XXX: Do we want to connect the subviewers in this viewer somehow, so 
        *    that they are clearly linked in the report?
        */
       // if (reportSubWS) {
-      //   this.subViewers.forEach( subWS => subWS.reportViewer(true) );
+      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
       // }
 
-      this.socket.emit('reportViewer', this.report());
+      this.socket.emit(globals.MSG_UPDATE, this.report());
     }
 
     locate() {
@@ -291,7 +294,7 @@ const ClientViewer = (function defineClientViewer() {
       this.canvas.height = this.height;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      this.reportViewer();
+      this.sendUpdate();
     }
 
     tap(event) {
