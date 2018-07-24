@@ -469,55 +469,74 @@ const ClientViewer = (function defineClientViewer() {
   return ClientViewer;
 })();
 
-class ClientItem extends WamsShared.Item {
-  constructor(data = {}) {
-    super(data);
-    if (data.hasOwnProperty('id')) {
-      globals.ITEM_ID_STAMPER.stamp(this, data.id);
+const ClientItem = (function defineClientItem() {
+  /*
+   * I'm not defining a 'defaults' object here, because the data going into
+   * the creation of items should always come from the server, where it has
+   * already gone through an initialization against a defaults object.
+   */
+  const locals = Object.freeze({
+    STAMPER: new WamsShared.IDStamper(),
+
+    createImage(src) {
+      if (src) {
+        const img = new Image();
+        img.src = src;
+        return img;
+      }
+      return null;
     }
-    this.img = null;
-    if (this.imgsrc) {
-      this.img = new Image();
-      this.img.src = this.imgsrc;
+  });
+
+  class ClientItem extends WamsShared.Item {
+    constructor(data = {}) {
+      super(data);
+      if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
+      this.img = locals.createImage(this.imgsrc);
+    }
+
+    draw(context) {
+      const width = this.width || this.img.width;
+      const height = this.height || this.img.height;
+
+      if (this.imgsrc) {
+        context.drawImage(this.img, this.x, this.y, width, height);
+      } else {
+        /*
+         * XXX: Yikes!!! eval()? And we want this to be a usable 
+         *    API? For people to work together over networks? 
+         *    Pardon my French, but how the f*** are we going to 
+         *    make sure that no one is injecting malicious code 
+         *    here? 
+         *
+         *    Where is draw defined, and how does it end up here?
+         *
+         *    There must be a better way...
+         *
+         *    + Answer: I believe there is! Check out the canvas
+         *      sequencer library I'm working on!
+         */
+        eval(`${this.drawCustom};`);
+        eval(`${this.drawStart};`);
+      }
     }
   }
 
-  draw(context) {
-    const width = this.width || this.img.width;
-    const height = this.height || this.img.height;
-
-    if (this.imgsrc) {
-      context.drawImage(this.img, this.x, this.y, width, height);
-    } else {
-      /*
-       * XXX: Yikes!!! eval()? And we want this to be a usable 
-       *    API? For people to work together over networks? 
-       *    Pardon my French, but how the f*** are we going to 
-       *    make sure that no one is injecting malicious code 
-       *    here? 
-       *
-       *    Where is draw defined, and how does it end up here?
-       *
-       *    There must be a better way...
-       */
-      eval(`${this.drawCustom};`);
-      eval(`${this.drawStart};`);
-    }
-  }
-}
+  return ClientItem;
+})();
 
 // Entry point!
-window.addEventListener(
-  'load', 
-  function run() {
-    new ClientViewer().onWindowLoad();
-  },
-  {
-    capture: false,
-    once: true,
-    passive: true,
-  }
-);
+// window.addEventListener(
+//   'load', 
+//   function run() {
+//     new ClientViewer().onWindowLoad();
+//   },
+//   {
+//     capture: false,
+//     once: true,
+//     passive: true,
+//   }
+// );
 
 if (typeof exports !== 'undefined') {
   exports.ClientViewer = ClientViewer;
