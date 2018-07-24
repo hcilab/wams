@@ -292,13 +292,12 @@ const ClientViewer = (function defineClientViewer() {
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(data) {
+    constructor(data, context) {
       super(WamsShared.initialize(locals.DEFAULTS, data));
-      this.canvas = document.querySelector('#main');
-      this.context = this.canvas.getContext('2d');
-      this.items = [];
-      this.otherViewers = [];
+      this.context = context;
       this.drawInterval = null;
+      this.items = [];
+      this.shadows = [];
       this.resizeToFillWindow();
     }
 
@@ -307,7 +306,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addViewer(info) {
-      this.otherViewers.push(new ShadowViewer(info));
+      this.shadows.push(new ShadowViewer(info));
     }
 
     /*
@@ -324,7 +323,7 @@ const ClientViewer = (function defineClientViewer() {
       this.locate();
 
       this.items.forEach( o => o.draw(this.context) );
-      this.otherViewers.forEach( v => v.draw(this.context) );
+      this.shadows.forEach( v => v.draw(this.context) );
       this.context.restore();
 
       this.showStatus();
@@ -360,7 +359,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     removeViewer(viewer) {
-      locals.removeByItemID(this.otherViewers, viewer);
+      locals.removeByItemID(this.shadows, viewer);
     }
 
     resizeToFillWindow() {
@@ -400,7 +399,7 @@ const ClientViewer = (function defineClientViewer() {
         10, 60
       );
       this.context.fillText(
-        `Number of Other Viewers: ${this.otherViewers.length}`, 
+        `Number of Other Viewers: ${this.shadows.length}`, 
         10, 80
       );
       this.context.fillText(
@@ -434,13 +433,13 @@ const ClientViewer = (function defineClientViewer() {
      *    just an wams-update-viewer event, unless there's some very good reason 
      *    not to do so.
      */
-    updateViewer(vsInfo) {
-      if (vsInfo.id === this.id) {
-        this.assign(vsInfo);
+    updateViewer(data) {
+      if (data.id === this.id) {
+        this.assign(data);
       } else {
-        const viewer = this.otherViewers.find( v => v.id === vsInfo.id );
-        if (viewer) viewer.assign(vsInfo);
-        else this.addViewer(vsInfo);
+        const viewer = this.shadows.find( v => v.id === data.id );
+        if (viewer) viewer.assign(data);
+        else this.addViewer(data);
       }
     }
   }
@@ -467,7 +466,7 @@ const ShadowViewer = (function defineShadowViewer() {
 
     draw(context) {
       context.beginPath();
-      context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
+      context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
       context.stroke();
     }
   }

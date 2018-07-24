@@ -8,6 +8,8 @@
 const client = require('../src/client.js');
 const ClientViewer = client.ClientViewer;
 const ClientItem = client.ClientItem;
+const ClientController = client.ClientController;
+const ShadowViewer = client.ShadowViewer;
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -20,6 +22,62 @@ expect.extend({
       pass: pass,
     };
   },
+});
+
+describe('ShadowViewer', () => {
+  describe('constructor(values)', () => {
+    const DEFAULTS = Object.freeze({
+      x: 0,
+      y: 0,
+      effectiveWidth: window.innerWidth,
+      effectiveHeight: window.innerHeight,
+    });
+
+    test('Uses defaults if no values provided', () => {
+      expect(new ShadowViewer()).toMatchObject(DEFAULTS);
+    });
+
+    test('Uses defined values, if provided', () => {
+      const vals = {
+        x: 43,
+        y: 42,
+        effectiveWidth: 900,
+        effectiveHeight: 120,
+      };
+      expect(new ShadowViewer(vals)).toMatchObject(vals);
+    });
+  });
+  
+  describe('draw(context)', () => {
+    const vals = {
+      x: 43,
+      y: 42,
+      effectiveWidth: 900,
+      effectiveHeight: 120,
+    };
+    const sv = new ShadowViewer(vals);
+    const ctx = {
+      beginPath: jest.fn(),
+      rect: jest.fn(),
+      stroke: jest.fn(),
+    }
+
+    test('Throws exception if no context provided', () => {
+      expect(() => sv.draw()).toThrow();
+    });
+
+    test('Draws a rectangle representing the shadow viewer', () => {
+      expect(() => sv.draw(ctx)).not.toThrow();
+      expect(ctx.beginPath).toHaveBeenCalledTimes(1);
+      expect(ctx.beginPath).toHaveBeenLastCalledWith();
+      expect(ctx.rect).toHaveBeenCalledTimes(1);
+      expect(ctx.rect).toHaveBeenLastCalledWith(
+        sv.x, sv.y, sv.effectiveWidth, sv.effectiveHeight
+      );
+      expect(ctx.stroke).toHaveBeenCalledTimes(1);
+      expect(ctx.stroke).toHaveBeenLastCalledWith();
+    });
+  });
 });
 
 describe('ClientItem', () => {
@@ -83,9 +141,8 @@ describe('ClientItem', () => {
       const ci = new ClientItem(data);
       expect(ci.img).toBeNull();
     });
-
   });
-
+  
   describe('draw(context)', () => {
     const data = {
       x: 42,
@@ -113,6 +170,19 @@ describe('ClientItem', () => {
         ci.img, ci.x, ci.y, ci.width, ci.height
       );
     });
+  });
+});
+
+describe('ClientViewer', () => {
+  const DEFAULTS = Object.freeze({
+    x: 0,
+    y: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    effectiveWidth: window.innerWidth,
+    effectiveHeight: window.innerHeight,
+    rotation: globals.ROTATE_0,
+    scale: 1,
   });
 });
 
