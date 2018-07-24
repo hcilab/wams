@@ -26,24 +26,11 @@ if (typeof require === 'function') {
  * quite like it.
  */
 const globals = (function defineGlobals() {
-  const constants = {
-    SOCKET: io(),
-  };
-
   const variables = {
     settings: null,
   }
 
   const rv = {};
-  Object.entries(constants).forEach( ([p,v]) => {
-    Object.defineProperty(rv, p, {
-      value: v,
-      configurable: false,
-      enumerable: true,
-      writable: false
-    });
-  });
-
   Object.entries(variables).forEach( ([p,v]) => {
     Object.defineProperty(rv, p, {
       get() { return variables[p]; },
@@ -82,7 +69,25 @@ const ClientViewer = (function defineClientViewer() {
       scale: 1,
     }),
     FRAMERATE: 1000 / 60,
+    HAMMER_EVENTS: [
+      'tap',
+      'dragstart',
+      'drag',
+      'dragend',
+      'transformstart',
+      'transform',
+      'transformend',
+    ],
     STAMPER: new WamsShared.IDStamper(),
+
+    drawOutlineRectangles(context, viewers) {
+      viewers.forEach( v => {
+        context.beginPath();
+        context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
+        context.stroke();
+      });
+    },
+
   });
 
   class ClientViewer extends WamsShared.Viewer {
@@ -96,6 +101,7 @@ const ClientViewer = (function defineClientViewer() {
       this.transforming = false;
       this.mouse = {x: 0, y: 0};
       this.otherViewers = [];
+      this.socket = null;
     }
 
     addItem(item) {
@@ -113,48 +119,16 @@ const ClientViewer = (function defineClientViewer() {
      *    understand this.
      */
     draw() {
-      this.context.clearRect(
-        0, 
-        0, 
-        window.innerWidth,
-        window.innerHeight
-      );
-
+      this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
       this.context.save();
-
-      this.context.scale(
-        this.scale, 
-        this.scale
-      );
-      this.context.translate(
-        -this.x, 
-        -this.y
-      );
+      this.context.scale(this.scale, this.scale);
+      this.context.translate(-this.x, -this.y);
       this.context.rotate(this.rotation);
 
       this.setOrientation();
 
-      /*
-       * XXX: Each Item should have a draw() function defined on it, 
-       *    which can then be called from inside a simple forEach().
-       */
       this.items.forEach( o => o.draw(this.context) );
-
-      /*
-       * XXX: What exactly is going on here? Is this where we draw the 
-       *    rectangles showing viewers where the other viewers are looking?
-       */
-      this.otherViewers.forEach( v => {
-        this.context.beginPath();
-        this.context.rect(
-          v.x,
-          v.y,
-          v.effectiveWidth,
-          v.effectiveHeight
-        );
-        this.context.stroke();
-      });
-
+      locals.drawOutlineRectangles(this.context, this.otherViewers);
       this.context.restore();
 
       this.showStatus();
@@ -213,7 +187,7 @@ const ClientViewer = (function defineClientViewer() {
       //   this.subViewers.forEach( subWS => subWS.reportViewer(true) );
       // }
 
-      globals.SOCKET.emit('reportViewer', this.report());
+      this.socket.emit('reportViewer', this.report());
     }
 
     setOrientation() {
@@ -273,7 +247,7 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
-    ondrag(event) {
+    drag(event) {
       if (this.transforming) {
         return;
       }
@@ -281,7 +255,7 @@ const ClientViewer = (function defineClientViewer() {
       const lastMouse = this.mouse;
       this.mouse = this.getMouseCoordinates(event);
 
-      globals.SOCKET.emit(globals.MSG_DRAG, 
+      this.socket.emit(globals.MSG_DRAG, 
         this, 
         this.mouse.x,
         this.mouse.y,
@@ -290,13 +264,13 @@ const ClientViewer = (function defineClientViewer() {
       );
     }
 
-    ondragend(event) {
+    dragend(event) {
       /*
        * NOP for now, here for consistency though.
        */
     }
 
-    ondragstart(event) {
+    dragstart(event) {
       this.mouse = this.getMouseCoordinates(event);
     }
 
@@ -306,7 +280,7 @@ const ClientViewer = (function defineClientViewer() {
       initData.viewers.forEach( v => this.addViewer(v) );
       initData.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = globals.settings.BGcolor;
-      globals.SOCKET.emit(globals.MSG_LAYOUT, this.report());
+      this.socket.emit(globals.MSG_LAYOUT, this.report());
     }
 
     onMouseScroll(event) {
@@ -323,7 +297,7 @@ const ClientViewer = (function defineClientViewer() {
         )
       );
       const newScale = this.scale + delta * 0.09;
-      globals.SOCKET.emit(globals.MSG_SCALE, this, newScale);
+      this.socket.emit(globals.MSG_SCALE, this, newScale);
     }
 
     onRemoveViewer(id) {
@@ -343,29 +317,29 @@ const ClientViewer = (function defineClientViewer() {
       this.reportViewer();
     }
 
-    ontap(event) {
+    tap(event) {
       this.mouse = this.getMouseCoordinates(event);
-      globals.SOCKET.emit(
+      this.socket.emit(
         globals.MSG_CLICK, 
         this.mouse.x,
         this.mouse.y
       );
     }
 
-    ontransform(event) {
-      globals.SOCKET.emit(
+    transform(event) {
+      this.socket.emit(
         globals.MSG_SCALE, 
         this, 
         event.scale * this.startScale
       );
     }
 
-    ontransformend(event) {
+    transformend(event) {
       this.transforming = false;
       this.startScale = null;
     }
 
-    ontransformstart(event) {
+    transformstart(event) {
       this.transforming = true;
       this.startScale = this.scale;
     }
@@ -410,16 +384,12 @@ const ClientViewer = (function defineClientViewer() {
        */
       window.setInterval(this.draw.bind(this), locals.FRAMERATE);
 
-      /*
-       * XXX: Why do these listeners need to be attached all the way down 
-       *    here instead of adjacent to the initialization of the 
-       *    socket variable?
-       */
-      globals.SOCKET.on(globals.MSG_INIT, this.onInit.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_VIEW, this.onUpdateViewer.bind(this));
-      globals.SOCKET.on(globals.MSG_RM_VIEW, this.onRemoveViewer.bind(this));
-      globals.SOCKET.on(globals.MSG_UD_ITEMS, this.onUpdateItems.bind(this));
-      globals.SOCKET.on('message', (message) => {
+      this.socket = io();
+      this.socket.on(globals.MSG_INIT, this.onInit.bind(this));
+      this.socket.on(globals.MSG_UD_VIEW, this.onUpdateViewer.bind(this));
+      this.socket.on(globals.MSG_RM_VIEW, this.onRemoveViewer.bind(this));
+      this.socket.on(globals.MSG_UD_ITEMS, this.onUpdateItems.bind(this));
+      this.socket.on('message', (message) => {
         if (message === globals.MSG_DC_VIEW) {
           document.body.innerHTML = '<H1>' +
             'Application has reached capacity.' +
@@ -446,17 +416,9 @@ const ClientViewer = (function defineClientViewer() {
       const hammer = new Hammer(this.canvas);
       hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
       hammer.get('pinch').set({ enable: true });
-      [
-        'tap',
-        'dragstart',
-        'drag',
-        'dragend',
-        'transformstart',
-        'transform',
-        'transformend',
-      ].forEach( e => {
+      locals.HAMMER_EVENTS.forEach( e => {
         hammer.on(e, (event) => event.preventDefault() );
-        hammer.on(e, this[`on${e}`].bind(this));
+        hammer.on(e, this[e].bind(this));
       });
     }
   }
