@@ -86,6 +86,33 @@ describe('ClientItem', () => {
 
   });
 
+  describe('draw(context)', () => {
+    const data = {
+      x: 42,
+      y: 43,
+      width: 800,
+      height: 97,
+      type: 'booyah',
+      imgsrc: 'home',
+    };
 
+    const ctx = {
+      drawImage: jest.fn()
+    };
+
+    test('Throws an exception if no context provided', () => {
+      const ci = new ClientItem(data);
+      expect(() => ci.draw()).toThrow();
+    });
+
+    test('If an image is provided, draws an image', () => {
+      const ci = new ClientItem(data);
+      expect(() => ci.draw(ctx)).not.toThrow();
+      expect(ctx.drawImage).toHaveBeenCalledTimes(1);
+      expect(ctx.drawImage).toHaveBeenLastCalledWith(
+        ci.img, ci.x, ci.y, ci.width, ci.height
+      );
+    });
+  });
 });
 

@@ -516,8 +516,8 @@ const ClientItem = (function defineClientItem() {
          *    + Answer: I believe there is! Check out the canvas
          *      sequencer library I'm working on!
          */
-        eval(`${this.drawCustom};`);
-        eval(`${this.drawStart};`);
+        // eval(`${this.drawCustom};`);
+        // eval(`${this.drawStart};`);
       }
     }
   }
