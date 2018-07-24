@@ -105,6 +105,31 @@ const ClientViewer = (function defineClientViewer() {
       this.otherViewers.push(nvs);
     }
 
+    drag(event) {
+      if (this.transforming) { return; }
+
+      const lastMouse = this.mouse;
+      this.mouse = this.getMouseCoordinates(event);
+
+      this.socket.emit(globals.MSG_DRAG, 
+        this, 
+        this.mouse.x,
+        this.mouse.y,
+        (lastMouse.x - this.mouse.x), 
+        (lastMouse.y - this.mouse.y)
+      );
+    }
+
+    dragend(event) {
+      /*
+       * NOP for now, here for consistency though.
+       */
+    }
+
+    dragstart(event) {
+      this.mouse = this.getMouseCoordinates(event);
+    }
+
     /*
      * XXX: Okay, I'll need to dig into the canvas API if I'm going to 
      *    understand this.
@@ -166,18 +191,6 @@ const ClientViewer = (function defineClientViewer() {
       return coords;
     }
 
-    sendUpdate(reportSubWS = false) {
-      /*
-       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
-       *    that they are clearly linked in the report?
-       */
-      // if (reportSubWS) {
-      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
-      // }
-
-      this.socket.emit(globals.MSG_UPDATE, this.report());
-    }
-
     locate() {
       switch(this.rotation) {
         case(globals.ROTATE_0): 
@@ -201,66 +214,6 @@ const ClientViewer = (function defineClientViewer() {
           ); 
           break;
       }
-    }
-
-    showStatus() {
-      this.context.font = '18px Georgia';
-      this.context.fillText(
-        `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
-        `${this.y.toFixed(2)}`, 
-        10, 40
-      );
-      this.context.fillText(
-        `Bottom Right Corner: ` +
-        `${(this.x + this.width).toFixed(2)}, ` + 
-        `${(this.y + this.height).toFixed(2)}`,
-        10, 60
-      );
-      this.context.fillText(
-        `Number of Other Viewers: ${this.otherViewers.length}`, 
-        10, 80
-      );
-      this.context.fillText(
-        `Viewer Scale: ${this.scale.toFixed(2)}`, 
-        10, 100
-      );
-      this.context.fillText(
-        `ClientViewer Rotation: ${this.rotation}`, 
-        10, 120
-      );
-    }
-
-    drag(event) {
-      if (this.transforming) { return; }
-
-      const lastMouse = this.mouse;
-      this.mouse = this.getMouseCoordinates(event);
-
-      this.socket.emit(globals.MSG_DRAG, 
-        this, 
-        this.mouse.x,
-        this.mouse.y,
-        (lastMouse.x - this.mouse.x), 
-        (lastMouse.y - this.mouse.y)
-      );
-    }
-
-    dragend(event) {
-      /*
-       * NOP for now, here for consistency though.
-       */
-    }
-
-    dragstart(event) {
-      this.mouse = this.getMouseCoordinates(event);
-    }
-
-    setup(initData) {
-      locals.STAMPER.stamp(this, initData.id);
-      initData.viewers.forEach( v => this.addViewer(v) );
-      initData.items.forEach( o => this.addItem(o) );
-      this.canvas.style.backgroundColor = initData.settings.BGcolor;
-      this.socket.emit(globals.MSG_LAYOUT, this.report());
     }
 
     mouseScroll(event) {
@@ -295,6 +248,100 @@ const ClientViewer = (function defineClientViewer() {
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
       this.sendUpdate();
+    }
+
+    run() {
+      this.canvas.width = window.innerWidth;
+      this.canvas.height = window.innerHeight;
+
+      /*
+       * XXX: Are we sure we want to do this right away?
+       */
+      window.setInterval(this.draw.bind(this), locals.FRAMERATE);
+
+      this.socket = io();
+      this.socket.on(globals.MSG_INIT, this.setup.bind(this));
+      this.socket.on(globals.MSG_UD_VIEW, this.updateViewer.bind(this));
+      this.socket.on(globals.MSG_RM_VIEW, this.removeViewer.bind(this));
+      this.socket.on(globals.MSG_UD_ITEMS, this.updateItems.bind(this));
+      this.socket.on('message', (message) => {
+        if (message === globals.MSG_DC_VIEW) {
+          document.body.innerHTML = '<H1>' +
+            'Application has reached capacity.' +
+            '</H1>';
+        }
+      });
+
+      window.addEventListener(
+        'DOMMouseScroll', 
+        this.mouseScroll.bind(this), 
+        false
+      );
+      window.addEventListener(
+        'mousewheel', 
+        this.mouseScroll.bind(this), 
+        false
+      );
+      window.addEventListener(
+        'resize', 
+        this.resize.bind(this), 
+        false
+      );
+
+      const hammer = new Hammer(this.canvas);
+      hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      hammer.get('pinch').set({ enable: true });
+      locals.HAMMER_EVENTS.forEach( e => {
+        hammer.on(e, (event) => event.preventDefault() );
+        hammer.on(e, this[e].bind(this));
+      });
+    }
+
+    sendUpdate(reportSubWS = false) {
+      /*
+       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
+       *    that they are clearly linked in the report?
+       */
+      // if (reportSubWS) {
+      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
+      // }
+
+      this.socket.emit(globals.MSG_UPDATE, this.report());
+    }
+
+    setup(initData) {
+      locals.STAMPER.stamp(this, initData.id);
+      initData.viewers.forEach( v => this.addViewer(v) );
+      initData.items.forEach( o => this.addItem(o) );
+      this.canvas.style.backgroundColor = initData.settings.BGcolor;
+      this.socket.emit(globals.MSG_LAYOUT, this.report());
+    }
+
+    showStatus() {
+      this.context.font = '18px Georgia';
+      this.context.fillText(
+        `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
+        `${this.y.toFixed(2)}`, 
+        10, 40
+      );
+      this.context.fillText(
+        `Bottom Right Corner: ` +
+        `${(this.x + this.width).toFixed(2)}, ` + 
+        `${(this.y + this.height).toFixed(2)}`,
+        10, 60
+      );
+      this.context.fillText(
+        `Number of Other Viewers: ${this.otherViewers.length}`, 
+        10, 80
+      );
+      this.context.fillText(
+        `Viewer Scale: ${this.scale.toFixed(2)}`, 
+        10, 100
+      );
+      this.context.fillText(
+        `ClientViewer Rotation: ${this.rotation}`, 
+        10, 120
+      );
     }
 
     tap(event) {
@@ -353,53 +400,6 @@ const ClientViewer = (function defineClientViewer() {
         if (viewer) viewer.assign(vsInfo);
         else this.addViewer(vsInfo);
       }
-    }
-
-    run() {
-      this.canvas.width = window.innerWidth;
-      this.canvas.height = window.innerHeight;
-
-      /*
-       * XXX: Are we sure we want to do this right away?
-       */
-      window.setInterval(this.draw.bind(this), locals.FRAMERATE);
-
-      this.socket = io();
-      this.socket.on(globals.MSG_INIT, this.setup.bind(this));
-      this.socket.on(globals.MSG_UD_VIEW, this.updateViewer.bind(this));
-      this.socket.on(globals.MSG_RM_VIEW, this.removeViewer.bind(this));
-      this.socket.on(globals.MSG_UD_ITEMS, this.updateItems.bind(this));
-      this.socket.on('message', (message) => {
-        if (message === globals.MSG_DC_VIEW) {
-          document.body.innerHTML = '<H1>' +
-            'Application has reached capacity.' +
-            '</H1>';
-        }
-      });
-
-      window.addEventListener(
-        'DOMMouseScroll', 
-        this.mouseScroll.bind(this), 
-        false
-      );
-      window.addEventListener(
-        'mousewheel', 
-        this.mouseScroll.bind(this), 
-        false
-      );
-      window.addEventListener(
-        'resize', 
-        this.resize.bind(this), 
-        false
-      );
-
-      const hammer = new Hammer(this.canvas);
-      hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-      hammer.get('pinch').set({ enable: true });
-      locals.HAMMER_EVENTS.forEach( e => {
-        hammer.on(e, (event) => event.preventDefault() );
-        hammer.on(e, this[e].bind(this));
-      });
     }
   }
 
