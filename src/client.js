@@ -150,6 +150,33 @@ const WamsClient = (function defineWamsClient() {
   return WamsClient;
 })();
 
+const ShadowViewer = (function defineShadowViewer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      effectiveWidth: window.innerWidth;
+      effectiveHeight: window.innerHeight;
+    }),
+    STAMPER: new WamsShared.IDStamper(),
+  });
+
+  class ShadowViewer extends WamsClient.Viewer {
+    constructor(values = {}) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+    }
+
+    draw(context) {
+      context.beginPath();
+      context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
+      context.stroke();
+    }
+  }
+
+  return ShadowViewer;
+})();
+
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -173,14 +200,6 @@ const ClientViewer = (function defineClientViewer() {
       'transformend',
     ],
     STAMPER: new WamsShared.IDStamper(),
-
-    drawOutlineRectangles(context, viewers) {
-      viewers.forEach( v => {
-        context.beginPath();
-        context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
-        context.stroke();
-      });
-    },
 
     attachWindowListeners(viewer) {
       window.addEventListener(
@@ -241,12 +260,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addViewer(info) {
-      /*
-       * Adding plain viewers because we really only need to draw outlines.
-       */
-      const v = new Viewer(info);
-      locals.STAMPER.stamp(v, info.id);
-      this.otherViewers.push(v);
+      this.otherViewers.push(new ShadowViewer(info));
     }
 
     drag(event) {
@@ -288,7 +302,7 @@ const ClientViewer = (function defineClientViewer() {
       this.locate();
 
       this.items.forEach( o => o.draw(this.context) );
-      locals.drawOutlineRectangles(this.context, this.otherViewers);
+      this.otherViewers.forEach( v => v.draw(this.context) );
       this.context.restore();
 
       this.showStatus();
