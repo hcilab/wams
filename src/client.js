@@ -10,6 +10,16 @@
 'use strict';
 
 /*
+ * FIXME: This is ugly!! This code will not work on the actual client if this
+ *  test code is left in!
+ */
+let io, WamsShared;
+if (typeof require === 'function') {
+  io = require('socket.io-client');
+  WamsShared = require('../src/shared.js');
+}
+
+/*
  * I'm using a frozen 'globals' object with all global constants and variables 
  * defined as properties on it, to make global references explicit. I've been 
  * toying with this design pattern in my other JavaScript code and I think I 
@@ -61,16 +71,6 @@ const globals = (function defineGlobals() {
   return Object.freeze(rv);
 })();
 
-/*
- * XXX: I'm putting this code up here, for now, until I break the code out into
- *    separate source files.
- * XXX: Oh my, is this 'class' given the same name as the server-side class,
- *    but with different functionality? This might break my brain a bit.
- *
- *    Is it possible to define a central 'Viewer' class that both are able
- *    to extend? How would that work, given that one of the Viewers 
- *    is sent to the client and the other is used by the server?
- */
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -470,7 +470,7 @@ const ClientViewer = (function defineClientViewer() {
 })();
 
 class ClientItem extends WamsShared.Item {
-  constructor(data) {
+  constructor(data = {}) {
     super(data);
     if (data.hasOwnProperty('id')) {
       globals.ITEM_ID_STAMPER.stamp(this, data.id);
@@ -519,4 +519,8 @@ window.addEventListener(
   }
 );
 
+if (typeof exports !== 'undefined') {
+  exports.ClientViewer = ClientViewer;
+  exports.ClientItem = ClientItem;
+}
 
