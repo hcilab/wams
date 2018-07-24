@@ -103,93 +103,8 @@ const ClientItem = (function defineClientItem() {
   return ClientItem;
 })();
 
-const WamsClient = (function defineWamsClient() {
-
-  class WamsClient {
-    constructor() {
-      this.socket = null;
-      this.viewer = null;
-    }
-
-    sendUpdate(reportSubWS = false) {
-      /*
-       * XXX: Do we want to connect the subviewers in this viewer somehow, so 
-       *    that they are clearly linked in the report?
-       */
-      // if (reportSubWS) {
-      //   this.subViewers.forEach( subWS => subWS.sendUpdate(true) );
-      // }
-
-      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
-    }
-
-    establishSocket() {
-      this.socket = io();
-      this.socket.on(globals.MSG_INIT,
-        this.viewer.setup.bind(this.viewer)
-      );
-      this.socket.on(globals.MSG_UD_VIEW,
-        this.viewer.updateViewer.bind(this.viewer)
-      );
-      this.socket.on(globals.MSG_RM_VIEW,
-        this.viewer.removeViewer.bind(this.viewer)
-      );
-      this.socket.on(globals.MSG_UD_ITEMS,
-        this.viewer.updateItems.bind(this.viewer)
-      );
-      this.socket.on('message', (message) => {
-        if (message === globals.MSG_DC_VIEW) {
-          document.body.innerHTML = '<H1>' +
-            'Application has reached capacity.' +
-            '</H1>';
-        }
-      });
-    };
-  }
-
-  return WamsClient;
-})();
-
-const ShadowViewer = (function defineShadowViewer() {
+const ClientController = (function defineClientController() {
   const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-      x: 0,
-      y: 0,
-      effectiveWidth: window.innerWidth;
-      effectiveHeight: window.innerHeight;
-    }),
-    STAMPER: new WamsShared.IDStamper(),
-  });
-
-  class ShadowViewer extends WamsClient.Viewer {
-    constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
-      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
-    }
-
-    draw(context) {
-      context.beginPath();
-      context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
-      context.stroke();
-    }
-  }
-
-  return ShadowViewer;
-})();
-
-const ClientViewer = (function defineClientViewer() {
-  const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-      x: 0,
-      y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
-      effectiveWidth: window.innerWidth,
-      effectiveHeight: window.innerHeight,
-      rotation: globals.ROTATE_0,
-      scale: 1,
-    }),
-    FRAMERATE: 1000 / 60,
     HAMMER_EVENTS: [
       'tap',
       'dragstart',
@@ -200,67 +115,34 @@ const ClientViewer = (function defineClientViewer() {
       'transformend',
     ],
     STAMPER: new WamsShared.IDStamper(),
-
-    attachWindowListeners(viewer) {
-      window.addEventListener(
-        'DOMMouseScroll', 
-        viewer.mouseScroll.bind(viewer), 
-        false
-      );
-      window.addEventListener(
-        'mousewheel', 
-        viewer.mouseScroll.bind(viewer), 
-        false
-      );
-      window.addEventListener(
-        'resize', 
-        viewer.resize.bind(viewer), 
-        false
-      );
-    },
-
-    establishHammer(viewer) {
-      viewer.hammer = new Hammer(viewer.canvas);
-      viewer.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-      viewer.hammer.get('pinch').set({ enable: true });
-      locals.HAMMER_EVENTS.forEach( e => {
-        viewer.hammer.on(e, (event) => event.preventDefault() );
-        viewer.hammer.on(e, viewer[e].bind(viewer));
-      });
-    },
-
-    establish(viewer) {
-      this.establishHammer(viewer);
-      this.establishSocket(viewer);
-      this.attachWindowListeners(viewer);
-    },
   });
 
-  class ClientViewer extends WamsShared.Viewer {
-    constructor(data) {
-      super(WamsShared.initialize(locals.DEFAULTS, data));
-      this.canvas = document.querySelector('#main');
-      this.context = this.canvas.getContext('2d');
-      this.items = [];
-      // this.subViewers = [];
+  class ClientController { 
+    constructor(canvas, id) {
+      locals.STAMPER.stamp(this, id);
+      this.canvas = canvas || throw 'Controller requires a canvas';
+      this.hammer = null;
+      this.mouse = { x: 0, y: 0 };
+      this.socket = null;
       this.startScale = null;
       this.transforming = false;
-      this.mouse = {x: 0, y: 0};
-      this.otherViewers = [];
-      this.hammer = null;
-      this.animator = null;
+      this.viewer = new ClientViewer();
 
-      // Initialize data.
-      this.resize();
-      locals.establish(this);
+      this.establishHammer();
+      this.establishSocket();
+      this.attachWindowListeners();
     }
 
-    addItem(item) {
-      this.items.push(new ClientItem(item));
-    }
-
-    addViewer(info) {
-      this.otherViewers.push(new ShadowViewer(info));
+    attachWindowListeners() {
+      window.addEventListener(
+        'DOMMouseScroll', this.mouseScroll.bind(this), false
+      );
+      window.addEventListener(
+        'mousewheel', this.mouseScroll.bind(this), false
+      );
+      window.addEventListener(
+        'resize', this.resize.bind(this), false
+      );
     }
 
     drag(event) {
@@ -288,24 +170,31 @@ const ClientViewer = (function defineClientViewer() {
       this.mouse = this.getMouseCoordinates(event);
     }
 
-    /*
-     * XXX: Okay, I'll need to dig into the canvas API if I'm going to 
-     *    understand this.
-     */
-    draw() {
-      this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      this.context.save();
-      this.context.scale(this.scale, this.scale);
-      this.context.translate(-this.x, -this.y);
-      this.context.rotate(this.rotation);
+    establishHammer() {
+      this.hammer = new Hammer(this.canvas);
+      this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+      this.hammer.get('pinch').set({ enable: true });
+      locals.HAMMER_EVENTS.forEach( e => {
+        this.hammer.on(e, (event) => event.preventDefault() );
+        this.hammer.on(e, this[e].bind(this));
+      });
+    }
 
-      this.locate();
-
-      this.items.forEach( o => o.draw(this.context) );
-      this.otherViewers.forEach( v => v.draw(this.context) );
-      this.context.restore();
-
-      this.showStatus();
+    establishSocket() {
+      this.socket = io();
+      this.socket.on(globals.MSG_INIT, (...args) => {
+        this.viewer.setup(...args);
+        this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
+      });
+      this.socket.on(globals.MSG_UD_VIEW,
+        this.viewer.updateViewer.bind(this.viewer)
+      );
+      this.socket.on(globals.MSG_RM_VIEW,
+        this.viewer.removeViewer.bind(this.viewer)
+      );
+      this.socket.on(globals.MSG_UD_ITEMS,
+        this.viewer.updateItems.bind(this.viewer)
+      );
     }
 
     getMouseCoordinates(event) {
@@ -313,12 +202,10 @@ const ClientViewer = (function defineClientViewer() {
         x: event.center.x / this.scale + this.x,
         y: event.center.y / this.scale + this.y,
       };
-
       const center = {
         x: (this.effectiveWidth / 2) + this.x,
         y: (this.effectiveHeight / 2) + this.y,
       };
-
       const coords = { x: -1, y: -1, };
 
       /*
@@ -349,6 +236,123 @@ const ClientViewer = (function defineClientViewer() {
       return coords;
     }
 
+    mouseScroll(event) {
+      /*
+       * XXX: Let's have a close look at this. With no comments, I'm not 
+       *    sure why a Math.max(Math.min()) structure is necessary. We 
+       *    might be able to simplify this.
+       */
+      const delta = Math.max(
+        -1, 
+        Math.min(
+          1, 
+          (event.wheelDelta || -event.detail)
+        )
+      );
+      const newScale = this.scale + delta * 0.09;
+      this.socket.emit(globals.MSG_SCALE, this.id, newScale);
+    }
+
+    sendUpdate() {
+      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
+    }
+
+    tap(event) {
+      this.mouse = this.getMouseCoordinates(event);
+      this.socket.emit(
+        globals.MSG_CLICK, 
+        this.mouse.x,
+        this.mouse.y
+      );
+    }
+
+    transform(event) {
+      this.socket.emit(
+        globals.MSG_SCALE, 
+        this.id, 
+        event.scale * this.startScale
+      );
+    }
+
+    transformend(event) {
+      this.transforming = false;
+      this.startScale = null;
+    }
+
+    transformstart(event) {
+      this.transforming = true;
+      this.startScale = this.viewer.scale;
+    }
+
+  }
+
+  return ClientController;
+})();
+
+const ClientViewer = (function defineClientViewer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      effectiveWidth: window.innerWidth,
+      effectiveHeight: window.innerHeight,
+      rotation: globals.ROTATE_0,
+      scale: 1,
+    }),
+    FRAMERATE: 1000 / 60,
+    STAMPER: new WamsShared.IDStamper(),
+
+    removeByItemID(array, item) {
+      const idx = array.findIndex( o => o.id === item.id );
+      if (idx >= 0) {
+        array.splice(idx, 1);
+        return true;
+      }
+      return false;
+    },
+  });
+
+  class ClientViewer extends WamsShared.Viewer {
+    constructor(data) {
+      super(WamsShared.initialize(locals.DEFAULTS, data));
+      this.canvas = document.querySelector('#main');
+      this.context = this.canvas.getContext('2d');
+      this.items = [];
+      this.otherViewers = [];
+      this.drawInterval = null;
+      this.resizeToFillWindow();
+    }
+
+    addItem(item) {
+      this.items.push(new ClientItem(item));
+    }
+
+    addViewer(info) {
+      this.otherViewers.push(new ShadowViewer(info));
+    }
+
+    /*
+     * XXX: Okay, I'll need to dig into the canvas API if I'm going to 
+     *    understand this.
+     */
+    draw() {
+      this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      this.context.save();
+      this.context.scale(this.scale, this.scale);
+      this.context.translate(-this.x, -this.y);
+      this.context.rotate(this.rotation);
+
+      this.locate();
+
+      this.items.forEach( o => o.draw(this.context) );
+      this.otherViewers.forEach( v => v.draw(this.context) );
+      this.context.restore();
+
+      this.showStatus();
+    }
+
     locate() {
       switch(this.rotation) {
         case(globals.ROTATE_0): 
@@ -374,43 +378,26 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
-    mouseScroll(event) {
-      /*
-       * XXX: Let's have a close look at this. With no comments, I'm not 
-       *    sure why a Math.max(Math.min()) structure is necessary. We 
-       *    might be able to simplify this.
-       */
-      const delta = Math.max(
-        -1, 
-        Math.min(
-          1, 
-          (event.wheelDelta || -event.detail)
-        )
-      );
-      const newScale = this.scale + delta * 0.09;
-      this.socket.emit(globals.MSG_SCALE, this, newScale);
+    removeItem(item) {
+      locals.removeByItemID(this.items, item);
     }
 
-    removeViewer(id) {
-      const index = this.otherViewers.findIndex( v => v.id === id );
-      if (index >= 0) {
-        this.otherViewers.splice(index,1);
-      }
+    removeViewer(viewer) {
+      locals.removeByItemID(this.otherViewers, viewer);
     }
 
-    resize() {
+    resizeToFillWindow() {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
       this.canvas.width = this.width; 
       this.canvas.height = this.height;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      // this.sendUpdate();
     }
 
     run() {
-      window.clearInterval(this.animator);
-      this.animator = window.setInterval(
+      window.clearInterval(this.drawInterval);
+      this.drawInterval = window.setInterval(
         this.draw.bind(this), locals.FRAMERATE
       );
     }
@@ -420,8 +407,6 @@ const ClientViewer = (function defineClientViewer() {
       data.viewers.forEach( v => this.addViewer(v) );
       data.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = data.color;
-
-      this.socket.emit(globals.MSG_LAYOUT, this.report());
     }
 
     showStatus() {
@@ -449,33 +434,6 @@ const ClientViewer = (function defineClientViewer() {
         `ClientViewer Rotation: ${this.rotation}`, 
         10, 120
       );
-    }
-
-    tap(event) {
-      this.mouse = this.getMouseCoordinates(event);
-      this.socket.emit(
-        globals.MSG_CLICK, 
-        this.mouse.x,
-        this.mouse.y
-      );
-    }
-
-    transform(event) {
-      this.socket.emit(
-        globals.MSG_SCALE, 
-        this, 
-        event.scale * this.startScale
-      );
-    }
-
-    transformend(event) {
-      this.transforming = false;
-      this.startScale = null;
-    }
-
-    transformstart(event) {
-      this.transforming = true;
-      this.startScale = this.scale;
     }
 
     /*
@@ -513,6 +471,33 @@ const ClientViewer = (function defineClientViewer() {
   return ClientViewer;
 })();
 
+const ShadowViewer = (function defineShadowViewer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      effectiveWidth: window.innerWidth;
+      effectiveHeight: window.innerHeight;
+    }),
+    STAMPER: new WamsShared.IDStamper(),
+  });
+
+  class ShadowViewer extends WamsClient.Viewer {
+    constructor(values = {}) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+    }
+
+    draw(context) {
+      context.beginPath();
+      context.rect(v.x, v.y, v.effectiveWidth, v.effectiveHeight);
+      context.stroke();
+    }
+  }
+  
+  return ShadowViewer;
+})();
+
 // Entry point!
 // window.addEventListener(
 //   'load', 
@@ -528,6 +513,8 @@ const ClientViewer = (function defineClientViewer() {
 
 if (typeof exports !== 'undefined') {
   exports.ClientViewer = ClientViewer;
+  exports.ClientController = ClientController;
   exports.ClientItem = ClientItem;
+  exports.ShadowViewer = ShadowViewer;
 }
 
