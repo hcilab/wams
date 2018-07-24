@@ -1,7 +1,7 @@
 'use strict';
 
 /*
- * This file is intented to be used for testing the shared module. It will test
+ * This file is intented to be used for testing the WamsShared module. It will test
  * the module on the server side.
  *
  * TODO: Open up a server once tests are complete for testing code on the
@@ -16,7 +16,7 @@
  *   + Viewer,
  *   + Item,
  */
-const shared = require('../src/shared.js');
+const WamsShared = require('../src/shared.js');
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -31,11 +31,30 @@ expect.extend({
   },
 });
 
+describe('exports', () => {
+  let module;
+  beforeAll(() => {
+    module = Object.freeze([
+      'constants',
+      'IDStamper',
+      'initialize',
+      'makeOwnPropertyImmutable',
+      'NOP',
+      'Viewer',
+      'Item',
+    ]);
+  });
+
+  test('Exports all expected functions and objects', () => {
+    expect(Object.keys(WamsShared)).toEqual(module);
+  });
+});
+
 describe('makeOwnPropertyImmutable', () => {
   test('makes own enumerable, configurable property immutable', () => {
     const x = {id: 1};
     expect(x).not.toHaveImmutableProperty('id');
-    expect(shared.makeOwnPropertyImmutable(x, 'id')).toBe(x);
+    expect(WamsShared.makeOwnPropertyImmutable(x, 'id')).toBe(x);
     expect(() => delete x.id).toThrow();
     expect(
       () => Object.defineProperty(x, 'id', {configurable: true})
@@ -53,7 +72,7 @@ describe('makeOwnPropertyImmutable', () => {
     });
     expect(y.id).toBe(1);
 
-    shared.makeOwnPropertyImmutable(y, 'id');
+    WamsShared.makeOwnPropertyImmutable(y, 'id');
     expect(y).not.toHaveImmutableProperty('id');
 
     y.id = 2;
@@ -67,7 +86,7 @@ describe('makeOwnPropertyImmutable', () => {
     expect(q).not.toHaveImmutableProperty('a');
     expect(p).not.toHaveImmutableProperty('a');
 
-    shared.makeOwnPropertyImmutable(q, 'a');
+    WamsShared.makeOwnPropertyImmutable(q, 'a');
     expect(q).not.toHaveImmutableProperty('a');
     expect(p).not.toHaveImmutableProperty('a');
     p.a = 2;
@@ -85,45 +104,45 @@ describe('makeOwnPropertyImmutable', () => {
     expect(x.a).toBe(1);
 
     expect(x).not.toHaveImmutableProperty('a');
-    shared.makeOwnPropertyImmutable(x, 'a');
+    WamsShared.makeOwnPropertyImmutable(x, 'a');
     expect(x).toHaveImmutableProperty('a');
   });
 });
 
 describe('initialize', () => {
   test('does not throw exceptions on empty objects', () => {
-    expect(shared.initialize()).toEqual({});
+    expect(WamsShared.initialize()).toEqual({});
   });
 
   test('returns empty if defaults is empty, regardless of data', () => {
-    expect(shared.initialize({},{})).toEqual({});
-    expect(shared.initialize({})).toEqual({});
-    expect(shared.initialize({},{a:1})).toEqual({});
-    expect(shared.initialize({},1)).toEqual({});
+    expect(WamsShared.initialize({},{})).toEqual({});
+    expect(WamsShared.initialize({})).toEqual({});
+    expect(WamsShared.initialize({},{a:1})).toEqual({});
+    expect(WamsShared.initialize({},1)).toEqual({});
   });
 
   test('Uses defaults if data is empty.', () => {
-    expect(shared.initialize({a:1})).toEqual({a:1});
-    expect(shared.initialize({a:1},{})).toEqual({a:1});
+    expect(WamsShared.initialize({a:1})).toEqual({a:1});
+    expect(WamsShared.initialize({a:1},{})).toEqual({a:1});
   });
 
   test('Overrides default property if data has property with same name', () => {
-    expect(shared.initialize({a:1}, {a:2})).toEqual({a:2});
+    expect(WamsShared.initialize({a:1}, {a:2})).toEqual({a:2});
   });
 });
 
 describe('IDStamper', () => {
   describe('constructor()', () => {
     test('correctly constructs expected object', () => {
-      const stamper = new shared.IDStamper();
-      expect(stamper).toBeInstanceOf(shared.IDStamper);
+      const stamper = new WamsShared.IDStamper();
+      expect(stamper).toBeInstanceOf(WamsShared.IDStamper);
       expect(stamper).toHaveProperty('stamp');
     });
 
   });
 
   describe('stamp(obj)', () => {
-    const stamper = new shared.IDStamper();
+    const stamper = new WamsShared.IDStamper();
 
     test('can stamp an immutable ID onto an object', () => {
       const x = {};
@@ -152,7 +171,7 @@ describe('IDStamper', () => {
   });
 
   describe('stamp(obj, id)', () => {
-    const stamper = new shared.IDStamper();
+    const stamper = new WamsShared.IDStamper();
 
     test('will stamp an immutable user-provided ID', () => {
       const x = {};
@@ -181,19 +200,19 @@ describe('Viewer', () => {
 
   describe('constructor(data)', () => {
     test('correctly constructs expected object', () => {
-      const vs = new shared.Viewer();
-      expect(vs).toBeInstanceOf(shared.Viewer);
+      const vs = new WamsShared.Viewer();
+      expect(vs).toBeInstanceOf(WamsShared.Viewer);
       expect(vs).toHaveProperty('assign');
       expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
-      const vs = new shared.Viewer();
+      const vs = new WamsShared.Viewer();
       expect(Object.keys(vs)).toEqual(props);
     });
 
     test('uses provided data', () => {
-      const vs = new shared.Viewer({x:100, y:100, rotation: 90});
+      const vs = new WamsShared.Viewer({x:100, y:100, rotation: 90});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -203,7 +222,7 @@ describe('Viewer', () => {
     });
 
     test('does not use incorrect property names in data', () => {
-      const vs = new shared.Viewer({x: 100, y:100, z:100});
+      const vs = new WamsShared.Viewer({x: 100, y:100, z:100});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -212,7 +231,7 @@ describe('Viewer', () => {
   });
 
   describe('assign(data)', () => {
-    const vs = new shared.Viewer();
+    const vs = new WamsShared.Viewer();
 
     test('throws exception if no data passed', () => {
       expect(() => vs.assign()).toThrow(); 
@@ -256,7 +275,7 @@ describe('Viewer', () => {
   });
 
   describe('report()', () => {
-    const vs = new shared.Viewer({x:100, y:50, width:200, height:300});
+    const vs = new WamsShared.Viewer({x:100, y:50, width:200, height:300});
     test('reports data', () => {
       const data = vs.report();
       expect(Object.keys(data)).toEqual(props);
@@ -296,19 +315,19 @@ describe('Item', () => {
 
   describe('constructor(data)', () => {
     test('correctly constructs expected object', () => {
-      const vs = new shared.Item();
-      expect(vs).toBeInstanceOf(shared.Item);
+      const vs = new WamsShared.Item();
+      expect(vs).toBeInstanceOf(WamsShared.Item);
       expect(vs).toHaveProperty('assign');
       expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
-      const vs = new shared.Item();
+      const vs = new WamsShared.Item();
       expect(Object.keys(vs)).toEqual(props);
     });
 
     test('uses provided data', () => {
-      const vs = new shared.Item({x:100, y:100, imgsrc: 'a'});
+      const vs = new WamsShared.Item({x:100, y:100, imgsrc: 'a'});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -318,7 +337,7 @@ describe('Item', () => {
     });
 
     test('does not use incorrect property names in data', () => {
-      const vs = new shared.Item({x: 100, y:100, z:100});
+      const vs = new WamsShared.Item({x: 100, y:100, z:100});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -327,7 +346,7 @@ describe('Item', () => {
   });
 
   describe('assign(data)', () => {
-    const vs = new shared.Item();
+    const vs = new WamsShared.Item();
 
     test('throws exception if no data passed', () => {
       expect(() => vs.assign()).toThrow(); 
@@ -371,7 +390,7 @@ describe('Item', () => {
   });
 
   describe('report()', () => {
-    const vs = new shared.Item({x:100, y:50, width:200, height:300});
+    const vs = new WamsShared.Item({x:100, y:50, width:200, height:300});
     test('reports data', () => {
       const data = vs.report();
       expect(Object.keys(data)).toEqual(props);
