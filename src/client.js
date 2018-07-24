@@ -19,7 +19,6 @@ const globals = (function defineGlobals() {
   const constants = {
     FRAMERATE: 1000 / 60,
     SOCKET: io(),
-    VS_ID_STAMPER: new WamsShared.IDStamper(),
     ITEM_ID_STAMPER: new WamsShared.IDStamper(),
   };
 
@@ -73,37 +72,33 @@ const globals = (function defineGlobals() {
  *    is sent to the client and the other is used by the server?
  */
 const ClientViewer = (function defineClientViewer() {
-  const defaults = {
-    x: 0,
-    y: 0,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    effectiveWidth: window.innerWidth,
-    effectiveHeight: window.innerHeight,
-    rotation: globals.ROTATE_0,
-    scale: 1,
-  };
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      effectiveWidth: window.innerWidth,
+      effectiveHeight: window.innerHeight,
+      rotation: globals.ROTATE_0,
+      scale: 1,
+    }),
+    STAMPER: new WamsShared.IDStamper(),
+  });
 
   class ClientViewer extends WamsShared.Viewer {
     constructor(data) {
-      super(WamsShared.initialize(defaults, data));
+      super(WamsShared.initialize(locals.DEFAULTS, data));
       this.canvas = document.querySelector('#main');
       this.context = this.canvas.getContext('2d');
       this.items = [];
-      this.subViews = [];
+      // this.subViews = [];
       this.startScale = null;
       this.transforming = false;
       this.mouse = {x: 0, y: 0};
       this.otherViews = [];
     }
 
-    /*
-     * XXX: What kind of Image() is this? Where is it defined?
-     *
-     *    + Answer: Turns out, this is part of the DOM API!! You can
-     *      generate <img> elements by calling new Image()! Pretty cool
-     *      actually! I'll probably make use of that!
-     */
     addItem(item) {
       this.items.push(new ClientItem(item));
     }
@@ -114,7 +109,7 @@ const ClientViewer = (function defineClientViewer() {
      */
     addViewer(info) {
       const nvs = new Viewer().assign(info);
-      globals.VS_ID_STAMPER.stamp(nvs, info.id);
+      locals.STAMPER.stamp(nvs, info.id);
       this.otherViews.push(nvs);
     }
 
@@ -189,6 +184,8 @@ const ClientViewer = (function defineClientViewer() {
       /*
        * XXX: Still need to figure out the "why" of this math. Once I've 
        *    done that, I will write up a comment explaining it.
+       *
+       *    Also, I think I'll refactor this into functional style.
        */
       switch (this.rotation) {
         case(globals.ROTATE_0): 
@@ -217,9 +214,9 @@ const ClientViewer = (function defineClientViewer() {
        * XXX: Do we want to connect the subviews in this viewer somehow, so 
        *    that they are clearly linked in the report?
        */
-      if (reportSubWS) {
-        this.subViews.forEach( subWS => subWS.reportViewer(true) );
-      }
+      // if (reportSubWS) {
+      //   this.subViews.forEach( subWS => subWS.reportViewer(true) );
+      // }
 
       globals.SOCKET.emit('reportViewer', this.report());
     }
@@ -258,29 +255,25 @@ const ClientViewer = (function defineClientViewer() {
         this.context.fillText(
           `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
           `${this.y.toFixed(2)}`, 
-          10, 
-          40
+          10, 40
         );
         this.context.fillText(
           `Bottom Right Corner: ` +
           `${(this.x + this.width).toFixed(2)}, ` + 
           `${(this.y + this.height).toFixed(2)}`,
-          10, 
-          60);
+          10, 60
+        );
         this.context.fillText(
           `Number of Other Views: ${this.otherViews.length}`, 
-          10, 
-          80
+          10, 80
         );
         this.context.fillText(
           `Viewer Scale: ${this.scale.toFixed(2)}`, 
-          10, 
-          100
+          10, 100
         );
         this.context.fillText(
           `ClientViewer Rotation: ${this.rotation}`, 
-          10, 
-          120
+          10, 120
         );
       }
     }
