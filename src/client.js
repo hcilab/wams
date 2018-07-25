@@ -26,18 +26,12 @@ const globals = Object.freeze(WamsShared.constants);
 
 const ShadowViewer = (function defineShadowViewer() {
   const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-      x: 0,
-      y: 0,
-      effectiveWidth: window.innerWidth,
-      effectiveHeight: window.innerHeight,
-    }),
     STAMPER: new WamsShared.IDStamper(),
   });
 
   class ShadowViewer extends WamsShared.Viewer {
-    constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+    constructor(values) {
+      super(values);
       if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
     }
 
@@ -59,7 +53,6 @@ const ClientItem = (function defineClientItem() {
    */
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
-
     createImage(src) {
       if (src) {
         const img = new Image();
@@ -71,7 +64,7 @@ const ClientItem = (function defineClientItem() {
   });
 
   class ClientItem extends WamsShared.Item {
-    constructor(data = {}) {
+    constructor(data) {
       super(data);
       if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
       this.img = locals.createImage(this.imgsrc);
@@ -112,10 +105,6 @@ const ClientViewer = (function defineClientViewer() {
     DEFAULTS: Object.freeze({
       x: 0,
       y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
-      effectiveWidth: window.innerWidth,
-      effectiveHeight: window.innerHeight,
       rotation: globals.ROTATE_0,
       scale: 1,
     }),
