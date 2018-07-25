@@ -315,12 +315,12 @@ const ClientViewer = (function defineClientViewer() {
       this.resizeToFillWindow();
     }
 
-    addItem(item) {
-      this.items.push(new ClientItem(item));
+    addItem(values) {
+      this.items.push(new ClientItem(values));
     }
 
-    addViewer(info) {
-      this.shadows.push(new ShadowViewer(info));
+    addShadow(values) {
+      this.shadows.push(new ShadowViewer(values));
     }
 
     /*
@@ -330,48 +330,61 @@ const ClientViewer = (function defineClientViewer() {
     draw(context) {
       context.save();
 
-      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      context.scale(this.scale, this.scale);
-      context.translate(-this.x, -this.y);
-      context.rotate(this.rotation);
-      this.locate(context);
+      { // Wipe and reposition??
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        context.scale(this.scale, this.scale);
+        context.translate(-this.x, -this.y);
+        context.rotate(this.rotation);
+      }
+
+      { // locate?? Whatever translate is doing. Why translate again?
+        switch(this.rotation) {
+          case(globals.ROTATE_0): 
+            break;
+          case(globals.ROTATE_90): 
+            context.translate(
+              (-this.effectiveWidth - (this.x * 2)), 
+              (-this.effectiveHeight - (this.y * 2))
+            ); 
+            break;
+          case(globals.ROTATE_180): 
+            context.translate(
+              -this.effectiveWidth, 
+              -(this.x * 2)
+            ); 
+            break;
+          case(globals.ROTATE_270): 
+            context.translate(
+              -(this.y * 2), 
+              -this.effectiveWidth
+            ); 
+            break;
+        }
+      }
+
       this.items.forEach( o => o.draw(context) );
       this.shadows.forEach( v => v.draw(context) );
-      this.showStatus(context);
+
+      { // show status
+        let base = 40;
+        const messages = Object.keys(locals.DEFAULTS)
+          .map( k => `${k}: ${this[k].toFixed(2)}`)
+          .concat([`# of Shadows: ${this.shadows.length}`]);
+        context.font = '18px Georgia';
+        messages.forEach( m => {
+          context.fillText(m, 10, base);
+          base += 20;
+        });
+      }
 
       context.restore();
-    }
-
-    locate(context) {
-      switch(this.rotation) {
-        case(globals.ROTATE_0): 
-          break;
-        case(globals.ROTATE_90): 
-          context.translate(
-            (-this.effectiveWidth - (this.x * 2)), 
-            (-this.effectiveHeight - (this.y * 2))
-          ); 
-          break;
-        case(globals.ROTATE_180): 
-          context.translate(
-            -this.effectiveWidth, 
-            -(this.x * 2)
-          ); 
-          break;
-        case(globals.ROTATE_270): 
-          context.translate(
-            -(this.y * 2), 
-            -this.effectiveWidth
-          ); 
-          break;
-      }
     }
 
     removeItem(item) {
       locals.removeByItemID(this.items, item);
     }
 
-    removeViewer(viewer) {
+    removeShadow(viewer) {
       locals.removeByItemID(this.shadows, viewer);
     }
 
@@ -384,28 +397,27 @@ const ClientViewer = (function defineClientViewer() {
 
     setup(data) {
       locals.STAMPER.stamp(this, data.id);
-      data.viewers.forEach( v => this.addViewer(v) );
+      data.viewers.forEach( v => this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = data.color;
     }
 
     showStatus(context) {
+      const messages = Object.keys(locals.DEFAULTS).map( k => {
+        `${k}: ${this[k].toFixed(2)}`;
+      });
+      messages.push(`# of Shadows: ${this.shadows.length}`);
+
+      context.save();
       context.font = '18px Georgia';
-      context.fillText(
-        `ClientViewer Coordinates: ` +
-        `${this.x.toFixed(2)}, ` + 
-        `${this.y.toFixed(2)}`, 
-        10, 40
-      );
-      context.fillText(
-        `Bottom Right Corner: ` +
-        `${(this.x + this.width).toFixed(2)}, ` + 
-        `${(this.y + this.height).toFixed(2)}`,
-        10, 60
-      );
-      context.fillText(`Other Viewers: ${this.shadows.length}`, 10, 80);
-      context.fillText(`Scale: ${this.scale.toFixed(2)}`, 10, 100);
-      context.fillText(`Rotation: ${this.rotation}`, 10, 120);
+      {
+        let base = 40;
+        messages.forEach( m => {
+          context.fillText(m, 10, base);
+          base += 20;
+        });
+      }
+      context.restore();
     }
 
     /*
@@ -425,17 +437,17 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     /*
-     * XXX: This is side-effecting!! We should have an 'addViewer' event, not
-     *    just an wams-update-viewer event, unless there's some very good reason 
-     *    not to do so.
+     * XXX: This is side-effecting!! We should have an 'addShadow' event, not
+     *    just an wams-update-viewer event, unless there's some very good 
+     *    reason not to do so.
      */
-    updateViewer(data) {
+    updateShadow(data) {
       if (data.id === this.id) {
         this.assign(data);
       } else {
-        const viewer = this.shadows.find( v => v.id === data.id );
-        if (viewer) viewer.assign(data);
-        else this.addViewer(data);
+        const shadow = this.shadows.find( v => v.id === data.id );
+        if (shadow) shadow.assign(data);
+        else this.addShadow(data);
       }
     }
   }

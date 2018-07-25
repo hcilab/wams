@@ -189,9 +189,39 @@ describe('ClientViewer', () => {
     test('Uses defaults if no values provided', () => {
       expect(new ClientViewer()).toMatchObject(DEFAULTS);
     });
-
-
   });
 
+  describe('addItem(values)', () => {
+  });
+
+  describe('addViewer(values)', () => {
+  });
+
+  describe('draw(context)', () => {
+  });
+
+  describe('locate(context)', () => {
+  });
+
+  describe('removeItem(item)', () => {
+  });
+
+  describe('removeViewer(viewer)', () => {
+  });
+
+  describe('resizeToFillWindow()', () => {
+  });
+
+  describe('setup(data)', () => {
+  });
+
+  describe('showStatus(context)', () => {
+  });
+
+  describe('updateItems(items)', () => {
+  });
+
+  describe('updateViewer(data)', () => {
+  });
 });
 
