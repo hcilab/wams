@@ -37,6 +37,7 @@ case $1 in
         egrep -rnH --colour \
             --exclude-dir='node_modules' \
             --exclude-dir='libs' \
+            --exclude-dir='coverage' \
             --include='*.js' \
             --include='*.html' \
             "$1"
