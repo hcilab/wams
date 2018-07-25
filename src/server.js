@@ -354,15 +354,6 @@ const WorkSpace = (function defineWorkSpace() {
       color: '#aaaaaa',
     }),
     STAMPER: new WamsShared.IDStamper(),
-
-    removeByItemID(array, item) {
-      const idx = array.findIndex( o => o.id === item.id );
-      if (idx >= 0) {
-        array.splice(idx, 1);
-        return true;
-      }
-      return false;
-    },
   });
 
   class WorkSpace {
@@ -415,17 +406,15 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeViewer(viewer) {
-      if (!(viewer instanceof ServerViewer)) {
-        throw 'Invalid ServerViewer received';
-      }
-      return locals.removeByItemID(this.viewers, viewer);
+      return WamsShared.removeClassifiedItemByID(
+        this.viewers, viewer, ServerViewer
+      );
     }
 
     removeItem(item) {
-      if (!(item instanceof ServerItem)) {
-        throw 'Invalid ServerItem received';
-      }
-      return locals.removeByItemID(this.items, item);
+      return WamsShared.removeClassifiedItemByID(
+        this.items, item, ServerItem
+      );
     }
 
     reportViewers() {

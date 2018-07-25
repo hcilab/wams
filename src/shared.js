@@ -80,6 +80,27 @@ const WamsShared = (function defineSharedWamsModule() {
   }
 
   /*
+   * Removes the given item from the given array, according to its ID.
+   */
+  function removeByID(array, item) {
+    const idx = array.findIndex( o => o.id === item.id );
+    if (idx >= 0) {
+      array.splice(idx, 1);
+      return true;
+    }
+    return false;
+  }
+
+  /*
+   * Removes the given item of the given class (enforced by throwing an
+   * exception if not an instance) from the given array.
+   */
+  function removeClassifiedItemByID(array, item, class_fn) {
+    if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
+    return removeByID(array, item);
+  }
+
+  /*
    * I wrote this generator class to make ID generation more controlled.
    * The class has access to a private (local lexical scope) generator 
    *  function and Symbol for generators, and exposes a stamp() method that 
@@ -221,10 +242,11 @@ const WamsShared = (function defineSharedWamsModule() {
     constants,
     IDStamper,
     initialize,
+    Item,
     makeOwnPropertyImmutable,
     NOP,
+    removeClassifiedItemByID,
     Viewer,
-    Item,
   });
 })();
 

@@ -117,15 +117,6 @@ const ClientViewer = (function defineClientViewer() {
     ]),
     FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
-
-    removeByItemID(array, item) {
-      const idx = array.findIndex( o => o.id === item.id );
-      if (idx >= 0) {
-        array.splice(idx, 1);
-        return true;
-      }
-      return false;
-    },
   });
 
   class ClientViewer extends WamsShared.Viewer {
@@ -199,11 +190,15 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     removeItem(item) {
-      locals.removeByItemID(this.items, item);
+      return WamsShared.removeClassifiedItemByID(
+        this.items, item, ClientItem
+      );
     }
 
     removeShadow(shadow) {
-      locals.removeByItemID(this.shadows, shadow);
+      return WamsShared.removeClassifiedItemByID(
+        this.shadows, shadow, ShadowViewer
+      );
     }
 
     resizeToFillWindow() {

@@ -38,10 +38,11 @@ describe('exports', () => {
       'constants',
       'IDStamper',
       'initialize',
+      'Item',
       'makeOwnPropertyImmutable',
       'NOP',
+      'removeClassifiedItemByID',
       'Viewer',
-      'Item',
     ]);
   });
 
