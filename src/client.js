@@ -98,6 +98,8 @@ const ClientController = (function defineClientController() {
     constructor(canvas, id) {
       locals.STAMPER.stamp(this, id);
       this.canvas = canvas;
+      this.context = canvas.getCenter('2d');
+      this.drawInterval = null;
       this.hammer = null;
       this.mouse  = { x: 0, y: 0 };
       this.socket = null;
@@ -118,7 +120,13 @@ const ClientController = (function defineClientController() {
         'mousewheel', this.mouseScroll.bind(this), false
       );
       window.addEventListener(
-        'resize', this.resize.bind(this), false
+        'resize',
+        () => {
+          this.viewer.resize();
+          this.canvas.width = this.width; 
+          this.canvas.height = this.height;
+        },
+        false
       );
     }
 
@@ -230,6 +238,14 @@ const ClientController = (function defineClientController() {
       this.socket.emit(globals.MSG_SCALE, this.id, newScale);
     }
 
+    run() {
+      window.clearInterval(this.drawInterval);
+      this.drawInterval = window.setInterval(
+        () => this.viewer.draw(this.context),
+        locals.FRAMERATE
+      );
+    }
+
     sendUpdate() {
       this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
     }
@@ -292,10 +308,8 @@ const ClientViewer = (function defineClientViewer() {
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(data, context) {
-      super(WamsShared.initialize(locals.DEFAULTS, data));
-      this.context = context;
-      this.drawInterval = null;
+    constructor(values) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
@@ -313,40 +327,39 @@ const ClientViewer = (function defineClientViewer() {
      * XXX: Okay, I'll need to dig into the canvas API if I'm going to 
      *    understand this.
      */
-    draw() {
-      this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      this.context.save();
-      this.context.scale(this.scale, this.scale);
-      this.context.translate(-this.x, -this.y);
-      this.context.rotate(this.rotation);
+    draw(context) {
+      context.save();
 
-      this.locate();
+      context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      context.scale(this.scale, this.scale);
+      context.translate(-this.x, -this.y);
+      context.rotate(this.rotation);
+      this.locate(context);
+      this.items.forEach( o => o.draw(context) );
+      this.shadows.forEach( v => v.draw(context) );
+      this.showStatus(context);
 
-      this.items.forEach( o => o.draw(this.context) );
-      this.shadows.forEach( v => v.draw(this.context) );
-      this.context.restore();
-
-      this.showStatus();
+      context.restore();
     }
 
-    locate() {
+    locate(context) {
       switch(this.rotation) {
         case(globals.ROTATE_0): 
           break;
         case(globals.ROTATE_90): 
-          this.context.translate(
+          context.translate(
             (-this.effectiveWidth - (this.x * 2)), 
             (-this.effectiveHeight - (this.y * 2))
           ); 
           break;
         case(globals.ROTATE_180): 
-          this.context.translate(
+          context.translate(
             -this.effectiveWidth, 
             -(this.x * 2)
           ); 
           break;
         case(globals.ROTATE_270): 
-          this.context.translate(
+          context.translate(
             -(this.y * 2), 
             -this.effectiveWidth
           ); 
@@ -365,17 +378,8 @@ const ClientViewer = (function defineClientViewer() {
     resizeToFillWindow() {
       this.width = window.innerWidth;
       this.height = window.innerHeight;
-      this.canvas.width = this.width; 
-      this.canvas.height = this.height;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-    }
-
-    run() {
-      window.clearInterval(this.drawInterval);
-      this.drawInterval = window.setInterval(
-        this.draw.bind(this), locals.FRAMERATE
-      );
     }
 
     setup(data) {
@@ -385,31 +389,23 @@ const ClientViewer = (function defineClientViewer() {
       this.canvas.style.backgroundColor = data.color;
     }
 
-    showStatus() {
-      this.context.font = '18px Georgia';
-      this.context.fillText(
-        `ClientViewer Coordinates: ${this.x.toFixed(2)}, ` + 
+    showStatus(context) {
+      context.font = '18px Georgia';
+      context.fillText(
+        `ClientViewer Coordinates: ` +
+        `${this.x.toFixed(2)}, ` + 
         `${this.y.toFixed(2)}`, 
         10, 40
       );
-      this.context.fillText(
+      context.fillText(
         `Bottom Right Corner: ` +
         `${(this.x + this.width).toFixed(2)}, ` + 
         `${(this.y + this.height).toFixed(2)}`,
         10, 60
       );
-      this.context.fillText(
-        `Number of Other Viewers: ${this.shadows.length}`, 
-        10, 80
-      );
-      this.context.fillText(
-        `Viewer Scale: ${this.scale.toFixed(2)}`, 
-        10, 100
-      );
-      this.context.fillText(
-        `ClientViewer Rotation: ${this.rotation}`, 
-        10, 120
-      );
+      context.fillText(`Other Viewers: ${this.shadows.length}`, 10, 80);
+      context.fillText(`Scale: ${this.scale.toFixed(2)}`, 10, 100);
+      context.fillText(`Rotation: ${this.rotation}`, 10, 120);
     }
 
     /*

@@ -181,8 +181,17 @@ describe('ClientViewer', () => {
     height: window.innerHeight,
     effectiveWidth: window.innerWidth,
     effectiveHeight: window.innerHeight,
-    rotation: globals.ROTATE_0,
+    rotation: 0,
     scale: 1,
   });
+
+  describe('constructor(values)', () => {
+    test('Uses defaults if no values provided', () => {
+      expect(new ClientViewer()).toMatchObject(DEFAULTS);
+    });
+
+
+  });
+
 });
 
