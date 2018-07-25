@@ -406,15 +406,11 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeViewer(viewer) {
-      return WamsShared.removeClassifiedItemByID(
-        this.viewers, viewer, ServerViewer
-      );
+      return WamsShared.safeRemoveByID( this.viewers, viewer, ServerViewer );
     }
 
     removeItem(item) {
-      return WamsShared.removeClassifiedItemByID(
-        this.items, item, ServerItem
-      );
+      return WamsShared.safeRemoveByID( this.items, item, ServerItem );
     }
 
     reportViewers() {

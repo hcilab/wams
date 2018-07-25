@@ -41,7 +41,7 @@ describe('exports', () => {
       'Item',
       'makeOwnPropertyImmutable',
       'NOP',
-      'removeClassifiedItemByID',
+      'safeRemoveByID',
       'Viewer',
     ]);
   });

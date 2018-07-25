@@ -190,15 +190,11 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     removeItem(item) {
-      return WamsShared.removeClassifiedItemByID(
-        this.items, item, ClientItem
-      );
+      return WamsShared.safeRemoveByID( this.items, item, ClientItem );
     }
 
     removeShadow(shadow) {
-      return WamsShared.removeClassifiedItemByID(
-        this.shadows, shadow, ShadowViewer
-      );
+      return WamsShared.safeRemoveByID( this.shadows, shadow, ShadowViewer );
     }
 
     resizeToFillWindow() {

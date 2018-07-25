@@ -95,7 +95,7 @@ const WamsShared = (function defineSharedWamsModule() {
    * Removes the given item of the given class (enforced by throwing an
    * exception if not an instance) from the given array.
    */
-  function removeClassifiedItemByID(array, item, class_fn) {
+  function safeRemoveByID(array, item, class_fn) {
     if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
     return removeByID(array, item);
   }
@@ -245,7 +245,7 @@ const WamsShared = (function defineSharedWamsModule() {
     Item,
     makeOwnPropertyImmutable,
     NOP,
-    removeClassifiedItemByID,
+    safeRemoveByID,
     Viewer,
   });
 })();
