@@ -46,8 +46,8 @@ function handleLayout(viewer) {
 
   if (viewers.length > 0) {
     viewer.moveTo(
-      prev_viewer.right() - 30,
-      prev_viewer.top()
+      viewer.right - 30,
+      viewer.top
     ); 
   }
 }

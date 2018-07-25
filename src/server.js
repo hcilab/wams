@@ -466,8 +466,9 @@ const Connection = (function defineConnection() {
       this.workspace = workspace;
       this.viewer = this.workspace.spawnViewer();
       if (!this.viewer) {
+        console.log(this.viewer);
         this.socket.disconnect(true);
-        return undefined;
+        return false;
       }
 
       Object.entries(locals.LOCAL_HANDLERS).forEach( ([p,v]) => {

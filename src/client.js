@@ -13,11 +13,11 @@
  * FIXME: This is ugly!! This code will not work on the actual client if this
  *  test code is left in!
  */
-let io, WamsShared;
-if (typeof require === 'function') {
-  io = require('socket.io-client');
-  WamsShared = require('../src/shared.js');
-}
+// let io, WamsShared;
+// if (typeof require === 'function') {
+//   io = require('socket.io-client');
+//   WamsShared = require('../src/shared.js');
+// }
 
 /*
  * Shorthand for the shared set of constants between server and client.
@@ -70,6 +70,8 @@ const ClientItem = (function defineClientItem() {
       if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
       else throw 'Items require IDs, but not ID found.';
       this.img = locals.createImage(this.imgsrc);
+      this.loaded = false;
+      this.img.onload = () => this.loaded = true;
     }
 
     draw(context) {
@@ -77,7 +79,12 @@ const ClientItem = (function defineClientItem() {
       const height = this.height || this.img.height;
 
       if (this.img) {
-        context.drawImage(this.img, this.x, this.y, width, height);
+        if (this.loaded) {
+          context.drawImage(this.img, this.x, this.y, width, height);
+        } else {
+          context.fileStyle = '#252525';
+          context.fillRect(this.x, this.y, width, height);
+        }
       } else {
         /*
          * XXX: Yikes!!! eval()? And we want this to be a usable 
@@ -254,6 +261,7 @@ const ClientController = (function defineClientController() {
       this.startScale = null;
       this.transforming = false;
       this.viewer = new ClientViewer();
+      this.resizeCanvasToFillWindow();
 
       establishHammer.call(this);
       establishSocket.call(this);
@@ -281,16 +289,17 @@ const ClientController = (function defineClientController() {
         this.socket.on(globals.MSG_INIT, (data) => {
           this.viewer.setup(data);
           locals.STAMPER.stamp(this, data.id);
+          this.canvas.style.backgroundColor = data.color;
           this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
         });
         this.socket.on(globals.MSG_UD_VIEW,
-          this.viewer.updateViewer.bind(this.viewer)
+          this.viewer.updateShadow.bind(this.viewer)
         );
         this.socket.on(globals.MSG_RM_VIEW,
-          this.viewer.removeViewer.bind(this.viewer)
+          this.viewer.removeShadow.bind(this.viewer)
         );
         this.socket.on(globals.MSG_UD_ITEMS,
-          this.viewer.updateItems.bind(this.viewer)
+          this.viewer.updateItem.bind(this.viewer)
         );
       }
     }
@@ -360,9 +369,9 @@ const ClientController = (function defineClientController() {
     }
 
     resize() {
-      this.viewer.resize();
-      this.canvas.width = window.innerWidth; 
-      this.canvas.height = window.innerHeight;
+      this.viewer.resizeToFillWindow();
+      this.resizeCanvasToFillWindow();
+      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
     }
 
     run() {
@@ -373,22 +382,23 @@ const ClientController = (function defineClientController() {
       );
     }
 
-    scroll(event) {
-      /*
-       * XXX: Let's have a close look at this. With no comments, I'm not 
-       *    sure why a Math.max(Math.min()) structure is necessary. We 
-       *    might be able to simplify this.
-       */
-      const delta = Math.max(
-        -1, 
-        Math.min( 1, (event.wheelDelta || -event.detail))
-      );
-      const newScale = this.scale + delta * 0.09;
-      this.socket.emit(globals.MSG_SCALE, this.id, newScale);
-    }
+    /*
+     * XXX: Let's have a close look at this. With no comments, I'm not 
+     *    sure why a Math.max(Math.min()) structure is necessary. We 
+     *    might be able to simplify this.
+     */
+    // scroll(event) {
+    //   const delta = Math.max(
+    //     -1, 
+    //     Math.min( 1, (event.wheelDelta || -event.detail))
+    //   );
+    //   const newScale = this.scale + delta * 0.09;
+    //   this.socket.emit(globals.MSG_SCALE, this.id, newScale);
+    // }
 
-    sendUpdate() {
-      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
+    resizeCanvasToFillWindow() {
+      this.canvas.width = window.innerWidth; 
+      this.canvas.height = window.innerHeight;
     }
 
     tap(event) {
@@ -423,22 +433,22 @@ const ClientController = (function defineClientController() {
 })();
 
 // Entry point!
-// window.addEventListener(
-//   'load', 
-//   function run() {
-//     new ClientViewer().run();
-//   },
-//   {
-//     capture: false,
-//     once: true,
-//     passive: true,
-//   }
-// );
+window.addEventListener(
+  'load', 
+  function run() {
+    new ClientController(document.querySelector('canvas')).run();
+  },
+  {
+    capture: false,
+    once: true,
+    passive: true,
+  }
+);
 
-if (typeof exports !== 'undefined') {
-  exports.ClientViewer = ClientViewer;
-  exports.ClientController = ClientController;
-  exports.ClientItem = ClientItem;
-  exports.ShadowViewer = ShadowViewer;
-}
+// if (typeof exports !== 'undefined') {
+//   exports.ClientViewer = ClientViewer;
+//   exports.ClientController = ClientController;
+//   exports.ClientItem = ClientItem;
+//   exports.ShadowViewer = ShadowViewer;
+// }
 
