@@ -229,10 +229,7 @@ const ClientController = (function defineClientController() {
        */
       const delta = Math.max(
         -1, 
-        Math.min(
-          1, 
-          (event.wheelDelta || -event.detail)
-        )
+        Math.min( 1, (event.wheelDelta || -event.detail))
       );
       const newScale = this.scale + delta * 0.09;
       this.socket.emit(globals.MSG_SCALE, this.id, newScale);
@@ -403,35 +400,16 @@ const ClientViewer = (function defineClientViewer() {
       this.canvas.style.backgroundColor = data.color;
     }
 
-    /*
-     * XXX: Update? If we're just pushing every item 
-     *    from one array into the other (after it has been emptied), 
-     *    maybe we should just copy the array over?
-     *
-     *    I think maybe what happened is the author wanted to actually 
-     *    update the array, but ran into problems so ended up just 
-     *    resetting. I think a proper update would probably be more 
-     *    efficient than this mechanism of trashing, copying, and 
-     *    regenerating.
-     */
-    updateItems(items) {
-      this.items.splice(0, this.items.length);
-      items.forEach( o => this.addItem(o) );
+    updateItem(data) {
+      const item = this.item.find( i => i.id === data.id );
+      if (item) item.assign(data);
+      else console.warn('Unable to find shadow to be updated.');
     }
 
-    /*
-     * XXX: This is side-effecting!! We should have an 'addShadow' event, not
-     *    just an wams-update-viewer event, unless there's some very good 
-     *    reason not to do so.
-     */
     updateShadow(data) {
-      if (data.id === this.id) {
-        this.assign(data);
-      } else {
-        const shadow = this.shadows.find( v => v.id === data.id );
-        if (shadow) shadow.assign(data);
-        else this.addShadow(data);
-      }
+      const shadow = this.shadows.find( v => v.id === data.id );
+      if (shadow) shadow.assign(data);
+      else console.warn('Unable find shadow to be updated.');
     }
   }
 
