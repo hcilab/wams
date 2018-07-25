@@ -122,7 +122,6 @@ describe('ClientItem', () => {
 
     test('Throws an exception if no context provided', () => {
       const ci = new ClientItem(item);
-      console.log(ci);
       expect(() => ci.draw()).toThrow();
     });
 
@@ -220,19 +219,142 @@ describe('ClientViewer', () => {
     });
   });
 
-  describe('removeViewer(viewer)', () => {
+  describe('removeShadow(shadow)', () => {
+    const cv = new ClientViewer();
+    cv.addShadow({x:80,y:90,id:44});
+    cv.addShadow(shadow);
+    cv.addShadow({x:22,y:5,id:900});
+
+    test('Throws exception if not shadow provided', () => {
+      expect(() => cv.removeShadow()).toThrow();
+    });
+
+    test('Removes the shadow', () => {
+      const s = cv.shadows[1];
+      expect(() => cv.removeShadow(s)).not.toThrow();
+      expect(cv.shadows.length).toBe(2);
+      expect(cv.shadows).not.toContain(s);
+    });
   });
 
   describe('resizeToFillWindow()', () => {
+    const cv = new ClientViewer();
+
+    test('Adjusts size of client viewer to the window size', () => {
+      expect(cv.width).toBe(window.innerWidth);
+      expect(cv.height).toBe(window.innerHeight);
+      window.innerWidth += 45;
+      window.innerHeight -= 87;
+      cv.resizeToFillWindow();
+      expect(cv.width).toBe(window.innerWidth);
+      expect(cv.height).toBe(window.innerHeight);
+    });
   });
 
   describe('setup(data)', () => {
+    const cv = new ClientViewer();
+    const data = {
+      id: 33,
+      viewers: [
+        {x:80,y:90,id:44},
+        shadow,
+        {x:22,y:5,id:900},
+      ],
+      items: [
+        {x:555, y:253, id:50},
+        item,
+        {x:1,y:2, id:89},
+      ],
+      color: '#4ab93d',
+    };
+
+    test('Throws exception if no data provided', () => {
+      expect(() => cv.setup()).toThrow();
+    });
+
+    test('Throws exception if data is missing parameters', () => {
+      expect(() => cv.setup({id:1, viewers:[]})).toThrow();
+      expect(() => cv.setup({id:1, items:[]})).toThrow();
+      expect(() => cv.setup({items:[], viewers:[]})).toThrow();
+    });
+
+    test('Does not throw exception if data provided', () => {
+      expect(() => cv.setup(data)).not.toThrow();
+    });
+
+    test('Stamps an immutable ID onto the ClientViewer', () => {
+      expect(cv).toHaveImmutableProperty('id');
+    });
+
+    test('Adds all the viewers in the data as shadows', () => {
+      data.viewers.forEach( v => {
+        const s = cv.shadows.find( x => x.id === v.id );
+        expect(s).toMatchObject(v);
+      });
+    });
+  
+    test('Adds all the items in the data', () => {
+      data.items.forEach( i => {
+        const t = cv.items.find( y => y.id === i.id );
+        expect(t).toMatchObject(i);
+      });
+    });
   });
 
   describe('updateItem(data)', () => {
+    const cv = new ClientViewer();
+    const data = {
+      id: item.id,
+      x: item.x + 101,
+      y: item.y - 73,
+    }
+    cv.addItem(item);
+
+    test('Throws exception if no data provided', () => {
+      expect(() => cv.updateItem()).toThrow();
+    });
+
+    test('Throws exception if provided data lacks ID', () => {
+      expect(() => cv.updateItem({x:1,y:2})).toThrow();
+    });
+
+    test('Does not throw exception when provided with valid data', () => {
+      expect(() => cv.updateItem(data)).not.toThrow();
+    });
+
+    test('Updates item data to the provided values', () => {
+      const i = cv.items.find( x => x.id === item.id );
+      expect(i.x).toBe(data.x);
+      expect(i.y).toBe(data.y);
+    });
   });
 
   describe('updateShadow(data)', () => {
+    const cv = new ClientViewer();
+    const data = {
+      id: shadow.id,
+      x: shadow.x + 101,
+      y: shadow.y - 73,
+    }
+    cv.addShadow(shadow);
+
+    test('Throws exception if no data provided', () => {
+      expect(() => cv.updateShadow()).toThrow();
+    });
+
+    test('Throws exception if provided data lacks ID', () => {
+      expect(() => cv.updateShadow({x:1,y:2})).toThrow();
+    });
+
+    test('Does not throw exception when provided with valid data', () => {
+      expect(() => cv.updateShadow(data)).not.toThrow();
+    });
+
+    test('Updates shadow data to the provided values', () => {
+      const s = cv.shadows.find( x => x.id === shadow.id );
+      expect(s.x).toBe(data.x);
+      expect(s.y).toBe(data.y);
+    });
   });
 });
 
@@ -276,5 +398,4 @@ describe('ClientController', () => {
   describe('transformstart(event)', () => {
   });
 });
-
 

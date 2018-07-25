@@ -110,6 +110,11 @@ const ClientViewer = (function defineClientViewer() {
       rotation: globals.ROTATE_0,
       scale: 1,
     }),
+    REQUIRED_DATA: Object.freeze([
+      'id',
+      'items',
+      'viewers',
+    ]),
     FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
 
@@ -197,8 +202,8 @@ const ClientViewer = (function defineClientViewer() {
       locals.removeByItemID(this.items, item);
     }
 
-    removeShadow(viewer) {
-      locals.removeByItemID(this.shadows, viewer);
+    removeShadow(shadow) {
+      locals.removeByItemID(this.shadows, shadow);
     }
 
     resizeToFillWindow() {
@@ -209,22 +214,24 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     setup(data) {
+      locals.REQUIRED_DATA.forEach( d => {
+        if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
+      });
       locals.STAMPER.stamp(this, data.id);
       data.viewers.forEach( v => this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
-      this.canvas.style.backgroundColor = data.color;
     }
 
     updateItem(data) {
-      const item = this.item.find( i => i.id === data.id );
+      const item = this.items.find( i => i.id === data.id );
       if (item) item.assign(data);
-      else console.warn('Unable to find shadow to be updated.');
+      else throw 'Unable to find item to be updated.';
     }
 
     updateShadow(data) {
       const shadow = this.shadows.find( v => v.id === data.id );
       if (shadow) shadow.assign(data);
-      else console.warn('Unable find shadow to be updated.');
+      else throw 'Unable find shadow to be updated.';
     }
   }
 
@@ -263,8 +270,8 @@ const ClientController = (function defineClientController() {
 
       function attachWindowListeners() {
         const scroll_fn = this.scroll.bind(this); // To reuse bound function
-        window.addEventListener('DOMMouseScroll', scroll_fn, false);
-        window.addEventListener('mousewheel', scroll_fn, false);
+        // window.addEventListener('DOMMouseScroll', scroll_fn, false);
+        // window.addEventListener('mousewheel', scroll_fn, false);
         window.addEventListener('resize', this.resize.bind(this), false);
       }
 
