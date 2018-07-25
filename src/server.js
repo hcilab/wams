@@ -498,13 +498,6 @@ const Connection = (function defineConnection() {
       this.socket.broadcast.emit(event, data);
     }
 
-    broadcastViewReport() {
-      this.broadcast(
-        globals.MSG_UD_VIEW,
-        this.viewer.report()
-      );
-    }
-
     broadcastItemReport() {
       this.broadcast(
         globals.MSG_UD_ITEMS,
@@ -512,15 +505,13 @@ const Connection = (function defineConnection() {
       );
     }
 
-    passMessageToWorkspace(message, ...args) {
-      this.workspace.handle(message, this.viewer, ...args);
-      this.broadcastItemReport();
-      this.broadcastViewReport();
+    broadcastViewReport() {
+      this.broadcast(
+        globals.MSG_UD_VIEW,
+        this.viewer.report()
+      );
     }
 
-    /*
-     * XXX: Shouldn't we disconnect the socket???
-     */
     disconnect() {
       if (this.workspace.removeViewer(this.viewer)) {
         this.broadcast(globals.MSG_RM_VIEW, this.viewer.id);
@@ -531,6 +522,12 @@ const Connection = (function defineConnection() {
       } else {
         console.error('Failed to disconnect:', this);
       }
+    }
+
+    passMessageToWorkspace(message, ...args) {
+      this.workspace.handle(message, this.viewer, ...args);
+      this.broadcastItemReport();
+      this.broadcastViewReport();
     }
 
     resize(data) {
