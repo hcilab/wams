@@ -194,7 +194,7 @@ describe('ClientViewer', () => {
   describe('addItem(values)', () => {
   });
 
-  describe('addViewer(values)', () => {
+  describe('addShadow(values)', () => {
   });
 
   describe('draw(context)', () => {
@@ -212,10 +212,10 @@ describe('ClientViewer', () => {
   describe('setup(data)', () => {
   });
 
-  describe('updateItems(items)', () => {
+  describe('updateItem(data)', () => {
   });
 
-  describe('updateViewer(data)', () => {
+  describe('updateShadow(data)', () => {
   });
 });
 

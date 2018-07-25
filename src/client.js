@@ -320,10 +320,6 @@ const ClientViewer = (function defineClientViewer() {
       this.shadows.push(new ShadowViewer(values));
     }
 
-    /*
-     * XXX: Okay, I'll need to dig into the canvas API if I'm going to 
-     *    understand this.
-     */
     draw(context) {
       context.save();
       wipeAndReposition.call(this, context);
@@ -364,7 +360,7 @@ const ClientViewer = (function defineClientViewer() {
             break;
         }
       }
-
+  
       function showStatus(context) {
         let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
