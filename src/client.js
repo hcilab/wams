@@ -268,7 +268,7 @@ const ClientController = (function defineClientController() {
       attachWindowListeners.call(this);
 
       function attachWindowListeners() {
-        const scroll_fn = this.scroll.bind(this); // To reuse bound function
+        // const scroll_fn = this.scroll.bind(this); // To reuse bound function
         // window.addEventListener('DOMMouseScroll', scroll_fn, false);
         // window.addEventListener('mousewheel', scroll_fn, false);
         window.addEventListener('resize', this.resize.bind(this), false);
@@ -298,7 +298,7 @@ const ClientController = (function defineClientController() {
         this.socket.on(globals.MSG_RM_VIEW,
           this.viewer.removeShadow.bind(this.viewer)
         );
-        this.socket.on(globals.MSG_UD_ITEMS,
+        this.socket.on(globals.MSG_UD_ITEM,
           this.viewer.updateItem.bind(this.viewer)
         );
       }

@@ -17,7 +17,11 @@
 'use strict';
 
 /*
- * XXX: BUG! Disconnects aren't actually disconnecting!!!
+ * FIXME: 
+ *  + Disconnects aren't actually disconnecting!!!
+ *  + Try to get the server to recognize a reconnection attempt.
+ *    - Something fishy is going on when the client doesn't get to connect
+ *      right away.
  */
 
 /*
@@ -286,8 +290,9 @@ const ListenerFactory = (function defineListenerFactory() {
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewer, x, y) {
-          const target = workspace.findItemByCoordinates(x,y) || workspace;
-          listener(viewer, target, x, y);
+          const target = workspace.findItemByCoordinates(x,y);
+          listener(viewer, target || workspace, x, y);
+          return target;
         };
       },
 
@@ -300,8 +305,9 @@ const ListenerFactory = (function defineListenerFactory() {
            *    The source of the jitter seems to be when the 
            *    background is dragged.
            */
-          const target = workspace.findItemByCoordinates(x,y) || workspace;
-          listener(viewer, target, x, y, dx, dy);
+          const target = workspace.findItemByCoordinates(x,y);
+          listener(viewer, target || workspace, x, y, dx, dy);
+          return target;
         };
       },
 
@@ -389,7 +395,7 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     handle(message, ...args) {
-      this.handlers[message](...args);
+      return this.handlers[message](...args);
     }
 
     hasViewer(viewer) {
@@ -498,14 +504,14 @@ const Connection = (function defineConnection() {
       this.socket.broadcast.emit(event, data);
     }
 
-    broadcastItemReport() {
+    broadcastItemUpdate(item) {
       this.broadcast(
-        globals.MSG_UD_ITEMS,
-        this.workspace.reportItems()
+        globals.MSG_UD_ITEM,
+        item.report()
       );
     }
 
-    broadcastViewReport() {
+    broadcastViewUpdate() {
       this.broadcast(
         globals.MSG_UD_VIEW,
         this.viewer.report()
@@ -525,9 +531,9 @@ const Connection = (function defineConnection() {
     }
 
     passMessageToWorkspace(message, ...args) {
-      this.workspace.handle(message, this.viewer, ...args);
-      this.broadcastItemReport();
-      this.broadcastViewReport();
+      const item = this.workspace.handle(message, this.viewer, ...args);
+      if (item instanceof ServerItem) this.broadcastItemUpdate(item);
+      this.broadcastViewUpdate();
     }
 
     resize(data) {
@@ -601,7 +607,7 @@ const RequestHandler = (function defineRequestHandler() {
  */
 const WamsServer = (function defineWamsServer() {
   const http = require('http');
-  const io = require('socket.io');
+  const IO = require('socket.io');
   const os = require('os');
 
   const locals = Object.freeze({
@@ -626,7 +632,7 @@ const WamsServer = (function defineWamsServer() {
       this.workspace = workspace;
       this.server = http.createServer(new RequestHandler());
 
-      this.io = io.listen(this.server);
+      this.io = IO(this.server);
       this.io.on('connection', (socket) => {
         const c = new Connection(socket, this.workspace);
         if (c) {
