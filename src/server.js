@@ -449,7 +449,7 @@ const Connection = (function defineConnection() {
   const locals = Object.freeze({
     LOCAL_HANDLERS: Object.freeze({ 
       [globals.MSG_DISCONNECT]: 'disconnect',
-      [globals.MSG_UPDATE]:     'update',
+      [globals.MSG_RESIZE]:     'resize',
     }),
 
     WORKSPACE_HANDLERS: Object.freeze({ 
@@ -533,7 +533,7 @@ const Connection = (function defineConnection() {
       }
     }
 
-    update(data) {
+    resize(data) {
       if (this.viewer.id === data.id) {
         this.viewer.assign(data);
         this.broadcastViewReport()

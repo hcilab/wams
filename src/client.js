@@ -371,7 +371,7 @@ const ClientController = (function defineClientController() {
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
-      this.socket.emit(globals.MSG_UPDATE, this.viewer.report());
+      this.socket.emit(globals.MSG_RESIZE, this.viewer.report());
     }
 
     run() {
