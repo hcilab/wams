@@ -219,3 +219,45 @@ describe('ClientViewer', () => {
   });
 });
 
+describe('ClientController', () => {
+  describe('constructor(canvas)', () => {
+  });
+
+  describe('drag(event)', () => {
+  });
+
+  describe('dragend(event)', () => {
+  });
+
+  describe('dragstart(event)', () => {
+  });
+
+  describe('getMouseCoordinates(event)', () => {
+  });
+
+  describe('resize()', () => {
+  });
+
+  describe('run()', () => {
+  });
+
+  describe('scroll(event)', () => {
+  });
+
+  describe('sendUpdate()', () => {
+  });
+
+  describe('tap(event)', () => {
+  });
+
+  describe('transform(event)', () => {
+  });
+
+  describe('transformend(event)', () => {
+  });
+
+  describe('transformstart(event)', () => {
+  });
+});
+
+

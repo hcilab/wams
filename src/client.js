@@ -97,7 +97,7 @@ const ClientController = (function defineClientController() {
   class ClientController { 
     constructor(canvas) {
       this.canvas = canvas;
-      this.context = canvas.getCenter('2d');
+      this.context = canvas.getContext('2d');
       this.drawInterval = null;
       this.hammer = null;
       this.mouse  = { x: 0, y: 0 };
@@ -106,27 +106,44 @@ const ClientController = (function defineClientController() {
       this.transforming = false;
       this.viewer = new ClientViewer();
 
-      this.establishHammer();
-      this.establishSocket();
-      this.attachWindowListeners();
-    }
+      establishHammer.call(this);
+      establishSocket.call(this);
+      attachWindowListeners.call(this);
 
-    attachWindowListeners() {
-      window.addEventListener(
-        'DOMMouseScroll', this.mouseScroll.bind(this), false
-      );
-      window.addEventListener(
-        'mousewheel', this.mouseScroll.bind(this), false
-      );
-      window.addEventListener(
-        'resize',
-        () => {
-          this.viewer.resize();
-          this.canvas.width = this.width; 
-          this.canvas.height = this.height;
-        },
-        false
-      );
+      function attachWindowListeners() {
+        const scroll_fn = this.scroll.bind(this); // To reuse bound function
+        window.addEventListener('DOMMouseScroll', scroll_fn, false);
+        window.addEventListener('mousewheel', scroll_fn, false);
+        window.addEventListener('resize', this.resize.bind(this), false);
+      }
+
+      function establishHammer() {
+        this.hammer = new Hammer(this.canvas);
+        this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+        this.hammer.get('pinch').set({ enable: true });
+        locals.HAMMER_EVENTS.forEach( e => {
+          this.hammer.on(e, (event) => event.preventDefault() );
+          this.hammer.on(e, this[e].bind(this));
+        });
+      }
+
+      function establishSocket() {
+        this.socket = io();
+        this.socket.on(globals.MSG_INIT, (data) => {
+          this.viewer.setup(data);
+          locals.STAMPER.stamp(this, data.id);
+          this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
+        });
+        this.socket.on(globals.MSG_UD_VIEW,
+          this.viewer.updateViewer.bind(this.viewer)
+        );
+        this.socket.on(globals.MSG_RM_VIEW,
+          this.viewer.removeViewer.bind(this.viewer)
+        );
+        this.socket.on(globals.MSG_UD_ITEMS,
+          this.viewer.updateItems.bind(this.viewer)
+        );
+      }
     }
 
     drag(event) {
@@ -152,34 +169,6 @@ const ClientController = (function defineClientController() {
 
     dragstart(event) {
       this.mouse = this.getMouseCoordinates(event);
-    }
-
-    establishHammer() {
-      this.hammer = new Hammer(this.canvas);
-      this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-      this.hammer.get('pinch').set({ enable: true });
-      locals.HAMMER_EVENTS.forEach( e => {
-        this.hammer.on(e, (event) => event.preventDefault() );
-        this.hammer.on(e, this[e].bind(this));
-      });
-    }
-
-    establishSocket() {
-      this.socket = io();
-      this.socket.on(globals.MSG_INIT, (data) => {
-        this.viewer.setup(data);
-        locals.STAMPER.stamp(this, data.id);
-        this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
-      });
-      this.socket.on(globals.MSG_UD_VIEW,
-        this.viewer.updateViewer.bind(this.viewer)
-      );
-      this.socket.on(globals.MSG_RM_VIEW,
-        this.viewer.removeViewer.bind(this.viewer)
-      );
-      this.socket.on(globals.MSG_UD_ITEMS,
-        this.viewer.updateItems.bind(this.viewer)
-      );
     }
 
     getMouseCoordinates(event) {
@@ -221,7 +210,21 @@ const ClientController = (function defineClientController() {
       return coords;
     }
 
-    mouseScroll(event) {
+    resize() {
+      this.viewer.resize();
+      this.canvas.width = window.innerWidth; 
+      this.canvas.height = window.innerHeight;
+    }
+
+    run() {
+      window.clearInterval(this.drawInterval);
+      this.drawInterval = window.setInterval(
+        () => this.viewer.draw(this.context),
+        locals.FRAMERATE
+      );
+    }
+
+    scroll(event) {
       /*
        * XXX: Let's have a close look at this. With no comments, I'm not 
        *    sure why a Math.max(Math.min()) structure is necessary. We 
@@ -233,14 +236,6 @@ const ClientController = (function defineClientController() {
       );
       const newScale = this.scale + delta * 0.09;
       this.socket.emit(globals.MSG_SCALE, this.id, newScale);
-    }
-
-    run() {
-      window.clearInterval(this.drawInterval);
-      this.drawInterval = window.setInterval(
-        () => this.viewer.draw(this.context),
-        locals.FRAMERATE
-      );
     }
 
     sendUpdate() {
@@ -273,7 +268,6 @@ const ClientController = (function defineClientController() {
       this.transforming = true;
       this.startScale = this.viewer.scale;
     }
-
   }
 
   return ClientController;
