@@ -95,8 +95,7 @@ const ClientController = (function defineClientController() {
   });
 
   class ClientController { 
-    constructor(canvas, id) {
-      locals.STAMPER.stamp(this, id);
+    constructor(canvas) {
       this.canvas = canvas;
       this.context = canvas.getCenter('2d');
       this.drawInterval = null;
@@ -167,8 +166,9 @@ const ClientController = (function defineClientController() {
 
     establishSocket() {
       this.socket = io();
-      this.socket.on(globals.MSG_INIT, (...args) => {
-        this.viewer.setup(...args);
+      this.socket.on(globals.MSG_INIT, (data) => {
+        this.viewer.setup(data);
+        locals.STAMPER.stamp(this, data.id);
         this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
       });
       this.socket.on(globals.MSG_UD_VIEW,
@@ -329,15 +329,21 @@ const ClientViewer = (function defineClientViewer() {
      */
     draw(context) {
       context.save();
+      wipeAndReposition.call(this, context);
+      locate.call(this, context);
+      this.items.forEach( o => o.draw(context) );
+      this.shadows.forEach( v => v.draw(context) );
+      showStatus.call(this, context);
+      context.restore();
 
-      { // Wipe and reposition??
+      function wipeAndReposition(context) {
         context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         context.scale(this.scale, this.scale);
         context.translate(-this.x, -this.y);
         context.rotate(this.rotation);
       }
 
-      { // locate?? Whatever translate is doing. Why translate again?
+      function locate(context) {
         switch(this.rotation) {
           case(globals.ROTATE_0): 
             break;
@@ -362,10 +368,7 @@ const ClientViewer = (function defineClientViewer() {
         }
       }
 
-      this.items.forEach( o => o.draw(context) );
-      this.shadows.forEach( v => v.draw(context) );
-
-      { // show status
+      function showStatus(context) {
         let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
           .map( k => `${k}: ${this[k].toFixed(2)}`)
@@ -376,8 +379,6 @@ const ClientViewer = (function defineClientViewer() {
           base += 20;
         });
       }
-
-      context.restore();
     }
 
     removeItem(item) {
@@ -400,24 +401,6 @@ const ClientViewer = (function defineClientViewer() {
       data.viewers.forEach( v => this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
       this.canvas.style.backgroundColor = data.color;
-    }
-
-    showStatus(context) {
-      const messages = Object.keys(locals.DEFAULTS).map( k => {
-        `${k}: ${this[k].toFixed(2)}`;
-      });
-      messages.push(`# of Shadows: ${this.shadows.length}`);
-
-      context.save();
-      context.font = '18px Georgia';
-      {
-        let base = 40;
-        messages.forEach( m => {
-          context.fillText(m, 10, base);
-          base += 20;
-        });
-      }
-      context.restore();
     }
 
     /*

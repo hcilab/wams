@@ -200,9 +200,6 @@ describe('ClientViewer', () => {
   describe('draw(context)', () => {
   });
 
-  describe('locate(context)', () => {
-  });
-
   describe('removeItem(item)', () => {
   });
 
@@ -213,9 +210,6 @@ describe('ClientViewer', () => {
   });
 
   describe('setup(data)', () => {
-  });
-
-  describe('showStatus(context)', () => {
   });
 
   describe('updateItems(items)', () => {
