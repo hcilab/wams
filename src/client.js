@@ -24,6 +24,33 @@ if (typeof require === 'function') {
  */
 const globals = Object.freeze(WamsShared.constants);
 
+const ShadowViewer = (function defineShadowViewer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      effectiveWidth: window.innerWidth,
+      effectiveHeight: window.innerHeight,
+    }),
+    STAMPER: new WamsShared.IDStamper(),
+  });
+
+  class ShadowViewer extends WamsShared.Viewer {
+    constructor(values = {}) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+    }
+
+    draw(context) {
+      context.beginPath();
+      context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
+      context.stroke();
+    }
+  }
+  
+  return ShadowViewer;
+})();
+
 const ClientItem = (function defineClientItem() {
   /*
    * I'm not defining a 'defaults' object here, because the data going into
@@ -78,6 +105,139 @@ const ClientItem = (function defineClientItem() {
   }
 
   return ClientItem;
+})();
+
+const ClientViewer = (function defineClientViewer() {
+  const locals = Object.freeze({
+    DEFAULTS: Object.freeze({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+      effectiveWidth: window.innerWidth,
+      effectiveHeight: window.innerHeight,
+      rotation: globals.ROTATE_0,
+      scale: 1,
+    }),
+    FRAMERATE: 1000 / 60,
+    STAMPER: new WamsShared.IDStamper(),
+
+    removeByItemID(array, item) {
+      const idx = array.findIndex( o => o.id === item.id );
+      if (idx >= 0) {
+        array.splice(idx, 1);
+        return true;
+      }
+      return false;
+    },
+  });
+
+  class ClientViewer extends WamsShared.Viewer {
+    constructor(values) {
+      super(WamsShared.initialize(locals.DEFAULTS, values));
+      this.items = [];
+      this.shadows = [];
+      this.resizeToFillWindow();
+    }
+
+    addItem(values) {
+      this.items.push(new ClientItem(values));
+    }
+
+    addShadow(values) {
+      this.shadows.push(new ShadowViewer(values));
+    }
+
+    draw(context) {
+      context.save();
+      wipeAndReposition.call(this, context);
+      locate.call(this, context);
+      this.items.forEach( o => o.draw(context) );
+      this.shadows.forEach( v => v.draw(context) );
+      showStatus.call(this, context);
+      context.restore();
+
+      function wipeAndReposition(context) {
+        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        context.scale(this.scale, this.scale);
+        context.translate(-this.x, -this.y);
+        context.rotate(this.rotation);
+      }
+
+      function locate(context) {
+        switch(this.rotation) {
+          case(globals.ROTATE_0): 
+            break;
+          case(globals.ROTATE_90): 
+            context.translate(
+              (-this.effectiveWidth - (this.x * 2)), 
+              (-this.effectiveHeight - (this.y * 2))
+            ); 
+            break;
+          case(globals.ROTATE_180): 
+            context.translate(
+              -this.effectiveWidth, 
+              -(this.x * 2)
+            ); 
+            break;
+          case(globals.ROTATE_270): 
+            context.translate(
+              -(this.y * 2), 
+              -this.effectiveWidth
+            ); 
+            break;
+        }
+      }
+  
+      function showStatus(context) {
+        let base = 40;
+        const messages = Object.keys(locals.DEFAULTS)
+          .map( k => `${k}: ${this[k].toFixed(2)}`)
+          .concat([`# of Shadows: ${this.shadows.length}`]);
+        context.font = '18px Georgia';
+        messages.forEach( m => {
+          context.fillText(m, 10, base);
+          base += 20;
+        });
+      }
+    }
+
+    removeItem(item) {
+      locals.removeByItemID(this.items, item);
+    }
+
+    removeShadow(viewer) {
+      locals.removeByItemID(this.shadows, viewer);
+    }
+
+    resizeToFillWindow() {
+      this.width = window.innerWidth;
+      this.height = window.innerHeight;
+      this.effectiveWidth = this.width / this.scale;
+      this.effectiveHeight = this.height / this.scale;
+    }
+
+    setup(data) {
+      locals.STAMPER.stamp(this, data.id);
+      data.viewers.forEach( v => this.addShadow(v) );
+      data.items.forEach( o => this.addItem(o) );
+      this.canvas.style.backgroundColor = data.color;
+    }
+
+    updateItem(data) {
+      const item = this.item.find( i => i.id === data.id );
+      if (item) item.assign(data);
+      else console.warn('Unable to find shadow to be updated.');
+    }
+
+    updateShadow(data) {
+      const shadow = this.shadows.find( v => v.id === data.id );
+      if (shadow) shadow.assign(data);
+      else console.warn('Unable find shadow to be updated.');
+    }
+  }
+
+  return ClientViewer;
 })();
 
 const ClientController = (function defineClientController() {
@@ -271,166 +431,6 @@ const ClientController = (function defineClientController() {
   }
 
   return ClientController;
-})();
-
-const ClientViewer = (function defineClientViewer() {
-  const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-      x: 0,
-      y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
-      effectiveWidth: window.innerWidth,
-      effectiveHeight: window.innerHeight,
-      rotation: globals.ROTATE_0,
-      scale: 1,
-    }),
-    FRAMERATE: 1000 / 60,
-    STAMPER: new WamsShared.IDStamper(),
-
-    removeByItemID(array, item) {
-      const idx = array.findIndex( o => o.id === item.id );
-      if (idx >= 0) {
-        array.splice(idx, 1);
-        return true;
-      }
-      return false;
-    },
-  });
-
-  class ClientViewer extends WamsShared.Viewer {
-    constructor(values) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
-      this.items = [];
-      this.shadows = [];
-      this.resizeToFillWindow();
-    }
-
-    addItem(values) {
-      this.items.push(new ClientItem(values));
-    }
-
-    addShadow(values) {
-      this.shadows.push(new ShadowViewer(values));
-    }
-
-    draw(context) {
-      context.save();
-      wipeAndReposition.call(this, context);
-      locate.call(this, context);
-      this.items.forEach( o => o.draw(context) );
-      this.shadows.forEach( v => v.draw(context) );
-      showStatus.call(this, context);
-      context.restore();
-
-      function wipeAndReposition(context) {
-        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        context.scale(this.scale, this.scale);
-        context.translate(-this.x, -this.y);
-        context.rotate(this.rotation);
-      }
-
-      function locate(context) {
-        switch(this.rotation) {
-          case(globals.ROTATE_0): 
-            break;
-          case(globals.ROTATE_90): 
-            context.translate(
-              (-this.effectiveWidth - (this.x * 2)), 
-              (-this.effectiveHeight - (this.y * 2))
-            ); 
-            break;
-          case(globals.ROTATE_180): 
-            context.translate(
-              -this.effectiveWidth, 
-              -(this.x * 2)
-            ); 
-            break;
-          case(globals.ROTATE_270): 
-            context.translate(
-              -(this.y * 2), 
-              -this.effectiveWidth
-            ); 
-            break;
-        }
-      }
-  
-      function showStatus(context) {
-        let base = 40;
-        const messages = Object.keys(locals.DEFAULTS)
-          .map( k => `${k}: ${this[k].toFixed(2)}`)
-          .concat([`# of Shadows: ${this.shadows.length}`]);
-        context.font = '18px Georgia';
-        messages.forEach( m => {
-          context.fillText(m, 10, base);
-          base += 20;
-        });
-      }
-    }
-
-    removeItem(item) {
-      locals.removeByItemID(this.items, item);
-    }
-
-    removeShadow(viewer) {
-      locals.removeByItemID(this.shadows, viewer);
-    }
-
-    resizeToFillWindow() {
-      this.width = window.innerWidth;
-      this.height = window.innerHeight;
-      this.effectiveWidth = this.width / this.scale;
-      this.effectiveHeight = this.height / this.scale;
-    }
-
-    setup(data) {
-      locals.STAMPER.stamp(this, data.id);
-      data.viewers.forEach( v => this.addShadow(v) );
-      data.items.forEach( o => this.addItem(o) );
-      this.canvas.style.backgroundColor = data.color;
-    }
-
-    updateItem(data) {
-      const item = this.item.find( i => i.id === data.id );
-      if (item) item.assign(data);
-      else console.warn('Unable to find shadow to be updated.');
-    }
-
-    updateShadow(data) {
-      const shadow = this.shadows.find( v => v.id === data.id );
-      if (shadow) shadow.assign(data);
-      else console.warn('Unable find shadow to be updated.');
-    }
-  }
-
-  return ClientViewer;
-})();
-
-const ShadowViewer = (function defineShadowViewer() {
-  const locals = Object.freeze({
-    DEFAULTS: Object.freeze({
-      x: 0,
-      y: 0,
-      effectiveWidth: window.innerWidth,
-      effectiveHeight: window.innerHeight,
-    }),
-    STAMPER: new WamsShared.IDStamper(),
-  });
-
-  class ShadowViewer extends WamsShared.Viewer {
-    constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
-      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
-    }
-
-    draw(context) {
-      context.beginPath();
-      context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
-      context.stroke();
-    }
-  }
-  
-  return ShadowViewer;
 })();
 
 // Entry point!
