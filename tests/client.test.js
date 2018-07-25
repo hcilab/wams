@@ -25,6 +25,14 @@ expect.extend({
 });
 
 describe('ShadowViewer', () => {
+  const viewer = {
+    x: 43,
+    y: 42,
+    effectiveWidth: 900,
+    effectiveHeight: 120,
+    id: 1,
+  };
+
   describe('constructor(values)', () => {
     const DEFAULTS = Object.freeze({
       x: 0,
@@ -32,30 +40,17 @@ describe('ShadowViewer', () => {
       effectiveWidth: window.innerWidth,
       effectiveHeight: window.innerHeight,
     })
-    const vals = {
-      x: 43,
-      y: 42,
-      effectiveWidth: 900,
-      effectiveHeight: 120,
-    };
-
     test('Throws exception if no values provided', () => {
       expect(() => new ShadowViewer()).toThrow();
     });
 
     test('Uses defined values, if provided', () => {
-      expect(new ShadowViewer(vals)).toMatchObject(vals);
+      expect(new ShadowViewer(viewer)).toMatchObject(viewer);
     });
   });
-  
+
   describe('draw(context)', () => {
-    const vals = {
-      x: 43,
-      y: 42,
-      effectiveWidth: 900,
-      effectiveHeight: 120,
-    };
-    const sv = new ShadowViewer(vals);
+    const sv = new ShadowViewer(viewer);
     const ctx = {
       beginPath: jest.fn(),
       rect: jest.fn(),
@@ -81,15 +76,14 @@ describe('ShadowViewer', () => {
 });
 
 describe('ClientItem', () => {
-  describe('constructor(data)', () => {
-    const data = {
-      x: 42, y: 43, width: 800, height: 97,
-      type: 'booyah',
-      imgsrc: 'home',
-    };
+  const item = {
+    x: 42, y: 43, width: 800, height: 97,
+    type: 'booyah', imgsrc: 'home', id: 3
+  };
 
+  describe('constructor(data)', () => {
     test('Constructs an object of the correct type', () => {
-      expect(new ClientItem(data)).toBeInstanceOf(ClientItem);
+      expect(new ClientItem(item)).toBeInstanceOf(ClientItem);
     });
 
     test('Throws exception if no data provided', () => {
@@ -97,54 +91,43 @@ describe('ClientItem', () => {
     });
 
     test('Uses input values, if provided', () => {
-      const ci = new ClientItem(data);
-      Object.keys(data).forEach( k => {
-        expect(ci[k]).toBe(data[k]);
+      const ci = new ClientItem(item);
+      Object.keys(item).forEach( k => {
+        expect(ci[k]).toBe(item[k]);
       });
     });
 
     test('If data has an ID, stamps it immutably onto the item', () => {
-      data.id = 4;
-      const ci = new ClientItem(data);
+      item.id = 4;
+      const ci = new ClientItem(item);
       expect(ci).toHaveImmutableProperty('id');
       expect(ci.id).toBe(4);
     });
 
     test('Creates an image, if data provides an imgsrc', () => {
-      const ci = new ClientItem(data);
+      const ci = new ClientItem(item);
       expect(ci).toHaveProperty('img');
       expect(ci.img).toBeInstanceOf(Image);
-      expect(ci.img.src).toBe(data.imgsrc);
+      expect(ci.img.src).toBe(item.imgsrc);
     });
 
     test('Does not create an image, if no imgsrc provided', () => {
-      delete data.imgsrc;
-      const ci = new ClientItem(data);
+      const ci = new ClientItem({x:10,y:12,id:42});
       expect(ci.img).toBeNull();
     });
   });
-  
-  describe('draw(context)', () => {
-    const data = {
-      x: 42,
-      y: 43,
-      width: 800,
-      height: 97,
-      type: 'booyah',
-      imgsrc: 'home',
-    };
 
-    const ctx = {
-      drawImage: jest.fn()
-    };
+  describe('draw(context)', () => {
+    const ctx = { drawImage: jest.fn() };
 
     test('Throws an exception if no context provided', () => {
-      const ci = new ClientItem(data);
+      const ci = new ClientItem(item);
+      console.log(ci);
       expect(() => ci.draw()).toThrow();
     });
 
     test('If an image is provided, draws an image', () => {
-      const ci = new ClientItem(data);
+      const ci = new ClientItem(item);
       expect(() => ci.draw(ctx)).not.toThrow();
       expect(ctx.drawImage).toHaveBeenCalledTimes(1);
       expect(ctx.drawImage).toHaveBeenLastCalledWith(
@@ -156,8 +139,14 @@ describe('ClientItem', () => {
 
 describe('ClientViewer', () => {
   const DEFAULTS = Object.freeze({ x: 0, y: 0, rotation: 0, scale: 1, });
-  const item = {x:42, y:43, width:80, height:97, type:'booyah', imgsrc:'home'};
-  const shadow = { x: 43, y: 42, effectiveWidth: 900, effectiveHeight: 120, };
+  const item = {
+    x:42, y:43, width:80, height:97, 
+    type:'booyah', imgsrc:'home', id: 11
+  };
+  const shadow = { 
+    x: 43, y: 42, 
+    effectiveWidth: 900, effectiveHeight: 120, id: 25
+  };
 
   describe('constructor(values)', () => {
     test('Creates correct type of object', () => {
@@ -210,9 +199,25 @@ describe('ClientViewer', () => {
   });
 
   describe('draw(context)', () => {
+    // To be tested...
   });
 
   describe('removeItem(item)', () => {
+    const cv = new ClientViewer();
+    cv.addItem({x:555, y:253, id:50});
+    cv.addItem(item);
+    cv.addItem({x:1,y:2, id:89});
+
+    test('Throws exception if no item provided', () => {
+      expect(() => cv.removeItem()).toThrow();
+    });
+
+    test('Removes the item', () => {
+      const i = cv.items[1];
+      expect(() => cv.removeItem(i)).not.toThrow();
+      expect(cv.items.length).toBe(2);
+      expect(cv.items).not.toContain(i);
+    });
   });
 
   describe('removeViewer(viewer)', () => {

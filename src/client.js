@@ -33,6 +33,7 @@ const ShadowViewer = (function defineShadowViewer() {
     constructor(values) {
       super(values);
       if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+      else throw 'Shadows require IDs, but no ID found.';
     }
 
     draw(context) {
@@ -67,6 +68,7 @@ const ClientItem = (function defineClientItem() {
     constructor(data) {
       super(data);
       if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
+      else throw 'Items require IDs, but not ID found.';
       this.img = locals.createImage(this.imgsrc);
     }
 
@@ -74,7 +76,7 @@ const ClientItem = (function defineClientItem() {
       const width = this.width || this.img.width;
       const height = this.height || this.img.height;
 
-      if (this.imgsrc) {
+      if (this.img) {
         context.drawImage(this.img, this.x, this.y, width, height);
       } else {
         /*
