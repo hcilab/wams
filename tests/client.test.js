@@ -31,19 +31,19 @@ describe('ShadowViewer', () => {
       y: 0,
       effectiveWidth: window.innerWidth,
       effectiveHeight: window.innerHeight,
-    });
+    })
+    const vals = {
+      x: 43,
+      y: 42,
+      effectiveWidth: 900,
+      effectiveHeight: 120,
+    };
 
-    test('Uses defaults if no values provided', () => {
-      expect(new ShadowViewer()).toMatchObject(DEFAULTS);
+    test('Throws exception if no values provided', () => {
+      expect(() => new ShadowViewer()).toThrow();
     });
 
     test('Uses defined values, if provided', () => {
-      const vals = {
-        x: 43,
-        y: 42,
-        effectiveWidth: 900,
-        effectiveHeight: 120,
-      };
       expect(new ShadowViewer(vals)).toMatchObject(vals);
     });
   });
@@ -83,36 +83,17 @@ describe('ShadowViewer', () => {
 describe('ClientItem', () => {
   describe('constructor(data)', () => {
     const data = {
-      x: 42,
-      y: 43,
-      width: 800,
-      height: 97,
+      x: 42, y: 43, width: 800, height: 97,
       type: 'booyah',
       imgsrc: 'home',
     };
 
     test('Constructs an object of the correct type', () => {
-      expect(new ClientItem()).toBeInstanceOf(ClientItem);
+      expect(new ClientItem(data)).toBeInstanceOf(ClientItem);
     });
 
-    test('Does not initialize any data if no data provided', () => {
-      const ci = new ClientItem();
-      Object.values(ci).forEach( v => expect(v).toBeNull() );
-    });
-
-    test('Defines the expected properties', () => {
-      const ci = new ClientItem();
-      expect(Object.keys(ci)).toEqual([
-        'x',
-        'y',
-        'width',
-        'height',
-        'type',
-        'imgsrc',
-        'drawCustom',
-        'drawStart',
-        'img',
-      ]);
+    test('Throws exception if no data provided', () => {
+      expect(() => new ClientItem()).toThrow();
     });
 
     test('Uses input values, if provided', () => {
@@ -174,27 +155,58 @@ describe('ClientItem', () => {
 });
 
 describe('ClientViewer', () => {
-  const DEFAULTS = Object.freeze({
-    x: 0,
-    y: 0,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    effectiveWidth: window.innerWidth,
-    effectiveHeight: window.innerHeight,
-    rotation: 0,
-    scale: 1,
-  });
+  const DEFAULTS = Object.freeze({ x: 0, y: 0, rotation: 0, scale: 1, });
+  const item = {x:42, y:43, width:80, height:97, type:'booyah', imgsrc:'home'};
+  const shadow = { x: 43, y: 42, effectiveWidth: 900, effectiveHeight: 120, };
 
   describe('constructor(values)', () => {
+    test('Creates correct type of object', () => {
+      expect(new ClientViewer()).toBeInstanceOf(ClientViewer);
+    });
+
     test('Uses defaults if no values provided', () => {
       expect(new ClientViewer()).toMatchObject(DEFAULTS);
+    });
+
+    test('Uses provided values', () => {
+      const custom = Object.freeze({ x: 42, y: 43, });
+      const cv = new ClientViewer(custom);
+      expect(cv).toMatchObject(custom);
+      expect(cv.rotation).toBe(DEFAULTS.rotation);
+      expect(cv.scale).toBe(DEFAULTS.scale);
+    });
+
+    test('Resizes to fill the window', () => {
+      const cv = new ClientViewer({width: 100, height: 255});
+      expect(cv.width).toBe(window.innerWidth);
+      expect(cv.height).toBe(window.innerHeight);
     });
   });
 
   describe('addItem(values)', () => {
+    const cv = new ClientViewer();
+    test('Throws exception if no values provided', () => {
+      expect(() => cv.addItem()).toThrow();
+    });
+
+    test('Adds a ClientItem using the provided values', () => {
+      expect(() => cv.addItem(item)).not.toThrow();
+      expect(cv.items[0]).toMatchObject(item);
+      expect(cv.items[0]).toBeInstanceOf(ClientItem);
+    });
   });
 
   describe('addShadow(values)', () => {
+    const cv = new ClientViewer();
+    test('Throws exception if no values provided', () => {
+      expect(() => cv.addShadow()).toThrow();
+    });
+
+    test('Adds a ShadowViewer using the provided values', () => {
+      expect(() => cv.addShadow(shadow)).not.toThrow();
+      expect(cv.shadows[0]).toMatchObject(shadow);
+      expect(cv.shadows[0]).toBeInstanceOf(ShadowViewer);
+    });
   });
 
   describe('draw(context)', () => {
