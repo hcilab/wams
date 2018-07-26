@@ -1069,7 +1069,7 @@ describe('WorkSpace', () => {
       test('Attached handler will call the listener when invoked', () => {
         const fn = jest.fn();
         ws.on(s, fn);
-        ws.handlers[s](vs);
+        ws.handlers[s](vs, {});
         expect(fn).toHaveBeenCalledTimes(1);
         expect(fn.mock.calls[0][0]).toBe(vs);
       });
@@ -1138,12 +1138,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('layout', vs)).not.toThrow();
+        expect(() => ws.handle('layout', vs, {})).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('layout', vs)).not.toThrow();
+        expect(() => ws.handle('layout', vs, {})).not.toThrow();
         expect(fn).toHaveBeenLastCalledWith(vs);
       });
     });
