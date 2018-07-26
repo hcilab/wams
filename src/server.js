@@ -22,6 +22,8 @@
  *  + Try to get the server to recognize a reconnection attempt.
  *    - Something fishy is going on when the client doesn't get to connect
  *      right away.
+ *  + Switch to HTTPS, which is apparently more complicated than just adding 's'
+ *    to the end of http.
  */
 
 /*
