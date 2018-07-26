@@ -393,6 +393,19 @@ const WorkSpace = (function defineWorkSpace() {
     //   //TODO: probably send a workspace update message
     // }
 
+    addViewer(viewer) {
+      if (this.isFull()) {
+        console.warn('Attempted to add viewer to full workspace.');
+        return false;
+      }
+      if (this.viewers.find( v => v.id === viewer.id )) {
+        console.warn('Attempted to add viewer already present.');
+      } else {
+        this.viewers.push(viewer); 
+      }
+      return true; // 'viewer is in workspace'
+    }
+
     findItemByCoordinates(x,y) {
       return this.items.find( o => o.containsPoint(x,y) );
     }
@@ -431,12 +444,13 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     spawnViewer(values) {
-      if (!this.isFull()) {
-        const u = new ServerViewer(this.settings.bounds, values);
-        this.viewers.push(u);
-        return u;
-      }
-      return false;
+      return new ServerViewer(this.settings.bounds, values);
+      // if (!this.isFull()) {
+      //   const u = new ServerViewer(this.settings.bounds, values);
+      //   this.viewers.push(u);
+      //   return u;
+      // }
+      // return false;
     }
 
     spawnItem(values) {
@@ -457,15 +471,15 @@ const WorkSpace = (function defineWorkSpace() {
 const Connection = (function defineConnection() {
   const locals = Object.freeze({
     LOCAL_HANDLERS: Object.freeze({ 
-      [globals.MSG_DISCONNECT]: 'disconnect',
-      [globals.MSG_RESIZE]:     'resize',
+      ['disconnect']:       'disconnect',
+      [globals.MSG_RESIZE]: 'resize',
+      [globals.MSG_LAYOUT]: 'layout',
     }),
 
     WORKSPACE_HANDLERS: Object.freeze({ 
       [globals.MSG_CLICK]:  'click',
       [globals.MSG_DRAG]:   'drag',
       [globals.MSG_SCALE]:  'scale',
-      [globals.MSG_LAYOUT]: 'layout',
     }),
   });
 
@@ -474,11 +488,6 @@ const Connection = (function defineConnection() {
       this.socket = socket;
       this.workspace = workspace;
       this.viewer = this.workspace.spawnViewer();
-      if (!this.viewer) {
-        console.log(this.viewer);
-        this.socket.disconnect(true);
-        return false;
-      }
 
       Object.entries(locals.LOCAL_HANDLERS).forEach( ([p,v]) => {
         this.socket.on(p, this[v].bind(this));
@@ -501,30 +510,29 @@ const Connection = (function defineConnection() {
     /*
      * XXX: This might be a place where socket.io 'rooms' could
      *    come in handy. Look into it...
+     *    
+     * Also, why on earth are we emitting and then broadcasting?? Doesn't the 
+     * broadcast send to everyone?
+     * + Answer: Apparently, it sends on all sockets in the room _except_ this
+     * one.
      */
-    broadcast(message, data) {
-      console.log('Broadcasting:', message);
+    fullcast(message, data) {
+      console.log('Fullcasting:', message);
       this.socket.emit(message, data);
       this.socket.broadcast.emit(message, data);
     }
 
-    broadcastItemUpdate(item) {
-      this.broadcast(
-        globals.MSG_UD_ITEM,
-        item.report()
-      );
+    fullcastItemUpdate(item) {
+      this.fullcast( globals.MSG_UD_ITEM, item.report() );
     }
 
-    broadcastViewUpdate() {
-      this.broadcast(
-        globals.MSG_UD_VIEW,
-        this.viewer.report()
-      );
+    fullcastViewUpdate() {
+      this.fullcast( globals.MSG_UD_VIEWER, this.viewer.report() );
     }
 
     disconnect() {
       if (this.workspace.removeViewer(this.viewer)) {
-        this.broadcast(globals.MSG_RM_VIEW, this.viewer.id);
+        this.socket.broadcast.emit(globals.MSG_RM_SHADOW, this.viewer.id);
         this.socket.disconnect(true);
         console.log(`viewer ${this.viewer.id} ` +
           `disconnected from workspace ${this.workspace.id}`
@@ -539,16 +547,26 @@ const Connection = (function defineConnection() {
       this.socket.emit(message, ...args);
     }
 
+    layout(data) {
+      this.viewer.assign(data);
+      if (this.workspace.addViewer(this.viewer)) {
+        this.workspace.handle('layout', this.viewer, data);
+        this.fullcastViewUpdate();
+      } else {
+        this.socket.disconnect(true);
+      }
+    }
+
     passMessageToWorkspace(message, ...args) {
       const item = this.workspace.handle(message, this.viewer, ...args);
-      if (item) this.broadcastItemUpdate(item);
-      this.broadcastViewUpdate();
+      if (item) this.fullcastItemUpdate(item);
+      this.fullcastViewUpdate();
     }
 
     resize(data) {
       if (this.viewer.id === data.id) {
         this.viewer.assign(data);
-        this.broadcastViewReport()
+        this.fullcastViewReport()
       }
     }
   }
@@ -636,28 +654,34 @@ const WamsServer = (function defineWamsServer() {
     },
   });
 
+  const symbols = Object.freeze({
+    connect: Symbol(),
+  });
+
   class WamsServer {
     constructor(workspace) {
       this.workspace = workspace;
       this.server = http.createServer(new RequestHandler());
-
-      this.io = IO(this.server);
-      this.io.on('connection', (socket) => {
-        const c = new Connection(socket, this.workspace);
-        if (c) {
-          this.connections.push(c);
-          console.log(
-            `Viewer ${c.viewer.id} connected to workspace listening on port`,
-            this.server.address().port
-          );
-        }
+      this.io = IO(this.server, {
       });
+      this.io.on('connect', this[symbols.connect].bind(this));
 
       /*
        * XXX: Not necessary to actually track connections like this, doing it
        *      for debugging assistance, for now.
        */
       this.connections = [];
+    }
+
+    [symbols.connect](socket) {
+      const c = new Connection(socket, this.workspace);
+      if (c) {
+        this.connections.push(c);
+        console.log(
+          `Viewer ${c.viewer.id} connected to workspace listening on port`,
+          this.server.address().port
+        );
+      }
     }
 
     /*

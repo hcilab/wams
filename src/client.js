@@ -182,7 +182,7 @@ const ClientViewer = (function defineClientViewer() {
             break;
         }
       }
-  
+
       function showStatus(context) {
         let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
@@ -259,6 +259,14 @@ const ClientViewer = (function defineClientViewer() {
       data.items.forEach( o => this.addItem(o) );
     }
 
+    update(data) {
+      if (this.id !== data.id) {
+        console.warn('Data received for incorrect viewer!');
+      } else {
+        this.assign(data);
+      }
+    }
+
     updateItem(data) {
       const item = this.items.find( i => i.id === data.id );
       if (item) item.assign(data);
@@ -266,9 +274,13 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     updateShadow(data) {
-      const shadow = this.shadows.find( v => v.id === data.id );
-      if (shadow) shadow.assign(data);
-      else console.warn('Unable find shadow to be updated.');
+      if (data.id === this.id) {
+        this.assign(data);
+      } else {
+        const shadow = this.shadows.find( v => v.id === data.id );
+        if (shadow) shadow.assign(data);
+        else console.warn('Unable find shadow to be updated.');
+      }
     }
   }
 
@@ -325,16 +337,14 @@ const ClientController = (function defineClientController() {
 
       function establishSocket() {
         this.socket = io({
-          autoConnect: false
-        });
-        window.addEventListener('unload', () => {
-          this.socket.disconnect();
+          autoConnect: false,
+          reconnection: false,
         });
         this.socket.on(globals.MSG_INIT, this.setup.bind(this));
-        this.socket.on(globals.MSG_UD_VIEW,
+        this.socket.on(globals.MSG_UD_VIEWER,
           this.viewer.updateShadow.bind(this.viewer)
         );
-        this.socket.on(globals.MSG_RM_VIEW,
+        this.socket.on(globals.MSG_RM_VIEWER,
           this.viewer.removeShadow.bind(this.viewer)
         );
         this.socket.on(globals.MSG_UD_ITEM,

@@ -16,17 +16,27 @@
  */
 const WamsShared = (function defineSharedWamsModule() {
   const constants = Object.freeze({
-    MSG_CLICK:      'wams-click',
-    MSG_DC_VIEW:    'wams-disconnect',
+    // For the server to inform about changes to the model
+    MSG_ADD_ITEM:   'wams-add-item',
+    MSG_ADD_SHADOW: 'wams-add-shadow',
+    MSG_RM_ITEM:    'wams-remove-item',
+    MSG_RM_SHADOW:  'wams-remove-shadow',
+    MSG_UD_ITEM:    'wams-update-item',
+    MSG_UD_SHADOW:  'wams-update-shadow',
+    MSG_UD_VIEWER:  'wams-update-viewer',
+    
+    // Connection related
     MSG_DISCONNECT: 'wams-disconnect',
-    MSG_DRAG:       'wams-drag',
     MSG_INIT:       'wams-initialize',
     MSG_LAYOUT:     'wams-layout',
+
+    // User event related
+    MSG_CLICK:      'wams-click',
+    MSG_DRAG:       'wams-drag',
     MSG_RESIZE:     'wams-resize',
-    MSG_RM_VIEW:    'wams-remove-viewer',
     MSG_SCALE:      'wams-scale',
-    MSG_UD_ITEM:    'wams-update-item',
-    MSG_UD_VIEW:    'wams-update-viewer',
+
+    // General constants
     ROTATE_0:   0,
     ROTATE_90:  Math.PI / 2,
     ROTATE_180: Math.PI,
