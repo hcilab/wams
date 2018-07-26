@@ -314,12 +314,13 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       layout(listener, workspace) {
-        return function handleLayout(viewer) {
-          if (workspace.hasViewer(viewer)) { 
+        return function handleLayout(viewer, data) {
+          if (workspace.hasViewer(viewer)) {
+            viewer.assign(data); 
             listener(viewer);
-            return true;
+          } else {
+            console.warn('Attempted to lay out viewer not yet in workspace.');
           }
-          return false;
         };
       },
 
@@ -489,7 +490,7 @@ const Connection = (function defineConnection() {
         }); 
       });
 
-      this.socket.emit(globals.MSG_INIT, {
+      this.emit(globals.MSG_INIT, {
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,
@@ -501,9 +502,10 @@ const Connection = (function defineConnection() {
      * XXX: This might be a place where socket.io 'rooms' could
      *    come in handy. Look into it...
      */
-    broadcast(event, data) {
-      this.socket.emit(event, data);
-      this.socket.broadcast.emit(event, data);
+    broadcast(message, data) {
+      console.log('Broadcasting:', message);
+      this.socket.emit(message, data);
+      this.socket.broadcast.emit(message, data);
     }
 
     broadcastItemUpdate(item) {
@@ -532,9 +534,14 @@ const Connection = (function defineConnection() {
       }
     }
 
+    emit(message, ...args) {
+      console.log('Emitting:', message);
+      this.socket.emit(message, ...args);
+    }
+
     passMessageToWorkspace(message, ...args) {
       const item = this.workspace.handle(message, this.viewer, ...args);
-      if (item instanceof ServerItem) this.broadcastItemUpdate(item);
+      if (item) this.broadcastItemUpdate(item);
       this.broadcastViewUpdate();
     }
 
@@ -558,10 +565,10 @@ const RequestHandler = (function defineRequestHandler() {
   const express = require('express');
 
   function establishMainRoutes(app) {
-    const viewer = path.join(__dirname, '../src/view.html');
+    const view   = path.join(__dirname, '../src/view.html');
     const shared = path.join(__dirname, '../src/shared.js');
     const client = path.join(__dirname, '../src/client.js');
-    app.get('/',          (req, res) => res.sendFile(viewer)    );
+    app.get('/',          (req, res) => res.sendFile(view)    );
     app.get('/shared.js', (req, res) => res.sendFile(shared)  );
     app.get('/client.js', (req, res) => res.sendFile(client)  );
   }
@@ -582,7 +589,7 @@ const RequestHandler = (function defineRequestHandler() {
      *      + immutable
      *      + maxAge
      */
-    const images = path.join(__dirname, './Images');
+    const images = path.join(__dirname, '../img');
     const libs = path.join(__dirname, '../libs');
     app.use(express.static(images));
     app.use(express.static(libs));

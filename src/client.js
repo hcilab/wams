@@ -216,20 +216,20 @@ const ClientViewer = (function defineClientViewer() {
         if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
       });
       locals.STAMPER.stamp(this, data.id);
-      data.viewers.forEach( v => this.addShadow(v) );
+      data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
     }
 
     updateItem(data) {
       const item = this.items.find( i => i.id === data.id );
       if (item) item.assign(data);
-      else throw 'Unable to find item to be updated.';
+      else console.warn('Unable to find item to be updated.');
     }
 
     updateShadow(data) {
       const shadow = this.shadows.find( v => v.id === data.id );
       if (shadow) shadow.assign(data);
-      else throw 'Unable find shadow to be updated.';
+      else console.warn('Unable find shadow to be updated.');
     }
   }
 
@@ -285,13 +285,13 @@ const ClientController = (function defineClientController() {
       }
 
       function establishSocket() {
-        this.socket = io();
-        this.socket.on(globals.MSG_INIT, (data) => {
-          this.viewer.setup(data);
-          locals.STAMPER.stamp(this, data.id);
-          this.canvas.style.backgroundColor = data.color;
-          this.socket.emit(globals.MSG_LAYOUT, this.viewer.report());
+        this.socket = io({
+          autoConnect: false
         });
+        window.addEventListener('unload', () => {
+          this.socket.disconnect();
+        });
+        this.socket.on(globals.MSG_INIT, this.setup.bind(this));
         this.socket.on(globals.MSG_UD_VIEW,
           this.viewer.updateShadow.bind(this.viewer)
         );
@@ -301,6 +301,7 @@ const ClientController = (function defineClientController() {
         this.socket.on(globals.MSG_UD_ITEM,
           this.viewer.updateItem.bind(this.viewer)
         );
+        this.socket.connect();
       }
     }
 
@@ -310,10 +311,8 @@ const ClientController = (function defineClientController() {
       const lastMouse = this.mouse;
       this.mouse = this.getMouseCoordinates(event);
 
-      this.socket.emit(globals.MSG_DRAG, 
-        this, 
-        this.mouse.x,
-        this.mouse.y,
+      this.emit(globals.MSG_DRAG, 
+        this, this.mouse.x, this.mouse.y,
         (lastMouse.x - this.mouse.x), 
         (lastMouse.y - this.mouse.y)
       );
@@ -327,6 +326,11 @@ const ClientController = (function defineClientController() {
 
     dragstart(event) {
       this.mouse = this.getMouseCoordinates(event);
+    }
+
+    emit(message, ...args) {
+      console.log('Emitting:', message);
+      this.socket.emit(message, ...args);
     }
 
     getMouseCoordinates(event) {
@@ -371,7 +375,7 @@ const ClientController = (function defineClientController() {
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
-      this.socket.emit(globals.MSG_RESIZE, this.viewer.report());
+      this.emit(globals.MSG_RESIZE, this.viewer.report());
     }
 
     run() {
@@ -393,7 +397,7 @@ const ClientController = (function defineClientController() {
     //     Math.min( 1, (event.wheelDelta || -event.detail))
     //   );
     //   const newScale = this.scale + delta * 0.09;
-    //   this.socket.emit(globals.MSG_SCALE, this.id, newScale);
+    //   this.emit(globals.MSG_SCALE, this.id, newScale);
     // }
 
     resizeCanvasToFillWindow() {
@@ -401,9 +405,16 @@ const ClientController = (function defineClientController() {
       this.canvas.height = window.innerHeight;
     }
 
+    setup(data) {
+      locals.STAMPER.stamp(this, data.id);
+      this.viewer.setup(data);
+      this.canvas.style.backgroundColor = data.color;
+      this.emit(globals.MSG_LAYOUT, this.viewer.report());
+    }
+
     tap(event) {
       this.mouse = this.getMouseCoordinates(event);
-      this.socket.emit(
+      this.emit(
         globals.MSG_CLICK, 
         this.mouse.x,
         this.mouse.y
@@ -411,7 +422,7 @@ const ClientController = (function defineClientController() {
     }
 
     transform(event) {
-      this.socket.emit(
+      this.emit(
         globals.MSG_SCALE, 
         this.id, 
         event.scale * this.startScale
