@@ -196,6 +196,45 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
+    getMouseCoordinates(mx, my) {
+      const base = {
+        x: mx / this.scale + this.x,
+        y: my / this.scale + this.y,
+      };
+      const center = {
+        x: (this.effectiveWidth / 2) + this.x,
+        y: (this.effectiveHeight / 2) + this.y,
+      };
+      const coords = { x: -1, y: -1 };
+
+      /*
+       * XXX: Still need to figure out the "why" of this math. Once I've 
+       *    done that, I will write up a comment explaining it.
+       *
+       *    Also, I think I'll refactor this into functional style.
+       */
+      switch (this.rotation) {
+        case(globals.ROTATE_0): 
+          coords.x = base.x;
+          coords.y = base.y;
+          break;
+        case(globals.ROTATE_90): 
+          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
+          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
+          break;
+        case(globals.ROTATE_180):
+          coords.x = center.x - center.y + base.y;
+          coords.y = center.y + center.x - base.x;
+          break;
+        case(globals.ROTATE_270): 
+          coords.x = center.x + center.y - base.y;
+          coords.y = center.y - center.x + base.x;
+          break;
+      }
+
+      return coords;
+    }
+
     removeItem(item) {
       return WamsShared.safeRemoveByID( this.items, item, ClientItem );
     }
@@ -305,11 +344,11 @@ const ClientController = (function defineClientController() {
       }
     }
 
-    drag(event) {
+    drag({center}) {
       if (this.transforming) { return; }
 
       const lastMouse = this.mouse;
-      this.mouse = this.getMouseCoordinates(event);
+      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
 
       this.emit(globals.MSG_DRAG, 
         this, this.mouse.x, this.mouse.y,
@@ -324,52 +363,13 @@ const ClientController = (function defineClientController() {
        */
     }
 
-    dragstart(event) {
-      this.mouse = this.getMouseCoordinates(event);
+    dragstart({center}) {
+      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
     }
 
     emit(message, ...args) {
       console.log('Emitting:', message);
       this.socket.emit(message, ...args);
-    }
-
-    getMouseCoordinates(event) {
-      const base = {
-        x: event.center.x / this.scale + this.x,
-        y: event.center.y / this.scale + this.y,
-      };
-      const center = {
-        x: (this.effectiveWidth / 2) + this.x,
-        y: (this.effectiveHeight / 2) + this.y,
-      };
-      const coords = { x: -1, y: -1, };
-
-      /*
-       * XXX: Still need to figure out the "why" of this math. Once I've 
-       *    done that, I will write up a comment explaining it.
-       *
-       *    Also, I think I'll refactor this into functional style.
-       */
-      switch (this.rotation) {
-        case(globals.ROTATE_0): 
-          coords.x = base.x;
-          coords.y = base.y;
-          break;
-        case(globals.ROTATE_90): 
-          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
-          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
-          break;
-        case(globals.ROTATE_180):
-          coords.x = center.x - center.y + base.y;
-          coords.y = center.y + center.x - base.x;
-          break;
-        case(globals.ROTATE_270): 
-          coords.x = center.x + center.y - base.y;
-          coords.y = center.y - center.x + base.x;
-          break;
-      }
-
-      return coords;
     }
 
     resize() {
@@ -412,8 +412,8 @@ const ClientController = (function defineClientController() {
       this.emit(globals.MSG_LAYOUT, this.viewer.report());
     }
 
-    tap(event) {
-      this.mouse = this.getMouseCoordinates(event);
+    tap({center}) {
+      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
       this.emit(
         globals.MSG_CLICK, 
         this.mouse.x,
