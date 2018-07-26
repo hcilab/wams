@@ -1,15 +1,20 @@
 {
-  "name": "WAMS_API",
-  "version": "0.0.1",
   "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
     "express": "^4.4.5",
+    "hammerjs": "^2.0.8",
     "socket.io": "^2.1.1"
   },
   "devDependencies": {
     "jest": "^23.4.1"
   },
+  "name": "WAMS_API",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mvanderkamp/WAMS-API"
+  },
   "scripts": {
-      "test": "jest"
-  }
+    "test": "jest"
+  },
+  "version": "0.0.2"
 }
