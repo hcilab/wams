@@ -591,8 +591,8 @@ const RequestHandler = (function defineRequestHandler() {
      */
     const images = path.join(__dirname, '../img');
     const libs = path.join(__dirname, '../libs');
-    app.use(express.static(images));
-    app.use(express.static(libs));
+    app.use('/img', express.static(images));
+    app.use('/libs', express.static(libs));
   }
 
   class RequestHandler {

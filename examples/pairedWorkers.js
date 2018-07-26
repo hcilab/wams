@@ -22,7 +22,7 @@ workspace.spawnItem({
   width: 200,
   height: 200,
   type: 'Draggable',
-  imgsrc: 'monaLisa.png',
+  imgsrc: 'img/monaLisa.png',
 });
 
 workspace.spawnItem({
@@ -31,7 +31,7 @@ workspace.spawnItem({
   width: 200,
   height: 200,
   type: 'Draggable',
-  imgsrc: 'scream.png'
+  imgsrc: 'img/scream.png'
 });
 
 function handleDrag(viewer, target, x, y, dx, dy) {
