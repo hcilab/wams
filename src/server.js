@@ -349,8 +349,8 @@ const ListenerFactory = (function defineListenerFactory() {
 })();
 
 /*
- * The WorkSpace keeps track of viewers and items, and can handle events on those
- * items and viewers which allow them to be interacted with.
+ * The WorkSpace keeps track of viewers and items, and can handle events on
+ * those items and viewers which allow them to be interacted with.
  */
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
@@ -658,13 +658,26 @@ const WamsServer = (function defineWamsServer() {
     connect: Symbol(),
   });
 
+  /*
+   * TODO: The WorkSpace currently keeps track of the client limit. It would
+   * make more sense for the server to track this information, as it can 
+   * reject connections more quickly by using the socket.io namespace's client
+   * list:
+   *    this.io.of(globals.NS_WAMS).clients((error, clients) => {
+   *      if (clients.length > this.clientLimit) {
+   *        // reject the connection.
+   *      } else {
+   *        // accept the connection.
+   *      }
+   *    });
+   */
   class WamsServer {
-    constructor(workspace) {
-      this.workspace = workspace;
+    constructor(settings) {
+      this.workspace = new WorkSpace(settings);
       this.server = http.createServer(new RequestHandler());
-      this.io = IO(this.server, {
-      });
-      this.io.on('connect', this[symbols.connect].bind(this));
+      this.io = IO(this.server, { });
+      this.io.of(globals.NS_WAMS)
+        .on('connect', this[symbols.connect].bind(this));
 
       /*
        * XXX: Not necessary to actually track connections like this, doing it
@@ -677,6 +690,9 @@ const WamsServer = (function defineWamsServer() {
       const c = new Connection(socket, this.workspace);
       if (c) {
         this.connections.push(c);
+        socket.on('disconnect', () => {
+          this.connections.splice(this.connections.indexOf(c), 1);
+        });
         console.log(
           `Viewer ${c.viewer.id} connected to workspace listening on port`,
           this.server.address().port
@@ -692,6 +708,39 @@ const WamsServer = (function defineWamsServer() {
       this.server.listen(port, host, () => {
         console.log('Listening on', this.server.address());
       });
+    }
+
+    remove(item) {
+    }
+
+    spawn(itemdata) {
+      const item = this.workspace.spawnItem(itemdata);
+      this.io.of(globals.NS_WAMS).emit(globals.MSG_ADD_ITEM, item);
+    }
+
+    /*
+     * This function can be used for either items or views.
+     */
+    update(item, data) {
+      if (item instanceof ServerItem) {
+        item.assign(data);
+        this.io.of(globals.NS_WAMS).emit(globals.MSG_UD_ITEM, item.report());
+      } else if (item instanceof ServerViewer) {
+        item.assign(data);
+        const connection = this.connections.find( c => {
+          return c.viewer.id === item.id;
+        });
+        if (connection) {
+          connection.socket.broadcast.emit(
+            globals.MSG_UD_SHADOW,
+            item.report()
+          );
+          connection.socket.emit(
+            globals.MSG_UD_VIEWER,
+            item.report()
+          );
+        }
+      }
     }
   }
 
