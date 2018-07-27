@@ -499,7 +499,7 @@ const Connection = (function defineConnection() {
         }); 
       });
 
-      this.emit(globals.MSG_INIT, {
+      this.emit(globals.MSG_INITIALIZE, {
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,

@@ -25,9 +25,9 @@ const WamsShared = (function defineSharedWamsModule() {
     MSG_UD_SHADOW:  'wams-update-shadow',
     MSG_UD_VIEWER:  'wams-update-viewer',
     
-    // Connection related
+    // Connection related (disconnect, initial setup)
     MSG_DISCONNECT: 'wams-disconnect',
-    MSG_INIT:       'wams-initialize',
+    MSG_INITIALIZE: 'wams-initialize',
     MSG_LAYOUT:     'wams-layout',
 
     // User event related

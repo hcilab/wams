@@ -340,7 +340,7 @@ const ClientController = (function defineClientController() {
           autoConnect: false,
           reconnection: false,
         });
-        this.socket.on(globals.MSG_INIT, this.setup.bind(this));
+        this.socket.on(globals.MSG_INITIALIZE, this.setup.bind(this));
         this.socket.on(globals.MSG_UD_VIEWER,
           this.viewer.updateShadow.bind(this.viewer)
         );
