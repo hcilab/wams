@@ -336,7 +336,7 @@ const ClientController = (function defineClientController() {
       }
 
       function establishSocket() {
-        this.socket = io({
+        this.socket = io.connect(`${window.origin}${globals.NS_WAMS}`, {
           autoConnect: false,
           reconnection: false,
         });
