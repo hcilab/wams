@@ -17,6 +17,10 @@
  *   + Item,
  */
 const WamsShared = require('../src/shared.js');
+const IDStamper = WamsShared.IDStamper;
+const Message = WamsShared.Message;
+const Viewer = WamsShared.Viewer;
+const Item = WamsShared.Item;
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -29,26 +33,6 @@ expect.extend({
       pass: pass,
     };
   },
-});
-
-describe('exports', () => {
-  let module;
-  beforeAll(() => {
-    module = Object.freeze([
-      'constants',
-      'IDStamper',
-      'initialize',
-      'Item',
-      'makeOwnPropertyImmutable',
-      'NOP',
-      'safeRemoveByID',
-      'Viewer',
-    ]);
-  });
-
-  test('Exports all expected functions and objects', () => {
-    expect(Object.keys(WamsShared)).toEqual(module);
-  });
 });
 
 describe('initialize', () => {
@@ -460,5 +444,29 @@ describe('Item', () => {
       expect(data).toHaveImmutableProperty('id');
     });
   });
+});
+
+describe('Message', () => {
+  const emitter = { emit: jest.fn() };
+  const reporter = { report: jest.fn() };
+
+  describe('constructor(type, reporter)', () => {
+    test('Throws exception if type is invalid', () => {
+      expect(() => new Message()).toThrow();
+      expect(() => new Message('disconnect')).toThrow();
+    });
+
+    test('Constructs correct type of object', () => {
+      let msg;
+      expect(() => {
+        msg = new Message(Message.CLICK, reporter);
+      }).not.toThrow();
+      expect(msg).toBeInstanceOf(Message);
+      expect(msg.type).toBe(Message.CLICK);
+      expect(msg.reporter).toBe(reporter);
+    });
+
+  });
+
 });
 
