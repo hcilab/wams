@@ -8,28 +8,19 @@
 const WAMS = require('../src/server');
 
 const workspace = new WAMS.WorkSpace({
-  bounds: {
-    x: 1000,
-    y: 1000,
-  },
+  bounds: { x: 1000, y: 1000 },
   clientLimit: 10,
   color: '#aaaaaa',
 });
 
 workspace.spawnItem({
-  x: 200,
-  y: 200,
-  width: 200,
-  height: 200,
+  x: 200, y: 200, width: 200, height: 200,
   type: 'Draggable',
   imgsrc: 'img/monaLisa.png',
 });
 
 workspace.spawnItem({
-  x: 400,
-  y: 400,
-  width: 200,
-  height: 200,
+  x: 400, y: 400, width: 200, height: 200,
   type: 'Draggable',
   imgsrc: 'img/scream.png'
 });
@@ -41,14 +32,8 @@ function handleDrag(viewer, target, x, y, dx, dy) {
 }
 
 function handleLayout(viewer) {
-  const viewers = workspace.viewers;
-  const num_viewers = viewers.length;
-
-  if (viewers.length > 0) {
-    viewer.moveTo(
-      viewer.right - 30,
-      viewer.top
-    ); 
+  if (workspace.viewers.length > 0) {
+    viewer.moveTo( viewer.right - 30, viewer.top ); 
   }
 }
 
