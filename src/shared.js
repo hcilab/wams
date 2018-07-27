@@ -16,32 +16,72 @@
  */
 const WamsShared = (function defineSharedWamsModule() {
   const constants = Object.freeze({
-    // For the server to inform about changes to the model
-    MSG_ADD_ITEM:   'wams-add-item',
-    MSG_ADD_SHADOW: 'wams-add-shadow',
-    MSG_RM_ITEM:    'wams-remove-item',
-    MSG_RM_SHADOW:  'wams-remove-shadow',
-    MSG_UD_ITEM:    'wams-update-item',
-    MSG_UD_SHADOW:  'wams-update-shadow',
-    MSG_UD_VIEWER:  'wams-update-viewer',
-    
-    // Connection related (disconnect, initial setup)
-    MSG_DISCONNECT: 'wams-disconnect',
-    MSG_INITIALIZE: 'wams-initialize',
-    MSG_LAYOUT:     'wams-layout',
-
-    // User event related
-    MSG_CLICK:      'wams-click',
-    MSG_DRAG:       'wams-drag',
-    MSG_RESIZE:     'wams-resize',
-    MSG_SCALE:      'wams-scale',
-
     // General constants
     ROTATE_0:   0,
     ROTATE_90:  Math.PI / 2,
     ROTATE_180: Math.PI,
     ROTATE_270: Math.PI * 1.5,
+
+    // Namespaces
+    NS_WAMS:  '/wams',
   });
+
+  const Message = (function defineMessage() {
+    const locals = (function defineLocals() {
+      const TYPES = Object.freeze({ 
+        // For the server to inform about changes to the model
+        ADD_ITEM:   'wams-add-item',
+        ADD_SHADOW: 'wams-add-shadow',
+        RM_ITEM:    'wams-remove-item',
+        RM_SHADOW:  'wams-remove-shadow',
+        UD_ITEM:    'wams-update-item',
+        UD_SHADOW:  'wams-update-shadow',
+        UD_VIEWER:  'wams-update-viewer',
+
+        // Connection related (disconnect, initial setup)
+        DISCONNECT: 'wams-disconnect',
+        INITIALIZE: 'wams-initialize',
+        LAYOUT:     'wams-layout',
+
+        // User event related
+        CLICK:      'wams-click',
+        DRAG:       'wams-drag',
+        RESIZE:     'wams-resize',
+        SCALE:      'wams-scale',
+      });
+      const TYPE_VALUES = Object.freeze(Object.values(TYPES));
+
+      return Object.freeze({
+        TYPES,
+        TYPE_VALUES,
+      });
+    })();
+
+    class Message {
+      constructor(type, reporter) {
+        if (!locals.TYPE_VALUES.includes(type)) {
+          throw 'Invalid message type!';
+        }
+        this.type = type;
+        this.reporter = reporter;
+      }
+
+      emitTo(emitter) {
+        emmitter.emit(this.type, this.reporter.report());
+      }
+    }
+
+    Object.entries(locals.TYPES).forEach( ([p,v]) => {
+      Object.defineProperty( Message, p, {
+        value: v,
+        configurable: false,
+        enumerable: true,
+        writable: false,
+      });
+    });
+
+    return Message;
+  })();
 
   const NOP = () => {};
 
@@ -249,6 +289,7 @@ const WamsShared = (function defineSharedWamsModule() {
     initialize,
     Item,
     makeOwnPropertyImmutable,
+    Message,
     NOP,
     safeRemoveByID,
     Viewer,
