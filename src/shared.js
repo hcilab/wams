@@ -26,6 +26,8 @@ const WamsShared = (function defineSharedWamsModule() {
     NS_WAMS:  '/wams',
   });
 
+  const NOP = () => {};
+
   const Message = (function defineMessage() {
     const locals = (function defineLocals() {
       const TYPES = Object.freeze({ 
@@ -67,7 +69,7 @@ const WamsShared = (function defineSharedWamsModule() {
       }
 
       emitTo(emitter) {
-        emmitter.emit(this.type, this.reporter.report());
+        emitter.emit(this.type, this.reporter.report());
       }
     }
 
@@ -82,8 +84,6 @@ const WamsShared = (function defineSharedWamsModule() {
 
     return Message;
   })();
-
-  const NOP = () => {};
 
   /*
    * Returns a new object, with all the own properties of 'defaults' having

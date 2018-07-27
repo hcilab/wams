@@ -447,8 +447,13 @@ describe('Item', () => {
 });
 
 describe('Message', () => {
-  const emitter = { emit: jest.fn() };
-  const reporter = { report: jest.fn() };
+  let emitter, reporter;
+
+  beforeEach(() => {
+    emitter = { emit: jest.fn() };
+    reporter = { report: jest.fn() };
+    reporter.report.mockReturnValue(42);
+  });
 
   describe('constructor(type, reporter)', () => {
     test('Throws exception if type is invalid', () => {
@@ -465,8 +470,23 @@ describe('Message', () => {
       expect(msg.type).toBe(Message.CLICK);
       expect(msg.reporter).toBe(reporter);
     });
-
   });
 
+  describe('emitTo(emitter)', () => {
+    test('Throws exception if invalid emitter provided', () => {
+      const msg = new Message(Message.CLICK, reporter);
+      expect(() => msg.emitTo()).toThrow();
+      expect(() => msg.emitTo({})).toThrow();
+    });
+
+    test('Emits the message using the provided emitter', () => {
+      const msg = new Message(Message.CLICK, reporter);
+      expect(() => msg.emitTo(emitter)).not.toThrow();
+      expect(reporter.report).toHaveBeenCalledTimes(1);
+      expect(reporter.report).toHaveBeenLastCalledWith();
+      expect(emitter.emit).toHaveBeenCalledTimes(1);
+      expect(emitter.emit).toHaveBeenLastCalledWith(Message.CLICK, 42);
+    });
+  });
 });
 
