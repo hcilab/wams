@@ -46,6 +46,18 @@ const WamsShared = (function defineSharedWamsModule() {
   const NOP = () => {};
 
   /*
+   * Returns a new object, with all the own properties of 'defaults' having
+   *  values from 'data', if found, otherwise with values from 'defaults'.
+   */
+  function initialize(defaults = {}, data = {}) {
+    const rv = {};
+    Object.keys(defaults).forEach( k => {
+      rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+    });
+    return rv;
+  }
+
+  /*
    * This method will set an already-existing property on an object to be 
    *  immutable. In other words, it will configure it as such:
    *
@@ -75,18 +87,6 @@ const WamsShared = (function defineSharedWamsModule() {
       });
     }
     return obj;
-  }
-
-  /*
-   * Returns a new object, with all the own properties of 'defaults' having
-   *  values from 'data', if found, otherwise with values from 'defaults'.
-   */
-  function initialize(defaults = {}, data = {}) {
-    const rv = {};
-    Object.keys(defaults).forEach( k => {
-      rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
-    });
-    return rv;
   }
 
   /*
@@ -171,17 +171,12 @@ const WamsShared = (function defineSharedWamsModule() {
   })();
 
   /*
-   * The IDStamper can be outside the factory, because it only ever does
-   * copy stamping, it never generates its own stamps.
-   */
-  const stamper = new IDStamper();
-
-  /*
    * This factory can generate the basic classes that need to communicate
    *  property values between the client and server.
    */
   function reporterClassFactory(_coreProperties) {
     const defaults = {};
+    const stamper = new IDStamper();
     _coreProperties.forEach( p => {
       Object.defineProperty(defaults, p, {
         value: null,
@@ -215,6 +210,21 @@ const WamsShared = (function defineSharedWamsModule() {
   }
 
   /*
+   * This Item class provides a common interface between the client and 
+   * the server by which the Items can interact safely.
+   */
+  const Item = reporterClassFactory([
+    'x',
+    'y',
+    'width',
+    'height',
+    'type',
+    'imgsrc',
+    'drawCustom',
+    'drawStart',
+  ]);
+
+  /*
    * This Viewer class provides a common interface between the client and 
    * the server by which the Viewers can interact safely.
    */
@@ -228,21 +238,6 @@ const WamsShared = (function defineSharedWamsModule() {
     'effectiveHeight',
     'scale',
     'rotation',
-  ]);
-
-  /*
-   * This Item class provides a common interface between the client and 
-   * the server by which the Items can interact safely.
-   */
-  const Item = reporterClassFactory([
-    'x',
-    'y',
-    'width',
-    'height',
-    'type',
-    'imgsrc',
-    'drawCustom',
-    'drawStart',
   ]);
 
   /*

@@ -51,6 +51,28 @@ describe('exports', () => {
   });
 });
 
+describe('initialize', () => {
+  test('does not throw exceptions on empty objects', () => {
+    expect(WamsShared.initialize()).toEqual({});
+  });
+
+  test('returns empty if defaults is empty, regardless of data', () => {
+    expect(WamsShared.initialize({},{})).toEqual({});
+    expect(WamsShared.initialize({})).toEqual({});
+    expect(WamsShared.initialize({},{a:1})).toEqual({});
+    expect(WamsShared.initialize({},1)).toEqual({});
+  });
+
+  test('Uses defaults if data is empty.', () => {
+    expect(WamsShared.initialize({a:1})).toEqual({a:1});
+    expect(WamsShared.initialize({a:1},{})).toEqual({a:1});
+  });
+
+  test('Overrides default property if data has property with same name', () => {
+    expect(WamsShared.initialize({a:1}, {a:2})).toEqual({a:2});
+  });
+});
+
 describe('makeOwnPropertyImmutable', () => {
   test('makes own enumerable, configurable property immutable', () => {
     const x = {id: 1};
@@ -110,25 +132,48 @@ describe('makeOwnPropertyImmutable', () => {
   });
 });
 
-describe('initialize', () => {
-  test('does not throw exceptions on empty objects', () => {
-    expect(WamsShared.initialize()).toEqual({});
+describe('safeRemoveByID(array, item, class_fn)', () => {
+  function A(id) {
+    this.id = id;
+  }
+  
+  let arr = [];
+  beforeEach(() => {
+    arr.splice(0, arr.length);
+    arr.push(new A(1));
+    arr.push(new A(2));
+    arr.push(new A(3));
   });
 
-  test('returns empty if defaults is empty, regardless of data', () => {
-    expect(WamsShared.initialize({},{})).toEqual({});
-    expect(WamsShared.initialize({})).toEqual({});
-    expect(WamsShared.initialize({},{a:1})).toEqual({});
-    expect(WamsShared.initialize({},1)).toEqual({});
+  test('Throws exception if all three arguments not present', () => {
+    expect(() => WamsShared.safeRemoveByID()).toThrow();
+    expect(() => WamsShared.safeRemoveByID([])).toThrow();
+    expect(() => WamsShared.safeRemoveByID([],{})).toThrow();
   });
 
-  test('Uses defaults if data is empty.', () => {
-    expect(WamsShared.initialize({a:1})).toEqual({a:1});
-    expect(WamsShared.initialize({a:1},{})).toEqual({a:1});
+  test('Throws if the provided object is not of the correct instance', () => {
+    expect(() => WamsShared.safeRemoveByID([],{},A)).toThrow();
   });
 
-  test('Overrides default property if data has property with same name', () => {
-    expect(WamsShared.initialize({a:1}, {a:2})).toEqual({a:2});
+  test('Removes the item with the corresponding ID, if present', () => {
+    const a1 = new A(1);
+    const a2 = new A(2);
+    const a3 = new A(3);
+    expect(arr.length).toBe(3);
+    expect(() => WamsShared.safeRemoveByID(arr,a1,A)).not.toThrow();
+    expect(arr.find(a => a.id === 1)).toBeUndefined();
+    expect(() => WamsShared.safeRemoveByID(arr,a2,A)).not.toThrow();
+    expect(arr.find(a => a.id === 2)).toBeUndefined();
+    expect(() => WamsShared.safeRemoveByID(arr,a3,A)).not.toThrow();
+    expect(arr.find(a => a.id === 3)).toBeUndefined();
+    expect(arr.length).toBe(0);
+  });
+
+  test('Does not remove any item if no item with ID present.', () => {
+    const a4 = new A(4);
+    expect(arr.length).toBe(3);
+    expect(() => WamsShared.safeRemoveByID(arr,a4,A)).not.toThrow();
+    expect(arr.length).toBe(3);
   });
 });
 
