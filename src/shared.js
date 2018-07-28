@@ -40,8 +40,7 @@ const WamsShared = (function defineSharedWamsModule() {
         UD_SHADOW:  'wams-update-shadow',
         UD_VIEWER:  'wams-update-viewer',
 
-        // Connection related (disconnect, initial setup)
-        DISCONNECT: 'wams-disconnect',
+        // Connection establishment related (disconnect, initial setup)
         INITIALIZE: 'wams-initialize',
         LAYOUT:     'wams-layout',
 
@@ -60,16 +59,16 @@ const WamsShared = (function defineSharedWamsModule() {
     })();
 
     class Message {
-      constructor(type, reporter) {
+      constructor(type, ...args) {
         if (!locals.TYPE_VALUES.includes(type)) {
           throw 'Invalid message type!';
         }
         this.type = type;
-        this.reporter = reporter;
+        this.args = args;
       }
 
-      emitTo(emitter) {
-        emitter.emit(this.type, this.reporter.report());
+      emitWith(emitter) {
+        emitter.emit(this.type, ...(this.args));
       }
     }
 

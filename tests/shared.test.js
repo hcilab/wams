@@ -447,15 +447,13 @@ describe('Item', () => {
 });
 
 describe('Message', () => {
-  let emitter, reporter;
+  let emitter;
 
   beforeEach(() => {
     emitter = { emit: jest.fn() };
-    reporter = { report: jest.fn() };
-    reporter.report.mockReturnValue(42);
   });
 
-  describe('constructor(type, reporter)', () => {
+  describe('constructor(type, ...args)', () => {
     test('Throws exception if type is invalid', () => {
       expect(() => new Message()).toThrow();
       expect(() => new Message('disconnect')).toThrow();
@@ -464,28 +462,38 @@ describe('Message', () => {
     test('Constructs correct type of object', () => {
       let msg;
       expect(() => {
-        msg = new Message(Message.CLICK, reporter);
+        msg = new Message(Message.CLICK, 42);
       }).not.toThrow();
       expect(msg).toBeInstanceOf(Message);
       expect(msg.type).toBe(Message.CLICK);
-      expect(msg.reporter).toBe(reporter);
+      expect(msg.args).toEqual([42]);
     });
   });
 
-  describe('emitTo(emitter)', () => {
+  describe('emitWith(emitter)', () => {
     test('Throws exception if invalid emitter provided', () => {
-      const msg = new Message(Message.CLICK, reporter);
-      expect(() => msg.emitTo()).toThrow();
-      expect(() => msg.emitTo({})).toThrow();
+      const msg = new Message(Message.CLICK, 42);
+      expect(() => msg.emitWith()).toThrow();
+      expect(() => msg.emitWith({})).toThrow();
     });
 
     test('Emits the message using the provided emitter', () => {
-      const msg = new Message(Message.CLICK, reporter);
-      expect(() => msg.emitTo(emitter)).not.toThrow();
-      expect(reporter.report).toHaveBeenCalledTimes(1);
-      expect(reporter.report).toHaveBeenLastCalledWith();
+      const msg = new Message(Message.CLICK, 42);
+      expect(() => msg.emitWith(emitter)).not.toThrow();
       expect(emitter.emit).toHaveBeenCalledTimes(1);
       expect(emitter.emit).toHaveBeenLastCalledWith(Message.CLICK, 42);
+    });
+
+    test('Correctly handles an arbitrary number of arguments', () => {
+      let msg = new Message(Message.DRAG);
+      expect(() => msg.emitWith(emitter)).not.toThrow();
+      expect(emitter.emit).toHaveBeenCalledTimes(1);
+      expect(emitter.emit).toHaveBeenLastCalledWith(Message.DRAG);
+
+      msg = new Message(Message.SCALE, 4, 88, 76);
+      expect(() => msg.emitWith(emitter)).not.toThrow();
+      expect(emitter.emit).toHaveBeenCalledTimes(2);
+      expect(emitter.emit).toHaveBeenLastCalledWith(Message.SCALE, 4, 88, 76);
     });
   });
 });

@@ -900,17 +900,6 @@ describe('WorkSpace', () => {
       });
       expect(ws.viewers).toContain(vs);
     });
-
-    test('Does not spawn a viewer if clientLimit reached', () => {
-      /*
-       * 4 viewers have been spawned by this workspace and none removed.
-       * The clientLimit was set to 4.
-       * Therefore, trying to spawn another one should fail.
-       */
-      const v = ws.spawnViewer();
-      expect(v).toBeFalsy();
-      expect(ws.viewers).not.toContain(v);
-    });
   });
 
   describe('hasViewer(viewer)', () => {
@@ -1010,30 +999,6 @@ describe('WorkSpace', () => {
 
     test('Throws exception if provided viewer is not a ServerViewer', () => {
       expect(() => ws.removeViewer({id:1})).toThrow();
-    });
-  });
-
-  describe('isFull()', () => {
-    let ws, viewer;
-    beforeAll(() => {
-      ws = new WorkSpace({clientLimit: 2});
-    });
-
-    test('Returns false when clientLimit has not been reached', () => {
-      expect(ws.isFull()).toBe(false);
-      viewer = ws.spawnViewer();
-      expect(ws.isFull()).toBe(false);
-    });
-
-    test('Returns true once clientLimit has been reached', () => {
-      ws.spawnViewer();
-      expect(ws.isFull()).toBe(true);
-      expect(ws.spawnViewer()).toBeFalsy();
-    });
-
-    test('Returns false after a viewer is removed', () => {
-      ws.removeViewer(viewer);
-      expect(ws.isFull()).toBe(false);
     });
   });
 

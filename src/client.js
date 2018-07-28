@@ -20,7 +20,7 @@
 // }
 
 /*
- * Shorthand for the shared set of constants between server and client.
+ * Provide an alias for the shared set of constants between server and client.
  */
 const globals = Object.freeze(WamsShared.constants);
 
@@ -235,6 +235,10 @@ const ClientViewer = (function defineClientViewer() {
       return coords;
     }
 
+    handle(message, ...args) {
+      this[message](...args);
+    }
+
     removeItem(item) {
       return WamsShared.safeRemoveByID( this.items, item, ClientItem );
     }
@@ -259,14 +263,6 @@ const ClientViewer = (function defineClientViewer() {
       data.items.forEach( o => this.addItem(o) );
     }
 
-    update(data) {
-      if (this.id !== data.id) {
-        console.warn('Data received for incorrect viewer!');
-      } else {
-        this.assign(data);
-      }
-    }
-
     updateItem(data) {
       const item = this.items.find( i => i.id === data.id );
       if (item) item.assign(data);
@@ -274,13 +270,9 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     updateShadow(data) {
-      if (data.id === this.id) {
-        this.assign(data);
-      } else {
-        const shadow = this.shadows.find( v => v.id === data.id );
-        if (shadow) shadow.assign(data);
-        else console.warn('Unable find shadow to be updated.');
-      }
+      const shadow = this.shadows.find( v => v.id === data.id );
+      if (shadow) shadow.assign(data);
+      else console.warn('Unable find shadow to be updated.');
     }
   }
 
@@ -288,6 +280,7 @@ const ClientViewer = (function defineClientViewer() {
 })();
 
 const ClientController = (function defineClientController() {
+  const Message = WamsShared.Message;
   const locals = Object.freeze({
     HAMMER_EVENTS: [
       'tap',
@@ -299,6 +292,10 @@ const ClientController = (function defineClientController() {
       'transformend',
     ],
     STAMPER: new WamsShared.IDStamper(),
+  });
+
+  const symbols = Object.freeze({
+    attach_listeners: Symbol(),
   });
 
   class ClientController { 
@@ -340,18 +337,34 @@ const ClientController = (function defineClientController() {
           autoConnect: false,
           reconnection: false,
         });
-        this.socket.on(globals.MSG_INITIALIZE, this.setup.bind(this));
-        this.socket.on(globals.MSG_UD_VIEWER,
-          this.viewer.updateShadow.bind(this.viewer)
-        );
-        this.socket.on(globals.MSG_RM_VIEWER,
-          this.viewer.removeShadow.bind(this.viewer)
-        );
-        this.socket.on(globals.MSG_UD_ITEM,
-          this.viewer.updateItem.bind(this.viewer)
-        );
+        this[symbols.attach_listeners]();
         this.socket.connect();
       }
+    }
+
+    [symbols.attach_listeners]() {
+      const listeners = {
+        // For the server to inform about changes to the model
+        [Message.ADD_ITEM]:   (...args) => this.viewer.addItem(...args),
+        [Message.ADD_SHADOW]: (...args) => this.viewer.addShadow(...args),
+        [Message.RM_ITEM]:    (...args) => this.viewer.removeItem(...args),
+        [Message.RM_SHADOW]:  (...args) => this.viewer.removeShadow(...args),
+        [Message.UD_ITEM]:    (...args) => this.viewer.updateItem(...args),
+        [Message.UD_SHADOW]:  (...args) => this.viewer.updateShadow(...args),
+        [Message.UD_VIEWER]:  (...args) => this.viewer.assign(...args),
+
+        // Connection establishment related (disconnect, initial setup)
+        [Message.INITIALIZE]: (...args) => this.setup(...args),
+        [Message.LAYOUT]:     WamsShared.NOP,
+
+        // User event related
+        [Message.CLICK]:  WamsShared.NOP,
+        [Message.DRAG]:   WamsShared.NOP,
+        [Message.RESIZE]: WamsShared.NOP,
+        [Message.SCALE]:  WamsShared.NOP,
+      };
+
+      Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
     drag({center}) {
@@ -360,11 +373,11 @@ const ClientController = (function defineClientController() {
       const lastMouse = this.mouse;
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
 
-      this.emit(globals.MSG_DRAG, 
+      new Message(Message.DRAG, 
         this, this.mouse.x, this.mouse.y,
         (lastMouse.x - this.mouse.x), 
         (lastMouse.y - this.mouse.y)
-      );
+      ).emitWith(this.socket);
     }
 
     dragend(event) {
@@ -377,15 +390,10 @@ const ClientController = (function defineClientController() {
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
     }
 
-    emit(message, ...args) {
-      console.log('Emitting:', message);
-      this.socket.emit(message, ...args);
-    }
-
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
-      this.emit(globals.MSG_RESIZE, this.viewer.report());
+      new Message(Message.RESIZE, this.viewer.report()).emitWith(this.socket);
     }
 
     run() {
@@ -407,7 +415,7 @@ const ClientController = (function defineClientController() {
     //     Math.min( 1, (event.wheelDelta || -event.detail))
     //   );
     //   const newScale = this.scale + delta * 0.09;
-    //   this.emit(globals.MSG_SCALE, this.id, newScale);
+    //   new Message(Message.SCALE, newScale).emitWith(this.socket);
     // }
 
     resizeCanvasToFillWindow() {
@@ -419,24 +427,19 @@ const ClientController = (function defineClientController() {
       locals.STAMPER.stamp(this, data.id);
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
-      this.emit(globals.MSG_LAYOUT, this.viewer.report());
+      new Message(Message.LAYOUT, this.viewer.report())
+        .emitWith(this.socket);
     }
 
     tap({center}) {
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-      this.emit(
-        globals.MSG_CLICK, 
-        this.mouse.x,
-        this.mouse.y
-      );
+      new Message(Message.CLICK, this.mouse.x, this.mouse.y)
+        .emitWith(this.socket);
     }
 
     transform(event) {
-      this.emit(
-        globals.MSG_SCALE, 
-        this.id, 
-        event.scale * this.startScale
-      );
+      new Message(Message.SCALE, event.scale * this.startScale)
+        .emitWith(this.socket);
     }
 
     transformend(event) {

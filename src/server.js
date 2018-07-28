@@ -315,12 +315,8 @@ const ListenerFactory = (function defineListenerFactory() {
 
       layout(listener, workspace) {
         return function handleLayout(viewer, data) {
-          if (workspace.hasViewer(viewer)) {
-            viewer.assign(data); 
-            listener(viewer);
-          } else {
-            console.warn('Attempted to lay out viewer not yet in workspace.');
-          }
+          viewer.assign(data); 
+          listener(viewer);
         };
       },
 
@@ -393,19 +389,6 @@ const WorkSpace = (function defineWorkSpace() {
     //   //TODO: probably send a workspace update message
     // }
 
-    addViewer(viewer) {
-      if (this.isFull()) {
-        console.warn('Attempted to add viewer to full workspace.');
-        return false;
-      }
-      if (this.viewers.find( v => v.id === viewer.id )) {
-        console.warn('Attempted to add viewer already present.');
-      } else {
-        this.viewers.push(viewer); 
-      }
-      return true; // 'viewer is in workspace'
-    }
-
     findItemByCoordinates(x,y) {
       return this.items.find( o => o.containsPoint(x,y) );
     }
@@ -416,10 +399,6 @@ const WorkSpace = (function defineWorkSpace() {
 
     hasViewer(viewer) {
       return this.viewers.some( u => u.id === viewer.id );
-    }
-
-    isFull() {
-      return this.viewers.length >= this.settings.clientLimit;  
     }
 
     on(event, listener) {
@@ -444,13 +423,9 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     spawnViewer(values) {
-      return new ServerViewer(this.settings.bounds, values);
-      // if (!this.isFull()) {
-      //   const u = new ServerViewer(this.settings.bounds, values);
-      //   this.viewers.push(u);
-      //   return u;
-      // }
-      // return false;
+      const v = new ServerViewer(this.settings.bounds, values);
+      this.viewers.push(v);
+      return v;
     }
 
     spawnItem(values) {
@@ -469,18 +444,9 @@ const WorkSpace = (function defineWorkSpace() {
  * associated workspace.
  */
 const Connection = (function defineConnection() {
-  const locals = Object.freeze({
-    LOCAL_HANDLERS: Object.freeze({ 
-      ['disconnect']:       'disconnect',
-      [globals.MSG_RESIZE]: 'resize',
-      [globals.MSG_LAYOUT]: 'layout',
-    }),
-
-    WORKSPACE_HANDLERS: Object.freeze({ 
-      [globals.MSG_CLICK]:  'click',
-      [globals.MSG_DRAG]:   'drag',
-      [globals.MSG_SCALE]:  'scale',
-    }),
+  const Message = WamsShared.Message;
+  const symbols = Object.freeze({
+    attach_listners: Symbol(),
   });
 
   class Connection {
@@ -488,86 +454,69 @@ const Connection = (function defineConnection() {
       this.socket = socket;
       this.workspace = workspace;
       this.viewer = this.workspace.spawnViewer();
-
-      Object.entries(locals.LOCAL_HANDLERS).forEach( ([p,v]) => {
-        this.socket.on(p, this[v].bind(this));
-      });
-
-      Object.entries(locals.WORKSPACE_HANDLERS).forEach( ([p,v]) => {
-        this.socket.on(p, (...args) => {
-          this.passMessageToWorkspace(v, ...args);
-        }); 
-      });
-
-      this.emit(globals.MSG_INITIALIZE, {
+      this[symbols.attach_listners]();
+      new Message(Message.INITIALIZE, {
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,
         id: this.viewer.id,
-      });
+      }).emitWith(this.socket);
     }
 
-    /*
-     * XXX: This might be a place where socket.io 'rooms' could
-     *    come in handy. Look into it...
-     *    
-     * Also, why on earth are we emitting and then broadcasting?? Doesn't the 
-     * broadcast send to everyone?
-     * + Answer: Apparently, it sends on all sockets in the room _except_ this
-     * one.
-     */
-    fullcast(message, data) {
-      console.log('Fullcasting:', message);
-      this.socket.emit(message, data);
-      this.socket.broadcast.emit(message, data);
-    }
+    [symbols.attach_listners]() {
+      const listeners = {
+        // For the server to inform about changes to the model
+        [Message.ADD_ITEM]:   WamsShared.NOP,
+        [Message.ADD_SHADOW]: WamsShared.NOP,
+        [Message.RM_ITEM]:    WamsShared.NOP,
+        [Message.RM_SHADOW]:  WamsShared.NOP,
+        [Message.UD_ITEM]:    WamsShared.NOP,
+        [Message.UD_SHADOW]:  WamsShared.NOP,
+        [Message.UD_VIEWER]:  WamsShared.NOP,
 
-    fullcastItemUpdate(item) {
-      this.fullcast( globals.MSG_UD_ITEM, item.report() );
-    }
+        // Connection establishment related (disconnect, initial setup)
+        [Message.INITIALIZE]: WamsShared.NOP,
+        [Message.LAYOUT]:     (...args) => this.layout(...args),
 
-    fullcastViewUpdate() {
-      this.fullcast( globals.MSG_UD_VIEWER, this.viewer.report() );
+        // User event related
+        [Message.CLICK]:  (...args) => this.handle('click', ...args),
+        [Message.DRAG]:   (...args) => this.handle('drag', ...args),
+        [Message.RESIZE]: (...args) => this.resize(...args),
+        [Message.SCALE]:  (...args) => this.handle('scale', ...args),
+      };
+
+      Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
     disconnect() {
       if (this.workspace.removeViewer(this.viewer)) {
-        this.socket.broadcast.emit(globals.MSG_RM_SHADOW, this.viewer.id);
         this.socket.disconnect(true);
-        console.log(`viewer ${this.viewer.id} ` +
-          `disconnected from workspace ${this.workspace.id}`
+        console.log(
+          'viewer', this.viewer.id, 
+          'disconnected from workspace', this.workspace.id
         );
-      } else {
-        console.error('Failed to disconnect:', this);
-      }
+        return true;
+      } 
+      return false;
     }
 
-    emit(message, ...args) {
-      console.log('Emitting:', message);
-      this.socket.emit(message, ...args);
+    handle(message, ...args) {
+      this.workspace.handle(message, this.viewer, ...args);
     }
 
     layout(data) {
       this.viewer.assign(data);
       if (this.workspace.addViewer(this.viewer)) {
         this.workspace.handle('layout', this.viewer, data);
-        this.fullcastViewUpdate();
+        new Message(Message.ADD_SHADOW, this.viewer.report())
+          .emitWith(this.socket.broadcast);
       } else {
         this.socket.disconnect(true);
       }
     }
 
-    passMessageToWorkspace(message, ...args) {
-      const item = this.workspace.handle(message, this.viewer, ...args);
-      if (item) this.fullcastItemUpdate(item);
-      this.fullcastViewUpdate();
-    }
-
     resize(data) {
-      if (this.viewer.id === data.id) {
-        this.viewer.assign(data);
-        this.fullcastViewReport()
-      }
+      this.viewer.assign(data);
     }
   }
 
@@ -656,23 +605,13 @@ const WamsServer = (function defineWamsServer() {
 
   const symbols = Object.freeze({
     connect: Symbol(),
+    disconnect: Symbol(),
   });
 
-  /*
-   * TODO: The WorkSpace currently keeps track of the client limit. It would
-   * make more sense for the server to track this information, as it can 
-   * reject connections more quickly by using the socket.io namespace's client
-   * list:
-   *    this.io.of(globals.NS_WAMS).clients((error, clients) => {
-   *      if (clients.length > this.clientLimit) {
-   *        // reject the connection.
-   *      } else {
-   *        // accept the connection.
-   *      }
-   *    });
-   */
   class WamsServer {
     constructor(settings) {
+      // TODO: Fix this assignment!
+      this.clientLimit = settings.clientLimit || 10;
       this.workspace = new WorkSpace(settings);
       this.server = http.createServer(new RequestHandler());
       this.io = IO(this.server, { });
@@ -687,16 +626,31 @@ const WamsServer = (function defineWamsServer() {
     }
 
     [symbols.connect](socket) {
-      const c = new Connection(socket, this.workspace);
-      if (c) {
-        this.connections.push(c);
-        socket.on('disconnect', () => {
-          this.connections.splice(this.connections.indexOf(c), 1);
-        });
-        console.log(
-          `Viewer ${c.viewer.id} connected to workspace listening on port`,
-          this.server.address().port
-        );
+      this.io.of(globals.NS_WAMS).clients((error, clients) => {
+        if (error) throw error;
+        if (clients.length < this.clientLimit) {
+          const c = new Connection(socket, this.workspace);
+          this.connections.push(c);
+          socket.on('disconnect', () => this[symbols.disconnect](c) );
+
+          console.log(
+            `Viewer ${c.viewer.id} connected to workspace listening on port`,
+            this.server.address().port
+          );
+        } else {
+          socket.disconnect(true);
+          // TODO: Report disconnection to client, server.
+        }
+      });
+    }
+
+    [symbols.disconnect](connection) {
+      if (connection.disconnect()) {
+        this.connections.splice(this.connections.indexOf(c), 1);
+        new Message(Message.RM_SHADOW, connection.viewer.report())
+          .emitWith(this.io.of(globals.NS_WAMS));
+      } else {
+        console.error('Failed to disconnect:', this);
       }
     }
 
@@ -711,34 +665,40 @@ const WamsServer = (function defineWamsServer() {
     }
 
     remove(item) {
+      if (this.workspace.removeItem(item)) {
+        new Message(globals.RM_ITEM, item.report())
+          .emitWith(this.io.of(globals.NS_WAMS));
+      }
     }
 
     spawn(itemdata) {
       const item = this.workspace.spawnItem(itemdata);
-      this.io.of(globals.NS_WAMS).emit(globals.MSG_ADD_ITEM, item);
+      new Message(Message.ADD_ITEM, item)
+        .emitWith(this.io.of(globals.NS_WAMS));
     }
 
     /*
      * This function can be used for either items or views.
+     * TODO: Improve the functionality, to make use of the functions in the
+     * ServerItem and ServerViewer classes.
      */
     update(item, data) {
       if (item instanceof ServerItem) {
         item.assign(data);
-        this.io.of(globals.NS_WAMS).emit(globals.MSG_UD_ITEM, item.report());
+        new Message(Message.UD_ITEM, item.report())
+          .emitWith(this.io.of(globals.NS_WAMS));
       } else if (item instanceof ServerViewer) {
         item.assign(data);
         const connection = this.connections.find( c => {
           return c.viewer.id === item.id;
         });
         if (connection) {
-          connection.socket.broadcast.emit(
-            globals.MSG_UD_SHADOW,
-            item.report()
-          );
-          connection.socket.emit(
-            globals.MSG_UD_VIEWER,
-            item.report()
-          );
+          new Message(Message.UD_SHADOW, item.report())
+            .emitWith(connection.socket.broadcast);
+          new Message(Message.UD_VIEWER, item.report())
+            .emitWith(connection.socket);
+        } else {
+          console.warn('Failed to locate connection');
         }
       }
     }
