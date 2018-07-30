@@ -230,7 +230,7 @@ const WamsShared = (function defineSharedWamsModule() {
         return this.assign(initialize(defaults, data));
       }
 
-      assign(data) {
+      assign(data = {}) {
         _coreProperties.forEach( p => {
           if (data.hasOwnProperty(p)) this[p] = data[p] 
         });

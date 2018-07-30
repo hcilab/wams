@@ -116,7 +116,7 @@ describe('makeOwnPropertyImmutable', () => {
   });
 });
 
-describe('safeRemoveByID(array, item, class_fn)', () => {
+describe('removeByID(array, item, class_fn)', () => {
   function A(id) {
     this.id = id;
   }
@@ -129,14 +129,9 @@ describe('safeRemoveByID(array, item, class_fn)', () => {
     arr.push(new A(3));
   });
 
-  test('Throws exception if all three arguments not present', () => {
-    expect(() => WamsShared.safeRemoveByID()).toThrow();
-    expect(() => WamsShared.safeRemoveByID([])).toThrow();
-    expect(() => WamsShared.safeRemoveByID([],{})).toThrow();
-  });
-
-  test('Throws if the provided object is not of the correct instance', () => {
-    expect(() => WamsShared.safeRemoveByID([],{},A)).toThrow();
+  test('Throws exception if not passed an array.', () => {
+    expect(() => WamsShared.removeByID()).toThrow();
+    expect(() => WamsShared.removeByID({})).toThrow();
   });
 
   test('Removes the item with the corresponding ID, if present', () => {
@@ -144,11 +139,11 @@ describe('safeRemoveByID(array, item, class_fn)', () => {
     const a2 = new A(2);
     const a3 = new A(3);
     expect(arr.length).toBe(3);
-    expect(() => WamsShared.safeRemoveByID(arr,a1,A)).not.toThrow();
+    expect(() => WamsShared.removeByID(arr,a1)).not.toThrow();
     expect(arr.find(a => a.id === 1)).toBeUndefined();
-    expect(() => WamsShared.safeRemoveByID(arr,a2,A)).not.toThrow();
+    expect(() => WamsShared.removeByID(arr,a2)).not.toThrow();
     expect(arr.find(a => a.id === 2)).toBeUndefined();
-    expect(() => WamsShared.safeRemoveByID(arr,a3,A)).not.toThrow();
+    expect(() => WamsShared.removeByID(arr,a3)).not.toThrow();
     expect(arr.find(a => a.id === 3)).toBeUndefined();
     expect(arr.length).toBe(0);
   });
@@ -156,7 +151,7 @@ describe('safeRemoveByID(array, item, class_fn)', () => {
   test('Does not remove any item if no item with ID present.', () => {
     const a4 = new A(4);
     expect(arr.length).toBe(3);
-    expect(() => WamsShared.safeRemoveByID(arr,a4,A)).not.toThrow();
+    expect(() => WamsShared.removeByID(arr,a4)).not.toThrow();
     expect(arr.length).toBe(3);
   });
 });
@@ -262,10 +257,6 @@ describe('Viewer', () => {
 
   describe('assign(data)', () => {
     const vs = new WamsShared.Viewer();
-
-    test('throws exception if no data passed', () => {
-      expect(() => vs.assign()).toThrow(); 
-    });
 
     test('assigns data', () => {
       expect(vs.x).not.toBe(100);
@@ -377,10 +368,6 @@ describe('Item', () => {
 
   describe('assign(data)', () => {
     const vs = new WamsShared.Item();
-
-    test('throws exception if no data passed', () => {
-      expect(() => vs.assign()).toThrow(); 
-    });
 
     test('assigns data', () => {
       expect(vs.x).not.toBe(100);

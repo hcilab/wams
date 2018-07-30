@@ -799,11 +799,6 @@ describe('WorkSpace', () => {
     test('Throws exception if no item provided', () => {
       expect(() => ws.removeItem()).toThrow();
     });
-
-    test('Throws exception if provided item is not a ServerItem', () => {
-      expect(() => ws.removeItem({id:0})).toThrow();
-      expect(() => ws.removeItem(ws.reportItems()[0])).toThrow();
-    });
   });
 
   describe('spawnViewer(values)', () => {
@@ -926,10 +921,6 @@ describe('WorkSpace', () => {
     test('Throws exception if not viewer provided', () => {
       expect(() => ws.removeViewer()).toThrow();
     });
-
-    test('Throws exception if provided viewer is not a ServerViewer', () => {
-      expect(() => ws.removeViewer({id:1})).toThrow();
-    });
   });
 
   describe('on(event, listener)', () => {
@@ -997,12 +988,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('click', vs, x, y)).not.toThrow();
+        expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('click', vs, x, y)).not.toThrow();
+        expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
         expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y);
       });
     });
@@ -1015,12 +1006,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('drag', vs, x, y, dx, dy)).not.toThrow();
+        expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('drag', vs, x, y, dx, dy)).not.toThrow();
+        expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
         expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y, dx, dy);
       });
     });
@@ -1039,7 +1030,7 @@ describe('WorkSpace', () => {
 
       test('Calls the listener with the expected arguments', () => {
         expect(() => ws.handle('layout', vs, {})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs);
+        expect(fn).toHaveBeenLastCalledWith(vs,1);
       });
     });
 
@@ -1051,12 +1042,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('scale', vs, scale)).not.toThrow();
+        expect(() => ws.handle('scale', vs, {scale})).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('scale', vs, scale)).not.toThrow();
+        expect(() => ws.handle('scale', vs, {scale})).not.toThrow();
         expect(fn).toHaveBeenLastCalledWith(vs, scale);
       });
     });

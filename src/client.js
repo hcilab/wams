@@ -301,9 +301,9 @@ const ClientController = (function defineClientController() {
   const locals = Object.freeze({
     HAMMER_EVENTS: [
       'tap',
-      'dragstart',
-      'drag',
-      'dragend',
+      'panstart',
+      'pan',
+      'panend',
       'transformstart',
       'transform',
       'transformend',
@@ -342,7 +342,8 @@ const ClientController = (function defineClientController() {
       function establishHammer() {
         this.hammer = new Hammer(this.canvas);
         this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-        this.hammer.get('pinch').set({ enable: true });
+        this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+
         locals.HAMMER_EVENTS.forEach( e => {
           this.hammer.on(e, (event) => event.preventDefault() );
           this.hammer.on(e, this[e].bind(this));
@@ -384,7 +385,7 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
-    drag({center}) {
+    pan({center}) {
       if (this.transforming) { return; }
 
       const lastMouse = this.mouse;
@@ -399,13 +400,13 @@ const ClientController = (function defineClientController() {
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
-    dragend(event) {
+    panend(event) {
       /*
        * NOP for now, here for consistency though.
        */
     }
 
-    dragstart({center}) {
+    panstart({center}) {
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
     }
 
