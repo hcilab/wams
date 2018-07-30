@@ -13,11 +13,11 @@
  * FIXME: This is ugly!! This code will not work on the actual client if this
  *  test code is left in!
  */
-// let io, WamsShared;
-// if (typeof require === 'function') {
-//   io = require('socket.io-client');
-//   WamsShared = require('../src/shared.js');
-// }
+let io, WamsShared;
+if (typeof require === 'function') {
+  io = require('socket.io-client');
+  WamsShared = require('../src/shared.js');
+}
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -58,6 +58,8 @@ const ClientItem = (function defineClientItem() {
       if (src) {
         const img = new Image();
         img.src = src;
+        img.loaded = false;
+        img.onload = () => img.loaded = true;
         return img;
       }
       return null;
@@ -70,8 +72,6 @@ const ClientItem = (function defineClientItem() {
       if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
       else throw 'Items require IDs, but not ID found.';
       this.img = locals.createImage(this.imgsrc);
-      this.loaded = false;
-      this.img.onload = () => this.loaded = true;
     }
 
     draw(context) {
@@ -79,7 +79,7 @@ const ClientItem = (function defineClientItem() {
       const height = this.height || this.img.height;
 
       if (this.img) {
-        if (this.loaded) {
+        if (this.img.loaded) {
           context.drawImage(this.img, this.x, this.y, width, height);
         } else {
           context.fileStyle = '#252525';
@@ -469,10 +469,10 @@ window.addEventListener(
   }
 );
 
-// if (typeof exports !== 'undefined') {
-//   exports.ClientViewer = ClientViewer;
-//   exports.ClientController = ClientController;
-//   exports.ClientItem = ClientItem;
-//   exports.ShadowViewer = ShadowViewer;
-// }
+if (typeof exports !== 'undefined') {
+  exports.ShadowViewer = ShadowViewer;
+  exports.ClientItem = ClientItem;
+  exports.ClientViewer = ClientViewer;
+  exports.ClientController = ClientController;
+}
 
