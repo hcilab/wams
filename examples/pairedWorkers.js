@@ -24,14 +24,14 @@ ws.spawnItem({
 function handleDrag(viewer, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
     target.moveBy(-dx, -dy);
-    update(target, target.report());
+    ws.update(target, target.report());
   }
 }
 
 function handleLayout(viewer, numViewers) {
   if (numViewers > 1) {
     viewer.moveTo( viewer.right - 30, viewer.top ); 
-    update(viewer, viewer.report());
+    ws.update(viewer, viewer.report());
   }
 }
 

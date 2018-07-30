@@ -407,11 +407,11 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeViewer(viewer) {
-      return WamsShared.safeRemoveByID( this.viewers, viewer, ServerViewer );
+      return WamsShared.removeByID( this.viewers, viewer, ServerViewer );
     }
 
     removeItem(item) {
-      return WamsShared.safeRemoveByID( this.items, item, ServerItem );
+      return WamsShared.removeByID( this.items, item, ServerItem );
     }
 
     reportViewers() {

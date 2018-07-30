@@ -322,7 +322,7 @@ const WamsShared = (function defineSharedWamsModule() {
     Message,
     MouseReporter,
     NOP,
-    safeRemoveByID,
+    removeByID,
     ScaleReporter,
     Viewer,
   });
