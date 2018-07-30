@@ -36,3 +36,31 @@ Items with no `imgsrc` defined will currently be present in the system, but not 
 
 ### update(object, data)
 Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a viewer.
+
+## Handlers
+Each of these handlers can be attached using the name listed below as the event name when calling `ws.on(event, handler)`. The first argument passed to any handler will be an object describing the viewer who initiated the event.
+
+### click
+This handler will be called whenever a user clicks in their view. 
+* __ARGUMENTS:__
+  * __x:__ The x coordinate at which the user clicked.
+  * __y:__ The y coordinate at which the user clicked.
+
+### drag
+This handler will be called whenever the user drags somewhere in their view.
+* __ARGUMENTS:__
+  * __x:__ The x coordinate at which the user clicked.
+  * __y:__ The y coordinate at which the user clicked.
+  * __dx:__ The distance between the current drag and the last drag along the x axis.
+  * __dx:__ The distance between the current drag and the last drag along the y axis.
+ 
+### layout
+This handler will only be called once per viewer, when they initially connect.
+* __ARGUMENTS:__
+  * __numViewers:__ The number of viewers active at the time of layout.
+
+### scale
+This handler will be called when a viewer zooms in or out.
+* __ARGUMENTS:__
+  * __scale:__ The new zoom scale of the viewer. 1 is normal. 2 means 200% zoom. 0.5 means 50% zoom.
+
