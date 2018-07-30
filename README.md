@@ -1,3 +1,6 @@
+### Table of Contents
+* [Server API](#server_api)
+
 # End User API
 
 ## Basic usage.
@@ -7,7 +10,7 @@ const ws = new WAMS.WamsServer();
 // When handlers are attached and beginning items are spawned:
 ws.listen(port);
 ```
-## Server API
+## <a id="server_api"></a>Server API
 ### listen([port[, host]])
 Starts the internal server on the given port and hostname and reports the address on which it is listening.
 - __DEFAULTS:__
