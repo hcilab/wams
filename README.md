@@ -1,9 +1,8 @@
-### <a id="contents"></a>Table of Contents
+# End User API
+
 * [Basic Usage](#basic_usage)
 * [Server API](#server_api)
 * [Handlers](#handlers)
-
-# End User API
 
 ## <a id="basic_usage"></a>Basic usage. [\[top\]](#contents)
 ```JavaScript
