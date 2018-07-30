@@ -310,7 +310,7 @@ const ListenerFactory = (function defineListenerFactory() {
       layout(listener, workspace) {
         return function handleLayout(viewer, data) {
           viewer.assign(data); 
-          listener(viewer);
+          listener(viewer, workspace.viewers.length);
         };
       },
 
@@ -457,7 +457,7 @@ const Connection = (function defineConnection() {
       this.viewer = this.workspace.spawnViewer();
       this[symbols.attach_listners]();
 
-      const fsreport = new FullStateReporter({
+      const fsreport = new WamsShared.FullStateReporter({
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,
@@ -584,6 +584,7 @@ const WamsServer = (function defineWamsServer() {
   const http = require('http');
   const IO = require('socket.io');
   const os = require('os');
+  const Message = WamsShared.Message;
 
   const locals = Object.freeze({
     DEFAULTS: {
@@ -665,42 +666,53 @@ const WamsServer = (function defineWamsServer() {
       });
     }
 
-    remove(item) {
+    on(event, handler) {
+      this.workspace.on(event, handler);
+    }
+
+    removeItem(item) {
       if (this.workspace.removeItem(item)) {
         new Message(Message.RM_ITEM, item)
           .emitWith(this.io.of(globals.NS_WAMS));
       }
     }
 
-    spawn(itemdata) {
+    spawnItem(itemdata) {
       const item = this.workspace.spawnItem(itemdata);
       new Message(Message.ADD_ITEM, item)
         .emitWith(this.io.of(globals.NS_WAMS));
     }
 
+    update(object, data) {
+      if (object instanceof ServerItem) {
+        this.updateItem(object, data);
+      } else if (object instanceof ServerViewer) {
+        this.updateViewer(object, data);
+      }
+    }
+
     /*
-     * This function can be used for either items or views.
      * TODO: Improve the functionality, to make use of the functions in the
      * ServerItem and ServerViewer classes.
      */
-    update(item, data) {
-      if (item instanceof ServerItem) {
-        item.assign(data);
-        new Message(Message.UD_ITEM, item)
-          .emitWith(this.io.of(globals.NS_WAMS));
-      } else if (item instanceof ServerViewer) {
-        item.assign(data);
-        const connection = this.connections.find( c => {
-          return c.viewer.id === item.id;
-        });
-        if (connection) {
-          new Message(Message.UD_SHADOW, item)
-            .emitWith(connection.socket.broadcast);
-          new Message(Message.UD_VIEWER, item)
-            .emitWith(connection.socket);
-        } else {
-          console.warn('Failed to locate connection');
-        }
+    updateItem(item, data) {
+      item.assign(data);
+      new Message(Message.UD_ITEM, item)
+        .emitWith(this.io.of(globals.NS_WAMS));
+    }
+
+    updateViewer(viewer, data) {
+      viewer.assign(data);
+      const connection = this.connections.find( c => {
+        return c.viewer.id === viewer.id;
+      });
+      if (connection) {
+        new Message(Message.UD_SHADOW, viewer)
+          .emitWith(connection.socket.broadcast);
+        new Message(Message.UD_VIEWER, viewer)
+          .emitWith(connection.socket);
+      } else {
+        console.warn('Failed to locate connection');
       }
     }
   }

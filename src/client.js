@@ -13,11 +13,11 @@
  * FIXME: This is ugly!! This code will not work on the actual client if this
  *  test code is left in!
  */
-let io, WamsShared;
-if (typeof require === 'function') {
-  io = require('socket.io-client');
-  WamsShared = require('../src/shared.js');
-}
+// let io, WamsShared;
+// if (typeof require === 'function') {
+//   io = require('socket.io-client');
+//   WamsShared = require('../src/shared.js');
+// }
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -436,7 +436,7 @@ const ClientController = (function defineClientController() {
 
     tap({center}) {
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-      const mreport = new MouseReporter({
+      const mreport = new WamsShared.MouseReporter({
         x: this.mouse.x,
         y: this.mouse.y,
       });
@@ -444,7 +444,7 @@ const ClientController = (function defineClientController() {
     }
 
     transform(event) {
-      const sreport = new ScaleReporter({
+      const sreport = new WamsShared.ScaleReporter({
         scale: event.scale * this.startScale
       });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
