@@ -6,65 +6,55 @@
 'use strict';
 
 const WAMS = require('../src/server');
+const ws = new WAMS.WamsServer({
+  bounds: { x: 4000, y: 4000 },
+  clientLimit: 4,
+});
 
-const workspace = new WAMS.WorkSpace(
-  9000,
-  {
-    bounds: {
-      x: 4000,
-      y: 4000,
-    },
-    clientLimit: 4,
-  }
-);
-workspace.addItem(new WAMS.Item(
-  0,
-  0,
-  workspace.width,
-  workspace.height,
+ws.spawnItem({
+  x: 0,
+  y: 0,
+  width: 4000,
+  height: 4000,
   'mona',
-  {
-    imgsrc: 'monaLisa.png'
-  }
-));
+  imgsrc: 'img/monaLisa.png'
+});
 
 // Takes in the target that was dragged on and who caused the drag event
-const handleDrag = function(target, client, x, y, dx, dy) {
+const handleDrag = function(viewer, target, x, y, dx, dy) {
   // 'view/background' is the type if your drag isn't on any items
   if (target.type === 'view/background') { 
     target.moveBy(dx, dy);
   } else if (target.type === 'mona') { 
     // We can check if target was our custom type,
     //  still just want to move the client anyway
-    client.moveBy(dx, dy);
+    viewer.moveBy(dx, dy);
   }
+  ws.update(target);
 }
 
 // Example Layout function that takes in the newly added client and which 
-//  workspace they joined.
+//  ws they joined.
 // Lays out viewers in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
-  function getMove(num_viewers, prev_viewer) {
+  function getMove(num_viewers, viewer) {
     if (num_viewers % 2 === 0) { 
       return {
-        x: prev_viewer.right() - 10;
-        y: prev_viewer.top();
+        x: viewer.right - 10;
+        y: viewer.top;
       };
     }
     return {
-      x: prev_viewer.left();
-      y: prev_viewer.bottom() - 10;
+      x: viewer.left;
+      y: viewer.bottom - 10;
     };
   }
 
-  function handleLayout(workspace, client) {
-    const otherViewers = workspace.viewers;
-    const num_viewers = otherViewers.length;
-    
-    if (num_viewers > 0) {
-      const prev_viewer = otherViewers[num_viewers - 1];
-      const move = getMove(num_viewers, prev_viewer);
-      client.moveTo(move.x, move.y);
+  function handleLayout(viewer, numViewers) {
+    if (numViewers > 0) {
+      const move = getMove(numViewers, viewer);
+      viewer.moveTo(move.x, move.y);
+      ws.update(viewer);
     }
   }
 
@@ -72,13 +62,14 @@ const handleLayout = (function makeLayoutHandler() {
 })();
 
 // Handle Scale, uses the built in viewer method rescale
-const handleScale = function(vs, newScale) {
-  vs.rescale(newScale);
+const handleScale = function(viewer, newScale) {
+  viewer.rescale(newScale);
+  ws.update(viewer);
 }
 
-workspace.attachDragHandler(handleDrag);
-workspace.attachLayoutHandler(handleLayout);
-workspace.attachScaleHandler(handleScale);
+ws.on('drag',   handleDrag);
+ws.on('layout', handleLayout);
+ws.on('scale',  handleScale);
 
-workspace.listen();
+ws.listen(9000);
 
