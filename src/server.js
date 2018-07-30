@@ -457,12 +457,13 @@ const Connection = (function defineConnection() {
       this.viewer = this.workspace.spawnViewer();
       this[symbols.attach_listners]();
 
-      new Message(Message.INITIALIZE, {
+      const fsreport = new FullStateReporter({
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,
         id: this.viewer.id,
-      }).emitWith(this.socket);
+      });
+      new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
     }
 
     [symbols.attach_listners]() {
@@ -509,7 +510,7 @@ const Connection = (function defineConnection() {
     layout(data) {
       this.viewer.assign(data);
       this.workspace.handle('layout', this.viewer, data);
-      new Message(Message.ADD_SHADOW, this.viewer.report())
+      new Message(Message.ADD_SHADOW, this.viewer)
         .emitWith(this.socket.broadcast);
     }
 
@@ -647,7 +648,7 @@ const WamsServer = (function defineWamsServer() {
     [symbols.disconnect](cn) {
       if (cn.disconnect()) {
         this.connections.splice(this.connections.indexOf(cn), 1);
-        new Message(Message.RM_SHADOW, cn.viewer.report())
+        new Message(Message.RM_SHADOW, cn.viewer)
           .emitWith(this.io.of(globals.NS_WAMS));
       } else {
         console.error('Failed to disconnect:', this);
@@ -666,14 +667,14 @@ const WamsServer = (function defineWamsServer() {
 
     remove(item) {
       if (this.workspace.removeItem(item)) {
-        new Message(globals.RM_ITEM, item.report())
+        new Message(Message.RM_ITEM, item)
           .emitWith(this.io.of(globals.NS_WAMS));
       }
     }
 
     spawn(itemdata) {
       const item = this.workspace.spawnItem(itemdata);
-      new Message(Message.ADD_ITEM, item.report())
+      new Message(Message.ADD_ITEM, item)
         .emitWith(this.io.of(globals.NS_WAMS));
     }
 
@@ -685,7 +686,7 @@ const WamsServer = (function defineWamsServer() {
     update(item, data) {
       if (item instanceof ServerItem) {
         item.assign(data);
-        new Message(Message.UD_ITEM, item.report())
+        new Message(Message.UD_ITEM, item)
           .emitWith(this.io.of(globals.NS_WAMS));
       } else if (item instanceof ServerViewer) {
         item.assign(data);
@@ -693,9 +694,9 @@ const WamsServer = (function defineWamsServer() {
           return c.viewer.id === item.id;
         });
         if (connection) {
-          new Message(Message.UD_SHADOW, item.report())
+          new Message(Message.UD_SHADOW, item)
             .emitWith(connection.socket.broadcast);
-          new Message(Message.UD_VIEWER, item.report())
+          new Message(Message.UD_VIEWER, item)
             .emitWith(connection.socket);
         } else {
           console.warn('Failed to locate connection');

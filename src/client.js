@@ -309,11 +309,11 @@ const ClientController = (function defineClientController() {
       this.startScale = null;
       this.transforming = false;
       this.viewer = new ClientViewer();
-      this.resizeCanvasToFillWindow();
 
+      this.resizeCanvasToFillWindow();
+      attachWindowListeners.call(this);
       establishHammer.call(this);
       establishSocket.call(this);
-      attachWindowListeners.call(this);
 
       function attachWindowListeners() {
         // const scroll_fn = this.scroll.bind(this); // To reuse bound function
@@ -372,12 +372,14 @@ const ClientController = (function defineClientController() {
 
       const lastMouse = this.mouse;
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-
-      new Message(Message.DRAG, 
-        this, this.mouse.x, this.mouse.y,
-        (lastMouse.x - this.mouse.x), 
-        (lastMouse.y - this.mouse.y)
-      ).emitWith(this.socket);
+      
+      const mreport = new WamsShared.MouseReporter({
+        x: this.mouse.x,
+        y: this.mouse.y,
+        dx: lastMouse.x - this.mouse.x,
+        dy: lastMouse.y - this.mouse.y,
+      });
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
     dragend(event) {
@@ -393,7 +395,7 @@ const ClientController = (function defineClientController() {
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
-      new Message(Message.RESIZE, this.viewer.report()).emitWith(this.socket);
+      new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
 
     run() {
@@ -414,8 +416,10 @@ const ClientController = (function defineClientController() {
     //     -1, 
     //     Math.min( 1, (event.wheelDelta || -event.detail))
     //   );
-    //   const newScale = this.scale + delta * 0.09;
-    //   new Message(Message.SCALE, newScale).emitWith(this.socket);
+    //   const sreport = new WamsShared.ScaleReporter({
+    //     scale: this.scale + delta * 0.09
+    //   });
+    //   new Message(Message.SCALE, sreport).emitWith(this.socket);
     // }
 
     resizeCanvasToFillWindow() {
@@ -427,19 +431,23 @@ const ClientController = (function defineClientController() {
       locals.STAMPER.stamp(this, data.id);
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
-      new Message(Message.LAYOUT, this.viewer.report())
-        .emitWith(this.socket);
+      new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
     }
 
     tap({center}) {
       this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-      new Message(Message.CLICK, this.mouse.x, this.mouse.y)
-        .emitWith(this.socket);
+      const mreport = new MouseReporter({
+        x: this.mouse.x,
+        y: this.mouse.y,
+      });
+      new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
     transform(event) {
-      new Message(Message.SCALE, event.scale * this.startScale)
-        .emitWith(this.socket);
+      const sreport = new ScaleReporter({
+        scale: event.scale * this.startScale
+      });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
 
     transformend(event) {

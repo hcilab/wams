@@ -59,16 +59,16 @@ const WamsShared = (function defineSharedWamsModule() {
     })();
 
     class Message {
-      constructor(type, ...args) {
+      constructor(type, reporter) {
         if (!locals.TYPE_VALUES.includes(type)) {
           throw 'Invalid message type!';
         }
         this.type = type;
-        this.args = args;
+        this.reporter = reporter;
       }
 
       emitWith(emitter) {
-        emitter.emit(this.type, ...(this.args));
+        emitter.emit(this.type, this.reporter.report());
       }
     }
 
@@ -280,17 +280,50 @@ const WamsShared = (function defineSharedWamsModule() {
   ]);
 
   /*
+   * This class is intended for sharing mouse action data between client and
+   * server.
+   */
+  const MouseReporter = reporterClassFactory([
+    'x',
+    'y',
+    'dx',
+    'dy',
+  ]);
+
+  /*
+   * This class allows reporting of scale data between client and server.
+   */
+  const ScaleReporter = reporterClassFactory([
+    'scale',
+  ]);
+
+  /*
+   * This class allows reporting of the full state of the model, for bringing
+   * new clients up to speed (or potentially also for recovering a client, if
+   * need be).
+   */
+  const FullStateReporter = reporterClassFactory([
+    'viewers',
+    'items',
+    'color',
+    'id',
+  ]);
+
+  /*
    * Package up the module and freeze it for delivery.
    */
   return Object.freeze({
     constants,
+    FullStateReporter,
     IDStamper,
     initialize,
     Item,
     makeOwnPropertyImmutable,
     Message,
+    MouseReporter,
     NOP,
     safeRemoveByID,
+    ScaleReporter,
     Viewer,
   });
 })();
