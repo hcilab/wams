@@ -24,6 +24,10 @@
  */
 const globals = Object.freeze(WamsShared.constants);
 
+/*
+ * The ShadowViewer class exposes a simple draw() function which renders a
+ * shadowy outline of the viewer onto the canvas.
+ */
 const ShadowViewer = (function defineShadowViewer() {
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
@@ -46,6 +50,9 @@ const ShadowViewer = (function defineShadowViewer() {
   return ShadowViewer;
 })();
 
+/*
+ * The ClientItem class exposes the draw() funcitonality of wams items.
+ */
 const ClientItem = (function defineClientItem() {
   /*
    * I'm not defining a 'defaults' object here, because the data going into
@@ -109,6 +116,10 @@ const ClientItem = (function defineClientItem() {
   return ClientItem;
 })();
 
+/*
+ * The ClientViewer class is used for all rendering activities on the client
+ * side. This is essentially the view in a modal-view-controller esque design.
+ */
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
@@ -279,6 +290,12 @@ const ClientViewer = (function defineClientViewer() {
   return ClientViewer;
 })();
 
+/*
+ * The ClientController coordinates communication with the wams server. It sends
+ * messages based on user interaction with the canvas and receives messages from
+ * the server detailing changes to post to the view. This is essentially the
+ * controller in a model-view-controller esque design.
+ */
 const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
   const locals = Object.freeze({
