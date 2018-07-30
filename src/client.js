@@ -340,14 +340,30 @@ const ClientController = (function defineClientController() {
       }
 
       function establishHammer() {
-        this.hammer = new Hammer(this.canvas);
-        this.hammer.get('pan').set({ direction: Hammer.DIRECTION_ALL });
-        this.hammer.get('swipe').set({ direction: Hammer.DIRECTION_ALL });
+        const hammer = new Hammer.Manager(this.canvas);
+
+        const pan = new Hammer.Pan({
+          threshold: 0
+        });
+        const pinch = new Hammer.Pinch();
+        const press = new Hammer.Press({
+          threshold: 1
+        });
+        const swipe = new Hammer.Swipe({
+          threshold: 1
+        });
+        const tap = new Hammer.Tap({
+          posThreshold: 1
+        });
+
+        hammer.add([tap, press, pan, swipe, pinch]);
 
         locals.HAMMER_EVENTS.forEach( e => {
-          this.hammer.on(e, (event) => event.preventDefault() );
-          this.hammer.on(e, this[e].bind(this));
+          hammer.on(e, (event) => event.preventDefault() );
+          hammer.on(e, this[e].bind(this));
         });
+
+        this.hammer = hammer;
       }
 
       function establishSocket() {
