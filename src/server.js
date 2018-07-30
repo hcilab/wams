@@ -141,19 +141,13 @@ const ServerViewer = (function defineServerViewer() {
       type: 'view/background',
       scale: 1,
       rotation: 0,
+      bounds: {
+        x: 10000,
+        y: 10000,
+      },
     },
     MIN_DIMENSION: 100,
     STAMPER: new WamsShared.IDStamper(),
-
-    resolveBounds(bounds = {}) {
-      function safeNumber(x) {
-        return Number(x) || 0; // Prevents NaN from falling through.
-      }
-      const x = safeNumber(bounds.x);
-      const y = safeNumber(bounds.y);
-      if (x < 100 || y < 100) throw 'Invalid bounds received';
-      return {x,y};
-    }
   });
 
   class ServerViewer extends WamsShared.Viewer {
@@ -179,9 +173,9 @@ const ServerViewer = (function defineServerViewer() {
      *      look at the shared Reporter factory definition to see if this can
      *      be handled at a more general level.
      */
-    constructor(bounds, values) {
+    constructor(values = {}) {
       super(WamsShared.initialize(locals.DEFAULTS, values));
-      this.bounds = locals.resolveBounds(bounds);
+      this.bounds = values.bounds || locals.DEFAULTS.bounds;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
       locals.STAMPER.stamp(this);
@@ -355,15 +349,25 @@ const WorkSpace = (function defineWorkSpace() {
         x: 10000,
         y: 10000,
       },
-      clientLimit: 10,
       color: '#aaaaaa',
     }),
     STAMPER: new WamsShared.IDStamper(),
+
+    resolveBounds(bounds = {}) {
+      function safeNumber(x) {
+        return Number(x) || 0; // Prevents NaN from falling through.
+      }
+      const x = safeNumber(bounds.x);
+      const y = safeNumber(bounds.y);
+      if (x < 100 || y < 100) throw 'Invalid bounds received';
+      return {x,y};
+    }
   });
 
   class WorkSpace {
     constructor(settings) {
       this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
+      this.settings.bounds = locals.resolveBounds(this.settings.bounds);
       locals.STAMPER.stamp(this);
 
       // Things to track.
@@ -397,10 +401,6 @@ const WorkSpace = (function defineWorkSpace() {
       return this.handlers[message](...args);
     }
 
-    hasViewer(viewer) {
-      return this.viewers.some( u => u.id === viewer.id );
-    }
-
     on(event, listener) {
       const type = event.toLowerCase();
       this.handlers[type] = ListenerFactory.build(type, listener, this);
@@ -422,13 +422,14 @@ const WorkSpace = (function defineWorkSpace() {
       return this.items.map( o => o.report() );
     }
 
-    spawnViewer(values) {
-      const v = new ServerViewer(this.settings.bounds, values);
+    spawnViewer(values = {}) {
+      values.bounds = this.settings.bounds;
+      const v = new ServerViewer(values);
       this.viewers.push(v);
       return v;
     }
 
-    spawnItem(values) {
+    spawnItem(values = {}) {
       const o = new ServerItem(values);
       this.items.push(o);
       return o;
@@ -455,6 +456,7 @@ const Connection = (function defineConnection() {
       this.workspace = workspace;
       this.viewer = this.workspace.spawnViewer();
       this[symbols.attach_listners]();
+
       new Message(Message.INITIALIZE, {
         viewers: this.workspace.reportViewers(),
         items: this.workspace.reportItems(),
@@ -506,13 +508,9 @@ const Connection = (function defineConnection() {
 
     layout(data) {
       this.viewer.assign(data);
-      if (this.workspace.addViewer(this.viewer)) {
-        this.workspace.handle('layout', this.viewer, data);
-        new Message(Message.ADD_SHADOW, this.viewer.report())
-          .emitWith(this.socket.broadcast);
-      } else {
-        this.socket.disconnect(true);
-      }
+      this.workspace.handle('layout', this.viewer, data);
+      new Message(Message.ADD_SHADOW, this.viewer.report())
+        .emitWith(this.socket.broadcast);
     }
 
     resize(data) {
@@ -587,6 +585,9 @@ const WamsServer = (function defineWamsServer() {
   const os = require('os');
 
   const locals = Object.freeze({
+    DEFAULTS: {
+      clientLimit: 10,
+    },
     PORT: 9000,
     getLocalIP() {
       let ipaddr = null;
@@ -609,12 +610,11 @@ const WamsServer = (function defineWamsServer() {
   });
 
   class WamsServer {
-    constructor(settings) {
-      // TODO: Fix this assignment!
-      this.clientLimit = settings.clientLimit || 10;
+    constructor(settings = {}) {
+      this.clientLimit = settings.clientLimit || locals.DEFAULTS.clientLimit;
       this.workspace = new WorkSpace(settings);
       this.server = http.createServer(new RequestHandler());
-      this.io = IO(this.server, { });
+      this.io = IO(this.server);
       this.io.of(globals.NS_WAMS)
         .on('connect', this[symbols.connect].bind(this));
 
@@ -644,10 +644,10 @@ const WamsServer = (function defineWamsServer() {
       });
     }
 
-    [symbols.disconnect](connection) {
-      if (connection.disconnect()) {
-        this.connections.splice(this.connections.indexOf(c), 1);
-        new Message(Message.RM_SHADOW, connection.viewer.report())
+    [symbols.disconnect](cn) {
+      if (cn.disconnect()) {
+        this.connections.splice(this.connections.indexOf(cn), 1);
+        new Message(Message.RM_SHADOW, cn.viewer.report())
           .emitWith(this.io.of(globals.NS_WAMS));
       } else {
         console.error('Failed to disconnect:', this);
@@ -673,7 +673,7 @@ const WamsServer = (function defineWamsServer() {
 
     spawn(itemdata) {
       const item = this.workspace.spawnItem(itemdata);
-      new Message(Message.ADD_ITEM, item)
+      new Message(Message.ADD_ITEM, item.report())
         .emitWith(this.io.of(globals.NS_WAMS));
     }
 

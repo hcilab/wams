@@ -208,64 +208,52 @@ describe('ServerViewer', () => {
     effectiveHeight: 900,
     scale: 1,
     rotation: 0,
+    bounds: { x: 10000, y: 10000 },
   };
 
-  describe('constructor(bounds, values)', () => {
-    test('Throws exception if bounds not provided.', () => {
-      expect(() => new ServerViewer()).toThrow();
-    });
+  const custom = {
+    x: 42,
+    y: 43,
+    width: 990,
+    height: 867,
+    scale: 1,
+    bounds: { x: 5000, y: 4000 },
+  };
 
-    test('Throws exception if invalid bounds provided.', () => {
-      expect(() => new ServerViewer({})).toThrow();
-      expect(() => new ServerViewer({x:1500})).toThrow();
-      expect(() => new ServerViewer({y:1500})).toThrow();
-      expect(() => new ServerViewer({x:0, y:0})).toThrow();
-      expect(() => new ServerViewer({x:100, y:99})).toThrow();
-      expect(() => new ServerViewer({x:-1, y:100})).toThrow();
-      expect(() => new ServerViewer({x:100, y:100})).not.toThrow();
-    });
+  const mover = {
+    x: 0,
+    y: 0,
+    width: 50,
+    height: 50,
+    scale: 1,
+    bounds: { x: 100, y: 100 },
+  };
 
-    test('Creates correct item type if bounds provided.', () => {
-      expect(
-        new ServerViewer({x:100, y:100})
-      ).toBeInstanceOf(ServerViewer);
-    });
-
-    test('Uses provided bounds', () => {
-      let vs;
-      expect(() => vs = new ServerViewer({x:1150, y:799})).not.toThrow();
-      expect(vs.bounds).toBeDefined();
-      expect(vs.bounds.x).toBe(1150);
-      expect(vs.bounds.y).toBe(799);
+  describe('constructor(values)', () => {
+    test('Creates correct item type.', () => {
+      expect( new ServerViewer()).toBeInstanceOf(ServerViewer);
     });
 
     test('Uses default values if none provided', () => {
       let vs;
-      expect(() => vs = new ServerViewer({x:150, y:150})).not.toThrow();
-      Object.entries(DEFAULTS).forEach( ([p,v]) => {
-        expect(vs[p]).toEqual(v);
-      });
+      expect(() => vs = new ServerViewer()).not.toThrow();
+      expect(vs).toMatchObject(DEFAULTS);
     });
 
     test('Uses user-defined values, if provided', () => {
       let vs;
-      expect(() => {
-        vs = new ServerViewer({x:150, y:150}, {type:'joker'});
-      }).not.toThrow();
-      expect(vs.type).toBe('joker');
-      Object.entries(DEFAULTS).forEach( ([p,v]) => {
-        if (p !== 'type') expect(vs[p]).toEqual(v);
-      });
+      expect(() => vs = new ServerViewer(custom)).not.toThrow();
+      expect(vs).toMatchObject(custom);
     });
 
     test('Ignores inaplicable values', () => {
-      const vs = new ServerViewer({x:150, y:150}, {alpha:3});
+      const vs = new ServerViewer({alpha:3});
       expect(vs.hasOwnProperty('alpha')).toBe(false);
       expect(vs.alpha).toBeUndefined();
     });
 
     test('Appropriately sets effective width and height', () => {
-      const vs = new ServerViewer({x:100, y:100}, {
+      const vs = new ServerViewer({
         width: 200,
         height: 100,
         scale: 2,
@@ -275,20 +263,14 @@ describe('ServerViewer', () => {
     });
 
     test('Stamps an immutable ID onto the item', () => {
-      const vs = new ServerViewer({x:150, y:150});
+      const vs = new ServerViewer();
       expect(vs).toHaveImmutableProperty('id');
       expect(vs.id).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('getters', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      scale: 1,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Can get bottom', () => {
       expect(vs.y + vs.effectiveHeight).toBe(50);
@@ -349,10 +331,7 @@ describe('ServerViewer', () => {
   });
 
   describe('canBeScaledTo(width, height)', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Accepts midrange widths and heights', () => {
       expect(vs.canBeScaledTo(75,50)).toBe(true);
@@ -394,13 +373,7 @@ describe('ServerViewer', () => {
   });
 
   describe('rescale(scale)', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      scale: 1,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Works with an acceptable scale', () => {
       expect(vs.rescale(2)).toBe(true);
@@ -437,13 +410,7 @@ describe('ServerViewer', () => {
   });
 
   describe('canMoveTo[X|Y](x|y)', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      scale: 1,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Accepts inputs in centre of acceptable range', () => {
       expect(vs.canMoveToX(25)).toBe(true);
@@ -488,13 +455,7 @@ describe('ServerViewer', () => {
   });
 
   describe('moveTo(x,y)', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      scale: 1,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Has no effect if arguments omitted', () => {
       expect(() => vs.moveTo()).not.toThrow();
@@ -540,13 +501,7 @@ describe('ServerViewer', () => {
   });
 
   describe('moveBy(dx,dy)', () => {
-    const vs = new ServerViewer({x:100,y:100}, {
-      x: 0,
-      y: 0,
-      width: 50,
-      height: 50,
-      scale: 1,
-    });
+    const vs = new ServerViewer(mover);
 
     test('Has no effect if arguments omitted', () => {
       expect(() => vs.moveBy()).not.toThrow();
@@ -644,7 +599,6 @@ describe('WorkSpace', () => {
       x: 10000,
       y: 10000,
     },
-    clientLimit: 10,
     color: '#aaaaaa',
   });
 
@@ -659,19 +613,18 @@ describe('WorkSpace', () => {
     });
 
     test('Uses default settings if none provided', () => {
-      expect(new WorkSpace().settings).toEqual(DEFAULTS);
+      expect(new WorkSpace().settings).toMatchObject(DEFAULTS);
     });
 
     test('Uses user-defined settings, if provided', () => {
       const custom = {
         color: 'rgb(155,72, 84)',
-        clientLimit: 4,
         bounds: {
           x: 1080,
           y: 1920,
         },
       };
-      expect(new WorkSpace(custom).settings).toEqual(custom);
+      expect(new WorkSpace(custom).settings).toMatchObject(custom);
 
       const ws = new WorkSpace({color: 'a'});
       expect(ws.settings).not.toEqual(DEFAULTS);
@@ -681,14 +634,15 @@ describe('WorkSpace', () => {
   });
 
   describe('getters and setters', () => {
-    const ws = new WorkSpace({bounds: {x:7,y:8}});
+    const bounded = {bounds: {x: 700, y: 800} };
+    const ws = new WorkSpace(bounded);
 
     test('can get width', () => {
-      expect(ws.width).toBe(7);
+      expect(ws.width).toBe(bounded.bounds.x);
     });
 
     test('can get height', () => {
-      expect(ws.height).toBe(8);
+      expect(ws.height).toBe(bounded.bounds.y);
     });
 
     test('can set width', () => {
@@ -902,28 +856,6 @@ describe('WorkSpace', () => {
     });
   });
 
-  describe('hasViewer(viewer)', () => {
-    let ws;
-    let viewer;
-    beforeAll(() => {
-      ws = new WorkSpace();
-      ws.spawnViewer();
-      viewer = ws.spawnViewer({y:43});
-      ws.spawnViewer({x:2});
-    });
-
-    test('Accepts viewers that have been spawned by the workspace', () => {
-      expect(ws.hasViewer(viewer)).toBe(true);
-    });
-
-    test('Rejects viewers that were not spawned by the workspace', () => {
-      const v = new ServerViewer({x:200,y:200});
-      expect(ws.hasViewer(v)).toBe(false);
-      const f = new ServerViewer({x:200,y:200},{x:2});
-      expect(ws.hasViewer(f)).toBe(false);
-    });
-  });
-
   describe('reportViewers()', () => {
     let ws;
     const expectedProperties = [
@@ -966,7 +898,6 @@ describe('WorkSpace', () => {
     test('Returns data for each Viewer in the workspace', () => {
       expect(ws.reportViewers().length).toBe(ws.viewers.length);
     });
-
   });
 
   describe('removeViewer(viewer)', () => {
@@ -983,7 +914,6 @@ describe('WorkSpace', () => {
     test('Removes a viewer if it is found', () => {
       expect(ws.removeViewer(viewer)).toBe(true);
       expect(ws.viewers).not.toContain(viewer);
-      expect(ws.hasViewer(viewer)).toBe(false);
     });
 
     test('Does not remove anything if viewer not found', () => {
