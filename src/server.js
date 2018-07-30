@@ -509,9 +509,9 @@ const Connection = (function defineConnection() {
 
     layout(data) {
       this.viewer.assign(data);
-      this.workspace.handle('layout', this.viewer, data);
       new Message(Message.ADD_SHADOW, this.viewer)
         .emitWith(this.socket.broadcast);
+      this.workspace.handle('layout', this.viewer, data);
     }
 
     resize(data) {
