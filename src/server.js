@@ -286,9 +286,8 @@ const ListenerFactory = (function defineListenerFactory() {
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewer, {x, y}) {
-          const target = workspace.findItemByCoordinates(x,y);
-          listener(viewer, target || workspace, x, y);
-          return target;
+          const target = workspace.findItemByCoordinates(x,y) || viewer;
+          listener(viewer, target, x, y);
         };
       },
 
@@ -301,9 +300,8 @@ const ListenerFactory = (function defineListenerFactory() {
            *    The source of the jitter seems to be when the 
            *    background is dragged.
            */
-          const target = workspace.findItemByCoordinates(x,y);
-          listener(viewer, target || workspace, x, y, dx, dy);
-          return target;
+          const target = workspace.findItemByCoordinates(x,y) || viewer;
+          listener(viewer, target, x, y, dx, dy);
         };
       },
 
