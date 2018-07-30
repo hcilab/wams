@@ -127,6 +127,7 @@ const ClientViewer = (function defineClientViewer() {
       y: 0,
       rotation: globals.ROTATE_0,
       scale: 1,
+      type: 'view/background',
     }),
     REQUIRED_DATA: Object.freeze([
       'id',
@@ -197,11 +198,17 @@ const ClientViewer = (function defineClientViewer() {
       function showStatus(context) {
         let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
-          .map( k => `${k}: ${this[k].toFixed(2)}`)
+          .map( k => {
+            if (typeof this[k] === 'number') {
+              return `${k}: ${this[k].toFixed(2)}`;
+            } else {
+              return `${k}: ${this[k]}`;
+            }
+          })
           .concat([`# of Shadows: ${this.shadows.length}`]);
         context.font = '18px Georgia';
         messages.forEach( m => {
-          context.fillText(m, 10, base);
+          context.fillText(m, 20, base);
           base += 20;
         });
       }
@@ -342,26 +349,23 @@ const ClientController = (function defineClientController() {
       function establishHammer() {
         const hammer = new Hammer.Manager(this.canvas);
 
-        const pan = new Hammer.Pan({
-          threshold: 0
-        });
+        // Hammer.js recognizers. Currently using defaults, and not using rotate
+        // yet as I'm not sure how it will work. User interaction needs to be
+        // fine-tuned.
+        const pan = new Hammer.Pan();
         const pinch = new Hammer.Pinch();
-        const press = new Hammer.Press({
-          threshold: 1
-        });
-        const swipe = new Hammer.Swipe({
-          threshold: 1
-        });
-        const tap = new Hammer.Tap({
-          posThreshold: 1
-        });
+        const press = new Hammer.Press();
+        const swipe = new Hammer.Swipe();
+        const tap = new Hammer.Tap();
 
         hammer.add([tap, press, pan, swipe, pinch]);
 
-        locals.HAMMER_EVENTS.forEach( e => {
-          hammer.on(e, (event) => event.preventDefault() );
-          hammer.on(e, this[e].bind(this));
-        });
+        // locals.HAMMER_EVENTS.forEach( e => {
+        //   hammer.on(e, (event) => event.preventDefault() );
+        //   hammer.on(e, this[e].bind(this));
+        // });
+
+        this.canvas.onpointermove = this.pointermove.bind(this);
 
         this.hammer = hammer;
       }
@@ -401,7 +405,20 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
-    pan({center}) {
+    pointermove(event) {
+      if (event.pressure <= 0) return;
+      event.preventDefault();
+      const mreport = new WamsShared.MouseReporter({
+        x: event.clientX - (event.width / 2) + this.viewer.x,
+        y: event.clientY - (event.width / 2) + this.viewer.y,
+        dx: event.movementX,
+        dy: event.movementY,
+      });
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
+    }
+
+    pan(event) {
+      const center = event.center;
       if (this.transforming) { return; }
 
       const lastMouse = this.mouse;
