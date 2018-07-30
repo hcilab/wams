@@ -33,3 +33,6 @@ type|'view/background'|For use by end-user for distinguishing items.
 imgsrc|''|Define the image source of the item.
 
 Items with no `imgsrc` defined will currently be present in the system, but not drawn.
+
+### update(object, data)
+Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a viewer.
