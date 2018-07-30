@@ -285,7 +285,7 @@ const ListenerFactory = (function defineListenerFactory() {
   const locals = Object.freeze({
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
-        return function handleClick(viewer, x, y) {
+        return function handleClick(viewer, {x, y}) {
           const target = workspace.findItemByCoordinates(x,y);
           listener(viewer, target || workspace, x, y);
           return target;
@@ -293,7 +293,7 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       drag(listener, workspace) {
-        return function handleDrag(viewer, x, y, dx, dy) {
+        return function handleDrag(viewer, {x, y, dx, dy}) {
           /*
            * XXX: This is causing jitter. Will have to look in the 
            *    debugger, perhaps multiple events are firing on drags.
@@ -315,7 +315,7 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       scale(listener, workspace) {
-        return function handleScale(viewer, scale) {
+        return function handleScale(viewer, {scale}) {
           listener(viewer, scale);
         };
       },
