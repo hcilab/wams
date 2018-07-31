@@ -1,31 +1,42 @@
-var WAMS = require("../WAMS/WAMS");   // Includes the WAMS API
+/*
+ * This is the simplest example, simply showing how an arbitrary number of
+ *  users can interact with a shared set of items.
+ */
 
-// Defines a Workspace that will listen on port 3000, takes in optional parameters
-var workspace_one = new WAMS.WorkSpace(9003, {debug : false, BGcolor : "#aaaaaa"});
-workspace_one.setBoundaries(1000,1000);
+'use strict';
 
-// Define a workspace object, (image, x, y, w, h)
-var monaLisa = new WAMS.WSObject(200, 200, 200, 200, "Draggable", {"imgsrc":"monaLisa.png"});
+const WAMS = require('../src/server');
 
-// Defing another workspace object
-var scream = new WAMS.WSObject(400, 400, 200, 200, "Draggable", {"imgsrc": "scream.png"});
+const ws = new WAMS.WamsServer();
 
-// Adding the objects to the workspace
-workspace_one.addWSObject(monaLisa);
-workspace_one.addWSObject(scream);
+ws.spawnItem({
+  x: 200, y: 200, width: 200, height: 200,
+  type: 'Draggable',
+  imgsrc: 'img/monaLisa.png',
+});
 
-var handleDrag = function(target, client, x, y, dx, dy){
-    if(target.type == "Draggable"){
-        target.move(-dx, -dy);
-    }
+ws.spawnItem({
+  x: 400, y: 400, width: 200, height: 200,
+  type: 'Draggable',
+  imgsrc: 'img/scream.png'
+});
+
+function handleDrag(viewer, target, x, y, dx, dy) {
+  if (target.type === 'Draggable') {
+    target.moveBy(-dx, -dy);
+    ws.update(target, target.report());
+  }
 }
 
-var handleLayout = function(ws, client){
-    var otherUsers = ws.getUsers();
-    if(otherUsers.length != 0){
-        client.moveToXY(otherUsers[otherUsers.length-1].right() - 30, otherUsers[otherUsers.length-1].top()); 
-    }
+function handleLayout(viewer, numViewers) {
+  if (numViewers > 1) {
+    viewer.moveTo( viewer.right - 30, viewer.top ); 
+    ws.update(viewer, viewer.report());
+  }
 }
 
-workspace_one.attachDragHandler(handleDrag);
-workspace_one.attachLayoutHandler(handleLayout);
+ws.on('drag', handleDrag);
+ws.on('layout', handleLayout);
+
+ws.listen(9003);
+

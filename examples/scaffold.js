@@ -1,31 +1,36 @@
+'use strict';
+
 // Scaffold example for WAMS
 //TODO: make sure the WAMS.js conforms to this scaffold, 
-//      examples made need to be update
+//    examples made need to be update
 
 // Includes the WAMS API
-var WAMS = require("../WAMS/WAMS");
+const WAMS = require("../src/server");
+const ws = new WAMS.WamsServer();
 
-// Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(9500, {debug : false, BGcolor : "#aaaaaa"});
-
-var handleLayout = function(ws, user){
-    // Executed once every time a new user joins
+const handleLayout = function(viewer, numViewers) {
+  // Executed once every time a new user joins
 }
 
-var handleClick = function(target, user, x, y){
-    // Executed every time a user taps or clicks a screen
+const handleClick = function(viewer, target, x, y) {
+  // Executed every time a user taps or clicks a screen
 }
 
-var handleDrag = function(target, user, x, y, dx, dy){
-    // Executed every time a drag occurs on a device 
+const handleDrag = function(viewer, target, x, y, dx, dy) {
+  // Executed every time a drag occurs on a device 
 }
 
-var handleScale = function(user, newScale){
-    // Executed when a user pinches a device, or uses the scroll wheel on a computer
+const handleScale = function(viewer, scale) {
+  // Executed when a user pinches a device, or uses the scroll wheel on a computer
 }
 
 // Attaches the defferent function handlers
-my_workspace.attachClickHandler(handleClick);
-my_workspace.attachScaleHandler(handleScale);
-my_workspace.attachDragHandler(handleDrag);
-my_workspace.attachLayoutHandler(handleLayout);
+ws.on('click',  handleClick);
+ws.on('drag',   handleDrag);
+ws.on('scale',  handleScale);
+ws.on('layout', handleLayout);
+
+// Once all the handlers are attached, open up the workspace and listen for
+// connections.
+workspace.listen(9004);
+

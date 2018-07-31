@@ -1,59 +1,71 @@
-// Scaffold example for WAMS
+/*
+ * This is a simple example showing how users can interact with a shared set
+ *  of items.
+ */
 
-// Includes the WAMS API
-var WAMS = require("../WAMS/WAMS");
+'use strict';
 
-// Defines a Workspace that will listen on port 3000, takes in optional parameter
-var my_workspace = new WAMS.WorkSpace(9002, {debug : false, BGcolor : "#aaaaaa"});
-var newSquare = new WAMS.WSObject(32, 32, 128, 128,'color', {'imgsrc':'red.png'});
-    newSquare.setType("color");
-my_workspace.addWSObject(newSquare);
+const WAMS = require('../src/server');
+const ws = new WAMS.WamsServer();
 
-var handleLayout = function(ws, user){
-    // Executed once every time a new user joins
-    var otherUsers = ws.getUsers();
-    if(otherUsers.length > 1){
-        user.moveToXY(ws.getCenter().x, ws.getCenter().y);
+ws.spawnItem({
+  x: 32, y: 32,
+  width: 128, height: 128,
+  type: 'color',
+  imgsrc: 'img/red.png',
+});
+
+// Executed every time a user taps or clicks a screen
+const handleClick = (function makeClickHandler(ws) {
+  const sources = [
+    'img/blue.png',
+    'img/red.png',
+    'img/green.png',
+    'img/pink.png',
+    'img/cyan.png',
+    'img/yellow.png',
+  ];
+
+  function square(x, y, index) {
+    return {
+      x: x - 64, y: y - 64, 
+      width: 128, height: 128, 
+      type: 'color', 
+      imgsrc: sources[index]
+    };
+  }
+
+  function handleClick(viewer, target, x, y) {
+    if (target.type === 'color') {
+      ws.removeItem(target);
+    } else {
+      ws.spawnItem(square(x, y, viewer.id % 6));
     }
+  }
+
+  return handleClick;
+})(ws);
+
+// Executed every time a drag occurs on a device
+function handleDrag(viewer, target, x, y, dx, dy) {
+  if (target.type === 'color') {
+    target.moveBy(dx, dy);
+  } else if (target.type === 'view/background') {
+    target.moveBy(-dx, -dy);
+  }
+  ws.update(target);
 }
 
-var handleClick = function(target, user, x, y){
-    // Executed every time a user taps or clicks a screen
-    console.log("clicked in handle click: "+target.type);
-    var ws = my_workspace;
-    if(target.type == "color"){
-        ws.removeWSObject(target);
-    }
-    else{
-        switch(user.id % 6){
-            case(0) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc': "blue.png"})); break;
-            case(1) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"red.png"})); break;
-            case(2) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"green.png"})); break;
-            case(3) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color", {'imgsrc':"pink.png"})); break;
-            case(4) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc':"cyan.png"}));break;
-            case(5) : ws.addWSObject(new WAMS.WSObject(x-64, y-64, 128, 128, "color",{'imgsrc': "yellow.png"})); break;
-        }
-    }
-}
-
-var handleDrag = function(target, user, x, y, dx, dy){
-    // Executed every time a drag occurs on a device
-    if(target.type == "color"){
-        target.move(-dx, -dy);
-    }
-    else if(target.type == "client/background"){
-        target.move(dx, dy);
-    }
-    
-}
-
-var handleScale = function(user, newScale){
-    // Executed when a user pinches a device, or uses the scroll wheel on a computer
-    user.rescale(newScale);
+// Executed when a user pinches a device, or uses the scroll wheel on a computer
+function handleScale(viewer, newScale) {
+  viewer.rescale(newScale);
+  ws.update(viewer);
 }
 
 // Attaches the defferent function handlers
-my_workspace.attachClickHandler(handleClick);
-my_workspace.attachScaleHandler(handleScale);
-my_workspace.attachDragHandler(handleDrag);
-my_workspace.attachLayoutHandler(handleLayout);
+ws.on('click', handleClick);
+ws.on('scale', handleScale);
+ws.on('drag',  handleDrag);
+
+ws.listen(9002);
+
