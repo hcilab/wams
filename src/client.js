@@ -214,45 +214,6 @@ const ClientViewer = (function defineClientViewer() {
       }
     }
 
-    getMouseCoordinates(mx, my) {
-      const base = {
-        x: mx / this.scale + this.x,
-        y: my / this.scale + this.y,
-      };
-      const center = {
-        x: (this.effectiveWidth / 2) + this.x,
-        y: (this.effectiveHeight / 2) + this.y,
-      };
-      const coords = { x: -1, y: -1 };
-
-      /*
-       * XXX: Still need to figure out the "why" of this math. Once I've 
-       *    done that, I will write up a comment explaining it.
-       *
-       *    Also, I think I'll refactor this into functional style.
-       */
-      switch (this.rotation) {
-        case(globals.ROTATE_0): 
-          coords.x = base.x;
-          coords.y = base.y;
-          break;
-        case(globals.ROTATE_90): 
-          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
-          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
-          break;
-        case(globals.ROTATE_180):
-          coords.x = center.x - center.y + base.y;
-          coords.y = center.y + center.x - base.x;
-          break;
-        case(globals.ROTATE_270): 
-          coords.x = center.x + center.y - base.y;
-          coords.y = center.y - center.x + base.x;
-          break;
-      }
-
-      return coords;
-    }
-
     handle(message, ...args) {
       this[message](...args);
     }
@@ -308,12 +269,15 @@ const ClientController = (function defineClientController() {
   const locals = Object.freeze({
     HAMMER_EVENTS: [
       'tap',
-      'panstart',
-      'pan',
-      'panend',
-      'transformstart',
-      'transform',
-      'transformend',
+      // 'panstart',
+      // 'panend',
+      // 'panleft',
+      // 'panright',
+      // 'panup',
+      // 'pandown',
+      // 'transformstart',
+      // 'transform',
+      // 'transformend',
     ],
     STAMPER: new WamsShared.IDStamper(),
   });
@@ -327,7 +291,6 @@ const ClientController = (function defineClientController() {
       this.canvas = canvas;
       this.context = canvas.getContext('2d');
       this.drawInterval = null;
-      this.hammer = null;
       this.mouse  = { x: 0, y: 0 };
       this.socket = null;
       this.startScale = null;
@@ -336,7 +299,7 @@ const ClientController = (function defineClientController() {
 
       this.resizeCanvasToFillWindow();
       attachWindowListeners.call(this);
-      establishHammer.call(this);
+      establishInteraction.call(this);
       establishSocket.call(this);
 
       function attachWindowListeners() {
@@ -346,28 +309,9 @@ const ClientController = (function defineClientController() {
         window.addEventListener('resize', this.resize.bind(this), false);
       }
 
-      function establishHammer() {
-        const hammer = new Hammer.Manager(this.canvas);
-
-        // Hammer.js recognizers. Currently using defaults, and not using rotate
-        // yet as I'm not sure how it will work. User interaction needs to be
-        // fine-tuned.
-        const pan = new Hammer.Pan();
-        const pinch = new Hammer.Pinch();
-        const press = new Hammer.Press();
-        const swipe = new Hammer.Swipe();
-        const tap = new Hammer.Tap();
-
-        hammer.add([tap, press, pan, swipe, pinch]);
-
-        // locals.HAMMER_EVENTS.forEach( e => {
-        //   hammer.on(e, (event) => event.preventDefault() );
-        //   hammer.on(e, this[e].bind(this));
-        // });
-
+      function establishInteraction() {
         this.canvas.onpointermove = this.pointermove.bind(this);
-
-        this.hammer = hammer;
+        // this.canvas.onpointerup = this.pointerup.bind(this);
       }
 
       function establishSocket() {
@@ -405,12 +349,21 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
+    pointerup(event) {
+      event.preventDefault();
+      const mreport = new WamsShared.MouseReporter({
+        x: event.clientX + this.viewer.x,
+        y: event.clientY + this.viewer.y,
+      });
+      new Message(Message.CLICK, mreport).emitWith(this.socket);
+    }
+
     pointermove(event) {
       if (event.pressure <= 0) return;
       event.preventDefault();
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX - (event.width / 2) + this.viewer.x,
-        y: event.clientY - (event.width / 2) + this.viewer.y,
+        x: event.clientX + this.viewer.x,
+        y: event.clientY + this.viewer.y,
         dx: event.movementX,
         dy: event.movementY,
       });
@@ -418,20 +371,21 @@ const ClientController = (function defineClientController() {
     }
 
     pan(event) {
-      const center = event.center;
       if (this.transforming) { return; }
-
-      const lastMouse = this.mouse;
-      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-      
       const mreport = new WamsShared.MouseReporter({
-        x: this.mouse.x,
-        y: this.mouse.y,
-        dx: lastMouse.x - this.mouse.x,
-        dy: lastMouse.y - this.mouse.y,
+        x: event.center.x,
+        y: event.center.y,
+        dx: event.deltaX,
+        dy: event.deltaY,
       });
+      console.log(mreport.report());
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
+
+    panleft(e) { this.pan(e); }
+    panright(e) { this.pan(e); }
+    panup(e) { this.pan(e); }
+    pandown(e) { this.pan(e); }
 
     panend(event) {
       /*

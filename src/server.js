@@ -224,6 +224,45 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
+    getMouseCoordinates(mx, my) {
+      const base = {
+        x: mx / this.scale + this.x,
+        y: my / this.scale + this.y,
+      };
+      const center = {
+        x: (this.effectiveWidth / 2) + this.x,
+        y: (this.effectiveHeight / 2) + this.y,
+      };
+      const coords = { x: -1, y: -1 };
+
+      /*
+       * XXX: Still need to figure out the "why" of this math. Once I've 
+       *    done that, I will write up a comment explaining it.
+       *
+       *    Also, I think I'll refactor this into functional style.
+       */
+      switch (this.rotation) {
+        case(globals.ROTATE_0): 
+          coords.x = base.x;
+          coords.y = base.y;
+          break;
+        case(globals.ROTATE_90): 
+          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
+          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
+          break;
+        case(globals.ROTATE_180):
+          coords.x = center.x - center.y + base.y;
+          coords.y = center.y + center.x - base.x;
+          break;
+        case(globals.ROTATE_270): 
+          coords.x = center.x + center.y - base.y;
+          coords.y = center.y - center.x + base.x;
+          break;
+      }
+
+      return coords;
+    }
+
     /*
      * Viewers are constrained to stay within the boundaries of the
      * workspace, to protect the render. To ensure this safety, extra
