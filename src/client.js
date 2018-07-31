@@ -267,19 +267,10 @@ const ClientViewer = (function defineClientViewer() {
 const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
   const locals = Object.freeze({
-    HAMMER_EVENTS: [
-      'tap',
-      // 'panstart',
-      // 'panend',
-      // 'panleft',
-      // 'panright',
-      // 'panup',
-      // 'pandown',
-      // 'transformstart',
-      // 'transform',
-      // 'transformend',
-    ],
     STAMPER: new WamsShared.IDStamper(),
+    getScale() {
+      return window.devicePixelRatio.toFixed(2);
+    }
   });
 
   const symbols = Object.freeze({
@@ -296,6 +287,8 @@ const ClientController = (function defineClientController() {
       this.startScale = null;
       this.transforming = false;
       this.viewer = new ClientViewer();
+      this.dragging = false;
+      this.zoom = locals.getScale();
 
       this.resizeCanvasToFillWindow();
       attachWindowListeners.call(this);
@@ -311,7 +304,8 @@ const ClientController = (function defineClientController() {
 
       function establishInteraction() {
         this.canvas.onpointermove = this.pointermove.bind(this);
-        // this.canvas.onpointerup = this.pointerup.bind(this);
+        this.canvas.onpointerup = this.pointerup.bind(this);
+        window.onwheel = this.dozoom.bind(this);
       }
 
       function establishSocket() {
@@ -349,8 +343,20 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
+    dozoom() {
+      // const zoom = locals.getScale();
+      // if (String(zoom) !== String(this.zoom)) {
+      //   const sreport = new WamsShared.ScaleReporter({scale:zoom});
+      //   new Message(Message.SCALE, sreport).emitWith(this.socket);
+      // }
+    }
+
     pointerup(event) {
       event.preventDefault();
+      if (this.dragging) {
+        this.dragging = false;
+        return;
+      }
       const mreport = new WamsShared.MouseReporter({
         x: event.clientX + this.viewer.x,
         y: event.clientY + this.viewer.y,
@@ -361,6 +367,10 @@ const ClientController = (function defineClientController() {
     pointermove(event) {
       if (event.pressure <= 0) return;
       event.preventDefault();
+      this.dragging = true;
+      
+      this.dozoom();
+
       const mreport = new WamsShared.MouseReporter({
         x: event.clientX + this.viewer.x,
         y: event.clientY + this.viewer.y,
