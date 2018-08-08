@@ -312,21 +312,20 @@ const ClientController = (function defineClientController() {
         // window.addEventListener('DOMMouseScroll', scroll_fn, false);
         // window.addEventListener('mousewheel', scroll_fn, false);
         window.addEventListener('resize', this.resize.bind(this), false);
+        window.addEventListener('wheel', this.wheel.bind(this), false);
       }
 
       function establishInteraction() {
         const region = ZingTouch.Region(this.canvas, true, true);
 
         // Hijack some custom functionality into the zingtouch pan.
-        const customPan = new ZingTouch.Pan({
-          threshold: 1
-        });
+        const customPan = new ZingTouch.Pan();
         const panMove = customPan.move;
         customPan.move = function(inputs, state, element) {
           const progress = inputs[0].getGestureProgress(this.getId());
           const movement = {
-            x: progress.lastEmitted.x - inputs[0].current.x,
-            y: progress.lastEmitted.y - inputs[0].current.y,
+            x: inputs[0].current.x - progress.lastEmitted.x,  
+            y: inputs[0].current.y - progress.lastEmitted.y,
           };
           const output = panMove.call(this, inputs, state, element);
           if (output) {
@@ -334,8 +333,37 @@ const ClientController = (function defineClientController() {
           }
           return output;
         }
+
+        // Hijack some custom functionality into the zingtouch pinch and expand
+        // gestures.
+        const customPinch = new ZingTouch.Pinch();
+        const pinchMove = customPinch.move;
+        customPinch.move = function(inputs, state, element) {
+          const progress = inputs[0].getGestureProgress(this.getId());
+          const lastDistance = progress.lastEmittedDistance;
+          const data = pinchMove.call(this, inputs, state, element);
+          if (data) {
+            data.change = data.distance - lastDistance;
+          }
+          return data;
+        }
+
+        const customExpand = new ZingTouch.Expand();
+        const expandMove = customExpand.move;
+        customExpand.move = function(inputs, state, element) {
+          const progress = inputs[0].getGestureProgress(this.getId());
+          const lastDistance = progress.lastEmittedDistance;
+          const data = expandMove.call(this, inputs, state, element);
+          if (data) {
+            data.change = data.distance - lastDistance;
+          }
+          return data;
+        }
+
         region.bind(this.canvas, 'tap', this.tap.bind(this));
         region.bind(this.canvas, customPan, this.pan.bind(this));
+        region.bind(this.canvas, customPinch, this.pinchOrExpand.bind(this));
+        region.bind(this.canvas, customExpand, this.pinchOrExpand.bind(this));
       }
 
       function establishSocket() {
@@ -354,8 +382,8 @@ const ClientController = (function defineClientController() {
     tap({detail}) {
       const event = detail.events[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX + this.viewer.x,
-        y: event.clientY + this.viewer.y,
+        x: event.clientX / this.viewer.scale + this.viewer.x,
+        y: event.clientY / this.viewer.scale + this.viewer.y,
       });
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
@@ -364,14 +392,28 @@ const ClientController = (function defineClientController() {
       const event = detail.events[0];
       const data = detail.data[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX + this.viewer.x,
-        y: event.clientY + this.viewer.y,
-        dx: data.movement.x,
-        dy: data.movement.y,
+        x: event.clientX / this.viewer.scale + this.viewer.x,
+        y: event.clientY / this.viewer.scale + this.viewer.y,
+        dx: data.movement.x / this.viewer.scale ,
+        dy: data.movement.y / this.viewer.scale ,
       });
       new Message(Message.DRAG, mreport).emitWith(this.socket);
       this.prevX = event.clientX;
       this.prevY = event.clientY;
+    }
+
+    pinchOrExpand({detail}) {
+      const sreport = new WamsShared.ScaleReporter({
+        scale: this.viewer.scale + detail.change * 0.009
+      });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
+    }
+
+    wheel(event) {
+      const sreport = new WamsShared.ScaleReporter({
+        scale: this.viewer.scale - event.deltaY * 0.0025
+      });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
 
     handle(message, ...args) {
@@ -414,16 +456,16 @@ const ClientController = (function defineClientController() {
      *    sure why a Math.max(Math.min()) structure is necessary. We 
      *    might be able to simplify this.
      */
-    // scroll(event) {
-    //   const delta = Math.max(
-    //     -1, 
-    //     Math.min( 1, (event.wheelDelta || -event.detail))
-    //   );
-    //   const sreport = new WamsShared.ScaleReporter({
-    //     scale: this.scale + delta * 0.09
-    //   });
-    //   new Message(Message.SCALE, sreport).emitWith(this.socket);
-    // }
+    scroll(event) {
+      const delta = Math.max(
+        -1, 
+        Math.min( 1, (event.wheelDelta || -event.detail))
+      );
+      const sreport = new WamsShared.ScaleReporter({
+        scale: this.scale + delta * 0.09
+      });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
+    }
 
     resizeCanvasToFillWindow() {
       this.canvas.width = window.innerWidth; 

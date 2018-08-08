@@ -49,9 +49,9 @@ const handleClick = (function makeClickHandler(ws) {
 // Executed every time a drag occurs on a device
 function handleDrag(viewer, target, x, y, dx, dy) {
   if (target.type === 'color') {
-    target.moveBy(-dx, -dy);
-  } else if (target.type === 'view/background') {
     target.moveBy(dx, dy);
+  } else if (target.type === 'view/background') {
+    target.moveBy(-dx, -dy);
   }
   ws.update(target);
 }
