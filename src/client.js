@@ -13,11 +13,10 @@
  * FIXME: This is ugly!! This code will not work on the actual client if this
  *  test code is left in!
  */
-let io, WamsShared;
-if (typeof require === 'function') {
-  io = require('socket.io-client');
-  WamsShared = require('../src/shared.js');
-}
+// const io = require('socket.io-client');
+// const WamsShared = require('../src/shared.js');
+// const ZingTouch = require('../libs/zingtouch.js');
+// const cseq = require('../libs/canvas_sequencer.js');
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -66,7 +65,15 @@ const ClientItem = (function defineClientItem() {
         const img = new Image();
         img.src = src;
         img.loaded = false;
-        img.onload = () => img.loaded = true;
+        img.addEventListener(
+          'load',
+          () => {
+            img.loaded = true;
+            const evt = new CustomEvent('wams-image-loaded');
+            document.dispatchEvent(evt);
+          },
+          {once:true}
+        );
         return img;
       }
       return null;
@@ -133,6 +140,7 @@ const ClientViewer = (function defineClientViewer() {
       'id',
       'items',
       'viewers',
+      'context',
     ]),
     FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
@@ -154,40 +162,40 @@ const ClientViewer = (function defineClientViewer() {
       this.shadows.push(new ShadowViewer(values));
     }
 
-    draw(context) {
-      context.save();
-      wipeAndReposition.call(this, context);
-      locate.call(this, context);
-      this.items.forEach( o => o.draw(context) );
-      this.shadows.forEach( v => v.draw(context) );
-      showStatus.call(this, context);
-      context.restore();
+    draw() {
+      this.context.save();
+      wipeAndReposition.call(this);
+      locate.call(this);
+      this.items.forEach( o => o.draw(this.context) );
+      this.shadows.forEach( v => v.draw(this.context) );
+      showStatus.call(this);
+      this.context.restore();
 
-      function wipeAndReposition(context) {
-        context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        context.scale(this.scale, this.scale);
-        context.translate(-this.x, -this.y);
-        context.rotate(this.rotation);
+      function wipeAndReposition() {
+        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        this.context.scale(this.scale, this.scale);
+        this.context.translate(-this.x, -this.y);
+        this.context.rotate(this.rotation);
       }
 
-      function locate(context) {
+      function locate() {
         switch(this.rotation) {
           case(globals.ROTATE_0): 
             break;
           case(globals.ROTATE_90): 
-            context.translate(
+            this.context.translate(
               (-this.effectiveWidth - (this.x * 2)), 
               (-this.effectiveHeight - (this.y * 2))
             ); 
             break;
           case(globals.ROTATE_180): 
-            context.translate(
+            this.context.translate(
               -this.effectiveWidth, 
               -(this.x * 2)
             ); 
             break;
           case(globals.ROTATE_270): 
-            context.translate(
+            this.context.translate(
               -(this.y * 2), 
               -this.effectiveWidth
             ); 
@@ -195,7 +203,7 @@ const ClientViewer = (function defineClientViewer() {
         }
       }
 
-      function showStatus(context) {
+      function showStatus() {
         let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
           .map( k => {
@@ -206,9 +214,9 @@ const ClientViewer = (function defineClientViewer() {
             }
           })
           .concat([`# of Shadows: ${this.shadows.length}`]);
-        context.font = '18px Georgia';
+        this.context.font = '18px Georgia';
         messages.forEach( m => {
-          context.fillText(m, 20, base);
+          this.context.fillText(m, 20, base);
           base += 20;
         });
       }
@@ -216,6 +224,7 @@ const ClientViewer = (function defineClientViewer() {
 
     handle(message, ...args) {
       this[message](...args);
+      this.draw();
     }
 
     removeItem(item) {
@@ -240,6 +249,12 @@ const ClientViewer = (function defineClientViewer() {
       locals.STAMPER.stamp(this, data.id);
       data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
+      this.context = data.context;
+      this.draw();
+      document.addEventListener(
+        'wams-image-loaded',
+        () => this.draw()
+      );
     }
 
     updateItem(data) {
@@ -268,9 +283,6 @@ const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
-    getScale() {
-      return window.devicePixelRatio.toFixed(2);
-    }
   });
 
   const symbols = Object.freeze({
@@ -287,8 +299,8 @@ const ClientController = (function defineClientController() {
       this.startScale = null;
       this.transforming = false;
       this.viewer = new ClientViewer();
-      this.dragging = false;
-      this.zoom = locals.getScale();
+      // this.dragging = false;
+      // this.zoom = locals.getScale();
 
       this.resizeCanvasToFillWindow();
       attachWindowListeners.call(this);
@@ -303,31 +315,79 @@ const ClientController = (function defineClientController() {
       }
 
       function establishInteraction() {
-        this.canvas.onpointermove = this.pointermove.bind(this);
-        this.canvas.onpointerup = this.pointerup.bind(this);
-        window.onwheel = this.dozoom.bind(this);
+        const region = ZingTouch.Region(this.canvas, true, true);
+
+        // Hijack some custom functionality into the zingtouch pan.
+        const customPan = new ZingTouch.Pan({
+          threshold: 1
+        });
+        const panMove = customPan.move;
+        customPan.move = function(inputs, state, element) {
+          const progress = inputs[0].getGestureProgress(this.getId());
+          const movement = {
+            x: progress.lastEmitted.x - inputs[0].current.x,
+            y: progress.lastEmitted.y - inputs[0].current.y,
+          };
+          const output = panMove.call(this, inputs, state, element);
+          if (output) {
+            output.data[0].movement = movement;
+          }
+          return output;
+        }
+        region.bind(this.canvas, 'tap', this.tap.bind(this));
+        region.bind(this.canvas, customPan, this.pan.bind(this));
       }
 
       function establishSocket() {
-        this.socket = io.connect(`${window.origin}${globals.NS_WAMS}`, {
-          autoConnect: false,
-          reconnection: false,
-        });
+        this.socket = io.connect(
+          `${window.location.href.slice(0, -1)}${globals.NS_WAMS}`, 
+          {
+            autoConnect: false,
+            reconnection: false,
+          }
+        );
         this[symbols.attach_listeners]();
         this.socket.connect();
       }
     }
 
+    tap({detail}) {
+      const event = detail.events[0];
+      const mreport = new WamsShared.MouseReporter({
+        x: event.clientX + this.viewer.x,
+        y: event.clientY + this.viewer.y,
+      });
+      new Message(Message.CLICK, mreport).emitWith(this.socket);
+    }
+
+    pan({detail}) {
+      const event = detail.events[0];
+      const data = detail.data[0];
+      const mreport = new WamsShared.MouseReporter({
+        x: event.clientX + this.viewer.x,
+        y: event.clientY + this.viewer.y,
+        dx: data.movement.x,
+        dy: data.movement.y,
+      });
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
+      this.prevX = event.clientX;
+      this.prevY = event.clientY;
+    }
+
+    handle(message, ...args) {
+      this.viewer.handle(message, ...args);
+    }
+
     [symbols.attach_listeners]() {
       const listeners = {
         // For the server to inform about changes to the model
-        [Message.ADD_ITEM]:   (...args) => this.viewer.addItem(...args),
-        [Message.ADD_SHADOW]: (...args) => this.viewer.addShadow(...args),
-        [Message.RM_ITEM]:    (...args) => this.viewer.removeItem(...args),
-        [Message.RM_SHADOW]:  (...args) => this.viewer.removeShadow(...args),
-        [Message.UD_ITEM]:    (...args) => this.viewer.updateItem(...args),
-        [Message.UD_SHADOW]:  (...args) => this.viewer.updateShadow(...args),
-        [Message.UD_VIEWER]:  (...args) => this.viewer.assign(...args),
+        [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
+        [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
+        [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
+        [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+        [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
+        [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
+        [Message.UD_VIEWER]:  (...args) => this.handle('assign', ...args),
 
         // Connection establishment related (disconnect, initial setup)
         [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -343,82 +403,10 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
-    dozoom() {
-      // const zoom = locals.getScale();
-      // if (String(zoom) !== String(this.zoom)) {
-      //   const sreport = new WamsShared.ScaleReporter({scale:zoom});
-      //   new Message(Message.SCALE, sreport).emitWith(this.socket);
-      // }
-    }
-
-    pointerup(event) {
-      event.preventDefault();
-      if (this.dragging) {
-        this.dragging = false;
-        return;
-      }
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX + this.viewer.x,
-        y: event.clientY + this.viewer.y,
-      });
-      new Message(Message.CLICK, mreport).emitWith(this.socket);
-    }
-
-    pointermove(event) {
-      if (event.pressure <= 0) return;
-      event.preventDefault();
-      this.dragging = true;
-      
-      this.dozoom();
-
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX + this.viewer.x,
-        y: event.clientY + this.viewer.y,
-        dx: event.movementX,
-        dy: event.movementY,
-      });
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
-    }
-
-    pan(event) {
-      if (this.transforming) { return; }
-      const mreport = new WamsShared.MouseReporter({
-        x: event.center.x,
-        y: event.center.y,
-        dx: event.deltaX,
-        dy: event.deltaY,
-      });
-      console.log(mreport.report());
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
-    }
-
-    panleft(e) { this.pan(e); }
-    panright(e) { this.pan(e); }
-    panup(e) { this.pan(e); }
-    pandown(e) { this.pan(e); }
-
-    panend(event) {
-      /*
-       * NOP for now, here for consistency though.
-       */
-    }
-
-    panstart({center}) {
-      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-    }
-
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
-    }
-
-    run() {
-      window.clearInterval(this.drawInterval);
-      this.drawInterval = window.setInterval(
-        () => this.viewer.draw(this.context),
-        locals.FRAMERATE
-      );
     }
 
     /*
@@ -444,35 +432,10 @@ const ClientController = (function defineClientController() {
 
     setup(data) {
       locals.STAMPER.stamp(this, data.id);
+      data.context = this.context;
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
-    }
-
-    tap({center}) {
-      this.mouse = this.viewer.getMouseCoordinates(center.x, center.y);
-      const mreport = new WamsShared.MouseReporter({
-        x: this.mouse.x,
-        y: this.mouse.y,
-      });
-      new Message(Message.CLICK, mreport).emitWith(this.socket);
-    }
-
-    transform(event) {
-      const sreport = new WamsShared.ScaleReporter({
-        scale: event.scale * this.startScale
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
-    }
-
-    transformend(event) {
-      this.transforming = false;
-      this.startScale = null;
-    }
-
-    transformstart(event) {
-      this.transforming = true;
-      this.startScale = this.viewer.scale;
     }
   }
 
@@ -483,7 +446,7 @@ const ClientController = (function defineClientController() {
 window.addEventListener(
   'load', 
   function run() {
-    new ClientController(document.querySelector('canvas')).run();
+    new ClientController(document.querySelector('canvas'));
   },
   {
     capture: false,
