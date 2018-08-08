@@ -484,7 +484,7 @@ const WorkSpace = (function defineWorkSpace() {
 const Connection = (function defineConnection() {
   const Message = WamsShared.Message;
   const symbols = Object.freeze({
-    attach_listners: Symbol(),
+    attach_listeners: Symbol(),
   });
 
   class Connection {
@@ -492,7 +492,7 @@ const Connection = (function defineConnection() {
       this.socket = socket;
       this.workspace = workspace;
       this.viewer = this.workspace.spawnViewer();
-      this[symbols.attach_listners]();
+      this[symbols.attach_listeners]();
 
       const fsreport = new WamsShared.FullStateReporter({
         viewers: this.workspace.reportViewers(),
@@ -503,7 +503,7 @@ const Connection = (function defineConnection() {
       new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
     }
 
-    [symbols.attach_listners]() {
+    [symbols.attach_listeners]() {
       const listeners = {
         // For the server to inform about changes to the model
         [Message.ADD_ITEM]:   WamsShared.NOP,

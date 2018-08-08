@@ -79,7 +79,7 @@ describe('ClientItem', () => {
   const item = {
     x: 42, y: 43, width: 800, height: 97,
     type: 'booyah', 
-    imgsrc: '../img/blue.png', 
+    imgsrc: 'img/blue.png', 
     id: 3
   };
 
@@ -110,7 +110,7 @@ describe('ClientItem', () => {
       const ci = new ClientItem(item);
       expect(ci).toHaveProperty('img');
       expect(ci.img).toBeInstanceOf(Image);
-      expect(ci.img.src).toBe(item.imgsrc);
+      expect(ci.img.src.endsWith(item.imgsrc)).toBe(true);
     });
 
     test('Does not create an image, if no imgsrc provided', () => {

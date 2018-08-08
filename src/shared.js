@@ -68,6 +68,7 @@ const WamsShared = (function defineSharedWamsModule() {
       }
 
       emitWith(emitter) {
+        // console.log('emitting:', this.type, this.reporter.report());
         emitter.emit(this.type, this.reporter.report());
       }
     }

@@ -21,7 +21,8 @@ const handleDrag = function(viewer, target, x, y, dx, dy) {
 }
 
 const handleScale = function(viewer, scale) {
-  // Executed when a user pinches a device, or uses the scroll wheel on a computer
+  // Executed when a user pinches a device, or uses the scroll wheel on a
+  // computer
 }
 
 // Attaches the defferent function handlers
