@@ -23,23 +23,17 @@ ws.spawnItem({
 
 function handleDrag(viewer, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
-    target.moveBy(dx, dy);
-    ws.update(target);
+    target.moveBy(-dx, -dy);
+    ws.update(target, target.report());
   }
 }
 
-const handleLayout = (function defineLayoutHandler() {
-  let nx = 0;
-  function handleLayout(viewer, numViewers) {
-    if (numViewers <= 1) {
-      nx = viewer.right - 30;
-    } else {
-      viewer.moveTo( nx, viewer.top ); 
-      ws.update(viewer);
-    } 
+function handleLayout(viewer, numViewers) {
+  if (numViewers > 1) {
+    viewer.moveTo( viewer.right - 30, viewer.top ); 
+    ws.update(viewer, viewer.report());
   }
-  return handleLayout;
-})();
+}
 
 ws.on('drag', handleDrag);
 ws.on('layout', handleLayout);

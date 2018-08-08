@@ -16,14 +16,21 @@ ws.spawnItem({
   y: 0,
   width: 4000,
   height: 4000,
-  type: 'mona',
+  'mona',
   imgsrc: 'img/monaLisa.png'
 });
 
 // Takes in the target that was dragged on and who caused the drag event
 const handleDrag = function(viewer, target, x, y, dx, dy) {
-  viewer.moveBy(-dx, -dy);
-  ws.update(viewer);
+  // 'view/background' is the type if your drag isn't on any items
+  if (target.type === 'view/background') { 
+    target.moveBy(dx, dy);
+  } else if (target.type === 'mona') { 
+    // We can check if target was our custom type,
+    //  still just want to move the client anyway
+    viewer.moveBy(dx, dy);
+  }
+  ws.update(target);
 }
 
 // Example Layout function that takes in the newly added client and which 
@@ -33,13 +40,13 @@ const handleLayout = (function makeLayoutHandler() {
   function getMove(num_viewers, viewer) {
     if (num_viewers % 2 === 0) { 
       return {
-        x: viewer.right - 10,
-        y: viewer.top,
+        x: viewer.right - 10;
+        y: viewer.top;
       };
     }
     return {
-      x: viewer.left,
-      y: viewer.bottom - 10,
+      x: viewer.left;
+      y: viewer.bottom - 10;
     };
   }
 
