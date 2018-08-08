@@ -13,11 +13,11 @@
  * FIXME: This is ugly!! This code will not work on the actual client if this
  *  test code is left in!
  */
-// let io, WamsShared;
-// if (typeof require === 'function') {
-//   io = require('socket.io-client');
-//   WamsShared = require('../src/shared.js');
-// }
+let io, WamsShared;
+if (typeof require === 'function') {
+  io = require('socket.io-client');
+  WamsShared = require('../src/shared.js');
+}
 
 /*
  * Provide an alias for the shared set of constants between server and client.
