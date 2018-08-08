@@ -994,7 +994,7 @@ describe('WorkSpace', () => {
 
       test('Calls the listener with the expected arguments', () => {
         expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y);
+        expect(fn).toHaveBeenLastCalledWith(vs, vs, x, y);
       });
     });
 
@@ -1012,7 +1012,7 @@ describe('WorkSpace', () => {
 
       test('Calls the listener with the expected arguments', () => {
         expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs, ws, x, y, dx, dy);
+        expect(fn).toHaveBeenLastCalledWith(vs, vs, x, y, dx, dy);
       });
     });
 
