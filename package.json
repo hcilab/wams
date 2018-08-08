@@ -2,10 +2,14 @@
   "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
     "express": "^4.4.5",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "zingtouch": "^1.0.6"
   },
   "devDependencies": {
-    "jest": "^23.4.1"
+    "jest": "^23.4.2"
+  },
+  "jest": {
+    "testURL": "http://localhost/"
   },
   "name": "WAMS_API",
   "repository": {
