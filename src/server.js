@@ -247,10 +247,7 @@ const ServerViewer = (function defineServerViewer() {
      * potentially redundant checks and fallbacks are used in this function.
      */
     moveTo(x = this.x, y = this.y) {
-      const coordinates = {
-        x: this.x, 
-        y: this.y
-      };
+      const coordinates = { x: this.x, y: this.y };
       if (this.canMoveToX(x)) coordinates.x = x;
       if (this.canMoveToY(y)) coordinates.y = y;
       this.assign(coordinates);
@@ -276,14 +273,10 @@ const ServerViewer = (function defineServerViewer() {
      *      constant while the scaling is occurring).
      */
     rescale(scale = this.scale) {
-      const scaledWidth = this.width / scale;
-      const scaledHeight = this.height / scale;
-      if (this.canBeScaledTo(scaledWidth, scaledHeight)) {
-        this.assign({
-          scale: scale,
-          effectiveWidth: scaledWidth,
-          effectiveHeight: scaledHeight,
-        });
+      const effectiveWidth = this.width / scale;
+      const effectiveHeight = this.height / scale;
+      if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {
+        this.assign({ scale, effectiveWidth, effectiveHeight });
         return true;
       }
       return false;
