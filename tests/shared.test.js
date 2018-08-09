@@ -195,12 +195,26 @@ describe('IDStamper', () => {
 
     test('will stamp an immutable user-provided ID', () => {
       const x = {};
-      expect(x).not.toHaveImmutableProperty('id');
-
       const id = 1;
+      expect(x).not.toHaveImmutableProperty('id');
       stamper.cloneId(x, id);
       expect(x).toHaveImmutableProperty('id');
       expect(x.id).toBe(id);
+    });
+    
+    test('Will not define an ID if none provided', () => {
+      const x = {};
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, null);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, undefined);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, 'a');
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, 2e64);
+      expect(x).not.toHaveImmutableProperty('id');
     });
   });
 });
@@ -222,8 +236,6 @@ describe('Viewer', () => {
     test('correctly constructs expected object', () => {
       const vs = new WamsShared.Viewer();
       expect(vs).toBeInstanceOf(WamsShared.Viewer);
-      expect(vs).toHaveProperty('assign');
-      expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
@@ -325,8 +337,7 @@ describe('Item', () => {
     'height',
     'type',
     'imgsrc',
-    'drawCustom',
-    'drawStart',
+    'canvasSequence',
   ];
 
   describe('constructor(data)', () => {

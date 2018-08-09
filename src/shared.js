@@ -129,6 +129,15 @@ const WamsShared = (function defineSharedWamsModule() {
     return obj;
   }
 
+  function defineOwnImmutableEnumerableProperty(obj, prop, val) {
+    Object.defineProperty(obj, prop, {
+      value: val,
+      configurable: false,
+      enumerable: true,
+      writable: false
+    });
+  }
+
   /*
    * Removes the given item from the given array, according to its ID.
    */
@@ -197,13 +206,13 @@ const WamsShared = (function defineSharedWamsModule() {
       }
 
       stampNewId(obj) {
-        obj.id = this[gen].next().value;
-        makeOwnPropertyImmutable(obj, 'id');
+        defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
       }
 
       cloneId(obj, id) {
-        obj.id = id;
-        makeOwnPropertyImmutable(obj, 'id');
+        if (Number.isSafeInteger(id)) {
+          defineOwnImmutableEnumerableProperty(obj, 'id', id);
+        }
       }
     }
 
@@ -214,25 +223,23 @@ const WamsShared = (function defineSharedWamsModule() {
    * This factory can generate the basic classes that need to communicate
    *  property values between the client and server.
    */
-  function reporterClassFactory(_coreProperties) {
-    const defaults = {};
-    const stamper = new IDStamper();
-    _coreProperties.forEach( p => {
-      Object.defineProperty(defaults, p, {
-        value: null,
-        writable: false,
-        enumerable: true,
-        configurable: false
-      });
+  function reporterClassFactory(coreProperties) {
+    const locals = Object.freeze({
+      DEFAULTS: {},
+      STAMPER: new IDStamper(),
+    });
+
+    coreProperties.forEach( p => {
+      defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
     });
 
     class Reporter {
       constructor(data) {
-        return this.assign(initialize(defaults, data));
+        return this.assign(initialize(locals.DEFAULTS, data));
       }
 
       assign(data = {}) {
-        _coreProperties.forEach( p => {
+        coreProperties.forEach( p => {
           if (data.hasOwnProperty(p)) this[p] = data[p] 
         });
         return this;
@@ -240,8 +247,8 @@ const WamsShared = (function defineSharedWamsModule() {
 
       report() {
         const data = {};
-        _coreProperties.forEach( p => data[p] = this[p] );
-        if (this.hasOwnProperty('id')) stamper.cloneId(data, this.id);
+        coreProperties.forEach( p => data[p] = this[p] );
+        locals.STAMPER.cloneId(data, this.id);
         return data; 
       }
     }
@@ -260,8 +267,7 @@ const WamsShared = (function defineSharedWamsModule() {
     'height',
     'type',
     'imgsrc',
-    'drawCustom',
-    'drawStart',
+    'canvasSequence',
   ]);
 
   /*
@@ -320,6 +326,7 @@ const WamsShared = (function defineSharedWamsModule() {
     initialize,
     Item,
     makeOwnPropertyImmutable,
+    defineOwnImmutableEnumerableProperty,
     Message,
     MouseReporter,
     NOP,
