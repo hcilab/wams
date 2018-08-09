@@ -86,12 +86,12 @@ const ClientItem = (function defineClientItem() {
       super(data);
       if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
       else throw 'Items require IDs, but no ID found.';
-      this.img = locals.createImage(this.imgsrc);
-      // this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
     }
 
     assign(data) {
+      const updateImage = data.imgsrc !== this.imgsrc;
       super.assign(data);
+      if (updateImage) this.img = locals.createImage(this.imgsrc);
       this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
     }
 
