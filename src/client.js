@@ -35,7 +35,7 @@ const ShadowViewer = (function defineShadowViewer() {
   class ShadowViewer extends WamsShared.Viewer {
     constructor(values) {
       super(values);
-      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+      if (values.hasOwnProperty('id')) locals.STAMPER.cloneId(this, values.id);
       else throw 'Shadows require IDs, but no ID found.';
     }
 
@@ -83,8 +83,8 @@ const ClientItem = (function defineClientItem() {
   class ClientItem extends WamsShared.Item {
     constructor(data) {
       super(data);
-      if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
-      else throw 'Items require IDs, but not ID found.';
+      if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
+      else throw 'Items require IDs, but no ID found.';
       this.img = locals.createImage(this.imgsrc);
     }
 
@@ -246,7 +246,7 @@ const ClientViewer = (function defineClientViewer() {
       locals.REQUIRED_DATA.forEach( d => {
         if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
       });
-      locals.STAMPER.stamp(this, data.id);
+      locals.STAMPER.cloneId(this, data.id);
       data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
       this.context = data.context;
@@ -451,29 +451,13 @@ const ClientController = (function defineClientController() {
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
 
-    /*
-     * XXX: Let's have a close look at this. With no comments, I'm not 
-     *    sure why a Math.max(Math.min()) structure is necessary. We 
-     *    might be able to simplify this.
-     */
-    scroll(event) {
-      const delta = Math.max(
-        -1, 
-        Math.min( 1, (event.wheelDelta || -event.detail))
-      );
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.scale + delta * 0.09
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
-    }
-
     resizeCanvasToFillWindow() {
       this.canvas.width = window.innerWidth; 
       this.canvas.height = window.innerHeight;
     }
 
     setup(data) {
-      locals.STAMPER.stamp(this, data.id);
+      locals.STAMPER.cloneId(this, data.id);
       data.context = this.context;
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;

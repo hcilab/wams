@@ -153,32 +153,32 @@ const WamsShared = (function defineSharedWamsModule() {
   /*
    * I wrote this generator class to make ID generation more controlled.
    * The class has access to a private (local lexical scope) generator 
-   *  function and Symbol for generators, and exposes a stamp() method that 
-   *  stamps an immutable ID onto the given object. 
+   *  function and Symbol for generators, and exposes a pair of methods for
+   *  stamping new IDs onto objects and cloning previously existing IDs onto
+   *  objects.
    *
-   * stamp(object [,id]):
-   *  This method takes one or two arguments:
+   * stampNewId(object):
    *  object:   The object to stamp with an id.
-   *  id:     [optional]
-   *        If provided, will stamp the given ID onto the object.
-   *        If not provided, the stamper will generate an ID to use.
    *
-   *  WARNING:  IDs from a stamper are not guaranteed to be unique if it is
-   *        ever explicitly provided an ID with which to stamp an 
-   *        object.
+   *  All IDs produced by this method are guaranteed to be unique, on a
+   *  per-stamper basis. (Two uniquely constructed stampers can and will
+   *  generate identical IDs).
+   *
+   * cloneId(object, id):
+   *  object:   Will receive a cloned id.
+   *  id:       The id to clone onto the object.
    *
    * For example:
-   *  
    *    const stamper = new IDStamper();
    *    const obj = {};
-   *    stamper.stamp(obj);
-   *    console.log(obj.id); // an integer unique to IDs stamped by stamper
-   *    obj.id = 2;      // has no effect.
-   *    delete obj.id;     // false
+   *    stamper.stampNewId(obj);
+   *    console.log(obj.id);  // an integer unique to IDs stamped by stamper
+   *    obj.id = 2;           // has no effect.
+   *    delete obj.id;        // false
    *
    *    const danger = {};
-   *    stamper.stamp(danger, obj.id);  // Will work. 'danger' & 'obj' are
-   *                    // now both using the same ID.
+   *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+   *                                     // now both using the same ID.
    */
   const IDStamper = (function defineIDStamper() {
     function* id_gen() {
@@ -196,14 +196,14 @@ const WamsShared = (function defineSharedWamsModule() {
         this[gen] = id_gen();
       }
 
-      stamp(obj, id) {
-        Object.defineProperty(obj, 'id', {
-          value: id === undefined ? this[gen].next().value : id,
-          configurable: false,
-          enumerable: true,
-          writable: false
-        });
-        return obj.id;
+      stampNewId(obj) {
+        obj.id = this[gen].next().value;
+        makeOwnPropertyImmutable(obj, 'id');
+      }
+
+      cloneId(obj, id) {
+        obj.id = id;
+        makeOwnPropertyImmutable(obj, 'id');
       }
     }
 
@@ -241,7 +241,7 @@ const WamsShared = (function defineSharedWamsModule() {
       report() {
         const data = {};
         _coreProperties.forEach( p => data[p] = this[p] );
-        if (this.hasOwnProperty('id')) stamper.stamp(data, this.id);
+        if (this.hasOwnProperty('id')) stamper.cloneId(data, this.id);
         return data; 
       }
     }

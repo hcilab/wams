@@ -101,7 +101,7 @@ const ServerItem = (function defineServerItem() {
      */
     constructor(values = {}) {
       super(WamsShared.initialize(locals.DEFAULTS, values));
-      locals.STAMPER.stamp(this);
+      locals.STAMPER.stampNewId(this);
     }
 
     containsPoint(x,y) {
@@ -178,7 +178,7 @@ const ServerViewer = (function defineServerViewer() {
       this.bounds = values.bounds || locals.DEFAULTS.bounds;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      locals.STAMPER.stamp(this);
+      locals.STAMPER.stampNewId(this);
     }
 
     get bottom()  { return this.y + this.effectiveHeight; }
@@ -405,7 +405,7 @@ const WorkSpace = (function defineWorkSpace() {
     constructor(settings) {
       this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
       this.settings.bounds = locals.resolveBounds(this.settings.bounds);
-      locals.STAMPER.stamp(this);
+      locals.STAMPER.stampNewId(this);
 
       // Things to track.
       // this.subWS = [];
