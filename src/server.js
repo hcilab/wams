@@ -23,6 +23,7 @@
  */
 
 const WamsShared = require('./shared.js');
+const CanvasSequencer = require('canvas-sequencer').CanvasSequencer;
 
 /*
  * Shorthand for the shared set of constants between server and client.
@@ -697,6 +698,7 @@ const WamsServer = (function defineWamsServer() {
       const item = this[symbols.workspace].spawnItem(itemdata);
       new Message(Message.ADD_ITEM, item)
         .emitWith(this[symbols.io].of(globals.NS_WAMS));
+      return item;
     }
 
     update(object, data) {
@@ -743,6 +745,7 @@ exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;
 exports.RequestHandler = RequestHandler;
 exports.WamsServer = WamsServer;
+exports.CanvasSequencer = CanvasSequencer;
 
 exports.Item = ServerItem;
 
