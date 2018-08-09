@@ -191,12 +191,8 @@ const WamsShared = (function defineSharedWamsModule() {
    */
   const IDStamper = (function defineIDStamper() {
     function* id_gen() {
-      function willNotOverflow(x) {
-        return x + 1 > x;
-      }
-
       let next_id = 0;
-      while (willNotOverflow(next_id)) yield ++next_id;
+      while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
     }
     const gen = Symbol();
 
