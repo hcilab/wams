@@ -382,8 +382,8 @@ const ClientController = (function defineClientController() {
     tap({detail}) {
       const event = detail.events[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX / this.viewer.scale + this.viewer.x,
-        y: event.clientY / this.viewer.scale + this.viewer.y,
+        x: event.clientX,
+        y: event.clientY,
       });
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
@@ -392,14 +392,14 @@ const ClientController = (function defineClientController() {
       const event = detail.events[0];
       const data = detail.data[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX / this.viewer.scale + this.viewer.x,
-        y: event.clientY / this.viewer.scale + this.viewer.y,
-        dx: data.movement.x / this.viewer.scale ,
-        dy: data.movement.y / this.viewer.scale ,
+        x: event.clientX,
+        y: event.clientY,
+        dx: data.movement.x,
+        dy: data.movement.y,
       });
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
       this.prevX = event.clientX;
       this.prevY = event.clientY;
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
     pinchOrExpand({detail}) {

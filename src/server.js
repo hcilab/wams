@@ -18,18 +18,10 @@
 
 /*
  * FIXME: 
- *  + Disconnects aren't actually disconnecting!!!
- *  + Try to get the server to recognize a reconnection attempt.
- *    - Something fishy is going on when the client doesn't get to connect
- *      right away.
  *  + Switch to HTTPS, which is apparently more complicated than just adding 's'
  *    to the end of http.
  */
 
-/*
- * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
- *    might make some of this work a lot easier.
- */
 const WamsShared = require('./shared.js');
 
 /*
@@ -50,8 +42,7 @@ const ServerItem = (function defineServerItem() {
       height: 128,
       type: 'view/background',
       imgsrc: '',
-      drawCustom: '',
-      drawStart: '',
+      canvasSequence: null,
     }),
     STAMPER: new WamsShared.IDStamper(),
   });
@@ -100,7 +91,7 @@ const ServerItem = (function defineServerItem() {
      *        client.
      */
     constructor(values = {}) {
-      super(WamsShared.getInitialValueslocals.DEFAULTS, values));
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       locals.STAMPER.stampNewId(this);
     }
 
@@ -174,7 +165,7 @@ const ServerViewer = (function defineServerViewer() {
      *      be handled at a more general level.
      */
     constructor(values = {}) {
-      super(WamsShared.getInitialValueslocals.DEFAULTS, values));
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.bounds = values.bounds || locals.DEFAULTS.bounds;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
@@ -186,18 +177,11 @@ const ServerViewer = (function defineServerViewer() {
     get right()   { return this.x + this.effectiveWidth; }
     get top()     { return this.y; }
 
-    /*
-     * The center() getter returns an object that exposes x and y getters which
-     * will always return the _current_ (at the moment the getter is called)
-     * center of the viewer along that dimension.
-     */
-    get center()  {
-      return ((viewer) => {
-        return Object.freeze({
-          get x() { return viewer.x + (viewer.effectiveWidth  / 2); },
-          get y() { return viewer.y + (viewer.effectiveHeight / 2); },
-        });
-      })(this);
+    getCenter()  {
+      return Object.freeze({
+        x: this.x + (this.effectiveWidth  / 2),
+        y: this.y + (this.effectiveHeight / 2),
+      });
     }
 
     canBeScaledTo(width = this.width, height = this.height) {
@@ -224,43 +208,37 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
-    getMouseCoordinates(mx, my) {
+    refineMouseCoordinates(mx, my) {
       const base = {
         x: mx / this.scale + this.x,
         y: my / this.scale + this.y,
       };
-      const center = {
-        x: (this.effectiveWidth / 2) + this.x,
-        y: (this.effectiveHeight / 2) + this.y,
-      };
-      const coords = { x: -1, y: -1 };
+      const center = this.getCenter();
 
       /*
        * XXX: Still need to figure out the "why" of this math. Once I've 
        *    done that, I will write up a comment explaining it.
-       *
-       *    Also, I think I'll refactor this into functional style.
        */
-      switch (this.rotation) {
-        case(globals.ROTATE_0): 
-          coords.x = base.x;
-          coords.y = base.y;
-          break;
-        case(globals.ROTATE_90): 
-          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
-          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
-          break;
-        case(globals.ROTATE_180):
-          coords.x = center.x - center.y + base.y;
-          coords.y = center.y + center.x - base.x;
-          break;
-        case(globals.ROTATE_270): 
-          coords.x = center.x + center.y - base.y;
-          coords.y = center.y - center.x + base.x;
-          break;
-      }
+      const adjustMouseForRotation = {
+        [globals.ROTATE_0]:   (base, center) => { return base; },
+        [globals.ROTATE_90]:  (base, center) => { return {
+          x: (2 * this.x) + this.effectiveWidth - base.x,
+          y: (2 * this.y) + this.effectiveHeight - base.y,
+        }},
+        [globals.ROTATE_180]: (base, center) => { return {
+          x: center.x - center.y + base.y,
+          y: center.y + center.x - base.x,
+        }},
+        [globals.ROTATE_270]: (base, center) => { return {
+          x: center.x + center.y - base.y,
+          y: center.y - center.x + base.x,
+        }},
+      };
 
-      return coords;
+      if (typeof adjustMouseForRotation[this.rotation] === 'function') {
+        return adjustMouseForRotation[this.rotation].call(this, base, center);
+      }
+      return null;
     }
 
     /*
@@ -325,22 +303,25 @@ const ListenerFactory = (function defineListenerFactory() {
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewer, {x, y}) {
-          const target = workspace.findItemByCoordinates(x,y) || viewer;
-          listener(viewer, target, x, y);
+          const mouse = viewer.refineMouseCoordinates(x, y);
+          if (mouse) {
+            const {x, y} = mouse;
+            const target = workspace.findItemByCoordinates(x, y) || viewer;
+            listener(viewer, target, x, y);
+          }
         };
       },
 
       drag(listener, workspace) {
         return function handleDrag(viewer, {x, y, dx, dy}) {
-          /*
-           * XXX: This is causing jitter. Will have to look in the 
-           *    debugger, perhaps multiple events are firing on drags.
-           *
-           *    The source of the jitter seems to be when the 
-           *    background is dragged.
-           */
-          const target = workspace.findItemByCoordinates(x,y) || viewer;
-          listener(viewer, target, x, y, dx, dy);
+          const mouse = viewer.refineMouseCoordinates(x, y);
+          if (mouse) {
+            const {x, y} = mouse;
+            dx /= viewer.scale;
+            dy /= viewer.scale;
+            const target = workspace.findItemByCoordinates(x,y) || viewer;
+            listener(viewer, target, x, y, dx, dy);
+          }
         };
       },
 
