@@ -100,7 +100,7 @@ const ServerItem = (function defineServerItem() {
      *        client.
      */
     constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+      super(WamsShared.getInitialValueslocals.DEFAULTS, values));
       locals.STAMPER.stampNewId(this);
     }
 
@@ -174,7 +174,7 @@ const ServerViewer = (function defineServerViewer() {
      *      be handled at a more general level.
      */
     constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+      super(WamsShared.getInitialValueslocals.DEFAULTS, values));
       this.bounds = values.bounds || locals.DEFAULTS.bounds;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
@@ -403,7 +403,7 @@ const WorkSpace = (function defineWorkSpace() {
 
   class WorkSpace {
     constructor(settings) {
-      this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
+      this.settings = WamsShared.getInitialValues(locals.DEFAULTS, settings);
       this.settings.bounds = locals.resolveBounds(this.settings.bounds);
       locals.STAMPER.stampNewId(this);
 

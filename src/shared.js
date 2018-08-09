@@ -89,7 +89,7 @@ const WamsShared = (function defineSharedWamsModule() {
    * Returns a new object, with all the own properties of 'defaults' having
    *  values from 'data', if found, otherwise with values from 'defaults'.
    */
-  function initialize(defaults = {}, data = {}) {
+  function getInitialValues(defaults = {}, data = {}) {
     const rv = {};
     Object.keys(defaults).forEach( k => {
       rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
@@ -235,7 +235,7 @@ const WamsShared = (function defineSharedWamsModule() {
 
     class Reporter {
       constructor(data) {
-        return this.assign(initialize(locals.DEFAULTS, data));
+        return this.assign(getInitialValues(locals.DEFAULTS, data));
       }
 
       assign(data = {}) {
@@ -323,7 +323,7 @@ const WamsShared = (function defineSharedWamsModule() {
     constants,
     FullStateReporter,
     IDStamper,
-    initialize,
+    getInitialValues,
     Item,
     makeOwnPropertyImmutable,
     defineOwnImmutableEnumerableProperty,

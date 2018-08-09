@@ -11,7 +11,7 @@
 /*
  * Routines to test:
  *   + makeOwnPropertyImmutable,
- *   + initialize,
+ *   + getInitialValues,
  *   + IDStamper,
  *   + Viewer,
  *   + Item,
@@ -35,25 +35,25 @@ expect.extend({
   },
 });
 
-describe('initialize', () => {
+describe('getInitialValues', () => {
   test('does not throw exceptions on empty objects', () => {
-    expect(WamsShared.initialize()).toEqual({});
+    expect(WamsShared.getInitialValues()).toEqual({});
   });
 
   test('returns empty if defaults is empty, regardless of data', () => {
-    expect(WamsShared.initialize({},{})).toEqual({});
-    expect(WamsShared.initialize({})).toEqual({});
-    expect(WamsShared.initialize({},{a:1})).toEqual({});
-    expect(WamsShared.initialize({},1)).toEqual({});
+    expect(WamsShared.getInitialValues({},{})).toEqual({});
+    expect(WamsShared.getInitialValues({})).toEqual({});
+    expect(WamsShared.getInitialValues({},{a:1})).toEqual({});
+    expect(WamsShared.getInitialValues({},1)).toEqual({});
   });
 
   test('Uses defaults if data is empty.', () => {
-    expect(WamsShared.initialize({a:1})).toEqual({a:1});
-    expect(WamsShared.initialize({a:1},{})).toEqual({a:1});
+    expect(WamsShared.getInitialValues({a:1})).toEqual({a:1});
+    expect(WamsShared.getInitialValues({a:1},{})).toEqual({a:1});
   });
 
   test('Overrides default property if data has property with same name', () => {
-    expect(WamsShared.initialize({a:1}, {a:2})).toEqual({a:2});
+    expect(WamsShared.getInitialValues({a:1}, {a:2})).toEqual({a:2});
   });
 });
 

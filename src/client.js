@@ -148,7 +148,7 @@ const ClientViewer = (function defineClientViewer() {
 
   class ClientViewer extends WamsShared.Viewer {
     constructor(values) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
