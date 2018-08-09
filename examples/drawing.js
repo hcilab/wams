@@ -8,38 +8,44 @@
 const WAMS = require('../src/server');
 const ws = new WAMS.WamsServer();
 
-ws.spawnItem({
-  x: 32, y: 32,
-  width: 128, height: 128,
-  type: 'color',
-  imgsrc: 'img/red.png',
-});
+const items = new Map();
+
+function rectSeq(x, y, width, height, colour) {
+  const seq = new WAMS.CanvasSequencer();
+  seq.fillStyle = colour;
+  seq.fillRect(x, y, width, height);
+  return seq;
+}
 
 // Executed every time a user taps or clicks a screen
 const handleClick = (function makeClickHandler(ws) {
-  const sources = [
-    'img/blue.png',
-    'img/red.png',
-    'img/green.png',
-    'img/pink.png',
-    'img/cyan.png',
-    'img/yellow.png',
+  const colours = [
+    'blue',
+    'red',
+    'green',
+    'pink',
+    'cyan',
+    'yellow',
   ];
 
-  function square(x, y, index) {
-    return {
-      x: x - 64, y: y - 64, 
-      width: 128, height: 128, 
-      type: 'color', 
-      imgsrc: sources[index]
-    };
+  function square(ix, iy, index) {
+    const x = ix - 64;
+    const y = iy - 64;
+    const width = 128;
+    const height = 128;
+    const type = 'colour';
+    const canvasSequence = rectSeq(x, y, width, height, colours[index]);
+    return {x, y, width, height, type, canvasSequence};
   }
 
   function handleClick(viewer, target, x, y) {
-    if (target.type === 'color') {
+    if (target.type === 'colour') {
       ws.removeItem(target);
+      items.delete(target.id);
     } else {
-      ws.spawnItem(square(x, y, viewer.id % 6));
+      const item = square(x, y, viewer.id % 6);
+      const spawned = ws.spawnItem(item);
+      items.set(spawned.id, colours[viewer.id % 6]);
     }
   }
 
@@ -48,8 +54,16 @@ const handleClick = (function makeClickHandler(ws) {
 
 // Executed every time a drag occurs on a device
 function handleDrag(viewer, target, x, y, dx, dy) {
-  if (target.type === 'color') {
+  if (target.type === 'colour') {
     target.moveBy(dx, dy);
+    const canvasSequence = rectSeq(
+      target.x,
+      target.y,
+      target.width,
+      target.height,
+      items.get(target.id)
+    );
+    target.assign({canvasSequence});
   } else if (target.type === 'view/background') {
     target.moveBy(-dx, -dy);
   }
