@@ -557,11 +557,10 @@ const RequestHandler = (function defineRequestHandler() {
      *    - The order in which these functions are registered with
      *      this.app.use() is important! The callbacks will be triggered
      *      in this order!
-     *    - When this.app.use() is called without a 'path' argument, as it 
-     *      is here, it uses the default '/' argument, with the 
-     *      result that these callbacks will be executed for 
-     *      _every_ request to the app!
-     *      + Should therefore consider specifying the path!!
+     *    - When app.use() is called without a 'path' argument it uses the
+     *      default '/' argument, with the result that these callbacks will be
+     *      executed for _every_ request to the app! This is why we specify the
+     *      path!!
      *    - Should also consider specifying options. Possibly useful:
      *      + immutable
      *      + maxAge
@@ -618,37 +617,43 @@ const WamsServer = (function defineWamsServer() {
   });
 
   const symbols = Object.freeze({
-    connect: Symbol(),
-    disconnect: Symbol(),
+    clientlimit: Symbol('clientLimit'),
+    connect: Symbol('connect'),
+    disconnect: Symbol('disconnect'),
+    io: Symbol('io'),
+    server: Symbol('server'),
+    workspace: Symbol('workspace'),
   });
 
   class WamsServer {
     constructor(settings = {}) {
-      this.clientLimit = settings.clientLimit || locals.DEFAULTS.clientLimit;
-      this.workspace = new WorkSpace(settings);
-      this.server = http.createServer(new RequestHandler());
-      this.io = IO(this.server);
-      this.io.of(globals.NS_WAMS)
+      this[symbols.clientLimit] = settings.clientLimit || 
+        locals.DEFAULTS.clientLimit;
+      this[symbols.workspace] = new WorkSpace(settings);
+      this[symbols.server] = http.createServer(new RequestHandler());
+      this[symbols.io] = IO(this[symbols.server]);
+      this[symbols.io].of(globals.NS_WAMS)
         .on('connect', this[symbols.connect].bind(this));
 
       /*
-       * XXX: Not necessary to actually track connections like this, doing it
+       * FIXME: Not necessary to actually track connections like this, doing it
        *      for debugging assistance, for now.
+       * XXX: Actuallly, I am using them right now, in updateViewer().
        */
       this.connections = [];
     }
 
     [symbols.connect](socket) {
-      this.io.of(globals.NS_WAMS).clients((error, clients) => {
+      this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
         if (error) throw error;
-        if (clients.length < this.clientLimit) {
-          const c = new Connection(socket, this.workspace);
+        if (clients.length < this[symbols.clientLimit]) {
+          const c = new Connection(socket, this[symbols.workspace]);
           this.connections.push(c);
           socket.on('disconnect', () => this[symbols.disconnect](c) );
 
           console.log(
             `Viewer ${c.viewer.id} connected to workspace listening on port`,
-            this.server.address().port
+            this[symbols.server].address().port
           );
         } else {
           socket.disconnect(true);
@@ -661,7 +666,7 @@ const WamsServer = (function defineWamsServer() {
       if (cn.disconnect()) {
         this.connections.splice(this.connections.indexOf(cn), 1);
         new Message(Message.RM_SHADOW, cn.viewer)
-          .emitWith(this.io.of(globals.NS_WAMS));
+          .emitWith(this[symbols.io].of(globals.NS_WAMS));
       } else {
         console.error('Failed to disconnect:', this);
       }
@@ -672,26 +677,26 @@ const WamsServer = (function defineWamsServer() {
      * control over server establishment.
      */
     listen(port = locals.PORT, host = locals.getLocalIP()) {
-      this.server.listen(port, host, () => {
-        console.log('Listening on', this.server.address());
+      this[symbols.server].listen(port, host, () => {
+        console.log('Listening on', this[symbols.server].address());
       });
     }
 
     on(event, handler) {
-      this.workspace.on(event, handler);
+      this[symbols.workspace].on(event, handler);
     }
 
     removeItem(item) {
-      if (this.workspace.removeItem(item)) {
+      if (this[symbols.workspace].removeItem(item)) {
         new Message(Message.RM_ITEM, item)
-          .emitWith(this.io.of(globals.NS_WAMS));
+          .emitWith(this[symbols.io].of(globals.NS_WAMS));
       }
     }
 
     spawnItem(itemdata) {
-      const item = this.workspace.spawnItem(itemdata);
+      const item = this[symbols.workspace].spawnItem(itemdata);
       new Message(Message.ADD_ITEM, item)
-        .emitWith(this.io.of(globals.NS_WAMS));
+        .emitWith(this[symbols.io].of(globals.NS_WAMS));
     }
 
     update(object, data) {
@@ -709,7 +714,7 @@ const WamsServer = (function defineWamsServer() {
     updateItem(item, data) {
       item.assign(data);
       new Message(Message.UD_ITEM, item)
-        .emitWith(this.io.of(globals.NS_WAMS));
+        .emitWith(this[symbols.io].of(globals.NS_WAMS));
     }
 
     updateViewer(viewer, data) {
