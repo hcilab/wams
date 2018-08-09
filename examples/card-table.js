@@ -13,28 +13,29 @@ const ws = new WAMS.WamsServer({
 });
 
 ws.spawnItem({
-  x: 200, 
-  y: 282, 
+  x: 100, 
+  y: 200, 
   type: 'joker',
   imgsrc: 'img/joker.png',
 });
 
 const seq = new WAMS.CanvasSequencer();
 seq.beginPath();
-seq.arc( 250, 350, 100, 2 * Math.PI, false);
+seq.arc( 400, 250, 150, Math.PI, false);
+seq.lineTo( 250, 250 );
 seq.fillStyle = 'white';
 seq.fill();
 seq.lineWidth = 5;
 seq.strokeStyle = '#003300';
 seq.stroke();
-seq.font = 'normal 36px Verdana';
+seq.font = 'normal 36px Times,serif';
 seq.fillStyle = '#000000';
-seq.fillText( 'HTML5 Canvas Text', 350, 350 );
+seq.fillText( 'Click the joker!', 275, 225 );
 
 ws.spawnItem({
-  x: 450,
-  y: 450,
-  width: 500, 
+  x: 250,
+  y: 250,
+  width: 100, 
   height: 100,
   type: 'text',
   canvasSequence: seq,
@@ -49,9 +50,8 @@ const handleLayout = (function makeLayoutHandler() {
   const RIGHT   = 4;
 
   function layoutTable(viewer) {
-    viewer.moveTo( 2500, 2500 );
+    viewer.moveTo( 250, 250 );
     table = viewer;
-    ws.update(viewer);
   };
 
   function layoutBottom(viewer) {
@@ -92,7 +92,7 @@ const handleLayout = (function makeLayoutHandler() {
 
 const handleDrag = (function makeDragHandler() {
   function isItem(tgt) {
-    return tgt.type === 'joker' || tgt.type === 'text';
+    return tgt.type === 'joker';
   }
 
   function handleDrag(viewer, target, x, y, dx, dy) {
@@ -115,11 +115,12 @@ const handleScale = function(viewer, newScale) {
 const handleClick = (function makeClickHandler() {
   let faceUp = true;
 
-  function handleClick(target, viewer, x, y) {
+  function handleClick(viewer, target, x, y) {
     if (target.type === 'joker') {
-      const imgsrc = faceUp ? 'card-back.png' : 'joker.png';
+      const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
       target.assign({imgsrc});
       faceUp = !faceUp;
+      ws.update(target);
     }
   }
 
