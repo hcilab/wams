@@ -17,6 +17,7 @@
 // const WamsShared = require('../src/shared.js');
 // const ZingTouch = require('../libs/zingtouch.js');
 // const cseq = require('../libs/canvas_sequencer.js');
+// const CanvasSequencer = cseq.CanvasSequencer;
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -86,6 +87,12 @@ const ClientItem = (function defineClientItem() {
       if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
       else throw 'Items require IDs, but no ID found.';
       this.img = locals.createImage(this.imgsrc);
+      // this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
+    }
+
+    assign(data) {
+      super.assign(data);
+      this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
     }
 
     draw(context) {
@@ -96,26 +103,11 @@ const ClientItem = (function defineClientItem() {
         if (this.img.loaded) {
           context.drawImage(this.img, this.x, this.y, width, height);
         } else {
-          context.fileStyle = '#252525';
+          context.fillStyle = '#252525';
           context.fillRect(this.x, this.y, width, height);
         }
       } else {
-        /*
-         * XXX: Yikes!!! eval()? And we want this to be a usable 
-         *    API? For people to work together over networks? 
-         *    Pardon my French, but how the f*** are we going to 
-         *    make sure that no one is injecting malicious code 
-         *    here? 
-         *
-         *    Where is draw defined, and how does it end up here?
-         *
-         *    There must be a better way...
-         *
-         *    + Answer: I believe there is! Check out the canvas
-         *      sequencer library I'm working on!
-         */
-        // eval(`${this.drawCustom};`);
-        // eval(`${this.drawStart};`);
+        this.canvasSequence.execute(context);
       }
     }
   }
@@ -448,6 +440,7 @@ const ClientController = (function defineClientController() {
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
+      this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
 
