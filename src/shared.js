@@ -263,7 +263,7 @@ const WamsShared = (function defineSharedWamsModule() {
     'height',
     'type',
     'imgsrc',
-    'canvasSequence',
+    'blueprint',
   ]);
 
   /*

@@ -19,7 +19,7 @@ ws.spawnItem({
   imgsrc: 'img/joker.png',
 });
 
-const seq = new WAMS.CanvasSequencer();
+const seq = new WAMS.Sequence();
 seq.beginPath();
 seq.arc( 400, 250, 150, Math.PI, false);
 seq.lineTo( 250, 250 );
@@ -38,7 +38,7 @@ ws.spawnItem({
   width: 100, 
   height: 100,
   type: 'text',
-  canvasSequence: seq,
+  blueprint: seq,
 });
 
 const handleLayout = (function makeLayoutHandler() {
