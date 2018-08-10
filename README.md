@@ -42,8 +42,22 @@ width|128|The width of the item.
 height|128|The height of the item.
 type|'view/background'|For use by end-user for distinguishing items.
 imgsrc|''|Define the image source of the item.
+blueprint|null|The Sequence blueprint for custom canvas rendering.
 
-Items with no `imgsrc` defined will currently be present in the system, but not drawn.
+Note that while you can assign both and imgsrc and a blueprint to an item, if an
+imgsrc is defined for the item, the blueprint will be ignored when the item is
+drawn.
+
+Blueprints are special objects capable of storing, packing, unpacking, and
+executing sequences of canvas instructions. WAMS uses blueprints instead of
+plain sequences for the end user API so that, if you wish, you can use special
+tags instead of normal arguments in the sequence, allowing WAMS to update the
+values in the item automatically. Note that only values that are in the above
+properties table will be updated automatically, and that you must use the same
+name as in the above table.
+
+For more information about Blueprints and Sequences, see 
+[canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer).
 
 ### <a id="server_update"></a>update(object, data) [\[server api\]](#server_api)
 Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a viewer.
