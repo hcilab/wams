@@ -18,7 +18,7 @@
 - [ ] Improve the end-user API by making it so that users do not have to
       manually inform the wams app of any updates that have been made to the
       items or viewers.
-- [ ] Implement a BlueprintCanvasSequence class that uses string tags in the
+- [X] Implement a BlueprintCanvasSequence class that uses string tags in the
       arguments of its atoms. It should have a `build()` method which, when
       called with a `values` or likewise named object, will generate an
       up-to-date sequence with the tags replaced with the values from the
