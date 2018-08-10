@@ -23,9 +23,28 @@
       called with a `values` or likewise named object, will generate an
       up-to-date sequence with the tags replaced with the values from the
       passed-in object.
-- [ ] Use this blueprint sequence class
+- [ ] Use this blueprint sequence class for items:
+  + [ ] Expose it on the WamsServer class as `Sequence`.
+  + [ ] Set updates that affect x, y, width, or height values of items to build
+        a new version of the sequence that will be used for actual rendering.
 - [ ] Figure out a way of testing the client-side code without having to adjust
       the code before and after by commenting out the `require()` statements.
 - [ ] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
       redundant.
+- [ ] Fix the client `draw()` sequence.
+- [ ] Fix bugs that occur when users join approximately simultaneously.
+  + [ ] Examine possibility of using mutexes around updates. What kind of API
+        for this sort of purpose does node.js provide?
+- [ ] Clean up how the canvas context gets passed around between view and
+      controller on the client side. Basically examine and revise `setup()` and
+      `layout()`
+- [ ] Extract an `Interactions` class from the client controller. ZingTouch is 
+      working quite well, but it looks like it might not be the most well
+      maintained of libraries. By abstracting the interactions out like this, it
+      should become easier to swap out ZingTouch with another library, should
+      this prove necessary. It may even make it easier to implement new forms of
+      interactions, which would be a bonus!
+- [ ] In the same vein, maybe look at doing the same for socket connections and
+      request handlers.
+- [ ] Generally clean up the interactions.
 
