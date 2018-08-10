@@ -337,7 +337,7 @@ describe('Item', () => {
     'height',
     'type',
     'imgsrc',
-    'canvasSequence',
+    'blueprint',
   ];
 
   describe('constructor(data)', () => {

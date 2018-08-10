@@ -17,7 +17,10 @@
 // const WamsShared = require('../src/shared.js');
 // const ZingTouch = require('../libs/zingtouch.js');
 // const cseq = require('../libs/canvas_sequencer.js');
-// const CanvasSequencer = cseq.CanvasSequencer;
+// const Blueprint = cseq.Blueprint;
+
+// Rename Blueprint for clarity.
+const SequenceBlueprint = Blueprint;
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -92,7 +95,8 @@ const ClientItem = (function defineClientItem() {
       const updateImage = data.imgsrc !== this.imgsrc;
       super.assign(data);
       if (updateImage) this.img = locals.createImage(this.imgsrc);
-      this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
+      this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+      this.sequence = this.blueprint.build(this.report());
     }
 
     draw(context) {
@@ -107,7 +111,7 @@ const ClientItem = (function defineClientItem() {
           context.fillRect(this.x, this.y, width, height);
         }
       } else {
-        this.canvasSequence.execute(context);
+        this.sequence.execute(context);
       }
     }
   }

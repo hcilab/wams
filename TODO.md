@@ -23,9 +23,9 @@
       called with a `values` or likewise named object, will generate an
       up-to-date sequence with the tags replaced with the values from the
       passed-in object.
-- [ ] Use this blueprint sequence class for items:
-  + [ ] Expose it on the WamsServer class as `Sequence`.
-  + [ ] Set updates that affect x, y, width, or height values of items to build
+- [X] Use this blueprint sequence class for items:
+  + [X] Expose it on the WamsServer class as `Sequence`.
+  + [X] Set updates that affect x, y, width, or height values of items to build
         a new version of the sequence that will be used for actual rendering.
 - [ ] Figure out a way of testing the client-side code without having to adjust
       the code before and after by commenting out the `require()` statements.

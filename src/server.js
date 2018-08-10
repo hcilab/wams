@@ -23,7 +23,7 @@
  */
 
 const WamsShared = require('./shared.js');
-const CanvasSequencer = require('canvas-sequencer').CanvasSequencer;
+const Blueprint = require('canvas-sequencer').Blueprint;
 
 /*
  * Shorthand for the shared set of constants between server and client.
@@ -43,7 +43,7 @@ const ServerItem = (function defineServerItem() {
       height: 128,
       type: 'view/background',
       imgsrc: '',
-      canvasSequence: null,
+      blueprint: '',
     }),
     STAMPER: new WamsShared.IDStamper(),
   });
@@ -745,7 +745,7 @@ exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;
 exports.RequestHandler = RequestHandler;
 exports.WamsServer = WamsServer;
-exports.CanvasSequencer = CanvasSequencer;
+exports.Sequence = Blueprint;
 
 exports.Item = ServerItem;
 
