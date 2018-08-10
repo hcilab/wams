@@ -43,7 +43,7 @@ const ServerItem = (function defineServerItem() {
       height: 128,
       type: 'view/background',
       imgsrc: '',
-      blueprint: '',
+      blueprint: null,
     }),
     STAMPER: new WamsShared.IDStamper(),
   });

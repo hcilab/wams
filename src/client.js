@@ -96,7 +96,9 @@ const ClientItem = (function defineClientItem() {
       super.assign(data);
       if (updateImage) this.img = locals.createImage(this.imgsrc);
       this.blueprint = SequenceBlueprint.fromString(this.blueprint);
-      this.sequence = this.blueprint.build(this.report());
+      if (this.blueprint) {
+        this.sequence = this.blueprint.build(this.report());
+      }
     }
 
     draw(context) {
@@ -110,7 +112,7 @@ const ClientItem = (function defineClientItem() {
           context.fillStyle = '#252525';
           context.fillRect(this.x, this.y, width, height);
         }
-      } else {
+      } else if (this.sequence) {
         this.sequence.execute(context);
       }
     }
