@@ -89,7 +89,7 @@ const WamsShared = (function defineSharedWamsModule() {
    * Returns a new object, with all the own properties of 'defaults' having
    *  values from 'data', if found, otherwise with values from 'defaults'.
    */
-  function initialize(defaults = {}, data = {}) {
+  function getInitialValues(defaults = {}, data = {}) {
     const rv = {};
     Object.keys(defaults).forEach( k => {
       rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
@@ -129,6 +129,15 @@ const WamsShared = (function defineSharedWamsModule() {
     return obj;
   }
 
+  function defineOwnImmutableEnumerableProperty(obj, prop, val) {
+    Object.defineProperty(obj, prop, {
+      value: val,
+      configurable: false,
+      enumerable: true,
+      writable: false
+    });
+  }
+
   /*
    * Removes the given item from the given array, according to its ID.
    */
@@ -153,41 +162,37 @@ const WamsShared = (function defineSharedWamsModule() {
   /*
    * I wrote this generator class to make ID generation more controlled.
    * The class has access to a private (local lexical scope) generator 
-   *  function and Symbol for generators, and exposes a stamp() method that 
-   *  stamps an immutable ID onto the given object. 
+   *  function and Symbol for generators, and exposes a pair of methods for
+   *  stamping new IDs onto objects and cloning previously existing IDs onto
+   *  objects.
    *
-   * stamp(object [,id]):
-   *  This method takes one or two arguments:
+   * stampNewId(object):
    *  object:   The object to stamp with an id.
-   *  id:     [optional]
-   *        If provided, will stamp the given ID onto the object.
-   *        If not provided, the stamper will generate an ID to use.
    *
-   *  WARNING:  IDs from a stamper are not guaranteed to be unique if it is
-   *        ever explicitly provided an ID with which to stamp an 
-   *        object.
+   *  All IDs produced by this method are guaranteed to be unique, on a
+   *  per-stamper basis. (Two uniquely constructed stampers can and will
+   *  generate identical IDs).
+   *
+   * cloneId(object, id):
+   *  object:   Will receive a cloned id.
+   *  id:       The id to clone onto the object.
    *
    * For example:
-   *  
    *    const stamper = new IDStamper();
    *    const obj = {};
-   *    stamper.stamp(obj);
-   *    console.log(obj.id); // an integer unique to IDs stamped by stamper
-   *    obj.id = 2;      // has no effect.
-   *    delete obj.id;     // false
+   *    stamper.stampNewId(obj);
+   *    console.log(obj.id);  // an integer unique to IDs stamped by stamper
+   *    obj.id = 2;           // has no effect.
+   *    delete obj.id;        // false
    *
    *    const danger = {};
-   *    stamper.stamp(danger, obj.id);  // Will work. 'danger' & 'obj' are
-   *                    // now both using the same ID.
+   *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+   *                                     // now both using the same ID.
    */
   const IDStamper = (function defineIDStamper() {
     function* id_gen() {
-      function willNotOverflow(x) {
-        return x + 1 > x;
-      }
-
       let next_id = 0;
-      while (willNotOverflow(next_id)) yield ++next_id;
+      while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
     }
     const gen = Symbol();
 
@@ -196,14 +201,14 @@ const WamsShared = (function defineSharedWamsModule() {
         this[gen] = id_gen();
       }
 
-      stamp(obj, id) {
-        Object.defineProperty(obj, 'id', {
-          value: id === undefined ? this[gen].next().value : id,
-          configurable: false,
-          enumerable: true,
-          writable: false
-        });
-        return obj.id;
+      stampNewId(obj) {
+        defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
+      }
+
+      cloneId(obj, id) {
+        if (Number.isSafeInteger(id)) {
+          defineOwnImmutableEnumerableProperty(obj, 'id', id);
+        }
       }
     }
 
@@ -214,25 +219,23 @@ const WamsShared = (function defineSharedWamsModule() {
    * This factory can generate the basic classes that need to communicate
    *  property values between the client and server.
    */
-  function reporterClassFactory(_coreProperties) {
-    const defaults = {};
-    const stamper = new IDStamper();
-    _coreProperties.forEach( p => {
-      Object.defineProperty(defaults, p, {
-        value: null,
-        writable: false,
-        enumerable: true,
-        configurable: false
-      });
+  function reporterClassFactory(coreProperties) {
+    const locals = Object.freeze({
+      DEFAULTS: {},
+      STAMPER: new IDStamper(),
+    });
+
+    coreProperties.forEach( p => {
+      defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
     });
 
     class Reporter {
       constructor(data) {
-        return this.assign(initialize(defaults, data));
+        return this.assign(getInitialValues(locals.DEFAULTS, data));
       }
 
       assign(data = {}) {
-        _coreProperties.forEach( p => {
+        coreProperties.forEach( p => {
           if (data.hasOwnProperty(p)) this[p] = data[p] 
         });
         return this;
@@ -240,8 +243,8 @@ const WamsShared = (function defineSharedWamsModule() {
 
       report() {
         const data = {};
-        _coreProperties.forEach( p => data[p] = this[p] );
-        if (this.hasOwnProperty('id')) stamper.stamp(data, this.id);
+        coreProperties.forEach( p => data[p] = this[p] );
+        locals.STAMPER.cloneId(data, this.id);
         return data; 
       }
     }
@@ -260,8 +263,7 @@ const WamsShared = (function defineSharedWamsModule() {
     'height',
     'type',
     'imgsrc',
-    'drawCustom',
-    'drawStart',
+    'canvasSequence',
   ]);
 
   /*
@@ -317,9 +319,10 @@ const WamsShared = (function defineSharedWamsModule() {
     constants,
     FullStateReporter,
     IDStamper,
-    initialize,
+    getInitialValues,
     Item,
     makeOwnPropertyImmutable,
+    defineOwnImmutableEnumerableProperty,
     Message,
     MouseReporter,
     NOP,

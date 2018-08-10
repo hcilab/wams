@@ -370,7 +370,7 @@ describe('ClientController', () => {
   describe('dragstart(event)', () => {
   });
 
-  describe('getMouseCoordinates(event)', () => {
+  describe('refineMouseCoordinates(event)', () => {
   });
 
   describe('resize()', () => {

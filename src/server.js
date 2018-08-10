@@ -18,19 +18,12 @@
 
 /*
  * FIXME: 
- *  + Disconnects aren't actually disconnecting!!!
- *  + Try to get the server to recognize a reconnection attempt.
- *    - Something fishy is going on when the client doesn't get to connect
- *      right away.
  *  + Switch to HTTPS, which is apparently more complicated than just adding 's'
  *    to the end of http.
  */
 
-/*
- * XXX: Look into socket.io 'rooms', as they look like the kind of thing that
- *    might make some of this work a lot easier.
- */
 const WamsShared = require('./shared.js');
+const CanvasSequencer = require('canvas-sequencer').CanvasSequencer;
 
 /*
  * Shorthand for the shared set of constants between server and client.
@@ -50,8 +43,7 @@ const ServerItem = (function defineServerItem() {
       height: 128,
       type: 'view/background',
       imgsrc: '',
-      drawCustom: '',
-      drawStart: '',
+      canvasSequence: null,
     }),
     STAMPER: new WamsShared.IDStamper(),
   });
@@ -100,8 +92,8 @@ const ServerItem = (function defineServerItem() {
      *        client.
      */
     constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
-      locals.STAMPER.stamp(this);
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
+      locals.STAMPER.stampNewId(this);
     }
 
     containsPoint(x,y) {
@@ -174,11 +166,11 @@ const ServerViewer = (function defineServerViewer() {
      *      be handled at a more general level.
      */
     constructor(values = {}) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.bounds = values.bounds || locals.DEFAULTS.bounds;
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
-      locals.STAMPER.stamp(this);
+      locals.STAMPER.stampNewId(this);
     }
 
     get bottom()  { return this.y + this.effectiveHeight; }
@@ -186,18 +178,11 @@ const ServerViewer = (function defineServerViewer() {
     get right()   { return this.x + this.effectiveWidth; }
     get top()     { return this.y; }
 
-    /*
-     * The center() getter returns an object that exposes x and y getters which
-     * will always return the _current_ (at the moment the getter is called)
-     * center of the viewer along that dimension.
-     */
-    get center()  {
-      return ((viewer) => {
-        return Object.freeze({
-          get x() { return viewer.x + (viewer.effectiveWidth  / 2); },
-          get y() { return viewer.y + (viewer.effectiveHeight / 2); },
-        });
-      })(this);
+    getCenter()  {
+      return Object.freeze({
+        x: this.x + (this.effectiveWidth  / 2),
+        y: this.y + (this.effectiveHeight / 2),
+      });
     }
 
     canBeScaledTo(width = this.width, height = this.height) {
@@ -224,43 +209,37 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
-    getMouseCoordinates(mx, my) {
+    refineMouseCoordinates(mx, my) {
       const base = {
         x: mx / this.scale + this.x,
         y: my / this.scale + this.y,
       };
-      const center = {
-        x: (this.effectiveWidth / 2) + this.x,
-        y: (this.effectiveHeight / 2) + this.y,
-      };
-      const coords = { x: -1, y: -1 };
+      const center = this.getCenter();
 
       /*
        * XXX: Still need to figure out the "why" of this math. Once I've 
        *    done that, I will write up a comment explaining it.
-       *
-       *    Also, I think I'll refactor this into functional style.
        */
-      switch (this.rotation) {
-        case(globals.ROTATE_0): 
-          coords.x = base.x;
-          coords.y = base.y;
-          break;
-        case(globals.ROTATE_90): 
-          coords.x = (2 * this.x) + this.effectiveWidth - base.x;
-          coords.y = (2 * this.y) + this.effectiveHeight - base.y;
-          break;
-        case(globals.ROTATE_180):
-          coords.x = center.x - center.y + base.y;
-          coords.y = center.y + center.x - base.x;
-          break;
-        case(globals.ROTATE_270): 
-          coords.x = center.x + center.y - base.y;
-          coords.y = center.y - center.x + base.x;
-          break;
-      }
+      const adjustMouseForRotation = {
+        [globals.ROTATE_0]:   (base, center) => { return base; },
+        [globals.ROTATE_90]:  (base, center) => { return {
+          x: (2 * this.x) + this.effectiveWidth - base.x,
+          y: (2 * this.y) + this.effectiveHeight - base.y,
+        }},
+        [globals.ROTATE_180]: (base, center) => { return {
+          x: center.x - center.y + base.y,
+          y: center.y + center.x - base.x,
+        }},
+        [globals.ROTATE_270]: (base, center) => { return {
+          x: center.x + center.y - base.y,
+          y: center.y - center.x + base.x,
+        }},
+      };
 
-      return coords;
+      if (typeof adjustMouseForRotation[this.rotation] === 'function') {
+        return adjustMouseForRotation[this.rotation].call(this, base, center);
+      }
+      return null;
     }
 
     /*
@@ -269,10 +248,7 @@ const ServerViewer = (function defineServerViewer() {
      * potentially redundant checks and fallbacks are used in this function.
      */
     moveTo(x = this.x, y = this.y) {
-      const coordinates = {
-        x: this.x, 
-        y: this.y
-      };
+      const coordinates = { x: this.x, y: this.y };
       if (this.canMoveToX(x)) coordinates.x = x;
       if (this.canMoveToY(y)) coordinates.y = y;
       this.assign(coordinates);
@@ -298,14 +274,10 @@ const ServerViewer = (function defineServerViewer() {
      *      constant while the scaling is occurring).
      */
     rescale(scale = this.scale) {
-      const scaledWidth = this.width / scale;
-      const scaledHeight = this.height / scale;
-      if (this.canBeScaledTo(scaledWidth, scaledHeight)) {
-        this.assign({
-          scale: scale,
-          effectiveWidth: scaledWidth,
-          effectiveHeight: scaledHeight,
-        });
+      const effectiveWidth = this.width / scale;
+      const effectiveHeight = this.height / scale;
+      if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {
+        this.assign({ scale, effectiveWidth, effectiveHeight });
         return true;
       }
       return false;
@@ -325,22 +297,25 @@ const ListenerFactory = (function defineListenerFactory() {
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
         return function handleClick(viewer, {x, y}) {
-          const target = workspace.findItemByCoordinates(x,y) || viewer;
-          listener(viewer, target, x, y);
+          const mouse = viewer.refineMouseCoordinates(x, y);
+          if (mouse) {
+            const {x, y} = mouse;
+            const target = workspace.findItemByCoordinates(x, y) || viewer;
+            listener(viewer, target, x, y);
+          }
         };
       },
 
       drag(listener, workspace) {
         return function handleDrag(viewer, {x, y, dx, dy}) {
-          /*
-           * XXX: This is causing jitter. Will have to look in the 
-           *    debugger, perhaps multiple events are firing on drags.
-           *
-           *    The source of the jitter seems to be when the 
-           *    background is dragged.
-           */
-          const target = workspace.findItemByCoordinates(x,y) || viewer;
-          listener(viewer, target, x, y, dx, dy);
+          const mouse = viewer.refineMouseCoordinates(x, y);
+          if (mouse) {
+            const {x, y} = mouse;
+            dx /= viewer.scale;
+            dy /= viewer.scale;
+            const target = workspace.findItemByCoordinates(x,y) || viewer;
+            listener(viewer, target, x, y, dx, dy);
+          }
         };
       },
 
@@ -403,9 +378,9 @@ const WorkSpace = (function defineWorkSpace() {
 
   class WorkSpace {
     constructor(settings) {
-      this.settings = WamsShared.initialize(locals.DEFAULTS, settings);
+      this.settings = WamsShared.getInitialValues(locals.DEFAULTS, settings);
       this.settings.bounds = locals.resolveBounds(this.settings.bounds);
-      locals.STAMPER.stamp(this);
+      locals.STAMPER.stampNewId(this);
 
       // Things to track.
       // this.subWS = [];
@@ -583,11 +558,10 @@ const RequestHandler = (function defineRequestHandler() {
      *    - The order in which these functions are registered with
      *      this.app.use() is important! The callbacks will be triggered
      *      in this order!
-     *    - When this.app.use() is called without a 'path' argument, as it 
-     *      is here, it uses the default '/' argument, with the 
-     *      result that these callbacks will be executed for 
-     *      _every_ request to the app!
-     *      + Should therefore consider specifying the path!!
+     *    - When app.use() is called without a 'path' argument it uses the
+     *      default '/' argument, with the result that these callbacks will be
+     *      executed for _every_ request to the app! This is why we specify the
+     *      path!!
      *    - Should also consider specifying options. Possibly useful:
      *      + immutable
      *      + maxAge
@@ -644,37 +618,43 @@ const WamsServer = (function defineWamsServer() {
   });
 
   const symbols = Object.freeze({
-    connect: Symbol(),
-    disconnect: Symbol(),
+    clientlimit: Symbol('clientLimit'),
+    connect: Symbol('connect'),
+    disconnect: Symbol('disconnect'),
+    io: Symbol('io'),
+    server: Symbol('server'),
+    workspace: Symbol('workspace'),
   });
 
   class WamsServer {
     constructor(settings = {}) {
-      this.clientLimit = settings.clientLimit || locals.DEFAULTS.clientLimit;
-      this.workspace = new WorkSpace(settings);
-      this.server = http.createServer(new RequestHandler());
-      this.io = IO(this.server);
-      this.io.of(globals.NS_WAMS)
+      this[symbols.clientLimit] = settings.clientLimit || 
+        locals.DEFAULTS.clientLimit;
+      this[symbols.workspace] = new WorkSpace(settings);
+      this[symbols.server] = http.createServer(new RequestHandler());
+      this[symbols.io] = IO(this[symbols.server]);
+      this[symbols.io].of(globals.NS_WAMS)
         .on('connect', this[symbols.connect].bind(this));
 
       /*
-       * XXX: Not necessary to actually track connections like this, doing it
+       * FIXME: Not necessary to actually track connections like this, doing it
        *      for debugging assistance, for now.
+       * XXX: Actuallly, I am using them right now, in updateViewer().
        */
       this.connections = [];
     }
 
     [symbols.connect](socket) {
-      this.io.of(globals.NS_WAMS).clients((error, clients) => {
+      this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
         if (error) throw error;
-        if (clients.length < this.clientLimit) {
-          const c = new Connection(socket, this.workspace);
+        if (clients.length < this[symbols.clientLimit]) {
+          const c = new Connection(socket, this[symbols.workspace]);
           this.connections.push(c);
           socket.on('disconnect', () => this[symbols.disconnect](c) );
 
           console.log(
             `Viewer ${c.viewer.id} connected to workspace listening on port`,
-            this.server.address().port
+            this[symbols.server].address().port
           );
         } else {
           socket.disconnect(true);
@@ -687,7 +667,7 @@ const WamsServer = (function defineWamsServer() {
       if (cn.disconnect()) {
         this.connections.splice(this.connections.indexOf(cn), 1);
         new Message(Message.RM_SHADOW, cn.viewer)
-          .emitWith(this.io.of(globals.NS_WAMS));
+          .emitWith(this[symbols.io].of(globals.NS_WAMS));
       } else {
         console.error('Failed to disconnect:', this);
       }
@@ -698,26 +678,27 @@ const WamsServer = (function defineWamsServer() {
      * control over server establishment.
      */
     listen(port = locals.PORT, host = locals.getLocalIP()) {
-      this.server.listen(port, host, () => {
-        console.log('Listening on', this.server.address());
+      this[symbols.server].listen(port, host, () => {
+        console.log('Listening on', this[symbols.server].address());
       });
     }
 
     on(event, handler) {
-      this.workspace.on(event, handler);
+      this[symbols.workspace].on(event, handler);
     }
 
     removeItem(item) {
-      if (this.workspace.removeItem(item)) {
+      if (this[symbols.workspace].removeItem(item)) {
         new Message(Message.RM_ITEM, item)
-          .emitWith(this.io.of(globals.NS_WAMS));
+          .emitWith(this[symbols.io].of(globals.NS_WAMS));
       }
     }
 
     spawnItem(itemdata) {
-      const item = this.workspace.spawnItem(itemdata);
+      const item = this[symbols.workspace].spawnItem(itemdata);
       new Message(Message.ADD_ITEM, item)
-        .emitWith(this.io.of(globals.NS_WAMS));
+        .emitWith(this[symbols.io].of(globals.NS_WAMS));
+      return item;
     }
 
     update(object, data) {
@@ -735,7 +716,7 @@ const WamsServer = (function defineWamsServer() {
     updateItem(item, data) {
       item.assign(data);
       new Message(Message.UD_ITEM, item)
-        .emitWith(this.io.of(globals.NS_WAMS));
+        .emitWith(this[symbols.io].of(globals.NS_WAMS));
     }
 
     updateViewer(viewer, data) {
@@ -764,6 +745,7 @@ exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;
 exports.RequestHandler = RequestHandler;
 exports.WamsServer = WamsServer;
+exports.CanvasSequencer = CanvasSequencer;
 
 exports.Item = ServerItem;
 

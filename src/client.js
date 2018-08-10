@@ -17,6 +17,7 @@
 // const WamsShared = require('../src/shared.js');
 // const ZingTouch = require('../libs/zingtouch.js');
 // const cseq = require('../libs/canvas_sequencer.js');
+// const CanvasSequencer = cseq.CanvasSequencer;
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -35,7 +36,7 @@ const ShadowViewer = (function defineShadowViewer() {
   class ShadowViewer extends WamsShared.Viewer {
     constructor(values) {
       super(values);
-      if (values.hasOwnProperty('id')) locals.STAMPER.stamp(this, values.id);
+      if (values.hasOwnProperty('id')) locals.STAMPER.cloneId(this, values.id);
       else throw 'Shadows require IDs, but no ID found.';
     }
 
@@ -83,9 +84,15 @@ const ClientItem = (function defineClientItem() {
   class ClientItem extends WamsShared.Item {
     constructor(data) {
       super(data);
-      if (data.hasOwnProperty('id')) locals.STAMPER.stamp(this, data.id);
-      else throw 'Items require IDs, but not ID found.';
-      this.img = locals.createImage(this.imgsrc);
+      if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
+      else throw 'Items require IDs, but no ID found.';
+    }
+
+    assign(data) {
+      const updateImage = data.imgsrc !== this.imgsrc;
+      super.assign(data);
+      if (updateImage) this.img = locals.createImage(this.imgsrc);
+      this.canvasSequence = CanvasSequencer.fromString(this.canvasSequence);
     }
 
     draw(context) {
@@ -96,26 +103,11 @@ const ClientItem = (function defineClientItem() {
         if (this.img.loaded) {
           context.drawImage(this.img, this.x, this.y, width, height);
         } else {
-          context.fileStyle = '#252525';
+          context.fillStyle = '#252525';
           context.fillRect(this.x, this.y, width, height);
         }
       } else {
-        /*
-         * XXX: Yikes!!! eval()? And we want this to be a usable 
-         *    API? For people to work together over networks? 
-         *    Pardon my French, but how the f*** are we going to 
-         *    make sure that no one is injecting malicious code 
-         *    here? 
-         *
-         *    Where is draw defined, and how does it end up here?
-         *
-         *    There must be a better way...
-         *
-         *    + Answer: I believe there is! Check out the canvas
-         *      sequencer library I'm working on!
-         */
-        // eval(`${this.drawCustom};`);
-        // eval(`${this.drawStart};`);
+        this.canvasSequence.execute(context);
       }
     }
   }
@@ -148,7 +140,7 @@ const ClientViewer = (function defineClientViewer() {
 
   class ClientViewer extends WamsShared.Viewer {
     constructor(values) {
-      super(WamsShared.initialize(locals.DEFAULTS, values));
+      super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
@@ -246,7 +238,7 @@ const ClientViewer = (function defineClientViewer() {
       locals.REQUIRED_DATA.forEach( d => {
         if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
       });
-      locals.STAMPER.stamp(this, data.id);
+      locals.STAMPER.cloneId(this, data.id);
       data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
       this.context = data.context;
@@ -382,8 +374,8 @@ const ClientController = (function defineClientController() {
     tap({detail}) {
       const event = detail.events[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX / this.viewer.scale + this.viewer.x,
-        y: event.clientY / this.viewer.scale + this.viewer.y,
+        x: event.clientX,
+        y: event.clientY,
       });
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
@@ -392,14 +384,14 @@ const ClientController = (function defineClientController() {
       const event = detail.events[0];
       const data = detail.data[0];
       const mreport = new WamsShared.MouseReporter({
-        x: event.clientX / this.viewer.scale + this.viewer.x,
-        y: event.clientY / this.viewer.scale + this.viewer.y,
-        dx: data.movement.x / this.viewer.scale ,
-        dy: data.movement.y / this.viewer.scale ,
+        x: event.clientX,
+        y: event.clientY,
+        dx: data.movement.x,
+        dy: data.movement.y,
       });
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
       this.prevX = event.clientX;
       this.prevY = event.clientY;
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
     pinchOrExpand({detail}) {
@@ -448,23 +440,8 @@ const ClientController = (function defineClientController() {
     resize() {
       this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
+      this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
-    }
-
-    /*
-     * XXX: Let's have a close look at this. With no comments, I'm not 
-     *    sure why a Math.max(Math.min()) structure is necessary. We 
-     *    might be able to simplify this.
-     */
-    scroll(event) {
-      const delta = Math.max(
-        -1, 
-        Math.min( 1, (event.wheelDelta || -event.detail))
-      );
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.scale + delta * 0.09
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
 
     resizeCanvasToFillWindow() {
@@ -473,7 +450,7 @@ const ClientController = (function defineClientController() {
     }
 
     setup(data) {
-      locals.STAMPER.stamp(this, data.id);
+      locals.STAMPER.cloneId(this, data.id);
       data.context = this.context;
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;

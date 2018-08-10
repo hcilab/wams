@@ -11,7 +11,7 @@
 /*
  * Routines to test:
  *   + makeOwnPropertyImmutable,
- *   + initialize,
+ *   + getInitialValues,
  *   + IDStamper,
  *   + Viewer,
  *   + Item,
@@ -35,25 +35,25 @@ expect.extend({
   },
 });
 
-describe('initialize', () => {
+describe('getInitialValues', () => {
   test('does not throw exceptions on empty objects', () => {
-    expect(WamsShared.initialize()).toEqual({});
+    expect(WamsShared.getInitialValues()).toEqual({});
   });
 
   test('returns empty if defaults is empty, regardless of data', () => {
-    expect(WamsShared.initialize({},{})).toEqual({});
-    expect(WamsShared.initialize({})).toEqual({});
-    expect(WamsShared.initialize({},{a:1})).toEqual({});
-    expect(WamsShared.initialize({},1)).toEqual({});
+    expect(WamsShared.getInitialValues({},{})).toEqual({});
+    expect(WamsShared.getInitialValues({})).toEqual({});
+    expect(WamsShared.getInitialValues({},{a:1})).toEqual({});
+    expect(WamsShared.getInitialValues({},1)).toEqual({});
   });
 
   test('Uses defaults if data is empty.', () => {
-    expect(WamsShared.initialize({a:1})).toEqual({a:1});
-    expect(WamsShared.initialize({a:1},{})).toEqual({a:1});
+    expect(WamsShared.getInitialValues({a:1})).toEqual({a:1});
+    expect(WamsShared.getInitialValues({a:1},{})).toEqual({a:1});
   });
 
   test('Overrides default property if data has property with same name', () => {
-    expect(WamsShared.initialize({a:1}, {a:2})).toEqual({a:2});
+    expect(WamsShared.getInitialValues({a:1}, {a:2})).toEqual({a:2});
   });
 });
 
@@ -159,53 +159,62 @@ describe('removeByID(array, item, class_fn)', () => {
 describe('IDStamper', () => {
   describe('constructor()', () => {
     test('correctly constructs expected object', () => {
-      const stamper = new WamsShared.IDStamper();
-      expect(stamper).toBeInstanceOf(WamsShared.IDStamper);
-      expect(stamper).toHaveProperty('stamp');
+      expect(new IDStamper()).toBeInstanceOf(IDStamper);
     });
-
   });
 
-  describe('stamp(obj)', () => {
+  describe('stampNewId(obj)', () => {
     const stamper = new WamsShared.IDStamper();
 
     test('can stamp an immutable ID onto an object', () => {
       const x = {};
       expect(x).not.toHaveImmutableProperty('id');
 
-      const id = stamper.stamp(x);
-      expect(id).toBeGreaterThanOrEqual(0);
-      expect(x.id).toBeGreaterThanOrEqual(0);
-      expect(x.id).toBe(id);
+      stamper.stampNewId(x);
       expect(x).toHaveImmutableProperty('id');
+      expect(x.id).toBeGreaterThanOrEqual(0);
     });
 
     test('cannot restamp an object', () => {
       const x = {};
-      const id = stamper.stamp(x);
-      expect( () => stamper.stamp(x) ).toThrow();
+      const id = stamper.stampNewId(x);
+      expect( () => stamper.stampNewId(x) ).toThrow();
     });
 
     test('does not reuse IDs', () => {
       const x = {};
       const y = {};
-      stamper.stamp(x);
-      stamper.stamp(y);
+      stamper.stampNewId(x);
+      stamper.stampNewId(y);
       expect(x.id).not.toBe(y.id);
     });
   });
 
-  describe('stamp(obj, id)', () => {
+  describe('cloneId(obj, id)', () => {
     const stamper = new WamsShared.IDStamper();
 
     test('will stamp an immutable user-provided ID', () => {
       const x = {};
-      expect(x).not.toHaveImmutableProperty('id');
-
       const id = 1;
-      const out = stamper.stamp(x, id);
-      expect(out).toBe(id);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, id);
       expect(x).toHaveImmutableProperty('id');
+      expect(x.id).toBe(id);
+    });
+    
+    test('Will not define an ID if none provided', () => {
+      const x = {};
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, null);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, undefined);
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, 'a');
+      expect(x).not.toHaveImmutableProperty('id');
+      stamper.cloneId(x, 2e64);
+      expect(x).not.toHaveImmutableProperty('id');
     });
   });
 });
@@ -227,8 +236,6 @@ describe('Viewer', () => {
     test('correctly constructs expected object', () => {
       const vs = new WamsShared.Viewer();
       expect(vs).toBeInstanceOf(WamsShared.Viewer);
-      expect(vs).toHaveProperty('assign');
-      expect(vs).toHaveProperty('report');
     });
 
     test('produces expected properties when no data provided', () => {
@@ -330,8 +337,7 @@ describe('Item', () => {
     'height',
     'type',
     'imgsrc',
-    'drawCustom',
-    'drawStart',
+    'canvasSequence',
   ];
 
   describe('constructor(data)', () => {
