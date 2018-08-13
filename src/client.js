@@ -144,18 +144,19 @@ const ClientViewer = (function defineClientViewer() {
       'id',
       'items',
       'viewers',
-      'context',
     ]),
     FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(values) {
+    constructor(values, context) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
+      this.context = context;
+      document.addEventListener( 'wams-image-loaded', () => this.draw() );
     }
 
     addItem(values) {
@@ -253,12 +254,7 @@ const ClientViewer = (function defineClientViewer() {
       locals.STAMPER.cloneId(this, data.id);
       data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
-      this.context = data.context;
-      this.draw();
-      document.addEventListener(
-        'wams-image-loaded',
-        () => this.draw()
-      );
+      this.draw(); 
     }
 
     updateItem(data) {
@@ -302,9 +298,7 @@ const ClientController = (function defineClientController() {
       this.socket = null;
       this.startScale = null;
       this.transforming = false;
-      this.viewer = new ClientViewer();
-      // this.dragging = false;
-      // this.zoom = locals.getScale();
+      this.viewer = new ClientViewer({}, this.context);
 
       this.resizeCanvasToFillWindow();
       attachWindowListeners.call(this);
