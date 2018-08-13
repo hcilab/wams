@@ -10,14 +10,15 @@
 'use strict';
 
 /*
- * FIXME: This is ugly!! This code will not work on the actual client if this
- *  test code is left in!
+ * If operating in a node.js environment, import the requisite libraries.
  */
-// const io = require('socket.io-client');
-// const WamsShared = require('../src/shared.js');
-// const ZingTouch = require('../libs/zingtouch.js');
-// const cseq = require('../libs/canvas_sequencer.js');
-// const Blueprint = cseq.Blueprint;
+if (typeof global !== 'undefined') {
+  global.io = require('socket.io-client');
+  global.WamsShared = require('../src/shared.js');
+  global.ZingTouch = require('../libs/zingtouch.js');
+  global.cseq = require('../libs/canvas_sequencer.js');
+  global.Blueprint = cseq.Blueprint;
+}
 
 // Rename Blueprint for clarity.
 const SequenceBlueprint = Blueprint;
@@ -39,8 +40,7 @@ const ShadowViewer = (function defineShadowViewer() {
   class ShadowViewer extends WamsShared.Viewer {
     constructor(values) {
       super(values);
-      if (values.hasOwnProperty('id')) locals.STAMPER.cloneId(this, values.id);
-      else throw 'Shadows require IDs, but no ID found.';
+      locals.STAMPER.cloneId(this, values.id);
     }
 
     draw(context) {
@@ -87,15 +87,21 @@ const ClientItem = (function defineClientItem() {
   class ClientItem extends WamsShared.Item {
     constructor(data) {
       super(data);
-      if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
-      else throw 'Items require IDs, but no ID found.';
+      locals.STAMPER.cloneId(this, data.id);
     }
 
     assign(data) {
       const updateImage = data.imgsrc !== this.imgsrc;
+      const updateBlueprint = data.hasOwnProperty('blueprint');
+
       super.assign(data);
       if (updateImage) this.img = locals.createImage(this.imgsrc);
-      this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+      if (updateBlueprint) {
+        this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+      }
+
+      // Rather than doing a bunch of checks, let's just always rebuild the
+      // sequence when updating any data in the item.
       if (this.blueprint) {
         this.sequence = this.blueprint.build(this.report());
       }
@@ -401,17 +407,13 @@ const ClientController = (function defineClientController() {
     }
 
     pinchOrExpand({detail}) {
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.viewer.scale + detail.change * 0.009
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
+      const scale = this.viewer.scale + detail.change * 0.009;
+      this.zoom(scale);
     }
 
     wheel(event) {
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.viewer.scale - event.deltaY * 0.0025
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
+      const scale = this.viewer.scale - event.deltaY * 0.009;
+      this.zoom(scale);
     }
 
     handle(message, ...args) {
@@ -462,6 +464,11 @@ const ClientController = (function defineClientController() {
       this.canvas.style.backgroundColor = data.color;
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
     }
+
+    zoom(scale) {
+      const sreport = new WamsShared.ScaleReporter({ scale });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
+    }
   }
 
   return ClientController;
@@ -480,6 +487,9 @@ window.addEventListener(
   }
 );
 
+/*
+ * If operating in a node.js environment, export the appropriate classes.
+ */
 if (typeof exports !== 'undefined') {
   exports.ShadowViewer = ShadowViewer;
   exports.ClientItem = ClientItem;

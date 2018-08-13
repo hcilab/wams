@@ -23,7 +23,7 @@
  */
 
 const WamsShared = require('./shared.js');
-const Blueprint = require('canvas-sequencer').Blueprint;
+const { Blueprint } = require('canvas-sequencer');
 
 /*
  * Shorthand for the shared set of constants between server and client.

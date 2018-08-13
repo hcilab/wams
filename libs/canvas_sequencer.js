@@ -1,1 +1,1 @@
-/home/pi/programming/WAMS-API/node_modules/canvas-sequencer/src/canvas_sequencer.js
+../../../canvas-sequencer/src/canvas_sequencer.js
