@@ -10,6 +10,8 @@
  *  server, in order to provide a common interface.
  */
 
+'use strict';
+
 /*
  * This object stores a set of core utilities for use by both the client and
  *  the server.
