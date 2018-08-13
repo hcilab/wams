@@ -151,11 +151,11 @@ const ClientViewer = (function defineClientViewer() {
 
   class ClientViewer extends WamsShared.Viewer {
     constructor(values, context) {
+      this.context = context;
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
-      this.context = context;
       document.addEventListener( 'wams-image-loaded', () => this.draw() );
     }
 
@@ -167,10 +167,24 @@ const ClientViewer = (function defineClientViewer() {
       this.shadows.push(new ShadowViewer(values));
     }
 
+    /*
+     * Decorate the assignment method to configure the context appropriately for
+     * the new values.
+     */
+    assign(data) {
+      this.context.clearRect(0, 0, this.width, this.height);
+      if (data.hasOwnProperty('rotation')) {
+        const rdiff = data.rotation - (this.rotation || 0);
+        this.context.rotate(rdiff);
+      }
+      super.assign(data);
+      this.context.setTransform(this.scale, 0, this.x, this.scale, 0, this.y);
+    }
+
     draw() {
       this.context.save();
-      wipeAndReposition.call(this);
-      locate.call(this);
+      this.context.clearRect(0, 0, this.width, this.height);
+      // wipeAndReposition.call(this);
       this.items.forEach( o => o.draw(this.context) );
       this.shadows.forEach( v => v.draw(this.context) );
       showStatus.call(this);
@@ -180,6 +194,7 @@ const ClientViewer = (function defineClientViewer() {
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
         this.context.translate(-this.x, -this.y);
+        locate.call(this);
         this.context.rotate(this.rotation);
       }
 
