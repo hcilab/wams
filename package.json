@@ -1,4 +1,7 @@
 {
+  "config": {
+    "unsafe-perm": true
+  },
   "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
     "canvas-sequencer": "^1.2.3",
