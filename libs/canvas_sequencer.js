@@ -1,1 +1,1 @@
-../../../canvas-sequencer/src/canvas_sequencer.js
+../node_modules/canvas-sequencer/src/canvas_sequencer.js
