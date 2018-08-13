@@ -178,13 +178,6 @@ const ServerViewer = (function defineServerViewer() {
     get right()   { return this.x + this.effectiveWidth; }
     get top()     { return this.y; }
 
-    getCenter()  {
-      return Object.freeze({
-        x: this.x + (this.effectiveWidth  / 2),
-        y: this.y + (this.effectiveHeight / 2),
-      });
-    }
-
     canBeScaledTo(width = this.width, height = this.height) {
       return  (width  > 0) &&
         (height > 0) &&
@@ -214,7 +207,7 @@ const ServerViewer = (function defineServerViewer() {
         x: mx / this.scale + this.x,
         y: my / this.scale + this.y,
       };
-      const center = this.getCenter();
+      // const center = this.getCenter();
 
       /*
        * XXX: Still need to figure out the "why" of this math. Once I've 
@@ -237,7 +230,8 @@ const ServerViewer = (function defineServerViewer() {
       };
 
       if (typeof adjustMouseForRotation[this.rotation] === 'function') {
-        return adjustMouseForRotation[this.rotation].call(this, base, center);
+        // return adjustMouseForRotation[this.rotation].call(this, base, center);
+        return adjustMouseForRotation[this.rotation].call(this, base, base);
       }
       return null;
     }
