@@ -407,17 +407,13 @@ const ClientController = (function defineClientController() {
     }
 
     pinchOrExpand({detail}) {
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.viewer.scale + detail.change * 0.009
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
+      const scale = this.viewer.scale + detail.change * 0.009;
+      this.zoom(scale);
     }
 
     wheel(event) {
-      const sreport = new WamsShared.ScaleReporter({
-        scale: this.viewer.scale - event.deltaY * 0.0025
-      });
-      new Message(Message.SCALE, sreport).emitWith(this.socket);
+      const scale = this.viewer.scale - event.deltaY * 0.009;
+      this.zoom(scale);
     }
 
     handle(message, ...args) {
@@ -467,6 +463,11 @@ const ClientController = (function defineClientController() {
       this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
+    }
+
+    zoom(scale) {
+      const sreport = new WamsShared.ScaleReporter({ scale });
+      new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
   }
 
