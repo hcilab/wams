@@ -93,9 +93,16 @@ const ClientItem = (function defineClientItem() {
 
     assign(data) {
       const updateImage = data.imgsrc !== this.imgsrc;
+      const updateBlueprint = data.hasOwnProperty('blueprint');
+
       super.assign(data);
       if (updateImage) this.img = locals.createImage(this.imgsrc);
-      this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+      if (updateBlueprint) {
+        this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+      }
+
+      // Rather than doing a bunch of checks, let's just always rebuild the
+      // sequence when updating any data in the item.
       if (this.blueprint) {
         this.sequence = this.blueprint.build(this.report());
       }
