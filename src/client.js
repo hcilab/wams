@@ -12,7 +12,7 @@
 /*
  * If operating in a node.js environment, import the requisite libraries.
  */
-if (typeof global !== 'undefined') {
+if (typeof global !== 'undefined' && typeof 'require' === 'function') {
   global.io = require('socket.io-client');
   global.WamsShared = require('../src/shared.js');
   global.ZingTouch = require('../libs/zingtouch.js');
