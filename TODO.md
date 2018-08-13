@@ -29,7 +29,7 @@
         a new version of the sequence that will be used for actual rendering.
 - [ ] Figure out a way of testing the client-side code without having to adjust
       the code before and after by commenting out the `require()` statements.
-- [ ] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
+- [X] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
       redundant.
 - [ ] Fix the client `draw()` sequence.
 - [ ] Fix bugs that occur when users join approximately simultaneously.

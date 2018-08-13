@@ -39,7 +39,7 @@ const ShadowViewer = (function defineShadowViewer() {
   class ShadowViewer extends WamsShared.Viewer {
     constructor(values) {
       super(values);
-      if (values.hasOwnProperty('id')) locals.STAMPER.cloneId(this, values.id);
+      locals.STAMPER.cloneId(this, values.id);
       else throw 'Shadows require IDs, but no ID found.';
     }
 
@@ -87,7 +87,7 @@ const ClientItem = (function defineClientItem() {
   class ClientItem extends WamsShared.Item {
     constructor(data) {
       super(data);
-      if (data.hasOwnProperty('id')) locals.STAMPER.cloneId(this, data.id);
+      locals.STAMPER.cloneId(this, data.id);
       else throw 'Items require IDs, but no ID found.';
     }
 
