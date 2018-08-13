@@ -406,7 +406,9 @@ const ClientController = (function defineClientController() {
     }
 
     wheel(event) {
-      const scale = this.viewer.scale - event.deltaY * 0.009;
+      event.preventDefault();
+      const factor = event.ctrlKey ? 0.05 : 0.01;
+      const scale = this.viewer.scale - event.deltaY * factor;
       this.zoom(scale);
     }
 
