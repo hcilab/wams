@@ -18,6 +18,7 @@
     "url": "https://github.com/mvanderkamp/WAMS-API"
   },
   "scripts": {
+    "postinstall": "ln -s node_modules/canvas-sequencer/src/canvas_sequencer.js libs/canvas_sequencer.js",
     "test": "jest"
   },
   "version": "0.0.2"
