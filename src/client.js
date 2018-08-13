@@ -10,14 +10,15 @@
 'use strict';
 
 /*
- * FIXME: This is ugly!! This code will not work on the actual client if this
- *  test code is left in!
+ * If operating in a node.js environment, import the requisite libraries.
  */
-// const io = require('socket.io-client');
-// const WamsShared = require('../src/shared.js');
-// const ZingTouch = require('../libs/zingtouch.js');
-// const cseq = require('../libs/canvas_sequencer.js');
-// const Blueprint = cseq.Blueprint;
+if (typeof global !== 'undefined') {
+  global.io = require('socket.io-client');
+  global.WamsShared = require('../src/shared.js');
+  global.ZingTouch = require('../libs/zingtouch.js');
+  global.cseq = require('../libs/canvas_sequencer.js');
+  global.Blueprint = cseq.Blueprint;
+}
 
 // Rename Blueprint for clarity.
 const SequenceBlueprint = Blueprint;
@@ -40,7 +41,6 @@ const ShadowViewer = (function defineShadowViewer() {
     constructor(values) {
       super(values);
       locals.STAMPER.cloneId(this, values.id);
-      else throw 'Shadows require IDs, but no ID found.';
     }
 
     draw(context) {
@@ -88,7 +88,6 @@ const ClientItem = (function defineClientItem() {
     constructor(data) {
       super(data);
       locals.STAMPER.cloneId(this, data.id);
-      else throw 'Items require IDs, but no ID found.';
     }
 
     assign(data) {
@@ -487,6 +486,9 @@ window.addEventListener(
   }
 );
 
+/*
+ * If operating in a node.js environment, export the appropriate classes.
+ */
 if (typeof exports !== 'undefined') {
   exports.ShadowViewer = ShadowViewer;
   exports.ClientItem = ClientItem;
