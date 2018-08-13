@@ -47,4 +47,9 @@
 - [ ] In the same vein, maybe look at doing the same for socket connections and
       request handlers.
 - [ ] Generally clean up the interactions.
+- [ ] Write a distributed video player example.
+- [ ] Lock drags to a single object (instead of always operating on the first
+      object it finds that's currently under the cursor).
+- [ ] Swap the render order around so that the object that will be dragged is
+      the one that appears on top on the canvas. (same for clicked...)
 
