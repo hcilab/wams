@@ -455,9 +455,8 @@ const ClientController = (function defineClientController() {
 
     setup(data) {
       locals.STAMPER.cloneId(this, data.id);
-      data.context = this.context;
-      this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
+      this.viewer.setup(data);
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
     }
 

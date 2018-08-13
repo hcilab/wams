@@ -286,6 +286,7 @@ describe('ClientViewer', () => {
     });
 
     test('Does not throw exception if data provided', () => {
+      cv.draw = jest.fn(); // ctx object not available, so mock draw().
       expect(() => cv.setup(data)).not.toThrow();
     });
 
