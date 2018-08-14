@@ -292,9 +292,22 @@ const ClientViewer = (function defineClientViewer() {
 const Interactor = (function defineInteractor() {
   /*
    * Currently, the Interactor makes use of the ZingTouch library.
+   *
+   * General Design:
+   *  The handlers will get called with the arguments that need to be reportd
+   *  through to the server. This allows the ClientController to use this class
+   *  in a very simple way. This is the contract between the Interactor and the
+   *  ClientController, and must be honoured.
+   *
+   *  The handlers are initialized to NOPs so that the functions which call the
+   *  handlers don't need to check whether the handler exists.
+   *
+   *  The methods of this class that are similarly named as the handlers are
+   *  there as an intermediary to collect data from events and call the handlers
+   *  with only the requisite data.
    */
   const locals = Object.freeze({
-    TYPES: Object.freeze({ 
+    HANDLERS: Object.freeze({ 
       tap: WamsShared.NOP,
       pan: WamsShared.NOP,
       zoom: WamsShared.NOP,
@@ -305,24 +318,24 @@ const Interactor = (function defineInteractor() {
     constructor(canvas, handlers = {}) {
       this.canvas = canvas;
       this.region = ZingTouch.Region(this.canvas, true, true);
-      this.handlers = WamsShared.getInitialValues(locals.TYPES, handlers);
+      this.handlers = WamsShared.getInitialValues(locals.HANDLERS, handlers);
       this.bindRegions();
       window.addEventListener('wheel', this.wheel.bind(this), false);
     }
 
     bindRegions() {
-      this.region.bind(this.canvas, this.panner(), this.pan.bind(this));
-      this.region.bind(this.canvas, this.tapper(), this.tap.bind(this));
-      this.region.bind(
-        this.canvas, 
-        this.pincher('Pinch'), 
-        this.pinch.bind(this)
-      );
-      this.region.bind(
-        this.canvas, 
-        this.pincher('Expand'), 
-        this.pinch.bind(this)
-      );
+      /*
+       * this.region.bind() attaches a gesture recognizer and a callback to an
+       * element.
+       */
+      const pan = this.pan.bind(this);
+      const tap = this.tap.bind(this);
+      const pinch = this.pinch.bind(this);
+
+      this.region.bind(this.canvas, this.panner(), pan);
+      this.region.bind(this.canvas, this.tapper(), tap);
+      this.region.bind(this.canvas, this.pincher('Pinch'), pinch);
+      this.region.bind(this.canvas, this.pincher('Expand'), pinch);
     }
 
     pan({detail}) {
@@ -342,6 +355,10 @@ const Interactor = (function defineInteractor() {
       pan.move = refinePanMove;
       return pan;
 
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
       function refinePanMove(inputs, state, element) {
         const progress = inputs[0].getGestureProgress(this.getId());
         const movement = {
@@ -349,9 +366,7 @@ const Interactor = (function defineInteractor() {
           y: inputs[0].current.y - progress.lastEmitted.y,
         };
         const output = panMove.call(this, inputs, state, element);
-        if (output) {
-          output.data[0].movement = movement;
-        }
+        if (output) output.data[0].movement = movement;
         return output;
       }
     }
@@ -366,13 +381,15 @@ const Interactor = (function defineInteractor() {
       gesture.move = refinePinchMove;
       return gesture;
 
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
       function refinePinchMove(inputs, state, element) {
         const progress = inputs[0].getGestureProgress(this.getId());
         const lastDistance = progress.lastEmittedDistance;
         const data = gestureMove.call(this, inputs, state, element);
-        if (data) {
-          data.change = data.distance - lastDistance;
-        }
+        if (data) data.change = data.distance - lastDistance;
         return data;
       }
     }
@@ -426,33 +443,13 @@ const ClientController = (function defineClientController() {
 
       this.resizeCanvasToFillWindow();
       window.addEventListener('resize', this.resize.bind(this), false);
-      establishSocket.call(this);
 
-      function establishSocket() {
-        this.socket = io.connect(
-          `${window.location.href.slice(0, -1)}${globals.NS_WAMS}`, 
-          {
-            autoConnect: false,
-            reconnection: false,
-          }
-        );
-        this[symbols.attach_listeners]();
-        this.socket.connect();
-      }
-    }
-
-    tap(x, y) {
-      const mreport = new WamsShared.MouseReporter({ x, y });
-      new Message(Message.CLICK, mreport).emitWith(this.socket);
-    }
-
-    pan(x, y, dx, dy) {
-      const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
-    }
-
-    handle(message, ...args) {
-      this.viewer.handle(message, ...args);
+      this.socket = io.connect( globals.NS_WAMS, {
+        autoConnect: false,
+        reconnection: false,
+      });
+      this[symbols.attach_listeners]();
+      this.socket.connect();
     }
 
     [symbols.attach_listeners]() {
@@ -480,6 +477,15 @@ const ClientController = (function defineClientController() {
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
+    handle(message, ...args) {
+      this.viewer.handle(message, ...args);
+    }
+
+    pan(x, y, dx, dy) {
+      const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
+    }
+
     resize() {
       this.resizeCanvasToFillWindow();
       this.viewer.resizeToFillWindow();
@@ -497,6 +503,11 @@ const ClientController = (function defineClientController() {
       this.canvas.style.backgroundColor = data.color;
       this.viewer.setup(data);
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
+    }
+
+    tap(x, y) {
+      const mreport = new WamsShared.MouseReporter({ x, y });
+      new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
     zoom(diff) {
