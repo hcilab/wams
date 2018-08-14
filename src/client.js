@@ -44,9 +44,13 @@ const ShadowViewer = (function defineShadowViewer() {
     }
 
     draw(context) {
+      context.save();
       context.beginPath();
       context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
+      context.strokeStyle = 'rgba(0,0,0,0.5)';
+      context.lineWidth = 5;
       context.stroke();
+      context.restore();
     }
   }
   
@@ -111,15 +115,15 @@ const ClientItem = (function defineClientItem() {
       const width = this.width || this.img.width;
       const height = this.height || this.img.height;
 
-      if (this.img) {
-        if (this.img.loaded) {
-          context.drawImage(this.img, this.x, this.y, width, height);
-        } else {
-          context.fillStyle = '#252525';
-          context.fillRect(this.x, this.y, width, height);
-        }
-      } else if (this.sequence) {
+      if (this.sequence) {
         this.sequence.execute(context);
+      } else if (this.img && this.img.loaded) {
+        context.drawImage(this.img, this.x, this.y, width, height);
+      } else {
+        context.save();
+        context.fillStyle = '#252525';
+        context.fillRect(this.x, this.y, width, height);
+        context.restore();
       }
     }
   }
@@ -145,14 +149,16 @@ const ClientViewer = (function defineClientViewer() {
       'items',
       'viewers',
     ]),
-    FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(values, context) {
-      this.context = context;
+    constructor(values) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
+
+      if (values.context) this.context = values.context;
+      else throw 'ClientViewer requires a CanvasRenderingContext2D!';
+
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
@@ -167,34 +173,24 @@ const ClientViewer = (function defineClientViewer() {
       this.shadows.push(new ShadowViewer(values));
     }
 
-    /*
-     * Decorate the assignment method to configure the context appropriately for
-     * the new values.
-     */
-    assign(data) {
-      this.context.clearRect(0, 0, this.width, this.height);
-      if (data.hasOwnProperty('rotation')) {
-        const rdiff = data.rotation - (this.rotation || 0);
-        this.context.rotate(rdiff);
-      }
-      super.assign(data);
-      this.context.setTransform(this.scale, 0, this.x, this.scale, 0, this.y);
-    }
-
     draw() {
       this.context.save();
-      this.context.clearRect(0, 0, this.width, this.height);
-      // wipeAndReposition.call(this);
+      wipeAndReposition.call(this);
       this.items.forEach( o => o.draw(this.context) );
       this.shadows.forEach( v => v.draw(this.context) );
       showStatus.call(this);
       this.context.restore();
 
       function wipeAndReposition() {
+        /*
+         * WARNING: If you're like me, you'll be tempted to use the transform()
+         * or setTransform() functions. Don't. They throw off the user input
+         * data in unpredictable ways.
+         */
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
         this.context.translate(-this.x, -this.y);
-        locate.call(this);
+        // locate.call(this);
         this.context.rotate(this.rotation);
       }
 
@@ -289,6 +285,117 @@ const ClientViewer = (function defineClientViewer() {
 })();
 
 /*
+ * The Interactor class provides a layer of abstraction between the
+ * ClientController and the code that processes user inputs.
+ */
+const Interactor = (function defineInteractor() {
+  /*
+   * Currently, the Interactor makes use of the ZingTouch library.
+   */
+  const locals = Object.freeze({
+    TYPES: Object.freeze({ 
+      tap: WamsShared.NOP,
+      pan: WamsShared.NOP,
+      zoom: WamsShared.NOP,
+    }),
+  });
+
+  class Interactor {
+    constructor(canvas, handlers = {}) {
+      this.canvas = canvas;
+      this.region = ZingTouch.Region(this.canvas, true, true);
+      this.handlers = WamsShared.getInitialValues(locals.TYPES, handlers);
+      this.bindRegions();
+      window.addEventListener('wheel', this.wheel.bind(this), false);
+    }
+
+    bindRegions() {
+      this.region.bind(this.canvas, this.panner(), this.pan.bind(this));
+      this.region.bind(this.canvas, this.tapper(), this.tap.bind(this));
+      this.region.bind(
+        this.canvas, 
+        this.pincher('Pinch'), 
+        this.pinch.bind(this)
+      );
+      this.region.bind(
+        this.canvas, 
+        this.pincher('Expand'), 
+        this.pinch.bind(this)
+      );
+    }
+
+    pan({detail}) {
+      const event = detail.events[0];
+      const data = detail.data[0];
+      this.handlers.pan(
+        event.clientX,
+        event.clientY,
+        data.movement.x,
+        data.movement.y,
+      );
+    }
+
+    panner() {
+      const pan = new ZingTouch.Pan();
+      const panMove = pan.move;
+      pan.move = refinePanMove;
+      return pan;
+
+      function refinePanMove(inputs, state, element) {
+        const progress = inputs[0].getGestureProgress(this.getId());
+        const movement = {
+          x: inputs[0].current.x - progress.lastEmitted.x,  
+          y: inputs[0].current.y - progress.lastEmitted.y,
+        };
+        const output = panMove.call(this, inputs, state, element);
+        if (output) {
+          output.data[0].movement = movement;
+        }
+        return output;
+      }
+    }
+
+    pinch({detail}) {
+      this.handlers.zoom(detail.change * 0.009);
+    }
+
+    pincher(PinchOrExpand = 'Pinch') {
+      const gesture = new ZingTouch[PinchOrExpand]();
+      const gestureMove = gesture.move;
+      gesture.move = refinePinchMove;
+      return gesture;
+
+      function refinePinchMove(inputs, state, element) {
+        const progress = inputs[0].getGestureProgress(this.getId());
+        const lastDistance = progress.lastEmittedDistance;
+        const data = gestureMove.call(this, inputs, state, element);
+        if (data) {
+          data.change = data.distance - lastDistance;
+        }
+        return data;
+      }
+    }
+
+    tap({detail}) {
+      const event = detail.events[0];
+      this.handlers.tap( event.clientX, event.clientY );
+    }
+
+    tapper() {
+      return new ZingTouch.Tap({ tolerance: 4 });
+    }
+
+    wheel(event) {
+      event.preventDefault();
+      const factor = event.ctrlKey ? 0.05 : 0.01;
+      this.handlers.zoom(-(event.deltaY * factor));
+    }
+  }
+
+  return Interactor;
+})();
+
+/*
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view. This is essentially the
@@ -308,76 +415,17 @@ const ClientController = (function defineClientController() {
     constructor(canvas) {
       this.canvas = canvas;
       this.context = canvas.getContext('2d');
-      this.drawInterval = null;
-      this.mouse  = { x: 0, y: 0 };
       this.socket = null;
-      this.startScale = null;
-      this.transforming = false;
-      this.viewer = new ClientViewer({}, this.context);
+      this.viewer = new ClientViewer({ context: this.context });
+      this.interactor = new Interactor(this.canvas, {
+        tap: this.tap.bind(this),
+        pan: this.pan.bind(this),
+        zoom: this.zoom.bind(this),
+      });
 
       this.resizeCanvasToFillWindow();
-      attachWindowListeners.call(this);
-      establishInteraction.call(this);
+      window.addEventListener('resize', this.resize.bind(this), false);
       establishSocket.call(this);
-
-      function attachWindowListeners() {
-        // const scroll_fn = this.scroll.bind(this); // To reuse bound function
-        // window.addEventListener('DOMMouseScroll', scroll_fn, false);
-        // window.addEventListener('mousewheel', scroll_fn, false);
-        window.addEventListener('resize', this.resize.bind(this), false);
-        window.addEventListener('wheel', this.wheel.bind(this), false);
-      }
-
-      function establishInteraction() {
-        const region = ZingTouch.Region(this.canvas, true, true);
-
-        // Hijack some custom functionality into the zingtouch pan.
-        const customPan = new ZingTouch.Pan();
-        const panMove = customPan.move;
-        customPan.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const movement = {
-            x: inputs[0].current.x - progress.lastEmitted.x,  
-            y: inputs[0].current.y - progress.lastEmitted.y,
-          };
-          const output = panMove.call(this, inputs, state, element);
-          if (output) {
-            output.data[0].movement = movement;
-          }
-          return output;
-        }
-
-        // Hijack some custom functionality into the zingtouch pinch and expand
-        // gestures.
-        const customPinch = new ZingTouch.Pinch();
-        const pinchMove = customPinch.move;
-        customPinch.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const lastDistance = progress.lastEmittedDistance;
-          const data = pinchMove.call(this, inputs, state, element);
-          if (data) {
-            data.change = data.distance - lastDistance;
-          }
-          return data;
-        }
-
-        const customExpand = new ZingTouch.Expand();
-        const expandMove = customExpand.move;
-        customExpand.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const lastDistance = progress.lastEmittedDistance;
-          const data = expandMove.call(this, inputs, state, element);
-          if (data) {
-            data.change = data.distance - lastDistance;
-          }
-          return data;
-        }
-
-        region.bind(this.canvas, 'tap', this.tap.bind(this));
-        region.bind(this.canvas, customPan, this.pan.bind(this));
-        region.bind(this.canvas, customPinch, this.pinchOrExpand.bind(this));
-        region.bind(this.canvas, customExpand, this.pinchOrExpand.bind(this));
-      }
 
       function establishSocket() {
         this.socket = io.connect(
@@ -392,39 +440,14 @@ const ClientController = (function defineClientController() {
       }
     }
 
-    tap({detail}) {
-      const event = detail.events[0];
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX,
-        y: event.clientY,
-      });
+    tap(x, y) {
+      const mreport = new WamsShared.MouseReporter({ x, y });
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
-    pan({detail}) {
-      const event = detail.events[0];
-      const data = detail.data[0];
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX,
-        y: event.clientY,
-        dx: data.movement.x,
-        dy: data.movement.y,
-      });
-      this.prevX = event.clientX;
-      this.prevY = event.clientY;
+    pan(x, y, dx, dy) {
+      const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
       new Message(Message.DRAG, mreport).emitWith(this.socket);
-    }
-
-    pinchOrExpand({detail}) {
-      const scale = this.viewer.scale + detail.change * 0.009;
-      this.zoom(scale);
-    }
-
-    wheel(event) {
-      event.preventDefault();
-      const factor = event.ctrlKey ? 0.05 : 0.01;
-      const scale = this.viewer.scale - event.deltaY * factor;
-      this.zoom(scale);
     }
 
     handle(message, ...args) {
@@ -457,8 +480,8 @@ const ClientController = (function defineClientController() {
     }
 
     resize() {
-      this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
+      this.viewer.resizeToFillWindow();
       this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
@@ -475,7 +498,8 @@ const ClientController = (function defineClientController() {
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
     }
 
-    zoom(scale) {
+    zoom(diff) {
+      const scale = this.viewer.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }

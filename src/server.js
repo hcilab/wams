@@ -202,11 +202,18 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
-    refineMouseCoordinates(mx, my) {
+    refineMouseCoordinates(mx, my, mdx, mdy) {
       const base = {
         x: mx / this.scale + this.x,
         y: my / this.scale + this.y,
+        dx: mdx / this.scale,
+        dy: mdy / this.scale,
       };
+      return base;
+      // return {
+        // x: (mx + this.x) / this.scale,
+        // y: (my + this.y) / this.scale,
+      // };
       // const center = this.getCenter();
 
       /*
@@ -302,11 +309,9 @@ const ListenerFactory = (function defineListenerFactory() {
 
       drag(listener, workspace) {
         return function handleDrag(viewer, {x, y, dx, dy}) {
-          const mouse = viewer.refineMouseCoordinates(x, y);
+          const mouse = viewer.refineMouseCoordinates(x, y, dx, dy);
           if (mouse) {
-            const {x, y} = mouse;
-            dx /= viewer.scale;
-            dy /= viewer.scale;
+            const {x, y, dx, dy} = mouse;
             const target = workspace.findItemByCoordinates(x,y) || viewer;
             listener(viewer, target, x, y, dx, dy);
           }
