@@ -220,7 +220,8 @@ const ClientViewer = (function defineClientViewer() {
       }
 
       function showStatus() {
-        let base = 40;
+        let ty = this.y + 40;
+        let tx = this.x + 20;
         const messages = Object.keys(locals.DEFAULTS)
           .map( k => {
             if (typeof this[k] === 'number') {
@@ -232,8 +233,8 @@ const ClientViewer = (function defineClientViewer() {
           .concat([`# of Shadows: ${this.shadows.length}`]);
         this.context.font = '18px Georgia';
         messages.forEach( m => {
-          this.context.fillText(m, 20, base);
-          base += 20;
+          this.context.fillText(m, tx, ty);
+          ty += 20;
         });
       }
     }
