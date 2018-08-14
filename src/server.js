@@ -206,7 +206,7 @@ const ServerViewer = (function defineServerViewer() {
       const data = { x, y, dx, dy };
       applyScale(data, this.scale);
       applyTranslation(data, this.x, this.y);
-      applyRotation(data, this.rotation);
+      // applyRotation(data, (2 * Math.PI) - this.rotation);
       return data;
 
       function applyScale(data, scale) {
@@ -222,12 +222,21 @@ const ServerViewer = (function defineServerViewer() {
       }
 
       function applyRotation(data, theta) {
-        const x = data.x;
-        const y = data.y;
         const cos_theta = Math.cos(theta);
         const sin_theta = Math.sin(theta);
-        data.x = x * cos_theta - y * sin_theta;
-        data.y = x * sin_theta + y * cos_theta;
+
+        data.x = rotateX(data.x, data.y, cos_theta, sin_theta);
+        data.y = rotateY(data.x, data.y, cos_theta, sin_theta);
+        data.dx = rotateX(data.dx, data.dy, cos_theta, sin_theta);
+        data.dy = rotateY(data.dx, data.dy, cos_theta, sin_theta);
+
+        function rotateX(x, y, cos_theta, sin_theta) {
+          return x * cos_theta - y * sin_theta;
+        }
+
+        function rotateY(x, y, cos_theta, sin_theta) {
+          return x * sin_theta + y * cos_theta;
+        }
       }
     }
 
@@ -634,7 +643,7 @@ const WamsServer = (function defineWamsServer() {
     [symbols.connect](socket) {
       this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
         if (error) throw error;
-        if (clients.length < this[symbols.clientLimit]) {
+        if (clients.length <= this[symbols.clientLimit]) {
           const c = new Connection(socket, this[symbols.workspace]);
           this.connections.push(c);
           socket.on('disconnect', () => this[symbols.disconnect](c) );
@@ -644,6 +653,7 @@ const WamsServer = (function defineWamsServer() {
             this[symbols.server].address().port
           );
         } else {
+          socket.emit('wams-full');
           socket.disconnect(true);
           // TODO: Report disconnection to client, server.
         }

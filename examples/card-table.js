@@ -7,36 +7,35 @@
 
 const WAMS = require('../src/server');
 const ws = new WAMS.WamsServer({
-  bounds: { x: 5000, y: 5000 },
+  bounds: { x: 7000, y: 7000 },
   color: 'green',
   clientLimit: 5,
 });
 
 ws.spawnItem({
-  x: 100, 
-  y: 200, 
+  x: 2600, 
+  y: 2800, 
   type: 'joker',
   imgsrc: 'img/joker.png',
 });
 
 const seq = new WAMS.Sequence();
 seq.beginPath();
-seq.arc( 400, 250, 150, Math.PI, false);
-seq.lineTo( 250, 250 );
+seq.arc( '{x}', '{y}', '{height}', Math.PI * 2, 0, false);
 seq.fillStyle = 'white';
 seq.fill();
 seq.lineWidth = 5;
 seq.strokeStyle = '#003300';
 seq.stroke();
 seq.font = 'normal 36px Times,serif';
-seq.fillStyle = '#000000';
-seq.fillText( 'Click the joker!', 275, 225 );
+seq.fillStyle = '#1a1a1a';
+seq.fillText( '  Click the joker!', '{x}', '{y}');
 
 ws.spawnItem({
-  x: 250,
-  y: 250,
-  width: 100, 
-  height: 100,
+  x: 2500,
+  y: 2500,
+  width: 150, 
+  height: 150,
   type: 'text',
   blueprint: seq,
 });
@@ -50,27 +49,28 @@ const handleLayout = (function makeLayoutHandler() {
   const RIGHT   = 4;
 
   function layoutTable(viewer) {
-    viewer.moveTo( 250, 250 );
+    viewer.moveTo( 2000, 2000 );
     table = viewer;
   };
 
   function layoutBottom(viewer) {
     viewer.moveTo( table.left, table.bottom );
+    viewer.rotation = Math.PI * 1 / 4;
   };
 
   function layoutLeft(viewer) {
-    viewer.rotation = Math.PI;
-    viewer.moveTo( table.left, table.top - viewer.effectiveHeight );
+    viewer.moveTo( table.left, table.top );
+    viewer.rotation = Math.PI * 3 / 2;
   };
 
   function layoutTop(viewer) {
-    viewer.rotation = Math.PI * 3 / 2;
-    viewer.moveTo( table.left - viewer.effectiveWidth, table.top );
+    viewer.moveTo( table.right, table.top );
+    viewer.rotation = Math.PI;
   };
 
   function layoutRight(viewer) {
+    viewer.moveTo( table.right, table.bottom );
     viewer.rotation = Math.PI / 2;
-    viewer.moveTo( table.right, table.top );
   };
 
   const user_fns = [];
@@ -81,10 +81,8 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[RIGHT]   = layoutRight;
 
   function handleLayout(viewer, numViewers) {
-    if (numViewers <= 5 && numViewers >= 0) {
-      user_fns[numViewers - 1](viewer);
-      ws.update(viewer);
-    }
+    user_fns[numViewers - 1](viewer);
+    ws.update(viewer);
   }
 
   return handleLayout;

@@ -45,11 +45,16 @@ const ShadowViewer = (function defineShadowViewer() {
 
     draw(context) {
       context.save();
-      context.beginPath();
-      context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
+      context.translate(this.x,this.y);
+      context.rotate(this.rotation);
       context.strokeStyle = 'rgba(0,0,0,0.5)';
       context.lineWidth = 5;
-      context.stroke();
+      context.strokeRect(
+        0, 
+        0, 
+        this.effectiveWidth, 
+        this.effectiveHeight
+      );
       context.restore();
     }
   }
@@ -189,14 +194,32 @@ const ClientViewer = (function defineClientViewer() {
          */
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
-        this.context.translate(-this.x, -this.y);
-        // locate.call(this);
         this.context.rotate(this.rotation);
+
+        const data = { x: this.x, y: this.y };
+        applyRotation(data, this.rotation);
+        this.context.translate(-data.x, -data.y);
+
+        function applyRotation(data, theta) {
+          const cos_theta = Math.cos(theta);
+          const sin_theta = Math.sin(theta);
+
+          data.x = rotateX(data.x, data.y, cos_theta, sin_theta);
+          data.y = rotateY(data.x, data.y, cos_theta, sin_theta);
+          data.dx = rotateX(data.dx, data.dy, cos_theta, sin_theta);
+          data.dy = rotateY(data.dx, data.dy, cos_theta, sin_theta);
+
+          function rotateX(x, y, cos_theta, sin_theta) {
+            return x * cos_theta - y * sin_theta;
+          }
+
+          function rotateY(x, y, cos_theta, sin_theta) {
+            return x * sin_theta + y * cos_theta;
+          }
+        }
       }
 
       function showStatus() {
-        let ty = this.y + 40;
-        let tx = this.x + 20;
         const messages = Object.keys(locals.DEFAULTS)
           .map( k => {
             if (typeof this[k] === 'number') {
@@ -206,11 +229,16 @@ const ClientViewer = (function defineClientViewer() {
             }
           })
           .concat([`# of Shadows: ${this.shadows.length}`]);
+        let ty = 40;
+        let tx = 20;
+        this.context.save();
+        this.context.setTransform(1,0,0,1,0,0);
         this.context.font = '18px Georgia';
         messages.forEach( m => {
           this.context.fillText(m, tx, ty);
           ty += 20;
         });
+        this.context.restore();
       }
     }
 
@@ -447,6 +475,8 @@ const ClientController = (function defineClientController() {
         [Message.DRAG]:   WamsShared.NOP,
         [Message.RESIZE]: WamsShared.NOP,
         [Message.SCALE]:  WamsShared.NOP,
+
+        'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
       };
 
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
