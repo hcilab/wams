@@ -202,45 +202,33 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
-    refineMouseCoordinates(mx, my, mdx, mdy) {
-      const base = {
-        x: mx / this.scale + this.x,
-        y: my / this.scale + this.y,
-        dx: mdx / this.scale,
-        dy: mdy / this.scale,
-      };
-      return base;
-      // return {
-        // x: (mx + this.x) / this.scale,
-        // y: (my + this.y) / this.scale,
-      // };
-      // const center = this.getCenter();
+    refineMouseCoordinates(x, y, dx, dy) {
+      const data = { x, y, dx, dy };
+      applyScale(data, this.scale);
+      applyTranslation(data, this.x, this.y);
+      applyRotation(data, this.rotation);
+      return data;
 
-      /*
-       * XXX: Still need to figure out the "why" of this math. Once I've 
-       *    done that, I will write up a comment explaining it.
-       */
-      const adjustMouseForRotation = {
-        [globals.ROTATE_0]:   (base, center) => { return base; },
-        [globals.ROTATE_90]:  (base, center) => { return {
-          x: (2 * this.x) + this.effectiveWidth - base.x,
-          y: (2 * this.y) + this.effectiveHeight - base.y,
-        }},
-        [globals.ROTATE_180]: (base, center) => { return {
-          x: center.x - center.y + base.y,
-          y: center.y + center.x - base.x,
-        }},
-        [globals.ROTATE_270]: (base, center) => { return {
-          x: center.x + center.y - base.y,
-          y: center.y - center.x + base.x,
-        }},
-      };
-
-      if (typeof adjustMouseForRotation[this.rotation] === 'function') {
-        // return adjustMouseForRotation[this.rotation].call(this, base, center);
-        return adjustMouseForRotation[this.rotation].call(this, base, base);
+      function applyScale(data, scale) {
+        data.x /= scale;
+        data.y /= scale;
+        data.dx /= scale;
+        data.dy /= scale;
       }
-      return null;
+
+      function applyTranslation(data, x, y) {
+        data.x += x;
+        data.y += y;
+      }
+
+      function applyRotation(data, theta) {
+        const x = data.x;
+        const y = data.y;
+        const cos_theta = Math.cos(theta);
+        const sin_theta = Math.sin(theta);
+        data.x = x * cos_theta - y * sin_theta;
+        data.y = x * sin_theta + y * cos_theta;
+      }
     }
 
     /*
