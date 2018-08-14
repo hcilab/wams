@@ -194,31 +194,6 @@ const ClientViewer = (function defineClientViewer() {
         this.context.rotate(this.rotation);
       }
 
-      function locate() {
-        switch(this.rotation) {
-          case(globals.ROTATE_0): 
-            break;
-          case(globals.ROTATE_90): 
-            this.context.translate(
-              (-this.effectiveWidth - (this.x * 2)), 
-              (-this.effectiveHeight - (this.y * 2))
-            ); 
-            break;
-          case(globals.ROTATE_180): 
-            this.context.translate(
-              -this.effectiveWidth, 
-              -(this.x * 2)
-            ); 
-            break;
-          case(globals.ROTATE_270): 
-            this.context.translate(
-              -(this.y * 2), 
-              -this.effectiveWidth
-            ); 
-            break;
-        }
-      }
-
       function showStatus() {
         let ty = this.y + 40;
         let tx = this.x + 20;
