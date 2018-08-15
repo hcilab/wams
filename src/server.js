@@ -49,48 +49,6 @@ const ServerItem = (function defineServerItem() {
   });
 
   class ServerItem extends WamsShared.Item {
-    /*
-     * XXX: What is the item supposed to be if the draw strings are not 
-     *      defined?
-     *
-     * IDEA: Instead of using strings of code and running 'eval()' on them to
-     *      get custom renderings in the canvas, write a 'CanvasSequencer'
-     *      class which can pass queues of canvas operations around, checking
-     *      their legitimacy, then will run those operations on the canvas
-     *      context.
-     *      + This eliminates the arbitrary code problem, and allows us to
-     *        write an API for this behaviour through which we can exercise
-     *        some control over what is done with our WAMS API.
-     *      + For example, a sequence could look like:
-     *        
-     *          const seq = [
-     *            ['beginPath', []],
-     *            ['arc', [64, 164, 100, 2 * Math.PI, false]],
-     *            ['fillStyle', 'white'],
-     *            ['fill', []],
-     *            ['lineWidth', 5],
-     *            ['strokeStyle', '#003300'],
-     *            ['stroke', []],
-     *            ['font', 'normal 36px Verdana'],
-     *            ['fillStyle', '#000000'],
-     *            ['fillText', ['HTML5 Canvas Text', 132, 182]],
-     *          ];
-     *
-     *      + This sequence could be exucuted in the client as follows (assume
-     *        a CanvasRenderingContext2D is stored in ctx):
-     *        
-     *          seq.forEach( ([p,v]) => {
-     *            if (v instanceof Array) {
-     *              ctx[p].apply(ctx, v);
-     *            } else {
-     *              ctx[p] = v;
-     *            }
-     *          });
-     *
-     *      + The above example is rudimentary, but showcases the fundamental
-     *        idea. The 'seq' array can easily be passed between server and
-     *        client.
-     */
     constructor(values = {}) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       locals.STAMPER.stampNewId(this);
@@ -104,7 +62,7 @@ const ServerItem = (function defineServerItem() {
     }
 
     /*
-     * Items are allowed to be moved off screen, so limitations on where
+     * Items are allowed to be moved off screen, so no limitations on where
      * items can be moved to.
      */
     moveTo(x = this.x, y = this.y) {
