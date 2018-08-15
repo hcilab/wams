@@ -193,7 +193,6 @@ const ClientViewer = (function defineClientViewer() {
 
       this.items = [];
       this.shadows = [];
-      this.resizeToFillWindow();
       document.addEventListener( 'wams-image-loaded', () => this.draw() );
     }
 
@@ -424,6 +423,10 @@ const Interactor = (function defineInteractor() {
       rotate.move = refineRotateMove;
       return rotate;
 
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
       function refineRotateMove(inputs, state, element) {
         if (state.numActiveInputs() === 2) {
           return rotateMove.call(this, inputs, state, element);
@@ -474,10 +477,10 @@ const ClientController = (function defineClientController() {
       this.socket = null;
       this.viewer = new ClientViewer({ context: this.context });
       this.interactor = new Interactor(this.canvas, {
-        pan: this.pan.bind(this),
+        pan:    this.pan.bind(this),
         rotate: this.rotate.bind(this),
-        tap: this.tap.bind(this),
-        zoom: this.zoom.bind(this),
+        tap:    this.tap.bind(this),
+        zoom:   this.zoom.bind(this),
       });
 
       this.resizeCanvasToFillWindow();
@@ -513,6 +516,9 @@ const ClientController = (function defineClientController() {
         [Message.ROTATE]: WamsShared.NOP,
         [Message.SCALE]:  WamsShared.NOP,
 
+        /*
+         * TODO: This could be more... elegant...
+         */
         'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
       };
 
@@ -530,12 +536,12 @@ const ClientController = (function defineClientController() {
 
     resize() {
       this.resizeCanvasToFillWindow();
-      this.viewer.resizeToFillWindow();
       this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
 
     resizeCanvasToFillWindow() {
+      this.viewer.resizeToFillWindow();
       this.canvas.width = window.innerWidth; 
       this.canvas.height = window.innerHeight;
     }
