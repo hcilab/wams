@@ -39,7 +39,7 @@
 - [ ] Clean up how the canvas context gets passed around between view and
       controller on the client side. Basically examine and revise `setup()` and
       `layout()`
-- [ ] Extract an `Interactions` class from the client controller. ZingTouch is 
+- [X] Extract an `Interactions` class from the client controller. ZingTouch is 
       working quite well, but it looks like it might not be the most well
       maintained of libraries. By abstracting the interactions out like this, it
       should become easier to swap out ZingTouch with another library, should
@@ -47,10 +47,12 @@
       interactions, which would be a bonus!
 - [ ] In the same vein, maybe look at doing the same for socket connections and
       request handlers.
-- [ ] Generally clean up the interactions.
+- [X] Generally clean up the interactions.
 - [ ] Write a distributed video player example.
 - [ ] Lock drags to a single object (instead of always operating on the first
       object it finds that's currently under the cursor).
 - [ ] Swap the render order around so that the object that will be dragged is
       the one that appears on top on the canvas. (same for clicked...)
+- [ ] Looking into using device orientation for rotation instead of touchscreen
+      inputs.
 
