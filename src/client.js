@@ -282,16 +282,18 @@ const ClientViewer = (function defineClientViewer() {
       this.draw(); 
     }
 
+    update(container, data) {
+      const object = this[container].find( o => o.id === data.id );
+      if (object) object.assign(data);
+      else console.warn(`Unable to find in ${container}: id: `, data.id);
+    }
+
     updateItem(data) {
-      const item = this.items.find( i => i.id === data.id );
-      if (item) item.assign(data);
-      else console.warn('Unable to find item to be updated.');
+      this.update('items', data);
     }
 
     updateShadow(data) {
-      const shadow = this.shadows.find( v => v.id === data.id );
-      if (shadow) shadow.assign(data);
-      else console.warn('Unable find shadow to be updated.');
+      this.update('shadows', data);
     }
   }
 
