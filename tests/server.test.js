@@ -37,17 +37,14 @@ describe('ServerItem', () => {
     height: 128,
     type: 'view/background',
     imgsrc: '',
-    drawCustom: '',
-    drawStart: '',
+    blueprint: null,
   });
 
   describe('constructor(settings)', () => {
     test('Uses defaults if no arguments provided', () => {
       let item;
       expect(() => item = new ServerItem()).not.toThrow();
-      Object.entries(DEFAULTS).forEach( ([p,v]) => {
-        expect(item[p]).toEqual(v);
-      });
+      expect(item).toMatchObject(DEFAULTS);
     });
 
     test('Creates correct type of item', () => {
@@ -298,35 +295,6 @@ describe('ServerViewer', () => {
       expect(vs.top).toBe(42);
       vs.y = 0;
       expect(vs.top).toBe(0);
-    });
-
-    test('Can get center.x', () => {
-      let center;
-      expect(() => center = vs.center).not.toThrow();
-      expect(center.x).toBeDefined();
-      expect(center.x).toBe(25);
-    });
-
-    test('Can get center.y', () => {
-      let center;
-      expect(() => center = vs.center).not.toThrow();
-      expect(center.y).toBeDefined();
-      expect(center.y).toBe(25);
-    });
-
-    test('center dynamically updates with viewer changes', () => {
-      const center = vs.center;
-      expect(center.x).toBe(25);
-      expect(center.y).toBe(25);
-      vs.moveBy(10,10);
-      expect(center.x).toBe(35);
-      expect(center.y).toBe(35);
-      vs.moveBy(-5,2.2);
-      expect(center.x).toBe(30);
-      expect(center.y).toBe(37.2);
-      vs.moveBy(0,-7.2);
-      expect(center.x).toBe(30);
-      expect(center.y).toBe(30);
     });
   });
 
@@ -665,8 +633,7 @@ describe('WorkSpace', () => {
       height: 128,
       type: 'view/background',
       imgsrc: '',
-      drawCustom: '',
-      drawStart: '',
+      blueprint: null,
     });
 
     test('Returns a ServerItem', () => {
@@ -700,8 +667,7 @@ describe('WorkSpace', () => {
       'height',
       'type',
       'imgsrc',
-      'drawCustom',
-      'drawStart',
+      'blueprint',
       'id',
     ];
 

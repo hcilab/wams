@@ -12,7 +12,7 @@
 /*
  * If operating in a node.js environment, import the requisite libraries.
  */
-if (typeof global !== 'undefined') {
+if (typeof global !== 'undefined' && typeof require === 'function') {
   global.io = require('socket.io-client');
   global.WamsShared = require('../src/shared.js');
   global.ZingTouch = require('../libs/zingtouch.js');
@@ -35,6 +35,30 @@ const globals = Object.freeze(WamsShared.constants);
 const ShadowViewer = (function defineShadowViewer() {
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
+    COLOURS: [
+      'saddlebrown',
+      'red',
+      'blue',
+      'green',
+      'yellow',
+      'orangered',
+      'purple',
+      'fuschia',
+      'aqua',
+      'lime',
+    ],
+
+    drawTopLeftMarker(context) {
+      const base = context.lineWidth / 2;
+      const height = 25;
+
+      context.beginPath();
+      context.moveTo(base,base);
+      context.lineTo(base,height);
+      context.lineTo(height,base);
+      context.lineTo(base,base);
+      context.fill();
+    },
   });
 
   class ShadowViewer extends WamsShared.Viewer {
@@ -44,9 +68,21 @@ const ShadowViewer = (function defineShadowViewer() {
     }
 
     draw(context) {
-      context.beginPath();
-      context.rect(this.x, this.y, this.effectiveWidth, this.effectiveHeight);
-      context.stroke();
+      /*
+       * WARNING: It is *crucial* that this series of instructions be wrapped in
+       * save() and restore(). It is also very important that translate happens
+       * before rotate, which happens before strokeRect!
+       */
+      context.save();
+      context.translate(this.x,this.y);
+      context.rotate((Math.PI * 2) - this.rotation);
+      context.globalAlpha = 0.5;
+      context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
+      context.fillStyle = context.strokeStyle;
+      context.lineWidth = 5;
+      context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+      locals.drawTopLeftMarker(context);
+      context.restore();
     }
   }
   
@@ -111,15 +147,15 @@ const ClientItem = (function defineClientItem() {
       const width = this.width || this.img.width;
       const height = this.height || this.img.height;
 
-      if (this.img) {
-        if (this.img.loaded) {
-          context.drawImage(this.img, this.x, this.y, width, height);
-        } else {
-          context.fillStyle = '#252525';
-          context.fillRect(this.x, this.y, width, height);
-        }
-      } else if (this.sequence) {
+      if (this.sequence) {
         this.sequence.execute(context);
+      } else if (this.img && this.img.loaded) {
+        context.drawImage(this.img, this.x, this.y, width, height);
+      } else {
+        context.save();
+        context.fillStyle = '#252525';
+        context.fillRect(this.x, this.y, width, height);
+        context.restore();
       }
     }
   }
@@ -144,18 +180,21 @@ const ClientViewer = (function defineClientViewer() {
       'id',
       'items',
       'viewers',
-      'context',
     ]),
-    FRAMERATE: 1000 / 60,
     STAMPER: new WamsShared.IDStamper(),
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(values) {
+    constructor(values = {}) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
+
+      if (values.context) this.context = values.context;
+      // else throw 'ClientViewer requires a CanvasRenderingContext2D!';
+
       this.items = [];
       this.shadows = [];
       this.resizeToFillWindow();
+      document.addEventListener( 'wams-image-loaded', () => this.draw() );
     }
 
     addItem(values) {
@@ -169,46 +208,28 @@ const ClientViewer = (function defineClientViewer() {
     draw() {
       this.context.save();
       wipeAndReposition.call(this);
-      locate.call(this);
       this.items.forEach( o => o.draw(this.context) );
       this.shadows.forEach( v => v.draw(this.context) );
       showStatus.call(this);
       this.context.restore();
 
       function wipeAndReposition() {
+        /*
+         * WARNING: It is crucially important that the instructions below occur
+         * in *precisely* this order! In case someone screws it up, the order
+         * is:
+         *    1. clearRect
+         *    2. scale
+         *    3. rotate
+         *    4. translate
+         */
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
-        this.context.translate(-this.x, -this.y);
         this.context.rotate(this.rotation);
-      }
-
-      function locate() {
-        switch(this.rotation) {
-          case(globals.ROTATE_0): 
-            break;
-          case(globals.ROTATE_90): 
-            this.context.translate(
-              (-this.effectiveWidth - (this.x * 2)), 
-              (-this.effectiveHeight - (this.y * 2))
-            ); 
-            break;
-          case(globals.ROTATE_180): 
-            this.context.translate(
-              -this.effectiveWidth, 
-              -(this.x * 2)
-            ); 
-            break;
-          case(globals.ROTATE_270): 
-            this.context.translate(
-              -(this.y * 2), 
-              -this.effectiveWidth
-            ); 
-            break;
-        }
+        this.context.translate(-this.x, -this.y);
       }
 
       function showStatus() {
-        let base = 40;
         const messages = Object.keys(locals.DEFAULTS)
           .map( k => {
             if (typeof this[k] === 'number') {
@@ -218,11 +239,16 @@ const ClientViewer = (function defineClientViewer() {
             }
           })
           .concat([`# of Shadows: ${this.shadows.length}`]);
+        let ty = 40;
+        let tx = 20;
+        this.context.save();
+        this.context.setTransform(1,0,0,1,0,0);
         this.context.font = '18px Georgia';
         messages.forEach( m => {
-          this.context.fillText(m, 20, base);
-          base += 20;
+          this.context.fillText(m, tx, ty);
+          ty += 20;
         });
+        this.context.restore();
       }
     }
 
@@ -253,12 +279,7 @@ const ClientViewer = (function defineClientViewer() {
       locals.STAMPER.cloneId(this, data.id);
       data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
-      this.context = data.context;
-      this.draw();
-      document.addEventListener(
-        'wams-image-loaded',
-        () => this.draw()
-      );
+      this.draw(); 
     }
 
     updateItem(data) {
@@ -275,6 +296,157 @@ const ClientViewer = (function defineClientViewer() {
   }
 
   return ClientViewer;
+})();
+
+/*
+ * The Interactor class provides a layer of abstraction between the
+ * ClientController and the code that processes user inputs.
+ */
+const Interactor = (function defineInteractor() {
+  /*
+   * Currently, the Interactor makes use of the ZingTouch library.
+   *
+   * General Design:
+   *  The handlers will get called with the arguments that need to be reportd
+   *  through to the server. This allows the ClientController to use this class
+   *  in a very simple way. This is the contract between the Interactor and the
+   *  ClientController, and must be honoured.
+   *
+   *  The handlers are initialized to NOPs so that the functions which call the
+   *  handlers don't need to check whether the handler exists.
+   *
+   *  The methods of this class that are similarly named as the handlers are
+   *  there as an intermediary to collect data from events and call the handlers
+   *  with only the requisite data.
+   */
+  const locals = Object.freeze({
+    HANDLERS: Object.freeze({ 
+      pan: WamsShared.NOP,
+      rotate: WamsShared.NOP,
+      tap: WamsShared.NOP,
+      zoom: WamsShared.NOP,
+    }),
+  });
+
+  class Interactor {
+    constructor(canvas, handlers = {}) {
+      this.canvas = canvas;
+      this.region = ZingTouch.Region(this.canvas, true, true);
+      this.handlers = WamsShared.getInitialValues(locals.HANDLERS, handlers);
+      this.bindRegions();
+      window.addEventListener('wheel', this.wheel.bind(this), false);
+    }
+
+    bindRegions() {
+      /*
+       * this.region.bind() attaches a gesture recognizer and a callback to an
+       * element.
+       */
+      const pan = this.pan.bind(this);
+      const tap = this.tap.bind(this);
+      const pinch = this.pinch.bind(this);
+      const rotate = this.rotate.bind(this);
+
+      this.region.bind(this.canvas, this.panner(), pan);
+      this.region.bind(this.canvas, this.tapper(), tap);
+      this.region.bind(this.canvas, this.pincher('Pinch'), pinch);
+      this.region.bind(this.canvas, this.pincher('Expand'), pinch);
+      this.region.bind(this.canvas, this.rotater(), rotate);
+    }
+
+    pan({detail}) {
+      const event = detail.events[0];
+      const data = detail.data[0];
+      this.handlers.pan(
+        event.clientX,
+        event.clientY,
+        data.movement.x,
+        data.movement.y
+      );
+    }
+
+    panner() {
+      const pan = new ZingTouch.Pan();
+      const panMove = pan.move;
+      pan.move = refinePanMove;
+      return pan;
+
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
+      function refinePanMove(inputs, state, element) {
+        const progress = inputs[0].getGestureProgress(this.getId());
+        const movement = {
+          x: inputs[0].current.x - progress.lastEmitted.x,  
+          y: inputs[0].current.y - progress.lastEmitted.y,
+        };
+        const output = panMove.call(this, inputs, state, element);
+        if (output) output.data[0].movement = movement;
+        return output;
+      }
+    }
+
+    pinch({detail}) {
+      this.handlers.zoom(detail.change * 0.009);
+    }
+
+    pincher(PinchOrExpand = 'Pinch') {
+      const gesture = new ZingTouch[PinchOrExpand]();
+      const gestureMove = gesture.move;
+      gesture.move = refinePinchMove;
+      return gesture;
+
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
+      function refinePinchMove(inputs, state, element) {
+        const progress = inputs[0].getGestureProgress(this.getId());
+        const lastDistance = progress.lastEmittedDistance;
+        const data = gestureMove.call(this, inputs, state, element);
+        if (data) data.change = data.distance - lastDistance;
+        return data;
+      }
+    }
+
+    rotate({detail}) {
+      const degrees = detail.distanceFromLast;
+      const radians = degrees * Math.PI / 180;
+      this.handlers.rotate( radians );
+    }
+
+    rotater() {
+      const rotate = new ZingTouch.Rotate();
+      const rotateMove = rotate.move;
+      rotate.move = refineRotateMove;
+      return rotate;
+
+      function refineRotateMove(inputs, state, element) {
+        if (state.numActiveInputs() === 2) {
+          return rotateMove.call(this, inputs, state, element);
+        }
+        return null;
+      }
+    }
+
+    tap({detail}) {
+      const event = detail.events[0];
+      this.handlers.tap( event.clientX, event.clientY );
+    }
+
+    tapper() {
+      return new ZingTouch.Tap({ tolerance: 4 });
+    }
+
+    wheel(event) {
+      event.preventDefault();
+      const factor = event.ctrlKey ? 0.05 : 0.01;
+      this.handlers.zoom(-(event.deltaY * factor));
+    }
+  }
+
+  return Interactor;
 })();
 
 /*
@@ -297,127 +469,24 @@ const ClientController = (function defineClientController() {
     constructor(canvas) {
       this.canvas = canvas;
       this.context = canvas.getContext('2d');
-      this.drawInterval = null;
-      this.mouse  = { x: 0, y: 0 };
       this.socket = null;
-      this.startScale = null;
-      this.transforming = false;
-      this.viewer = new ClientViewer();
-      // this.dragging = false;
-      // this.zoom = locals.getScale();
+      this.viewer = new ClientViewer({ context: this.context });
+      this.interactor = new Interactor(this.canvas, {
+        pan: this.pan.bind(this),
+        rotate: this.rotate.bind(this),
+        tap: this.tap.bind(this),
+        zoom: this.zoom.bind(this),
+      });
 
       this.resizeCanvasToFillWindow();
-      attachWindowListeners.call(this);
-      establishInteraction.call(this);
-      establishSocket.call(this);
+      window.addEventListener('resize', this.resize.bind(this), false);
 
-      function attachWindowListeners() {
-        // const scroll_fn = this.scroll.bind(this); // To reuse bound function
-        // window.addEventListener('DOMMouseScroll', scroll_fn, false);
-        // window.addEventListener('mousewheel', scroll_fn, false);
-        window.addEventListener('resize', this.resize.bind(this), false);
-        window.addEventListener('wheel', this.wheel.bind(this), false);
-      }
-
-      function establishInteraction() {
-        const region = ZingTouch.Region(this.canvas, true, true);
-
-        // Hijack some custom functionality into the zingtouch pan.
-        const customPan = new ZingTouch.Pan();
-        const panMove = customPan.move;
-        customPan.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const movement = {
-            x: inputs[0].current.x - progress.lastEmitted.x,  
-            y: inputs[0].current.y - progress.lastEmitted.y,
-          };
-          const output = panMove.call(this, inputs, state, element);
-          if (output) {
-            output.data[0].movement = movement;
-          }
-          return output;
-        }
-
-        // Hijack some custom functionality into the zingtouch pinch and expand
-        // gestures.
-        const customPinch = new ZingTouch.Pinch();
-        const pinchMove = customPinch.move;
-        customPinch.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const lastDistance = progress.lastEmittedDistance;
-          const data = pinchMove.call(this, inputs, state, element);
-          if (data) {
-            data.change = data.distance - lastDistance;
-          }
-          return data;
-        }
-
-        const customExpand = new ZingTouch.Expand();
-        const expandMove = customExpand.move;
-        customExpand.move = function(inputs, state, element) {
-          const progress = inputs[0].getGestureProgress(this.getId());
-          const lastDistance = progress.lastEmittedDistance;
-          const data = expandMove.call(this, inputs, state, element);
-          if (data) {
-            data.change = data.distance - lastDistance;
-          }
-          return data;
-        }
-
-        region.bind(this.canvas, 'tap', this.tap.bind(this));
-        region.bind(this.canvas, customPan, this.pan.bind(this));
-        region.bind(this.canvas, customPinch, this.pinchOrExpand.bind(this));
-        region.bind(this.canvas, customExpand, this.pinchOrExpand.bind(this));
-      }
-
-      function establishSocket() {
-        this.socket = io.connect(
-          `${window.location.href.slice(0, -1)}${globals.NS_WAMS}`, 
-          {
-            autoConnect: false,
-            reconnection: false,
-          }
-        );
-        this[symbols.attach_listeners]();
-        this.socket.connect();
-      }
-    }
-
-    tap({detail}) {
-      const event = detail.events[0];
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX,
-        y: event.clientY,
+      this.socket = io.connect( globals.NS_WAMS, {
+        autoConnect: false,
+        reconnection: false,
       });
-      new Message(Message.CLICK, mreport).emitWith(this.socket);
-    }
-
-    pan({detail}) {
-      const event = detail.events[0];
-      const data = detail.data[0];
-      const mreport = new WamsShared.MouseReporter({
-        x: event.clientX,
-        y: event.clientY,
-        dx: data.movement.x,
-        dy: data.movement.y,
-      });
-      this.prevX = event.clientX;
-      this.prevY = event.clientY;
-      new Message(Message.DRAG, mreport).emitWith(this.socket);
-    }
-
-    pinchOrExpand({detail}) {
-      const scale = this.viewer.scale + detail.change * 0.009;
-      this.zoom(scale);
-    }
-
-    wheel(event) {
-      const scale = this.viewer.scale - event.deltaY * 0.009;
-      this.zoom(scale);
-    }
-
-    handle(message, ...args) {
-      this.viewer.handle(message, ...args);
+      this[symbols.attach_listeners]();
+      this.socket.connect();
     }
 
     [symbols.attach_listeners]() {
@@ -439,15 +508,27 @@ const ClientController = (function defineClientController() {
         [Message.CLICK]:  WamsShared.NOP,
         [Message.DRAG]:   WamsShared.NOP,
         [Message.RESIZE]: WamsShared.NOP,
+        [Message.ROTATE]: WamsShared.NOP,
         [Message.SCALE]:  WamsShared.NOP,
+
+        'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
       };
 
       Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
     }
 
+    handle(message, ...args) {
+      this.viewer.handle(message, ...args);
+    }
+
+    pan(x, y, dx, dy) {
+      const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
+      new Message(Message.DRAG, mreport).emitWith(this.socket);
+    }
+
     resize() {
-      this.viewer.resizeToFillWindow();
       this.resizeCanvasToFillWindow();
+      this.viewer.resizeToFillWindow();
       this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
@@ -459,13 +540,23 @@ const ClientController = (function defineClientController() {
 
     setup(data) {
       locals.STAMPER.cloneId(this, data.id);
-      data.context = this.context;
-      this.viewer.setup(data);
       this.canvas.style.backgroundColor = data.color;
+      this.viewer.setup(data);
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
     }
 
-    zoom(scale) {
+    rotate(radians) {
+      const rreport = new WamsShared.RotateReporter({ radians });
+      new Message(Message.ROTATE, rreport).emitWith(this.socket);
+    }
+
+    tap(x, y) {
+      const mreport = new WamsShared.MouseReporter({ x, y });
+      new Message(Message.CLICK, mreport).emitWith(this.socket);
+    }
+
+    zoom(diff) {
+      const scale = this.viewer.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }

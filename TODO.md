@@ -32,6 +32,7 @@
 - [X] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
       redundant.
 - [ ] Fix the client `draw()` sequence.
+- [X] Fix scaling for desktop users. (Allow slow & fast scaling)
 - [ ] Fix bugs that occur when users join approximately simultaneously.
   + [ ] Examine possibility of using mutexes around updates. What kind of API
         for this sort of purpose does node.js provide?

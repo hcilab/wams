@@ -10,6 +10,8 @@
  *  server, in order to provide a common interface.
  */
 
+'use strict';
+
 /*
  * This object stores a set of core utilities for use by both the client and
  *  the server.
@@ -48,6 +50,7 @@ const WamsShared = (function defineSharedWamsModule() {
         CLICK:      'wams-click',
         DRAG:       'wams-drag',
         RESIZE:     'wams-resize',
+        ROTATE:     'wams-rotate',
         SCALE:      'wams-scale',
       });
       const TYPE_VALUES = Object.freeze(Object.values(TYPES));
@@ -301,6 +304,13 @@ const WamsShared = (function defineSharedWamsModule() {
   ]);
 
   /*
+   * This class allows reporting of rotation data between client and server.
+   */
+  const RotateReporter = reporterClassFactory([
+    'radians',
+  ]);
+
+  /*
    * This class allows reporting of the full state of the model, for bringing
    * new clients up to speed (or potentially also for recovering a client, if
    * need be).
@@ -327,6 +337,7 @@ const WamsShared = (function defineSharedWamsModule() {
     MouseReporter,
     NOP,
     removeByID,
+    RotateReporter,
     ScaleReporter,
     Viewer,
   });

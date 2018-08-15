@@ -178,13 +178,6 @@ const ServerViewer = (function defineServerViewer() {
     get right()   { return this.x + this.effectiveWidth; }
     get top()     { return this.y; }
 
-    getCenter()  {
-      return Object.freeze({
-        x: this.x + (this.effectiveWidth  / 2),
-        y: this.y + (this.effectiveHeight / 2),
-      });
-    }
-
     canBeScaledTo(width = this.width, height = this.height) {
       return  (width  > 0) &&
         (height > 0) &&
@@ -209,37 +202,54 @@ const ServerViewer = (function defineServerViewer() {
       return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
     }
 
-    refineMouseCoordinates(mx, my) {
-      const base = {
-        x: mx / this.scale + this.x,
-        y: my / this.scale + this.y,
-      };
-      const center = this.getCenter();
-
+    refineMouseCoordinates(x, y, dx, dy) {
+      const data = { x, y, dx, dy };
       /*
-       * XXX: Still need to figure out the "why" of this math. Once I've 
-       *    done that, I will write up a comment explaining it.
+       * WARNING: It is crucially important that the instructions below occur
+       * in *precisely* this order! In case someone screws it up, the order
+       * is:
+       *    1. scale
+       *    2. rotate
+       *    3. translate
        */
-      const adjustMouseForRotation = {
-        [globals.ROTATE_0]:   (base, center) => { return base; },
-        [globals.ROTATE_90]:  (base, center) => { return {
-          x: (2 * this.x) + this.effectiveWidth - base.x,
-          y: (2 * this.y) + this.effectiveHeight - base.y,
-        }},
-        [globals.ROTATE_180]: (base, center) => { return {
-          x: center.x - center.y + base.y,
-          y: center.y + center.x - base.x,
-        }},
-        [globals.ROTATE_270]: (base, center) => { return {
-          x: center.x + center.y - base.y,
-          y: center.y - center.x + base.x,
-        }},
-      };
+      applyScale(data, this.scale);
+      applyRotation(data, (2 * Math.PI) - this.rotation);
+      applyTranslation(data, this.x, this.y);
+      return data;
 
-      if (typeof adjustMouseForRotation[this.rotation] === 'function') {
-        return adjustMouseForRotation[this.rotation].call(this, base, center);
+      function applyScale(data, scale) {
+        data.x /= scale;
+        data.y /= scale;
+        data.dx /= scale;
+        data.dy /= scale;
       }
-      return null;
+
+      function applyTranslation(data, x, y) {
+        data.x += x;
+        data.y += y;
+      }
+
+      function applyRotation(data, theta) {
+        const cos_theta = Math.cos(theta);
+        const sin_theta = Math.sin(theta);
+        const x = data.x;
+        const y = data.y;
+        const dx = data.dx;
+        const dy = data.dy;
+
+        data.x = rotateX(x, y, cos_theta, sin_theta);
+        data.y = rotateY(x, y, cos_theta, sin_theta);
+        data.dx = rotateX(dx, dy, cos_theta, sin_theta);
+        data.dy = rotateY(dx, dy, cos_theta, sin_theta);
+
+        function rotateX(x, y, cos_theta, sin_theta) {
+          return x * cos_theta - y * sin_theta;
+        }
+
+        function rotateY(x, y, cos_theta, sin_theta) {
+          return x * sin_theta + y * cos_theta;
+        }
+      }
     }
 
     /*
@@ -308,11 +318,9 @@ const ListenerFactory = (function defineListenerFactory() {
 
       drag(listener, workspace) {
         return function handleDrag(viewer, {x, y, dx, dy}) {
-          const mouse = viewer.refineMouseCoordinates(x, y);
+          const mouse = viewer.refineMouseCoordinates(x, y, dx, dy);
           if (mouse) {
-            const {x, y} = mouse;
-            dx /= viewer.scale;
-            dy /= viewer.scale;
+            const {x, y, dx, dy} = mouse;
             const target = workspace.findItemByCoordinates(x,y) || viewer;
             listener(viewer, target, x, y, dx, dy);
           }
@@ -323,6 +331,12 @@ const ListenerFactory = (function defineListenerFactory() {
         return function handleLayout(viewer, data) {
           viewer.assign(data); 
           listener(viewer, workspace.viewers.length);
+        };
+      },
+
+      rotate(listener, workspace) {
+        return function handleRotate(viewer, {radians}) {
+          listener(viewer, radians);
         };
       },
 
@@ -497,6 +511,7 @@ const Connection = (function defineConnection() {
         [Message.CLICK]:  (...args) => this.handle('click', ...args),
         [Message.DRAG]:   (...args) => this.handle('drag', ...args),
         [Message.RESIZE]: (...args) => this.resize(...args),
+        [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
         [Message.SCALE]:  (...args) => this.handle('scale', ...args),
       };
 
@@ -647,7 +662,7 @@ const WamsServer = (function defineWamsServer() {
     [symbols.connect](socket) {
       this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
         if (error) throw error;
-        if (clients.length < this[symbols.clientLimit]) {
+        if (clients.length <= this[symbols.clientLimit]) {
           const c = new Connection(socket, this[symbols.workspace]);
           this.connections.push(c);
           socket.on('disconnect', () => this[symbols.disconnect](c) );
@@ -657,6 +672,7 @@ const WamsServer = (function defineWamsServer() {
             this[symbols.server].address().port
           );
         } else {
+          socket.emit('wams-full');
           socket.disconnect(true);
           // TODO: Report disconnection to client, server.
         }
