@@ -204,16 +204,6 @@ const ServerViewer = (function defineServerViewer() {
 
     refineMouseCoordinates(x, y, dx, dy) {
       const data = { x, y, dx, dy };
-      // console.log('refining');
-      // console.group();
-      // console.log('parameters:', {
-      //   x: this.x,
-      //   y: this.y,
-      //   rotation: this.rotation,
-      //   scale: this.scale
-      // });
-      // console.log("base data:", data);
-
       /*
        * WARNING: It is crucially important that the instructions below occur
        * in *precisely* this order! In case someone screws it up, the order
@@ -225,7 +215,6 @@ const ServerViewer = (function defineServerViewer() {
       applyScale(data, this.scale);
       applyRotation(data, (2 * Math.PI) - this.rotation);
       applyTranslation(data, this.x, this.y);
-      // console.groupEnd();
       return data;
 
       function applyScale(data, scale) {
@@ -233,13 +222,11 @@ const ServerViewer = (function defineServerViewer() {
         data.y /= scale;
         data.dx /= scale;
         data.dy /= scale;
-        // console.log("scaled data:", data);
       }
 
       function applyTranslation(data, x, y) {
         data.x += x;
         data.y += y;
-        // console.log("translated data:", data);
       }
 
       function applyRotation(data, theta) {
@@ -254,8 +241,6 @@ const ServerViewer = (function defineServerViewer() {
         data.y = rotateY(x, y, cos_theta, sin_theta);
         data.dx = rotateX(dx, dy, cos_theta, sin_theta);
         data.dy = rotateY(dx, dy, cos_theta, sin_theta);
-
-        // console.log("rotated data:", data);
 
         function rotateX(x, y, cos_theta, sin_theta) {
           return x * cos_theta - y * sin_theta;

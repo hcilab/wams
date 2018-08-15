@@ -35,6 +35,30 @@ const globals = Object.freeze(WamsShared.constants);
 const ShadowViewer = (function defineShadowViewer() {
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
+    COLOURS: [
+      'saddlebrown',
+      'red',
+      'blue',
+      'green',
+      'yellow',
+      'orangered',
+      'purple',
+      'fuschia',
+      'aqua',
+      'lime',
+    ],
+
+    drawTopLeftMarker(context) {
+      const base = context.lineWidth / 2;
+      const height = 25;
+
+      context.beginPath();
+      context.moveTo(base,base);
+      context.lineTo(base,height);
+      context.lineTo(height,base);
+      context.lineTo(base,base);
+      context.fill();
+    },
   });
 
   class ShadowViewer extends WamsShared.Viewer {
@@ -44,12 +68,20 @@ const ShadowViewer = (function defineShadowViewer() {
     }
 
     draw(context) {
+      /*
+       * WARNING: It is *crucial* that this series of instructions be wrapped in
+       * save() and restore(). It is also very important that translate happens
+       * before rotate, which happens before strokeRect!
+       */
       context.save();
       context.translate(this.x,this.y);
       context.rotate((Math.PI * 2) - this.rotation);
-      context.strokeStyle = 'rgba(0,0,0,0.5)';
+      context.globalAlpha = 0.5;
+      context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
+      context.fillStyle = context.strokeStyle;
       context.lineWidth = 5;
       context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+      locals.drawTopLeftMarker(context);
       context.restore();
     }
   }
@@ -466,7 +498,6 @@ const ClientController = (function defineClientController() {
 
     pan(x, y, dx, dy) {
       const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
-      // console.log(mreport);
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
@@ -491,14 +522,12 @@ const ClientController = (function defineClientController() {
 
     tap(x, y) {
       const mreport = new WamsShared.MouseReporter({ x, y });
-      // console.log(mreport);
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
     zoom(diff) {
       const scale = this.viewer.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
-      // console.log(sreport);
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
   }
