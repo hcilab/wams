@@ -183,9 +183,13 @@ const ClientViewer = (function defineClientViewer() {
 
       function wipeAndReposition() {
         /*
-         * WARNING: If you're like me, you'll be tempted to use the transform()
-         * or setTransform() functions. Don't. They throw off the user input
-         * data in unpredictable ways.
+         * WARNING: It is crucially important that the instructions below occur
+         * in *precisely* this order! In case someone screws it up, the order
+         * is:
+         *    1. clearRect
+         *    2. scale
+         *    3. rotate
+         *    4. translate
          */
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
@@ -462,7 +466,7 @@ const ClientController = (function defineClientController() {
 
     pan(x, y, dx, dy) {
       const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
-      console.log(mreport);
+      // console.log(mreport);
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
@@ -487,14 +491,14 @@ const ClientController = (function defineClientController() {
 
     tap(x, y) {
       const mreport = new WamsShared.MouseReporter({ x, y });
-      console.log(mreport);
+      // console.log(mreport);
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
     zoom(diff) {
       const scale = this.viewer.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
-      console.log(sreport);
+      // console.log(sreport);
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
   }

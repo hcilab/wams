@@ -204,13 +204,28 @@ const ServerViewer = (function defineServerViewer() {
 
     refineMouseCoordinates(x, y, dx, dy) {
       const data = { x, y, dx, dy };
-      console.log('refining');
-      console.group();
-      console.log("base data:", data);
+      // console.log('refining');
+      // console.group();
+      // console.log('parameters:', {
+      //   x: this.x,
+      //   y: this.y,
+      //   rotation: this.rotation,
+      //   scale: this.scale
+      // });
+      // console.log("base data:", data);
+
+      /*
+       * WARNING: It is crucially important that the instructions below occur
+       * in *precisely* this order! In case someone screws it up, the order
+       * is:
+       *    1. scale
+       *    2. rotate
+       *    3. translate
+       */
       applyScale(data, this.scale);
       applyRotation(data, (2 * Math.PI) - this.rotation);
       applyTranslation(data, this.x, this.y);
-      console.groupEnd();
+      // console.groupEnd();
       return data;
 
       function applyScale(data, scale) {
@@ -218,25 +233,29 @@ const ServerViewer = (function defineServerViewer() {
         data.y /= scale;
         data.dx /= scale;
         data.dy /= scale;
-        console.log("scaled data:", data);
+        // console.log("scaled data:", data);
       }
 
       function applyTranslation(data, x, y) {
         data.x += x;
         data.y += y;
-        console.log("translated data:", data);
+        // console.log("translated data:", data);
       }
 
       function applyRotation(data, theta) {
         const cos_theta = Math.cos(theta);
         const sin_theta = Math.sin(theta);
+        const x = data.x;
+        const y = data.y;
+        const dx = data.dx;
+        const dy = data.dy;
 
-        data.x = rotateX(data.x, data.y, cos_theta, sin_theta);
-        data.y = rotateY(data.x, data.y, cos_theta, sin_theta);
-        data.dx = rotateX(data.dx, data.dy, cos_theta, sin_theta);
-        data.dy = rotateY(data.dx, data.dy, cos_theta, sin_theta);
+        data.x = rotateX(x, y, cos_theta, sin_theta);
+        data.y = rotateY(x, y, cos_theta, sin_theta);
+        data.dx = rotateX(dx, dy, cos_theta, sin_theta);
+        data.dy = rotateY(dx, dy, cos_theta, sin_theta);
 
-        console.log("rotated data:", data);
+        // console.log("rotated data:", data);
 
         function rotateX(x, y, cos_theta, sin_theta) {
           return x * cos_theta - y * sin_theta;
