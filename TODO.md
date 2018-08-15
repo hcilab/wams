@@ -9,7 +9,7 @@
       <https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers>
 - [ ] Switch to HTTPS
 - [ ] Regulate 'effective' width and height of viewers (calculate automatically)
-- [ ] Fix refinement of mouse coordinates when rotated.
+- [X] Fix refinement of mouse coordinates when rotated.
       May require simultaneous fixing of how the draw sequence is performed.
       I suspect that with a bit of trig, those switch statements on the rotation
       can be eliminated and replaced with a single universal calculation.
