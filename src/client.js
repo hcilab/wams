@@ -441,8 +441,8 @@ const Interactor = (function defineInteractor() {
 
     wheel(event) {
       event.preventDefault();
-      const factor = event.ctrlKey ? 0.05 : 0.01;
-      this.handlers.zoom(-(event.deltaY * factor));
+      const factor = event.ctrlKey ? 0.10 : 0.02;
+      this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
     }
   }
 
