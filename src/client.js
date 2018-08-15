@@ -46,15 +46,10 @@ const ShadowViewer = (function defineShadowViewer() {
     draw(context) {
       context.save();
       context.translate(this.x,this.y);
-      context.rotate(this.rotation);
+      context.rotate((Math.PI * 2) - this.rotation);
       context.strokeStyle = 'rgba(0,0,0,0.5)';
       context.lineWidth = 5;
-      context.strokeRect(
-        0, 
-        0, 
-        this.effectiveWidth, 
-        this.effectiveHeight
-      );
+      context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
       context.restore();
     }
   }
@@ -158,11 +153,11 @@ const ClientViewer = (function defineClientViewer() {
   });
 
   class ClientViewer extends WamsShared.Viewer {
-    constructor(values) {
+    constructor(values = {}) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
 
       if (values.context) this.context = values.context;
-      else throw 'ClientViewer requires a CanvasRenderingContext2D!';
+      // else throw 'ClientViewer requires a CanvasRenderingContext2D!';
 
       this.items = [];
       this.shadows = [];
@@ -195,28 +190,7 @@ const ClientViewer = (function defineClientViewer() {
         this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
         this.context.scale(this.scale, this.scale);
         this.context.rotate(this.rotation);
-
-        const data = { x: this.x, y: this.y };
-        applyRotation(data, this.rotation);
-        this.context.translate(-data.x, -data.y);
-
-        function applyRotation(data, theta) {
-          const cos_theta = Math.cos(theta);
-          const sin_theta = Math.sin(theta);
-
-          data.x = rotateX(data.x, data.y, cos_theta, sin_theta);
-          data.y = rotateY(data.x, data.y, cos_theta, sin_theta);
-          data.dx = rotateX(data.dx, data.dy, cos_theta, sin_theta);
-          data.dy = rotateY(data.dx, data.dy, cos_theta, sin_theta);
-
-          function rotateX(x, y, cos_theta, sin_theta) {
-            return x * cos_theta - y * sin_theta;
-          }
-
-          function rotateY(x, y, cos_theta, sin_theta) {
-            return x * sin_theta + y * cos_theta;
-          }
-        }
+        this.context.translate(-this.x, -this.y);
       }
 
       function showStatus() {
@@ -348,7 +322,7 @@ const Interactor = (function defineInteractor() {
         event.clientX,
         event.clientY,
         data.movement.x,
-        data.movement.y,
+        data.movement.y
       );
     }
 
@@ -488,6 +462,7 @@ const ClientController = (function defineClientController() {
 
     pan(x, y, dx, dy) {
       const mreport = new WamsShared.MouseReporter({ x, y, dx, dy });
+      console.log(mreport);
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
 
@@ -512,12 +487,14 @@ const ClientController = (function defineClientController() {
 
     tap(x, y) {
       const mreport = new WamsShared.MouseReporter({ x, y });
+      console.log(mreport);
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
 
     zoom(diff) {
       const scale = this.viewer.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
+      console.log(sreport);
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
   }

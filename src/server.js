@@ -204,9 +204,13 @@ const ServerViewer = (function defineServerViewer() {
 
     refineMouseCoordinates(x, y, dx, dy) {
       const data = { x, y, dx, dy };
+      console.log('refining');
+      console.group();
+      console.log("base data:", data);
       applyScale(data, this.scale);
+      applyRotation(data, (2 * Math.PI) - this.rotation);
       applyTranslation(data, this.x, this.y);
-      // applyRotation(data, (2 * Math.PI) - this.rotation);
+      console.groupEnd();
       return data;
 
       function applyScale(data, scale) {
@@ -214,11 +218,13 @@ const ServerViewer = (function defineServerViewer() {
         data.y /= scale;
         data.dx /= scale;
         data.dy /= scale;
+        console.log("scaled data:", data);
       }
 
       function applyTranslation(data, x, y) {
         data.x += x;
         data.y += y;
+        console.log("translated data:", data);
       }
 
       function applyRotation(data, theta) {
@@ -229,6 +235,8 @@ const ServerViewer = (function defineServerViewer() {
         data.y = rotateY(data.x, data.y, cos_theta, sin_theta);
         data.dx = rotateX(data.dx, data.dy, cos_theta, sin_theta);
         data.dy = rotateY(data.dx, data.dy, cos_theta, sin_theta);
+
+        console.log("rotated data:", data);
 
         function rotateX(x, y, cos_theta, sin_theta) {
           return x * cos_theta - y * sin_theta;
