@@ -321,8 +321,9 @@ const Interactor = (function defineInteractor() {
    */
   const locals = Object.freeze({
     HANDLERS: Object.freeze({ 
-      tap: WamsShared.NOP,
       pan: WamsShared.NOP,
+      rotate: WamsShared.NOP,
+      tap: WamsShared.NOP,
       zoom: WamsShared.NOP,
     }),
   });
@@ -344,11 +345,13 @@ const Interactor = (function defineInteractor() {
       const pan = this.pan.bind(this);
       const tap = this.tap.bind(this);
       const pinch = this.pinch.bind(this);
+      const rotate = this.rotate.bind(this);
 
       this.region.bind(this.canvas, this.panner(), pan);
       this.region.bind(this.canvas, this.tapper(), tap);
       this.region.bind(this.canvas, this.pincher('Pinch'), pinch);
       this.region.bind(this.canvas, this.pincher('Expand'), pinch);
+      this.region.bind(this.canvas, this.rotater(), rotate);
     }
 
     pan({detail}) {
@@ -407,6 +410,26 @@ const Interactor = (function defineInteractor() {
       }
     }
 
+    rotate({detail}) {
+      const degrees = detail.distanceFromLast;
+      const radians = degrees * Math.PI / 180;
+      this.handlers.rotate( radians );
+    }
+
+    rotater() {
+      const rotate = new ZingTouch.Rotate();
+      const rotateMove = rotate.move;
+      rotate.move = refineRotateMove;
+      return rotate;
+
+      function refineRotateMove(inputs, state, element) {
+        if (state.numActiveInputs() === 2) {
+          return rotateMove.call(this, inputs, state, element);
+        }
+        return null;
+      }
+    }
+
     tap({detail}) {
       const event = detail.events[0];
       this.handlers.tap( event.clientX, event.clientY );
@@ -449,8 +472,9 @@ const ClientController = (function defineClientController() {
       this.socket = null;
       this.viewer = new ClientViewer({ context: this.context });
       this.interactor = new Interactor(this.canvas, {
-        tap: this.tap.bind(this),
         pan: this.pan.bind(this),
+        rotate: this.rotate.bind(this),
+        tap: this.tap.bind(this),
         zoom: this.zoom.bind(this),
       });
 
@@ -484,6 +508,7 @@ const ClientController = (function defineClientController() {
         [Message.CLICK]:  WamsShared.NOP,
         [Message.DRAG]:   WamsShared.NOP,
         [Message.RESIZE]: WamsShared.NOP,
+        [Message.ROTATE]: WamsShared.NOP,
         [Message.SCALE]:  WamsShared.NOP,
 
         'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
@@ -518,6 +543,11 @@ const ClientController = (function defineClientController() {
       this.canvas.style.backgroundColor = data.color;
       this.viewer.setup(data);
       new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
+    }
+
+    rotate(radians) {
+      const rreport = new WamsShared.RotateReporter({ radians });
+      new Message(Message.ROTATE, rreport).emitWith(this.socket);
     }
 
     tap(x, y) {

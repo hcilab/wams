@@ -334,6 +334,12 @@ const ListenerFactory = (function defineListenerFactory() {
         };
       },
 
+      rotate(listener, workspace) {
+        return function handleRotate(viewer, {radians}) {
+          listener(viewer, radians);
+        };
+      },
+
       scale(listener, workspace) {
         return function handleScale(viewer, {scale}) {
           listener(viewer, scale);
@@ -505,6 +511,7 @@ const Connection = (function defineConnection() {
         [Message.CLICK]:  (...args) => this.handle('click', ...args),
         [Message.DRAG]:   (...args) => this.handle('drag', ...args),
         [Message.RESIZE]: (...args) => this.resize(...args),
+        [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
         [Message.SCALE]:  (...args) => this.handle('scale', ...args),
       };
 

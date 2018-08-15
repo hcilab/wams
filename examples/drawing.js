@@ -63,7 +63,14 @@ function handleScale(viewer, newScale) {
   ws.update(viewer);
 }
 
+// Executed once per user, when they join.
+function handleLayout(viewer, numViewers) {
+  viewer.moveTo(4000,4000);
+  ws.update(viewer);
+}
+
 // Attaches the defferent function handlers
+ws.on('layout', handleLayout);
 ws.on('click', handleClick);
 ws.on('scale', handleScale);
 ws.on('drag',  handleDrag);

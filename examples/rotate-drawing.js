@@ -57,62 +57,23 @@ function handleDrag(viewer, target, x, y, dx, dy) {
   ws.update(target);
 }
 
-// Executed when a user pinches a device, or uses the scroll wheel on a computer
-function handleScale(viewer, newScale) {
-  viewer.rescale(newScale);
+// Executed when a user rotates two fingers around the screen.
+function handleRotate(viewer, radians) {
+  viewer.rotation += radians;
   ws.update(viewer);
 }
 
-const handleLayout = (function defineLayoutHandler() {
-  let first;
-
-  function layoutFirst(viewer) {
-    viewer.moveTo(4000,4000);
-    first = viewer;
-  }
-
-  function layoutAngle(viewer) {
-    viewer.moveTo(first.left, first.bottom);
-    viewer.rotation = Math.PI * 7 / 4;
-  }
-
-  function layoutLeft(viewer) {
-    viewer.moveTo(first.left, first.top);
-    viewer.rotation = Math.PI * 3 / 2;
-  }
-
-  function layoutTop(viewer) {
-    viewer.moveTo(first.right, first.top);
-    viewer.rotation = Math.PI;
-  }
-
-  function layoutRight(viewer) {
-    viewer.moveTo(first.right, first.bottom);
-    viewer.rotation = Math.PI / 2;
-  }
-
-  const user_fns = [
-    layoutFirst,
-    layoutAngle,
-    layoutLeft,
-    layoutTop,
-    layoutRight,
-  ];
-
-  function handleLayout(viewer, numViewers) {
-    user_fns[numViewers - 1](viewer);
-    ws.update(viewer);
-  }
-
-  return handleLayout;
-})();
-
+// Executed once per user, when they join.
+function handleLayout(viewer, numViewers) {
+  viewer.moveTo(4000,4000);
+  ws.update(viewer);
+}
 
 // Attaches the defferent function handlers
 ws.on('click',  handleClick);
-ws.on('scale',  handleScale);
 ws.on('drag',   handleDrag);
 ws.on('layout', handleLayout);
+ws.on('rotate', handleRotate);
 
 ws.listen(9004);
 
