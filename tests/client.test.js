@@ -101,7 +101,7 @@ describe('ClientItem', () => {
       });
     });
 
-    test('If data has an ID, stamps it immutably onto the item', () => {
+    test('If data has an Id, stamps it immutably onto the item', () => {
       item.id = 4;
       const ci = new ClientItem(item);
       expect(ci).toHaveImmutableProperty('id');
@@ -292,7 +292,7 @@ describe('ClientView', () => {
       expect(() => cv.setup(data)).not.toThrow();
     });
 
-    test('Stamps an immutable ID onto the ClientView', () => {
+    test('Stamps an immutable Id onto the ClientView', () => {
       expect(cv).toHaveImmutableProperty('id');
     });
 

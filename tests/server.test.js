@@ -67,7 +67,7 @@ describe('ServerItem', () => {
       expect(item.imgsrc).toBe('');
     });
 
-    test('Stamps the item with an immutable ID', () => {
+    test('Stamps the item with an immutable Id', () => {
       const item = new ServerItem();
       expect(item).toHaveImmutableProperty('id');
       expect(item.id).toBeGreaterThanOrEqual(0);
@@ -259,7 +259,7 @@ describe('ServerView', () => {
       expect(vs.effectiveHeight).toBe(50);
     });
 
-    test('Stamps an immutable ID onto the item', () => {
+    test('Stamps an immutable Id onto the item', () => {
       const vs = new ServerView();
       expect(vs).toHaveImmutableProperty('id');
       expect(vs.id).toBeGreaterThanOrEqual(0);
@@ -575,7 +575,7 @@ describe('WorkSpace', () => {
       expect(new WorkSpace()).toBeInstanceOf(WorkSpace);
     });
 
-    test('Stamps an immutable ID', () => {
+    test('Stamps an immutable Id', () => {
       const ws = new WorkSpace();
       expect(ws).toHaveImmutableProperty('id');
     });

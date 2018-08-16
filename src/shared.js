@@ -142,9 +142,9 @@ const WamsShared = (function defineSharedWamsModule() {
   }
 
   /*
-   * Removes the given item from the given array, according to its ID.
+   * Removes the given item from the given array, according to its Id.
    */
-  function removeByID(array, item) {
+  function removeById(array, item) {
     const idx = array.findIndex( o => o.id === item.id );
     if (idx >= 0) {
       array.splice(idx, 1);
@@ -157,49 +157,49 @@ const WamsShared = (function defineSharedWamsModule() {
    * Removes the given item of the given class (enforced by throwing an
    * exception if not an instance) from the given array.
    */
-  function safeRemoveByID(array, item, class_fn) {
+  function safeRemoveById(array, item, class_fn) {
     if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
-    return removeByID(array, item);
+    return removeById(array, item);
   }
 
   /*
-   * I wrote this generator class to make ID generation more controlled.
+   * I wrote this generator class to make Id generation more controlled.
    * The class has access to a private (local lexical scope) generator 
    *  function and Symbol for generators, and exposes a pair of methods for
-   *  stamping new IDs onto objects and cloning previously existing IDs onto
+   *  stamping new Ids onto objects and cloning previously existing Ids onto
    *  objects.
    *
    * stampNewId(object):
    *  object:   The object to stamp with an id.
    *
-   *  All IDs produced by this method are guaranteed to be unique, on a
+   *  All Ids produced by this method are guaranteed to be unique, on a
    *  per-stamper basis. (Two uniquely constructed stampers can and will
-   *  generate identical IDs).
+   *  generate identical Ids).
    *
    * cloneId(object, id):
    *  object:   Will receive a cloned id.
    *  id:       The id to clone onto the object.
    *
    * For example:
-   *    const stamper = new IDStamper();
+   *    const stamper = new IdStamper();
    *    const obj = {};
    *    stamper.stampNewId(obj);
-   *    console.log(obj.id);  // an integer unique to IDs stamped by stamper
+   *    console.log(obj.id);  // an integer unique to Ids stamped by stamper
    *    obj.id = 2;           // has no effect.
    *    delete obj.id;        // false
    *
    *    const danger = {};
    *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
-   *                                     // now both using the same ID.
+   *                                     // now both using the same Id.
    */
-  const IDStamper = (function defineIDStamper() {
+  const IdStamper = (function defineIdStamper() {
     function* id_gen() {
       let next_id = 0;
       while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
     }
     const gen = Symbol();
 
-    class IDStamper {
+    class IdStamper {
       constructor() {
         this[gen] = id_gen();
       }
@@ -215,7 +215,7 @@ const WamsShared = (function defineSharedWamsModule() {
       }
     }
 
-    return IDStamper;
+    return IdStamper;
   })();
 
   /*
@@ -225,7 +225,7 @@ const WamsShared = (function defineSharedWamsModule() {
   function reporterClassFactory(coreProperties) {
     const locals = Object.freeze({
       DEFAULTS: {},
-      STAMPER: new IDStamper(),
+      STAMPER: new IdStamper(),
     });
 
     coreProperties.forEach( p => {
@@ -328,7 +328,7 @@ const WamsShared = (function defineSharedWamsModule() {
   return Object.freeze({
     constants,
     FullStateReporter,
-    IDStamper,
+    IdStamper,
     getInitialValues,
     Item,
     makeOwnPropertyImmutable,
@@ -336,7 +336,7 @@ const WamsShared = (function defineSharedWamsModule() {
     Message,
     MouseReporter,
     NOP,
-    removeByID,
+    removeById,
     RotateReporter,
     ScaleReporter,
     View,

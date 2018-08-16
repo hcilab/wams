@@ -29,7 +29,7 @@
         a new version of the sequence that will be used for actual rendering.
 - [X] Figure out a way of testing the client-side code without having to adjust
       the code before and after by commenting out the `require()` statements.
-- [X] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
+- [X] Remove `hasOwnProperty()` checks before cloning Ids, as this is now 
       redundant.
 - [X] Fix the client `draw()` sequence.
 - [X] Fix scaling for desktop users. (Allow slow & fast scaling)

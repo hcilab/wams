@@ -33,7 +33,7 @@ const ServerItem = (function defineServerItem() {
       imgsrc: '',
       blueprint: null,
     }),
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
   });
 
   class ServerItem extends WamsShared.Item {
@@ -84,7 +84,7 @@ const ServerView = (function defineServerView() {
         y: 10000,
       },
     },
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
   });
 
   class ServerView extends WamsShared.View {
@@ -313,7 +313,7 @@ const WorkSpace = (function defineWorkSpace() {
       color: '#aaaaaa',
     }),
     MIN_BOUND: 100,
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
 
     resolveBounds(bounds = {}) {
       function safeNumber(x) {
@@ -371,11 +371,11 @@ const WorkSpace = (function defineWorkSpace() {
     }
 
     removeView(view) {
-      return WamsShared.removeByID( this.views, view, ServerView );
+      return WamsShared.removeById( this.views, view, ServerView );
     }
 
     removeItem(item) {
-      return WamsShared.removeByID( this.items, item, ServerItem );
+      return WamsShared.removeById( this.items, item, ServerItem );
     }
 
     reportViews() {

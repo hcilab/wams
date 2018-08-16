@@ -12,12 +12,12 @@
  * Routines to test:
  *   + makeOwnPropertyImmutable,
  *   + getInitialValues,
- *   + IDStamper,
+ *   + IdStamper,
  *   + View,
  *   + Item,
  */
 const WamsShared = require('../src/shared.js');
-const IDStamper = WamsShared.IDStamper;
+const IdStamper = WamsShared.IdStamper;
 const Message = WamsShared.Message;
 const View = WamsShared.View;
 const Item = WamsShared.Item;
@@ -116,7 +116,7 @@ describe('makeOwnPropertyImmutable', () => {
   });
 });
 
-describe('removeByID(array, item, class_fn)', () => {
+describe('removeById(array, item, class_fn)', () => {
   function A(id) {
     this.id = id;
   }
@@ -130,43 +130,43 @@ describe('removeByID(array, item, class_fn)', () => {
   });
 
   test('Throws exception if not passed an array.', () => {
-    expect(() => WamsShared.removeByID()).toThrow();
-    expect(() => WamsShared.removeByID({})).toThrow();
+    expect(() => WamsShared.removeById()).toThrow();
+    expect(() => WamsShared.removeById({})).toThrow();
   });
 
-  test('Removes the item with the corresponding ID, if present', () => {
+  test('Removes the item with the corresponding Id, if present', () => {
     const a1 = new A(1);
     const a2 = new A(2);
     const a3 = new A(3);
     expect(arr.length).toBe(3);
-    expect(() => WamsShared.removeByID(arr,a1)).not.toThrow();
+    expect(() => WamsShared.removeById(arr,a1)).not.toThrow();
     expect(arr.find(a => a.id === 1)).toBeUndefined();
-    expect(() => WamsShared.removeByID(arr,a2)).not.toThrow();
+    expect(() => WamsShared.removeById(arr,a2)).not.toThrow();
     expect(arr.find(a => a.id === 2)).toBeUndefined();
-    expect(() => WamsShared.removeByID(arr,a3)).not.toThrow();
+    expect(() => WamsShared.removeById(arr,a3)).not.toThrow();
     expect(arr.find(a => a.id === 3)).toBeUndefined();
     expect(arr.length).toBe(0);
   });
 
-  test('Does not remove any item if no item with ID present.', () => {
+  test('Does not remove any item if no item with Id present.', () => {
     const a4 = new A(4);
     expect(arr.length).toBe(3);
-    expect(() => WamsShared.removeByID(arr,a4)).not.toThrow();
+    expect(() => WamsShared.removeById(arr,a4)).not.toThrow();
     expect(arr.length).toBe(3);
   });
 });
 
-describe('IDStamper', () => {
+describe('IdStamper', () => {
   describe('constructor()', () => {
     test('correctly constructs expected object', () => {
-      expect(new IDStamper()).toBeInstanceOf(IDStamper);
+      expect(new IdStamper()).toBeInstanceOf(IdStamper);
     });
   });
 
   describe('stampNewId(obj)', () => {
-    const stamper = new WamsShared.IDStamper();
+    const stamper = new WamsShared.IdStamper();
 
-    test('can stamp an immutable ID onto an object', () => {
+    test('can stamp an immutable Id onto an object', () => {
       const x = {};
       expect(x).not.toHaveImmutableProperty('id');
 
@@ -181,7 +181,7 @@ describe('IDStamper', () => {
       expect( () => stamper.stampNewId(x) ).toThrow();
     });
 
-    test('does not reuse IDs', () => {
+    test('does not reuse Ids', () => {
       const x = {};
       const y = {};
       stamper.stampNewId(x);
@@ -191,9 +191,9 @@ describe('IDStamper', () => {
   });
 
   describe('cloneId(obj, id)', () => {
-    const stamper = new WamsShared.IDStamper();
+    const stamper = new WamsShared.IdStamper();
 
-    test('will stamp an immutable user-provided ID', () => {
+    test('will stamp an immutable user-provided Id', () => {
       const x = {};
       const id = 1;
       expect(x).not.toHaveImmutableProperty('id');
@@ -202,7 +202,7 @@ describe('IDStamper', () => {
       expect(x.id).toBe(id);
     });
     
-    test('Will not define an ID if none provided', () => {
+    test('Will not define an Id if none provided', () => {
       const x = {};
       expect(x).not.toHaveImmutableProperty('id');
       stamper.cloneId(x);
@@ -314,12 +314,12 @@ describe('View', () => {
       expect(data.scale).toBeNull();
     });
 
-    test('does not report an ID if none exists on the object', () => {
+    test('does not report an Id if none exists on the object', () => {
       const data = vs.report();
       expect(data).not.toHaveProperty('id');
     });
 
-    test('reports an immutable ID if one exists on the object', () => {
+    test('reports an immutable Id if one exists on the object', () => {
       vs.id = 1;
       const data = vs.report();
       expect(data).toHaveProperty('id');
@@ -424,12 +424,12 @@ describe('Item', () => {
       expect(data.imgsrc).toBeNull();
     });
 
-    test('does not report an ID if none exists on the item', () => {
+    test('does not report an Id if none exists on the item', () => {
       const data = vs.report();
       expect(data).not.toHaveProperty('id');
     });
 
-    test('reports an immutable ID if one exists on the item', () => {
+    test('reports an immutable Id if one exists on the item', () => {
       vs.id = 1;
       const data = vs.report();
       expect(data).toHaveProperty('id');

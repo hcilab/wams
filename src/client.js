@@ -41,7 +41,7 @@ const globals = Object.freeze(WamsShared.constants);
  */
 const ShadowView = (function defineShadowView() {
   const locals = Object.freeze({
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
     COLOURS: [
       'saddlebrown',
       'darkred',
@@ -117,7 +117,7 @@ const ClientItem = (function defineClientItem() {
    * already gone through an initialization against a defaults object.
    */
   const locals = Object.freeze({
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
     createImage(src) {
       if (src) {
         const img = new Image();
@@ -212,7 +212,7 @@ const ClientView = (function defineClientView() {
       'items',
       'views',
     ]),
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
   });
 
   class ClientView extends WamsShared.View {
@@ -285,11 +285,11 @@ const ClientView = (function defineClientView() {
     }
 
     removeItem(item) {
-      return WamsShared.removeByID( this.items, item, ClientItem );
+      return WamsShared.removeById( this.items, item, ClientItem );
     }
 
     removeShadow(shadow) {
-      return WamsShared.removeByID( this.shadows, shadow, ShadowView );
+      return WamsShared.removeById( this.shadows, shadow, ShadowView );
     }
 
     resizeToFillWindow() {
@@ -491,7 +491,7 @@ const Interactor = (function defineInteractor() {
 const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
   const locals = Object.freeze({
-    STAMPER: new WamsShared.IDStamper(),
+    STAMPER: new WamsShared.IdStamper(),
   });
 
   const symbols = Object.freeze({
