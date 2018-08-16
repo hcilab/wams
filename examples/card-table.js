@@ -48,29 +48,29 @@ const handleLayout = (function makeLayoutHandler() {
   const TOP     = 3;
   const RIGHT   = 4;
 
-  function layoutTable(viewer) {
-    viewer.moveTo( 2000, 2000 );
-    table = viewer;
+  function layoutTable(view) {
+    view.moveTo( 2000, 2000 );
+    table = view;
   };
 
-  function layoutBottom(viewer) {
-    viewer.moveTo( table.left, table.bottom );
-    viewer.rotation = Math.PI * 1 / 4;
+  function layoutBottom(view) {
+    view.moveTo( table.left, table.bottom );
+    view.rotation = Math.PI * 1 / 4;
   };
 
-  function layoutLeft(viewer) {
-    viewer.moveTo( table.left, table.top );
-    viewer.rotation = Math.PI * 3 / 2;
+  function layoutLeft(view) {
+    view.moveTo( table.left, table.top );
+    view.rotation = Math.PI * 3 / 2;
   };
 
-  function layoutTop(viewer) {
-    viewer.moveTo( table.right, table.top );
-    viewer.rotation = Math.PI;
+  function layoutTop(view) {
+    view.moveTo( table.right, table.top );
+    view.rotation = Math.PI;
   };
 
-  function layoutRight(viewer) {
-    viewer.moveTo( table.right, table.bottom );
-    viewer.rotation = Math.PI / 2;
+  function layoutRight(view) {
+    view.moveTo( table.right, table.bottom );
+    view.rotation = Math.PI / 2;
   };
 
   const user_fns = [];
@@ -80,9 +80,9 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[TOP]     = layoutTop;
   user_fns[RIGHT]   = layoutRight;
 
-  function handleLayout(viewer, numViewers) {
-    user_fns[numViewers - 1](viewer);
-    ws.update(viewer);
+  function handleLayout(view, numViews) {
+    user_fns[numViews - 1](view);
+    ws.update(view);
   }
 
   return handleLayout;
@@ -93,7 +93,7 @@ const handleDrag = (function makeDragHandler() {
     return tgt.type === 'joker';
   }
 
-  function handleDrag(viewer, target, x, y, dx, dy) {
+  function handleDrag(view, target, x, y, dx, dy) {
     if (target.type === 'view/background') {
       target.moveBy(-dx, -dy);  
     } else if (isItem(target)) {
@@ -105,15 +105,15 @@ const handleDrag = (function makeDragHandler() {
   return handleDrag;
 })();
 
-const handleScale = function(viewer, newScale) {
-  viewer.rescale(newScale);
-  ws.update(viewer);
+const handleScale = function(view, newScale) {
+  view.rescale(newScale);
+  ws.update(view);
 }
 
 const handleClick = (function makeClickHandler() {
   let faceUp = true;
 
-  function handleClick(viewer, target, x, y) {
+  function handleClick(view, target, x, y) {
     if (target.type === 'joker') {
       const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
       target.assign({imgsrc});

@@ -66,10 +66,10 @@ const ServerItem = (function defineServerItem() {
 })();
 
 /*
- * The ServerViewer provides operations for the server to locate, move,
- * and rescale viewers.
+ * The ServerView provides operations for the server to locate, move,
+ * and rescale views.
  */
-const ServerViewer = (function defineServerViewer() {
+const ServerView = (function defineServerView() {
   const locals = Object.freeze({
     DEFAULTS: {
       x: 0,
@@ -87,11 +87,11 @@ const ServerViewer = (function defineServerViewer() {
     STAMPER: new WamsShared.IDStamper(),
   });
 
-  class ServerViewer extends WamsShared.Viewer {
+  class ServerView extends WamsShared.View {
     /*
      * XXX: At some point, the effective width and height should be made to be
      *      updated whenever either the width, height, or scale of the
-     *      viewer get updated. This could be achieve with getters and 
+     *      view get updated. This could be achieve with getters and 
      *      setters on those three values. Might need to think through all the
      *      possible complications though.
      *
@@ -134,7 +134,7 @@ const ServerViewer = (function defineServerViewer() {
      * The canMoveTo[XY] functions are split up in order to allow for the x and
      * y dimensions to be independently moved. In other words, if a move fails
      * in the x direction, it can still succeed in the y direction. This makes
-     * it easier to push the viewer into the boundaries.
+     * it easier to push the view into the boundaries.
      *
      * XXX: Can they be unified simply while still allowing this kind of 
      *      separation?
@@ -194,7 +194,7 @@ const ServerViewer = (function defineServerViewer() {
     }
 
     /*
-     * Viewers are constrained to stay within the boundaries of the workspace.
+     * Views are constrained to stay within the boundaries of the workspace.
      */
     moveTo(x = this.x, y = this.y) {
       const coordinates = { x: this.x, y: this.y };
@@ -213,8 +213,8 @@ const ServerViewer = (function defineServerViewer() {
      * This might seem odd at first, as that seems to be the opposite of what
      * should be done. But what these variables are actually representing is the
      * amount of the underlying workspace that can be displayed inside the
-     * viewer. So a larger scale means that each portion of the workspace takes
-     * up more of the viewer, therefore _less_ of the workspace is visible.
+     * view. So a larger scale means that each portion of the workspace takes
+     * up more of the view, therefore _less_ of the workspace is visible.
      * Hence, division.
      *
      * XXX: One thing that could be done in this function is to try anchoring
@@ -233,7 +233,7 @@ const ServerViewer = (function defineServerViewer() {
     }
   }
 
-  return ServerViewer;
+  return ServerView;
 })();
 
 /*
@@ -245,42 +245,42 @@ const ListenerFactory = (function defineListenerFactory() {
   const locals = Object.freeze({
     BLUEPRINTS: Object.freeze({
       click(listener, workspace) {
-        return function handleClick(viewer, {x, y}) {
-          const mouse = viewer.refineMouseCoordinates(x, y);
+        return function handleClick(view, {x, y}) {
+          const mouse = view.refineMouseCoordinates(x, y);
           if (mouse) {
             const {x, y} = mouse;
-            const target = workspace.findItemByCoordinates(x, y) || viewer;
-            listener(viewer, target, x, y);
+            const target = workspace.findItemByCoordinates(x, y) || view;
+            listener(view, target, x, y);
           }
         };
       },
 
       drag(listener, workspace) {
-        return function handleDrag(viewer, {x, y, dx, dy}) {
-          const mouse = viewer.refineMouseCoordinates(x, y, dx, dy);
+        return function handleDrag(view, {x, y, dx, dy}) {
+          const mouse = view.refineMouseCoordinates(x, y, dx, dy);
           if (mouse) {
             const {x, y, dx, dy} = mouse;
-            const target = workspace.findItemByCoordinates(x,y) || viewer;
-            listener(viewer, target, x, y, dx, dy);
+            const target = workspace.findItemByCoordinates(x,y) || view;
+            listener(view, target, x, y, dx, dy);
           }
         };
       },
 
       layout(listener, workspace) {
-        return function handleLayout(viewer, data) {
-          listener(viewer, workspace.viewers.length);
+        return function handleLayout(view, data) {
+          listener(view, workspace.views.length);
         };
       },
 
       rotate(listener, workspace) {
-        return function handleRotate(viewer, {radians}) {
-          listener(viewer, radians);
+        return function handleRotate(view, {radians}) {
+          listener(view, radians);
         };
       },
 
       scale(listener, workspace) {
-        return function handleScale(viewer, {scale}) {
-          listener(viewer, scale);
+        return function handleScale(view, {scale}) {
+          listener(view, scale);
         };
       },
     }),
@@ -300,8 +300,8 @@ const ListenerFactory = (function defineListenerFactory() {
 })();
 
 /*
- * The WorkSpace keeps track of viewers and items, and can handle events on
- * those items and viewers which allow them to be interacted with.
+ * The WorkSpace keeps track of views and items, and can handle events on
+ * those items and views which allow them to be interacted with.
  */
 const WorkSpace = (function defineWorkSpace() {
   const locals = Object.freeze({
@@ -336,7 +336,7 @@ const WorkSpace = (function defineWorkSpace() {
 
       // Things to track.
       // this.subWS = [];
-      this.viewers = [];
+      this.views = [];
       this.items = [];
 
       // Attach NOPs for the event listeners, so they are callable.
@@ -370,26 +370,26 @@ const WorkSpace = (function defineWorkSpace() {
       this.handlers[type] = ListenerFactory.build(type, listener, this);
     }
 
-    removeViewer(viewer) {
-      return WamsShared.removeByID( this.viewers, viewer, ServerViewer );
+    removeView(view) {
+      return WamsShared.removeByID( this.views, view, ServerView );
     }
 
     removeItem(item) {
       return WamsShared.removeByID( this.items, item, ServerItem );
     }
 
-    reportViewers() {
-      return this.viewers.map( v => v.report() );
+    reportViews() {
+      return this.views.map( v => v.report() );
     }
 
     reportItems() {
       return this.items.map( o => o.report() );
     }
 
-    spawnViewer(values = {}) {
+    spawnView(values = {}) {
       values.bounds = this.settings.bounds;
-      const v = new ServerViewer(values);
-      this.viewers.push(v);
+      const v = new ServerView(values);
+      this.views.push(v);
       return v;
     }
 
@@ -405,7 +405,7 @@ const WorkSpace = (function defineWorkSpace() {
 
 /*
  * A Connection maintains a socket.io connection between a client and the
- * server. It tracks a viewer associated with the client, as well as the 
+ * server. It tracks a view associated with the client, as well as the 
  * associated workspace.
  */
 const Connection = (function defineConnection() {
@@ -418,14 +418,14 @@ const Connection = (function defineConnection() {
     constructor(socket, workspace) {
       this.socket = socket;
       this.workspace = workspace;
-      this.viewer = this.workspace.spawnViewer();
+      this.view = this.workspace.spawnView();
       this[symbols.attach_listeners]();
 
       const fsreport = new WamsShared.FullStateReporter({
-        viewers: this.workspace.reportViewers(),
+        views: this.workspace.reportViews(),
         items: this.workspace.reportItems(),
         color: this.workspace.settings.color,
-        id: this.viewer.id,
+        id: this.view.id,
       });
       new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
     }
@@ -439,7 +439,7 @@ const Connection = (function defineConnection() {
         [Message.RM_SHADOW]:  WamsShared.NOP,
         [Message.UD_ITEM]:    WamsShared.NOP,
         [Message.UD_SHADOW]:  WamsShared.NOP,
-        [Message.UD_VIEWER]:  WamsShared.NOP,
+        [Message.UD_VIEW]:  WamsShared.NOP,
 
         // Connection establishment related (disconnect, initial setup)
         [Message.INITIALIZE]: WamsShared.NOP,
@@ -457,10 +457,10 @@ const Connection = (function defineConnection() {
     }
 
     disconnect() {
-      if (this.workspace.removeViewer(this.viewer)) {
+      if (this.workspace.removeView(this.view)) {
         this.socket.disconnect(true);
         console.log(
-          'viewer', this.viewer.id, 
+          'view', this.view.id, 
           'disconnected from workspace', this.workspace.id
         );
         return true;
@@ -469,18 +469,18 @@ const Connection = (function defineConnection() {
     }
 
     handle(message, ...args) {
-      this.workspace.handle(message, this.viewer, ...args);
+      this.workspace.handle(message, this.view, ...args);
     }
 
     layout(data) {
-      this.viewer.assign(data);
-      new Message(Message.ADD_SHADOW, this.viewer)
+      this.view.assign(data);
+      new Message(Message.ADD_SHADOW, this.view)
         .emitWith(this.socket.broadcast);
-      this.workspace.handle('layout', this.viewer, data);
+      this.workspace.handle('layout', this.view, data);
     }
 
     resize(data) {
-      this.viewer.assign(data);
+      this.view.assign(data);
     }
   }
 
@@ -592,7 +592,7 @@ const WamsServer = (function defineWamsServer() {
       /*
        * FIXME: Not necessary to actually track connections like this, doing it
        *      for debugging assistance, for now.
-       * XXX: Actuallly, I am using them right now, in updateViewer().
+       * XXX: Actuallly, I am using them right now, in updateView().
        */
       this.connections = [];
     }
@@ -606,7 +606,7 @@ const WamsServer = (function defineWamsServer() {
           socket.on('disconnect', () => this[symbols.disconnect](c) );
 
           console.log(
-            `Viewer ${c.viewer.id} connected to workspace listening on port`,
+            `View ${c.view.id} connected to workspace listening on port`,
             this[symbols.server].address().port
           );
         } else {
@@ -620,7 +620,7 @@ const WamsServer = (function defineWamsServer() {
     [symbols.disconnect](cn) {
       if (cn.disconnect()) {
         this.connections.splice(this.connections.indexOf(cn), 1);
-        new Message(Message.RM_SHADOW, cn.viewer)
+        new Message(Message.RM_SHADOW, cn.view)
           .emitWith(this[symbols.io].of(globals.NS_WAMS));
       } else {
         console.error('Failed to disconnect:', this);
@@ -658,14 +658,14 @@ const WamsServer = (function defineWamsServer() {
     update(object, data) {
       if (object instanceof ServerItem) {
         this.updateItem(object, data);
-      } else if (object instanceof ServerViewer) {
-        this.updateViewer(object, data);
+      } else if (object instanceof ServerView) {
+        this.updateView(object, data);
       }
     }
 
     /*
      * TODO: Improve the functionality, to make use of the functions in the
-     * ServerItem and ServerViewer classes.
+     * ServerItem and ServerView classes.
      */
     updateItem(item, data) {
       item.assign(data);
@@ -673,15 +673,15 @@ const WamsServer = (function defineWamsServer() {
         .emitWith(this[symbols.io].of(globals.NS_WAMS));
     }
 
-    updateViewer(viewer, data) {
-      viewer.assign(data);
+    updateView(view, data) {
+      view.assign(data);
       const connection = this.connections.find( c => {
-        return c.viewer.id === viewer.id;
+        return c.view.id === view.id;
       });
       if (connection) {
-        new Message(Message.UD_SHADOW, viewer)
+        new Message(Message.UD_SHADOW, view)
           .emitWith(connection.socket.broadcast);
-        new Message(Message.UD_VIEWER, viewer)
+        new Message(Message.UD_VIEW, view)
           .emitWith(connection.socket);
       } else {
         console.warn('Failed to locate connection');
@@ -693,7 +693,7 @@ const WamsServer = (function defineWamsServer() {
 })();
 
 exports.ServerItem = ServerItem;
-exports.ServerViewer = ServerViewer;
+exports.ServerView = ServerView;
 exports.ListenerFactory = ListenerFactory;
 exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;

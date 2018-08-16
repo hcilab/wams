@@ -40,7 +40,7 @@ const WamsShared = (function defineSharedWamsModule() {
         RM_SHADOW:  'wams-remove-shadow',
         UD_ITEM:    'wams-update-item',
         UD_SHADOW:  'wams-update-shadow',
-        UD_VIEWER:  'wams-update-viewer',
+        UD_VIEW:  'wams-update-view',
 
         // Connection establishment related (disconnect, initial setup)
         INITIALIZE: 'wams-initialize',
@@ -270,10 +270,10 @@ const WamsShared = (function defineSharedWamsModule() {
   ]);
 
   /*
-   * This Viewer class provides a common interface between the client and 
-   * the server by which the Viewers can interact safely.
+   * This View class provides a common interface between the client and 
+   * the server by which the Views can interact safely.
    */
-  const Viewer = reporterClassFactory([
+  const View = reporterClassFactory([
     'x',
     'y',
     'width',
@@ -316,7 +316,7 @@ const WamsShared = (function defineSharedWamsModule() {
    * need be).
    */
   const FullStateReporter = reporterClassFactory([
-    'viewers',
+    'views',
     'items',
     'color',
     'id',
@@ -339,7 +339,7 @@ const WamsShared = (function defineSharedWamsModule() {
     removeByID,
     RotateReporter,
     ScaleReporter,
-    Viewer,
+    View,
   });
 })();
 

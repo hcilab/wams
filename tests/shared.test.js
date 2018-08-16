@@ -13,13 +13,13 @@
  *   + makeOwnPropertyImmutable,
  *   + getInitialValues,
  *   + IDStamper,
- *   + Viewer,
+ *   + View,
  *   + Item,
  */
 const WamsShared = require('../src/shared.js');
 const IDStamper = WamsShared.IDStamper;
 const Message = WamsShared.Message;
-const Viewer = WamsShared.Viewer;
+const View = WamsShared.View;
 const Item = WamsShared.Item;
 
 expect.extend({
@@ -219,7 +219,7 @@ describe('IDStamper', () => {
   });
 });
 
-describe('Viewer', () => {
+describe('View', () => {
   const props = [
     'x',
     'y',
@@ -234,17 +234,17 @@ describe('Viewer', () => {
 
   describe('constructor(data)', () => {
     test('correctly constructs expected object', () => {
-      const vs = new WamsShared.Viewer();
-      expect(vs).toBeInstanceOf(WamsShared.Viewer);
+      const vs = new WamsShared.View();
+      expect(vs).toBeInstanceOf(WamsShared.View);
     });
 
     test('produces expected properties when no data provided', () => {
-      const vs = new WamsShared.Viewer();
+      const vs = new WamsShared.View();
       expect(Object.keys(vs)).toEqual(props);
     });
 
     test('uses provided data', () => {
-      const vs = new WamsShared.Viewer({x:100, y:100, rotation: 90});
+      const vs = new WamsShared.View({x:100, y:100, rotation: 90});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -254,7 +254,7 @@ describe('Viewer', () => {
     });
 
     test('does not use incorrect property names in data', () => {
-      const vs = new WamsShared.Viewer({x: 100, y:100, z:100});
+      const vs = new WamsShared.View({x: 100, y:100, z:100});
       expect(Object.keys(vs)).toEqual(props);
       expect(vs.x).toBe(100);
       expect(vs.y).toBe(100);
@@ -263,7 +263,7 @@ describe('Viewer', () => {
   });
 
   describe('assign(data)', () => {
-    const vs = new WamsShared.Viewer();
+    const vs = new WamsShared.View();
 
     test('assigns data', () => {
       expect(vs.x).not.toBe(100);
@@ -303,7 +303,7 @@ describe('Viewer', () => {
   });
 
   describe('report()', () => {
-    const vs = new WamsShared.Viewer({x:100, y:50, width:200, height:300});
+    const vs = new WamsShared.View({x:100, y:50, width:200, height:300});
     test('reports data', () => {
       const data = vs.report();
       expect(Object.keys(data)).toEqual(props);

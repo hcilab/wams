@@ -36,11 +36,11 @@ const handleClick = (function makeClickHandler(ws) {
     return {x, y, width, height, type, blueprint};
   }
 
-  function handleClick(viewer, target, x, y) {
+  function handleClick(view, target, x, y) {
     if (target.type === 'colour') {
       ws.removeItem(target);
     } else {
-      ws.spawnItem(square(x, y, viewer.id % 6));
+      ws.spawnItem(square(x, y, view.id % 6));
     }
   }
 
@@ -48,7 +48,7 @@ const handleClick = (function makeClickHandler(ws) {
 })(ws);
 
 // Executed every time a drag occurs on a device
-function handleDrag(viewer, target, x, y, dx, dy) {
+function handleDrag(view, target, x, y, dx, dy) {
   if (target.type === 'colour') {
     target.moveBy(dx, dy);
   } else if (target.type === 'view/background') {
@@ -58,15 +58,15 @@ function handleDrag(viewer, target, x, y, dx, dy) {
 }
 
 // Executed when a user pinches a device, or uses the scroll wheel on a computer
-function handleScale(viewer, newScale) {
-  viewer.rescale(newScale);
-  ws.update(viewer);
+function handleScale(view, newScale) {
+  view.rescale(newScale);
+  ws.update(view);
 }
 
 // Executed once per user, when they join.
-function handleLayout(viewer, numViewers) {
-  viewer.moveTo(4000,4000);
-  ws.update(viewer);
+function handleLayout(view, numViews) {
+  view.moveTo(4000,4000);
+  ws.update(view);
 }
 
 // Attaches the defferent function handlers

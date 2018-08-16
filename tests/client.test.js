@@ -6,10 +6,10 @@
 'use strict';
 
 const client = require('../src/client.js');
-const ClientViewer = client.ClientViewer;
+const ClientView = client.ClientView;
 const ClientItem = client.ClientItem;
 const ClientController = client.ClientController;
-const ShadowViewer = client.ShadowViewer;
+const ShadowView = client.ShadowView;
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -24,8 +24,8 @@ expect.extend({
   },
 });
 
-describe('ShadowViewer', () => {
-  const viewer = {
+describe('ShadowView', () => {
+  const view = {
     x: 43,
     y: 42,
     effectiveWidth: 900,
@@ -41,16 +41,16 @@ describe('ShadowViewer', () => {
       effectiveHeight: window.innerHeight,
     })
     test('Throws exception if no values provided', () => {
-      expect(() => new ShadowViewer()).toThrow();
+      expect(() => new ShadowView()).toThrow();
     });
 
     test('Uses defined values, if provided', () => {
-      expect(new ShadowViewer(viewer)).toMatchObject(viewer);
+      expect(new ShadowView(view)).toMatchObject(view);
     });
   });
 
   describe.skip('draw(context)', () => {
-    const sv = new ShadowViewer(viewer);
+    const sv = new ShadowView(view);
     const ctx = {
       save: jest.fn(),
       restore: jest.fn(),
@@ -63,7 +63,7 @@ describe('ShadowViewer', () => {
       expect(() => sv.draw()).toThrow();
     });
 
-    test('Draws a rectangle representing the shadow viewer', () => {
+    test('Draws a rectangle representing the shadow view', () => {
       expect(() => sv.draw(ctx)).not.toThrow();
       expect(ctx.beginPath).toHaveBeenCalledTimes(1);
       expect(ctx.beginPath).toHaveBeenLastCalledWith();
@@ -145,7 +145,7 @@ describe('ClientItem', () => {
   });
 });
 
-describe('ClientViewer', () => {
+describe('ClientView', () => {
   const DEFAULTS = Object.freeze({ x: 0, y: 0, rotation: 0, scale: 1, });
   const item = {
     x:42, y:43, width:80, height:97, 
@@ -158,30 +158,30 @@ describe('ClientViewer', () => {
 
   describe('constructor(values)', () => {
     test('Creates correct type of object', () => {
-      expect(new ClientViewer()).toBeInstanceOf(ClientViewer);
+      expect(new ClientView()).toBeInstanceOf(ClientView);
     });
 
     test('Uses defaults if no values provided', () => {
-      expect(new ClientViewer()).toMatchObject(DEFAULTS);
+      expect(new ClientView()).toMatchObject(DEFAULTS);
     });
 
     test('Uses provided values', () => {
       const custom = Object.freeze({ x: 42, y: 43, });
-      const cv = new ClientViewer(custom);
+      const cv = new ClientView(custom);
       expect(cv).toMatchObject(custom);
       expect(cv.rotation).toBe(DEFAULTS.rotation);
       expect(cv.scale).toBe(DEFAULTS.scale);
     });
 
     test('Resizes to fill the window', () => {
-      const cv = new ClientViewer({width: 100, height: 255});
+      const cv = new ClientView({width: 100, height: 255});
       expect(cv.width).toBe(window.innerWidth);
       expect(cv.height).toBe(window.innerHeight);
     });
   });
 
   describe('addItem(values)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     test('Throws exception if no values provided', () => {
       expect(() => cv.addItem()).toThrow();
     });
@@ -194,15 +194,15 @@ describe('ClientViewer', () => {
   });
 
   describe('addShadow(values)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     test('Throws exception if no values provided', () => {
       expect(() => cv.addShadow()).toThrow();
     });
 
-    test('Adds a ShadowViewer using the provided values', () => {
+    test('Adds a ShadowView using the provided values', () => {
       expect(() => cv.addShadow(shadow)).not.toThrow();
       expect(cv.shadows[0]).toMatchObject(shadow);
-      expect(cv.shadows[0]).toBeInstanceOf(ShadowViewer);
+      expect(cv.shadows[0]).toBeInstanceOf(ShadowView);
     });
   });
 
@@ -211,7 +211,7 @@ describe('ClientViewer', () => {
   });
 
   describe('removeItem(item)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     cv.addItem({x:555, y:253, id:50});
     cv.addItem(item);
     cv.addItem({x:1,y:2, id:89});
@@ -229,7 +229,7 @@ describe('ClientViewer', () => {
   });
 
   describe('removeShadow(shadow)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     cv.addShadow({x:80,y:90,id:44});
     cv.addShadow(shadow);
     cv.addShadow({x:22,y:5,id:900});
@@ -247,9 +247,9 @@ describe('ClientViewer', () => {
   });
 
   describe('resizeToFillWindow()', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
 
-    test('Adjusts size of client viewer to the window size', () => {
+    test('Adjusts size of client view to the window size', () => {
       expect(cv.width).toBe(window.innerWidth);
       expect(cv.height).toBe(window.innerHeight);
       window.innerWidth += 45;
@@ -261,10 +261,10 @@ describe('ClientViewer', () => {
   });
 
   describe('setup(data)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     const data = {
       id: 33,
-      viewers: [
+      views: [
         {x:80,y:90,id:44},
         shadow,
         {x:22,y:5,id:900},
@@ -282,9 +282,9 @@ describe('ClientViewer', () => {
     });
 
     test('Throws exception if data is missing parameters', () => {
-      expect(() => cv.setup({id:1, viewers:[]})).toThrow();
+      expect(() => cv.setup({id:1, views:[]})).toThrow();
       expect(() => cv.setup({id:1, items:[]})).toThrow();
-      expect(() => cv.setup({items:[], viewers:[]})).toThrow();
+      expect(() => cv.setup({items:[], views:[]})).toThrow();
     });
 
     test('Does not throw exception if data provided', () => {
@@ -292,12 +292,12 @@ describe('ClientViewer', () => {
       expect(() => cv.setup(data)).not.toThrow();
     });
 
-    test('Stamps an immutable ID onto the ClientViewer', () => {
+    test('Stamps an immutable ID onto the ClientView', () => {
       expect(cv).toHaveImmutableProperty('id');
     });
 
-    test('Adds all the viewers in the data as shadows', () => {
-      data.viewers.forEach( v => {
+    test('Adds all the views in the data as shadows', () => {
+      data.views.forEach( v => {
         const s = cv.shadows.find( x => x.id === v.id );
         expect(s).toMatchObject(v);
       });
@@ -312,7 +312,7 @@ describe('ClientViewer', () => {
   });
 
   describe('updateItem(data)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     const data = {
       id: item.id,
       x: item.x + 101,
@@ -336,7 +336,7 @@ describe('ClientViewer', () => {
   });
 
   describe('updateShadow(data)', () => {
-    const cv = new ClientViewer();
+    const cv = new ClientView();
     const data = {
       id: shadow.id,
       x: shadow.x + 101,

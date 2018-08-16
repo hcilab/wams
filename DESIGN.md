@@ -22,9 +22,9 @@ This readme will get updated as I work with the latest developments. For now, I'
 * #### .moveTo(x,y)
 * #### .moveBy(dx,dy)
 
-## ServerViewer
+## ServerView
 
-* #### new ServerViewer(bounds, values)
+* #### new ServerView(bounds, values)
   - **bounds** _\[Object\]_ Must have properties:
     + **x:** >= 100
     + **y:** >= 100

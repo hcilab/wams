@@ -60,10 +60,10 @@ For more information about Blueprints and Sequences, see
 [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer).
 
 ### <a id="server_update"></a>update(object, data) [\[server api\]](#server_api)
-Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a viewer.
+Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a view.
 
 ## <a id="handlers"></a>Handlers [\[top\]](#contents)
-Each of these handlers can be attached using the name listed below as the event name when calling `ws.on(event, handler)`. The first argument passed to any handler will be an object describing the viewer who initiated the event.
+Each of these handlers can be attached using the name listed below as the event name when calling `ws.on(event, handler)`. The first argument passed to any handler will be an object describing the view who initiated the event.
 
 * [click](#handlers_click)
 * [drag](#handlers_drag)
@@ -85,12 +85,12 @@ This handler will be called whenever the user drags somewhere in their view.
   * __dx:__ The distance between the current drag and the last drag along the y axis.
  
 ### <a id="handlers_layout"></a>layout [\[handlers\]](#handlers)
-This handler will only be called once per viewer, when they initially connect.
+This handler will only be called once per view, when they initially connect.
 * Arguments:
-  * __numViewers:__ The number of viewers active at the time of layout.
+  * __numViews:__ The number of views active at the time of layout.
 
 ### <a id="handlers_scale"></a>scale [\[handlers\]](#handlers)
-This handler will be called when a viewer zooms in or out.
+This handler will be called when a view zooms in or out.
 * Arguments:
-  * __scale:__ The new zoom scale of the viewer. 1 is normal. 2 means 200% zoom. 0.5 means 50% zoom.
+  * __scale:__ The new zoom scale of the view. 1 is normal. 2 means 200% zoom. 0.5 means 50% zoom.
 

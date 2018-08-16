@@ -1,6 +1,6 @@
 /*
  * This example is intended to demonstrate having multiple users move their
- *  viewer around in a shared space.
+ *  view around in a shared space.
  */
 
 'use strict';
@@ -21,43 +21,43 @@ ws.spawnItem({
 });
 
 // Takes in the target that was dragged on and who caused the drag event
-const handleDrag = function(viewer, target, x, y, dx, dy) {
-  viewer.moveBy(-dx, -dy);
-  ws.update(viewer);
+const handleDrag = function(view, target, x, y, dx, dy) {
+  view.moveBy(-dx, -dy);
+  ws.update(view);
 }
 
 // Example Layout function that takes in the newly added client and which 
 //  ws they joined.
-// Lays out viewers in a decending staircase pattern
+// Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
-  function getMove(num_viewers, viewer) {
-    if (num_viewers % 2 === 0) { 
+  function getMove(num_views, view) {
+    if (num_views % 2 === 0) { 
       return {
-        x: viewer.right - 10,
-        y: viewer.top,
+        x: view.right - 10,
+        y: view.top,
       };
     }
     return {
-      x: viewer.left,
-      y: viewer.bottom - 10,
+      x: view.left,
+      y: view.bottom - 10,
     };
   }
 
-  function handleLayout(viewer, numViewers) {
-    if (numViewers > 0) {
-      const move = getMove(numViewers, viewer);
-      viewer.moveTo(move.x, move.y);
-      ws.update(viewer);
+  function handleLayout(view, numViews) {
+    if (numViews > 0) {
+      const move = getMove(numViews, view);
+      view.moveTo(move.x, move.y);
+      ws.update(view);
     }
   }
 
   return handleLayout;
 })();
 
-// Handle Scale, uses the built in viewer method rescale
-const handleScale = function(viewer, newScale) {
-  viewer.rescale(newScale);
-  ws.update(viewer);
+// Handle Scale, uses the built in view method rescale
+const handleScale = function(view, newScale) {
+  view.rescale(newScale);
+  ws.update(view);
 }
 
 ws.on('drag',   handleDrag);

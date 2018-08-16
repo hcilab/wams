@@ -21,7 +21,7 @@ ws.spawnItem({
   imgsrc: 'img/scream.png'
 });
 
-function handleDrag(viewer, target, x, y, dx, dy) {
+function handleDrag(view, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
     target.moveBy(dx, dy);
     ws.update(target);
@@ -30,12 +30,12 @@ function handleDrag(viewer, target, x, y, dx, dy) {
 
 const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
-  function handleLayout(viewer, numViewers) {
-    if (numViewers <= 1) {
-      nx = viewer.right - 30;
+  function handleLayout(view, numViews) {
+    if (numViews <= 1) {
+      nx = view.right - 30;
     } else {
-      viewer.moveTo( nx, viewer.top ); 
-      ws.update(viewer);
+      view.moveTo( nx, view.top ); 
+      ws.update(view);
     } 
   }
   return handleLayout;

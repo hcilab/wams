@@ -36,10 +36,10 @@ const SequenceBlueprint = Blueprint;
 const globals = Object.freeze(WamsShared.constants);
 
 /*
- * The ShadowViewer class exposes a simple draw() function which renders a
- * shadowy outline of the viewer onto the canvas.
+ * The ShadowView class exposes a simple draw() function which renders a
+ * shadowy outline of the view onto the canvas.
  */
-const ShadowViewer = (function defineShadowViewer() {
+const ShadowView = (function defineShadowView() {
   const locals = Object.freeze({
     STAMPER: new WamsShared.IDStamper(),
     COLOURS: [
@@ -56,7 +56,7 @@ const ShadowViewer = (function defineShadowViewer() {
     ],
   });
 
-  class ShadowViewer extends WamsShared.Viewer {
+  class ShadowView extends WamsShared.View {
     constructor(values) {
       super(values);
       locals.STAMPER.cloneId(this, values.id);
@@ -104,7 +104,7 @@ const ShadowViewer = (function defineShadowViewer() {
     }
   }
   
-  return ShadowViewer;
+  return ShadowView;
 })();
 
 /*
@@ -185,10 +185,10 @@ const ClientItem = (function defineClientItem() {
 })();
 
 /*
- * The ClientViewer class is used for all rendering activities on the client
+ * The ClientView class is used for all rendering activities on the client
  * side. This is essentially the view in an MVC-esque design.
  */
-const ClientViewer = (function defineClientViewer() {
+const ClientView = (function defineClientView() {
   const locals = Object.freeze({
     DEFAULTS: Object.freeze({
       x: 0,
@@ -210,17 +210,17 @@ const ClientViewer = (function defineClientViewer() {
     REQUIRED_DATA: Object.freeze([
       'id',
       'items',
-      'viewers',
+      'views',
     ]),
     STAMPER: new WamsShared.IDStamper(),
   });
 
-  class ClientViewer extends WamsShared.Viewer {
+  class ClientView extends WamsShared.View {
     constructor(values = {}) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
 
       if (values.context) this.context = values.context;
-      // else throw 'ClientViewer requires a CanvasRenderingContext2D!';
+      // else throw 'ClientView requires a CanvasRenderingContext2D!';
 
       this.items = [];
       this.shadows = [];
@@ -232,7 +232,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addShadow(values) {
-      this.shadows.push(new ShadowViewer(values));
+      this.shadows.push(new ShadowView(values));
     }
 
     draw() {
@@ -243,39 +243,39 @@ const ClientViewer = (function defineClientViewer() {
       showStatus(this);
       this.context.restore();
 
-      function wipeAndRealign(viewer) {
+      function wipeAndRealign(view) {
         /*
          * WARNING: It is crucially important that the instructions below occur
          * in *precisely* this order!
          */
-        viewer.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        viewer.context.scale(viewer.scale, viewer.scale);
-        viewer.context.rotate(viewer.rotation);
-        viewer.context.translate(-viewer.x, -viewer.y);
+        view.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        view.context.scale(view.scale, view.scale);
+        view.context.rotate(view.rotation);
+        view.context.translate(-view.x, -view.y);
       }
 
-      function drawItems(viewer) {
-        viewer.items.forEach( o => o.draw(viewer.context) );
+      function drawItems(view) {
+        view.items.forEach( o => o.draw(view.context) );
       }
 
-      function drawShadows(viewer) {
-        viewer.shadows.forEach( v => v.draw(viewer.context) );
+      function drawShadows(view) {
+        view.shadows.forEach( v => v.draw(view.context) );
       }
 
-      function showStatus(viewer) {
+      function showStatus(view) {
         const messages = locals.STATUS_KEYS
-          .map( k => `${k}: ${viewer[k].toFixed(2)}` )
-          .concat([`# of Shadows: ${viewer.shadows.length}`]);
+          .map( k => `${k}: ${view[k].toFixed(2)}` )
+          .concat([`# of Shadows: ${view.shadows.length}`]);
         let ty = 40;
         let tx = 20;
-        viewer.context.save();
-        viewer.context.setTransform(1,0,0,1,0,0);
-        viewer.context.font = '18px Georgia';
+        view.context.save();
+        view.context.setTransform(1,0,0,1,0,0);
+        view.context.font = '18px Georgia';
         messages.forEach( m => {
-          viewer.context.fillText(m, tx, ty);
+          view.context.fillText(m, tx, ty);
           ty += 20;
         });
-        viewer.context.restore();
+        view.context.restore();
       }
     }
 
@@ -289,7 +289,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     removeShadow(shadow) {
-      return WamsShared.removeByID( this.shadows, shadow, ShadowViewer );
+      return WamsShared.removeByID( this.shadows, shadow, ShadowView );
     }
 
     resizeToFillWindow() {
@@ -304,7 +304,7 @@ const ClientViewer = (function defineClientViewer() {
         if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
       });
       locals.STAMPER.cloneId(this, data.id);
-      data.viewers.forEach( v => v.id !== this.id && this.addShadow(v) );
+      data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
       data.items.forEach( o => this.addItem(o) );
       this.draw(); 
     }
@@ -324,7 +324,7 @@ const ClientViewer = (function defineClientViewer() {
     }
   }
 
-  return ClientViewer;
+  return ClientView;
 })();
 
 /*
@@ -503,7 +503,7 @@ const ClientController = (function defineClientController() {
       this.canvas = canvas;
       this.context = canvas.getContext('2d');
       this.socket = null;
-      this.viewer = new ClientViewer({ context: this.context });
+      this.view = new ClientView({ context: this.context });
       this.interactor = new Interactor(this.canvas, {
         pan:    this.pan.bind(this),
         rotate: this.rotate.bind(this),
@@ -531,7 +531,7 @@ const ClientController = (function defineClientController() {
         [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
         [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
         [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-        [Message.UD_VIEWER]:  (...args) => this.handle('assign', ...args),
+        [Message.UD_VIEW]:  (...args) => this.handle('assign', ...args),
 
         // Connection establishment related (disconnect, initial setup)
         [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -554,7 +554,7 @@ const ClientController = (function defineClientController() {
     }
 
     handle(message, ...args) {
-      this.viewer.handle(message, ...args);
+      this.view.handle(message, ...args);
     }
 
     pan(x, y, dx, dy) {
@@ -564,12 +564,12 @@ const ClientController = (function defineClientController() {
 
     resize() {
       this.resizeCanvasToFillWindow();
-      this.viewer.draw();
-      new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
+      this.view.draw();
+      new Message(Message.RESIZE, this.view).emitWith(this.socket);
     }
 
     resizeCanvasToFillWindow() {
-      this.viewer.resizeToFillWindow();
+      this.view.resizeToFillWindow();
       this.canvas.width = window.innerWidth; 
       this.canvas.height = window.innerHeight;
     }
@@ -577,8 +577,8 @@ const ClientController = (function defineClientController() {
     setup(data) {
       locals.STAMPER.cloneId(this, data.id);
       this.canvas.style.backgroundColor = data.color;
-      this.viewer.setup(data);
-      new Message(Message.LAYOUT, this.viewer).emitWith(this.socket);
+      this.view.setup(data);
+      new Message(Message.LAYOUT, this.view).emitWith(this.socket);
     }
 
     rotate(radians) {
@@ -592,7 +592,7 @@ const ClientController = (function defineClientController() {
     }
 
     zoom(diff) {
-      const scale = this.viewer.scale + diff;
+      const scale = this.view.scale + diff;
       const sreport = new WamsShared.ScaleReporter({ scale });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
@@ -618,9 +618,9 @@ window.addEventListener(
  * If operating in a node.js environment, export the appropriate classes.
  */
 if (typeof exports !== 'undefined') {
-  exports.ShadowViewer = ShadowViewer;
+  exports.ShadowView = ShadowView;
   exports.ClientItem = ClientItem;
-  exports.ClientViewer = ClientViewer;
+  exports.ClientView = ClientView;
   exports.ClientController = ClientController;
 }
 
