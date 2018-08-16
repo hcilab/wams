@@ -33,8 +33,8 @@
       redundant.
 - [X] Fix the client `draw()` sequence.
 - [X] Fix scaling for desktop users. (Allow slow & fast scaling)
-- [ ] Fix bugs that occur when users join approximately simultaneously.
-  + [ ] Examine possibility of using mutexes around updates. What kind of API
+- [X] Fix bugs that occur when users join approximately simultaneously.
+  + [X] Examine possibility of using mutexes around updates. What kind of API
         for this sort of purpose does node.js provide?
   + [X] Node.js is single-threaded, so mutexes are probably unnecessary except
         under very specific circumstances. Therefore, the bug is more likely to
@@ -56,8 +56,6 @@
       should become easier to swap out ZingTouch with another library, should
       this prove necessary. It may even make it easier to implement new forms of
       interactions, which would be a bonus!
-- [ ] In the same vein, maybe look at doing the same for socket connections and
-      request handlers.
 - [X] Generally clean up the interactions.
 - [ ] Write a distributed video player example.
 - [ ] Lock drags to a single object (instead of always operating on the first
