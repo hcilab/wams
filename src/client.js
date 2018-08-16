@@ -47,18 +47,6 @@ const ShadowViewer = (function defineShadowViewer() {
       'aqua',
       'lime',
     ],
-
-    drawTopLeftMarker(context) {
-      const base = context.lineWidth / 2;
-      const height = 25;
-
-      context.beginPath();
-      context.moveTo(base,base);
-      context.lineTo(base,height);
-      context.lineTo(height,base);
-      context.lineTo(base,base);
-      context.fill();
-    },
   });
 
   class ShadowViewer extends WamsShared.Viewer {
@@ -70,19 +58,42 @@ const ShadowViewer = (function defineShadowViewer() {
     draw(context) {
       /*
        * WARNING: It is *crucial* that this series of instructions be wrapped in
-       * save() and restore(). It is also very important that translate happens
-       * before rotate, which happens before strokeRect!
+       * save() and restore().
        */
       context.save();
-      context.translate(this.x,this.y);
-      context.rotate((Math.PI * 2) - this.rotation);
-      context.globalAlpha = 0.5;
-      context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
-      context.fillStyle = context.strokeStyle;
-      context.lineWidth = 5;
-      context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
-      locals.drawTopLeftMarker(context);
+      align(context);
+      setStyles(context);
+      drawOutline(context);
+      drawTopLeftMarker(context);
       context.restore();
+
+      function align(context) {
+        context.translate(this.x,this.y);
+        context.rotate((Math.PI * 2) - this.rotation);
+      }
+
+      function setStyles(context) {
+        context.globalAlpha = 0.5;
+        context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
+        context.fillStyle = context.strokeStyle;
+        context.lineWidth = 5;
+      }
+
+      function drawOutline(context) {
+        context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+      }
+
+      function drawTopLeftMarker(context) {
+        const base = context.lineWidth / 2;
+        const height = 25;
+
+        context.beginPath();
+        context.moveTo(base,base);
+        context.lineTo(base,height);
+        context.lineTo(height,base);
+        context.lineTo(base,base);
+        context.fill();
+      },
     }
   }
   
