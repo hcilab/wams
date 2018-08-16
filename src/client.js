@@ -228,7 +228,7 @@ const ClientViewer = (function defineClientViewer() {
     }
 
     addItem(values) {
-      this.items.push(new ClientItem(values));
+      this.items.unshift(new ClientItem(values));
     }
 
     addShadow(values) {

@@ -51,8 +51,11 @@
 - [ ] Write a distributed video player example.
 - [ ] Lock drags to a single object (instead of always operating on the first
       object it finds that's currently under the cursor).
-- [ ] Swap the render order around so that the object that will be dragged is
+- [X] Swap the render order around so that the object that will be dragged is
       the one that appears on top on the canvas. (same for clicked...)
 - [ ] Look into using device orientation for rotation instead of touchscreen
       inputs.
+- [ ] Reorganize code, such that each 'class module' is located inside its own
+      file. This will help considerably if the code continues to expand, and
+      will also help with more fine-grained testing.
 
