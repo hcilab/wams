@@ -19,25 +19,37 @@ ws.spawnItem({
   imgsrc: 'img/joker.png',
 });
 
-const seq = new WAMS.Sequence();
-seq.beginPath();
-seq.arc( '{x}', '{y}', '{height}', Math.PI * 2, 0, false);
-seq.fillStyle = 'white';
-seq.fill();
-seq.lineWidth = 5;
-seq.strokeStyle = '#003300';
-seq.stroke();
-seq.font = 'normal 36px Times,serif';
-seq.fillStyle = '#1a1a1a';
-seq.fillText( '  Click the joker!', '{x}', '{y}');
+const text = new WAMS.Sequence();
+text.font = 'normal 36px Times,serif';
+text.fillStyle = '#1a1a1a';
+text.fillText( 'Click the joker!', '{x}', '{y}');
+
+ws.spawnItem({
+  x: 2380,
+  y: 2480,
+  width: 300,
+  height: 40,
+  type: 'text',
+  blueprint: text,
+});
+
+const circle = new WAMS.Sequence();
+circle.beginPath();
+circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+circle.closePath();
+circle.fillStyle = 'white';
+circle.fill();
+circle.lineWidth = 5;
+circle.strokeStyle = '#003300';
+circle.stroke();
 
 ws.spawnItem({
   x: 2500,
   y: 2500,
   width: 150, 
   height: 150,
-  type: 'text',
-  blueprint: seq,
+  type: 'circle',
+  blueprint: circle,
 });
 
 const handleLayout = (function makeLayoutHandler() {
@@ -51,6 +63,7 @@ const handleLayout = (function makeLayoutHandler() {
   function layoutTable(view) {
     view.moveTo( 2000, 2000 );
     table = view;
+    ws.update(view);
   };
 
   function layoutBottom(view) {
@@ -73,16 +86,27 @@ const handleLayout = (function makeLayoutHandler() {
     view.rotation = Math.PI / 2;
   };
 
+  function dependOnTable(fn) {
+    return function layoutDepender(view) {
+      if (!table) {
+        console.log('dodged!!!');
+        setTimeout( () => layoutDepender(view), 0 ); 
+      } else {
+        fn(view);
+        ws.update(view);
+      }
+    };
+  }
+
   const user_fns = [];
   user_fns[TABLE]   = layoutTable;
-  user_fns[BOTTOM]  = layoutBottom;
-  user_fns[LEFT]    = layoutLeft;
-  user_fns[TOP]     = layoutTop;
-  user_fns[RIGHT]   = layoutRight;
+  user_fns[BOTTOM]  = dependOnTable( layoutBottom );
+  user_fns[LEFT]    = dependOnTable( layoutLeft );
+  user_fns[TOP]     = dependOnTable( layoutTop );
+  user_fns[RIGHT]   = dependOnTable( layoutRight );
 
   function handleLayout(view, viewIndex) {
     user_fns[viewIndex](view);
-    ws.update(view);
   }
 
   return handleLayout;
