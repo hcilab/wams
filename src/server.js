@@ -267,8 +267,8 @@ const ListenerFactory = (function defineListenerFactory() {
       },
 
       layout(listener, workspace) {
-        return function handleLayout(view, data) {
-          listener(view, workspace.views.length);
+        return function handleLayout(view, index) {
+          listener(view, index);
         };
       },
 
@@ -415,7 +415,8 @@ const Connection = (function defineConnection() {
   });
 
   class Connection {
-    constructor(socket, workspace) {
+    constructor(index, socket, workspace) {
+      this.index = index;
       this.socket = socket;
       this.workspace = workspace;
       this.view = this.workspace.spawnView();
@@ -476,7 +477,7 @@ const Connection = (function defineConnection() {
       this.view.assign(data);
       new Message(Message.ADD_SHADOW, this.view)
         .emitWith(this.socket.broadcast);
-      this.workspace.handle('layout', this.view, data);
+      this.workspace.handle('layout', this.view, this.index);
     }
 
     resize(data) {
@@ -601,8 +602,9 @@ const WamsServer = (function defineWamsServer() {
       this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
         if (error) throw error;
         if (clients.length <= this[symbols.clientLimit]) {
-          const c = new Connection(socket, this[symbols.workspace]);
-          this.connections.push(c);
+          const index = findEmptyIndex(this.connections);
+          const c = new Connection(index, socket, this[symbols.workspace]);
+          this.connections[index] = c;
           socket.on('disconnect', () => this[symbols.disconnect](c) );
 
           console.log(
@@ -615,11 +617,16 @@ const WamsServer = (function defineWamsServer() {
           // TODO: Report disconnection to client, server.
         }
       });
+
+      function findEmptyIndex(array) {
+        const index = array.findIndex( e => e == undefined );
+        return index < 0 ? array.length : index;
+      }
     }
 
     [symbols.disconnect](cn) {
       if (cn.disconnect()) {
-        this.connections.splice(this.connections.indexOf(cn), 1);
+        delete this.connections[cn.index];
         new Message(Message.RM_SHADOW, cn.view)
           .emitWith(this[symbols.io].of(globals.NS_WAMS));
       } else {

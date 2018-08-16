@@ -80,8 +80,8 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[TOP]     = layoutTop;
   user_fns[RIGHT]   = layoutRight;
 
-  function handleLayout(view, numViews) {
-    user_fns[numViews - 1](view);
+  function handleLayout(view, viewIndex) {
+    user_fns[viewIndex](view);
     ws.update(view);
   }
 

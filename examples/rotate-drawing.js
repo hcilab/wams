@@ -64,7 +64,7 @@ function handleRotate(view, radians) {
 }
 
 // Executed once per user, when they join.
-function handleLayout(view, numViews) {
+function handleLayout(view, viewIndex) {
   view.moveTo(4000,4000);
   ws.update(view);
 }

@@ -36,7 +36,7 @@
 - [ ] Fix bugs that occur when users join approximately simultaneously.
   + [ ] Examine possibility of using mutexes around updates. What kind of API
         for this sort of purpose does node.js provide?
-  + [ ] Node.js is single-threaded, so mutexes are probably unnecessary except
+  + [X] Node.js is single-threaded, so mutexes are probably unnecessary except
         under very specific circumstances. Therefore, the bug is more likely to
         have something to do with the way users are registered, and the way
         layouts are handled. Look at adjusting the way connections are tracked
@@ -45,7 +45,8 @@
         on connection establishment.
         This would also fix the bug wherein if an early user leaves, their
         layout callback might not get retriggered (because layout currently uses
-        the number of users, not a user identifier of some sort).
+        the number of users, not a user identifier of some sort). Therefore
+        worth doing regardless of whether it fixes this particular bug.
 - [X] Clean up how the canvas context gets passed around between view and
       controller on the client side. Basically examine and revise `setup()` and
       `layout()`

@@ -30,22 +30,20 @@ const handleDrag = function(view, target, x, y, dx, dy) {
 //  ws they joined.
 // Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
-  function getMove(num_views, view) {
-    if (num_views % 2 === 0) { 
-      return {
-        x: view.right - 10,
-        y: view.top,
-      };
+  function getMove(view, index) {
+    const olap = 30;
+    let move;
+    switch (index % 3) {
+      case 0: move = { x: view.right - olap, y: view.top };           break;
+      case 1: move = { x: view.left,         y: view.bottom - olap }; break;
+      case 2: move = { x: view.right - olap, y: view.bottom - olap }; break;
     }
-    return {
-      x: view.left,
-      y: view.bottom - 10,
-    };
+    return move;
   }
 
-  function handleLayout(view, numViews) {
-    if (numViews > 0) {
-      const move = getMove(numViews, view);
+  function handleLayout(view, viewIndex) {
+    if (viewIndex > 0) {
+      const move = getMove(view, viewIndex);
       view.moveTo(move.x, move.y);
       ws.update(view);
     }

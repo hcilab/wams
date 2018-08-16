@@ -7,7 +7,7 @@
 
 const WAMS = require('../src/server');
 
-const ws = new WAMS.WamsServer();
+const ws = new WAMS.WamsServer({ clientLimit: 2 });
 
 ws.spawnItem({
   x: 200, y: 200, width: 200, height: 200,
@@ -30,8 +30,8 @@ function handleDrag(view, target, x, y, dx, dy) {
 
 const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
-  function handleLayout(view, numViews) {
-    if (numViews <= 1) {
+  function handleLayout(view, viewIndex) {
+    if (viewIndex === 0) {
       nx = view.right - 30;
     } else {
       view.moveTo( nx, view.top ); 
