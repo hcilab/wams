@@ -148,7 +148,9 @@ const ClientItem = (function defineClientItem() {
       }
 
       // Rather than doing a bunch of checks, let's just always rebuild the
-      // sequence when updating any data in the item.
+      // sequence when updating any data in the item. Doing the checks to see if
+      // this is necessary would probably take as much or more time as just
+      // going ahead and rebuilding like this anyway.
       if (this.blueprint) {
         this.sequence = this.blueprint.build(this.report());
       }
@@ -163,6 +165,7 @@ const ClientItem = (function defineClientItem() {
       } else if (this.img && this.img.loaded) {
         context.drawImage(this.img, this.x, this.y, width, height);
       } else {
+        // Draw placeholder rectangle.
         context.save();
         context.fillStyle = '#252525';
         context.fillRect(this.x, this.y, width, height);
@@ -176,7 +179,7 @@ const ClientItem = (function defineClientItem() {
 
 /*
  * The ClientViewer class is used for all rendering activities on the client
- * side. This is essentially the view in a modal-view-controller esque design.
+ * side. This is essentially the view in an MVC-esque design.
  */
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
