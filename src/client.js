@@ -479,7 +479,7 @@ const Interactor = (function defineInteractor() {
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view. This is essentially the
- * controller in a model-view-controller esque design.
+ * controller in an MVC-esque design.
  */
 const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
