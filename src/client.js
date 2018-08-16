@@ -190,6 +190,16 @@ const ClientViewer = (function defineClientViewer() {
       scale: 1,
       type: 'view/background',
     }),
+    STATUS_KEYS: Object.freeze([
+      'x',
+      'y',
+      'width',
+      'height',
+      'effectiveWidth',
+      'effectiveHeight',
+      'rotation',
+      'scale',
+    ]),
     REQUIRED_DATA: Object.freeze([
       'id',
       'items',
@@ -220,48 +230,45 @@ const ClientViewer = (function defineClientViewer() {
 
     draw() {
       this.context.save();
-      wipeAndReposition.call(this);
-      this.items.forEach( o => o.draw(this.context) );
-      this.shadows.forEach( v => v.draw(this.context) );
-      showStatus.call(this);
+      wipeAndRealign(this);
+      drawItems(this);
+      drawShadows(this);
+      showStatus(this);
       this.context.restore();
 
-      function wipeAndReposition() {
+      function wipeAndRealign(viewer) {
         /*
          * WARNING: It is crucially important that the instructions below occur
-         * in *precisely* this order! In case someone screws it up, the order
-         * is:
-         *    1. clearRect
-         *    2. scale
-         *    3. rotate
-         *    4. translate
+         * in *precisely* this order!
          */
-        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        this.context.scale(this.scale, this.scale);
-        this.context.rotate(this.rotation);
-        this.context.translate(-this.x, -this.y);
+        viewer.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        viewer.context.scale(viewer.scale, viewer.scale);
+        viewer.context.rotate(viewer.rotation);
+        viewer.context.translate(-viewer.x, -viewer.y);
       }
 
-      function showStatus() {
-        const messages = Object.keys(locals.DEFAULTS)
-          .map( k => {
-            if (typeof this[k] === 'number') {
-              return `${k}: ${this[k].toFixed(2)}`;
-            } else {
-              return `${k}: ${this[k]}`;
-            }
-          })
-          .concat([`# of Shadows: ${this.shadows.length}`]);
+      function drawItems(viewer) {
+        viewer.items.forEach( o => o.draw(viewer.context) );
+      }
+
+      function drawShadows(viewer) {
+        viewer.shadows.forEach( v => v.draw(viewer.context) );
+      }
+
+      function showStatus(viewer) {
+        const messages = locals.STATUS_KEYS
+          .map( k => `${k}: ${viewer[k].toFixed(2)}` )
+          .concat([`# of Shadows: ${viewer.shadows.length}`]);
         let ty = 40;
         let tx = 20;
-        this.context.save();
-        this.context.setTransform(1,0,0,1,0,0);
-        this.context.font = '18px Georgia';
+        viewer.context.save();
+        viewer.context.setTransform(1,0,0,1,0,0);
+        viewer.context.font = '18px Georgia';
         messages.forEach( m => {
-          this.context.fillText(m, tx, ty);
+          viewer.context.fillText(m, tx, ty);
           ty += 20;
         });
-        this.context.restore();
+        viewer.context.restore();
       }
     }
 
