@@ -31,12 +31,12 @@
       the code before and after by commenting out the `require()` statements.
 - [X] Remove `hasOwnProperty()` checks before cloning IDs, as this is now 
       redundant.
-- [ ] Fix the client `draw()` sequence.
+- [X] Fix the client `draw()` sequence.
 - [X] Fix scaling for desktop users. (Allow slow & fast scaling)
 - [ ] Fix bugs that occur when users join approximately simultaneously.
   + [ ] Examine possibility of using mutexes around updates. What kind of API
         for this sort of purpose does node.js provide?
-- [ ] Clean up how the canvas context gets passed around between view and
+- [X] Clean up how the canvas context gets passed around between view and
       controller on the client side. Basically examine and revise `setup()` and
       `layout()`
 - [X] Extract an `Interactions` class from the client controller. ZingTouch is 
@@ -53,6 +53,6 @@
       object it finds that's currently under the cursor).
 - [ ] Swap the render order around so that the object that will be dragged is
       the one that appears on top on the canvas. (same for clicked...)
-- [ ] Looking into using device orientation for rotation instead of touchscreen
+- [ ] Look into using device orientation for rotation instead of touchscreen
       inputs.
 
