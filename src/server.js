@@ -683,7 +683,7 @@ const WamsServer = (function defineWamsServer() {
     updateView(view, data) {
       view.assign(data);
       const connection = this.connections.find( c => {
-        return c.view.id === view.id;
+        return c && c.view.id === view.id;
       });
       if (connection) {
         new Message(Message.UD_SHADOW, view)
