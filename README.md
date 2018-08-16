@@ -20,19 +20,23 @@ ws.listen(port);
 * [update(object, data)](#server_update)
 
 ### <a id="server_listen"></a>listen(\[port\[, host\]\]) [\[server api\]](#server_api)
-Starts the internal server on the given port and hostname and reports the address on which it is listening.
+Starts the internal server on the given port and hostname and reports the
+address on which it is listening.
 - __DEFAULTS:__
   * __port:__ 9000
   * __host:__ your local, non-loopback IPv4 address
  
 ### <a id="server_on"></a>on(event, handler) [\[server api\]](#server_api)
-Registers the given handler for the given event. See Handlers below for more information.
+Registers the given handler for the given event. See Handlers below for more
+information.
 
 ### <a id="server_removeItem"></a>removeItem(item) [\[server api\]](#server_api)
 Removes the given item from the workspace.
 
 ### <a id="server_spawnItem"></a>spawnItem(itemdata) [\[server api\]](#server_api)
-Spawns a new item using the given data and immediately informs all clients of the new item. `itemdata` is an object which you fill with some or all (or none) of the following properties:
+Spawns a new item using the given data and immediately informs all clients of
+the new item. `itemdata` is an object which you fill with some or all (or none)
+of the following properties:
 
 Property | Default Value | Description
 ---------|---------------|------------
@@ -60,10 +64,13 @@ For more information about Blueprints and Sequences, see
 [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer).
 
 ### <a id="server_update"></a>update(object, data) [\[server api\]](#server_api)
-Updates the object with the given data, then announces the changes to all clients. `object` can be either an item or a view.
+Updates the object with the given data, then announces the changes to all
+clients. `object` can be either an item or a view.
 
 ## <a id="handlers"></a>Handlers [\[top\]](#contents)
-Each of these handlers can be attached using the name listed below as the event name when calling `ws.on(event, handler)`. The first argument passed to any handler will be an object describing the view who initiated the event.
+Each of these handlers can be attached using the name listed below as the event
+name when calling `ws.on(event, handler)`. The first argument passed to any
+handler will be an object describing the view who initiated the event.
 
 * [click](#handlers_click)
 * [drag](#handlers_drag)
@@ -81,16 +88,20 @@ This handler will be called whenever the user drags somewhere in their view.
 * Arguments:
   * __x:__ The x coordinate at which the user clicked.
   * __y:__ The y coordinate at which the user clicked.
-  * __dx:__ The distance between the current drag and the last drag along the x axis.
-  * __dx:__ The distance between the current drag and the last drag along the y axis.
+  * __dx:__ The distance between the current drag and the last drag along the x
+    axis.
+  * __dx:__ The distance between the current drag and the last drag along the y
+    axis.
  
 ### <a id="handlers_layout"></a>layout [\[handlers\]](#handlers)
 This handler will only be called once per view, when they initially connect.
 * Arguments:
-  * __numViews:__ The number of views active at the time of layout.
+  * __viewIndex:__ A non-zero integer identifying the 'position' of the view.
+    If someone disconnects, their identifier will be reused.
 
 ### <a id="handlers_scale"></a>scale [\[handlers\]](#handlers)
 This handler will be called when a view zooms in or out.
 * Arguments:
-  * __scale:__ The new zoom scale of the view. 1 is normal. 2 means 200% zoom. 0.5 means 50% zoom.
+  * __scale:__ The new zoom scale of the view. 1 is normal. 2 means 200% zoom.
+    0.5 means 50% zoom.
 
