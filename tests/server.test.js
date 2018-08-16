@@ -14,7 +14,7 @@ const ServerItem = wams.ServerItem;
 const ServerViewer = wams.ServerViewer;
 const RequestHandler = wams.RequestHandler;
 const ListenerFactory = wams.ListenerFactory;
-const WamsServer = require('../src/shared.js');
+const WamsShared = require('../src/shared.js');
 
 expect.extend({
   toHaveImmutableProperty(received, argument) {
@@ -904,7 +904,7 @@ describe('WorkSpace', () => {
 
     describe.each([['click'],['drag'],['layout'],['scale']])('%s', (s) => {
       test('Handler starts as a NOP', () => {
-        expect(ws.handlers[s]).toBe(WamsServer.NOP);
+        expect(ws.handlers[s]).toBe(WamsShared.NOP);
       });
 
       test('Throws if invalid listener supplied', () => {
@@ -914,7 +914,7 @@ describe('WorkSpace', () => {
       test('Attaches a handler in the appropriate place', () => {
         const fn = jest.fn();
         ws.on(s, fn);
-        expect(ws.handlers[s]).not.toBe(WamsServer.NOP);
+        expect(ws.handlers[s]).not.toBe(WamsShared.NOP);
         expect(ws.handlers[s]).toBeInstanceOf(Function);
       });
 

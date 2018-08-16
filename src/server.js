@@ -1,26 +1,14 @@
 /*
  * WAMS - An API for Multi-Surface Environments
  *
- * Original author: Jesse Rolheiser
- * Revised by: Scott Bateman
- * Latest edition by: Michael van der Kamp
+ * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
  */
-
-//TODO: Update canvas to work more like this for drawings: 
-// https://simonsarris.com/making-html5-canvas-useful/
-//TODO: Stretch goal is to incorporate a canvas library: 
-// http://danielsternlicht.com/playground/html5-canvas-libraries-comparison-table/
-//TODO: Allow subcanvas to be drawn on top: 
-// https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers
 
 'use strict';
-
-/*
- * FIXME: 
- *  + Switch to HTTPS, which is apparently more complicated than just adding 's'
- *    to the end of http.
- */
 
 const WamsShared = require('./shared.js');
 const { Blueprint } = require('canvas-sequencer');
@@ -49,48 +37,6 @@ const ServerItem = (function defineServerItem() {
   });
 
   class ServerItem extends WamsShared.Item {
-    /*
-     * XXX: What is the item supposed to be if the draw strings are not 
-     *      defined?
-     *
-     * IDEA: Instead of using strings of code and running 'eval()' on them to
-     *      get custom renderings in the canvas, write a 'CanvasSequencer'
-     *      class which can pass queues of canvas operations around, checking
-     *      their legitimacy, then will run those operations on the canvas
-     *      context.
-     *      + This eliminates the arbitrary code problem, and allows us to
-     *        write an API for this behaviour through which we can exercise
-     *        some control over what is done with our WAMS API.
-     *      + For example, a sequence could look like:
-     *        
-     *          const seq = [
-     *            ['beginPath', []],
-     *            ['arc', [64, 164, 100, 2 * Math.PI, false]],
-     *            ['fillStyle', 'white'],
-     *            ['fill', []],
-     *            ['lineWidth', 5],
-     *            ['strokeStyle', '#003300'],
-     *            ['stroke', []],
-     *            ['font', 'normal 36px Verdana'],
-     *            ['fillStyle', '#000000'],
-     *            ['fillText', ['HTML5 Canvas Text', 132, 182]],
-     *          ];
-     *
-     *      + This sequence could be exucuted in the client as follows (assume
-     *        a CanvasRenderingContext2D is stored in ctx):
-     *        
-     *          seq.forEach( ([p,v]) => {
-     *            if (v instanceof Array) {
-     *              ctx[p].apply(ctx, v);
-     *            } else {
-     *              ctx[p] = v;
-     *            }
-     *          });
-     *
-     *      + The above example is rudimentary, but showcases the fundamental
-     *        idea. The 'seq' array can easily be passed between server and
-     *        client.
-     */
     constructor(values = {}) {
       super(WamsShared.getInitialValues(locals.DEFAULTS, values));
       locals.STAMPER.stampNewId(this);
@@ -104,7 +50,7 @@ const ServerItem = (function defineServerItem() {
     }
 
     /*
-     * Items are allowed to be moved off screen, so limitations on where
+     * Items are allowed to be moved off screen, so no limitations on where
      * items can be moved to.
      */
     moveTo(x = this.x, y = this.y) {
@@ -138,7 +84,6 @@ const ServerViewer = (function defineServerViewer() {
         y: 10000,
       },
     },
-    MIN_DIMENSION: 100,
     STAMPER: new WamsShared.IDStamper(),
   });
 
@@ -206,11 +151,7 @@ const ServerViewer = (function defineServerViewer() {
       const data = { x, y, dx, dy };
       /*
        * WARNING: It is crucially important that the instructions below occur
-       * in *precisely* this order! In case someone screws it up, the order
-       * is:
-       *    1. scale
-       *    2. rotate
-       *    3. translate
+       * in *precisely* this order!
        */
       applyScale(data, this.scale);
       applyRotation(data, (2 * Math.PI) - this.rotation);
@@ -253,9 +194,7 @@ const ServerViewer = (function defineServerViewer() {
     }
 
     /*
-     * Viewers are constrained to stay within the boundaries of the
-     * workspace, to protect the render. To ensure this safety, extra
-     * potentially redundant checks and fallbacks are used in this function.
+     * Viewers are constrained to stay within the boundaries of the workspace.
      */
     moveTo(x = this.x, y = this.y) {
       const coordinates = { x: this.x, y: this.y };
@@ -272,11 +211,11 @@ const ServerViewer = (function defineServerViewer() {
      * The scaled width and height (stored permanently as effective width and
      * height) are determined by dividing the width or height by the scale.
      * This might seem odd at first, as that seems to be the opposite of what
-     * should be done. But what these variables are actually representing is 
-     * the amount of the underlying workspace that can be displayed inside the
-     * viewer. So a larger scale means that each portion of the workspace
-     * takes up more of the viewer, therefore _less_ of the workspace is
-     * visible. Hence, division.
+     * should be done. But what these variables are actually representing is the
+     * amount of the underlying workspace that can be displayed inside the
+     * viewer. So a larger scale means that each portion of the workspace takes
+     * up more of the viewer, therefore _less_ of the workspace is visible.
+     * Hence, division.
      *
      * XXX: One thing that could be done in this function is to try anchoring
      *      on the right / bottom if anchoring on the left / top produces a
@@ -329,7 +268,6 @@ const ListenerFactory = (function defineListenerFactory() {
 
       layout(listener, workspace) {
         return function handleLayout(viewer, data) {
-          viewer.assign(data); 
           listener(viewer, workspace.viewers.length);
         };
       },
@@ -353,9 +291,6 @@ const ListenerFactory = (function defineListenerFactory() {
       if (typeof listener !== 'function') {
         throw 'Attached listener must be a function';
       } 
-      if (!(workspace instanceof WorkSpace)) {
-        throw 'Cannot listen with an invalid workspace';
-      }
       return locals.BLUEPRINTS[type](listener, workspace);
     },
     TYPES: Object.keys(locals.BLUEPRINTS),
@@ -377,6 +312,7 @@ const WorkSpace = (function defineWorkSpace() {
       },
       color: '#aaaaaa',
     }),
+    MIN_BOUND: 100,
     STAMPER: new WamsShared.IDStamper(),
 
     resolveBounds(bounds = {}) {
@@ -385,7 +321,9 @@ const WorkSpace = (function defineWorkSpace() {
       }
       const x = safeNumber(bounds.x);
       const y = safeNumber(bounds.y);
-      if (x < 100 || y < 100) throw 'Invalid bounds received';
+      if (x < locals.MIN_BOUND || y < locals.MIN_BOUND) {
+        throw `Invalid bounds received: ${bounds}`;
+      }
       return {x,y};
     }
   });

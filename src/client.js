@@ -1,16 +1,23 @@
 /*
  * WAMS code to be executed in the client browser.
  *
- * Original author: Jesse Rolheiser
- * Revised by: Scott Bateman
- * Latest edition by: Michael van der Kamp
+ * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ */
+
+/*
+ * SOME NOTES ABOUT CANVAS RENDERING:
+ *  - Avoid using shadows. They appear to kill the framerate.
  */
 
 'use strict';
 
 /*
  * If operating in a node.js environment, import the requisite libraries.
+ * This is to allow automated testing.
  */
 if (typeof global !== 'undefined' && typeof require === 'function') {
   global.io = require('socket.io-client');
@@ -37,28 +44,16 @@ const ShadowViewer = (function defineShadowViewer() {
     STAMPER: new WamsShared.IDStamper(),
     COLOURS: [
       'saddlebrown',
-      'red',
-      'blue',
-      'green',
-      'yellow',
+      'darkred',
+      'darkblue',
+      'darkgreen',
+      'goldenrod',
       'orangered',
       'purple',
       'fuschia',
       'aqua',
       'lime',
     ],
-
-    drawTopLeftMarker(context) {
-      const base = context.lineWidth / 2;
-      const height = 25;
-
-      context.beginPath();
-      context.moveTo(base,base);
-      context.lineTo(base,height);
-      context.lineTo(height,base);
-      context.lineTo(base,base);
-      context.fill();
-    },
   });
 
   class ShadowViewer extends WamsShared.Viewer {
@@ -70,19 +65,42 @@ const ShadowViewer = (function defineShadowViewer() {
     draw(context) {
       /*
        * WARNING: It is *crucial* that this series of instructions be wrapped in
-       * save() and restore(). It is also very important that translate happens
-       * before rotate, which happens before strokeRect!
+       * save() and restore().
        */
       context.save();
-      context.translate(this.x,this.y);
-      context.rotate((Math.PI * 2) - this.rotation);
-      context.globalAlpha = 0.5;
-      context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
-      context.fillStyle = context.strokeStyle;
-      context.lineWidth = 5;
-      context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
-      locals.drawTopLeftMarker(context);
+      align.call(this, context);
+      setStyles.call(this, context);
+      drawOutline.call(this, context);
+      drawTopLeftMarker.call(this, context);
       context.restore();
+
+      function align(context) {
+        context.translate(this.x,this.y);
+        context.rotate((Math.PI * 2) - this.rotation);
+      }
+
+      function setStyles(context) {
+        context.globalAlpha = 0.5;
+        context.strokeStyle = locals.COLOURS[this.id % locals.COLOURS.length];
+        context.fillStyle = context.strokeStyle;
+        context.lineWidth = 5;
+      }
+
+      function drawOutline(context) {
+        context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+      }
+
+      function drawTopLeftMarker(context) {
+        const base = context.lineWidth / 2;
+        const height = 25;
+
+        context.beginPath();
+        context.moveTo(base,base);
+        context.lineTo(base,height);
+        context.lineTo(height,base);
+        context.lineTo(base,base);
+        context.fill();
+      }
     }
   }
   
@@ -137,7 +155,9 @@ const ClientItem = (function defineClientItem() {
       }
 
       // Rather than doing a bunch of checks, let's just always rebuild the
-      // sequence when updating any data in the item.
+      // sequence when updating any data in the item. Doing the checks to see if
+      // this is necessary would probably take as much or more time as just
+      // going ahead and rebuilding like this anyway.
       if (this.blueprint) {
         this.sequence = this.blueprint.build(this.report());
       }
@@ -152,6 +172,7 @@ const ClientItem = (function defineClientItem() {
       } else if (this.img && this.img.loaded) {
         context.drawImage(this.img, this.x, this.y, width, height);
       } else {
+        // Draw placeholder rectangle.
         context.save();
         context.fillStyle = '#252525';
         context.fillRect(this.x, this.y, width, height);
@@ -165,7 +186,7 @@ const ClientItem = (function defineClientItem() {
 
 /*
  * The ClientViewer class is used for all rendering activities on the client
- * side. This is essentially the view in a modal-view-controller esque design.
+ * side. This is essentially the view in an MVC-esque design.
  */
 const ClientViewer = (function defineClientViewer() {
   const locals = Object.freeze({
@@ -176,6 +197,16 @@ const ClientViewer = (function defineClientViewer() {
       scale: 1,
       type: 'view/background',
     }),
+    STATUS_KEYS: Object.freeze([
+      'x',
+      'y',
+      'width',
+      'height',
+      'effectiveWidth',
+      'effectiveHeight',
+      'rotation',
+      'scale',
+    ]),
     REQUIRED_DATA: Object.freeze([
       'id',
       'items',
@@ -193,7 +224,6 @@ const ClientViewer = (function defineClientViewer() {
 
       this.items = [];
       this.shadows = [];
-      this.resizeToFillWindow();
       document.addEventListener( 'wams-image-loaded', () => this.draw() );
     }
 
@@ -207,48 +237,45 @@ const ClientViewer = (function defineClientViewer() {
 
     draw() {
       this.context.save();
-      wipeAndReposition.call(this);
-      this.items.forEach( o => o.draw(this.context) );
-      this.shadows.forEach( v => v.draw(this.context) );
-      showStatus.call(this);
+      wipeAndRealign(this);
+      drawItems(this);
+      drawShadows(this);
+      showStatus(this);
       this.context.restore();
 
-      function wipeAndReposition() {
+      function wipeAndRealign(viewer) {
         /*
          * WARNING: It is crucially important that the instructions below occur
-         * in *precisely* this order! In case someone screws it up, the order
-         * is:
-         *    1. clearRect
-         *    2. scale
-         *    3. rotate
-         *    4. translate
+         * in *precisely* this order!
          */
-        this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        this.context.scale(this.scale, this.scale);
-        this.context.rotate(this.rotation);
-        this.context.translate(-this.x, -this.y);
+        viewer.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        viewer.context.scale(viewer.scale, viewer.scale);
+        viewer.context.rotate(viewer.rotation);
+        viewer.context.translate(-viewer.x, -viewer.y);
       }
 
-      function showStatus() {
-        const messages = Object.keys(locals.DEFAULTS)
-          .map( k => {
-            if (typeof this[k] === 'number') {
-              return `${k}: ${this[k].toFixed(2)}`;
-            } else {
-              return `${k}: ${this[k]}`;
-            }
-          })
-          .concat([`# of Shadows: ${this.shadows.length}`]);
+      function drawItems(viewer) {
+        viewer.items.forEach( o => o.draw(viewer.context) );
+      }
+
+      function drawShadows(viewer) {
+        viewer.shadows.forEach( v => v.draw(viewer.context) );
+      }
+
+      function showStatus(viewer) {
+        const messages = locals.STATUS_KEYS
+          .map( k => `${k}: ${viewer[k].toFixed(2)}` )
+          .concat([`# of Shadows: ${viewer.shadows.length}`]);
         let ty = 40;
         let tx = 20;
-        this.context.save();
-        this.context.setTransform(1,0,0,1,0,0);
-        this.context.font = '18px Georgia';
+        viewer.context.save();
+        viewer.context.setTransform(1,0,0,1,0,0);
+        viewer.context.font = '18px Georgia';
         messages.forEach( m => {
-          this.context.fillText(m, tx, ty);
+          viewer.context.fillText(m, tx, ty);
           ty += 20;
         });
-        this.context.restore();
+        viewer.context.restore();
       }
     }
 
@@ -282,16 +309,18 @@ const ClientViewer = (function defineClientViewer() {
       this.draw(); 
     }
 
+    update(container, data) {
+      const object = this[container].find( o => o.id === data.id );
+      if (object) object.assign(data);
+      else console.warn(`Unable to find in ${container}: id: `, data.id);
+    }
+
     updateItem(data) {
-      const item = this.items.find( i => i.id === data.id );
-      if (item) item.assign(data);
-      else console.warn('Unable to find item to be updated.');
+      this.update('items', data);
     }
 
     updateShadow(data) {
-      const shadow = this.shadows.find( v => v.id === data.id );
-      if (shadow) shadow.assign(data);
-      else console.warn('Unable find shadow to be updated.');
+      this.update('shadows', data);
     }
   }
 
@@ -422,6 +451,10 @@ const Interactor = (function defineInteractor() {
       rotate.move = refineRotateMove;
       return rotate;
 
+      /*
+       * Custom functionality overtop of standard ZingTouch behaviour.
+       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
+       */
       function refineRotateMove(inputs, state, element) {
         if (state.numActiveInputs() === 2) {
           return rotateMove.call(this, inputs, state, element);
@@ -441,8 +474,8 @@ const Interactor = (function defineInteractor() {
 
     wheel(event) {
       event.preventDefault();
-      const factor = event.ctrlKey ? 0.05 : 0.01;
-      this.handlers.zoom(-(event.deltaY * factor));
+      const factor = event.ctrlKey ? 0.10 : 0.02;
+      this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
     }
   }
 
@@ -453,7 +486,7 @@ const Interactor = (function defineInteractor() {
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view. This is essentially the
- * controller in a model-view-controller esque design.
+ * controller in an MVC-esque design.
  */
 const ClientController = (function defineClientController() {
   const Message = WamsShared.Message;
@@ -472,10 +505,10 @@ const ClientController = (function defineClientController() {
       this.socket = null;
       this.viewer = new ClientViewer({ context: this.context });
       this.interactor = new Interactor(this.canvas, {
-        pan: this.pan.bind(this),
+        pan:    this.pan.bind(this),
         rotate: this.rotate.bind(this),
-        tap: this.tap.bind(this),
-        zoom: this.zoom.bind(this),
+        tap:    this.tap.bind(this),
+        zoom:   this.zoom.bind(this),
       });
 
       this.resizeCanvasToFillWindow();
@@ -511,6 +544,9 @@ const ClientController = (function defineClientController() {
         [Message.ROTATE]: WamsShared.NOP,
         [Message.SCALE]:  WamsShared.NOP,
 
+        /*
+         * TODO: This could be more... elegant...
+         */
         'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
       };
 
@@ -528,12 +564,12 @@ const ClientController = (function defineClientController() {
 
     resize() {
       this.resizeCanvasToFillWindow();
-      this.viewer.resizeToFillWindow();
       this.viewer.draw();
       new Message(Message.RESIZE, this.viewer).emitWith(this.socket);
     }
 
     resizeCanvasToFillWindow() {
+      this.viewer.resizeToFillWindow();
       this.canvas.width = window.innerWidth; 
       this.canvas.height = window.innerHeight;
     }

@@ -33,5 +33,5 @@ ws.on('layout', handleLayout);
 
 // Once all the handlers are attached, open up the workspace and listen for
 // connections.
-workspace.listen(9004);
+ws.listen(9004);
 
