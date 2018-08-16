@@ -1,16 +1,18 @@
 /*
  * WAMS code to be executed in the client browser.
  *
- * Original author: Jesse Rolheiser
- * Revised by: Scott Bateman
- * Latest edition by: Michael van der Kamp
+ * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
  */
 
 'use strict';
 
 /*
  * If operating in a node.js environment, import the requisite libraries.
+ * This is to allow automated testing.
  */
 if (typeof global !== 'undefined' && typeof require === 'function') {
   global.io = require('socket.io-client');

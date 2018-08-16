@@ -1,10 +1,11 @@
 /*
  * WAMS - An API for Multi-Surface Environments
  *
- * Original author: Jesse Rolheiser
- * Revised by: Scott Bateman
- * Latest edition by: Michael van der Kamp
+ * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
  */
 
 'use strict';
