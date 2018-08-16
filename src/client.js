@@ -93,7 +93,7 @@ const ShadowViewer = (function defineShadowViewer() {
         context.lineTo(height,base);
         context.lineTo(base,base);
         context.fill();
-      },
+      }
     }
   }
   
