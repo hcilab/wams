@@ -228,7 +228,7 @@ const ClientView = (function defineClientView() {
     }
 
     addItem(values) {
-      this.items.unshift(new ClientItem(values));
+      this.items.push(new ClientItem(values));
     }
 
     addShadow(values) {

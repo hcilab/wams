@@ -358,7 +358,7 @@ const WorkSpace = (function defineWorkSpace() {
     // }
 
     findItemByCoordinates(x,y) {
-      return this.items.find( o => o.containsPoint(x,y) );
+      return WamsShared.findLast(this.items, o => o.containsPoint(x,y));
     }
 
     handle(message, ...args) {

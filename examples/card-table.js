@@ -12,27 +12,6 @@ const ws = new WAMS.WamsServer({
   clientLimit: 5,
 });
 
-ws.spawnItem({
-  x: 2600, 
-  y: 2800, 
-  type: 'joker',
-  imgsrc: 'img/joker.png',
-});
-
-const text = new WAMS.Sequence();
-text.font = 'normal 36px Times,serif';
-text.fillStyle = '#1a1a1a';
-text.fillText( 'Click the joker!', '{x}', '{y}');
-
-ws.spawnItem({
-  x: 2380,
-  y: 2480,
-  width: 300,
-  height: 40,
-  type: 'text',
-  blueprint: text,
-});
-
 const circle = new WAMS.Sequence();
 circle.beginPath();
 circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
@@ -50,6 +29,27 @@ ws.spawnItem({
   height: 150,
   type: 'circle',
   blueprint: circle,
+});
+
+const text = new WAMS.Sequence();
+text.font = 'normal 36px Times,serif';
+text.fillStyle = '#1a1a1a';
+text.fillText( 'Click the joker!', '{x}', '{y}');
+
+ws.spawnItem({
+  x: 2380,
+  y: 2480,
+  width: 300,
+  height: 40,
+  type: 'text',
+  blueprint: text,
+});
+
+ws.spawnItem({
+  x: 2600, 
+  y: 2800, 
+  type: 'joker',
+  imgsrc: 'img/joker.png',
 });
 
 const handleLayout = (function makeLayoutHandler() {
