@@ -8,6 +8,11 @@
  * Other revisions and supervision: Scott Bateman
  */
 
+/*
+ * SOME NOTES ABOUT CANVAS RENDERING:
+ *  - Avoid using shadows. They appear to kill the framerate.
+ */
+
 'use strict';
 
 /*
@@ -39,10 +44,10 @@ const ShadowViewer = (function defineShadowViewer() {
     STAMPER: new WamsShared.IDStamper(),
     COLOURS: [
       'saddlebrown',
-      'red',
-      'blue',
-      'green',
-      'yellow',
+      'darkred',
+      'darkblue',
+      'darkgreen',
+      'goldenrod',
       'orangered',
       'purple',
       'fuschia',
