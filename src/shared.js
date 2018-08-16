@@ -89,6 +89,25 @@ const WamsShared = (function defineSharedWamsModule() {
   })();
 
   /*
+   * Find the last value in an Array for which the supplied callback function
+   *  returns true. Operates on each index in the Array, starting at 'fromIndex'
+   *  and going backwards to the start of the Array or until the desired value 
+   *  is found.
+   *
+   * Returns the value that passed the callback, if found or null.
+   *
+   * Callback function should be of similar form to the Array.findIndex()
+   *  standard library function.
+   */
+  function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
+    while (fromIndex >= 0 &&
+      !callback.call(thisArg, array[fromIndex], fromIndex, array)) {
+      --fromIndex;
+    }
+    return fromIndex >= 0 ? array[fromIndex] : null;
+  }
+
+  /*
    * Returns a new object, with all the own properties of 'defaults' having
    *  values from 'data', if found, otherwise with values from 'defaults'.
    */
@@ -327,6 +346,7 @@ const WamsShared = (function defineSharedWamsModule() {
    */
   return Object.freeze({
     constants,
+    findLast,
     FullStateReporter,
     IdStamper,
     getInitialValues,
