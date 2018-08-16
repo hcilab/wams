@@ -61,10 +61,10 @@ const ShadowViewer = (function defineShadowViewer() {
        * save() and restore().
        */
       context.save();
-      align(context);
-      setStyles(context);
-      drawOutline(context);
-      drawTopLeftMarker(context);
+      align.call(this, context);
+      setStyles.call(this, context);
+      drawOutline.call(this, context);
+      drawTopLeftMarker.call(this, context);
       context.restore();
 
       function align(context) {
