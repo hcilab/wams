@@ -497,12 +497,14 @@ const RequestHandler = (function defineRequestHandler() {
   const express = require('express');
 
   function establishMainRoutes(app) {
-    const view   = path.join(__dirname, '../src/view.html');
-    const shared = path.join(__dirname, '../src/shared.js');
-    const client = path.join(__dirname, '../src/client.js');
-    app.get('/',          (req, res) => res.sendFile(view)    );
-    app.get('/shared.js', (req, res) => res.sendFile(shared)  );
-    app.get('/client.js', (req, res) => res.sendFile(client)  );
+    const view   = path.join(__dirname, '../dist/view.html');
+    const source = path.join(__dirname, '../dist/wams-client.js');
+    // const shared = path.join(__dirname, '../src/shared.js');
+    // const client = path.join(__dirname, '../src/client.js');
+    app.get('/',               (req, res) => res.sendFile(view)  );
+    app.get('/wams-client.js', (req, res) => res.sendFile(source));
+    // app.get('/shared.js', (req, res) => res.sendFile(shared)  );
+    // app.get('/client.js', (req, res) => res.sendFile(client)  );
   }
 
   function establishAuxiliaryRoutes(app) {

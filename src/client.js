@@ -19,13 +19,11 @@
  * If operating in a node.js environment, import the requisite libraries.
  * This is to allow automated testing.
  */
-if (typeof global !== 'undefined' && typeof require === 'function') {
-  global.io = require('socket.io-client');
-  global.WamsShared = require('../src/shared.js');
-  global.ZingTouch = require('../libs/zingtouch.js');
-  global.cseq = require('../libs/canvas_sequencer.js');
-  global.Blueprint = cseq.Blueprint;
-}
+const io = require('socket.io-client');
+const WamsShared = require('../src/shared.js');
+const ZingTouch = require('zingtouch');
+const cseq = require('canvas-sequencer');
+const Blueprint = cseq.Blueprint;
 
 // Rename Blueprint for clarity.
 const SequenceBlueprint = Blueprint;
@@ -44,13 +42,11 @@ const ShadowView = (function defineShadowView() {
     STAMPER: new WamsShared.IdStamper(),
     COLOURS: [
       'saddlebrown',
-      'darkred',
-      'darkblue',
+      'red',
+      'blue',
       'darkgreen',
-      'goldenrod',
       'orangered',
       'purple',
-      'fuschia',
       'aqua',
       'lime',
     ],
@@ -417,6 +413,7 @@ const Interactor = (function defineInteractor() {
     }
 
     pinch({detail}) {
+      debugger;
       this.handlers.zoom(detail.change * 0.009);
     }
 
