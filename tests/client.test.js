@@ -172,12 +172,6 @@ describe('ClientView', () => {
       expect(cv.rotation).toBe(DEFAULTS.rotation);
       expect(cv.scale).toBe(DEFAULTS.scale);
     });
-
-    test('Resizes to fill the window', () => {
-      const cv = new ClientView({width: 100, height: 255});
-      expect(cv.width).toBe(window.innerWidth);
-      expect(cv.height).toBe(window.innerHeight);
-    });
   });
 
   describe('addItem(values)', () => {
@@ -250,8 +244,8 @@ describe('ClientView', () => {
     const cv = new ClientView();
 
     test('Adjusts size of client view to the window size', () => {
-      expect(cv.width).toBe(window.innerWidth);
-      expect(cv.height).toBe(window.innerHeight);
+      expect(cv.width).not.toBe(window.innerWidth);
+      expect(cv.height).not.toBe(window.innerHeight);
       window.innerWidth += 45;
       window.innerHeight -= 87;
       cv.resizeToFillWindow();

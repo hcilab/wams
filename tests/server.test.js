@@ -537,12 +537,6 @@ describe('ListenerFactory Object', () => {
         ).toThrow();
       });
 
-      test('Will throw if workspace is invalid', () => {
-        expect(
-          () => fn = ListenerFactory.build(s, jest.fn(), 'a')
-        ).toThrow();
-      });
-
       test('Returns a function', () => {
         expect(
           ListenerFactory.build(s, jest.fn(), ws)
@@ -732,11 +726,11 @@ describe('WorkSpace', () => {
       const i = ws.findItemByCoordinates(25,45);
       expect(i).toBeDefined();
       expect(i).toBeInstanceOf(ServerItem);
-      expect(i).toBe(ws.items[0]);
+      expect(i).toBe(ws.items[1]);
     });
 
-    test('Returns undefined if no item at given coordinates', () => {
-      expect(ws.findItemByCoordinates(150,150)).toBeUndefined();
+    test('Returns falsy if no item at given coordinates', () => {
+      expect(ws.findItemByCoordinates(150,150)).toBeFalsy();
     });
   });
 
@@ -960,7 +954,10 @@ describe('WorkSpace', () => {
 
       test('Calls the listener with the expected arguments', () => {
         expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs, vs, x, y);
+        expect(fn.mock.calls[0][0]).toBe(vs);
+        expect(fn.mock.calls[0][1]).toBe(vs);
+        expect(fn.mock.calls[0][2]).toBeCloseTo(x);
+        expect(fn.mock.calls[0][3]).toBeCloseTo(y);
       });
     });
 
@@ -978,7 +975,12 @@ describe('WorkSpace', () => {
 
       test('Calls the listener with the expected arguments', () => {
         expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs, vs, x, y, dx, dy);
+        expect(fn.mock.calls[0][0]).toBe(vs);
+        expect(fn.mock.calls[0][1]).toBe(vs);
+        expect(fn.mock.calls[0][2]).toBeCloseTo(x);
+        expect(fn.mock.calls[0][3]).toBeCloseTo(y);
+        expect(fn.mock.calls[0][4]).toBeCloseTo(dx);
+        expect(fn.mock.calls[0][5]).toBeCloseTo(dy);
       });
     });
 
@@ -990,13 +992,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('layout', vs, {})).not.toThrow();
+        expect(() => ws.handle('layout', vs, 0)).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('layout', vs, {})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs,1);
+        expect(fn).toHaveBeenLastCalledWith(vs, 0);
       });
     });
 
