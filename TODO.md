@@ -22,6 +22,14 @@
 - [ ] Reorganize code, such that each 'class module' is located inside its own
       file. This will help considerably if the code continues to expand, and
       will also help with more fine-grained testing.
+- [ ] Add option for users to define whether an item is interactable, and then
+      only allow interaction with objects marked as interactable.
+- [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
+- [ ] Update API doc.
+- [ ] Write design doc (properly).
+- [ ] Implement item rotation.
+  + [ ] Allow a 'rotate' interaction with objects.
+- [ ] Implement 'rotate' for desktop users.
 
 ---
 
