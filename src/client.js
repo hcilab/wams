@@ -20,8 +20,8 @@
  * This is to allow automated testing.
  */
 const io = require('socket.io-client');
-const WamsShared = require('../src/shared.js');
-const ZingTouch = require('zingtouch');
+const WamsShared = require('./shared.js');
+const ZingTouch = require('../../../zingtouch');
 const cseq = require('canvas-sequencer');
 const Blueprint = cseq.Blueprint;
 
@@ -374,66 +374,32 @@ const Interactor = (function defineInteractor() {
 
       this.region.bind(this.canvas, this.panner(), pan);
       this.region.bind(this.canvas, this.tapper(), tap);
-      this.region.bind(this.canvas, this.pincher('Pinch'), pinch);
-      this.region.bind(this.canvas, this.pincher('Expand'), pinch);
+      this.region.bind(this.canvas, this.pincher(), pinch);
       this.region.bind(this.canvas, this.rotater(), rotate);
+
+      this.region.bind(
+        this.canvas,
+        new ZingTouch.Pan({ numInputs: 2 }),
+        pan
+      );
     }
 
     pan({detail}) {
       const event = detail.events[0];
-      const data = detail.data[0];
-      this.handlers.pan(
-        event.clientX,
-        event.clientY,
-        data.movement.x,
-        data.movement.y
-      );
+      const { change } = detail.data[0];
+      this.handlers.pan( event.clientX, event.clientY, change.x, change.y);
     }
 
     panner() {
-      const pan = new ZingTouch.Pan();
-      const panMove = pan.move;
-      pan.move = refinePanMove;
-      return pan;
-
-      /*
-       * Custom functionality overtop of standard ZingTouch behaviour.
-       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
-       */
-      function refinePanMove(inputs, state, element) {
-        const progress = inputs[0].getGestureProgress(this.getId());
-        const movement = {
-          x: inputs[0].current.x - progress.lastEmitted.x,  
-          y: inputs[0].current.y - progress.lastEmitted.y,
-        };
-        const output = panMove.call(this, inputs, state, element);
-        if (output) output.data[0].movement = movement;
-        return output;
-      }
+      return new ZingTouch.Pan();
     }
 
     pinch({detail}) {
-      debugger;
-      this.handlers.zoom(detail.change * 0.009);
+      this.handlers.zoom(detail.change * 0.005);
     }
 
-    pincher(PinchOrExpand = 'Pinch') {
-      const gesture = new ZingTouch[PinchOrExpand]();
-      const gestureMove = gesture.move;
-      gesture.move = refinePinchMove;
-      return gesture;
-
-      /*
-       * Custom functionality overtop of standard ZingTouch behaviour.
-       * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
-       */
-      function refinePinchMove(inputs, state, element) {
-        const progress = inputs[0].getGestureProgress(this.getId());
-        const lastDistance = progress.lastEmittedDistance;
-        const data = gestureMove.call(this, inputs, state, element);
-        if (data) data.change = data.distance - lastDistance;
-        return data;
-      }
+    pincher() {
+      return new ZingTouch.Pinch();
     }
 
     rotate({detail}) {
