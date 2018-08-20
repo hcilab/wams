@@ -57,6 +57,12 @@ function handleDrag(view, target, x, y, dx, dy) {
   ws.update(target);
 }
 
+// Executed when a user rotates two fingers around the screen.
+function handleRotate(view, radians) {
+  view.rotation += radians;
+  ws.update(view);
+}
+
 // Executed when a user pinches a device, or uses the scroll wheel on a computer
 function handleScale(view, newScale) {
   view.rescale(newScale);
@@ -74,6 +80,7 @@ ws.on('layout', handleLayout);
 ws.on('click', handleClick);
 ws.on('scale', handleScale);
 ws.on('drag',  handleDrag);
+ws.on('rotate', handleRotate);
 
 ws.listen(9002);
 
