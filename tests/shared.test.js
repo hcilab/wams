@@ -8,17 +8,32 @@
  *  client side.
  */
 
-/*
- * Routines to test:
- *   + makeOwnPropertyImmutable,
- *   + getInitialValues,
- *   + IdStamper,
- *   + View,
- *   + Item,
- */
 const WamsShared = require('../src/shared.js');
-const IdStamper = WamsShared.IdStamper;
-const Message = WamsShared.Message;
-const View = WamsShared.View;
-const Item = WamsShared.Item;
+
+const expected = [
+  'constants',
+  'IdStamper',
+  'Message',
+  'View',
+  'Item',
+  'MouseReporter',
+  'ScaleReporter',
+  'RotateReporter',
+  'FullStateReporter',
+  'combine',
+  'defineOwnImmutableEnumerableProperty',
+  'findLast',
+  'getInitialValues',
+  'makeOwnPropertyImmutable',
+  'NOP',
+  'removeById',
+  'safeRemoveById',
+];
+
+test('Exports all the proper shared utilities', () => {
+  const exported = Object.keys(WamsShared);
+  expect(exported).toEqual(expect.arrayContaining(expected));
+  expect(exported.length).toBe(expected.length);
+});
+
 

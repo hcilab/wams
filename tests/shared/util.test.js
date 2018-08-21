@@ -6,6 +6,21 @@
 
 const Utils = require('../../src/shared/util.js');
 
+describe('combine(objects)', () => {
+  test('If given a single object, returns a matching object', () => {
+    const x = {a: 42, blue: 'red'};
+    expect(Utils.combine([x])).toMatchObject(x);
+  });
+
+  test('Combines two or more objects', () => {
+    const x = {a: 42, blue: 'red'};
+    const y = {b: 93, red: 'why'};
+    const expected = { a: 42, blue: 'red', b: 93, red: 'why'};
+    expect(Utils.combine([x,y])).toMatchObject(expected);
+  });
+});
+
+
 describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
 });
 
