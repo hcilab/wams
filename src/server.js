@@ -11,7 +11,7 @@
 'use strict';
 
 const WamsShared = require('./shared.js');
-const { Blueprint } = require('canvas-sequencer');
+const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
  * Shorthand for the shared set of constants between server and client.
@@ -708,7 +708,7 @@ exports.WorkSpace = WorkSpace;
 exports.Connection = Connection;
 exports.RequestHandler = RequestHandler;
 exports.WamsServer = WamsServer;
-exports.Sequence = Blueprint;
+exports.Sequence = CanvasBlueprint;
 
 exports.Item = ServerItem;
 

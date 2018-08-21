@@ -1,14 +1,20 @@
 #!/bin/bash
 
-vim src/* \
-  dist/view.html \
+vim \
+  src/*.js \
+  src/client/*.js \
+  src/server/*.js \
+  src/shared/*.js \
+  tests/*.js \
+  tests/client/*.js \
+  tests/server/*.js \
+  tests/shared/*.js \
   examples/*.js \
-  tests/* \
   TODO.md \
   README.md \
   DESIGN.md \
   "+bot vnew +setlocal\ buftype=nofile" \
   "+abo new" \
-  "+b tests/server.test.js" \
+  "+argu 2" \
   "+resize +10"
 

@@ -21,12 +21,8 @@
  */
 const io = require('socket.io-client');
 const WamsShared = require('./shared.js');
-const ZingTouch = require('../../../zingtouch');
-const cseq = require('canvas-sequencer');
-const Blueprint = cseq.Blueprint;
-
-// Rename Blueprint for clarity.
-const SequenceBlueprint = Blueprint;
+const ZingTouch = require('../../zingtouch');
+const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
  * Provide an alias for the shared set of constants between server and client.
@@ -147,7 +143,7 @@ const ClientItem = (function defineClientItem() {
       super.assign(data);
       if (updateImage) this.img = locals.createImage(this.imgsrc);
       if (updateBlueprint) {
-        this.blueprint = SequenceBlueprint.fromString(this.blueprint);
+        this.blueprint = new CanvasBlueprint(this.blueprint);
       }
 
       // Rather than doing a bunch of checks, let's just always rebuild the
