@@ -87,6 +87,7 @@ class Connection {
 
   resize(data) {
     this.view.assign(data);
+    new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
   }
 }
 
