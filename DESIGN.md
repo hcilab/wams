@@ -1,6 +1,8 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
-This readme will get updated as I work with the latest developments. For now, I've mostly cleaned up and tested the server side code, so here is a rough API guide for the server side, which is as much for my own use as anything else.
+This readme will get updated as I work with the latest developments. For now,
+I've mostly cleaned up and tested the server side code, so here is a rough API
+guide for the server side, which is as much for my own use as anything else.
 
 # Server Classes
 
