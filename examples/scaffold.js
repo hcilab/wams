@@ -1,12 +1,10 @@
 'use strict';
 
-// Scaffold example for WAMS
-//TODO: make sure the WAMS.js conforms to this scaffold, 
-//    examples made need to be update
+// Scaffold example for Wams
 
-// Includes the WAMS API
-const WAMS = require("../src/server");
-const ws = new WAMS.WamsServer();
+// Includes the Wams API
+const Wams = require("../src/server");
+const ws = new Wams();
 
 const handleLayout = function(view, numViews) {
   // Executed once every time a new user joins

@@ -5,8 +5,8 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer();
+const Wams = require('../src/server');
+const ws = new Wams();
 
 // Executed every time a user taps or clicks a screen
 const handleClick = (function makeClickHandler(ws) {
@@ -20,7 +20,7 @@ const handleClick = (function makeClickHandler(ws) {
   ];
 
   function rectSeq(index) {
-    const seq = new WAMS.Sequence();
+    const seq = new Wams.Sequence();
     seq.fillStyle = colours[index];
     seq.fillRect('{x}', '{y}', '{width}', '{height}');
     return seq;

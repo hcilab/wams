@@ -5,9 +5,9 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
+const Wams = require('../src/server');
 
-const ws = new WAMS.WamsServer({ clientLimit: 2 });
+const ws = new Wams({ clientLimit: 2 });
 
 ws.spawnItem({
   x: 200, y: 200, width: 200, height: 200,

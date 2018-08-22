@@ -5,8 +5,8 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer({
+const Wams = require('../src/server');
+const ws = new Wams({
   bounds: { x: 4000, y: 4000 },
   clientLimit: 4,
 });

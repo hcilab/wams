@@ -5,14 +5,14 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer({
+const Wams = require('../src/server');
+const ws = new Wams({
   bounds: { x: 7000, y: 7000 },
   color: 'green',
   clientLimit: 5,
 });
 
-const circle = new WAMS.Sequence();
+const circle = new Wams.Sequence();
 circle.beginPath();
 circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
 circle.closePath();
@@ -31,7 +31,7 @@ ws.spawnItem({
   blueprint: circle,
 });
 
-const text = new WAMS.Sequence();
+const text = new Wams.Sequence();
 text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
 text.fillText( 'Click the joker!', '{x}', '{y}');
@@ -156,7 +156,7 @@ ws.on('layout', handleLayout);
 
 ws.listen(9001);
 
-// const second_ws = new WAMS.WorkSpace(
+// const second_ws = new Wams.WorkSpace(
 //   9501,
 //   {
 //     debug : false,
