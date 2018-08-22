@@ -46,7 +46,7 @@ This readme will get updated as I work with the latest developments. For now, I'
 * #### .canMoveToY(y)
 * #### .moveTo(x,y)
 * #### .moveBy(dx,dy)
-* #### .rescale(scale)
+* #### .scaleTo(scale)
     
 ## ListenerFactory
 

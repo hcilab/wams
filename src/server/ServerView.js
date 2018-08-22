@@ -170,7 +170,7 @@ class ServerView extends View {
    *      failure. (By anchoring, I mean that the given position remains
    *      constant while the scaling is occurring).
    */
-  rescale(scale = this.scale) {
+  scaleTo(scale = this.scale) {
     const effectiveWidth = this.width / scale;
     const effectiveHeight = this.height / scale;
     if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {

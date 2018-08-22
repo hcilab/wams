@@ -65,7 +65,7 @@ function handleRotate(view, radians) {
 
 // Executed when a user pinches a device, or uses the scroll wheel on a computer
 function handleScale(view, newScale) {
-  view.rescale(newScale);
+  view.scaleTo(newScale);
   ws.update(view);
 }
 

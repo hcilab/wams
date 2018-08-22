@@ -130,7 +130,7 @@ const handleDrag = (function makeDragHandler() {
 })();
 
 const handleScale = function(view, newScale) {
-  view.rescale(newScale);
+  view.scaleTo(newScale);
   ws.update(view);
 }
 

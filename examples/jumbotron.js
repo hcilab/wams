@@ -52,9 +52,9 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-// Handle Scale, uses the built in view method rescale
+// Handle Scale, uses the built in view method scaleTo
 const handleScale = function(view, newScale) {
-  view.rescale(newScale);
+  view.scaleTo(newScale);
   ws.update(view);
 }
 
