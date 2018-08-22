@@ -96,7 +96,7 @@ This handler will be called whenever the user drags somewhere in their view.
 ### layout
 This handler will only be called once per view, when they initially connect.
 * Arguments:
-  * __viewIndex:__ A non-zero integer identifying the 'position' of the view.
+  * __position:__ A non-zero integer identifying the 'position' of the view.
     If someone disconnects, their identifier will be reused.
 
 ### scale

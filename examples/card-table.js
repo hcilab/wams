@@ -105,8 +105,8 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[TOP]     = dependOnTable( layoutTop );
   user_fns[RIGHT]   = dependOnTable( layoutRight );
 
-  function handleLayout(view, viewIndex) {
-    user_fns[viewIndex](view);
+  function handleLayout(view, position) {
+    user_fns[position](view);
   }
 
   return handleLayout;

@@ -30,8 +30,8 @@ function handleDrag(view, target, x, y, dx, dy) {
 
 const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
-  function handleLayout(view, viewIndex) {
-    if (viewIndex === 0) {
+  function handleLayout(view, position) {
+    if (position === 0) {
       nx = view.right - 30;
     } else {
       view.moveTo( nx, view.top ); 

@@ -41,9 +41,9 @@ const handleLayout = (function makeLayoutHandler() {
     return move;
   }
 
-  function handleLayout(view, viewIndex) {
-    if (viewIndex > 0) {
-      const move = getMove(view, viewIndex);
+  function handleLayout(view, position) {
+    if (position > 0) {
+      const move = getMove(view, position);
       view.moveTo(move.x, move.y);
       ws.update(view);
     }
