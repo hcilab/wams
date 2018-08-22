@@ -91,6 +91,10 @@ class ServerView extends View {
     return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
   }
 
+  moveBy(dx = 0, dy = 0) {
+    this.moveTo(this.x + dx, this.y + dy);
+  }
+
   /*
    * Views are constrained to stay within the boundaries of the workspace.
    */
@@ -99,10 +103,6 @@ class ServerView extends View {
     if (this.canMoveToX(x)) coordinates.x = x;
     if (this.canMoveToY(y)) coordinates.y = y;
     this.assign(coordinates);
-  }
-
-  moveBy(dx = 0, dy = 0) {
-    this.moveTo(this.x + dx, this.y + dy);
   }
 
   /*
