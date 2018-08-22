@@ -18,7 +18,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/mvanderkamp/WAMS-API"
+    "url": "https://github.com/mvanderkamp/wams"
   },
   "scripts": {
     "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
