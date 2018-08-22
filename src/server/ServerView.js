@@ -105,6 +105,10 @@ class ServerView extends View {
     this.moveTo(this.x + dx, this.y + dy);
   }
 
+  /*
+   * Transforms pointer coordinates and movement from a client into the
+   * corresponding coordinates and movement for the server's model.
+   */
   refineMouseCoordinates(x, y, dx, dy) {
     const data = { x, y, dx, dy };
     /*
