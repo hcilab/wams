@@ -41,11 +41,13 @@ This project has two user-facing dependencies:
   This package is a gesture library that provides a normalization of interaction
   across browsers and devices, and makes the following kinds of gestures
   possible:
-    - Tap
-    - Pan
-    - Swipe
-    - Pinch
-    - Rotate
+
+  - Tap
+  - Pan
+  - Swipe
+  - Pinch
+  - Rotate
+
   I am working with the maintainers on developing and improving this library,
   and may end up forking my own version if I find the maintainers too cumbersome
   to deal with.
@@ -97,6 +99,59 @@ Extra configuration can be found and placed in the `jest` field of
 `package.json`. 
 
 ## Shared Sources
+
+To coordinate activity between the client and server, I provide a shared set of
+resources that are exposed by `shared.js`.
+
+* [utilities](#utilities)
+* [IdStamper](#idstamper)
+* [Reporters](#reporters)
+* [Message](#message)
+
+### utilities
+
+Exported by this module are a number of quality-of-life functions intended to be
+used in disparate places throughout the codebase. They are there to make writing
+other code easier, and to reduce repetition.
+
+### IdStamper
+
+This class controls ID generation so that I don't have to think about it ever
+again. The class has access to a private generator function for IDs and exposes
+a pair of methods for stamping new IDs onto objects and cloning previously
+existing Ids onto objects:
+
+1. stampNewId(object):
+
+  * object:   The object to stamp with an id.
+
+  All IDs produced by this method are guaranteed to be unique, on a per-stamper
+  basis. (Two uniquely constructed stampers can and will generate identical Ids).
+
+2. cloneId(object, id):
+
+  * object:   Will receive a cloned id.
+  * id:       The id to clone onto the object.
+
+Example:
+
+```javascript
+const stamper = new IdStamper();
+const obj = {};
+stamper.stampNewId(obj);
+console.log(obj.id);  // Logs an integer unique to Ids stamped by stamper
+obj.id = 2;           // Assignment has no effect.
+delete obj.id;        // Is false and has no effect. 
+                      //  (throws an error in strict mode).
+
+const danger = {};
+stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+                                 // now both using the same ID.
+```
+
+### Reporters
+
+### Message
 
 ## Client Sources
 
