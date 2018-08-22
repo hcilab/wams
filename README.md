@@ -1,4 +1,6 @@
-# Contents
+# WAMS: Workspaces Across Multiple Surfaces
+
+## Contents
 
 * [Basic Usage](#basic-usage)
 * [Server API](#server-api)
