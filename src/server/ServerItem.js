@@ -13,7 +13,7 @@
 
 'use strict';
 
-const WamsShared = require('../shared.js');
+const { getInitialValues, IdStamper, Item } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
   x: 0,
@@ -25,11 +25,11 @@ const DEFAULTS = Object.freeze({
   blueprint: null,
 });
 
-const STAMPER = new WamsShared.IdStamper();
+const STAMPER = new IdStamper();
 
-class ServerItem extends WamsShared.Item {
+class ServerItem extends Item {
   constructor(values = {}) {
-    super(WamsShared.getInitialValues(DEFAULTS, values));
+    super(getInitialValues(DEFAULTS, values));
     STAMPER.stampNewId(this);
   }
 

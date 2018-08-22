@@ -14,8 +14,6 @@
 
 'use strict';
 
-const WamsShared = require('../shared.js');
-
 function click(listener, workspace) {
   return function handleClick(view, {x, y}) {
     const mouse = view.refineMouseCoordinates(x, y);

@@ -13,7 +13,13 @@
 
 'use strict';
 
-const WamsShared = require('../shared.js');
+const { 
+  findLast,
+  getInitialValues, 
+  IdStamper, 
+  NOP,
+  removeById,
+} = require('../shared.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
@@ -23,7 +29,7 @@ const DEFAULTS = Object.freeze({
   color: '#aaaaaa',
 });
 const MIN_BOUND = 100;
-const STAMPER = new WamsShared.IdStamper();
+const STAMPER = new IdStamper();
 
 /*
  * Prevents NaN from falling through.
@@ -46,7 +52,7 @@ function resolveBounds(bounds = {}) {
 
 class WorkSpace {
   constructor(settings) {
-    this.settings = WamsShared.getInitialValues(DEFAULTS, settings);
+    this.settings = getInitialValues(DEFAULTS, settings);
     this.settings.bounds = resolveBounds(this.settings.bounds);
     STAMPER.stampNewId(this);
 
@@ -58,7 +64,7 @@ class WorkSpace {
     // Attach NOPs for the event listeners, so they are callable.
     this.handlers = {};
     ListenerFactory.TYPES.forEach( ev => {
-      this.handlers[ev] = WamsShared.NOP;
+      this.handlers[ev] = NOP;
     });
   }
 
@@ -74,7 +80,7 @@ class WorkSpace {
   // }
 
   findItemByCoordinates(x,y) {
-    return WamsShared.findLast(this.items, o => o.containsPoint(x,y));
+    return findLast(this.items, o => o.containsPoint(x,y));
   }
 
   handle(message, ...args) {
@@ -87,11 +93,11 @@ class WorkSpace {
   }
 
   removeView(view) {
-    return WamsShared.removeById( this.views, view, ServerView );
+    return removeById( this.views, view, ServerView );
   }
 
   removeItem(item) {
-    return WamsShared.removeById( this.items, item, ServerItem );
+    return removeById( this.items, item, ServerItem );
   }
 
   reportViews() {

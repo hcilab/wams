@@ -7,7 +7,7 @@
 
 'use strict';
 
-const WamsShared = require('../../src/shared.js');
+const { NOP } = require('../../src/shared.js');
 const WorkSpace = require('../../src/server/WorkSpace.js');
 const ServerItem = require('../../src/server/ServerItem.js');
 const ServerView = require('../../src/server/ServerView.js');
@@ -355,7 +355,7 @@ describe('WorkSpace', () => {
 
     describe.each([['click'],['drag'],['layout'],['scale']])('%s', (s) => {
       test('Handler starts as a NOP', () => {
-        expect(ws.handlers[s]).toBe(WamsShared.NOP);
+        expect(ws.handlers[s]).toBe(NOP);
       });
 
       test('Throws if invalid listener supplied', () => {
@@ -365,7 +365,7 @@ describe('WorkSpace', () => {
       test('Attaches a handler in the appropriate place', () => {
         const fn = jest.fn();
         ws.on(s, fn);
-        expect(ws.handlers[s]).not.toBe(WamsShared.NOP);
+        expect(ws.handlers[s]).not.toBe(NOP);
         expect(ws.handlers[s]).toBeInstanceOf(Function);
       });
 

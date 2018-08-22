@@ -1,8 +1,8 @@
 'use strict';
 
 /*
- * This file is intented to be used for testing the WamsShared module. It will test
- * the module on the server side.
+ * This file is intended to be used for testing the WamsShared module. It will
+ * test the module on the server side.
  *
  * TODO: Open up a server once tests are complete for testing code on the
  *  client side.

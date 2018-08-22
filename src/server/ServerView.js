@@ -13,7 +13,7 @@
 
 'use strict';
 
-const WamsShared = require('../shared.js');
+const { getInitialValues, IdStamper, View } = require('../shared.js');
 
 const DEFAULTS = {
   x: 0,
@@ -29,9 +29,9 @@ const DEFAULTS = {
   },
 };
 
-const STAMPER = new WamsShared.IdStamper();
+const STAMPER = new IdStamper();
 
-class ServerView extends WamsShared.View {
+class ServerView extends View {
   /*
    * XXX: At some point, the effective width and height should be made to be
    *      updated whenever either the width, height, or scale of the
@@ -55,7 +55,7 @@ class ServerView extends WamsShared.View {
    *      be handled at a more general level.
    */
   constructor(values = {}) {
-    super(WamsShared.getInitialValues(DEFAULTS, values));
+    super(getInitialValues(DEFAULTS, values));
     this.bounds = values.bounds || DEFAULTS.bounds;
     this.effectiveWidth = this.width / this.scale;
     this.effectiveHeight = this.height / this.scale;
