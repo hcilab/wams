@@ -105,6 +105,14 @@ class ServerView extends View {
     this.assign(coordinates);
   }
 
+  rotateBy(radians = 0) {
+    this.rotateTo(this.rotation + radians);
+  }
+
+  rotateTo(rotation = this.rotation) {
+    this.assign({ rotation });
+  }
+
   /*
    * Transforms pointer coordinates and movement from a client into the
    * corresponding coordinates and movement for the server's model.
