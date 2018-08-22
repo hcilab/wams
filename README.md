@@ -76,16 +76,19 @@ handler will be an object describing the view who initiated the event.
 * [drag](#drag)
 * [layout](#layout)
 * [scale](#scale)
+* [rotate](#rotate)
 
 ### click
 This handler will be called whenever a user clicks in their view. 
 * Arguments:
+  * __view:__ The view which initiated the event.
   * __x:__ The x coordinate at which the user clicked.
   * __y:__ The y coordinate at which the user clicked.
 
 ### drag
 This handler will be called whenever the user drags somewhere in their view.
 * Arguments:
+  * __view:__ The view which initiated the event.
   * __x:__ The x coordinate at which the user clicked.
   * __y:__ The y coordinate at which the user clicked.
   * __dx:__ The distance between the current drag and the last drag along the x
@@ -96,12 +99,21 @@ This handler will be called whenever the user drags somewhere in their view.
 ### layout
 This handler will only be called once per view, when they initially connect.
 * Arguments:
+  * __view:__ The view which initiated the event.
   * __position:__ A non-zero integer identifying the 'position' of the view.
     If someone disconnects, their identifier will be reused.
 
 ### scale
 This handler will be called when a view zooms in or out.
 * Arguments:
+  * __view:__ The view which initiated the event.
   * __scale:__ The new zoom scale of the view. 1 is normal. 2 means 200% zoom.
     0.5 means 50% zoom.
+
+### rotate
+This handler will be called when a user tries to rotate the view.
+Currently only implemented for touch devices, via two-finger rotate.
+* Arguments:
+  * __view:__ The view which initiated the event.
+  * __radians:__ The amount of the rotation, in radians.
 
