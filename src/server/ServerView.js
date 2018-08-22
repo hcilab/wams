@@ -91,6 +91,20 @@ class ServerView extends View {
     return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
   }
 
+  /*
+   * Views are constrained to stay within the boundaries of the workspace.
+   */
+  moveTo(x = this.x, y = this.y) {
+    const coordinates = { x: this.x, y: this.y };
+    if (this.canMoveToX(x)) coordinates.x = x;
+    if (this.canMoveToY(y)) coordinates.y = y;
+    this.assign(coordinates);
+  }
+
+  moveBy(dx = 0, dy = 0) {
+    this.moveTo(this.x + dx, this.y + dy);
+  }
+
   refineMouseCoordinates(x, y, dx, dy) {
     const data = { x, y, dx, dy };
     /*
@@ -135,20 +149,6 @@ class ServerView extends View {
         return x * sin_theta + y * cos_theta;
       }
     }
-  }
-
-  /*
-   * Views are constrained to stay within the boundaries of the workspace.
-   */
-  moveTo(x = this.x, y = this.y) {
-    const coordinates = { x: this.x, y: this.y };
-    if (this.canMoveToX(x)) coordinates.x = x;
-    if (this.canMoveToY(y)) coordinates.y = y;
-    this.assign(coordinates);
-  }
-
-  moveBy(dx = 0, dy = 0) {
-    this.moveTo(this.x + dx, this.y + dy);
   }
 
   /*
