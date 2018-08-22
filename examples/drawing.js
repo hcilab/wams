@@ -59,7 +59,7 @@ function handleDrag(view, target, x, y, dx, dy) {
 
 // Executed when a user rotates two fingers around the screen.
 function handleRotate(view, radians) {
-  view.rotation += radians;
+  view.rotateBy(radians);
   ws.update(view);
 }
 
