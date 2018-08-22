@@ -41,8 +41,8 @@ function establishAuxiliaryRoutes(app) {
    *    + immutable
    *    + maxAge
    */
-  const images = path.join(__dirname, '../img');
-  const libs = path.join(__dirname, '../libs');
+  const images = path.join(__dirname, '../../img');
+  const libs = path.join(__dirname, '../../libs');
   app.use('/img', express.static(images));
   app.use('/libs', express.static(libs));
 }
