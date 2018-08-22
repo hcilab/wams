@@ -1,39 +1,39 @@
-# <a id="contents"></a>End User API
+# Contents
 
-* [Basic Usage](#basic_usage)
-* [Server API](#server_api)
+* [Basic Usage](#basic-usage)
+* [Server API](#server-api)
 * [Handlers](#handlers)
 
-## <a id="basic_usage"></a>Basic usage. [\[top\]](#contents)
+## Basic Usage
 ```JavaScript
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer();
+const Wams = require('../src/server');
+const ws = new Wams();
 // When handlers are attached and beginning items are spawned:
 ws.listen(port);
 ```
-## <a id="server_api"></a>Server API [\[top\]](#contents)
+## Server API
 
-* [listen(\[port\[, host\]\])](#server_listen)
-* [on(event, handler)](#server_on)
-* [removeItem(item)](#server_removeItem)
-* [spawnItem(itemdata)](#server_spawnItem)
-* [update(object, data)](#server_update)
+* [listen(\[port\[, host\]\])](#listenport-host)
+* [on(event, handler)](#onevent-handler)
+* [removeItem(item)](#removeitemitem)
+* [spawnItem(values)](#spawnitemvalues)
+* [update(object)](#updateobject)
 
-### <a id="server_listen"></a>listen(\[port\[, host\]\]) [\[server api\]](#server_api)
+### listen(\[port\[, host\]\])
 Starts the internal server on the given port and hostname and reports the
 address on which it is listening.
 - __DEFAULTS:__
   * __port:__ 9000
   * __host:__ your local, non-loopback IPv4 address
  
-### <a id="server_on"></a>on(event, handler) [\[server api\]](#server_api)
+### on(event, handler)
 Registers the given handler for the given event. See Handlers below for more
 information.
 
-### <a id="server_removeItem"></a>removeItem(item) [\[server api\]](#server_api)
+### removeItem(item)
 Removes the given item from the workspace.
 
-### <a id="server_spawnItem"></a>spawnItem(itemdata) [\[server api\]](#server_api)
+### spawnItem(values)
 Spawns a new item using the given data and immediately informs all clients of
 the new item. `itemdata` is an object which you fill with some or all (or none)
 of the following properties:
@@ -63,27 +63,27 @@ name as in the above table.
 For more information about Blueprints and Sequences, see 
 [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer).
 
-### <a id="server_update"></a>update(object, data) [\[server api\]](#server_api)
+### update(object)
 Updates the object with the given data, then announces the changes to all
 clients. `object` can be either an item or a view.
 
-## <a id="handlers"></a>Handlers [\[top\]](#contents)
+## Handlers
 Each of these handlers can be attached using the name listed below as the event
 name when calling `ws.on(event, handler)`. The first argument passed to any
 handler will be an object describing the view who initiated the event.
 
-* [click](#handlers_click)
-* [drag](#handlers_drag)
-* [layout](#handlers_layout)
-* [scale](#handlers_scale)
+* [click](#click)
+* [drag](#drag)
+* [layout](#layout)
+* [scale](#scale)
 
-### <a id="handlers_click"></a>click [\[handlers\]](#handlers)
+### click
 This handler will be called whenever a user clicks in their view. 
 * Arguments:
   * __x:__ The x coordinate at which the user clicked.
   * __y:__ The y coordinate at which the user clicked.
 
-### <a id="handlers_drag"></a>drag [\[handlers\]](#handlers)
+### drag
 This handler will be called whenever the user drags somewhere in their view.
 * Arguments:
   * __x:__ The x coordinate at which the user clicked.
@@ -93,13 +93,13 @@ This handler will be called whenever the user drags somewhere in their view.
   * __dx:__ The distance between the current drag and the last drag along the y
     axis.
  
-### <a id="handlers_layout"></a>layout [\[handlers\]](#handlers)
+### layout
 This handler will only be called once per view, when they initially connect.
 * Arguments:
   * __viewIndex:__ A non-zero integer identifying the 'position' of the view.
     If someone disconnects, their identifier will be reused.
 
-### <a id="handlers_scale"></a>scale [\[handlers\]](#handlers)
+### scale
 This handler will be called when a view zooms in or out.
 * Arguments:
   * __scale:__ The new zoom scale of the view. 1 is normal. 2 means 200% zoom.
