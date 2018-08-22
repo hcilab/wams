@@ -19,7 +19,7 @@
       object it finds that's currently under the cursor).
 - [ ] Look into using device orientation for rotation instead of touchscreen
       inputs.
-- [ ] Reorganize code, such that each 'class module' is located inside its own
+- [X] Reorganize code, such that each 'class module' is located inside its own
       file. This will help considerably if the code continues to expand, and
       will also help with more fine-grained testing.
 - [ ] Add option for users to define whether an item is interactable, and then
