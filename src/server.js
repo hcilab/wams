@@ -10,10 +10,10 @@
 
 'use strict';
 
-const WamsServer = require('./server/WamsServer.js');
+const Wams = require('./server/Wams.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
-WamsServer.Sequence = CanvasBlueprint;
+Wams.Sequence = CanvasBlueprint;
 
-module.exports = WamsServer;
+module.exports = Wams;
 

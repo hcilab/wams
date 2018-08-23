@@ -51,129 +51,95 @@ function getLocalIP() {
 
 function logConnection(id, port, status) {
   const event = status ? 'connected' : 'disconnected';
-  console.log(
-    'View', id, event, 'to workspace listening on port', port
-  );
+  console.log( 'View', id, event, 'to workspace listening on port', port );
 }
 
-const symbols = Object.freeze({
-  accept:      Symbol('accept'),
-  clientlimit: Symbol('clientLimit'),
-  connect:     Symbol('connect'),
-  connections: Symbol('connections'),
-  disconnect:  Symbol('disconnect'),
-  io:          Symbol('io'),
-  namespace:   Symbol('namespace'),
-  port:        Symbol('port'),
-  reject:      Symbol('reject'),
-  server:      Symbol('server'),
-  workspace:   Symbol('workspace'),
-});
-
-class WamsServer {
+class Server {
   constructor(settings = {}) {
-    this[symbols.clientLimit] = settings.clientLimit || DEFAULTS.clientLimit;
-    this[symbols.workspace] = new WorkSpace(settings);
-    this[symbols.server] = http.createServer(new RequestHandler());
-    this[symbols.port] = null;
-    this[symbols.io] = IO(this[symbols.server]);
-    this[symbols.namespace] = this[symbols.io].of(globals.NS_WAMS);
-    this[symbols.namespace].on('connect', this[symbols.connect].bind(this));
-
-    /*
-     * FIXME: Not necessary to actually track connections like this, doing it
-     *      for debugging assistance, for now.
-     * XXX: Actuallly, I am using them right now, in updateView().
-     */
-    this[symbols.connections] = [];
+    this.clientLimit = settings.clientLimit || DEFAULTS.clientLimit;
+    this.workspace = new WorkSpace(settings);
+    this.server = http.createServer(new RequestHandler());
+    this.port = null;
+    this.io = IO(this.server);
+    this.namespace = this.io.of(globals.NS_WAMS);
+    this.namespace.on('connect', this.connect.bind(this));
+    this.connections = [];
   }
 
-  [symbols.accept](socket) {
-    const index = findEmptyIndex(this[symbols.connections]);
-    const cn = new Connection(index, socket, this[symbols.workspace]);
+  accept(socket) {
+    const index = findEmptyIndex(this.connections);
+    const cn = new Connection(index, socket, this.workspace);
 
-    this[symbols.connections][index] = cn;
-    socket.on('disconnect', () => this[symbols.disconnect](cn) );
+    this.connections[index] = cn;
+    socket.on('disconnect', () => this.disconnect(cn) );
 
-    logConnection(cn.view.id, this[symbols.port], true);
+    logConnection(cn.view.id, this.port, true);
   }
 
-  [symbols.connect](socket) {
-    this[symbols.io].of(globals.NS_WAMS).clients((error, clients) => {
+  connect(socket) {
+    this.namespace.clients((error, clients) => {
       if (error) throw error;
-      if (clients.length <= this[symbols.clientLimit]) {
-        this[symbols.accept](socket);
+      if (clients.length <= this.clientLimit) {
+        this.accept(socket);
       } else {
-        this[symbols.reject](socket);
+        this.reject(socket);
       }
     });
   }
 
-  [symbols.disconnect](cn) {
+  disconnect(cn) {
     if (cn.disconnect()) {
-      delete this[symbols.connections][cn.index];
-      new Message(Message.RM_SHADOW, cn.view).emitWith(this[symbols.namespace]);
-      logConnection(cn.view.id, this[symbols.port], false);
+      this.connections[cn.index] = undefined;
+      new Message(Message.RM_SHADOW, cn.view).emitWith(this.namespace);
+      logConnection(cn.view.id, this.port, false);
     } else {
       console.error('Failed to disconnect:', this);
     }
   }
 
-  [symbols.reject](socket) {
+  reject(socket) {
     socket.emit('wams-full');
     socket.disconnect(true);
     console.log('Rejected incoming connection: client limit reached.');
   }
 
-  /*
-   * For modularity, may want to refactor this to allow the user to have more
-   * control over server establishment.
-   */
   listen(port = PORT, host = getLocalIP()) {
-    this[symbols.server].listen(port, host, () => {
-      console.log('Listening on', this[symbols.server].address());
+    this.server.listen(port, host, () => {
+      console.log('Listening on', this.server.address());
     });
-    this[symbols.port] = port;
+    this.port = port;
   }
 
   on(event, handler) {
-    this[symbols.workspace].on(event, handler);
+    this.workspace.on(event, handler);
   }
 
   removeItem(item) {
-    if (this[symbols.workspace].removeItem(item)) {
-      new Message(Message.RM_ITEM, item).emitWith(this[symbols.namespace]);
+    if (this.workspace.removeItem(item)) {
+      new Message(Message.RM_ITEM, item).emitWith(this.namespace);
     }
   }
 
   spawnItem(itemdata) {
-    const item = this[symbols.workspace].spawnItem(itemdata);
-    new Message(Message.ADD_ITEM, item).emitWith(this[symbols.namespace]);
+    const item = this.workspace.spawnItem(itemdata);
+    new Message(Message.ADD_ITEM, item).emitWith(this.namespace);
     return item;
   }
 
-  update(object, data) {
+  update(object) {
     if (object instanceof ServerItem) {
-      this.updateItem(object, data);
+      this.updateItem(object);
     } else if (object instanceof ServerView) {
-      this.updateView(object, data);
+      this.updateView(object);
     }
   }
 
-  /*
-   * TODO: Improve the functionality, to make use of the functions in the
-   * ServerItem and ServerView classes.
-   */
-  updateItem(item, data) {
-    item.assign(data);
-    new Message(Message.UD_ITEM, item).emitWith(this[symbols.namespace]);
+  updateItem(item) {
+    new Message(Message.UD_ITEM, item).emitWith(this.namespace);
   }
 
-  updateView(view, data) {
-    view.assign(data);
-    const cn = this[symbols.connections].find( 
-      c => c && c.view.id === view.id 
-    );
+  updateView(view) {
+    const cn = this.connections.find( c => c && c.view.id === view.id );
     if (cn) {
       new Message(Message.UD_SHADOW, view).emitWith(cn.socket.broadcast);
       new Message(Message.UD_VIEW,   view).emitWith(cn.socket);
@@ -183,5 +149,5 @@ class WamsServer {
   }
 }
 
-module.exports = WamsServer;
+module.exports = Server;
 

@@ -7,15 +7,15 @@
 
 'use strict';
 
-const Wams = require('../src/server.js');
-const WamsServer = require('../src/server/WamsServer.js');
+const Api = require('../src/server.js');
+const Wams = require('../src/server/Wams.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 test('Expected values were correctly exported', () => {
-  expect(Wams).toBeInstanceOf(Function);
-  expect(Wams.Sequence).toBeInstanceOf(Function);
-  expect(Wams.Sequence.prototype).toBe(CanvasBlueprint.prototype);
-  expect(Wams.prototype).toBe(WamsServer.prototype);
+  expect(Api).toBeInstanceOf(Function);
+  expect(Api.Sequence).toBeInstanceOf(Function);
+  expect(Api.Sequence.prototype).toBe(CanvasBlueprint.prototype);
+  expect(Api.prototype).toBe(Wams.prototype);
 });
 
 

@@ -9266,11 +9266,11 @@ class Interactor {
     this.region.bind(this.canvas, this.pincher(), pinch);
     this.region.bind(this.canvas, this.rotater(), rotate);
 
-    this.region.bind(
-      this.canvas,
-      new ZingTouch.Pan({ numInputs: 2 }),
-      pan
-    );
+    // this.region.bind(
+    //   this.canvas,
+    //   new ZingTouch.Pan({ numInputs: 2 }),
+    //   pan
+    // );
   }
 
   pan({ detail }) {
