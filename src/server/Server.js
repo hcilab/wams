@@ -29,6 +29,8 @@ const DEFAULTS = { clientLimit: 10 };
 const PORT = 9000;
 
 function findEmptyIndex(array) {
+  // This is a very deliberate use of '==' instead of '==='. It should catch
+  // both undefined and null.
   const index = array.findIndex( e => e == undefined );
   return index < 0 ? array.length : index;
 }
