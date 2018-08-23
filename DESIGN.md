@@ -277,7 +277,8 @@ server that it receieves from the Interactor about user interaction.
 * [WorkSpace](#workspace)
 * [Connection](#connection)
 * [RequestHandler](#requesthandler)
-* [WamsServer](#wamsserver)
+* [Server](#server)
+* [Wams](#wams)
 
 ### ServerItem
 
@@ -317,9 +318,15 @@ messages it receives from its client.
 The RequestHandler provides a layer of abstraction between the server and the
 request handling library and its configuration.
 
-### WamsServer
+### Server
 
-The WamsServer is the API endpoint that user code will interact with. It also
-maintains the server. Seeing this in writing, I'm thinking I should provide
-another layer of abstraction between the server and the API endpoint...
+The Server is responsible for establishing the server and gatekeeping incoming
+connections. Currently it also handles message distribution when it is necessary
+to send messages to the namespace. 
+
+### Wams
+
+This module defines the API endpoint. In practice, this means it is a thin
+wrapper around the Server class which exposes only that functionality of the
+Server which should be available to the end user.
 
