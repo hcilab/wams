@@ -153,7 +153,6 @@ class ClientView extends View {
     STAMPER.cloneId(this, data.id);
     data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
     data.items.forEach( o => this.addItem(o) );
-    // this.draw(); 
   }
 
   update(container, data) {

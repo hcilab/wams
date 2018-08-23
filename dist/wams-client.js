@@ -8827,7 +8827,8 @@ const Interactor = require('./Interactor.js');
 const STAMPER = new IdStamper();
 
 const symbols = Object.freeze({
-  attachListeners: Symbol(),
+  attachListeners: Symbol('attachListeners'),
+  establishSocket: Symbol('establishSocket'),
 });
 
 class ClientController { 
@@ -8844,13 +8845,7 @@ class ClientController {
 
     this.resizeCanvasToFillWindow();
     window.addEventListener('resize', this.resize.bind(this), false);
-
-    this.socket = io.connect( globals.NS_WAMS, {
-      autoConnect: false,
-      reconnection: false,
-    });
-    this[symbols.attachListeners]();
-    this.socket.connect();
+    this[symbols.establishSocket]();
   }
 
   [symbols.attachListeners]() {
@@ -8884,6 +8879,15 @@ class ClientController {
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
   }
 
+  [symbols.establishSocket]() {
+    this.socket = io.connect( globals.NS_WAMS, {
+      autoConnect: false,
+      reconnection: false,
+    });
+    this[symbols.attachListeners]();
+    this.socket.connect();
+  }
+
   handle(message, ...args) {
     this.view.handle(message, ...args);
   }
@@ -8895,21 +8899,19 @@ class ClientController {
 
   resize() {
     this.resizeCanvasToFillWindow();
-    this.view.draw();
     new Message(Message.RESIZE, this.view).emitWith(this.socket);
   }
 
   resizeCanvasToFillWindow() {
-    this.view.resizeToFillWindow();
     this.canvas.width = window.innerWidth; 
     this.canvas.height = window.innerHeight;
+    this.handle('resizeToFillWindow');
   }
 
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
     this.handle('setup', data);
-    // this.view.setup(data);
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
   }
 
@@ -9177,7 +9179,6 @@ class ClientView extends View {
     STAMPER.cloneId(this, data.id);
     data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
     data.items.forEach( o => this.addItem(o) );
-    // this.draw(); 
   }
 
   update(container, data) {

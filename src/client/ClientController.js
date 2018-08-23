@@ -103,14 +103,13 @@ class ClientController {
 
   resize() {
     this.resizeCanvasToFillWindow();
-    this.view.draw();
     new Message(Message.RESIZE, this.view).emitWith(this.socket);
   }
 
   resizeCanvasToFillWindow() {
-    this.view.resizeToFillWindow();
     this.canvas.width = window.innerWidth; 
     this.canvas.height = window.innerHeight;
+    this.handle('resizeToFillWindow');
   }
 
   setup(data) {
