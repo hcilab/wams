@@ -112,7 +112,7 @@ class ClientController {
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
-    this.view.setup(data);
+    this.handle('setup', data);
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
   }
 

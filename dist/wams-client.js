@@ -8908,7 +8908,8 @@ class ClientController {
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
-    this.view.setup(data);
+    this.handle('setup', data);
+    // this.view.setup(data);
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
   }
 
@@ -9176,7 +9177,7 @@ class ClientView extends View {
     STAMPER.cloneId(this, data.id);
     data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
     data.items.forEach( o => this.addItem(o) );
-    this.draw(); 
+    // this.draw(); 
   }
 
   update(container, data) {
