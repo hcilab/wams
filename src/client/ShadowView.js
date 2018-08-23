@@ -56,7 +56,6 @@ class ShadowView extends View {
     this[symbols.outline] (context);
     this[symbols.marker]  (context);
     context.restore();
-
   }
 
   [symbols.align](context) {
