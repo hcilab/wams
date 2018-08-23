@@ -37,9 +37,8 @@ const symbols = Object.freeze({
 class ClientController { 
   constructor(canvas) {
     this.canvas = canvas;
-    this.context = canvas.getContext('2d');
     this.socket = null;
-    this.view = new ClientView({ context: this.context });
+    this.view = new ClientView({ context: this.canvas.getContext('2d') });
     this.interactor = new Interactor(this.canvas, {
       pan:    this.pan.bind(this),
       rotate: this.rotate.bind(this),
