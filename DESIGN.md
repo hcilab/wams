@@ -33,24 +33,45 @@ This project has two user-facing dependencies:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
-  This package allows end users to define custom rendering sequences for the
-  canvas.
+    This package allows end users to define custom rendering sequences for the
+    canvas.
 
 2. [zingtouch](https://github.com/zingchart/zingtouch)
   
-  This package is a gesture library that provides a normalization of interaction
-  across browsers and devices, and makes the following kinds of gestures
-  possible:
+    This package is a gesture library that provides a normalization of
+    interaction across browsers and devices, and makes the following kinds of
+    gestures possible:
 
-  - Tap
-  - Pan
-  - Swipe
-  - Pinch
-  - Rotate
+    - Tap
+    - Pan
+    - Swipe
+    - Pinch
+    - Rotate
 
-  I am working with the maintainers on developing and improving this library,
-  and may end up forking my own version if I find the maintainers too cumbersome
-  to deal with.
+    I am working with the maintainers on developing and improving this library,
+    and may end up forking my own version if I find the maintainers too cumbersome
+    to deal with.
+
+Behind the scenes, this project makes use of two packages for establishing and
+maintaining the server:
+
+1. [express](https://www.npmjs.com/package/express)
+
+    The `express` package provides a simple way of establishing routes for the
+    node.js server.
+
+2. [socket.io](https://www.npmjs.com/package/socket.io)
+
+    The `socket.io` package is used on both client and server side behind the
+    scenes to maintain an open, real-time connection between the server and
+    client. Each client is on its own socket connection, but all clients share a
+    namespace.
+
+    Therefore messages are emitted as follows:
+    
+    * __To a single client:__ on its socket.
+    * __To everyone but a single client:__ on its socket's broadcast channel.
+    * __To everyone:__ on the namespace.
 
 ## Build Tools
 
@@ -192,13 +213,64 @@ Messages can be transmitted by any object with an `emit` function.
 
 ### ShadowView
 
+The ShadowView class is a simply extension of the View class that provides a
+`draw(context)` method. It is used for rendering the outlines of other views
+onto the canvas, along with a triangle marker indicating the orientation of the
+view. (The triangle appears in what is the view's top left corner).
+
+Care must be taken with the drawing routines to ensure that the outlines
+accurately reflect what is visible to the view they represent.
+
 ### ClientItem
+
+The ClientItem class is an extension of the Item class that provides a
+`draw(context)` method for rendering the item to the canvas. It is aware of and
+able to make use of the `CanvasBlueprint` class from the `canvas-sequencer`
+package for rendering custom sequences to the canvas.
+
+To ensure that the blueprints, sequences, and images are kept up to date, the
+`ClientItem` class wraps extra functionality around the base `assign(data)`
+method.
 
 ### ClientView
 
+The ClientView class maintains the client-side model of the system, keeping
+track of the items and other views, as well as its own status. It is also
+responsible for holding onto the canvas context and running the principle
+`draw()` sequence. 
+
+These two responsibilities are bundled together because rendering requires
+knowledge of the model. Note, however, that the ClientView is not actually in
+charge of issuing changes to the model, but is rather the endpoint of such
+commands. It is the ClientController which issues these commands as per the
+messages it receieves from the server.
+
+One thing that may appear odd is the `handle(message, ...args)` function. Why
+not just call the methods directly, you might ask. This wrapper makes it
+possible to guarantee that changes to the model will always be immediately
+reflected in the render.
+
+The `handle(message, ...args)` wrapper is necessary because I decided to reduce
+the footprint of the WAMS application by foregoing a `draw()` loop in favour of
+only drawing the canvas when changes to the model are made. This significantly
+reduces the workload when the model is idle, as the page merely needs to
+maintain the `socket.io` connection to the server.
+
 ### Interactor
 
+The Interactor class provides a layer of abstraction between the controller and
+the interaction / gesture library being used. This should make it relatively
+easy, in the long run, to swap out interaction libraries if need be.
+
+When a user interacts with the application in a way that is supported, the
+Interactor tells the ClientController the necessary details so the
+ClientController can forward those details to the server.
+
 ### ClientController
+
+The ClientController maintains the `socket.io` connection to the server, and
+informs the ClientView of changes to the model. It also forwards messages to the
+server that it receieves from the Interactor about user interaction.
 
 ## Server Sources
 
