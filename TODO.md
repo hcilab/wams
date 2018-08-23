@@ -14,6 +14,9 @@
 - [ ] Improve the end-user API by making it so that users do not have to
       manually inform the wams app of any updates that have been made to the
       items or views.
+  + [ ] As part of this, try to regulate updates such that they are processed at
+        a regular rate, and not faster. This should help regulate situations
+        when multiple handlers are acting on the model in rapid succession.
 - [ ] Write a distributed video player example.
 - [ ] Lock drags to a single object (instead of always operating on the first
       object it finds that's currently under the cursor).
@@ -26,12 +29,13 @@
       only allow interaction with objects marked as interactable.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
 - [ ] Update API doc.
-- [ ] Write design doc (properly).
+- [X] Write design doc (properly).
 - [ ] Implement item rotation.
   + [ ] Allow a 'rotate' interaction with objects.
 - [ ] Implement 'rotate' for desktop users.
-- [ ] Separate the Server from the API endpoint.
-
+- [X] Separate the Server from the API endpoint.
+  + [ ] Done, but can it be done better? Are there some even better abstractions
+        available that will make this code even easier to reason about?
 
 ---
 
