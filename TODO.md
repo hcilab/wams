@@ -30,6 +30,8 @@
 - [ ] Implement item rotation.
   + [ ] Allow a 'rotate' interaction with objects.
 - [ ] Implement 'rotate' for desktop users.
+- [ ] Separate the Server from the API endpoint.
+
 
 ---
 
