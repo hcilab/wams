@@ -9089,7 +9089,7 @@ class ClientView extends View {
     super(getInitialValues(DEFAULTS, values));
 
     if (values.context) this.context = values.context;
-    // else throw 'ClientView requires a CanvasRenderingContext2D!';
+    else throw 'ClientView requires a CanvasRenderingContext2D!';
 
     this.items = [];
     this.shadows = [];

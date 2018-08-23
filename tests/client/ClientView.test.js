@@ -21,18 +21,22 @@ describe('ClientView', () => {
     x: 43, y: 42, 
     effectiveWidth: 900, effectiveHeight: 120, id: 25
   };
+  const context = {
+    save: jest.fn(),
+    restore: jest.fn(),
+  }
 
   describe('constructor(values)', () => {
     test('Creates correct type of object', () => {
-      expect(new ClientView()).toBeInstanceOf(ClientView);
+      expect(new ClientView({ context })).toBeInstanceOf(ClientView);
     });
 
     test('Uses defaults if no values provided', () => {
-      expect(new ClientView()).toMatchObject(DEFAULTS);
+      expect(new ClientView({ context })).toMatchObject(DEFAULTS);
     });
 
     test('Uses provided values', () => {
-      const custom = Object.freeze({ x: 42, y: 43, });
+      const custom = Object.freeze({ context, x: 42, y: 43, });
       const cv = new ClientView(custom);
       expect(cv).toMatchObject(custom);
       expect(cv.rotation).toBe(DEFAULTS.rotation);
@@ -41,7 +45,7 @@ describe('ClientView', () => {
   });
 
   describe('addItem(values)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     test('Throws exception if no values provided', () => {
       expect(() => cv.addItem()).toThrow();
     });
@@ -54,7 +58,7 @@ describe('ClientView', () => {
   });
 
   describe('addShadow(values)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     test('Throws exception if no values provided', () => {
       expect(() => cv.addShadow()).toThrow();
     });
@@ -71,7 +75,7 @@ describe('ClientView', () => {
   });
 
   describe('removeItem(item)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     cv.addItem({x:555, y:253, id:50});
     cv.addItem(item);
     cv.addItem({x:1,y:2, id:89});
@@ -89,7 +93,7 @@ describe('ClientView', () => {
   });
 
   describe('removeShadow(shadow)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     cv.addShadow({x:80,y:90,id:44});
     cv.addShadow(shadow);
     cv.addShadow({x:22,y:5,id:900});
@@ -107,7 +111,7 @@ describe('ClientView', () => {
   });
 
   describe('resizeToFillWindow()', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
 
     test('Adjusts size of client view to the window size', () => {
       expect(cv.width).not.toBe(window.innerWidth);
@@ -121,7 +125,7 @@ describe('ClientView', () => {
   });
 
   describe('setup(data)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     const data = {
       id: 33,
       views: [
@@ -172,7 +176,7 @@ describe('ClientView', () => {
   });
 
   describe('updateItem(data)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     const data = {
       id: item.id,
       x: item.x + 101,
@@ -196,7 +200,7 @@ describe('ClientView', () => {
   });
 
   describe('updateShadow(data)', () => {
-    const cv = new ClientView();
+    const cv = new ClientView({ context });
     const data = {
       id: shadow.id,
       x: shadow.x + 101,
