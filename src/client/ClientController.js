@@ -31,7 +31,8 @@ const Interactor = require('./Interactor.js');
 const STAMPER = new IdStamper();
 
 const symbols = Object.freeze({
-  attachListeners: Symbol(),
+  attachListeners: Symbol('attachListeners'),
+  establishSocket: Symbol('establishSocket'),
 });
 
 class ClientController { 
@@ -48,13 +49,7 @@ class ClientController {
 
     this.resizeCanvasToFillWindow();
     window.addEventListener('resize', this.resize.bind(this), false);
-
-    this.socket = io.connect( globals.NS_WAMS, {
-      autoConnect: false,
-      reconnection: false,
-    });
-    this[symbols.attachListeners]();
-    this.socket.connect();
+    this[symbols.establishSocket]();
   }
 
   [symbols.attachListeners]() {
@@ -86,6 +81,15 @@ class ClientController {
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+  }
+
+  [symbols.establishSocket]() {
+    this.socket = io.connect( globals.NS_WAMS, {
+      autoConnect: false,
+      reconnection: false,
+    });
+    this[symbols.attachListeners]();
+    this.socket.connect();
   }
 
   handle(message, ...args) {
