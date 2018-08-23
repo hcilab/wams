@@ -29,7 +29,7 @@ npm install
 
 ## Packages
 
-This project has two user-facing dependencies:
+This project has four dependencies:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
@@ -42,25 +42,22 @@ This project has two user-facing dependencies:
     interaction across browsers and devices, and makes the following kinds of
     gestures possible:
 
-    - Tap
-    - Pan
-    - Swipe
-    - Pinch
-    - Rotate
+    - __Tap__
+    - __Pan__
+    - __Swipe__
+    - __Pinch__
+    - __Rotate__
 
     I am working with the maintainers on developing and improving this library,
     and may end up forking my own version if I find the maintainers too cumbersome
     to deal with.
 
-Behind the scenes, this project makes use of two packages for establishing and
-maintaining the server:
-
-1. [express](https://www.npmjs.com/package/express)
+3. [express](https://www.npmjs.com/package/express)
 
     The `express` package provides a simple way of establishing routes for the
     node.js server.
 
-2. [socket.io](https://www.npmjs.com/package/socket.io)
+4. [socket.io](https://www.npmjs.com/package/socket.io)
 
     The `socket.io` package is used on both client and server side behind the
     scenes to maintain an open, real-time connection between the server and
@@ -75,7 +72,7 @@ maintaining the server:
 
 ## Build Tools
 
-Currently, I am using Browsify to build the client side code. Why Browsify?
+Currently, I am using Browserify to build the client side code. Why Browserify?
 Well, because I've found it easy to use. It might not produce the most optimal
 code, and it doesn't have much in the way of super fancy features built in, but
 I don't need any of that, and the basic functionality just simply works, and
@@ -274,13 +271,13 @@ server that it receieves from the Interactor about user interaction.
 
 ## Server Sources
 
-* [Connection](#connection)
-* [ListenerFactory](#listenerfactory)
-* [RequestHandler](#requesthandler)
 * [ServerItem](#serveritem)
 * [ServerView](#serverview)
-* [WamsServer](#wamsserver)
+* [ListenerFactory](#listenerfactory)
 * [WorkSpace](#workspace)
+* [Connection](#connection)
+* [RequestHandler](#requesthandler)
+* [WamsServer](#wamsserver)
 
 ### ServerItem
 
