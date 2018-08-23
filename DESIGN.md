@@ -282,3 +282,47 @@ server that it receieves from the Interactor about user interaction.
 * [WamsServer](#wamsserver)
 * [WorkSpace](#workspace)
 
+### ServerItem
+
+The ServerItem maintains the model of an item. It can be moved anywhere, and
+provides a `containsPoint(x,y)` method for determining if a point is located
+within its coordinates. It extends the shared Item class.
+
+### ServerView
+
+The ServerView maintains the model of a view. It can be moved, scaled, and
+rotated. It also provides a routine for transforming a set of pointer data
+from its user into the corresponding coordinates and data for the general model.
+
+Also provided is a selection of positional getters for the bottom, top, left,
+and right of the view.
+
+### ListenerFactory
+
+The ListenerFactory is not a class, but an object exposing a `build` routine for
+the WorkSpace to use when registering event handlers. The handlers built by this
+factory prepare and unpack data before calling the endpoint handler registered
+by the user of the API.
+
+### WorkSpace
+
+The WorkSpace is the central maintainer of the model. It keeps track of views
+and items, and registers and calls the endpoint event handlers.
+
+### Connection
+
+A Connection maintains a `socket.io` connection with a client. It keeps track of
+the ServerView corresponding to that client, and informs the WorkSpace model of
+messages it receives from its client. 
+
+### RequestHandler
+
+The RequestHandler provides a layer of abstraction between the server and the
+request handling library and its configuration.
+
+### WamsServer
+
+The WamsServer is the API endpoint that user code will interact with. It also
+maintains the server. Seeing this in writing, I'm thinking I should provide
+another layer of abstraction between the server and the API endpoint...
+
