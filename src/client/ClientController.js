@@ -77,7 +77,7 @@ class ClientController {
       /*
        * TODO: This could be more... elegant...
        */
-      'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
+      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );

@@ -15,9 +15,14 @@
 
 'use strict';
 
+// Node packages
 const http = require('http');
-const IO = require('socket.io');
 const os = require('os');
+
+// npm packages.
+const IO = require('socket.io');
+
+// local project packages.
 const { constants: globals, Message } = require('../shared.js');
 const Connection = require('./Connection.js');
 const RequestHandler = require('./RequestHandler.js');
@@ -25,6 +30,7 @@ const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const WorkSpace = require('./WorkSpace.js');
 
+// local constant data 
 const DEFAULTS = { clientLimit: 10 };
 const PORT = 9000;
 
@@ -98,7 +104,7 @@ class Server {
   }
 
   reject(socket) {
-    socket.emit('wams-full');
+    socket.emit(Message.FULL);
     socket.disconnect(true);
     console.log('Rejected incoming connection: client limit reached.');
   }

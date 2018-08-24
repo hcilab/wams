@@ -8873,7 +8873,7 @@ class ClientController {
       /*
        * TODO: This could be more... elegant...
        */
-      'wams-full': () => document.body.innerHTML = 'WAMS is full! :(',
+      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
@@ -8950,7 +8950,7 @@ module.exports = ClientController;
 
 'use strict';
 
-const { IdStamper, Item } = require('../shared.js');
+const { IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
@@ -8969,10 +8969,9 @@ function createImage(src) {
       'load',
       () => {
         img.loaded = true;
-        const evt = new CustomEvent('wams-image-loaded');
-        document.dispatchEvent(evt);
+        document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
       },
-      {once:true}
+      { once: true }
     );
     return img;
   }
@@ -9044,9 +9043,10 @@ const ShadowView = require('./ShadowView.js');
 const { 
   constants: globals,
   getInitialValues, 
-  removeById,
+  safeRemoveById,
   IdStamper, 
-  View 
+  Message,
+  View,
 } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
@@ -9093,7 +9093,7 @@ class ClientView extends View {
 
     this.items = [];
     this.shadows = [];
-    document.addEventListener( 'wams-image-loaded', () => this.draw() );
+    document.addEventListener( Message.IMG_LOAD, () => this.draw() );
   }
 
   [symbols.align]() {
@@ -9158,11 +9158,11 @@ class ClientView extends View {
   }
 
   removeItem(item) {
-    return removeById( this.items, item, ClientItem );
+    return safeRemoveById( this.items, item, ClientItem );
   }
 
   removeShadow(shadow) {
-    return removeById( this.shadows, shadow, ShadowView );
+    return safeRemoveById( this.shadows, shadow, ShadowView );
   }
 
   resizeToFillWindow() {
@@ -9265,12 +9265,6 @@ class Interactor {
     this.region.bind(this.canvas, this.tapper(), tap);
     this.region.bind(this.canvas, this.pincher(), pinch);
     this.region.bind(this.canvas, this.rotater(), rotate);
-
-    // this.region.bind(
-    //   this.canvas,
-    //   new ZingTouch.Pan({ numInputs: 2 }),
-    //   pan
-    // );
   }
 
   pan({ detail }) {
@@ -9463,11 +9457,13 @@ const constants = Object.freeze({
 /*
  * Package up the module and freeze it for delivery.
  */
-module.exports = Utils.combine([
-  { constants, IdStamper, Message },
-  Reporters,
-  Utils,
-]);
+module.exports = Object.freeze({
+  constants,
+  IdStamper,
+  Message,
+  ...Reporters,
+  ...Utils,
+});
 
 
 },{"./shared/IdStamper.js":60,"./shared/Message.js":61,"./shared/Reporters.js":62,"./shared/util.js":63}],60:[function(require,module,exports){
@@ -9509,7 +9505,7 @@ module.exports = Utils.combine([
 
 'use strict';
 
-const Utils = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
 
 function* id_gen() {
   let next_id = 0;
@@ -9523,7 +9519,7 @@ class IdStamper {
   }
 
   stampNewId(obj) {
-    Utils.defineOwnImmutableEnumerableProperty(
+    defineOwnImmutableEnumerableProperty(
       obj, 
       'id', 
       this[gen].next().value
@@ -9532,7 +9528,7 @@ class IdStamper {
 
   cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
-      Utils.defineOwnImmutableEnumerableProperty(obj, 'id', id);
+      defineOwnImmutableEnumerableProperty(obj, 'id', id);
     }
   }
 }
@@ -9550,7 +9546,7 @@ module.exports = IdStamper;
 
 'use strict';
 
-const Utils = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
 
 const TYPES = Object.freeze({ 
   // For the server to inform about changes to the model
@@ -9560,11 +9556,12 @@ const TYPES = Object.freeze({
   RM_SHADOW:  'wams-remove-shadow',
   UD_ITEM:    'wams-update-item',
   UD_SHADOW:  'wams-update-shadow',
-  UD_VIEW:  'wams-update-view',
+  UD_VIEW:    'wams-update-view',
 
   // Connection establishment related (disconnect, initial setup)
   INITIALIZE: 'wams-initialize',
   LAYOUT:     'wams-layout',
+  FULL:       'wams-full',
 
   // User event related
   CLICK:      'wams-click',
@@ -9572,6 +9569,9 @@ const TYPES = Object.freeze({
   RESIZE:     'wams-resize',
   ROTATE:     'wams-rotate',
   SCALE:      'wams-scale',
+
+  // Page event related
+  IMG_LOAD:   'wams-image-loaded',
 });
 
 const TYPE_VALUES = Object.freeze(Object.values(TYPES));
@@ -9592,7 +9592,7 @@ class Message {
 }
 
 Object.entries(TYPES).forEach( ([p,v]) => {
-  Utils.defineOwnImmutableEnumerableProperty( Message, p, v );
+  defineOwnImmutableEnumerableProperty( Message, p, v );
 });
 
 module.exports = Message;
@@ -9609,7 +9609,10 @@ module.exports = Message;
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const Utils = require('./util.js');
+const { 
+  defineOwnImmutableEnumerableProperty,
+  getInitialValues,
+} = require('./util.js');
 
 /*
  * This factory can generate the basic classes that need to communicate
@@ -9622,12 +9625,12 @@ function ReporterClassFactory(coreProperties) {
   });
 
   coreProperties.forEach( p => {
-    Utils.defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
+    defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
   });
 
   class Reporter {
     constructor(data) {
-      return this.assign(Utils.getInitialValues(locals.DEFAULTS, data));
+      return this.assign(getInitialValues(locals.DEFAULTS, data));
     }
 
     assign(data = {}) {
@@ -9736,22 +9739,6 @@ module.exports = {
 'use strict';
 
 /*
- * Takes an array of objects and combines them all into a single object.
- * Precedence for property names is given to earlier objects in the array.
- */
-function combine(objects = []) {
-  const output = {};
-  objects.forEach( o => {
-    Object.entries(o).forEach( ([p,v]) => {
-      if (!output.hasOwnProperty(p)) {
-        output[p] = v;
-      }
-    });
-  });
-  return output;
-}
-
-/*
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  */
@@ -9853,8 +9840,7 @@ function safeRemoveById(array, item, class_fn) {
   return removeById(array, item);
 }
 
-module.exports = {
-  combine,
+module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
   getInitialValues,
@@ -9862,7 +9848,7 @@ module.exports = {
   NOP,
   removeById,
   safeRemoveById,
-};
+});
 
 
 },{}],64:[function(require,module,exports){

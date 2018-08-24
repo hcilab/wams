@@ -17,11 +17,12 @@ const TYPES = Object.freeze({
   RM_SHADOW:  'wams-remove-shadow',
   UD_ITEM:    'wams-update-item',
   UD_SHADOW:  'wams-update-shadow',
-  UD_VIEW:  'wams-update-view',
+  UD_VIEW:    'wams-update-view',
 
   // Connection establishment related (disconnect, initial setup)
   INITIALIZE: 'wams-initialize',
   LAYOUT:     'wams-layout',
+  FULL:       'wams-full',
 
   // User event related
   CLICK:      'wams-click',
@@ -29,6 +30,9 @@ const TYPES = Object.freeze({
   RESIZE:     'wams-resize',
   ROTATE:     'wams-rotate',
   SCALE:      'wams-scale',
+
+  // Page event related
+  IMG_LOAD:   'wams-image-loaded',
 });
 
 const TYPE_VALUES = Object.freeze(Object.values(TYPES));

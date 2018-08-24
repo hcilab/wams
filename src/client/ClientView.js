@@ -20,7 +20,8 @@ const {
   getInitialValues, 
   safeRemoveById,
   IdStamper, 
-  View 
+  Message,
+  View,
 } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
@@ -67,7 +68,7 @@ class ClientView extends View {
 
     this.items = [];
     this.shadows = [];
-    document.addEventListener( 'wams-image-loaded', () => this.draw() );
+    document.addEventListener( Message.IMG_LOAD, () => this.draw() );
   }
 
   [symbols.align]() {

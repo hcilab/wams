@@ -12,7 +12,7 @@
 
 'use strict';
 
-const { IdStamper, Item } = require('../shared.js');
+const { IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
@@ -31,10 +31,9 @@ function createImage(src) {
       'load',
       () => {
         img.loaded = true;
-        const evt = new CustomEvent('wams-image-loaded');
-        document.dispatchEvent(evt);
+        document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
       },
-      {once:true}
+      { once: true }
     );
     return img;
   }
