@@ -7,54 +7,13 @@
 
 'use strict';
 
-const IdStamper = require('./IdStamper.js');
-const { 
-  defineOwnImmutableEnumerableProperty,
-  getInitialValues,
-} = require('./util.js');
-
-/*
- * This factory can generate the basic classes that need to communicate
- *  property values between the client and server.
- */
-function ReporterClassFactory(coreProperties) {
-  const locals = Object.freeze({
-    DEFAULTS: {},
-    STAMPER: new IdStamper(),
-  });
-
-  coreProperties.forEach( p => {
-    defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
-  });
-
-  class Reporter {
-    constructor(data) {
-      return this.assign(getInitialValues(locals.DEFAULTS, data));
-    }
-
-    assign(data = {}) {
-      coreProperties.forEach( p => {
-        if (data.hasOwnProperty(p)) this[p] = data[p] 
-      });
-      return this;
-    }
-
-    report() {
-      const data = {};
-      coreProperties.forEach( p => data[p] = this[p] );
-      locals.STAMPER.cloneId(data, this.id);
-      return data; 
-    }
-  }
-
-  return Reporter;
-}
+const ReporterFactory = require('./ReporterFactory.js');
 
 /*
  * This Item class provides a common interface between the client and 
  * the server by which the Items can interact safely.
  */
-const Item = ReporterClassFactory([
+const Item = ReporterFactory([
   'x',
   'y',
   'width',
@@ -68,7 +27,7 @@ const Item = ReporterClassFactory([
  * This View class provides a common interface between the client and 
  * the server by which the Views can interact safely.
  */
-const View = ReporterClassFactory([
+const View = ReporterFactory([
   'x',
   'y',
   'width',
@@ -84,7 +43,7 @@ const View = ReporterClassFactory([
  * This class is intended for sharing mouse action data between client and
  * server.
  */
-const MouseReporter = ReporterClassFactory([
+const MouseReporter = ReporterFactory([
   'x',
   'y',
   'dx',
@@ -94,14 +53,14 @@ const MouseReporter = ReporterClassFactory([
 /*
  * This class allows reporting of scale data between client and server.
  */
-const ScaleReporter = ReporterClassFactory([
+const ScaleReporter = ReporterFactory([
   'scale',
 ]);
 
 /*
  * This class allows reporting of rotation data between client and server.
  */
-const RotateReporter = ReporterClassFactory([
+const RotateReporter = ReporterFactory([
   'radians',
 ]);
 
@@ -110,7 +69,7 @@ const RotateReporter = ReporterClassFactory([
  * new clients up to speed (or potentially also for recovering a client, if
  * need be).
  */
-const FullStateReporter = ReporterClassFactory([
+const FullStateReporter = ReporterFactory([
   'views',
   'items',
   'color',
