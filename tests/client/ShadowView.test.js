@@ -44,7 +44,7 @@ describe('ShadowView', () => {
 
     test('Draws a rectangle representing the shadow view', () => {
       expect(() => sv.draw(ctx)).not.toThrow();
-      expect(ctx.strokeRect).toHaveBeenCalledTimes(1);
+      expect(ctx.strokeRect).toHaveBeenCalled();
     });
   });
 });

@@ -8,9 +8,11 @@
 'use strict';
 
 const ClientItem = require('../../src/client/ClientItem.js');
+const { CanvasBlueprint, CanvasSequencer } = require('canvas-sequencer');
 
 describe('ClientItem', () => {
-  const item = {
+  let item; 
+  beforeEach(() => item = {
     x: 42, 
     y: 43, 
     width: 800, 
@@ -18,7 +20,7 @@ describe('ClientItem', () => {
     type: 'booyah', 
     imgsrc: 'img/scream.png', 
     id: 3
-  };
+  });
 
   describe('constructor(data)', () => {
     test('Constructs an object of the correct type', () => {
@@ -36,11 +38,10 @@ describe('ClientItem', () => {
       });
     });
 
-    test('If data has an Id, stamps it immutably onto the item', () => {
-      item.id = 4;
+    test('Clones an immutable ID onto the item', () => {
       const ci = new ClientItem(item);
       expect(ci).toHaveImmutableProperty('id');
-      expect(ci.id).toBe(4);
+      expect(ci.id).toBe(3);
     });
 
     test('Creates an image, if data provides an imgsrc', () => {
@@ -54,17 +55,62 @@ describe('ClientItem', () => {
       const ci = new ClientItem({x:10,y:12,id:42});
       expect(ci.img).toBeNull();
     });
+
+    test('Creates a blueprint if one is provided', () => {
+      const bp = new CanvasBlueprint();
+      bp.fillStyle = 'red';
+      bp.fillRect(0,0,100,200);
+      item.blueprint = bp.toJSON();
+
+      let ci;
+      expect(() => ci = new ClientItem(item)).not.toThrow();
+      expect(ci.blueprint).toBeInstanceOf(CanvasBlueprint);
+    });
+
+    test('Does not create a blueprint if none provided', () => {
+      const ci = new ClientItem(item);
+      expect(ci.blueprint).toBeFalsy();
+    });
+
+    test('Builds the sequence if a blueprint was provided', () => {
+      const bp = new CanvasBlueprint();
+      bp.fillStyle = 'red';
+      bp.fillRect(0,0,100,200);
+      item.blueprint = bp.toJSON();
+
+      const ci = new ClientItem(item);
+      expect(ci.sequence).toBeInstanceOf(CanvasSequencer);
+    });
+
+    test('Does not build a sequence if no blueprint provided', () => {
+      const ci = new ClientItem(item);
+      expect(ci.sequence).toBeFalsy();
+    });
   });
 
   describe('draw(context)', () => {
-    const ctx = new CanvasRenderingContext2D();
+    let ctx;
+    beforeEach(() => ctx = new CanvasRenderingContext2D());
 
     test('Throws an exception if no context provided', () => {
       const ci = new ClientItem(item);
       expect(() => ci.draw()).toThrow();
     });
 
-    test('If an image is provided, draws an image', () => {
+    test('If a sequence is available, renders the sequence', () => {
+      const bp = new CanvasBlueprint();
+      bp.fillStyle = 'red';
+      bp.fillRect(0,0,100,200);
+      item.blueprint = bp.toJSON();
+      const ci = new ClientItem(item);
+      expect(() => ci.draw(ctx)).not.toThrow();
+      expect(ctx.fillStyle).toBe('red');
+      expect(ctx.fillRect).toHaveBeenCalled();
+      expect(ctx.fillRect).toHaveBeenLastCalledWith(0,0,100,200);
+      expect(ctx.drawImage).not.toHaveBeenCalled();
+    });
+
+    test('If no sequence, but an image is provided, draws an image', () => {
       const ci = new ClientItem(item);
       ci.img.loaded = true;
       expect(() => ci.draw(ctx)).not.toThrow();
@@ -73,6 +119,16 @@ describe('ClientItem', () => {
         ci.img, ci.x, ci.y, ci.width, ci.height
       );
     });
+
+    test('If no sequence or image is available, draws a blank rect', () => {
+      const ci = new ClientItem(item);
+      expect(() => ci.draw(ctx)).not.toThrow();
+      expect(ctx.fillRect).toHaveBeenCalled();
+      expect(ctx.fillRect).toHaveBeenLastCalledWith(
+        ci.x, ci.y, ci.width, ci.height
+      );
+    });
+
   });
 });
 
