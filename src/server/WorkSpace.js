@@ -18,7 +18,7 @@ const {
   getInitialValues, 
   IdStamper, 
   NOP,
-  removeById,
+  safeRemoveById,
 } = require('../shared.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
@@ -93,11 +93,11 @@ class WorkSpace {
   }
 
   removeView(view) {
-    return removeById( this.views, view, ServerView );
+    return safeRemoveById( this.views, view, ServerView );
   }
 
   removeItem(item) {
-    return removeById( this.items, item, ServerItem );
+    return safeRemoveById( this.items, item, ServerItem );
   }
 
   reportViews() {
