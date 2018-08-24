@@ -21,10 +21,7 @@ describe('ClientView', () => {
     x: 43, y: 42, 
     effectiveWidth: 900, effectiveHeight: 120, id: 25
   };
-  const context = {
-    save: jest.fn(),
-    restore: jest.fn(),
-  }
+  const context = new CanvasRenderingContext2D();
 
   describe('constructor(values)', () => {
     test('Creates correct type of object', () => {
@@ -152,7 +149,6 @@ describe('ClientView', () => {
     });
 
     test('Does not throw exception if data provided', () => {
-      cv.draw = jest.fn(); // ctx object not available, so mock draw().
       expect(() => cv.setup(data)).not.toThrow();
     });
 

@@ -57,13 +57,7 @@ describe('ClientItem', () => {
   });
 
   describe('draw(context)', () => {
-    const ctx = { 
-      drawImage: jest.fn(),
-      fillStyle: 'blue',
-      fillRect: jest.fn(),
-      save: jest.fn(),
-      restore: jest.fn(),
-    };
+    const ctx = new CanvasRenderingContext2D();
 
     test('Throws an exception if no context provided', () => {
       const ci = new ClientItem(item);

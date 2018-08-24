@@ -34,15 +34,9 @@ describe('ShadowView', () => {
     });
   });
 
-  describe.skip('draw(context)', () => {
+  describe('draw(context)', () => {
     const sv = new ShadowView(view);
-    const ctx = {
-      save: jest.fn(),
-      restore: jest.fn(),
-      beginPath: jest.fn(),
-      rect: jest.fn(),
-      stroke: jest.fn(),
-    }
+    const ctx = new CanvasRenderingContext2D();
 
     test('Throws exception if no context provided', () => {
       expect(() => sv.draw()).toThrow();
@@ -50,14 +44,7 @@ describe('ShadowView', () => {
 
     test('Draws a rectangle representing the shadow view', () => {
       expect(() => sv.draw(ctx)).not.toThrow();
-      expect(ctx.beginPath).toHaveBeenCalledTimes(1);
-      expect(ctx.beginPath).toHaveBeenLastCalledWith();
-      expect(ctx.rect).toHaveBeenCalledTimes(1);
-      expect(ctx.rect).toHaveBeenLastCalledWith(
-        sv.x, sv.y, sv.effectiveWidth, sv.effectiveHeight
-      );
-      expect(ctx.stroke).toHaveBeenCalledTimes(1);
-      expect(ctx.stroke).toHaveBeenLastCalledWith();
+      expect(ctx.strokeRect).toHaveBeenCalledTimes(1);
     });
   });
 });
