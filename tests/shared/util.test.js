@@ -6,15 +6,76 @@
 
 const { 
   combine,
+  defineOwnImmutableEnumerableProperty,
+  findLast,
   getInitialValues,
   makeOwnPropertyImmutable,
   removeById,
+  safeRemoveById,
 } = require('../../src/shared/util.js');
 
 describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
+  const x = {};
+  test('throws if obj is not a valid object', () => {
+    expect(() => defineOwnImmutableEnumerableProperty(undefined, 'a', 1))
+      .toThrow();
+  });
+
+  test('Does not throw if obj is valid', () => {
+    expect(() => defineOwnImmutableEnumerableProperty(x, 'a', 1))
+      .not.toThrow();
+  });
+
+  test('defines an immutable property on an object', () => {
+    expect(x).toHaveImmutableProperty('a');
+  }); 
+
+  test('defines an enumerable property on an object', () => {
+    expect(Object.keys(x)).toContain('a');
+  });
 });
 
 describe('findLast(array, callback, fromIndex, thisArg)', () => {
+  const arr = [1,'b',2,3,'a',4];
+  const self = {
+    x: 3,
+    c: 'a',
+  };
+
+  test('Finds the last item in the array that satisfies the callback', () => {
+    expect(findLast(arr, e => e % 2 === 0)).toBe(4);
+    expect(findLast(arr, e => typeof e === 'string')).toBe('a');
+    expect(findLast(arr, e => e % 2 === 1)).toBe(3);
+    expect(findLast(arr, e => e < 3)).toBe(2);
+  });
+
+  test('Starts from fromIndex, if provided', () => {
+    expect(findLast(arr, e => e % 2 === 0, 3)).toBe(2);
+    expect(findLast(arr, e => typeof e === 'string', 3)).toBe('b');
+    expect(findLast(arr, e => e % 2 === 1, 2)).toBe(1);
+    expect(findLast(arr, e => e < 3, 1)).toBe(1);
+  });
+
+  test('Uses thisArg, if provided', () => {
+    function cbx(e) { return this.x === e; };
+    function cba(e) { return this.c === e; };
+    expect(findLast(arr, cbx, undefined, self)).toBe(3);
+    expect(findLast(arr, cba, undefined, self)).toBe('a');
+  });
+
+  test('Passes all the expected values to the callback', () => {
+    const cb = jest.fn();
+    cb.mockReturnValue(true);
+    expect(() => findLast(arr, cb)).not.toThrow();
+    expect(cb).toHaveBeenCalledTimes(1);
+    expect(cb).toHaveBeenLastCalledWith(4,5,arr);
+
+    const cc = jest.fn();
+    cc.mockReturnValue(false);
+    expect(() => findLast(arr, cc)).not.toThrow();
+    expect(cc).toHaveBeenCalledTimes(6);
+    expect(cc).toHaveBeenLastCalledWith(1,0, arr);
+  });
 });
 
 describe('getInitialValues(default, data)', () => {
