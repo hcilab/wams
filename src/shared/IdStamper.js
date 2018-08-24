@@ -36,7 +36,7 @@
 
 'use strict';
 
-const Utils = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
 
 function* id_gen() {
   let next_id = 0;
@@ -50,7 +50,7 @@ class IdStamper {
   }
 
   stampNewId(obj) {
-    Utils.defineOwnImmutableEnumerableProperty(
+    defineOwnImmutableEnumerableProperty(
       obj, 
       'id', 
       this[gen].next().value
@@ -59,7 +59,7 @@ class IdStamper {
 
   cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
-      Utils.defineOwnImmutableEnumerableProperty(obj, 'id', id);
+      defineOwnImmutableEnumerableProperty(obj, 'id', id);
     }
   }
 }

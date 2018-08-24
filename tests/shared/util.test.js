@@ -4,19 +4,24 @@
 
 'use strict';
 
-const Utils = require('../../src/shared/util.js');
+const { 
+  combine,
+  getInitialValues,
+  makeOwnPropertyImmutable,
+  removeById,
+} = require('../../src/shared/util.js');
 
 describe('combine(objects)', () => {
   test('If given a single object, returns a matching object', () => {
     const x = {a: 42, blue: 'red'};
-    expect(Utils.combine([x])).toMatchObject(x);
+    expect(combine([x])).toMatchObject(x);
   });
 
   test('Combines two or more objects', () => {
     const x = {a: 42, blue: 'red'};
     const y = {b: 93, red: 'why'};
     const expected = { a: 42, blue: 'red', b: 93, red: 'why'};
-    expect(Utils.combine([x,y])).toMatchObject(expected);
+    expect(combine([x,y])).toMatchObject(expected);
   });
 });
 
@@ -29,23 +34,23 @@ describe('findLast(array, callback, fromIndex, thisArg)', () => {
 
 describe('getInitialValues(default, data)', () => {
   test('does not throw exceptions on empty objects', () => {
-    expect(Utils.getInitialValues()).toEqual({});
+    expect(getInitialValues()).toEqual({});
   });
 
   test('returns empty if defaults is empty, regardless of data', () => {
-    expect(Utils.getInitialValues({},{})).toEqual({});
-    expect(Utils.getInitialValues({})).toEqual({});
-    expect(Utils.getInitialValues({},{a:1})).toEqual({});
-    expect(Utils.getInitialValues({},1)).toEqual({});
+    expect(getInitialValues({},{})).toEqual({});
+    expect(getInitialValues({})).toEqual({});
+    expect(getInitialValues({},{a:1})).toEqual({});
+    expect(getInitialValues({},1)).toEqual({});
   });
 
   test('Uses defaults if data is empty.', () => {
-    expect(Utils.getInitialValues({a:1})).toEqual({a:1});
-    expect(Utils.getInitialValues({a:1},{})).toEqual({a:1});
+    expect(getInitialValues({a:1})).toEqual({a:1});
+    expect(getInitialValues({a:1},{})).toEqual({a:1});
   });
 
   test('Overrides default property if data has property with same name', () => {
-    expect(Utils.getInitialValues({a:1}, {a:2})).toEqual({a:2});
+    expect(getInitialValues({a:1}, {a:2})).toEqual({a:2});
   });
 });
 
@@ -53,7 +58,7 @@ describe('makeOwnPropertyImmutable(obj, prop)', () => {
   test('makes own enumerable, configurable property immutable', () => {
     const x = {id: 1};
     expect(x).not.toHaveImmutableProperty('id');
-    expect(Utils.makeOwnPropertyImmutable(x, 'id')).toBe(x);
+    expect(makeOwnPropertyImmutable(x, 'id')).toBe(x);
     expect(() => delete x.id).toThrow();
     expect(
       () => Object.defineProperty(x, 'id', {configurable: true})
@@ -71,7 +76,7 @@ describe('makeOwnPropertyImmutable(obj, prop)', () => {
     });
     expect(y.id).toBe(1);
 
-    Utils.makeOwnPropertyImmutable(y, 'id');
+    makeOwnPropertyImmutable(y, 'id');
     expect(y).not.toHaveImmutableProperty('id');
 
     y.id = 2;
@@ -85,7 +90,7 @@ describe('makeOwnPropertyImmutable(obj, prop)', () => {
     expect(q).not.toHaveImmutableProperty('a');
     expect(p).not.toHaveImmutableProperty('a');
 
-    Utils.makeOwnPropertyImmutable(q, 'a');
+    makeOwnPropertyImmutable(q, 'a');
     expect(q).not.toHaveImmutableProperty('a');
     expect(p).not.toHaveImmutableProperty('a');
     p.a = 2;
@@ -103,7 +108,7 @@ describe('makeOwnPropertyImmutable(obj, prop)', () => {
     expect(x.a).toBe(1);
 
     expect(x).not.toHaveImmutableProperty('a');
-    Utils.makeOwnPropertyImmutable(x, 'a');
+    makeOwnPropertyImmutable(x, 'a');
     expect(x).toHaveImmutableProperty('a');
   });
 });
@@ -122,8 +127,8 @@ describe('removeById(array, item)', () => {
   });
 
   test('Throws exception if not passed an array.', () => {
-    expect(() => Utils.removeById()).toThrow();
-    expect(() => Utils.removeById({})).toThrow();
+    expect(() => removeById()).toThrow();
+    expect(() => removeById({})).toThrow();
   });
 
   test('Removes the item with the corresponding Id, if present', () => {
@@ -131,11 +136,11 @@ describe('removeById(array, item)', () => {
     const a2 = new A(2);
     const a3 = new A(3);
     expect(arr.length).toBe(3);
-    expect(() => Utils.removeById(arr,a1)).not.toThrow();
+    expect(() => removeById(arr,a1)).not.toThrow();
     expect(arr.find(a => a.id === 1)).toBeUndefined();
-    expect(() => Utils.removeById(arr,a2)).not.toThrow();
+    expect(() => removeById(arr,a2)).not.toThrow();
     expect(arr.find(a => a.id === 2)).toBeUndefined();
-    expect(() => Utils.removeById(arr,a3)).not.toThrow();
+    expect(() => removeById(arr,a3)).not.toThrow();
     expect(arr.find(a => a.id === 3)).toBeUndefined();
     expect(arr.length).toBe(0);
   });
@@ -143,7 +148,7 @@ describe('removeById(array, item)', () => {
   test('Does not remove any item if no item with Id present.', () => {
     const a4 = new A(4);
     expect(arr.length).toBe(3);
-    expect(() => Utils.removeById(arr,a4)).not.toThrow();
+    expect(() => removeById(arr,a4)).not.toThrow();
     expect(arr.length).toBe(3);
   });
 });

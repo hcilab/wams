@@ -8,7 +8,10 @@
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const Utils = require('./util.js');
+const { 
+  defineOwnImmutableEnumerableProperty,
+  getInitialValues,
+} = require('./util.js');
 
 /*
  * This factory can generate the basic classes that need to communicate
@@ -21,12 +24,12 @@ function ReporterClassFactory(coreProperties) {
   });
 
   coreProperties.forEach( p => {
-    Utils.defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
+    defineOwnImmutableEnumerableProperty(locals.DEFAULTS, p, null);
   });
 
   class Reporter {
     constructor(data) {
-      return this.assign(Utils.getInitialValues(locals.DEFAULTS, data));
+      return this.assign(getInitialValues(locals.DEFAULTS, data));
     }
 
     assign(data = {}) {

@@ -33,9 +33,11 @@ const constants = Object.freeze({
 /*
  * Package up the module and freeze it for delivery.
  */
-module.exports = Utils.combine([
-  { constants, IdStamper, Message },
-  Reporters,
-  Utils,
-]);
+module.exports = Object.freeze({
+  constants,
+  IdStamper,
+  Message,
+  ...Reporters,
+  ...Utils,
+});
 

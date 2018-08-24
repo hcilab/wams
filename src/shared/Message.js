@@ -7,7 +7,7 @@
 
 'use strict';
 
-const Utils = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
 
 const TYPES = Object.freeze({ 
   // For the server to inform about changes to the model
@@ -49,7 +49,7 @@ class Message {
 }
 
 Object.entries(TYPES).forEach( ([p,v]) => {
-  Utils.defineOwnImmutableEnumerableProperty( Message, p, v );
+  defineOwnImmutableEnumerableProperty( Message, p, v );
 });
 
 module.exports = Message;
