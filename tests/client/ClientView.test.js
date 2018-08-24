@@ -12,37 +12,63 @@ const ClientItem = require('../../src/client/ClientItem.js');
 const ShadowView = require('../../src/client/ShadowView.js');
 
 describe('ClientView', () => {
-  const DEFAULTS = Object.freeze({ x: 0, y: 0, rotation: 0, scale: 1, });
-  const item = {
-    x:42, y:43, width:80, height:97, 
-    type:'booyah', imgsrc:'home', id: 11
-  };
-  const shadow = { 
-    x: 43, y: 42, 
-    effectiveWidth: 900, effectiveHeight: 120, id: 25
-  };
-  const context = new CanvasRenderingContext2D();
+  let DEFAULTS, item, shadow, context;
+  beforeEach(() => {
+    DEFAULTS = { 
+      x: 0, 
+      y: 0, 
+      rotation: 0, 
+      scale: 1, 
+      type: 'view/background',
+    };
+
+    item = {
+      x: 42, 
+      y: 43, 
+      width: 80, 
+      height: 97, 
+      type: 'booyah', 
+      imgsrc: 'home', 
+      id: 11
+    };
+
+    shadow = { 
+      x: 43, 
+      y: 42, 
+      effectiveWidth: 900, 
+      effectiveHeight: 120, 
+      id: 25
+    };
+
+    context = new CanvasRenderingContext2D();
+  });
 
   describe('constructor(values)', () => {
+    test('Throws an exception if no context provided', () => {
+      expect(() => new ClientView()).toThrow();
+    });
+
     test('Creates correct type of object', () => {
       expect(new ClientView({ context })).toBeInstanceOf(ClientView);
     });
 
-    test('Uses defaults if no values provided', () => {
+    test('Uses defaults if no additional values provided', () => {
       expect(new ClientView({ context })).toMatchObject(DEFAULTS);
     });
 
     test('Uses provided values', () => {
       const custom = Object.freeze({ context, x: 42, y: 43, });
+      const remain = { ...DEFAULTS, ...custom };
       const cv = new ClientView(custom);
       expect(cv).toMatchObject(custom);
-      expect(cv.rotation).toBe(DEFAULTS.rotation);
-      expect(cv.scale).toBe(DEFAULTS.scale);
+      expect(cv).toMatchObject(remain);
     });
   });
 
   describe('addItem(values)', () => {
-    const cv = new ClientView({ context });
+    let cv;
+    beforeAll(() => cv = new ClientView({ context }));
+
     test('Throws exception if no values provided', () => {
       expect(() => cv.addItem()).toThrow();
     });
@@ -55,7 +81,9 @@ describe('ClientView', () => {
   });
 
   describe('addShadow(values)', () => {
-    const cv = new ClientView({ context });
+    let cv;
+    beforeAll(() => cv = new ClientView({ context }));
+
     test('Throws exception if no values provided', () => {
       expect(() => cv.addShadow()).toThrow();
     });
@@ -67,18 +95,21 @@ describe('ClientView', () => {
     });
   });
 
-  describe('draw(context)', () => {
-    // To be tested...
-  });
-
   describe('removeItem(item)', () => {
-    const cv = new ClientView({ context });
-    cv.addItem({x:555, y:253, id:50});
-    cv.addItem(item);
-    cv.addItem({x:1,y:2, id:89});
+    let cv;
+    beforeAll(() => {
+      cv = new ClientView({ context });
+      cv.addItem({x:555, y:253, id:50});
+      cv.addItem(item);
+      cv.addItem({x:1,y:2, id:89});
+    });
 
     test('Throws exception if no item provided', () => {
       expect(() => cv.removeItem()).toThrow();
+    });
+
+    test('Throws exception if invalid item provided', () => {
+      expect(() => cv.removeItem({id:50})).toThrow();
     });
 
     test('Removes the item', () => {
@@ -90,13 +121,20 @@ describe('ClientView', () => {
   });
 
   describe('removeShadow(shadow)', () => {
-    const cv = new ClientView({ context });
-    cv.addShadow({x:80,y:90,id:44});
-    cv.addShadow(shadow);
-    cv.addShadow({x:22,y:5,id:900});
+    let cv;
+    beforeAll(() => { 
+      cv = new ClientView({ context });
+      cv.addShadow({x:80,y:90,id:44});
+      cv.addShadow(shadow);
+      cv.addShadow({x:22,y:5,id:900});
+    });
 
-    test('Throws exception if not shadow provided', () => {
+    test('Throws exception if no shadow provided', () => {
       expect(() => cv.removeShadow()).toThrow();
+    });
+
+    test('Throws exception if invalid shadow provided', () => {
+      expect(() => cv.removeShadow({id:44})).toThrow();
     });
 
     test('Removes the shadow', () => {
@@ -107,14 +145,82 @@ describe('ClientView', () => {
     });
   });
 
+  describe('draw(context)', () => {
+    let cv, ctx;
+    beforeAll(() => { 
+      ctx = new CanvasRenderingContext2D();
+      cv = new ClientView({ context: ctx });
+
+      cv.width = 500;
+      cv.height = 500;
+      cv.effectiveWidth = 500;
+      cv.effectiveHeight = 500;
+
+      cv.addShadow({x:80,y:90,id:44});
+      cv.addShadow(shadow);
+      cv.addShadow({x:22,y:5,id:900});
+      cv.addItem({x:555, y:253, id:50});
+      cv.addItem(item);
+      cv.addItem({x:1,y:2, id:89});
+
+      cv.items.forEach( i => i.draw = jest.fn() );
+      cv.shadows.forEach( s => s.draw = jest.fn() );
+
+      cv.draw();
+    });
+
+    test('Aligns the context', () => {
+      expect(ctx.scale).toHaveBeenCalled();
+      expect(ctx.rotate).toHaveBeenCalled();
+      expect(ctx.translate).toHaveBeenCalled();
+    });
+
+    test('Draws all of the items', () => {
+      cv.items.forEach( i => {
+        expect(i.draw).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    test('Draws all of the shadows', () => {
+      cv.shadows.forEach( s => {
+        expect(s.draw).toHaveBeenCalledTimes(1);
+      });
+    });
+
+  });
+
+  describe('handle(message, ...args)', () => {
+    let cv;
+    beforeAll(() => {
+      cv = new ClientView({ context });
+      cv.addItem = jest.fn();
+      cv.draw = jest.fn();
+    });
+
+    test('Calls the specified method', () => {
+      expect(() => cv.handle('addItem', 42)).not.toThrow();
+    });
+
+    test('Calls the specified method with the given args', () => {
+      expect(cv.addItem).toHaveBeenLastCalledWith(42);
+    });
+
+    test('Draws the view after handling the method', () => {
+      expect(cv.draw).toHaveBeenCalledTimes(1);
+    });
+
+    test('Throws exception if invalid message provided', () => {
+      expect(() => cv.handle('blah')).toThrow();
+    });
+  });
+
   describe('resizeToFillWindow()', () => {
-    const cv = new ClientView({ context });
+    let cv;
+    beforeAll(() => cv = new ClientView({ context }));
 
     test('Adjusts size of client view to the window size', () => {
       expect(cv.width).not.toBe(window.innerWidth);
       expect(cv.height).not.toBe(window.innerHeight);
-      window.innerWidth += 45;
-      window.innerHeight -= 87;
       cv.resizeToFillWindow();
       expect(cv.width).toBe(window.innerWidth);
       expect(cv.height).toBe(window.innerHeight);
@@ -122,21 +228,24 @@ describe('ClientView', () => {
   });
 
   describe('setup(data)', () => {
-    const cv = new ClientView({ context });
-    const data = {
-      id: 33,
-      views: [
-        {x:80,y:90,id:44},
-        shadow,
-        {x:22,y:5,id:900},
-      ],
-      items: [
-        {x:555, y:253, id:50},
-        item,
-        {x:1,y:2, id:89},
-      ],
-      color: '#4ab93d',
-    };
+    let cv, data;
+    beforeAll(() => {
+      cv = new ClientView({ context });
+      data = {
+        id: 33,
+        views: [
+          {x:80,y:90,id:44},
+          shadow,
+          {x:22,y:5,id:900},
+        ],
+        items: [
+          {x:555, y:253, id:50},
+          item,
+          {x:1,y:2, id:89},
+        ],
+        color: '#4ab93d',
+      };
+    });
 
     test('Throws exception if no data provided', () => {
       expect(() => cv.setup()).toThrow();
@@ -172,13 +281,16 @@ describe('ClientView', () => {
   });
 
   describe('updateItem(data)', () => {
-    const cv = new ClientView({ context });
-    const data = {
-      id: item.id,
-      x: item.x + 101,
-      y: item.y - 73,
-    }
-    cv.addItem(item);
+    let cv, data;
+    beforeAll(() => {
+      cv = new ClientView({ context });
+      data = {
+        id: item.id,
+        x: item.x + 101,
+        y: item.y - 73,
+      }
+      cv.addItem(item);
+    });
 
     test('Throws exception if no data provided', () => {
       expect(() => cv.updateItem()).toThrow();
@@ -196,13 +308,16 @@ describe('ClientView', () => {
   });
 
   describe('updateShadow(data)', () => {
-    const cv = new ClientView({ context });
-    const data = {
-      id: shadow.id,
-      x: shadow.x + 101,
-      y: shadow.y - 73,
-    }
-    cv.addShadow(shadow);
+    let cv, data;
+    beforeAll(() => {
+      cv = new ClientView({ context });
+      data = {
+        id: shadow.id,
+        x: shadow.x + 101,
+        y: shadow.y - 73,
+      }
+      cv.addShadow(shadow);
+    });
 
     test('Throws exception if no data provided', () => {
       expect(() => cv.updateShadow()).toThrow();
@@ -219,5 +334,4 @@ describe('ClientView', () => {
     });
   });
 });
-
 

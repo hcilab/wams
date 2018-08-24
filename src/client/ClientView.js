@@ -52,11 +52,11 @@ const REQUIRED_DATA = Object.freeze([
 const STAMPER = new IdStamper();
 
 const symbols = Object.freeze({
-  align: Symbol('align'),
-  drawItems: Symbol('drawItems'),
-  drawShadows: Symbol('drawShadows'),
-  drawStatus: Symbol('drawStatus'),
-  wipe: Symbol('wipe'),
+  align:        Symbol('align'),
+  drawItems:    Symbol('drawItems'),
+  drawShadows:  Symbol('drawShadows'),
+  drawStatus:   Symbol('drawStatus'),
+  wipe:         Symbol('wipe'),
 });
 
 class ClientView extends View {
@@ -68,7 +68,7 @@ class ClientView extends View {
 
     this.items = [];
     this.shadows = [];
-    document.addEventListener( Message.IMG_LOAD, () => this.draw() );
+    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   [symbols.align]() {
