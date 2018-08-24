@@ -20,7 +20,6 @@ const expected = [
   'ScaleReporter',
   'RotateReporter',
   'FullStateReporter',
-  'combine',
   'defineOwnImmutableEnumerableProperty',
   'findLast',
   'getInitialValues',

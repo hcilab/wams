@@ -8,22 +8,6 @@
 'use strict';
 
 /*
- * Takes an array of objects and combines them all into a single object.
- * Precedence for property names is given to earlier objects in the array.
- */
-function combine(objects = []) {
-  const output = {};
-  objects.forEach( o => {
-    Object.entries(o).forEach( ([p,v]) => {
-      if (!output.hasOwnProperty(p)) {
-        output[p] = v;
-      }
-    });
-  });
-  return output;
-}
-
-/*
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  */
@@ -125,8 +109,7 @@ function safeRemoveById(array, item, class_fn) {
   return removeById(array, item);
 }
 
-module.exports = {
-  combine,
+module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
   getInitialValues,
@@ -134,5 +117,5 @@ module.exports = {
   NOP,
   removeById,
   safeRemoveById,
-};
+});
 
