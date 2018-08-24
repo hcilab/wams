@@ -5,7 +5,6 @@
 'use strict';
 
 const { 
-  combine,
   defineOwnImmutableEnumerableProperty,
   findLast,
   getInitialValues,
@@ -48,21 +47,21 @@ describe('findLast(array, callback, fromIndex, thisArg)', () => {
     expect(findLast(arr, e => e % 2 === 1)).toBe(3);
     expect(findLast(arr, e => e < 3)).toBe(2);
   });
-
+  
   test('Starts from fromIndex, if provided', () => {
     expect(findLast(arr, e => e % 2 === 0, 3)).toBe(2);
     expect(findLast(arr, e => typeof e === 'string', 3)).toBe('b');
     expect(findLast(arr, e => e % 2 === 1, 2)).toBe(1);
     expect(findLast(arr, e => e < 3, 1)).toBe(1);
   });
-
+  
   test('Uses thisArg, if provided', () => {
     function cbx(e) { return this.x === e; };
     function cba(e) { return this.c === e; };
     expect(findLast(arr, cbx, undefined, self)).toBe(3);
     expect(findLast(arr, cba, undefined, self)).toBe('a');
   });
-
+  
   test('Passes all the expected values to the callback', () => {
     const cb = jest.fn();
     cb.mockReturnValue(true);
@@ -163,7 +162,7 @@ describe('removeById(array, item)', () => {
   function A(id) {
     this.id = id;
   }
-  
+   
   let arr = [];
   beforeEach(() => {
     arr.splice(0, arr.length);
@@ -200,5 +199,44 @@ describe('removeById(array, item)', () => {
 });
 
 describe('safeRemoveById(array, item, class_fn)', () => {
+  function A(id) {
+    this.id = id;
+  }
+   
+  let arr = [];
+  beforeEach(() => {
+    arr.splice(0, arr.length);
+    arr.push(new A(1));
+    arr.push(new A(2));
+    arr.push(new A(3));
+  });
+  
+  test('Removes the item with the corresponding Id, if present', () => {
+    const a1 = new A(1);
+    const a2 = new A(2);
+    const a3 = new A(3);
+    expect(arr.length).toBe(3);
+    expect(() => safeRemoveById(arr,a1, A)).not.toThrow();
+    expect(arr.find(a => a.id === 1)).toBeUndefined();
+    expect(() => safeRemoveById(arr,a2, A)).not.toThrow();
+    expect(arr.find(a => a.id === 2)).toBeUndefined();
+    expect(() => safeRemoveById(arr,a3, A)).not.toThrow();
+    expect(arr.find(a => a.id === 3)).toBeUndefined();
+    expect(arr.length).toBe(0);
+  });
+
+  test('Does not remove any item if no item with Id present.', () => {
+    const a4 = new A(4);
+    expect(arr.length).toBe(3);
+    expect(() => safeRemoveById(arr,a4, A)).not.toThrow();
+    expect(arr.length).toBe(3);
+  });
+  
+  test('Throws an exception if item is not the proper type', () => {
+    const x = {id:3};
+    expect(arr.length).toBe(3);
+    expect(() => safeRemoveById(arr,x, A)).toThrow();
+    expect(arr.length).toBe(3);
+  });
 });
 
