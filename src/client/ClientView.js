@@ -18,7 +18,7 @@ const ShadowView = require('./ShadowView.js');
 const { 
   constants: globals,
   getInitialValues, 
-  safeRemoveById,
+  removeById,
   IdStamper, 
   Message,
   View,
@@ -133,11 +133,11 @@ class ClientView extends View {
   }
 
   removeItem(item) {
-    return safeRemoveById( this.items, item, ClientItem );
+    return removeById( this.items, item );
   }
 
   removeShadow(shadow) {
-    return safeRemoveById( this.shadows, shadow, ShadowView );
+    return removeById( this.shadows, shadow );
   }
 
   resizeToFillWindow() {
