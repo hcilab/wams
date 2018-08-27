@@ -108,13 +108,9 @@ describe('ClientView', () => {
       expect(() => cv.removeItem()).toThrow();
     });
 
-    test('Throws exception if invalid item provided', () => {
-      expect(() => cv.removeItem({id:50})).toThrow();
-    });
-
     test('Removes the item', () => {
       const i = cv.items[1];
-      expect(() => cv.removeItem(i)).not.toThrow();
+      expect(() => cv.removeItem(i.report())).not.toThrow();
       expect(cv.items.length).toBe(2);
       expect(cv.items).not.toContain(i);
     });
@@ -133,13 +129,9 @@ describe('ClientView', () => {
       expect(() => cv.removeShadow()).toThrow();
     });
 
-    test('Throws exception if invalid shadow provided', () => {
-      expect(() => cv.removeShadow({id:44})).toThrow();
-    });
-
     test('Removes the shadow', () => {
       const s = cv.shadows[1];
-      expect(() => cv.removeShadow(s)).not.toThrow();
+      expect(() => cv.removeShadow(s.report())).not.toThrow();
       expect(cv.shadows.length).toBe(2);
       expect(cv.shadows).not.toContain(s);
     });
