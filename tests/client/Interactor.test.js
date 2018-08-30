@@ -14,6 +14,17 @@ describe('Interactor', () => {
 
   beforeAll(() => {
     canvas = document.createElement('canvas');
+    canvas.getBoundingClientRect = jest.fn();
+    canvas.getBoundingClientRect.mockReturnValue({
+      left: 0,
+      top: 0,
+      right: 1600,
+      bottom: 900,
+      x: 0,
+      y: 0,
+      width: 1600,
+      height: 900,
+    });
   });
 
   beforeEach(() => {
@@ -60,10 +71,12 @@ describe('Interactor', () => {
 
     test('Works with mouse input', () => {
       canvas.dispatchEvent(new MouseEvent('mousedown', { 
+        buttons: 1,
         clientX: 42,
         clientY: 43,
       }));
       canvas.dispatchEvent(new MouseEvent('mouseup', { 
+        buttons: 1,
         clientX: 42,
         clientY: 43,
       }));

@@ -76,7 +76,7 @@ class Interactor {
   }
 
   pinch({ detail }) {
-    this.handlers.zoom(detail.change * 0.005);
+    this.handlers.zoom(detail.change * 0.0025);
   }
 
   pincher() {
@@ -84,8 +84,7 @@ class Interactor {
   }
 
   rotate({ detail }) {
-    const degrees = detail.distanceFromLast;
-    const radians = degrees * Math.PI / 180;
+    const radians = detail.distanceFromLast;
     this.handlers.rotate( radians );
   }
 
@@ -100,7 +99,7 @@ class Interactor {
      * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
      */
     function refineRotateMove(inputs, state, element) {
-      if (state.numActiveInputs() === 2) {
+      if (state.activeInputs().length === 2) {
         return rotateMove.call(this, inputs, state, element);
       }
       return null;
@@ -108,8 +107,9 @@ class Interactor {
   }
 
   tap({detail}) {
-    const event = detail.events[0];
-    this.handlers.tap( event.clientX, event.clientY );
+    // const event = detail.events[0];
+    // this.handlers.tap( event.clientX, event.clientY );
+    this.handlers.tap( detail.x, detail.y );
   }
 
   tapper() {
