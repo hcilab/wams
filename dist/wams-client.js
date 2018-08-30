@@ -9268,9 +9268,8 @@ class Interactor {
   }
 
   pan({ detail }) {
-    const event = detail.events[0];
-    const { change } = detail.data[0];
-    this.handlers.pan( event.clientX, event.clientY, change.x, change.y);
+    const { change, point } = detail.data[0];
+    this.handlers.pan( point.x, point.y, change.x, change.y);
   }
 
   panner() {
@@ -11391,8 +11390,9 @@ class Pan extends Gesture {
 function packData( input, progress ) {
   const distanceFromOrigin = input.totalDistance();
   const directionFromOrigin = input.totalAngle();
-  const currentDirection = progress.lastEmitted.angleTo(input.current.point);
-  const change = input.current.point.subtract(progress.lastEmitted);
+  const point = input.current.point;
+  const currentDirection = progress.lastEmitted.angleTo(point);
+  const change = point.subtract(progress.lastEmitted);
 
   return {
     identifier: input.identifier,
@@ -11400,6 +11400,7 @@ function packData( input, progress ) {
     directionFromOrigin,
     currentDirection,
     change,
+    point,
   };
 }
 

@@ -66,9 +66,8 @@ class Interactor {
   }
 
   pan({ detail }) {
-    const event = detail.events[0];
-    const { change } = detail.data[0];
-    this.handlers.pan( event.clientX, event.clientY, change.x, change.y);
+    const { change, point } = detail.data[0];
+    this.handlers.pan( point.x, point.y, change.x, change.y);
   }
 
   panner() {
@@ -107,8 +106,6 @@ class Interactor {
   }
 
   tap({detail}) {
-    // const event = detail.events[0];
-    // this.handlers.tap( event.clientX, event.clientY );
     this.handlers.tap( detail.x, detail.y );
   }
 
