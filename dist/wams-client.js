@@ -9285,31 +9285,14 @@ class Interactor {
   }
 
   rotate({ detail }) {
-    const radians = detail.distanceFromLast;
-    this.handlers.rotate( radians );
+    this.handlers.rotate( detail.distanceFromLast );
   }
 
   rotater() {
-    const rotate = new ZingTouch.Rotate();
-    const rotateMove = rotate.move;
-    rotate.move = refineRotateMove;
-    return rotate;
-
-    /*
-     * Custom functionality overtop of standard ZingTouch behaviour.
-     * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
-     */
-    function refineRotateMove(inputs, state, element) {
-      if (state.activeInputs().length === 2) {
-        return rotateMove.call(this, inputs, state, element);
-      }
-      return null;
-    }
+    return new ZingTouch.Rotate();
   }
 
   tap({detail}) {
-    // const event = detail.events[0];
-    // this.handlers.tap( event.clientX, event.clientY );
     this.handlers.tap( detail.x, detail.y );
   }
 
@@ -9938,17 +9921,19 @@ function arbiter(event, region) {
     return;
   }
 
-  state.updateInputs(event, region.element);
+  state.updateAllInputs(event, region.element);
 
   // Retrieve the initial target from any one of the inputs
   const bindings = state.retrieveBindingsByInitialPos();
   if (bindings.length > 0) {
     if (region.preventDefault) {
-      util.setMSPreventDefault(region.element);
-      util.preventDefault(event);
-    } else {
-      util.removeMSPreventDefault(region.element);
+      // util.setMSPreventDefault(region.element);
+      // util.preventDefault(event);
+      event.preventDefault();
     }
+    // } else {
+    //   util.removeMSPreventDefault(region.element);
+    // }
 
     const candidates = interpreter(bindings, event, state);
 
@@ -9961,7 +9946,7 @@ function arbiter(event, region) {
     });
   }
 
-  if (state.endedInputs().length === state.inputs.length) {
+  if (state.getInputsInPhase('end').length === state.inputs.length) {
     state.resetInputs();
   }
 }
@@ -9971,7 +9956,7 @@ function getDeepestDispatches(event, candidates) {
   const path = util.getPropagationPath(event);
 
   candidates.forEach( candidate => {
-    const id = candidate.binding.gesture.getId();
+    const id = candidate.binding.gesture.id;
     if (toBeDispatched[id]) {
       const curr = util.getPathIndex(path, candidate.binding.element);
       const prev = util.getPathIndex(path, toBeDispatched[id].binding.element);
@@ -10091,6 +10076,8 @@ module.exports = Binding;
 
 const util = require('../util.js');
 
+let nextGestureNum = 0;
+
 /**
  * The Gesture class that all gestures inherit from.
  */
@@ -10099,13 +10086,13 @@ class Gesture {
    * Constructor function for the Gesture class.
    * @class Gesture
    */
-  constructor() {
+  constructor(type) {
     /**
-     * The generic string type of gesture ('expand'|'pan'|'pinch'|
-     *  'rotate'|'swipe'|'tap').
+     * The generic string type of gesture. (e.g. 'pan' or 'tap' or 'pinch').
      * @type {String}
      */
-    this.type = null;
+    if (typeof type === 'undefined') throw 'Gestures require a type!';
+    this.type = type;
 
     /**
      * The unique identifier for each gesture determined at bind time by the
@@ -10113,23 +10100,7 @@ class Gesture {
      * Gestures that are created on the fly (e.g. Tap-1, Tap-2, etc).
      * @type {String|null}
      */
-    this.id = null;
-  }
-
-  /**
-   * Set the id of the gesture to be called during an event
-   * @param {String} id - The unique identifier of the gesture being created.
-   */
-  setId(id) {
-    this.id = id;
-  }
-
-  /**
-   * Return the id of the event. If the id does not exist, return the type.
-   * @return {String}
-   */
-  getId() {
-    return (this.id !== null) ? this.id : this.type;
+    this.id = `gesture-${this.type}-${nextGestureNum++}`;
   }
 
   /**
@@ -10171,19 +10142,6 @@ class Gesture {
    */
   end(inputs) {
     return null;
-  }
-
-  /**
-   * isValid() - Pre-checks to ensure the invariants of a gesture are satisfied.
-   * @param {Array} inputs - The array of Inputs on the screen
-   * @param {Object} state - The state object of the current region.
-   * @param {Element} element - The element associated to the binding.
-   * @return {boolean} - If the gesture is valid
-   */
-  isValid(inputs, state, element) {
-    return inputs.every( input => {
-      return input.wasInitiallyInside(element);
-    });
   }
 }
 
@@ -10234,7 +10192,8 @@ class Input {
     this.previous = currentEvent;
 
     /**
-     * Refers to the event.touches index, or 0 if a simple mouse event occurred.
+     * The identifier for the pointer / touch / mouse button associated with
+     * this event.
      * @type {Number}
      */
     this.identifier = identifier;
@@ -10247,47 +10206,50 @@ class Input {
     this.progress = {};
   }
 
+  /**
+   * @return {String} The phase of the input: 'start' or 'move' or 'end'
+   */
+  get phase()       { return this.current.type; }
+
+  /**
+   * @return {Number} The timestamp of the most current event for this input.
+   */
+  get currentTime() { return this.current.time; }
+
+  /**
+   * @return {Number} The timestamp of the initiating event for this input.
+   */
+  get startTime()   { return this.initial.time; }
+
+  /**
+   * @return {Number} The angle in radians between the inputs' current events.
+   */
+  currentAngleTo(input) {
+    return this.current.angleTo(input.current);
+  }
+
+  /**
+   * Determines the distance between the current events for two inputs.
+   *
+   * @return {Number} The distance between the inputs' current events.
+   */
   currentDistanceTo(input) {
     return this.current.distanceTo(input.current);
   }
 
+  /**
+   * @return {Number} The midpoint between the inputs' current events.
+   */
   currentMidpointTo(input) {
     return this.current.midpointTo(input.current);
   }
 
-  totalAngle() {
-    return this.initial.angleTo(this.current);
-  }
-
-  totalDistance() {
-    return this.initial.distanceTo(this.current);
-  }
-
-  totalDistanceIsWithin(tolerance) {
-    return this.totalDistance() <= tolerance;
-  }
-
-  wasInitiallyInside(element) {
-    return this.initial.wasInside(element);
-  }
-
   /**
-   * Receives an input, updates the internal state of what the input has done.
-   * @param {Event} event - The event object to wrap with a ZingEvent.
-   * @param {Number} touchIdentifier - The index of inputs, from event.touches
-   */
-  update(event, touchIdentifier) {
-    this.previous = this.current;
-    this.current = new ZingEvent(event, touchIdentifier);
-  }
-
-  /**
-   * Returns the progress of the specified gesture.
    * @param {String} id - The identifier for each unique Gesture's progress.
+   *
    * @return {Object} - The progress of the gesture.
-   * Creates an empty object if no progress has begun.
    */
-  getGestureProgress(id) {
+  getProgressOfGesture(id) {
     if (!this.progress[id]) {
       this.progress[id] = {};
     }
@@ -10295,19 +10257,48 @@ class Input {
   }
 
   /**
-   * Returns the normalized current Event's type.
-   * @return {String} The current event's type ( start | move | end )
+   * @return {Number} The angle, in radians, between the initiating event for
+   * this input and its current event.
    */
-  getCurrentEventType() {
-    return this.current.type;
+  totalAngle() {
+    return this.initial.angleTo(this.current);
   }
 
   /**
-   * Resets a progress/state object of the specified gesture.
-   * @param {String} id - The identifier of the specified gesture
+   * @return {Number} The distance between the initiating event for this input
+   * and its current event.
    */
-  resetProgress(id) {
-    this.progress[id] = {};
+  totalDistance() {
+    return this.initial.distanceTo(this.current);
+  }
+
+  /**
+   * @return {Boolean} true if the total distance is less than or equal to the
+   * tolerance.
+   */
+  totalDistanceIsWithin(tolerance) {
+    return this.totalDistance() <= tolerance;
+  }
+
+  /**
+   * Saves the given raw event in ZingEvent form as the current event for this
+   * input, pushing the old current event into the previous slot, and tossing
+   * out the old previous event.
+   *
+   * @param {Event} event - The event object to wrap with a ZingEvent.
+   * @param {Number} touchIdentifier - The index of inputs, from event.touches
+   */
+  update(event, identifier) {
+    this.previous = this.current;
+    this.current = new ZingEvent(event, identifier);
+  }
+
+  /**
+   * @return {Boolean} true if the given element existed along the propagation
+   * path of this input's initiating event.
+   */
+  wasInitiallyInside(element) {
+    return this.initial.wasInside(element);
   }
 }
 
@@ -10443,6 +10434,37 @@ class Point2D {
   }
 }
 
+Point2D.averageDistanceTo = function(pt, points = []) {
+  if (!(pt instanceof Point2D)) throw 'Cannot calculated distance to undefined';
+  if (points.length === 0) throw 'Need points to exist to calculate distance!';
+  return Point2D.totalDistanceTo(pt, points) / points.length;
+}
+
+Point2D.midpoint = function(points = []) {
+  if (points.length === 0) throw 'Need points to exist to calculate midpoint!';
+  const total = Point2D.sum(points);
+  return new Point2D (
+    total.x / points.length,
+    total.y / points.length,
+  );
+}
+
+Point2D.sum = function(points = []) {
+  return points.reduce( (total, current) => {
+    total.x += current.x;
+    total.y += current.y;
+    return total;
+  }, new Point2D(0,0) );
+}
+
+Point2D.totalDistanceTo = function(pt, points = []) {
+  if (!(pt instanceof Point2D)) throw 'Cannot calculated distance to undefined';
+  return points.reduce( (distance, point) => {
+    distance += point.distanceTo(pt);
+    return distance;
+  }, 0);
+}
+
 module.exports = Point2D;
 
 },{}],72:[function(require,module,exports){
@@ -10460,8 +10482,7 @@ const State   = require('./State.js');
  * into. This can be as narrow as the element itself, or as big as the document
  * itself. The more specific an area, the better performant the overall
  * application will perform. Contains API methods to bind/unbind specific
- * elements to corresponding gestures. Also contains the ability to
- * register/unregister new gestures.
+ * elements to corresponding gestures. 
  * @class Region
  */
 class Region {
@@ -10504,7 +10525,7 @@ class Region {
 
     /**
      * The internal state object for a Region.
-     * Keeps track of registered gestures, inputs, and events.
+     * Keeps track of inputs and bindings.
      * @type {State}
      */
     this.state = new State(id);
@@ -10536,19 +10557,22 @@ class Region {
   }
 
   /**
-   * Bind an element to a registered/unregistered gesture with
-   * multiple function signatures.
+   * Bind an element to a gesture with multiple function signatures.
+   *
    * @example
    * bind(element) - chainable
+   *
    * @example
    * bind(element, gesture, handler, [capture])
+   *
    * @param {Element} element - The element object.
    * @param {String|Object} [gesture] - Gesture key, or a Gesture object.
    * @param {Function} [handler] - The function to execute when an event is
-   *  emitted.
+   * emitted.
    * @param {Boolean} [capture] - capture/bubble
-   * @param {Boolean} [bindOnce = false] - Option to bind once and
-   *  only emit the event once.
+   * @param {Boolean} [bindOnce = false] - Option to bind once and only emit the
+   * event once.
+   *
    * @return {Object} - a chainable object that has the same function as bind.
    */
   bind(element, gesture, handler, capture, bindOnce) {
@@ -10594,19 +10618,8 @@ class Region {
 
     bindings.forEach((binding) => {
       if (gesture) {
-        if (typeof gesture === 'string' &&
-          this.state.registeredGestures[gesture]) {
-          let registeredGesture = this.state.registeredGestures[gesture];
-          if (registeredGesture.id === binding.gesture.id) {
-            element.removeEventListener(
-              binding.gesture.getId(),
-              binding.handler, binding.capture);
-            unbound.push(binding);
-          }
-        }
-      } else {
         element.removeEventListener(
-          binding.gesture.getId(),
+          binding.gesture.id,
           binding.handler,
           binding.capture);
         unbound.push(binding);
@@ -10615,50 +10628,7 @@ class Region {
 
     return unbound;
   }
-
   /* unbind*/
-
-  /**
-   * Registers a new gesture with an assigned key
-   * @param {String} key - The key used to register an element to that gesture
-   * @param {Gesture} gesture - A gesture object
-   */
-  register(key, gesture) {
-    if (typeof key !== 'string') {
-      throw new Error('Parameter key is an invalid string');
-    }
-
-    if (!gesture instanceof Gesture) {
-      throw new Error('Parameter gesture is an invalid Gesture object');
-    }
-
-    gesture.type = key;
-    this.state.registerGesture(gesture, key);
-  }
-
-  /* register*/
-
-  /**
-   * Un-registers a gesture from the Region's state such that
-   * it is no longer emittable.
-   * Unbinds all events that were registered with the type.
-   * @param {String|Object} key - Gesture key that was used to
-   *  register the object
-   * @return {Object} - The Gesture object that was unregistered
-   *  or null if it could not be found.
-   */
-  unregister(key) {
-    this.state.bindings.forEach((binding) => {
-      if (binding.gesture.type === key) {
-        binding.element.removeEventListener(binding.gesture.getId(),
-          binding.handler, binding.capture);
-      }
-    });
-
-    let registeredGesture = this.state.registeredGestures[key];
-    delete this.state.registeredGestures[key];
-    return registeredGesture;
-  }
 }
 
 module.exports = Region;
@@ -10681,21 +10651,15 @@ const util    = require('./../util.js');
 const DEFAULT_MOUSE_ID = 0;
 
 /**
- * Creates an object related to a Region's state,
- * and contains helper methods to update and clean up different states.
+ * Creates an object related to a Region's state, and contains helper methods to
+ * update and clean up different states.
  */
 class State {
   /**
    * Constructor for the State class.
    * @param {String} regionId - The id the region this state is bound to.
    */
-  constructor(regionId) {
-    /**
-     * The id for the region this state is bound to.
-     * @type {String}
-     */
-    this.regionId = regionId;
-
+  constructor() {
     /**
      * An array of current and recently inactive
      *  Input objects related to a gesture.
@@ -10704,81 +10668,59 @@ class State {
     this.inputs = [];
 
     /**
-     * An array of Binding objects; The list of relations between elements,
-     *   their gestures, and the handlers.
+     * The list of relations between elements, their gestures, and the handlers.
      * @type {Binding}
      */
     this.bindings = [];
-
-    /**
-     * The number of gestures that have been registered with this state
-     * @type {Number}
-     */
-    this.numGestures = 0;
-
-    /**
-     * A key/value map all the registered gestures for the listener.
-     *  Note: Can only have one gesture registered to one key.
-     * @type {Object}
-     */
-    this.registeredGestures = {};
-
-    this.registerGesture(new Pan(), 'pan');
-    this.registerGesture(new Rotate(), 'rotate');
-    this.registerGesture(new Pinch(), 'pinch');
-    this.registerGesture(new Swipe(), 'swipe');
-    this.registerGesture(new Tap(), 'tap');
   }
 
   /**
-   * Creates a new binding with the given element and gesture object.
-   * If the gesture object provided is unregistered, it's reference
-   * will be saved in as a binding to be later referenced.
-   * @param  {Element} element - The element the gesture is bound to.
-   * @param {String|Object} gesture  - Either a name of a registered gesture,
-   *  or an unregistered  Gesture object.
-   * @param {Function} handler - The function handler to be called
-   *  when the event is emitted. Used to bind/unbind.
-   * @param {Boolean} capture - Whether the gesture is to be
-   *  detected in the capture of bubble phase. Used to bind/unbind.
-   * @param {Boolean} bindOnce - Option to bind once and
-   *  only emit the event once.
+   * Creates a new binding with the given element and gesture object. 
+   *
+   * @param {Element} element - The element the gesture is bound to.
+   * @param {Gesture} gesture - The Gesture to bind. 
+   * @param {Function} handler - The function handler to be called when the
+   * event is emitted. Used to bind/unbind.
+   * @param {Boolean} capture - Whether the gesture is to be detected in the
+   * capture of bubble phase. Used to bind/unbind.
+   * @param {Boolean} bindOnce - Option to bind once and only emit the event
+   * once.
    */
   addBinding(element, gesture, handler, capture, bindOnce) {
-    let boundGesture;
-
-    // Error type checking.
-    if (element && typeof element.tagName === 'undefined') {
-      throw new Error('Parameter element is an invalid object.');
-    }
-
-    if (typeof handler !== 'function') {
-      throw new Error('Parameter handler is invalid.');
-    }
-
-    if (typeof gesture === 'string' &&
-      Object.keys(this.registeredGestures).indexOf(gesture) === -1) {
-      throw new Error('Parameter ' + gesture + ' is not a registered gesture');
-    } else if (typeof gesture === 'object' && !(gesture instanceof Gesture)) {
+    if (!(gesture instanceof Gesture)) {
       throw new Error('Parameter for the gesture is not of a Gesture type');
     }
 
-    if (typeof gesture === 'string') {
-      boundGesture = this.registeredGestures[gesture];
-    } else {
-      boundGesture = gesture;
-      if (boundGesture.id === '') {
-        this.assignGestureId(boundGesture);
-      }
-    }
+    this.bindings.push(new Binding(
+      element, 
+      gesture,
+      handler, 
+      capture, 
+      bindOnce
+    ));
 
-    this.bindings.push(new Binding(element, boundGesture,
-      handler, capture, bindOnce));
-    element.addEventListener(boundGesture.getId(), handler, capture);
+    element.addEventListener(gesture.id, handler, capture);
   }
 
-  endedInputs() {
-    return this.inputs.filter( i => i && i.getCurrentEventType() === 'end' );
+  /**
+   * @return {Array} Inputs in the given phase.
+   */
+  getInputsInPhase(phase) {
+    return this.inputs.filter( i => i && i.phase === phase );
+  }
+
+  /**
+   * @return {Array} Inputs _not_ in the given phase.
+   */
+  getInputsNotInPhase(phase) {
+    return this.inputs.filter( i => i && i.phase !== phase );
+  }
+
+  /**
+   * Removes all inputs from the state, allowing for a new gesture.
+   */
+  resetInputs() {
+    this.inputs = [];
   }
 
   /**
@@ -10797,11 +10739,23 @@ class State {
    * @return {Array} - An array of Bindings to which that element is bound
    */
   retrieveBindingsByInitialPos() {
-    return this.bindings.filter( binding => {
-      return this.inputs.some( input => {
-        return input && input.wasInitiallyInside(binding.element);
-      });
-    });
+    return this.bindings.filter( 
+      b => this.inputs.some( i => i && i.wasInitiallyInside(b.element) )
+    );
+  }
+
+  /**
+   * Update the input with the given identifier using the given event.
+   *
+   * @param {Event} event - The event being captured.
+   * @param {Number} identifier - The identifier of the input to update.
+   */
+  updateInput(event, identifier) {
+    if (util.normalizeEvent[ event.type ] === 'start') {
+      this.inputs[identifier] = new Input(event, identifier);
+    } else {
+      this.inputs[identifier].update(event, identifier);
+    }
   }
 
   /**
@@ -10811,104 +10765,29 @@ class State {
    * @return {boolean} - returns true for a successful update,
    *  false if the event is invalid.
    */
-  updateInputs(event) {
+  updateAllInputs(event) {
     const update_fns = {
       TouchEvent: (event) => {
         Array.from(event.changedTouches).forEach( touch => {
-          this.update(event, touch.identifier);
+          this.updateInput(event, touch.identifier);
         });
       },
 
       PointerEvent: (event) => {
-        this.update(event, event.pointerId);
+        this.updateInput(event, event.pointerId);
       },
 
       MouseEvent: (event) => {
-        this.update(event, DEFAULT_MOUSE_ID);
+        this.updateInput(event, DEFAULT_MOUSE_ID);
       },
     };
 
-    let eventType = event.constructor.name;
-    update_fns[eventType].call(this, event);
+    update_fns[event.constructor.name].call(this, event);
   }
-
-  update(event, identifier) {
-    const type = util.normalizeEvent[ event.type ];
-    if (type === 'start') {
-      this.inputs[identifier] = new Input(event, identifier);
-    } else {
-      this.inputs[identifier].update(event, identifier);
-    }
-  }
-
-  /**
-   * Removes all inputs from the state, allowing for a new gesture.
-   */
-  resetInputs() {
-    this.inputs = [];
-  }
-
-  /**
-   * Filters out any inputs whose current event type is 'end'.
-   *
-   * @return {Array} The active inputs.
-   */
-  activeInputs() {
-    return this.inputs.filter( i => i && i.getCurrentEventType() !== 'end' );
-  }
-
-  /**
-   * Returns an array containing only the inputs whose current event type is
-   * 'start'.
-   *
-   * @return {Array} The starting inputs.
-   */
-  startingInputs() {
-    return this.inputs.filter( i => i && i.getCurrentEventType() === 'start' );
-  }
-
-  /**
-   * Filters out any inputs that aren't "move"ing.
-   *
-   * @return {Array} The moving inputs.
-   */
-  movingInputs() {
-    return this.inputs.filter( i => i && i.getCurrentEventType() === 'move' );
-  }
-
-  /**
-   * Register the gesture to the current region.
-   * @param {Object} gesture - The gesture to register
-   * @param {String} key - The key to define the new gesture as.
-   */
-  registerGesture(gesture, key) {
-    this.assignGestureId(gesture);
-    this.registeredGestures[key] = gesture;
-  }
-
-  /**
-   * Tracks the gesture to this state object to become uniquely identifiable.
-   * Useful for nested Regions.
-   * @param {Gesture} gesture - The gesture to track
-   */
-  assignGestureId(gesture) {
-    gesture.setId(this.regionId + '-' + this.numGestures++);
-  }
-}
-
-/**
- * Searches through each input, comparing the browser's identifier key
- *  for touches, to the stored one in each input
- * @param {Array} inputs - The array of inputs in state.
- * @param {String} identifier - The identifier the browser has assigned.
- * @return {Input} - The input object with the corresponding identifier,
- *  null if it did not find any.
- */
-function findInputById(inputs, identifier) {
-  return inputs.find( i => i && i.identifier === identifier );
 }
 
 module.exports = State;
+
 
 },{"./../../gestures/Pan.js":78,"./../../gestures/Pinch.js":79,"./../../gestures/Rotate.js":80,"./../../gestures/Swipe.js":81,"./../../gestures/Tap.js":82,"./../util.js":77,"./Binding.js":68,"./Gesture.js":69,"./Input.js":70}],74:[function(require,module,exports){
 /**
@@ -10933,9 +10812,7 @@ class ZingEvent {
    * points that participated in the event.
    * @param {Number} touchIdentifier - The index of touch if applicable
    */
-  constructor(event, touchIdentifier) {
-    const eventObj = getEventObject(event, touchIdentifier);
-
+  constructor(event, identifier) {
     /**
      * The set of elements along this event's propagation path at the time it
      * was dispatched.
@@ -10957,36 +10834,25 @@ class ZingEvent {
     this.type = util.normalizeEvent[ event.type ];
 
     /**
-     * Various x,y coordinates extracted from the inner event.
+     * The timestamp of the event in milliseconds elapsed since January 1, 1970,
+     * 00:00:00 UTC.
      */
-    this.clientX = eventObj.clientX;
-    this.clientY = eventObj.clientY;
-    
-    this.pageX = eventObj.pageX;
-    this.pageY = eventObj.pageY;
-
-    this.screenX = eventObj.screenX;
-    this.screenY = eventObj.screenY;
+    this.time = Date.now();
 
     /**
      * The (x,y) coordinate of the event, wrapped in a Point2D.
      */
-    this.point = new Point2D(this.clientX, this.clientY);
+    const eventObj = getEventObject(event, identifier);
+    this.point = new Point2D(eventObj.clientX, eventObj.clientY);
   }
 
   /**
    * Calculates the angle between this event and the given event.
-   *   |                (projectionX,projectionY)
-   *   |             /°
-   *   |          /
-   *   |       /
-   *   |    / θ
-   *   | /__________
-   *   ° (originX, originY)
    *
    * @param {ZingEvent} event
    *
-   * @return {Number} - Degree along the unit circle where the projection lies.
+   * @return {Number} - Radians measurement between this event and the given
+   * event's points.
    */
   angleTo(event) {
     return this.point.angleTo(event.point);
@@ -10997,7 +10863,7 @@ class ZingEvent {
    *
    * @param {ZingEvent} event
    *
-   * @return {number} The distance between the two points, a.k.a. the
+   * @return {Number} The distance between the two points, a.k.a. the
    * hypoteneuse. 
    */
   distanceTo(event) {
@@ -11078,7 +10944,7 @@ module.exports = ZingEvent;
 function dispatcher(binding, data, events) {
   data.events = events;
 
-  const newEvent = new CustomEvent(binding.gesture.getId(), {
+  const newEvent = new CustomEvent(binding.gesture.id, {
     detail: data,
     bubbles: true,
     cancelable: true,
@@ -11096,7 +10962,7 @@ function dispatcher(binding, data, events) {
 function emitEvent(target, event, binding) {
   target.dispatchEvent(event);
   if (binding.bindOnce) {
-    ZingTouch.unbind(binding.element, binding.gesture.type);
+    ZingTouch.unbind(binding.element, binding.gesture);
   }
 }
 
@@ -11165,34 +11031,8 @@ const normalizeEvent = Object.freeze({
 /* normalizeEvent*/
 
 /**
- * Returns the farthest right input
- *
- * @param {Array} inputs
- *
- * @return {Object}
+ * @return {Array} Identifiers of the mouse buttons used.
  */
-function getRightMostInput(inputs) {
-  let rightMost = null;
-  let distance = Number.MIN_VALUE;
-  inputs.forEach((input) => {
-    if (input.initial.point.x > distance) {
-      rightMost = input;
-    }
-  });
-  return rightMost;
-}
-
-/**
- * Determines is the value is an integer and not a floating point
- *
- * @param {Mixed} value
- *
- * @return {boolean}
- */
-function isInteger(value) {
-  return (typeof value === 'number') && (value % 1 === 0);
-}
-
 function getMouseButtons({ buttons }) {
   const btns = [];
   for (let mask = 1; mask < 32; mask << 1) {
@@ -11257,13 +11097,11 @@ function preventDefault(event) {
 
 module.exports = Object.freeze({
   normalizeEvent,
-  isInteger,
   preventDefault,
   removeMSPreventDefault,
   setMSPreventDefault,
   getPathIndex,
   getPropagationPath,
-  getRightMostInput,
   getMouseButtons,
 });
 
@@ -11296,13 +11134,7 @@ class Pan extends Gesture {
    * pixels the input has to move to trigger this gesture.
    */
   constructor(options = {}) {
-    super();
-
-    /**
-     * The type of the Gesture.
-     * @type {String}
-     */
-    this.type = 'pan';
+    super('pan');
 
     /**
      * The number of inputs to trigger a Pan can be variable,
@@ -11324,9 +11156,9 @@ class Pan extends Gesture {
    * @param {Array} inputs
    */
   start(inputs, state, element) {
-    const starting = state.startingInputs(); 
+    const starting = state.getInputsInPhase('start');
     starting.forEach( input => {
-      const progress = input.getGestureProgress(this.getId());
+      const progress = input.getProgressOfGesture(this.id);
       progress.lastEmitted = input.current.point.clone();
     });
   }
@@ -11342,14 +11174,14 @@ class Pan extends Gesture {
    * @return {Object} - Returns the distance in pixels between the two inputs.
    */
   move(inputs, state, element) {
-    const active = state.activeInputs();
+    const active = state.getInputsNotInPhase('end');
 
     if (active.length !== this.numInputs) return null;
 
     const data = [];
 
     active.forEach( input => {
-      const progress = input.getGestureProgress(this.getId());
+      const progress = input.getProgressOfGesture(this.id);
       const distanceFromLastEmit = progress.lastEmitted.distanceTo(
         input.current.point
       );
@@ -11377,9 +11209,9 @@ class Pan extends Gesture {
    *  Object with information otherwise.
    */
   end(inputs, state, element) {
-    const active = state.activeInputs();
+    const active = state.getInputsNotInPhase('end');
     active.forEach( input => {
-      const progress = input.getGestureProgress(this.getId());
+      const progress = input.getProgressOfGesture(this.id);
       progress.lastEmitted = input.current.point.clone();
     });
     return null;
@@ -11413,9 +11245,10 @@ module.exports = Pan;
  */
 
 const Gesture = require('./../core/classes/Gesture.js');
+const Point2D = require('./../core/classes/Point2D.js');
 const util    = require('./../core/util.js');
 
-const DEFAULT_INPUTS = 2;
+const REQUIRED_INPUTS = 2;
 const DEFAULT_MIN_THRESHOLD = 1;
 
 /**
@@ -11428,13 +11261,7 @@ class Pinch extends Gesture {
    * @param {Object} options
    */
   constructor(options = {}) {
-    super();
-
-    /**
-     * The type of the Gesture.
-     * @type {String}
-     */
-    this.type = 'pinch';
+    super('pinch');
 
     /**
      * The minimum amount in pixels the inputs must move until it is fired.
@@ -11443,21 +11270,24 @@ class Pinch extends Gesture {
     this.threshold = options.threshold || DEFAULT_MIN_THRESHOLD;
   }
 
+  initializeProgress(state) {
+    const active = state.getInputsNotInPhase('end');
+    if (active.length < REQUIRED_INPUTS) return null;
+
+    const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
+
+    // Progress is store on the first active input.
+    const progress = active[0].getProgressOfGesture(this.id);
+    progress.previousDistance = averageDistance;
+  }
+
   /**
    * Event hook for the start of a gesture. Initialized the lastEmitted
    * gesture and stores it in the first input for reference events.
    * @param {Array} inputs
    */
   start(inputs, state, element) {
-    const active = state.activeInputs();
-
-    if (!this.isValid(active, state, element)) return null;
-    
-    if (active.length === DEFAULT_INPUTS) {
-      // Store the progress in the first input.
-      const progress = active[0].getGestureProgress(this.getId());
-      progress.lastEmittedDistance = active[0].currentDistanceTo(active[1]);
-    }
+    this.initializeProgress(state);
   }
 
   /**
@@ -11470,33 +11300,42 @@ class Pinch extends Gesture {
    * @return {Object | null} - Returns the distance in pixels between two inputs
    */
   move(inputs, state, element) {
-    const active = state.activeInputs();
+    const active = state.getInputsNotInPhase('end');
+    if (active.length < REQUIRED_INPUTS) return null;
 
-    if (active.length === DEFAULT_INPUTS) {
-      const currentDistance = active[0].currentDistanceTo(active[1]);
-      const centerPoint = active[0].currentMidpointTo(active[1]);
+    const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
 
-      // Progress is stored in the first input.
-      const progress = active[0].getGestureProgress(this.getId());
-      const change = currentDistance - progress.lastEmittedDistance;
+    const baseProgress = active[0].getProgressOfGesture(this.id);
+    const change = averageDistance - baseProgress.previousDistance;
 
-      if (Math.abs(change) >= this.threshold) {
-        progress.lastEmittedDistance = currentDistance;
-        return {
-          distance: currentDistance,
-          center: centerPoint,
-          change: change,
-        };
-      }
+    if (Math.abs(change) >= this.threshold) {
+      // Progress is store on the first active input.
+      const progress = active[0].getProgressOfGesture(this.id);
+      progress.previousDistance = averageDistance;
+
+      return {
+        distance: averageDistance,
+        midpoint,
+        change,
+      };
     }
-
-    return null;
   }
+
+  end(inputs, state, element) {
+    this.initializeProgress(state);
+  }
+}
+
+function getMidpointAndAverageDistance(inputs) {
+  const points = inputs.map( i => i.current.point );
+  const midpoint = Point2D.midpoint(points); 
+  const averageDistance = Point2D.averageDistanceTo(midpoint, points);
+  return { midpoint, averageDistance };
 }
 
 module.exports = Pinch;
 
-},{"./../core/classes/Gesture.js":69,"./../core/util.js":77}],80:[function(require,module,exports){
+},{"./../core/classes/Gesture.js":69,"./../core/classes/Point2D.js":71,"./../core/util.js":77}],80:[function(require,module,exports){
 /**
  * @file Rotate.js
  * Contains the Rotate class
@@ -11506,7 +11345,7 @@ const Gesture = require('./../core/classes/Gesture.js');
 const Point2D = require('./../core/classes/Point2D.js');
 const util    = require('./../core/util.js');
 
-const DEFAULT_INPUTS = 2;
+const REQUIRED_INPUTS = 2;
 
 /**
  * A Rotate is defined as two inputs moving about a circle,
@@ -11517,50 +11356,55 @@ class Rotate extends Gesture {
   /**
    * Constructor function for the Rotate class.
    */
-  constructor(options = {}) {
-    super();
-
-    /**
-     * The type of the Gesture.
-     * @type {String}
-     */
-    this.type = 'rotate';
-
-    /**
-     * The number of touches required to emit Rotate events.
-     * @type {Number}
-     */
-    this.numInputs = options.numInputs || DEFAULT_INPUTS;
-  }
-
-  start(inputs, state, element) {
-    const active = state.activeInputs();
-    if (active.length === this.numInputs) {
-      const fst = active[0];
-      const snd = active[1];
-      const pivot = fst.currentMidpointTo(snd);
-      const angle = pivot.angleTo(snd);
-      const progress = fst.getGestureProgress(this.getId());
-      
-      progress.initialAngle = angle;
-      progress.previousAngle = angle;
-      progress.initialPivot = pivot;
-      progress.previousPivot = pivot;
-      progress.distance = 0;
-      progress.change = 0;
-    }
+  constructor() {
+    super('rotate');
   }
 
   /**
-   * move() - Event hook for the move of a gesture. Obtains the midpoint of two
-   * the two inputs and calculates the projection of the right most input along
-   * a unit circle to obtain an angle. This angle is compared to the previously
-   * calculated angle to output the change of distance, and is compared to the
-   * initial angle to output the distance from the initial angle to the current
-   * angle.
+   * Initialize the progress of the gesture.
+   *
+   * Only runs if the number of active inputs is the expected amount.
+   *
+   * @param {State} state - The State object from which the list of inputs will
+   * be retrieved.
+   */
+  initializeProgress(state) {
+    const active = state.getInputsNotInPhase('end');
+    if (active.length !== REQUIRED_INPUTS) return null;
+
+    // Progress is stored on the first active input.
+    const angle = active[0].currentAngleTo(active[1]);
+    const progress = active[0].getProgressOfGesture(this.id);
+    progress.previousAngle = angle;
+    progress.distance = 0;
+    progress.change = 0;
+  }
+
+  /**
+   * Event hook for the start of a gesture.
+   *
    * @param {Array} inputs - The array of Inputs on the screen
    * @param {Object} state - The state object of the current listener.
    * @param {Element} element - The element associated to the binding.
+   *
+   * @return {null}
+   */
+  start(inputs, state, element) {
+    this.initializeProgress(state);
+  }
+
+  /**
+   * Event hook for the move of a gesture. Obtains the midpoint of two the two
+   * inputs and calculates the projection of the right most input along a unit
+   * circle to obtain an angle. This angle is compared to the previously
+   * calculated angle to output the change of distance, and is compared to the
+   * initial angle to output the distance from the initial angle to the current
+   * angle.
+   *
+   * @param {Array} inputs - The array of Inputs on the screen
+   * @param {Object} state - The state object of the current listener.
+   * @param {Element} element - The element associated to the binding.
+   *
    * @return {null} - null if this event did not occur
    * @return {Object} obj.angle - The current angle along the unit circle
    * @return {Object} obj.distanceFromOrigin - The angular distance travelled
@@ -11569,46 +11413,42 @@ class Rotate extends Gesture {
    * last position and the current position.
    */
   move(inputs, state, element) {
-    const active = state.activeInputs();
-    if (active.length !== this.numInputs) return null;
+    const active = state.getInputsNotInPhase('end');
+    if (active.length !== REQUIRED_INPUTS) return null;
 
-    let currentPivot, initialPivot;
-    let input;
-    if (active.length === 1) {
-      const bRect = element.getBoundingClientRect();
-      currentPivot = new Point2D(
-        bRect.left + bRect.width / 2,
-        bRect.top + bRect.height / 2,
-      );
-      initialPivot = currentPivot;
-      input = active[0];
-    } else {
-      const fst = active[0];
-      const snd = active[1];
-      currentPivot = fst.currentMidpointTo(snd);
-      input = active[0];
-    }
+    const pivot = active[0].currentMidpointTo(active[1]);
+    const angle = active[0].currentAngleTo(active[1]);
 
-    // Translate the current pivot point.
-    const currentAngle = currentPivot.angleTo(input.current.point);
-
-    const progress = input.getGestureProgress(this.getId());
-    progress.change = currentAngle - progress.previousAngle;
-    progress.distance = progress.distance + progress.change;
-
-    progress.previousAngle = currentAngle;
-    progress.previousPivot = currentPivot;
+    const progress = active[0].getProgressOfGesture(this.id);
+    progress.change = angle - progress.previousAngle;
+    progress.distance += progress.change;
+    progress.previousAngle = angle;
 
     return {
-      angle: currentAngle,
+      angle,
+      pivot,
       distanceFromOrigin: progress.distance,
       distanceFromLast: progress.change,
     };
   }
   /* move*/
+
+  /**
+   * Event hook for the end of a gesture.
+   *
+   * @param {Array} inputs - The array of Inputs on the screen
+   * @param {Object} state - The state object of the current listener.
+   * @param {Element} element - The element associated to the binding.
+   *
+   * @return {null}
+   */
+  end(inputs, state, element) {
+    this.initializeProgress(state);
+  }
 }
 
 module.exports = Rotate;
+
 
 },{"./../core/classes/Gesture.js":69,"./../core/classes/Point2D.js":71,"./../core/util.js":77}],81:[function(require,module,exports){
 /**
@@ -11649,12 +11489,7 @@ class Swipe extends Gesture {
    * track of for a swipe.
    */
   constructor(options = {}) {
-    super();
-    /**
-     * The type of the Gesture
-     * @type {String}
-     */
-    this.type = 'swipe';
+    super('swipe');
 
     /**
      * The number of inputs to trigger a Swipe can be variable,
@@ -11706,11 +11541,11 @@ class Swipe extends Gesture {
    * @return {null} - Swipe does not emit from a move.
    */
   move(inputs, state, element) {
-    const active = state.activeInputs();
+    const active = state.getInputsNotInPhase('end');
 
     if (active.length === this.numInputs) {
       active.forEach( input => {
-        let progress = input.getGestureProgress(this.getId());
+        let progress = input.getProgressOfGesture(this.id);
         if (!progress.moves) {
           progress.moves = [];
         }
@@ -11740,7 +11575,7 @@ class Swipe extends Gesture {
    *  Object with information otherwise.
    */
   end(inputs, state, element) {
-    const ended = state.endedInputs();
+    const ended = state.getInputsInPhase('end');
 
     if (ended.length === this.numInputs) {
       let output = {
@@ -11748,7 +11583,7 @@ class Swipe extends Gesture {
       };
 
       for (var i = 0; i < ended.length; i++) {
-        let progress = ended[i].getGestureProgress(this.getId());
+        let progress = ended[i].getProgressOfGesture(this.id);
         if (progress.moves && progress.moves.length > 2) {
           // CHECK : Return if the input has not moved in maxRestTime ms.
 
@@ -11842,13 +11677,7 @@ class Tap extends Gesture {
    *  a user can move.
    */
   constructor(options = {}) {
-    super();
-
-    /**
-     * The type of the Gesture.
-     * @type {String}
-     */
-    this.type = 'tap';
+    super('tap');
 
     /**
      * The minimum amount between a touchstart and a touchend can be configured
@@ -11882,22 +11711,7 @@ class Tap extends Gesture {
      */
     this.tolerance = options.tolerance || DEFAULT_MOVE_PX_TOLERANCE;
   }
-
   /* constructor*/
-
-  /**
-   * Event hook for the start of a gesture. Keeps track of when the inputs
-   * trigger the start event.
-   * @param {Array} inputs - The array of Inputs on the screen.
-   * @return {null} - Tap does not trigger on a start event.
-   */
-  start(inputs, state, element) {
-    const starting = state.startingInputs();
-    starting.forEach( input => {
-      const progress = input.getGestureProgress(this.getId());
-      progress.start = Date.now();
-    });
-  }
 
   /**
    * Event hook for the end of a gesture.
@@ -11915,53 +11729,30 @@ class Tap extends Gesture {
    */
   end(inputs, state, element) {
     const now = Date.now();
-    const ended = state.endedInputs();
+    const ended = state.getInputsInPhase('end');
     const timed = ended.filter( i => {
-      const progress = i.getGestureProgress(this.getId());
-      return (now - progress.start) < this.maxDelay;
+      const tdiff = now - i.startTime;
+      return tdiff <= this.maxDelay && tdiff >= this.minDelay;
     });
 
     if (timed.length !== this.numInputs) return null;
-    if (!areWithinSpatialTolerance(timed, this.tolerance)) return null;
+    if (!timed.every( i => i.totalDistanceIsWithin(this.tolerance))) {
+      return null;
+    }
 
-    const sorted = timed.sort( (a,b) => {
-      const pa = a.getGestureProgress(this.getId());
-      const pb = b.getGestureProgress(this.getId());
-      return pa.start - pb.start 
-    });
-    const interval = now - sorted[0].getGestureProgress(this.getId()).start;
-
-    if (isBetween(interval, this.minDelay, this.maxDelay)) {
-      const point = sorted[0].current.point;
+    const sorted = timed.sort( (a,b) => a.startTime - b.startTime );
+    if (sorted.length > 0) {
+      const tapped = sorted[0];
+      const { x, y } = tapped.current.point;
       return { 
-        interval,
-        x: point.x,
-        y: point.y,
+        interval: tapped.currentTime - tapped.startTime,
+        x,
+        y,
       };
-    } 
+    }
     return null;
   }
   /* end*/
-}
-
-function areWithinSpatialTolerance(endedInputs, tolerance) {
-  return endedInputs.every( i => i.totalDistanceIsWithin(tolerance) );
-}
-
-function getTemporalInterval(endedInputs, gestureId) {
-  const now = Date.now();
-
-  const startTime = endedInputs.reduce( (earliest, input) => {
-    const progress = input.getGestureProgress(gestureId);
-    if (progress.start < earliest) earliest = progress.start;
-    return earliest;
-  }, now);
-
-  return now - startTime;
-}
-
-function isBetween(x, low, high) {
-  return (x >= low) && (x <= high)
 }
 
 module.exports = Tap;
