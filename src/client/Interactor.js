@@ -83,26 +83,11 @@ class Interactor {
   }
 
   rotate({ detail }) {
-    const radians = detail.distanceFromLast;
-    this.handlers.rotate( radians );
+    this.handlers.rotate( detail.distanceFromLast );
   }
 
   rotater() {
-    const rotate = new ZingTouch.Rotate();
-    const rotateMove = rotate.move;
-    rotate.move = refineRotateMove;
-    return rotate;
-
-    /*
-     * Custom functionality overtop of standard ZingTouch behaviour.
-     * TODO: Fork ZingTouch and add this behaviour, so this isn't necessary.
-     */
-    function refineRotateMove(inputs, state, element) {
-      if (state.activeInputs().length === 2) {
-        return rotateMove.call(this, inputs, state, element);
-      }
-      return null;
-    }
+    return new ZingTouch.Rotate();
   }
 
   tap({detail}) {
