@@ -43,7 +43,7 @@ const HANDLERS = Object.freeze({
 class Interactor {
   constructor(canvas, handlers = {}) {
     this.canvas = canvas;
-    this.region = ZingTouch.Region(this.canvas, true, true);
+    this.region = new ZingTouch.Region(this.canvas, true, true);
     this.handlers = getInitialValues(HANDLERS, handlers);
     this.bindRegions();
     window.addEventListener('wheel', this.wheel.bind(this), false);
