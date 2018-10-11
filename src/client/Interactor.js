@@ -14,7 +14,8 @@
 'use strict';
 
 // const Westures = require('../../../zingtouch');
-const Westures = require('../../../westures');
+// const Westures = require('../../../westures');
+const Westures = require('westures');
 const { getInitialValues, NOP } = require('../shared.js');
 
 /*
@@ -83,7 +84,7 @@ class Interactor {
   }
 
   pincher() {
-    return new Westures.Pinch();
+    return new Westures.Pinch({minInputs: 3});
   }
 
   rotate({ detail }) {
