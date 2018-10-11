@@ -519,7 +519,7 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = {__proto__: Uint8Array.prototype, foo: function () { return 42 }}
+    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -4604,7 +4604,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":18,"component-inherit":15,"debug":25,"engine.io-parser":27,"parseqs":36,"xmlhttprequest-ssl":24,"yeast":52}],23:[function(require,module,exports){
+},{"../transport":18,"component-inherit":15,"debug":25,"engine.io-parser":27,"parseqs":36,"xmlhttprequest-ssl":24,"yeast":67}],23:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -4894,7 +4894,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../transport":18,"component-inherit":15,"debug":25,"engine.io-parser":27,"parseqs":36,"ws":7,"yeast":52}],24:[function(require,module,exports){
+},{"../transport":18,"component-inherit":15,"debug":25,"engine.io-parser":27,"parseqs":36,"ws":7,"yeast":67}],24:[function(require,module,exports){
 (function (global){
 // browser shim for xmlhttprequest module
 
@@ -8694,1192 +8694,6 @@ function toArray(list, index) {
 }
 
 },{}],52:[function(require,module,exports){
-'use strict';
-
-var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
-  , length = 64
-  , map = {}
-  , seed = 0
-  , i = 0
-  , prev;
-
-/**
- * Return a string representing the specified number.
- *
- * @param {Number} num The number to convert.
- * @returns {String} The string representation of the number.
- * @api public
- */
-function encode(num) {
-  var encoded = '';
-
-  do {
-    encoded = alphabet[num % length] + encoded;
-    num = Math.floor(num / length);
-  } while (num > 0);
-
-  return encoded;
-}
-
-/**
- * Return the integer value specified by the given string.
- *
- * @param {String} str The string to convert.
- * @returns {Number} The integer value represented by the string.
- * @api public
- */
-function decode(str) {
-  var decoded = 0;
-
-  for (i = 0; i < str.length; i++) {
-    decoded = decoded * length + map[str.charAt(i)];
-  }
-
-  return decoded;
-}
-
-/**
- * Yeast: A tiny growing id generator.
- *
- * @returns {String} A unique id.
- * @api public
- */
-function yeast() {
-  var now = encode(+new Date());
-
-  if (now !== prev) return seed = 0, prev = now;
-  return now +'.'+ encode(seed++);
-}
-
-//
-// Map each character to its index.
-//
-for (; i < length; i++) map[alphabet[i]] = i;
-
-//
-// Expose the `yeast`, `encode` and `decode` functions.
-//
-yeast.encode = encode;
-yeast.decode = decode;
-module.exports = yeast;
-
-},{}],53:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * This file defines the entry point for the client side of a WAMS application.
- */
-
-'use strict';
-
-const ClientController = require('./client/ClientController.js');
-
-window.addEventListener(
-  'load', 
-  function run() {
-    new ClientController(document.querySelector('canvas'));
-  },
-  {
-    capture: false,
-    once: true,
-    passive: true,
-  }
-);
-
-
-},{"./client/ClientController.js":54}],54:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * The ClientController coordinates communication with the wams server. It sends
- * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. This is essentially the
- * controller in an MVC-esque design.
- */
-
-'use strict';
-
-const io = require('socket.io-client');
-const { 
-  constants: globals, 
-  IdStamper, 
-  Message, 
-  MouseReporter,
-  NOP,
-  RotateReporter,
-  ScaleReporter,
-} = require('../shared.js');
-const ClientView = require('./ClientView.js');
-const Interactor = require('./Interactor.js');
-
-const STAMPER = new IdStamper();
-
-const symbols = Object.freeze({
-  attachListeners: Symbol('attachListeners'),
-  establishSocket: Symbol('establishSocket'),
-});
-
-class ClientController { 
-  constructor(canvas) {
-    this.canvas = canvas;
-    this.socket = null;
-    this.view = new ClientView({ context: this.canvas.getContext('2d') });
-    this.interactor = new Interactor(this.canvas, {
-      pan:    this.pan.bind(this),
-      rotate: this.rotate.bind(this),
-      swipe:  this.swipe.bind(this),
-      tap:    this.tap.bind(this),
-      zoom:   this.zoom.bind(this),
-    });
-
-    this.resizeCanvasToFillWindow();
-    window.addEventListener('resize', this.resize.bind(this), false);
-    this[symbols.establishSocket]();
-  }
-
-  [symbols.attachListeners]() {
-    const listeners = {
-      // For the server to inform about changes to the model
-      [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
-      [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
-      [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
-      [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
-      [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
-      [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:    (...args) => this.handle('assign', ...args),
-
-      // Connection establishment related (disconnect, initial setup)
-      [Message.INITIALIZE]: (...args) => this.setup(...args),
-      [Message.LAYOUT]:     NOP,
-
-      // User event related
-      [Message.CLICK]:  NOP,
-      [Message.DRAG]:   NOP,
-      [Message.RESIZE]: NOP,
-      [Message.ROTATE]: NOP,
-      [Message.SCALE]:  NOP,
-      [Message.SWIPE]:  NOP,
-
-      /*
-       * TODO: This could be more... elegant...
-       */
-      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
-    };
-
-    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
-  }
-
-  [symbols.establishSocket]() {
-    this.socket = io.connect( globals.NS_WAMS, {
-      autoConnect: false,
-      reconnection: false,
-    });
-    this[symbols.attachListeners]();
-    this.socket.connect();
-  }
-
-  handle(message, ...args) {
-    this.view.handle(message, ...args);
-  }
-
-  pan(x, y, dx, dy) {
-    const mreport = new MouseReporter({ x, y, dx, dy });
-    new Message(Message.DRAG, mreport).emitWith(this.socket);
-  }
-
-  resize() {
-    this.resizeCanvasToFillWindow();
-    new Message(Message.RESIZE, this.view).emitWith(this.socket);
-  }
-
-  resizeCanvasToFillWindow() {
-    this.canvas.width = window.innerWidth; 
-    this.canvas.height = window.innerHeight;
-    this.handle('resizeToFillWindow');
-  }
-
-  setup(data) {
-    STAMPER.cloneId(this, data.id);
-    this.canvas.style.backgroundColor = data.color;
-    this.handle('setup', data);
-    new Message(Message.LAYOUT, this.view).emitWith(this.socket);
-  }
-
-  rotate(radians) {
-    const rreport = new RotateReporter({ radians });
-    new Message(Message.ROTATE, rreport).emitWith(this.socket);
-  }
-
-  swipe(acceleration, velocity, {x,y}) {
-    const sreport = new SwipeReporter({ acceleration, velocity, x, y });
-    new Message(Message.SWIPE, sreport).emitWith(this.socket);
-  }
-
-  tap(x, y) {
-    const mreport = new MouseReporter({ x, y });
-    new Message(Message.CLICK, mreport).emitWith(this.socket);
-  }
-
-  zoom(diff) {
-    const scale = this.view.scale + diff;
-    const sreport = new ScaleReporter({ scale });
-    new Message(Message.SCALE, sreport).emitWith(this.socket);
-  }
-}
-
-module.exports = ClientController;
-
-
-},{"../shared.js":59,"./ClientView.js":56,"./Interactor.js":57,"socket.io-client":39}],55:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * The ClientItem class exposes the draw() funcitonality of wams items.
- */
-
-'use strict';
-
-const { IdStamper, Item, Message } = require('../shared.js');
-const { CanvasBlueprint } = require('canvas-sequencer');
-
-/*
- * I'm not defining a 'defaults' object here, because the data going into
- * the creation of items should always come from the server, where it has
- * already gone through an initialization against a defaults object.
- */
-const STAMPER = new IdStamper();
-
-function createImage(src) {
-  if (src) {
-    const img = new Image();
-    img.src = src;
-    img.loaded = false;
-    img.addEventListener(
-      'load',
-      () => {
-        img.loaded = true;
-        document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
-      },
-      { once: true }
-    );
-    return img;
-  }
-  return null;
-}
-
-class ClientItem extends Item {
-  constructor(data) {
-    super(data);
-    STAMPER.cloneId(this, data.id);
-  }
-
-  assign(data) {
-    const updateImage = data.imgsrc !== this.imgsrc;
-    const updateBlueprint = Boolean(data.blueprint);
-
-    super.assign(data);
-    if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
-
-    // Rather than doing a bunch of checks, let's just always rebuild the
-    // sequence when updating any data in the item. Doing the checks to see if
-    // this is necessary would probably take as much or more time as just
-    // going ahead and rebuilding like this anyway.
-    if (this.blueprint) {
-      this.sequence = this.blueprint.build(this.report());
-    }
-  }
-
-  draw(context) {
-    const width = this.width || this.img.width;
-    const height = this.height || this.img.height;
-
-    if (this.sequence) {
-      this.sequence.execute(context);
-    } else if (this.img && this.img.loaded) {
-      context.drawImage(this.img, this.x, this.y, width, height);
-    } else {
-      // Draw placeholder rectangle.
-      context.save();
-      context.fillStyle = '#252525';
-      context.fillRect(this.x, this.y, width, height);
-      context.restore();
-    }
-  }
-}
-
-module.exports = ClientItem;
-
-
-},{"../shared.js":59,"canvas-sequencer":9}],56:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * The ClientView class is used for all rendering activities on the client
- * side. This is essentially the view in an MVC-esque design.
- */
-
-'use strict';
-
-const ClientItem = require('./ClientItem.js');
-const ShadowView = require('./ShadowView.js');
-const { 
-  constants: globals,
-  getInitialValues, 
-  removeById,
-  IdStamper, 
-  Message,
-  View,
-} = require('../shared.js');
-
-const DEFAULTS = Object.freeze({
-  x: 0,
-  y: 0,
-  rotation: globals.ROTATE_0,
-  scale: 1,
-  type: 'view/background',
-});
-
-const STATUS_KEYS = Object.freeze([
-  'x',
-  'y',
-  'width',
-  'height',
-  'effectiveWidth',
-  'effectiveHeight',
-  'rotation',
-  'scale',
-]);
-
-const REQUIRED_DATA = Object.freeze([
-  'id',
-  'items',
-  'views',
-]);
-
-const STAMPER = new IdStamper();
-
-const symbols = Object.freeze({
-  align:        Symbol('align'),
-  drawItems:    Symbol('drawItems'),
-  drawShadows:  Symbol('drawShadows'),
-  drawStatus:   Symbol('drawStatus'),
-  wipe:         Symbol('wipe'),
-});
-
-class ClientView extends View {
-  constructor(values = {}) {
-    super(getInitialValues(DEFAULTS, values));
-
-    if (values.context) this.context = values.context;
-    else throw 'ClientView requires a CanvasRenderingContext2D!';
-
-    this.items = [];
-    this.shadows = [];
-    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
-  }
-
-  [symbols.align]() {
-    /*
-     * WARNING: It is crucially important that the instructions below occur
-     * in *precisely* this order!
-     */
-    this.context.scale(this.scale, this.scale);
-    this.context.rotate(this.rotation);
-    this.context.translate(-this.x, -this.y);
-  }
-  
-  [symbols.drawItems]() {
-    this.items.forEach( o => o.draw(this.context) );
-  }
-
-  [symbols.drawShadows]() {
-    this.shadows.forEach( v => v.draw(this.context) );
-  }
-
-  [symbols.drawStatus]() {
-    const messages = STATUS_KEYS
-      .map( k => `${k}: ${this[k].toFixed(2)}` )
-      .concat([`# of Shadows: ${this.shadows.length}`]);
-    let ty = 40;
-    let tx = 20;
-    this.context.save();
-    this.context.setTransform(1,0,0,1,0,0);
-    this.context.font = '18px Georgia';
-    messages.forEach( m => {
-      this.context.fillText(m, tx, ty);
-      ty += 20;
-    });
-    this.context.restore();
-  }
-
-  [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  }
-
-  addItem(values) {
-    this.items.push(new ClientItem(values));
-  }
-
-  addShadow(values) {
-    this.shadows.push(new ShadowView(values));
-  }
-
-  draw() {
-    this.context.save();
-    this[symbols.wipe]();
-    this[symbols.align]();
-    this[symbols.drawItems]();
-    this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
-    this.context.restore();
-  }
-
-  handle(message, ...args) {
-    this[message](...args);
-    this.draw();
-  }
-
-  removeItem(item) {
-    return removeById( this.items, item );
-  }
-
-  removeShadow(shadow) {
-    return removeById( this.shadows, shadow );
-  }
-
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    this.effectiveWidth = this.width / this.scale;
-    this.effectiveHeight = this.height / this.scale;
-  }
-
-  setup(data) {
-    REQUIRED_DATA.forEach( d => {
-      if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
-    });
-    STAMPER.cloneId(this, data.id);
-    data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
-    data.items.forEach( o => this.addItem(o) );
-  }
-
-  update(container, data) {
-    const object = this[container].find( o => o.id === data.id );
-    if (object) object.assign(data);
-    else console.warn(`Unable to find in ${container}: id: `, data.id);
-  }
-
-  updateItem(data) {
-    this.update('items', data);
-  }
-
-  updateShadow(data) {
-    this.update('shadows', data);
-  }
-}
-
-module.exports = ClientView;
-
-
-},{"../shared.js":59,"./ClientItem.js":55,"./ShadowView.js":58}],57:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * The Interactor class provides a layer of abstraction between the
- * ClientController and the code that processes user inputs.
- */
-
-'use strict';
-
-// const Westures = require('../../../zingtouch');
-const Westures = require('../../../westures');
-const { getInitialValues, NOP } = require('../shared.js');
-
-/*
- * Currently, the Interactor makes use of the Westures library.
- *
- * General Design:
- *  The handlers will get called with the arguments that need to be reportd
- *  through to the server. This allows the ClientController to use this class
- *  in a very simple way. This is the contract between the Interactor and the
- *  ClientController, and must be honoured.
- *
- *  The handlers are initialized to NOPs so that the functions which call the
- *  handlers don't need to check whether the handler exists.
- *
- *  The methods of this class that are similarly named as the handlers are
- *  there as an intermediary to collect data from events and call the handlers
- *  with only the requisite data.
- */
-
-const HANDLERS = Object.freeze({ 
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-});
-
-class Interactor {
-  constructor(canvas, handlers = {}) {
-    this.canvas = canvas;
-    this.region = new Westures.Region(window, true, true);
-    this.handlers = getInitialValues(HANDLERS, handlers);
-    this.bindRegions();
-    window.addEventListener('wheel', this.wheel.bind(this), false);
-  }
-
-  bindRegions() {
-    /*
-     * this.region.bind() attaches a gesture recognizer and a callback to an
-     * element.
-     */
-    const pan     = this.pan.bind(this);
-    const tap     = this.tap.bind(this);
-    const pinch   = this.pinch.bind(this);
-    const rotate  = this.rotate.bind(this);
-    // const swipe   = this.swipe.bind(this);
-
-    this.region.bind(this.canvas, this.panner(), pan);
-    this.region.bind(this.canvas, this.tapper(), tap);
-    this.region.bind(this.canvas, this.pincher(), pinch);
-    this.region.bind(this.canvas, this.rotater(), rotate);
-    // this.region.bind(this.canvas, this.swiper(), swipe);
-  }
-
-  pan({ detail }) {
-    const { change, point } = detail;
-    this.handlers.pan( point.x, point.y, change.x, change.y);
-  }
-
-  panner() {
-    return new Westures.Pan();
-  }
-
-  pinch({ detail }) {
-    this.handlers.zoom(detail.change * 0.0025);
-  }
-
-  pincher() {
-    return new Westures.Pinch();
-  }
-
-  rotate({ detail }) {
-    this.handlers.rotate( detail.delta );
-  }
-
-  rotater() {
-    return new Westures.Rotate();
-  }
-
-  swipe({ detail }) {
-    const { acceleration, finalVelocity, finalPoint } = detail;
-    this.handlers.swipe(acceleration, finalVelocity, finalPoint);
-  }
-
-  swiper() {
-    return new Westures.Swipe();
-  }
-
-  tap({ detail }) {
-    this.handlers.tap( detail.x, detail.y );
-  }
-
-  tapper() {
-    return new Westures.Tap({ tolerance: 4 });
-  }
-
-  wheel(event) {
-    event.preventDefault();
-    const factor = event.ctrlKey ? 0.10 : 0.02;
-    this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
-  }
-}
-
-module.exports = Interactor;
-
-
-},{"../../../westures":74,"../shared.js":59}],58:[function(require,module,exports){
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- *
- * The ShadowView class exposes a simple draw() function which renders a
- * shadowy outline of the view onto the canvas.
- */
-
-/*
- * SOME NOTES ABOUT CANVAS RENDERING:
- *  - Avoid using shadows. They appear to kill the framerate.
- */
-
-'use strict';
-
-const { IdStamper, View } = require('../shared.js');
-
-const STAMPER = new IdStamper();
-const COLOURS = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
-
-const symbols = Object.freeze({
-  align:    Symbol('align'),
-  style:    Symbol('style'),
-  outline:  Symbol('outline'),
-  marker:   Symbol('marker'),
-});
-
-class ShadowView extends View {
-  constructor(values) {
-    super(values);
-    STAMPER.cloneId(this, values.id);
-  }
-
-  draw(context) {
-    /*
-     * WARNING: It is *crucial* that this series of instructions be wrapped in
-     * save() and restore().
-     */
-    context.save();
-    this[symbols.align]   (context);
-    this[symbols.style]   (context);
-    this[symbols.outline] (context);
-    this[symbols.marker]  (context);
-    context.restore();
-  }
-
-  [symbols.align](context) {
-    context.translate(this.x,this.y);
-    context.rotate((Math.PI * 2) - this.rotation);
-  }
-
-  [symbols.style](context) {
-    context.globalAlpha = 0.5;
-    context.strokeStyle = COLOURS[this.id % COLOURS.length];
-    context.fillStyle = context.strokeStyle;
-    context.lineWidth = 5;
-  }
-
-  [symbols.outline](context) {
-    context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
-  }
-
-  [symbols.marker](context) {
-    const base = context.lineWidth / 2;
-    const height = 25;
-
-    context.beginPath();
-    context.moveTo(base,base);
-    context.lineTo(base,height);
-    context.lineTo(height,base);
-    context.lineTo(base,base);
-    context.fill();
-  }
-}
-
-module.exports = ShadowView;
-
-
-},{"../shared.js":59}],59:[function(require,module,exports){
-/*
- * Utilities for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- *
- *  The below set of utilities and classes are intended for use by both the
- *  client and the server, in order to provide a common interface.
- */
-
-'use strict';
-
-const IdStamper = require('./shared/IdStamper.js');
-const Message   = require('./shared/Message.js');
-const Reporters = require('./shared/Reporters.js');
-const Utils     = require('./shared/util.js');
-
-/*
- * This object stores a set of core constants for use by both the client and
- *  the server.
- */
-const constants = Object.freeze({
-  // General constants
-  ROTATE_0:   0,
-  ROTATE_90:  Math.PI / 2,
-  ROTATE_180: Math.PI,
-  ROTATE_270: Math.PI * 1.5,
-
-  // Namespaces
-  NS_WAMS:  '/wams',
-});
-
-/*
- * Package up the module and freeze it for delivery.
- */
-module.exports = Object.freeze({
-  constants,
-  IdStamper,
-  Message,
-  ...Reporters,
-  ...Utils,
-});
-
-
-},{"./shared/IdStamper.js":60,"./shared/Message.js":61,"./shared/Reporters.js":63,"./shared/util.js":64}],60:[function(require,module,exports){
-/*
- * IdStamper utility for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- *
- * I wrote this generator class to make Id generation more controlled.
- * The class has access to a private (local lexical scope) generator 
- *  function and Symbol for generators, and exposes a pair of methods for
- *  stamping new Ids onto objects and cloning previously existing Ids onto
- *  objects.
- *
- * stampNewId(object):
- *  object:   The object to stamp with an id.
- *
- *  All Ids produced by this method are guaranteed to be unique, on a
- *  per-stamper basis. (Two uniquely constructed stampers can and will
- *  generate identical Ids).
- *
- * cloneId(object, id):
- *  object:   Will receive a cloned id.
- *  id:       The id to clone onto the object.
- *
- * For example:
- *    const stamper = new IdStamper();
- *    const obj = {};
- *    stamper.stampNewId(obj);
- *    console.log(obj.id);  // an integer unique to Ids stamped by stamper
- *    obj.id = 2;           // has no effect.
- *    delete obj.id;        // false
- *
- *    const danger = {};
- *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
- *                                     // now both using the same Id.
- */
-
-'use strict';
-
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
-
-function* id_gen() {
-  let next_id = 0;
-  while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
-}
-const gen = Symbol();
-
-class IdStamper {
-  constructor() {
-    this[gen] = id_gen();
-  }
-
-  stampNewId(obj) {
-    defineOwnImmutableEnumerableProperty(
-      obj, 
-      'id', 
-      this[gen].next().value
-    );
-  }
-
-  cloneId(obj, id) {
-    if (Number.isSafeInteger(id)) {
-      defineOwnImmutableEnumerableProperty(obj, 'id', id);
-    }
-  }
-}
-
-module.exports = IdStamper;
-
-
-},{"./util.js":64}],61:[function(require,module,exports){
-/*
- * Shared Message class for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
-'use strict';
-
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
-
-const TYPES = Object.freeze({ 
-  // For the server to inform about changes to the model
-  ADD_ITEM:   'wams-add-item',
-  ADD_SHADOW: 'wams-add-shadow',
-  RM_ITEM:    'wams-remove-item',
-  RM_SHADOW:  'wams-remove-shadow',
-  UD_ITEM:    'wams-update-item',
-  UD_SHADOW:  'wams-update-shadow',
-  UD_VIEW:    'wams-update-view',
-
-  // Connection establishment related (disconnect, initial setup)
-  INITIALIZE: 'wams-initialize',
-  LAYOUT:     'wams-layout',
-  FULL:       'wams-full',
-
-  // User event related
-  CLICK:      'wams-click',
-  DRAG:       'wams-drag',
-  RESIZE:     'wams-resize',
-  ROTATE:     'wams-rotate',
-  SCALE:      'wams-scale',
-  SWIPE:      'wams-swipe',
-
-  // Page event related
-  IMG_LOAD:   'wams-image-loaded',
-});
-
-const TYPE_VALUES = Object.freeze(Object.values(TYPES));
-
-class Message {
-  constructor(type, reporter) {
-    if (!TYPE_VALUES.includes(type)) {
-      throw 'Invalid message type!';
-    }
-    this.type = type;
-    this.reporter = reporter;
-  }
-
-  emitWith(emitter) {
-    // console.log('emitting:', this.type, this.reporter.report());
-    emitter.emit(this.type, this.reporter.report());
-  }
-}
-
-Object.entries(TYPES).forEach( ([p,v]) => {
-  defineOwnImmutableEnumerableProperty( Message, p, v );
-});
-
-module.exports = Message;
-
-
-},{"./util.js":64}],62:[function(require,module,exports){
-/*
- * Builds Reporter classes for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
-'use strict';
-
-const IdStamper = require('./IdStamper.js');
-const { 
-  defineOwnImmutableEnumerableProperty,
-  getInitialValues,
-} = require('./util.js');
-
-const STAMPER = new IdStamper();
-
-/*
- * This factory can generate the basic classes that need to communicate
- *  property values between the client and server.
- */
-function ReporterFactory(coreProperties) {
-  const KEYS = Object.freeze(Array.from(coreProperties));
-
-  const INITIALIZER = {};
-  coreProperties.forEach( p => {
-    defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
-  });
-  Object.freeze(INITIALIZER);
-
-  class Reporter {
-    constructor(data) {
-      return this.assign(getInitialValues(INITIALIZER, data));
-    }
-
-    assign(data = {}) {
-      KEYS.forEach( p => { 
-        if (data.hasOwnProperty(p)) this[p] = data[p]; 
-      });
-    }
-
-    report() {
-      const data = {};
-      KEYS.forEach( p => data[p] = this[p] );
-      STAMPER.cloneId(data, this.id);
-      return data; 
-    }
-  }
-
-  return Reporter;
-}
-
-module.exports = ReporterFactory;
-
-
-},{"./IdStamper.js":60,"./util.js":64}],63:[function(require,module,exports){
-/*
- * Reporters for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
-'use strict';
-
-const ReporterFactory = require('./ReporterFactory.js');
-
-/*
- * This Item class provides a common interface between the client and 
- * the server by which the Items can interact safely.
- */
-const Item = ReporterFactory([
-  'x',
-  'y',
-  'width',
-  'height',
-  'type',
-  'imgsrc',
-  'blueprint',
-]);
-
-/*
- * This View class provides a common interface between the client and 
- * the server by which the Views can interact safely.
- */
-const View = ReporterFactory([
-  'x',
-  'y',
-  'width',
-  'height',
-  'type',
-  'effectiveWidth',
-  'effectiveHeight',
-  'scale',
-  'rotation',
-]);
-
-/*
- * This class is intended for sharing mouse action data between client and
- * server.
- */
-const MouseReporter = ReporterFactory([
-  'x',
-  'y',
-  'dx',
-  'dy',
-]);
-
-/*
- * This class allows reporting of scale data between client and server.
- */
-const ScaleReporter = ReporterFactory([
-  'scale',
-]);
-
-/*
- * This class allows reporting of rotation data between client and server.
- */
-const RotateReporter = ReporterFactory([
-  'radians',
-]);
-
-/*
- * This class allows reporting of swipe data between client and server.
- */
-const SwipeReporter = ReporterFactory([
-  'acceleration',
-  'velocity',
-  'x',
-  'y',
-]);
-
-/*
- * This class allows reporting of the full state of the model, for bringing
- * new clients up to speed (or potentially also for recovering a client, if
- * need be).
- */
-const FullStateReporter = ReporterFactory([
-  'views',
-  'items',
-  'color',
-  'id',
-]);
-
-module.exports = {
-  Item,
-  View,
-  MouseReporter,
-  ScaleReporter,
-  RotateReporter,
-  FullStateReporter,
-};
-
-
-},{"./ReporterFactory.js":62}],64:[function(require,module,exports){
-/*
- * Defines a set of general utilities for use across the project.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
-'use strict';
-
-/*
- * Defines the given property on the given object with the given value, and sets
- * the property to unconfigurable, unwritable, but enumerable.
- */
-function defineOwnImmutableEnumerableProperty(obj, prop, val) {
-  Object.defineProperty(obj, prop, {
-    value: val,
-    configurable: false,
-    enumerable: true,
-    writable: false
-  });
-}
-
-/*
- * Find the last value in an Array for which the supplied callback function
- *  returns true. Operates on each index in the Array, starting at 'fromIndex'
- *  and going backwards to the start of the Array or until the desired value 
- *  is found.
- *
- * Returns the value that passed the callback, if found or null.
- *
- * Callback function should be of similar form to the Array.findIndex()
- *  standard library function.
- */
-function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
-  while (fromIndex >= 0 &&
-    !callback.call(thisArg, array[fromIndex], fromIndex, array)) {
-    --fromIndex;
-  }
-  return fromIndex >= 0 ? array[fromIndex] : null;
-}
-
-/*
- * Returns a new object, with all the own properties of 'defaults' having
- *  values from 'data', if found, otherwise with values from 'defaults'.
- */
-function getInitialValues(defaults = {}, data = {}) {
-  const rv = {};
-  Object.keys(defaults).forEach( k => {
-    rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
-  });
-  return rv;
-}
-
-/*
- * This method will set an already-existing property on an object to be 
- *  immutable. In other words, it will configure it as such:
- *
- *    configurable: false
- *    writable: false
- *
- * It will have no effect on non-configurable properties, and will turn an 
- *  accessor descriptor  a data descriptor. (I.e. if the property is 
- *  defined with getters and setters, they will be lost).  
- *
- * It will have no effect on properties that do not exist directly on the
- *  Object (properties further up the prototype chain are not affected).
- *
- * It will affect both enumerable and non-enumerable properties.
- *
- * This method is intended for use when the only reason for a call to
- *  Object.defineProperty() was to make the property immutable.
- *
- * Returns the modified object.
- */
-function makeOwnPropertyImmutable(obj, prop) {
-  const desc = Object.getOwnPropertyDescriptor(obj, prop);
-  if (desc && desc.configurable) {
-    Object.defineProperty(obj, prop, {
-      configurable: false,
-      writable: false
-    });
-  }
-  return obj;
-}
-
-/*
- * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
- */
-const NOP = () => {};
-
-/*
- * Removes the given item from the given array, according to its Id.
- */
-function removeById(array, item) {
-  const idx = array.findIndex( o => o.id === item.id );
-  if (idx >= 0) {
-    array.splice(idx, 1);
-    return true;
-  }
-  return false;
-}
-
-/*
- * Removes the given item of the given class (enforced by throwing an
- * exception if not an instance) from the given array.
- */
-function safeRemoveById(array, item, class_fn) {
-  if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
-  return removeById(array, item);
-}
-
-module.exports = Object.freeze({
-  defineOwnImmutableEnumerableProperty,
-  findLast,
-  getInitialValues,
-  makeOwnPropertyImmutable,
-  NOP,
-  removeById,
-  safeRemoveById,
-});
-
-
-},{}],65:[function(require,module,exports){
 /**
  * @file index.js
  * Main object containing API methods and Gesture constructors
@@ -9903,7 +8717,7 @@ module.exports = {
 };
 
 
-},{"./src/Gesture.js":67,"./src/Point2D.js":70,"./src/Region.js":72}],66:[function(require,module,exports){
+},{"./src/Gesture.js":54,"./src/Point2D.js":57,"./src/Region.js":59}],53:[function(require,module,exports){
 /**
  * @file Binding.js
  */
@@ -10001,7 +8815,7 @@ class Binding {
 module.exports = Binding;
 
 
-},{}],67:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 /**
  * @file Gesture.js
  * Contains the Gesture class
@@ -10073,7 +8887,7 @@ class Gesture {
 module.exports = Gesture;
 
 
-},{}],68:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /**
  * @file Input.js
  */
@@ -10243,7 +9057,7 @@ class Input {
 module.exports = Input;
 
 
-},{"./PointerData.js":71}],69:[function(require,module,exports){
+},{"./PointerData.js":58}],56:[function(require,module,exports){
 /**
  * @file PHASE.js
  */
@@ -10274,7 +9088,7 @@ const PHASE = Object.freeze({
 module.exports = PHASE;
 
 
-},{}],70:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 /**
  * @File Point2D.js
  *
@@ -10468,7 +9282,7 @@ Point2D.sum = function(points = []) {
 module.exports = Point2D;
 
 
-},{}],71:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /**
  * @file PointerData.js
  * Contains logic for PointerDatas
@@ -10641,7 +9455,7 @@ function getPropagationPath(event) {
 module.exports = PointerData;
 
 
-},{"./PHASE.js":69,"./Point2D.js":70}],72:[function(require,module,exports){
+},{"./PHASE.js":56,"./Point2D.js":57}],59:[function(require,module,exports){
 /**
  * @file Region.js
  */
@@ -10840,7 +9654,7 @@ class Region {
 module.exports = Region;
 
 
-},{"./Binding.js":66,"./PHASE.js":69,"./State.js":73}],73:[function(require,module,exports){
+},{"./Binding.js":53,"./PHASE.js":56,"./State.js":60}],60:[function(require,module,exports){
 /**
  * @file State.js
  */
@@ -10972,13 +9786,13 @@ function getMouseButtons(event) {
 module.exports = State;
 
 
-},{"./Input.js":68,"./PHASE.js":69}],74:[function(require,module,exports){
+},{"./Input.js":55,"./PHASE.js":56}],61:[function(require,module,exports){
 /**
  * @file Westures.js
  * Main object containing API methods and Gesture constructors
  */
 
-const Core    = require('../westures-core');
+const Core    = require('westures-core');
 const Pan     = require('./src/Pan.js');
 const Pinch   = require('./src/Pinch.js');
 const Rotate  = require('./src/Rotate.js');
@@ -11003,13 +9817,13 @@ module.exports = Object.assign({},
 );
 
 
-},{"../westures-core":65,"./src/Pan.js":75,"./src/Pinch.js":76,"./src/Rotate.js":77,"./src/Swipe.js":78,"./src/Tap.js":79}],75:[function(require,module,exports){
+},{"./src/Pan.js":62,"./src/Pinch.js":63,"./src/Rotate.js":64,"./src/Swipe.js":65,"./src/Tap.js":66,"westures-core":52}],62:[function(require,module,exports){
 /**
  * @file Pan.js
  * Contains the Pan class
  */
 
-const { Gesture } = require('../../westures-core');
+const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
 const DEFAULT_MIN_THRESHOLD = 1;
@@ -11099,15 +9913,15 @@ class Pan extends Gesture {
 module.exports = Pan;
 
 
-},{"../../westures-core":65}],76:[function(require,module,exports){
+},{"westures-core":52}],63:[function(require,module,exports){
 /**
  * @file Pinch.js
  * Contains the abstract Pinch class
  */
 
-const { Gesture, Point2D } = require('../../westures-core');
+const { Gesture, Point2D } = require('westures-core');
 
-const REQUIRED_INPUTS = 2;
+const DEFAULT_MIN_INPUTS = 2;
 const DEFAULT_MIN_THRESHOLD = 1;
 
 /**
@@ -11130,6 +9944,14 @@ class Pinch extends Gesture {
      * @type {Number}
      */
     this.threshold = options.threshold || DEFAULT_MIN_THRESHOLD;
+
+    /**
+     * The minimum number of inputs that must be active for a Pinch to be
+     * recognized.
+     *
+     * @type {Number}
+     */
+    this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
   }
 
   /**
@@ -11140,7 +9962,7 @@ class Pinch extends Gesture {
    */
   initializeProgress(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length < REQUIRED_INPUTS) return null;
+    if (active.length < this.minInputs) return null;
 
     const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
 
@@ -11169,7 +9991,7 @@ class Pinch extends Gesture {
    */
   move(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length < REQUIRED_INPUTS) return null;
+    if (active.length < this.minInputs) return null;
 
     const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
 
@@ -11215,13 +10037,13 @@ function getMidpointAndAverageDistance(inputs) {
 module.exports = Pinch;
 
 
-},{"../../westures-core":65}],77:[function(require,module,exports){
+},{"westures-core":52}],64:[function(require,module,exports){
 /**
  * @file Rotate.js
  * Contains the Rotate class
  */
 
-const { Gesture } = require('../../westures-core');
+const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 2;
 
@@ -11319,13 +10141,13 @@ class Rotate extends Gesture {
 module.exports = Rotate;
 
 
-},{"../../westures-core":65}],78:[function(require,module,exports){
+},{"westures-core":52}],65:[function(require,module,exports){
 /**
  * @file Swipe.js
  * Contains the Swipe class
  */
 
-const { Gesture } = require('../../westures-core');
+const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
 const DEFAULT_MAX_REST_TIME = 100;
@@ -11472,13 +10294,13 @@ function velocity(minit, mend) {
 module.exports = Swipe;
 
 
-},{"../../westures-core":65}],79:[function(require,module,exports){
+},{"westures-core":52}],66:[function(require,module,exports){
 /**
  * @file Tap.js
  * Contains the Tap class
  */
 
-const { Gesture, Point2D } = require('../../westures-core');
+const { Gesture, Point2D } = require('westures-core');
 
 const DEFAULT_MIN_DELAY_MS = 0;
 const DEFAULT_MAX_DELAY_MS = 300;
@@ -11585,5 +10407,1192 @@ class Tap extends Gesture {
 module.exports = Tap;
 
 
-},{"../../westures-core":65}]},{},[53])(53)
+},{"westures-core":52}],67:[function(require,module,exports){
+'use strict';
+
+var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
+  , length = 64
+  , map = {}
+  , seed = 0
+  , i = 0
+  , prev;
+
+/**
+ * Return a string representing the specified number.
+ *
+ * @param {Number} num The number to convert.
+ * @returns {String} The string representation of the number.
+ * @api public
+ */
+function encode(num) {
+  var encoded = '';
+
+  do {
+    encoded = alphabet[num % length] + encoded;
+    num = Math.floor(num / length);
+  } while (num > 0);
+
+  return encoded;
+}
+
+/**
+ * Return the integer value specified by the given string.
+ *
+ * @param {String} str The string to convert.
+ * @returns {Number} The integer value represented by the string.
+ * @api public
+ */
+function decode(str) {
+  var decoded = 0;
+
+  for (i = 0; i < str.length; i++) {
+    decoded = decoded * length + map[str.charAt(i)];
+  }
+
+  return decoded;
+}
+
+/**
+ * Yeast: A tiny growing id generator.
+ *
+ * @returns {String} A unique id.
+ * @api public
+ */
+function yeast() {
+  var now = encode(+new Date());
+
+  if (now !== prev) return seed = 0, prev = now;
+  return now +'.'+ encode(seed++);
+}
+
+//
+// Map each character to its index.
+//
+for (; i < length; i++) map[alphabet[i]] = i;
+
+//
+// Expose the `yeast`, `encode` and `decode` functions.
+//
+yeast.encode = encode;
+yeast.decode = decode;
+module.exports = yeast;
+
+},{}],68:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * This file defines the entry point for the client side of a WAMS application.
+ */
+
+'use strict';
+
+const ClientController = require('./client/ClientController.js');
+
+window.addEventListener(
+  'load', 
+  function run() {
+    new ClientController(document.querySelector('canvas'));
+  },
+  {
+    capture: false,
+    once: true,
+    passive: true,
+  }
+);
+
+
+},{"./client/ClientController.js":69}],69:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * The ClientController coordinates communication with the wams server. It sends
+ * messages based on user interaction with the canvas and receives messages from
+ * the server detailing changes to post to the view. This is essentially the
+ * controller in an MVC-esque design.
+ */
+
+'use strict';
+
+const io = require('socket.io-client');
+const { 
+  constants: globals, 
+  IdStamper, 
+  Message, 
+  MouseReporter,
+  NOP,
+  RotateReporter,
+  ScaleReporter,
+} = require('../shared.js');
+const ClientView = require('./ClientView.js');
+const Interactor = require('./Interactor.js');
+
+const STAMPER = new IdStamper();
+
+const symbols = Object.freeze({
+  attachListeners: Symbol('attachListeners'),
+  establishSocket: Symbol('establishSocket'),
+});
+
+class ClientController { 
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.socket = null;
+    this.view = new ClientView({ context: this.canvas.getContext('2d') });
+    this.interactor = new Interactor(this.canvas, {
+      pan:    this.pan.bind(this),
+      rotate: this.rotate.bind(this),
+      swipe:  this.swipe.bind(this),
+      tap:    this.tap.bind(this),
+      zoom:   this.zoom.bind(this),
+    });
+
+    this.resizeCanvasToFillWindow();
+    window.addEventListener('resize', this.resize.bind(this), false);
+    this[symbols.establishSocket]();
+  }
+
+  [symbols.attachListeners]() {
+    const listeners = {
+      // For the server to inform about changes to the model
+      [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
+      [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
+      [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
+      [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
+      [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
+      [Message.UD_VIEW]:    (...args) => this.handle('assign', ...args),
+
+      // Connection establishment related (disconnect, initial setup)
+      [Message.INITIALIZE]: (...args) => this.setup(...args),
+      [Message.LAYOUT]:     NOP,
+
+      // User event related
+      [Message.CLICK]:  NOP,
+      [Message.DRAG]:   NOP,
+      [Message.RESIZE]: NOP,
+      [Message.ROTATE]: NOP,
+      [Message.SCALE]:  NOP,
+      [Message.SWIPE]:  NOP,
+
+      /*
+       * TODO: This could be more... elegant...
+       */
+      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
+    };
+
+    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+  }
+
+  [symbols.establishSocket]() {
+    this.socket = io.connect( globals.NS_WAMS, {
+      autoConnect: false,
+      reconnection: false,
+    });
+    this[symbols.attachListeners]();
+    this.socket.connect();
+  }
+
+  handle(message, ...args) {
+    this.view.handle(message, ...args);
+  }
+
+  pan(x, y, dx, dy) {
+    const mreport = new MouseReporter({ x, y, dx, dy });
+    new Message(Message.DRAG, mreport).emitWith(this.socket);
+  }
+
+  resize() {
+    this.resizeCanvasToFillWindow();
+    new Message(Message.RESIZE, this.view).emitWith(this.socket);
+  }
+
+  resizeCanvasToFillWindow() {
+    this.canvas.width = window.innerWidth; 
+    this.canvas.height = window.innerHeight;
+    this.handle('resizeToFillWindow');
+  }
+
+  setup(data) {
+    STAMPER.cloneId(this, data.id);
+    this.canvas.style.backgroundColor = data.color;
+    this.handle('setup', data);
+    new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+
+  rotate(radians) {
+    const rreport = new RotateReporter({ radians });
+    new Message(Message.ROTATE, rreport).emitWith(this.socket);
+  }
+
+  swipe(acceleration, velocity, {x,y}) {
+    const sreport = new SwipeReporter({ acceleration, velocity, x, y });
+    new Message(Message.SWIPE, sreport).emitWith(this.socket);
+  }
+
+  tap(x, y) {
+    const mreport = new MouseReporter({ x, y });
+    new Message(Message.CLICK, mreport).emitWith(this.socket);
+  }
+
+  zoom(diff) {
+    const scale = this.view.scale + diff;
+    const sreport = new ScaleReporter({ scale });
+    new Message(Message.SCALE, sreport).emitWith(this.socket);
+  }
+}
+
+module.exports = ClientController;
+
+
+},{"../shared.js":74,"./ClientView.js":71,"./Interactor.js":72,"socket.io-client":39}],70:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * The ClientItem class exposes the draw() funcitonality of wams items.
+ */
+
+'use strict';
+
+const { IdStamper, Item, Message } = require('../shared.js');
+const { CanvasBlueprint } = require('canvas-sequencer');
+
+/*
+ * I'm not defining a 'defaults' object here, because the data going into
+ * the creation of items should always come from the server, where it has
+ * already gone through an initialization against a defaults object.
+ */
+const STAMPER = new IdStamper();
+
+function createImage(src) {
+  if (src) {
+    const img = new Image();
+    img.src = src;
+    img.loaded = false;
+    img.addEventListener(
+      'load',
+      () => {
+        img.loaded = true;
+        document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
+      },
+      { once: true }
+    );
+    return img;
+  }
+  return null;
+}
+
+class ClientItem extends Item {
+  constructor(data) {
+    super(data);
+    STAMPER.cloneId(this, data.id);
+  }
+
+  assign(data) {
+    const updateImage = data.imgsrc !== this.imgsrc;
+    const updateBlueprint = Boolean(data.blueprint);
+
+    super.assign(data);
+    if (updateImage) this.img = createImage(this.imgsrc);
+    if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
+
+    // Rather than doing a bunch of checks, let's just always rebuild the
+    // sequence when updating any data in the item. Doing the checks to see if
+    // this is necessary would probably take as much or more time as just
+    // going ahead and rebuilding like this anyway.
+    if (this.blueprint) {
+      this.sequence = this.blueprint.build(this.report());
+    }
+  }
+
+  draw(context) {
+    const width = this.width || this.img.width;
+    const height = this.height || this.img.height;
+
+    if (this.sequence) {
+      this.sequence.execute(context);
+    } else if (this.img && this.img.loaded) {
+      context.drawImage(this.img, this.x, this.y, width, height);
+    } else {
+      // Draw placeholder rectangle.
+      context.save();
+      context.fillStyle = '#252525';
+      context.fillRect(this.x, this.y, width, height);
+      context.restore();
+    }
+  }
+}
+
+module.exports = ClientItem;
+
+
+},{"../shared.js":74,"canvas-sequencer":9}],71:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * The ClientView class is used for all rendering activities on the client
+ * side. This is essentially the view in an MVC-esque design.
+ */
+
+'use strict';
+
+const ClientItem = require('./ClientItem.js');
+const ShadowView = require('./ShadowView.js');
+const { 
+  constants: globals,
+  getInitialValues, 
+  removeById,
+  IdStamper, 
+  Message,
+  View,
+} = require('../shared.js');
+
+const DEFAULTS = Object.freeze({
+  x: 0,
+  y: 0,
+  rotation: globals.ROTATE_0,
+  scale: 1,
+  type: 'view/background',
+});
+
+const STATUS_KEYS = Object.freeze([
+  'x',
+  'y',
+  'width',
+  'height',
+  'effectiveWidth',
+  'effectiveHeight',
+  'rotation',
+  'scale',
+]);
+
+const REQUIRED_DATA = Object.freeze([
+  'id',
+  'items',
+  'views',
+]);
+
+const STAMPER = new IdStamper();
+
+const symbols = Object.freeze({
+  align:        Symbol('align'),
+  drawItems:    Symbol('drawItems'),
+  drawShadows:  Symbol('drawShadows'),
+  drawStatus:   Symbol('drawStatus'),
+  wipe:         Symbol('wipe'),
+});
+
+class ClientView extends View {
+  constructor(values = {}) {
+    super(getInitialValues(DEFAULTS, values));
+
+    if (values.context) this.context = values.context;
+    else throw 'ClientView requires a CanvasRenderingContext2D!';
+
+    this.items = [];
+    this.shadows = [];
+    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
+  }
+
+  [symbols.align]() {
+    /*
+     * WARNING: It is crucially important that the instructions below occur
+     * in *precisely* this order!
+     */
+    this.context.scale(this.scale, this.scale);
+    this.context.rotate(this.rotation);
+    this.context.translate(-this.x, -this.y);
+  }
+  
+  [symbols.drawItems]() {
+    this.items.forEach( o => o.draw(this.context) );
+  }
+
+  [symbols.drawShadows]() {
+    this.shadows.forEach( v => v.draw(this.context) );
+  }
+
+  [symbols.drawStatus]() {
+    const messages = STATUS_KEYS
+      .map( k => `${k}: ${this[k].toFixed(2)}` )
+      .concat([`# of Shadows: ${this.shadows.length}`]);
+    let ty = 40;
+    let tx = 20;
+    this.context.save();
+    this.context.setTransform(1,0,0,1,0,0);
+    this.context.font = '18px Georgia';
+    messages.forEach( m => {
+      this.context.fillText(m, tx, ty);
+      ty += 20;
+    });
+    this.context.restore();
+  }
+
+  [symbols.wipe]() {
+    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  }
+
+  addItem(values) {
+    this.items.push(new ClientItem(values));
+  }
+
+  addShadow(values) {
+    this.shadows.push(new ShadowView(values));
+  }
+
+  draw() {
+    this.context.save();
+    this[symbols.wipe]();
+    this[symbols.align]();
+    this[symbols.drawItems]();
+    this[symbols.drawShadows]();
+    this[symbols.drawStatus]();
+    this.context.restore();
+  }
+
+  handle(message, ...args) {
+    this[message](...args);
+    this.draw();
+  }
+
+  removeItem(item) {
+    return removeById( this.items, item );
+  }
+
+  removeShadow(shadow) {
+    return removeById( this.shadows, shadow );
+  }
+
+  resizeToFillWindow() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.effectiveWidth = this.width / this.scale;
+    this.effectiveHeight = this.height / this.scale;
+  }
+
+  setup(data) {
+    REQUIRED_DATA.forEach( d => {
+      if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
+    });
+    STAMPER.cloneId(this, data.id);
+    data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
+    data.items.forEach( o => this.addItem(o) );
+  }
+
+  update(container, data) {
+    const object = this[container].find( o => o.id === data.id );
+    if (object) object.assign(data);
+    else console.warn(`Unable to find in ${container}: id: `, data.id);
+  }
+
+  updateItem(data) {
+    this.update('items', data);
+  }
+
+  updateShadow(data) {
+    this.update('shadows', data);
+  }
+}
+
+module.exports = ClientView;
+
+
+},{"../shared.js":74,"./ClientItem.js":70,"./ShadowView.js":73}],72:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * The Interactor class provides a layer of abstraction between the
+ * ClientController and the code that processes user inputs.
+ */
+
+'use strict';
+
+// const Westures = require('../../../zingtouch');
+// const Westures = require('../../../westures');
+const Westures = require('westures');
+const { getInitialValues, NOP } = require('../shared.js');
+
+/*
+ * Currently, the Interactor makes use of the Westures library.
+ *
+ * General Design:
+ *  The handlers will get called with the arguments that need to be reportd
+ *  through to the server. This allows the ClientController to use this class
+ *  in a very simple way. This is the contract between the Interactor and the
+ *  ClientController, and must be honoured.
+ *
+ *  The handlers are initialized to NOPs so that the functions which call the
+ *  handlers don't need to check whether the handler exists.
+ *
+ *  The methods of this class that are similarly named as the handlers are
+ *  there as an intermediary to collect data from events and call the handlers
+ *  with only the requisite data.
+ */
+
+const HANDLERS = Object.freeze({ 
+  pan:    NOP,
+  rotate: NOP,
+  swipe:  NOP,
+  tap:    NOP,
+  zoom:   NOP,
+});
+
+class Interactor {
+  constructor(canvas, handlers = {}) {
+    this.canvas = canvas;
+    this.region = new Westures.Region(window, true, true);
+    this.handlers = getInitialValues(HANDLERS, handlers);
+    this.bindRegions();
+    window.addEventListener('wheel', this.wheel.bind(this), false);
+  }
+
+  bindRegions() {
+    /*
+     * this.region.bind() attaches a gesture recognizer and a callback to an
+     * element.
+     */
+    const pan     = this.pan.bind(this);
+    const tap     = this.tap.bind(this);
+    const pinch   = this.pinch.bind(this);
+    const rotate  = this.rotate.bind(this);
+    // const swipe   = this.swipe.bind(this);
+
+    this.region.bind(this.canvas, this.panner(), pan);
+    this.region.bind(this.canvas, this.tapper(), tap);
+    this.region.bind(this.canvas, this.pincher(), pinch);
+    this.region.bind(this.canvas, this.rotater(), rotate);
+    // this.region.bind(this.canvas, this.swiper(), swipe);
+  }
+
+  pan({ detail }) {
+    const { change, point } = detail;
+    this.handlers.pan( point.x, point.y, change.x, change.y);
+  }
+
+  panner() {
+    return new Westures.Pan();
+  }
+
+  pinch({ detail }) {
+    this.handlers.zoom(detail.change * 0.0025);
+  }
+
+  pincher() {
+    return new Westures.Pinch({minInputs: 3});
+  }
+
+  rotate({ detail }) {
+    this.handlers.rotate( detail.delta );
+  }
+
+  rotater() {
+    return new Westures.Rotate();
+  }
+
+  swipe({ detail }) {
+    const { acceleration, finalVelocity, finalPoint } = detail;
+    this.handlers.swipe(acceleration, finalVelocity, finalPoint);
+  }
+
+  swiper() {
+    return new Westures.Swipe();
+  }
+
+  tap({ detail }) {
+    this.handlers.tap( detail.x, detail.y );
+  }
+
+  tapper() {
+    return new Westures.Tap({ tolerance: 4 });
+  }
+
+  wheel(event) {
+    event.preventDefault();
+    const factor = event.ctrlKey ? 0.10 : 0.02;
+    this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
+  }
+}
+
+module.exports = Interactor;
+
+
+},{"../shared.js":74,"westures":61}],73:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ *
+ * The ShadowView class exposes a simple draw() function which renders a
+ * shadowy outline of the view onto the canvas.
+ */
+
+/*
+ * SOME NOTES ABOUT CANVAS RENDERING:
+ *  - Avoid using shadows. They appear to kill the framerate.
+ */
+
+'use strict';
+
+const { IdStamper, View } = require('../shared.js');
+
+const STAMPER = new IdStamper();
+const COLOURS = [
+  'saddlebrown',
+  'red',
+  'blue',
+  'darkgreen',
+  'orangered',
+  'purple',
+  'aqua',
+  'lime',
+];
+
+const symbols = Object.freeze({
+  align:    Symbol('align'),
+  style:    Symbol('style'),
+  outline:  Symbol('outline'),
+  marker:   Symbol('marker'),
+});
+
+class ShadowView extends View {
+  constructor(values) {
+    super(values);
+    STAMPER.cloneId(this, values.id);
+  }
+
+  draw(context) {
+    /*
+     * WARNING: It is *crucial* that this series of instructions be wrapped in
+     * save() and restore().
+     */
+    context.save();
+    this[symbols.align]   (context);
+    this[symbols.style]   (context);
+    this[symbols.outline] (context);
+    this[symbols.marker]  (context);
+    context.restore();
+  }
+
+  [symbols.align](context) {
+    context.translate(this.x,this.y);
+    context.rotate((Math.PI * 2) - this.rotation);
+  }
+
+  [symbols.style](context) {
+    context.globalAlpha = 0.5;
+    context.strokeStyle = COLOURS[this.id % COLOURS.length];
+    context.fillStyle = context.strokeStyle;
+    context.lineWidth = 5;
+  }
+
+  [symbols.outline](context) {
+    context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+  }
+
+  [symbols.marker](context) {
+    const base = context.lineWidth / 2;
+    const height = 25;
+
+    context.beginPath();
+    context.moveTo(base,base);
+    context.lineTo(base,height);
+    context.lineTo(height,base);
+    context.lineTo(base,base);
+    context.fill();
+  }
+}
+
+module.exports = ShadowView;
+
+
+},{"../shared.js":74}],74:[function(require,module,exports){
+/*
+ * Utilities for the WAMS application.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ *
+ *  The below set of utilities and classes are intended for use by both the
+ *  client and the server, in order to provide a common interface.
+ */
+
+'use strict';
+
+const IdStamper = require('./shared/IdStamper.js');
+const Message   = require('./shared/Message.js');
+const Reporters = require('./shared/Reporters.js');
+const Utils     = require('./shared/util.js');
+
+/*
+ * This object stores a set of core constants for use by both the client and
+ *  the server.
+ */
+const constants = Object.freeze({
+  // General constants
+  ROTATE_0:   0,
+  ROTATE_90:  Math.PI / 2,
+  ROTATE_180: Math.PI,
+  ROTATE_270: Math.PI * 1.5,
+
+  // Namespaces
+  NS_WAMS:  '/wams',
+});
+
+/*
+ * Package up the module and freeze it for delivery.
+ */
+module.exports = Object.freeze({
+  constants,
+  IdStamper,
+  Message,
+  ...Reporters,
+  ...Utils,
+});
+
+
+},{"./shared/IdStamper.js":75,"./shared/Message.js":76,"./shared/Reporters.js":78,"./shared/util.js":79}],75:[function(require,module,exports){
+/*
+ * IdStamper utility for the WAMS application.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ *
+ * I wrote this generator class to make Id generation more controlled.
+ * The class has access to a private (local lexical scope) generator 
+ *  function and Symbol for generators, and exposes a pair of methods for
+ *  stamping new Ids onto objects and cloning previously existing Ids onto
+ *  objects.
+ *
+ * stampNewId(object):
+ *  object:   The object to stamp with an id.
+ *
+ *  All Ids produced by this method are guaranteed to be unique, on a
+ *  per-stamper basis. (Two uniquely constructed stampers can and will
+ *  generate identical Ids).
+ *
+ * cloneId(object, id):
+ *  object:   Will receive a cloned id.
+ *  id:       The id to clone onto the object.
+ *
+ * For example:
+ *    const stamper = new IdStamper();
+ *    const obj = {};
+ *    stamper.stampNewId(obj);
+ *    console.log(obj.id);  // an integer unique to Ids stamped by stamper
+ *    obj.id = 2;           // has no effect.
+ *    delete obj.id;        // false
+ *
+ *    const danger = {};
+ *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+ *                                     // now both using the same Id.
+ */
+
+'use strict';
+
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+
+function* id_gen() {
+  let next_id = 0;
+  while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
+}
+const gen = Symbol();
+
+class IdStamper {
+  constructor() {
+    this[gen] = id_gen();
+  }
+
+  stampNewId(obj) {
+    defineOwnImmutableEnumerableProperty(
+      obj, 
+      'id', 
+      this[gen].next().value
+    );
+  }
+
+  cloneId(obj, id) {
+    if (Number.isSafeInteger(id)) {
+      defineOwnImmutableEnumerableProperty(obj, 'id', id);
+    }
+  }
+}
+
+module.exports = IdStamper;
+
+
+},{"./util.js":79}],76:[function(require,module,exports){
+/*
+ * Shared Message class for the WAMS application.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ */
+
+'use strict';
+
+const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+
+const TYPES = Object.freeze({ 
+  // For the server to inform about changes to the model
+  ADD_ITEM:   'wams-add-item',
+  ADD_SHADOW: 'wams-add-shadow',
+  RM_ITEM:    'wams-remove-item',
+  RM_SHADOW:  'wams-remove-shadow',
+  UD_ITEM:    'wams-update-item',
+  UD_SHADOW:  'wams-update-shadow',
+  UD_VIEW:    'wams-update-view',
+
+  // Connection establishment related (disconnect, initial setup)
+  INITIALIZE: 'wams-initialize',
+  LAYOUT:     'wams-layout',
+  FULL:       'wams-full',
+
+  // User event related
+  CLICK:      'wams-click',
+  DRAG:       'wams-drag',
+  RESIZE:     'wams-resize',
+  ROTATE:     'wams-rotate',
+  SCALE:      'wams-scale',
+  SWIPE:      'wams-swipe',
+
+  // Page event related
+  IMG_LOAD:   'wams-image-loaded',
+});
+
+const TYPE_VALUES = Object.freeze(Object.values(TYPES));
+
+class Message {
+  constructor(type, reporter) {
+    if (!TYPE_VALUES.includes(type)) {
+      throw 'Invalid message type!';
+    }
+    this.type = type;
+    this.reporter = reporter;
+  }
+
+  emitWith(emitter) {
+    // console.log('emitting:', this.type, this.reporter.report());
+    emitter.emit(this.type, this.reporter.report());
+  }
+}
+
+Object.entries(TYPES).forEach( ([p,v]) => {
+  defineOwnImmutableEnumerableProperty( Message, p, v );
+});
+
+module.exports = Message;
+
+
+},{"./util.js":79}],77:[function(require,module,exports){
+/*
+ * Builds Reporter classes for the WAMS application.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ */
+
+'use strict';
+
+const IdStamper = require('./IdStamper.js');
+const { 
+  defineOwnImmutableEnumerableProperty,
+  getInitialValues,
+} = require('./util.js');
+
+const STAMPER = new IdStamper();
+
+/*
+ * This factory can generate the basic classes that need to communicate
+ *  property values between the client and server.
+ */
+function ReporterFactory(coreProperties) {
+  const KEYS = Object.freeze(Array.from(coreProperties));
+
+  const INITIALIZER = {};
+  coreProperties.forEach( p => {
+    defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
+  });
+  Object.freeze(INITIALIZER);
+
+  class Reporter {
+    constructor(data) {
+      return this.assign(getInitialValues(INITIALIZER, data));
+    }
+
+    assign(data = {}) {
+      KEYS.forEach( p => { 
+        if (data.hasOwnProperty(p)) this[p] = data[p]; 
+      });
+    }
+
+    report() {
+      const data = {};
+      KEYS.forEach( p => data[p] = this[p] );
+      STAMPER.cloneId(data, this.id);
+      return data; 
+    }
+  }
+
+  return Reporter;
+}
+
+module.exports = ReporterFactory;
+
+
+},{"./IdStamper.js":75,"./util.js":79}],78:[function(require,module,exports){
+/*
+ * Reporters for the WAMS application.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ */
+
+'use strict';
+
+const ReporterFactory = require('./ReporterFactory.js');
+
+/*
+ * This Item class provides a common interface between the client and 
+ * the server by which the Items can interact safely.
+ */
+const Item = ReporterFactory([
+  'x',
+  'y',
+  'width',
+  'height',
+  'type',
+  'imgsrc',
+  'blueprint',
+]);
+
+/*
+ * This View class provides a common interface between the client and 
+ * the server by which the Views can interact safely.
+ */
+const View = ReporterFactory([
+  'x',
+  'y',
+  'width',
+  'height',
+  'type',
+  'effectiveWidth',
+  'effectiveHeight',
+  'scale',
+  'rotation',
+]);
+
+/*
+ * This class is intended for sharing mouse action data between client and
+ * server.
+ */
+const MouseReporter = ReporterFactory([
+  'x',
+  'y',
+  'dx',
+  'dy',
+]);
+
+/*
+ * This class allows reporting of scale data between client and server.
+ */
+const ScaleReporter = ReporterFactory([
+  'scale',
+]);
+
+/*
+ * This class allows reporting of rotation data between client and server.
+ */
+const RotateReporter = ReporterFactory([
+  'radians',
+]);
+
+/*
+ * This class allows reporting of swipe data between client and server.
+ */
+const SwipeReporter = ReporterFactory([
+  'acceleration',
+  'velocity',
+  'x',
+  'y',
+]);
+
+/*
+ * This class allows reporting of the full state of the model, for bringing
+ * new clients up to speed (or potentially also for recovering a client, if
+ * need be).
+ */
+const FullStateReporter = ReporterFactory([
+  'views',
+  'items',
+  'color',
+  'id',
+]);
+
+module.exports = {
+  Item,
+  View,
+  MouseReporter,
+  ScaleReporter,
+  RotateReporter,
+  FullStateReporter,
+};
+
+
+},{"./ReporterFactory.js":77}],79:[function(require,module,exports){
+/*
+ * Defines a set of general utilities for use across the project.
+ *
+ * Author: Michael van der Kamp
+ * Date: July / August 2018
+ */
+
+'use strict';
+
+/*
+ * Defines the given property on the given object with the given value, and sets
+ * the property to unconfigurable, unwritable, but enumerable.
+ */
+function defineOwnImmutableEnumerableProperty(obj, prop, val) {
+  Object.defineProperty(obj, prop, {
+    value: val,
+    configurable: false,
+    enumerable: true,
+    writable: false
+  });
+}
+
+/*
+ * Find the last value in an Array for which the supplied callback function
+ *  returns true. Operates on each index in the Array, starting at 'fromIndex'
+ *  and going backwards to the start of the Array or until the desired value 
+ *  is found.
+ *
+ * Returns the value that passed the callback, if found or null.
+ *
+ * Callback function should be of similar form to the Array.findIndex()
+ *  standard library function.
+ */
+function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
+  while (fromIndex >= 0 &&
+    !callback.call(thisArg, array[fromIndex], fromIndex, array)) {
+    --fromIndex;
+  }
+  return fromIndex >= 0 ? array[fromIndex] : null;
+}
+
+/*
+ * Returns a new object, with all the own properties of 'defaults' having
+ *  values from 'data', if found, otherwise with values from 'defaults'.
+ */
+function getInitialValues(defaults = {}, data = {}) {
+  const rv = {};
+  Object.keys(defaults).forEach( k => {
+    rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+  });
+  return rv;
+}
+
+/*
+ * This method will set an already-existing property on an object to be 
+ *  immutable. In other words, it will configure it as such:
+ *
+ *    configurable: false
+ *    writable: false
+ *
+ * It will have no effect on non-configurable properties, and will turn an 
+ *  accessor descriptor  a data descriptor. (I.e. if the property is 
+ *  defined with getters and setters, they will be lost).  
+ *
+ * It will have no effect on properties that do not exist directly on the
+ *  Object (properties further up the prototype chain are not affected).
+ *
+ * It will affect both enumerable and non-enumerable properties.
+ *
+ * This method is intended for use when the only reason for a call to
+ *  Object.defineProperty() was to make the property immutable.
+ *
+ * Returns the modified object.
+ */
+function makeOwnPropertyImmutable(obj, prop) {
+  const desc = Object.getOwnPropertyDescriptor(obj, prop);
+  if (desc && desc.configurable) {
+    Object.defineProperty(obj, prop, {
+      configurable: false,
+      writable: false
+    });
+  }
+  return obj;
+}
+
+/*
+ * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
+ */
+const NOP = () => {};
+
+/*
+ * Removes the given item from the given array, according to its Id.
+ */
+function removeById(array, item) {
+  const idx = array.findIndex( o => o.id === item.id );
+  if (idx >= 0) {
+    array.splice(idx, 1);
+    return true;
+  }
+  return false;
+}
+
+/*
+ * Removes the given item of the given class (enforced by throwing an
+ * exception if not an instance) from the given array.
+ */
+function safeRemoveById(array, item, class_fn) {
+  if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
+  return removeById(array, item);
+}
+
+module.exports = Object.freeze({
+  defineOwnImmutableEnumerableProperty,
+  findLast,
+  getInitialValues,
+  makeOwnPropertyImmutable,
+  NOP,
+  removeById,
+  safeRemoveById,
+});
+
+
+},{}]},{},[68])(68)
 });
