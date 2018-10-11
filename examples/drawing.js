@@ -5,8 +5,8 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer();
+const Wams = require('../src/server.js');
+const ws = new Wams();
 
 // Executed every time a user taps or clicks a screen
 const handleClick = (function makeClickHandler(ws) {
@@ -20,7 +20,7 @@ const handleClick = (function makeClickHandler(ws) {
   ];
 
   function rectSeq(index) {
-    const seq = new WAMS.Sequence();
+    const seq = new Wams.Sequence();
     seq.fillStyle = colours[index];
     seq.fillRect('{x}', '{y}', '{width}', '{height}');
     return seq;
@@ -36,11 +36,11 @@ const handleClick = (function makeClickHandler(ws) {
     return {x, y, width, height, type, blueprint};
   }
 
-  function handleClick(viewer, target, x, y) {
+  function handleClick(view, target, x, y) {
     if (target.type === 'colour') {
       ws.removeItem(target);
     } else {
-      ws.spawnItem(square(x, y, viewer.id % 6));
+      ws.spawnItem(square(x, y, view.id % 6));
     }
   }
 
@@ -48,7 +48,7 @@ const handleClick = (function makeClickHandler(ws) {
 })(ws);
 
 // Executed every time a drag occurs on a device
-function handleDrag(viewer, target, x, y, dx, dy) {
+function handleDrag(view, target, x, y, dx, dy) {
   if (target.type === 'colour') {
     target.moveBy(dx, dy);
   } else if (target.type === 'view/background') {
@@ -57,16 +57,22 @@ function handleDrag(viewer, target, x, y, dx, dy) {
   ws.update(target);
 }
 
+// Executed when a user rotates two fingers around the screen.
+function handleRotate(view, radians) {
+  view.rotateBy(radians);
+  ws.update(view);
+}
+
 // Executed when a user pinches a device, or uses the scroll wheel on a computer
-function handleScale(viewer, newScale) {
-  viewer.rescale(newScale);
-  ws.update(viewer);
+function handleScale(view, newScale) {
+  view.scaleTo(newScale);
+  ws.update(view);
 }
 
 // Executed once per user, when they join.
-function handleLayout(viewer, numViewers) {
-  viewer.moveTo(4000,4000);
-  ws.update(viewer);
+function handleLayout(view, position) {
+  view.moveTo(4000,4000);
+  ws.update(view);
 }
 
 // Attaches the defferent function handlers
@@ -74,6 +80,7 @@ ws.on('layout', handleLayout);
 ws.on('click', handleClick);
 ws.on('scale', handleScale);
 ws.on('drag',  handleDrag);
+ws.on('rotate', handleRotate);
 
 ws.listen(9002);
 

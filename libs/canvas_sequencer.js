@@ -1,1 +1,0 @@
-../node_modules/canvas-sequencer/src/canvas_sequencer.js

@@ -35,11 +35,12 @@ case $1 in
         ;;
     *)
         egrep -rnH --colour \
+            --include='*.js' \
+            --include='*.html' \
             --exclude-dir='node_modules' \
             --exclude-dir='libs' \
             --exclude-dir='coverage' \
-            --include='*.js' \
-            --include='*.html' \
+            --exclude-dir='dist' \
             "$1"
         ;;
 esac
