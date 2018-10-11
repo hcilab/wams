@@ -43,6 +43,7 @@ class ClientController {
     this.interactor = new Interactor(this.canvas, {
       pan:    this.pan.bind(this),
       rotate: this.rotate.bind(this),
+      swipe:  this.swipe.bind(this),
       tap:    this.tap.bind(this),
       zoom:   this.zoom.bind(this),
     });
@@ -73,6 +74,7 @@ class ClientController {
       [Message.RESIZE]: NOP,
       [Message.ROTATE]: NOP,
       [Message.SCALE]:  NOP,
+      [Message.SWIPE]:  NOP,
 
       /*
        * TODO: This could be more... elegant...
@@ -122,6 +124,11 @@ class ClientController {
   rotate(radians) {
     const rreport = new RotateReporter({ radians });
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
+  }
+
+  swipe(acceleration, velocity, {x,y}) {
+    const sreport = new SwipeReporter({ acceleration, velocity, x, y });
+    new Message(Message.SWIPE, sreport).emitWith(this.socket);
   }
 
   tap(x, y) {

@@ -52,6 +52,7 @@ class Connection {
       [Message.RESIZE]: (...args) => this.resize(...args),
       [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
       [Message.SCALE]:  (...args) => this.handle('scale', ...args),
+      [Message.SWIPE]:  (...args) => this.handle('swipe', ...args),
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );

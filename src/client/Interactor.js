@@ -13,11 +13,12 @@
 
 'use strict';
 
-const ZingTouch = require('../../../zingtouch');
+// const Westures = require('../../../zingtouch');
+const Westures = require('../../../westures');
 const { getInitialValues, NOP } = require('../shared.js');
 
 /*
- * Currently, the Interactor makes use of the ZingTouch library.
+ * Currently, the Interactor makes use of the Westures library.
  *
  * General Design:
  *  The handlers will get called with the arguments that need to be reportd
@@ -36,6 +37,7 @@ const { getInitialValues, NOP } = require('../shared.js');
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
+  swipe:  NOP,
   tap:    NOP,
   zoom:   NOP,
 });
@@ -43,7 +45,7 @@ const HANDLERS = Object.freeze({
 class Interactor {
   constructor(canvas, handlers = {}) {
     this.canvas = canvas;
-    this.region = new ZingTouch.Region(this.canvas, true, true);
+    this.region = new Westures.Region(window, true, true);
     this.handlers = getInitialValues(HANDLERS, handlers);
     this.bindRegions();
     window.addEventListener('wheel', this.wheel.bind(this), false);
@@ -58,20 +60,22 @@ class Interactor {
     const tap     = this.tap.bind(this);
     const pinch   = this.pinch.bind(this);
     const rotate  = this.rotate.bind(this);
+    // const swipe   = this.swipe.bind(this);
 
     this.region.bind(this.canvas, this.panner(), pan);
     this.region.bind(this.canvas, this.tapper(), tap);
     this.region.bind(this.canvas, this.pincher(), pinch);
     this.region.bind(this.canvas, this.rotater(), rotate);
+    // this.region.bind(this.canvas, this.swiper(), swipe);
   }
 
   pan({ detail }) {
-    const { change, point } = detail.data[0];
+    const { change, point } = detail;
     this.handlers.pan( point.x, point.y, change.x, change.y);
   }
 
   panner() {
-    return new ZingTouch.Pan();
+    return new Westures.Pan();
   }
 
   pinch({ detail }) {
@@ -79,23 +83,32 @@ class Interactor {
   }
 
   pincher() {
-    return new ZingTouch.Pinch();
+    return new Westures.Pinch();
   }
 
   rotate({ detail }) {
-    this.handlers.rotate( detail.distanceFromLast );
+    this.handlers.rotate( detail.delta );
   }
 
   rotater() {
-    return new ZingTouch.Rotate();
+    return new Westures.Rotate();
   }
 
-  tap({detail}) {
+  swipe({ detail }) {
+    const { acceleration, finalVelocity, finalPoint } = detail;
+    this.handlers.swipe(acceleration, finalVelocity, finalPoint);
+  }
+
+  swiper() {
+    return new Westures.Swipe();
+  }
+
+  tap({ detail }) {
     this.handlers.tap( detail.x, detail.y );
   }
 
   tapper() {
-    return new ZingTouch.Tap({ tolerance: 4 });
+    return new Westures.Tap({ tolerance: 4 });
   }
 
   wheel(event) {

@@ -54,12 +54,19 @@ function scale(listener, workspace) {
   };
 };
 
+function swipe(listener, workspace) {
+  return function handleSwipe(view, {acceleration, velocity, x, y}) {;
+    listener(view, acceleration, velocity, x, y);
+  }
+}
+
 const BLUEPRINTS = Object.freeze({
   click,
   drag,
   layout,
   rotate,
   scale,
+  swipe,
 });
 
 function build(type, listener, workspace) {

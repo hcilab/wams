@@ -65,6 +65,16 @@ const RotateReporter = ReporterFactory([
 ]);
 
 /*
+ * This class allows reporting of swipe data between client and server.
+ */
+const SwipeReporter = ReporterFactory([
+  'acceleration',
+  'velocity',
+  'x',
+  'y',
+]);
+
+/*
  * This class allows reporting of the full state of the model, for bringing
  * new clients up to speed (or potentially also for recovering a client, if
  * need be).
