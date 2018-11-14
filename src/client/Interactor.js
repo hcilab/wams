@@ -13,7 +13,6 @@
 
 'use strict';
 
-// const Westures = require('../../../zingtouch');
 // const Westures = require('../../../westures');
 const Westures = require('westures');
 const { getInitialValues, NOP } = require('../shared.js');
@@ -61,13 +60,13 @@ class Interactor {
     const tap     = this.tap.bind(this);
     const pinch   = this.pinch.bind(this);
     const rotate  = this.rotate.bind(this);
-    // const swipe   = this.swipe.bind(this);
+    const swipe   = this.swipe.bind(this);
 
     this.region.bind(this.canvas, this.panner(), pan);
     this.region.bind(this.canvas, this.tapper(), tap);
     this.region.bind(this.canvas, this.pincher(), pinch);
     this.region.bind(this.canvas, this.rotater(), rotate);
-    // this.region.bind(this.canvas, this.swiper(), swipe);
+    this.region.bind(this.canvas, this.swiper(), swipe);
   }
 
   pan({ detail }) {
@@ -96,8 +95,8 @@ class Interactor {
   }
 
   swipe({ detail }) {
-    const { acceleration, finalVelocity, finalPoint } = detail;
-    this.handlers.swipe(acceleration, finalVelocity, finalPoint);
+    const { velocity, x, y, direction } = detail;
+    this.handlers.swipe(velocity, x, y, direction);
   }
 
   swiper() {

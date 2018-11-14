@@ -55,8 +55,13 @@ function scale(listener, workspace) {
 };
 
 function swipe(listener, workspace) {
-  return function handleSwipe(view, {acceleration, velocity, x, y}) {;
-    listener(view, acceleration, velocity, x, y);
+  return function handleSwipe(view, {velocity, x, y, direction}) {
+    const mouse = view.refineMouseCoordinates(x, y);
+    if (mouse) {
+      const {x,y} = mouse;
+      const target = workspace.findItemByCoordinates(x, y) || view;
+      listener(view, target, velocity, x, y, direction);
+    }
   }
 }
 

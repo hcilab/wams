@@ -68,10 +68,10 @@ const RotateReporter = ReporterFactory([
  * This class allows reporting of swipe data between client and server.
  */
 const SwipeReporter = ReporterFactory([
-  'acceleration',
   'velocity',
   'x',
   'y',
+  'direction',
 ]);
 
 /*
@@ -92,6 +92,7 @@ module.exports = {
   MouseReporter,
   ScaleReporter,
   RotateReporter,
+  SwipeReporter,
   FullStateReporter,
 };
 

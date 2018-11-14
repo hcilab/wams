@@ -24,6 +24,7 @@ const {
   NOP,
   RotateReporter,
   ScaleReporter,
+  SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -126,8 +127,10 @@ class ClientController {
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
   }
 
-  swipe(acceleration, velocity, {x,y}) {
-    const sreport = new SwipeReporter({ acceleration, velocity, x, y });
+  swipe(velocity, x, y, direction) {
+    const sreport = new SwipeReporter(
+      { velocity, x, y, direction }
+    );
     new Message(Message.SWIPE, sreport).emitWith(this.socket);
   }
 
