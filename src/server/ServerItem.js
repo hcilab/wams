@@ -30,6 +30,7 @@ const STAMPER = new IdStamper();
 class ServerItem extends Item {
   constructor(values = {}) {
     super(getInitialValues(DEFAULTS, values));
+    this.locked = false;
     STAMPER.stampNewId(this);
   }
 
@@ -38,6 +39,18 @@ class ServerItem extends Item {
       (this.y <= y) && 
       (this.x + this.width  >= x) && 
       (this.y + this.height >= y);
+  }
+
+  isFreeItemAt(x, y) {
+    return !this.locked && this.containsPoint(x, y);
+  }
+
+  lock() {
+    this.locked = true;
+  }
+
+  unlock() {
+    this.locked = false;
   }
 
   /*

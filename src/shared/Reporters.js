@@ -48,6 +48,7 @@ const MouseReporter = ReporterFactory([
   'y',
   'dx',
   'dy',
+  'phase',
 ]);
 
 /*

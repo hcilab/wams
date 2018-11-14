@@ -18,7 +18,7 @@
         a regular rate, and not faster. This should help regulate situations
         when multiple handlers are acting on the model in rapid succession.
 - [ ] Write a distributed video player example.
-- [ ] Lock drags to a single object (instead of always operating on the first
+- [X] Lock drags to a single object (instead of always operating on the first
       object it finds that's currently under the cursor).
 - [ ] Look into using device orientation for rotation instead of touchscreen
       inputs.

@@ -99,8 +99,8 @@ class ClientController {
     this.view.handle(message, ...args);
   }
 
-  pan(x, y, dx, dy) {
-    const mreport = new MouseReporter({ x, y, dx, dy });
+  pan(x, y, dx, dy, phase) {
+    const mreport = new MouseReporter({ x, y, dx, dy, phase });
     new Message(Message.DRAG, mreport).emitWith(this.socket);
   }
 

@@ -26,12 +26,14 @@ function click(listener, workspace) {
 };
 
 function drag(listener, workspace) {
-  return function handleDrag(view, {x, y, dx, dy}) {
+  return function handleDrag(view, {x, y, dx, dy, phase}) {
     const mouse = view.refineMouseCoordinates(x, y, dx, dy);
     if (mouse) {
       const {x, y, dx, dy} = mouse;
-      const target = workspace.findItemByCoordinates(x,y) || view;
-      listener(view, target, x, y, dx, dy);
+      const target = workspace.findItemByCoordinates(x, y, phase, view) || view;
+      if (phase === 'move') {
+        listener(view, target, x, y, dx, dy);
+      }
     }
   };
 };

@@ -13,8 +13,8 @@
 
 'use strict';
 
-// const Westures = require('../../../westures');
-const Westures = require('westures');
+const Westures = require('../../../westures');
+// const Westures = require('westures');
 const { getInitialValues, NOP } = require('../shared.js');
 
 /*
@@ -70,8 +70,8 @@ class Interactor {
   }
 
   pan({ detail }) {
-    const { change, point } = detail;
-    this.handlers.pan( point.x, point.y, change.x, change.y);
+    const { change, point, phase } = detail;
+    this.handlers.pan( point.x, point.y, change.x, change.y, phase);
   }
 
   panner() {

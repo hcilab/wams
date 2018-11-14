@@ -59,6 +59,7 @@ class ServerView extends View {
     this.bounds = values.bounds || DEFAULTS.bounds;
     this.effectiveWidth = this.width / this.scale;
     this.effectiveHeight = this.height / this.scale;
+    this.lockedItem = null;
     STAMPER.stampNewId(this);
   }
 
@@ -91,6 +92,12 @@ class ServerView extends View {
     return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
   }
 
+  getLockOnItem(item) {
+    if ( this.lockedItem ) this.lockedItem.unlock();
+    this.lockedItem = item;
+    item.lock();
+  }
+      
   moveBy(dx = 0, dy = 0) {
     this.moveTo(this.x + dx, this.y + dy);
   }
@@ -161,6 +168,11 @@ class ServerView extends View {
         return x * sin_theta + y * cos_theta;
       }
     }
+  }
+
+  releaseLockedItem() {
+    if (this.lockedItem) this.lockedItem.unlock();
+    this.lockedItem = null;
   }
 
   /*

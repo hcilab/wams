@@ -79,8 +79,24 @@ class WorkSpace {
   //   //TODO: probably send a workspace update message
   // }
 
-  findItemByCoordinates(x,y) {
-    return findLast(this.items, o => o.containsPoint(x,y));
+  findFreeItemByCoordinates(x, y) {
+    return findLast(this.items, i => i.isFreeItemAt(x, y));
+  }
+
+  findItemByCoordinates(x, y, phase, view) {
+    switch(phase) {
+      case 'start':
+        const item = this.findFreeItemByCoordinates(x, y);
+        if (item) view.getLockOnItem(item);
+        return null;
+      case 'move':
+        return view.lockedItem;
+      case 'end':
+        view.releaseLockedItem();
+        return null;
+      default:
+        return this.findFreeItemByCoordinates(x, y);
+    }
   }
 
   handle(message, ...args) {
