@@ -38,17 +38,33 @@
 
 const { defineOwnImmutableEnumerableProperty } = require('./util.js');
 
+/**
+ * Generator for integers from 0 to MAX_SAFE_INTEGER.
+ */
 function* id_gen() {
   let next_id = 0;
   while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
 }
+
+/**
+ * Mark the class instance's generator as not intended for external use.
+ */
 const gen = Symbol();
 
+/**
+ * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
+ * per-IdStamper basis.
+ */
 class IdStamper {
   constructor() {
     this[gen] = id_gen();
   }
 
+  /**
+   * Stamps an integer ID, unique to this IdStamper, onto the given object.
+   *
+   * obj: An object onto which an ID will be stamped.
+   */
   stampNewId(obj) {
     defineOwnImmutableEnumerableProperty(
       obj, 
@@ -57,6 +73,12 @@ class IdStamper {
     );
   }
 
+  /**
+   * Stamps a clone of the given ID onto the given object.
+   *
+   * obj: An object onto which an ID will be stamped.
+   * id : The ID to clone onto obj.
+   */
   cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
       defineOwnImmutableEnumerableProperty(obj, 'id', id);

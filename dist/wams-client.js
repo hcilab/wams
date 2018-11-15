@@ -13590,6 +13590,10 @@ _regenerator.default.mark(id_gen);
 
 var _require = require('./util.js'),
     defineOwnImmutableEnumerableProperty = _require.defineOwnImmutableEnumerableProperty;
+/**
+ * Generator for integers from 0 to MAX_SAFE_INTEGER.
+ */
+
 
 function id_gen() {
   var next_id;
@@ -13619,8 +13623,16 @@ function id_gen() {
     }
   }, _marked, this);
 }
+/**
+ * Mark the class instance's generator as not intended for external use.
+ */
+
 
 var gen = Symbol();
+/**
+ * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
+ * per-IdStamper basis.
+ */
 
 var IdStamper =
 /*#__PURE__*/
@@ -13629,12 +13641,25 @@ function () {
     (0, _classCallCheck2.default)(this, IdStamper);
     this[gen] = id_gen();
   }
+  /**
+   * Stamps an integer ID, unique to this IdStamper, onto the given object.
+   *
+   * obj: An object onto which an ID will be stamped.
+   */
+
 
   (0, _createClass2.default)(IdStamper, [{
     key: "stampNewId",
     value: function stampNewId(obj) {
       defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
     }
+    /**
+     * Stamps a clone of the given ID onto the given object.
+     *
+     * obj: An object onto which an ID will be stamped.
+     * id : The ID to clone onto obj.
+     */
+
   }, {
     key: "cloneId",
     value: function cloneId(obj, id) {
@@ -13654,6 +13679,15 @@ module.exports = IdStamper;
  *
  * Author: Michael van der Kamp
  * Date: July / August 2018
+ *
+ * The purpose of this class is to provide a funnel through which all messages
+ * between client and server must pass. In concert with the Reporter interface,
+ * it allows for a sanity check such that the correct sort of data is getting
+ * passed back and forth. 
+ *
+ * Unfortunately this does not provide a strict guarantee that informal and ad
+ * hoc messages aren't getting emitted somewhere, so it is up to the programmer
+ * to be disciplined and adhere to the Message / Reporter principle.
  */
 'use strict';
 
@@ -13681,6 +13715,11 @@ require("core-js/modules/es6.object.freeze");
 
 var _require = require('./util.js'),
     defineOwnImmutableEnumerableProperty = _require.defineOwnImmutableEnumerableProperty;
+/**
+ * TYPES is an explicit list of the types of messages that will be passed back
+ * and forth. Messages not on this list should be ignored!
+ */
+
 
 var TYPES = Object.freeze({
   // For the server to inform about changes to the model
@@ -13706,30 +13745,47 @@ var TYPES = Object.freeze({
   IMG_LOAD: 'wams-image-loaded'
 });
 var TYPE_VALUES = Object.freeze(Object.values(TYPES));
+/**
+ * The Message class provides a funnel through which data passed between the
+ * client and server must flow.
+ */
 
 var Message =
 /*#__PURE__*/
 function () {
+  /**
+   * If an invalid type is received, throws an exception. If an invalid reporter
+   * is received, an exception will not be thrown until 'emitWith()' is called.
+   *
+   * type    : The message type. Must be one of the explicitly listed message
+   *           types available on the Message object.
+   * reporter: A Reporter instance, containing the data to be emitted.
+   */
   function Message(type, reporter) {
     (0, _classCallCheck2.default)(this, Message);
-
-    if (!TYPE_VALUES.includes(type)) {
-      throw 'Invalid message type!';
-    }
-
+    if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
     this.type = type;
     this.reporter = reporter;
   }
+  /**
+   * Emits the data contained in the reporter along the channel defined by
+   * emitter.
+   *
+   * emitter: An object capable of emitting data packets. Must have an 'emit()'
+   *          function.
+   */
+
 
   (0, _createClass2.default)(Message, [{
     key: "emitWith",
     value: function emitWith(emitter) {
-      // console.log('emitting:', this.type, this.reporter.report());
       emitter.emit(this.type, this.reporter.report());
     }
   }]);
   return Message;
-}();
+}(); // Only define the messages once, above, and now attach them to the Message
+// class object for external reference.
+
 
 Object.entries(TYPES).forEach(function (_ref) {
   var _ref2 = (0, _slicedToArray2.default)(_ref, 2),
@@ -13770,13 +13826,22 @@ var _require = require('./util.js'),
     getInitialValues = _require.getInitialValues;
 
 var STAMPER = new IdStamper();
-/*
+/**
  * This factory can generate the basic classes that need to communicate
  *  property values between the client and server.
+ *
+ * coreProperties: An array of property names. It is these properties, and only
+ *                 these properties, which will be report()ed by the reporter.
  */
 
 function ReporterFactory(coreProperties) {
-  var KEYS = Object.freeze(Array.from(coreProperties));
+  // Use scoping to permanently save the list of core property names. Make sure
+  // to create a local copy and freeze it to guarantee immutability as best
+  // JavaScript will allow. If a better method for ensuring immutability is
+  // available, use it here instead.
+  var KEYS = Object.freeze(Array.from(coreProperties)); // Generate a default initial object containing all the core properties, each
+  // with a value of null.
+
   var INITIALIZER = {};
   coreProperties.forEach(function (p) {
     defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
@@ -13786,10 +13851,22 @@ function ReporterFactory(coreProperties) {
   var Reporter =
   /*#__PURE__*/
   function () {
+    /**
+     * data: data to store in the reporter. Only properties with keys matching
+     *       those provided in coreProperties and saved in KEYS will be
+     *       accepted.
+     */
     function Reporter(data) {
       (0, _classCallCheck2.default)(this, Reporter);
       return this.assign(getInitialValues(INITIALIZER, data));
     }
+    /**
+     * Save onto this Reporter instance the values in data which correspond to
+     * properties named in KEYS.
+     *
+     * data: Data values to attempt to save.
+     */
+
 
     (0, _createClass2.default)(Reporter, [{
       key: "assign",
@@ -13801,6 +13878,12 @@ function ReporterFactory(coreProperties) {
           if (data.hasOwnProperty(p)) _this[p] = data[p];
         });
       }
+      /**
+       * Provide a report of the data saved in this Reporter instance. Only those
+       * instance properties which correspond to properties named in KEYS will be
+       * reported.
+       */
+
     }, {
       key: "report",
       value: function report() {
@@ -13891,9 +13974,13 @@ module.exports = {
  * Date: July / August 2018
  */
 'use strict';
-/*
+/**
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
+ *
+ * obj : The object on which the property will be defined.
+ * prop: The property to define on obj.
+ * val : The value to assign to the property.
  */
 
 require("core-js/modules/es6.object.freeze");
@@ -13914,16 +14001,22 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
     writable: false
   });
 }
-/*
+/**
  * Find the last value in an Array for which the supplied callback function
  *  returns true. Operates on each index in the Array, starting at 'fromIndex'
  *  and going backwards to the start of the Array or until the desired value 
  *  is found.
  *
- * Returns the value that passed the callback, if found or null.
+ * Returns the value that passed the callback, if found, or null.
  *
  * Callback function should be of similar form to the Array.findIndex()
  *  standard library function.
+ *
+ * array    : The array to search.
+ * callback : The condition function used for the search.
+ * fromIndex: Index to begin search, goes backward from here. Default is last
+ *            item in array.
+ * thisArg  : 'this' context for the callback function.
  */
 
 
@@ -13937,9 +14030,15 @@ function findLast(array, callback) {
 
   return fromIndex >= 0 ? array[fromIndex] : null;
 }
-/*
+/**
  * Returns a new object, with all the own properties of 'defaults' having
  *  values from 'data', if found, otherwise with values from 'defaults'.
+ *
+ * defaults: Object with default properties and values. If data is not provided
+ *           or all the property names of data are disjoint with the property
+ *           names of defaults, then defaults will be returned.
+ * data    : Object with values to use for corresponding properties in defaults.
+ *           Properties not found in defaults will be ignored. 
  */
 
 
@@ -13952,7 +14051,7 @@ function getInitialValues() {
   });
   return rv;
 }
-/*
+/**
  * This method will set an already-existing property on an object to be 
  *  immutable. In other words, it will configure it as such:
  *
@@ -13972,6 +14071,9 @@ function getInitialValues() {
  *  Object.defineProperty() was to make the property immutable.
  *
  * Returns the modified object.
+ *
+ * obj : The object to modify
+ * prop: The property of obj to make immutable
  */
 
 
@@ -13987,14 +14089,17 @@ function makeOwnPropertyImmutable(obj, prop) {
 
   return obj;
 }
-/*
+/**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
  */
 
 
 var NOP = function NOP() {};
-/*
+/**
  * Removes the given item from the given array, according to its Id.
+ *
+ * array: The array to modify
+ * item : The item to remove from array according to its Id
  */
 
 
@@ -14010,9 +14115,14 @@ function removeById(array, item) {
 
   return false;
 }
-/*
+/**
  * Removes the given item of the given class (enforced by throwing an
  * exception if not an instance) from the given array.
+ *
+ * array   : The array to modify
+ * item    : The item to remove from array according to its Id, if it is an
+ *           instance of class_fn
+ * class_fn: Insist that item be an instance of this class function.
  */
 
 

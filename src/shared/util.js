@@ -7,9 +7,13 @@
 
 'use strict';
 
-/*
+/**
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
+ *
+ * obj : The object on which the property will be defined.
+ * prop: The property to define on obj.
+ * val : The value to assign to the property.
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
@@ -20,16 +24,22 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   });
 }
 
-/*
+/**
  * Find the last value in an Array for which the supplied callback function
  *  returns true. Operates on each index in the Array, starting at 'fromIndex'
  *  and going backwards to the start of the Array or until the desired value 
  *  is found.
  *
- * Returns the value that passed the callback, if found or null.
+ * Returns the value that passed the callback, if found, or null.
  *
  * Callback function should be of similar form to the Array.findIndex()
  *  standard library function.
+ *
+ * array    : The array to search.
+ * callback : The condition function used for the search.
+ * fromIndex: Index to begin search, goes backward from here. Default is last
+ *            item in array.
+ * thisArg  : 'this' context for the callback function.
  */
 function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   while (fromIndex >= 0 &&
@@ -39,9 +49,15 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   return fromIndex >= 0 ? array[fromIndex] : null;
 }
 
-/*
+/**
  * Returns a new object, with all the own properties of 'defaults' having
  *  values from 'data', if found, otherwise with values from 'defaults'.
+ *
+ * defaults: Object with default properties and values. If data is not provided
+ *           or all the property names of data are disjoint with the property
+ *           names of defaults, then defaults will be returned.
+ * data    : Object with values to use for corresponding properties in defaults.
+ *           Properties not found in defaults will be ignored. 
  */
 function getInitialValues(defaults = {}, data = {}) {
   const rv = {};
@@ -51,7 +67,7 @@ function getInitialValues(defaults = {}, data = {}) {
   return rv;
 }
 
-/*
+/**
  * This method will set an already-existing property on an object to be 
  *  immutable. In other words, it will configure it as such:
  *
@@ -71,6 +87,9 @@ function getInitialValues(defaults = {}, data = {}) {
  *  Object.defineProperty() was to make the property immutable.
  *
  * Returns the modified object.
+ *
+ * obj : The object to modify
+ * prop: The property of obj to make immutable
  */
 function makeOwnPropertyImmutable(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
@@ -83,13 +102,16 @@ function makeOwnPropertyImmutable(obj, prop) {
   return obj;
 }
 
-/*
+/**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
  */
 const NOP = () => {};
 
-/*
+/**
  * Removes the given item from the given array, according to its Id.
+ *
+ * array: The array to modify
+ * item : The item to remove from array according to its Id
  */
 function removeById(array, item) {
   const idx = array.findIndex( o => o.id === item.id );
@@ -100,9 +122,14 @@ function removeById(array, item) {
   return false;
 }
 
-/*
+/**
  * Removes the given item of the given class (enforced by throwing an
  * exception if not an instance) from the given array.
+ *
+ * array   : The array to modify
+ * item    : The item to remove from array according to its Id, if it is an
+ *           instance of class_fn
+ * class_fn: Insist that item be an instance of this class function.
  */
 function safeRemoveById(array, item, class_fn) {
   if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
