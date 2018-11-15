@@ -15250,7 +15250,18 @@ class Pan extends Gesture {
 
   move(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length !== REQUIRED_INPUTS) return null;
+
+    if (active.length !== REQUIRED_INPUTS) {
+      return {
+        change: 0,
+        point: {
+          x: 0,
+          y: 0
+        },
+        phase: 'cancel'
+      };
+    }
+
     const progress = active[0].getProgressOfGesture(this.id);
     const point = active[0].current.point;
     const diff = point.distanceTo(progress.lastEmitted);
@@ -15281,16 +15292,25 @@ class Pan extends Gesture {
   end(state) {
     let data = null;
     const ended = state.getInputsInPhase('end');
+    const active = state.getInputsNotInPhase('end'); // If the ended input was part of a valid pan, need to emit an event
+    // notifying that the pan has ended. Have to make sure that only inputs
+    // which were involved in a valid pan pass through this block. Checking for
+    // a 'lastEmitted' entity will do the trick, as it will only exist on the
+    // first active input, which is the only one that can currently be part of a
+    // valid pan.
 
     if (ended.length > 0) {
       const progress = ended[0].getProgressOfGesture(this.id);
-      const point = ended[0].current.point;
-      const change = point.subtract(progress.lastEmitted);
-      data = {
-        change,
-        point,
-        phase: 'end'
-      };
+
+      if (progress.lastEmitted) {
+        const point = ended[0].current.point;
+        const change = point.subtract(progress.lastEmitted);
+        data = {
+          change,
+          point,
+          phase: 'end'
+        };
+      }
     }
 
     this.initialize(state);
@@ -15355,7 +15375,7 @@ class Pinch extends Gesture {
 
   initializeProgress(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length < this.minInputs) return null;
+    if (active.length < 1) return null;
     const {
       midpoint,
       averageDistance
@@ -15472,7 +15492,7 @@ class Rotate extends Gesture {
 
   initializeProgress(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length !== REQUIRED_INPUTS) return null; // Progress is stored on the first active input.
+    if (active.length < REQUIRED_INPUTS) return null; // Progress is stored on the first active input.
 
     const angle = active[0].currentAngleTo(active[1]);
     const progress = active[0].getProgressOfGesture(this.id);
