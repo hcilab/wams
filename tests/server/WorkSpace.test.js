@@ -372,7 +372,7 @@ describe('WorkSpace', () => {
       test('Attached handler will call the listener when invoked', () => {
         const fn = jest.fn();
         ws.on(s, fn);
-        ws.handlers[s](vs, {});
+        ws.handlers[s](vs, {x:1, y:2, phase: 'move'});
         expect(fn).toHaveBeenCalledTimes(1);
         expect(fn.mock.calls[0][0]).toBe(vs);
       });
@@ -382,7 +382,7 @@ describe('WorkSpace', () => {
   describe('handle(message, ...args)', () => {
     let ws;
     let vs;
-    let x, y, dx, dy, scale;
+    let x, y, dx, dy, scale, phase;
     beforeAll(() => {
       ws = new WorkSpace();
       vs = ws.spawnView();
@@ -391,6 +391,7 @@ describe('WorkSpace', () => {
       dx = 5.2;
       dy = -8.79;
       scale = 0.883;
+      phase = 'move';
     });
 
     test('Throws if invalid message type provided', () => {
@@ -426,12 +427,14 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
+        expect(() => ws.handle('drag', vs, {x, y, dx, dy, phase}))
+          .not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('drag', vs, {x, y, dx, dy})).not.toThrow();
+        expect(() => ws.handle('drag', vs, {x, y, dx, dy, phase}))
+          .not.toThrow();
         expect(fn.mock.calls[0][0]).toBe(vs);
         expect(fn.mock.calls[0][1]).toBe(vs);
         expect(fn.mock.calls[0][2]).toBeCloseTo(x);

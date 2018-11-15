@@ -42,7 +42,7 @@ describe('ListenerFactory Object', () => {
         const handler = jest.fn();
         const listener = ListenerFactory.build(s, handler, ws);
         const vs = ws.spawnView();
-        expect(() => listener(vs,1,2,3,4)).not.toThrow();
+        expect(() => listener(vs,{x:1,y:2,phase:'move'})).not.toThrow();
         expect(handler).toHaveBeenCalledTimes(1);
         expect(handler.mock.calls[0][0]).toBe(vs);
       });
