@@ -12,6 +12,7 @@ level classes and code, up to the high level end-user API.
 * [Shared Sources](#shared-sources)
 * [Client Sources](#client-sources)
 * [Server Sources](#server-sources)
+* [Gesture Recognition](#gesture-recognition)
 
 ## Installation
 
@@ -330,3 +331,26 @@ This module defines the API endpoint. In practice, this means it is a thin
 wrapper around the Server class which exposes only that functionality of the
 Server which should be available to the end user.
 
+## Gesture Recognition
+
+The process for gesture recognition, starting at the point when the gesture
+library issues a gesture event, to the point when the user-supplied handler is
+called, is as follows:
+
+1. Gesture recognized by gesture library.
+2. Handler supplied to gesture library by Interactor is called.
+3. This handler, defined in ClientController, packs the data received from the
+   gesture library into the appropriate gesture Reporter (e.g. RotateReporter),
+   then packs the Reporter into a Message and emits the Message to the server.  
+4. On the server side, a Connection receives the Message and calls its
+   appropriate message handler, which usually means forwarding the Message to
+   its WorkSpace.
+5. The WorkSpace calls its appropriate message handler, which will either be a
+   NOP if the user has not registered a listener, or will be a Listener built by
+   the ListenerFactory for the WorkSpace when the user registered a listener by
+   calling 'on()'.
+6. The Listener unpacks the forwarded gesture data. During this phase, hit
+   detection is performed, if necessary, so as to locate the item that was
+   interacted with.
+7. The Listener calls the user-supplied function with the appropriate arguments.
+   The first argument is _always_ the view from which the gesture originated.
