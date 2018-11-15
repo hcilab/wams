@@ -70,6 +70,7 @@ class Connection {
   
   disconnect() {
     if (this.workspace.removeView(this.view)) {
+      this.view.releaseLockedItem();
       this.socket.disconnect(true);
       return true;
     } 
