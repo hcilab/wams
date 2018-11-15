@@ -94,6 +94,9 @@ class WorkSpace {
       case 'end':
         view.releaseLockedItem();
         return null;
+      case 'cancel':
+        view.releaseLockedItem();
+        return null;
       default:
         return this.findFreeItemByCoordinates(x, y);
     }
