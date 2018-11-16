@@ -12658,33 +12658,80 @@ var ClientView = require('./ClientView.js');
 
 var Interactor = require('./Interactor.js');
 
-var STAMPER = new IdStamper();
+var STAMPER = new IdStamper(); // symbols to identify these methods as intended only for internal use
+
 var symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket')
 });
+/**
+ * A ClientController is responsible for communicating with the server.
+ */
 
 var ClientController =
 /*#__PURE__*/
 function () {
+  /**
+   * canvas: The underlying CanvasRenderingContext2D object, (not the context),
+   *         which will fill the page.
+   */
   function ClientController(canvas) {
     (0, _classCallCheck2.default)(this, ClientController);
+
+    /**
+     * The CanvasRenderingContext2D object is stored by the ClientController so
+     * that it is able to respond to user events triggered on the canvas. The
+     * view only needs to know about the canvas drawing context.
+     */
     this.canvas = canvas;
+    /**
+     * From socket.io, the socket provides a channel of communication with the
+     * server.
+     */
+
     this.socket = null;
+    /**
+     * The ClientView handles the final rendering of the model, as informed by
+     * the controller, and as such needs to konw the canvas rendering context.
+     */
+
     this.view = new ClientView({
       context: this.canvas.getContext('2d')
     });
+    /**
+     * The Interactor is a level of abstraction between the ClientController and
+     * the gesture recognition library such that libraries can be swapped out
+     * more easily, if need be. At least in theory. All the ClientController
+     * needs to provide is handler functions for responding to the recognized
+     * gestures.
+     */
+
     this.interactor = new Interactor(this.canvas, {
       pan: this.pan.bind(this),
       rotate: this.rotate.bind(this),
       swipe: this.swipe.bind(this),
       tap: this.tap.bind(this),
       zoom: this.zoom.bind(this)
-    });
+    }); // For proper function, we need to make sure that the canvas is as large as
+    // it can be at all times, and that at all times we know how big the canvas
+    // is.
+
     this.resizeCanvasToFillWindow();
-    window.addEventListener('resize', this.resize.bind(this), false);
+    window.addEventListener('resize', this.resize.bind(this), false); // Automatically establish a socket connection with the server. This may
+    // need to be changed to be non-automatic if it is discovered that it is
+    // useful for functionality to be inserted between ClientController
+    // instantiation and socket establishment.
+
     this[symbols.establishSocket]();
   }
+  /**
+   * Attaches listeners to messages received over the socket connection. All
+   * received messages at this layer should be those conforming to the Message /
+   * Reporter protocol.
+   *
+   * This internal routine will be called as part of socket establishment.
+   */
+
 
   (0, _createClass2.default)(ClientController, [{
     key: symbols.attachListeners,
@@ -12747,6 +12794,16 @@ function () {
         return _this.socket.on(p, v);
       });
     }
+    /**
+     * Establishes a socket.io connection with the server, using the global WAMS
+     * namespace. Connections should be non-persistent over disconnects, (i.e., no
+     * reconnections), as this was the cause of many bugs. 
+     *  - TODO: Revisit? Should reconnections be allowed?
+     *
+     * This internal routine should be called automatically upon ClientController
+     * instantiation.
+     */
+
   }, {
     key: symbols.establishSocket,
     value: function value() {
@@ -12757,6 +12814,13 @@ function () {
       this[symbols.attachListeners]();
       this.socket.connect();
     }
+    /**
+     * Forwards messages to the View.
+     *
+     * message: string denoting type of message. 
+     * ...args: arguments to be passed to ultimate handler.
+     */
+
   }, {
     key: "handle",
     value: function handle(message) {
@@ -12768,6 +12832,18 @@ function () {
 
       (_this$view = this.view).handle.apply(_this$view, [message].concat(args));
     }
+    /**
+     * Forward data pertaining to a pan/drag event to the server, using the
+     * Message / Reporter protocol.
+     *
+     * x    : x coordinate of drag
+     * y    : y coordinate of drag
+     * dx   : change in x coordinate since last drag event
+     * dy   : change in y coordinate since last drag event
+     * phase: one of 'start', 'move', 'end', or 'cancel', the phase of the drag
+     *        event.
+     */
+
   }, {
     key: "pan",
     value: function pan(x, y, dx, dy, phase) {
@@ -12780,12 +12856,23 @@ function () {
       });
       new Message(Message.DRAG, mreport).emitWith(this.socket);
     }
+    /**
+     * For responding to window resizing by the user. Resizes the canvas to fit
+     * the new window size, and reports the change to the server so it can be
+     * reflected in the model.
+     */
+
   }, {
     key: "resize",
     value: function resize() {
       this.resizeCanvasToFillWindow();
       new Message(Message.RESIZE, this.view).emitWith(this.socket);
     }
+    /**
+     * Stretches the canvas to fit the available window space, and updates the
+     * view accordingly.
+     */
+
   }, {
     key: "resizeCanvasToFillWindow",
     value: function resizeCanvasToFillWindow() {
@@ -12793,14 +12880,30 @@ function () {
       this.canvas.height = window.innerHeight;
       this.handle('resizeToFillWindow');
     }
+    /**
+     * As this object will be instantiated on page load, and will generate a view
+     * before communication lines with the server have been opened, the view will
+     * not reflect the model for this user automatically. This function responds
+     * to a message from the server which contains the appropriate setup data for
+     * this user, and updates the view accordingly.
+     */
+
   }, {
     key: "setup",
     value: function setup(data) {
       STAMPER.cloneId(this, data.id);
       this.canvas.style.backgroundColor = data.color;
-      this.handle('setup', data);
+      this.handle('setup', data); // Need to tell the model what the view looks like once setup is complete.
+
       new Message(Message.LAYOUT, this.view).emitWith(this.socket);
     }
+    /**
+     * Forward data pertaining to a rotate event to the server, using the Message
+     * / Reporter protocol.
+     *
+     * radians: The amount of the rotation, in radians.
+     */
+
   }, {
     key: "rotate",
     value: function rotate(radians) {
@@ -12809,6 +12912,16 @@ function () {
       });
       new Message(Message.ROTATE, rreport).emitWith(this.socket);
     }
+    /**
+     * Forward data pertaining to a swipe event to the server, using the Message /
+     * Reporter protocol.
+     *
+     * velocity : The speed of the swipe.
+     * x        : x coordinate of swipe.
+     * y        : y coordinate of swipe.
+     * direction: The direction of the swipe.
+     */
+
   }, {
     key: "swipe",
     value: function swipe(velocity, x, y, direction) {
@@ -12820,6 +12933,14 @@ function () {
       });
       new Message(Message.SWIPE, sreport).emitWith(this.socket);
     }
+    /**
+     * Forward data pertaining to a tap event to the server, using the Message /
+     * Reporter protocol.
+     *
+     * x    : x coordinate of tap
+     * y    : y coordinate of tap
+     */
+
   }, {
     key: "tap",
     value: function tap(x, y) {
@@ -12829,6 +12950,13 @@ function () {
       });
       new Message(Message.CLICK, mreport).emitWith(this.socket);
     }
+    /**
+     * Forward data pertaining to a zoom/scale event to the server, using the
+     * Message / Reporter protocol.
+     *
+     * diff: The change in scale
+     */
+
   }, {
     key: "zoom",
     value: function zoom(diff) {
@@ -12882,13 +13010,18 @@ var _require = require('../shared.js'),
 var _require2 = require('canvas-sequencer'),
     CanvasBlueprint = _require2.CanvasBlueprint;
 /*
- * I'm not defining a 'defaults' object here, because the data going into
- * the creation of items should always come from the server, where it has
- * already gone through an initialization against a defaults object.
+ * I'm not defining a 'defaults' object here, because the data going into the
+ * creation of items should always come from the server, where it has already
+ * gone through an initialization against a defaults object.
  */
 
 
 var STAMPER = new IdStamper();
+/**
+ * Abstraction of the requisite logic for generating an image object which will
+ * load the appropriate image and report when it has finished loading the image
+ * so that it can be displayed.
+ */
 
 function createImage(src) {
   if (src) {
@@ -12912,6 +13045,11 @@ var ClientItem =
 function (_Item) {
   (0, _inherits2.default)(ClientItem, _Item);
 
+  /**
+   * data: The data from the server describing this item. Only properties
+   *       explicity listed in the array passed to the ReporterFactory when the
+   *       Item class was defined will be accepted.
+   */
   function ClientItem(data) {
     var _this;
 
@@ -12920,6 +13058,14 @@ function (_Item) {
     STAMPER.cloneId((0, _assertThisInitialized2.default)((0, _assertThisInitialized2.default)(_this)), data.id);
     return _this;
   }
+  /**
+   * Overrides the default Reporter assign() method, wrapping it in
+   * functionality for generating an image, or a canvas drawing blueprint and
+   * sequence.
+   *
+   * data: The data from the server describing this item.
+   */
+
 
   (0, _createClass2.default)(ClientItem, [{
     key: "assign",
@@ -12937,6 +13083,13 @@ function (_Item) {
         this.sequence = this.blueprint.build(this.report());
       }
     }
+    /**
+     * Render the item onto the given context.
+     * Prioritizes blueprints over images.
+     *
+     * context: CanvasRenderingContext2D onto which to draw this item.
+     */
+
   }, {
     key: "draw",
     value: function draw(context) {
@@ -13029,24 +13182,56 @@ var symbols = Object.freeze({
   drawStatus: Symbol('drawStatus'),
   wipe: Symbol('wipe')
 });
+/**
+ * The ClientView is responsible for rendering the view. To do this, it keeps
+ * track of its own position, scale, and orientation, as well as those values
+ * for all items and all other views (which will be represented with outlines).
+ */
 
 var ClientView =
 /*#__PURE__*/
 function (_View) {
   (0, _inherits2.default)(ClientView, _View);
 
+  /**
+   * values: Data for initializing this view. Likely does not come from the
+   *         server, as communication lines probably won't be open yet at the
+   *         time that this class is instantiated.
+   */
   function ClientView() {
     var _this;
 
     var values = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     (0, _classCallCheck2.default)(this, ClientView);
     _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(ClientView).call(this, getInitialValues(DEFAULTS, values)));
+    /**
+     * The CanvasRenderingContext2D is required for drawing (rendering) to take
+     * place.
+     */
+
     if (values.context) _this.context = values.context;else throw 'ClientView requires a CanvasRenderingContext2D!';
+    /**
+     * All the items in the model, which may all need rendering at some point.
+     * Kept up to date via the ClientController.
+     */
+
     _this.items = [];
-    _this.shadows = [];
+    /**
+     * The shadows are all the other views that are currently active. They are
+     * tracked in full and an outline for each is rendered.
+     */
+
+    _this.shadows = []; // As no draw loop is used, (there are no animations), need to know when to
+    // re-render in response to an image loading.
+
     document.addEventListener(Message.IMG_LOAD, _this.draw.bind((0, _assertThisInitialized2.default)((0, _assertThisInitialized2.default)(_this))));
     return _this;
   }
+  /**
+   * Positions the rendering context precisely, taking into account all
+   * transformations, so that rendering can proceed correctly.
+   */
+
 
   (0, _createClass2.default)(ClientView, [{
     key: symbols.align,
@@ -13059,6 +13244,10 @@ function (_View) {
       this.context.rotate(this.rotation);
       this.context.translate(-this.x, -this.y);
     }
+    /**
+     * Renders all the items.
+     */
+
   }, {
     key: symbols.drawItems,
     value: function value() {
@@ -13068,6 +13257,10 @@ function (_View) {
         return o.draw(_this2.context);
       });
     }
+    /**
+     * Renders outlines of all the other views.
+     */
+
   }, {
     key: symbols.drawShadows,
     value: function value() {
@@ -13077,6 +13270,11 @@ function (_View) {
         return v.draw(_this3.context);
       });
     }
+    /**
+     * Renders text describing the status of the view to the upper left corner of
+     * the view, to assist with debugging.
+     */
+
   }, {
     key: symbols.drawStatus,
     value: function value() {
@@ -13097,21 +13295,42 @@ function (_View) {
       });
       this.context.restore();
     }
+    /**
+     * Clears all previous renders, to ensure a clean slate for the upcoming
+     * render.
+     */
+
   }, {
     key: symbols.wipe,
     value: function value() {
       this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
     }
+    /**
+     * Generate and store an Item with the given values.
+     *
+     * values: state of the item
+     */
+
   }, {
     key: "addItem",
     value: function addItem(values) {
       this.items.push(new ClientItem(values));
     }
+    /**
+     * Generate and store a 'shadow view' to track another active view.
+     *
+     * values: state of the View.
+     */
+
   }, {
     key: "addShadow",
     value: function addShadow(values) {
       this.shadows.push(new ShadowView(values));
     }
+    /**
+     * Fully render the current state of the system.
+     */
+
   }, {
     key: "draw",
     value: function draw() {
@@ -13123,6 +13342,14 @@ function (_View) {
       this[symbols.drawStatus]();
       this.context.restore();
     }
+    /**
+     * Handle a message from the ClientController.
+     *
+     * message: The type of message.
+     * ...args: The arguments to be passed to the ultimate message handling
+     *          function.
+     */
+
   }, {
     key: "handle",
     value: function handle(message) {
@@ -13133,16 +13360,32 @@ function (_View) {
       this[message].apply(this, args);
       this.draw();
     }
+    /**
+     * Message handler. Removes the given item.
+     *
+     * item: The Item to remove.
+     */
+
   }, {
     key: "removeItem",
     value: function removeItem(item) {
       return removeById(this.items, item);
     }
+    /**
+     * Message handler. Removes the given 'shadow' view.
+     *
+     * shadow: The 'shadow' view to remove.
+     */
+
   }, {
     key: "removeShadow",
     value: function removeShadow(shadow) {
       return removeById(this.shadows, shadow);
     }
+    /**
+     * Fill all available space in the window.
+     */
+
   }, {
     key: "resizeToFillWindow",
     value: function resizeToFillWindow() {
@@ -13151,6 +13394,15 @@ function (_View) {
       this.effectiveWidth = this.width / this.scale;
       this.effectiveHeight = this.height / this.scale;
     }
+    /**
+     * Set up the internal copy of the model according to the data provided by the
+     * server.
+     *
+     * data: The data from the server detailing the current state of the model.
+     *       See REQUIRED_DATA. If any is missing, something has gone terribly
+     *       wrong, and an exception will be thrown.
+     */
+
   }, {
     key: "setup",
     value: function setup(data) {
@@ -13167,6 +13419,16 @@ function (_View) {
         return _this5.addItem(o);
       });
     }
+    /**
+     * Intended for use as an internal helper function, so that this functionality
+     * does not need to be defined twice for both of the items and shadows arrays.
+     *
+     * container: Array containing the object to update.
+     * data     : Data with which an object in the container will be updated.
+     *            Note that the object is located using an 'id' field on this data
+     *            object.
+     */
+
   }, {
     key: "update",
     value: function update(container, data) {
@@ -13175,11 +13437,25 @@ function (_View) {
       });
       if (object) object.assign(data);else console.warn("Unable to find in ".concat(container, ": id: "), data.id);
     }
+    /**
+     * Update an item.
+     *
+     * data: data from the server, has an 'id' field with which the item will be
+     *       located.
+     */
+
   }, {
     key: "updateItem",
     value: function updateItem(data) {
       this.update('items', data);
     }
+    /**
+     * Update a 'shadow' view.
+     *
+     * data: data from the server, has an 'id' field with which the view will be
+     *       located.
+     */
+
   }, {
     key: "updateShadow",
     value: function updateShadow(data) {
@@ -13226,7 +13502,7 @@ var _require = require('../shared.js'),
  * Currently, the Interactor makes use of the Westures library.
  *
  * General Design:
- *  The handlers will get called with the arguments that need to be reportd
+ *  The handlers will get called with the arguments that need to be reported
  *  through to the server. This allows the ClientController to use this class
  *  in a very simple way. This is the contract between the Interactor and the
  *  ClientController, and must be honoured.
@@ -13264,10 +13540,8 @@ function () {
   (0, _createClass2.default)(Interactor, [{
     key: "bindRegions",
     value: function bindRegions() {
-      /*
-       * this.region.bind() attaches a gesture recognizer and a callback to an
-       * element.
-       */
+      // this.region.bind() attaches a gesture recognizer and a callback to an
+      // element.
       var pan = this.pan.bind(this);
       var tap = this.tap.bind(this);
       var pinch = this.pinch.bind(this);
@@ -13401,6 +13675,7 @@ require("core-js/modules/es6.symbol");
 require("core-js/modules/es6.object.freeze");
 
 var _require = require('../shared.js'),
+    constants = _require.constants,
     IdStamper = _require.IdStamper,
     View = _require.View;
 
@@ -13445,7 +13720,7 @@ function (_View) {
     key: symbols.align,
     value: function value(context) {
       context.translate(this.x, this.y);
-      context.rotate(Math.PI * 2 - this.rotation);
+      context.rotate(constants.ROTATE_360 - this.rotation);
     }
   }, {
     key: symbols.style,
@@ -13515,6 +13790,7 @@ var constants = Object.freeze({
   ROTATE_90: Math.PI / 2,
   ROTATE_180: Math.PI,
   ROTATE_270: Math.PI * 1.5,
+  ROTATE_360: Math.PI * 2,
   // Namespaces
   NS_WAMS: '/wams'
 });
