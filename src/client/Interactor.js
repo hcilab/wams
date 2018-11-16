@@ -21,7 +21,7 @@ const { getInitialValues, NOP } = require('../shared.js');
  * Currently, the Interactor makes use of the Westures library.
  *
  * General Design:
- *  The handlers will get called with the arguments that need to be reportd
+ *  The handlers will get called with the arguments that need to be reported
  *  through to the server. This allows the ClientController to use this class
  *  in a very simple way. This is the contract between the Interactor and the
  *  ClientController, and must be honoured.
@@ -52,10 +52,8 @@ class Interactor {
   }
 
   bindRegions() {
-    /*
-     * this.region.bind() attaches a gesture recognizer and a callback to an
-     * element.
-     */
+    // this.region.bind() attaches a gesture recognizer and a callback to an
+    // element.
     const pan     = this.pan.bind(this);
     const tap     = this.tap.bind(this);
     const pinch   = this.pinch.bind(this);
@@ -83,7 +81,7 @@ class Interactor {
   }
 
   pincher() {
-    return new Westures.Pinch({minInputs: 3});
+    return new Westures.Pinch({ minInputs: 3 });
   }
 
   rotate({ detail }) {

@@ -16,12 +16,17 @@ const { IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
- * I'm not defining a 'defaults' object here, because the data going into
- * the creation of items should always come from the server, where it has
- * already gone through an initialization against a defaults object.
+ * I'm not defining a 'defaults' object here, because the data going into the
+ * creation of items should always come from the server, where it has already
+ * gone through an initialization against a defaults object.
  */
 const STAMPER = new IdStamper();
 
+/**
+ * Abstraction of the requisite logic for generating an image object which will
+ * load the appropriate image and report when it has finished loading the image
+ * so that it can be displayed.
+ */
 function createImage(src) {
   if (src) {
     const img = new Image();
@@ -41,11 +46,23 @@ function createImage(src) {
 }
 
 class ClientItem extends Item {
+  /**
+   * data: The data from the server describing this item. Only properties
+   *       explicity listed in the array passed to the ReporterFactory when the
+   *       Item class was defined will be accepted.
+   */
   constructor(data) {
     super(data);
     STAMPER.cloneId(this, data.id);
   }
 
+  /**
+   * Overrides the default Reporter assign() method, wrapping it in
+   * functionality for generating an image, or a canvas drawing blueprint and
+   * sequence.
+   *
+   * data: The data from the server describing this item.
+   */
   assign(data) {
     const updateImage = data.imgsrc !== this.imgsrc;
     const updateBlueprint = Boolean(data.blueprint);
@@ -63,6 +80,12 @@ class ClientItem extends Item {
     }
   }
 
+  /**
+   * Render the item onto the given context.
+   * Prioritizes blueprints over images.
+   *
+   * context: CanvasRenderingContext2D onto which to draw this item.
+   */
   draw(context) {
     const width = this.width || this.img.width;
     const height = this.height || this.img.height;
