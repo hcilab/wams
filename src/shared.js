@@ -25,6 +25,7 @@ const constants = Object.freeze({
   ROTATE_90:  Math.PI / 2,
   ROTATE_180: Math.PI,
   ROTATE_270: Math.PI * 1.5,
+  ROTATE_360: Math.PI * 2,
 
   // Namespaces
   NS_WAMS:  '/wams',

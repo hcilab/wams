@@ -18,7 +18,7 @@
 
 'use strict';
 
-const { IdStamper, View } = require('../shared.js');
+const { constants, IdStamper, View } = require('../shared.js');
 
 const STAMPER = new IdStamper();
 const COLOURS = [
@@ -60,7 +60,7 @@ class ShadowView extends View {
 
   [symbols.align](context) {
     context.translate(this.x,this.y);
-    context.rotate((Math.PI * 2) - this.rotation);
+    context.rotate(constants.ROTATE_360 - this.rotation);
   }
 
   [symbols.style](context) {
