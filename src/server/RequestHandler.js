@@ -13,11 +13,13 @@
 const path = require('path');
 const express = require('express');
 
-/*
- * XXX: The paths being used in the request handler are a little hacky and all
- *      over the place right now. Look into how to normalize them.
- */
+// XXX: The paths being used in the request handler are a little hacky and all
+//      over the place right now. Look into how to normalize them.
 
+/**
+ * Establishes routes to the HTML and client JavaScript source for the given
+ * app.
+ */
 function establishMainRoutes(app) {
   const view   = path.join(__dirname, '../../dist/view.html');
   const source = path.join(__dirname, '../../dist/wams-client.js');
@@ -25,6 +27,9 @@ function establishMainRoutes(app) {
   app.get('/wams-client.js', (req, res) => res.sendFile(source));
 }
 
+/**
+ * Establish routes to static resources.
+ */
 function establishAuxiliaryRoutes(app) {
   /* 
    * express.static() generates a middleware function for serving static
@@ -42,13 +47,12 @@ function establishAuxiliaryRoutes(app) {
    *    + maxAge
    */
   const images = path.join(__dirname, '../../img');
-  const libs = path.join(__dirname, '../../libs');
   app.use('/img', express.static(images));
-  app.use('/libs', express.static(libs));
 }
 
-/*
- * XXX: This is a little gross, I'm not sure I like how this works.
+/**
+ * Actually returns an express.js app with routes already established. Maybe not
+ * the most elegant solution...
  */
 class RequestHandler {
   constructor() {

@@ -56,18 +56,49 @@ class ServerView extends View {
    */
   constructor(values = {}) {
     super(getInitialValues(DEFAULTS, values));
+
+    /**
+     * x and y dimensions detailing the boundaries within which the view can
+     * operate.
+     */
     this.bounds = values.bounds || DEFAULTS.bounds;
+
+    /**
+     * The effective width of the view inside the model.
+     */
     this.effectiveWidth = this.width / this.scale;
+
+    /**
+     * The effective height of the view inside the model.
+     */
     this.effectiveHeight = this.height / this.scale;
+
+    /**
+     * If a continuous gesture needs to lock down an item, a reference to that
+     * item will be saved here.
+     */
     this.lockedItem = null;
+
+    // Views must be uniquely identifiable.
     STAMPER.stampNewId(this);
   }
 
+  /**
+   * Getters for the sides of the view for positioning elements relative to each
+   * other.
+   */
   get bottom()  { return this.y + this.effectiveHeight; }
   get left()    { return this.x; }
   get right()   { return this.x + this.effectiveWidth; }
   get top()     { return this.y; }
 
+  /**
+   * Returns true if the view can be scaled to the given dimensions and still
+   * fit in the boundaries of the workspace.
+   *
+   * width : Width of the desired new scale.
+   * height: Height of the desired new scale.
+   */
   canBeScaledTo(width = this.width, height = this.height) {
     return  (width  > 0) &&
       (height > 0) &&
@@ -84,26 +115,55 @@ class ServerView extends View {
    * XXX: Can they be unified simply while still allowing this kind of 
    *      separation?
    */
+
+  /**
+   * Returns true if this view can be moved to the given X coordinate and still
+   * fit within the boundaries of the workspace.
+   *
+   * x: desired x coordinate to move to
+   */
   canMoveToX(x = this.x) {
     return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
   }
 
+  /**
+   * Returns true if this view can be moved to the given Y coordinate and still
+   * fit within the boundaries of the workspace.
+   *
+   * y: desired y coordinate to move to
+   */
   canMoveToY(y = this.y) {
     return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
   }
 
+  /**
+   * Obtain a lock on the given item for this view.
+   *
+   * item: The item to lock down.
+   */
   getLockOnItem(item) {
     if ( this.lockedItem ) this.lockedItem.unlock();
     this.lockedItem = item;
     item.lock();
   }
       
+  /**
+   * Move the view by the given amounts.
+   *
+   * dx: Movement along the x axis.
+   * dy: Movement along the y ayis.
+   */
   moveBy(dx = 0, dy = 0) {
     this.moveTo(this.x + dx, this.y + dy);
   }
 
-  /*
+  /**
+   * Move the view to the given coordinates (or attempt to, anyway).
    * Views are constrained to stay within the boundaries of the workspace.
+   * TODO: Adjust to move to maximal x/y location if unable to move all the way.
+   *
+   * x: x coordinate to move to
+   * y: y coordinate to move to
    */
   moveTo(x = this.x, y = this.y) {
     const coordinates = { x: this.x, y: this.y };
@@ -112,17 +172,29 @@ class ServerView extends View {
     this.assign(coordinates);
   }
 
+  /**
+   * Rotate the view by the given amount, in radians.
+   *
+   * radians: The amount of rotation to apply to the view.
+   */
   rotateBy(radians = 0) {
     this.rotateTo(this.rotation + radians);
   }
 
+  /**
+   * Re-orient the view to the given rotation, in radians.
+   *
+   * radians: The rotation to jump to.
+   */
   rotateTo(rotation = this.rotation) {
     this.assign({ rotation });
   }
 
-  /*
-   * Transforms pointer coordinates and movement from a client into the
+  /**
+   * Transform pointer coordinates and movement from a client into the
    * corresponding coordinates and movement for the server's model.
+   *
+   * TODO: So many inner functions! Should this be a class of its own?
    */
   refineMouseCoordinates(x, y, dx, dy) {
     const data = { x, y, dx, dy };
@@ -135,6 +207,9 @@ class ServerView extends View {
     applyTranslation(data, this.x, this.y);
     return data;
 
+    /**
+     * Inner helper function for scaling coordinate data.
+     */
     function applyScale(data, scale) {
       data.x /= scale;
       data.y /= scale;
@@ -142,11 +217,17 @@ class ServerView extends View {
       data.dy /= scale;
     }
 
+    /**
+     * Inner helper function for applying a translation to coordinate data.
+     */
     function applyTranslation(data, x, y) {
       data.x += x;
       data.y += y;
     }
 
+    /**
+     * Inner helper function for applying a rotation to coordinate data.
+     */
     function applyRotation(data, theta) {
       const cos_theta = Math.cos(theta);
       const sin_theta = Math.sin(theta);
@@ -170,12 +251,19 @@ class ServerView extends View {
     }
   }
 
+  /**
+   * Release the view's item lock.
+   */
   releaseLockedItem() {
     if (this.lockedItem) this.lockedItem.unlock();
     this.lockedItem = null;
   }
 
-  /*
+  /**
+   * Adjust scale to the given scale.
+   *
+   * scale: Desired scale.
+   *
    * The scaled width and height (stored permanently as effective width and
    * height) are determined by dividing the width or height by the scale.
    * This might seem odd at first, as that seems to be the opposite of what

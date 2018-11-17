@@ -17,7 +17,15 @@ const Westures = require('../../../westures');
 // const Westures = require('westures');
 const { getInitialValues, NOP } = require('../shared.js');
 
-/*
+const HANDLERS = Object.freeze({ 
+  pan:    NOP,
+  rotate: NOP,
+  swipe:  NOP,
+  tap:    NOP,
+  zoom:   NOP,
+});
+
+/**
  * Currently, the Interactor makes use of the Westures library.
  *
  * General Design:
@@ -33,16 +41,13 @@ const { getInitialValues, NOP } = require('../shared.js');
  *  there as an intermediary to collect data from events and call the handlers
  *  with only the requisite data.
  */
-
-const HANDLERS = Object.freeze({ 
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-});
-
 class Interactor {
+  /**
+   * canvas  : The <canvs> element on which to listen for interaction events.
+   * handlers: Object with keys as the names gestures and values as the
+   *           corresponding function for handling that gesture when it is
+   *           recognized.
+   */
   constructor(canvas, handlers = {}) {
     this.canvas = canvas;
     this.region = new Westures.Region(window, true, true);
@@ -51,9 +56,12 @@ class Interactor {
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
 
+  /**
+   * Westures uses Gesture objects, and expects those objects to be bound to an
+   * element, along with a handler for responding to that gesture. This method
+   * takes care of those activities.
+   */
   bindRegions() {
-    // this.region.bind() attaches a gesture recognizer and a callback to an
-    // element.
     const pan     = this.pan.bind(this);
     const tap     = this.tap.bind(this);
     const pinch   = this.pinch.bind(this);
@@ -67,48 +75,86 @@ class Interactor {
     this.region.bind(this.canvas, this.swiper(), swipe);
   }
 
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
   pan({ detail }) {
     const { change, point, phase } = detail;
     this.handlers.pan( point.x, point.y, change.x, change.y, phase);
   }
 
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
   panner() {
     return new Westures.Pan();
   }
 
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
   pinch({ detail }) {
     this.handlers.zoom(detail.change * 0.0025);
   }
 
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
   pincher() {
     return new Westures.Pinch({ minInputs: 3 });
   }
 
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
   rotate({ detail }) {
     this.handlers.rotate( detail.delta );
   }
 
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
   rotater() {
     return new Westures.Rotate();
   }
 
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
   swipe({ detail }) {
     const { velocity, x, y, direction } = detail;
     this.handlers.swipe(velocity, x, y, direction);
   }
 
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
   swiper() {
     return new Westures.Swipe();
   }
 
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
   tap({ detail }) {
     this.handlers.tap( detail.x, detail.y );
   }
 
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
   tapper() {
     return new Westures.Tap({ tolerance: 4 });
   }
 
+  /**
+   * Treat scrollwheel events as zoom events.
+   */
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.10 : 0.02;

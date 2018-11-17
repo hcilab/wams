@@ -32,6 +32,7 @@ const COLOURS = [
   'lime',
 ];
 
+// Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
   align:    Symbol('align'),
   style:    Symbol('style'),
@@ -39,12 +40,23 @@ const symbols = Object.freeze({
   marker:   Symbol('marker'),
 });
 
+/**
+ * Track another active view and render an outline.
+ */
 class ShadowView extends View {
+  /**
+   * values: server-provided data describing this view.
+   */
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);
   }
 
+  /**
+   * Render an outline of this view.
+   *
+   * context: CanvasRenderingContext2D on which to draw.
+   */
   draw(context) {
     /*
      * WARNING: It is *crucial* that this series of instructions be wrapped in
@@ -58,11 +70,18 @@ class ShadowView extends View {
     context.restore();
   }
 
+  /**
+   * Aligns the drawing context so the outline will be rendered in the correct
+   * location with the correct orientation.
+   */
   [symbols.align](context) {
     context.translate(this.x,this.y);
     context.rotate(constants.ROTATE_360 - this.rotation);
   }
 
+  /**
+   * Applies styling to the drawing context.
+   */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
     context.strokeStyle = COLOURS[this.id % COLOURS.length];
@@ -70,10 +89,17 @@ class ShadowView extends View {
     context.lineWidth = 5;
   }
 
+  /**
+   * Draws an outline of the view.
+   */
   [symbols.outline](context) {
     context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
   }
 
+  /**
+   * Draws a small triangle in the upper-left corner of the outline, so that
+   * other views can quickly tell which way this view is oriented.
+   */
   [symbols.marker](context) {
     const base = context.lineWidth / 2;
     const height = 25;

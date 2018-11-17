@@ -18,26 +18,44 @@ const Server = require('./Server.js');
 const server = Symbol('server');
 
 class Wams {
+  /**
+   * settings: Settings data to be forwarded to the server.
+   */
   constructor(settings = {}) {
     this[server] = new Server(settings);
   }
 
+  /**
+   * Activate the server, listening on the given host and port.
+   */
   listen(port, host) {
     this[server].listen(port, host);
   }
 
+  /**
+   * Register a handler for the given event.
+   */
   on(event, handler) {
     this[server].on(event, handler);
   }
 
+  /**
+   * Remove the given item from the workspace.
+   */
   removeItem(item) {
     this[server].removeItem(item);
   }
 
+  /**
+   * Spawn a new item with the given values in the workspace.
+   */
   spawnItem(values) {
     this[server].spawnItem(values);
   }
 
+  /**
+   * Announce an update to the given object to all clients.
+   */
   update(object) {
     this[server].update(object);
   }

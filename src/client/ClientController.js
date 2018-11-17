@@ -197,9 +197,9 @@ class ClientController {
   /**
    * As this object will be instantiated on page load, and will generate a view
    * before communication lines with the server have been opened, the view will
-   * not reflect the model for this user automatically. This function responds
-   * to a message from the server which contains the appropriate setup data for
-   * this user, and updates the view accordingly.
+   * not reflect the model automatically. This function responds to a message
+   * from the server which contains the current state of the model, and forwards
+   * this data to the view so that it can correctly render the model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);
