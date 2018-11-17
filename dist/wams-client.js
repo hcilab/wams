@@ -12883,9 +12883,9 @@ function () {
     /**
      * As this object will be instantiated on page load, and will generate a view
      * before communication lines with the server have been opened, the view will
-     * not reflect the model for this user automatically. This function responds
-     * to a message from the server which contains the appropriate setup data for
-     * this user, and updates the view accordingly.
+     * not reflect the model automatically. This function responds to a message
+     * from the server which contains the current state of the model, and forwards
+     * this data to the view so that it can correctly render the model.
      */
 
   }, {
@@ -13498,7 +13498,15 @@ var Westures = require('../../../westures'); // const Westures = require('westur
 var _require = require('../shared.js'),
     getInitialValues = _require.getInitialValues,
     NOP = _require.NOP;
-/*
+
+var HANDLERS = Object.freeze({
+  pan: NOP,
+  rotate: NOP,
+  swipe: NOP,
+  tap: NOP,
+  zoom: NOP
+});
+/**
  * Currently, the Interactor makes use of the Westures library.
  *
  * General Design:
@@ -13515,18 +13523,15 @@ var _require = require('../shared.js'),
  *  with only the requisite data.
  */
 
-
-var HANDLERS = Object.freeze({
-  pan: NOP,
-  rotate: NOP,
-  swipe: NOP,
-  tap: NOP,
-  zoom: NOP
-});
-
 var Interactor =
 /*#__PURE__*/
 function () {
+  /**
+   * canvas  : The <canvs> element on which to listen for interaction events.
+   * handlers: Object with keys as the names gestures and values as the
+   *           corresponding function for handling that gesture when it is
+   *           recognized.
+   */
   function Interactor(canvas) {
     var handlers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     (0, _classCallCheck2.default)(this, Interactor);
@@ -13536,12 +13541,16 @@ function () {
     this.bindRegions();
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
+  /**
+   * Westures uses Gesture objects, and expects those objects to be bound to an
+   * element, along with a handler for responding to that gesture. This method
+   * takes care of those activities.
+   */
+
 
   (0, _createClass2.default)(Interactor, [{
     key: "bindRegions",
     value: function bindRegions() {
-      // this.region.bind() attaches a gesture recognizer and a callback to an
-      // element.
       var pan = this.pan.bind(this);
       var tap = this.tap.bind(this);
       var pinch = this.pinch.bind(this);
@@ -13553,6 +13562,11 @@ function () {
       this.region.bind(this.canvas, this.rotater(), rotate);
       this.region.bind(this.canvas, this.swiper(), swipe);
     }
+    /**
+     * Transform data received from Westures and forward to the registered
+     * handler.
+     */
+
   }, {
     key: "pan",
     value: function pan(_ref) {
@@ -13562,17 +13576,30 @@ function () {
           phase = detail.phase;
       this.handlers.pan(point.x, point.y, change.x, change.y, phase);
     }
+    /**
+     * Obtain the appropriate Westures Gesture object.
+     */
+
   }, {
     key: "panner",
     value: function panner() {
       return new Westures.Pan();
     }
+    /**
+     * Transform data received from Westures and forward to the registered
+     * handler.
+     */
+
   }, {
     key: "pinch",
     value: function pinch(_ref2) {
       var detail = _ref2.detail;
       this.handlers.zoom(detail.change * 0.0025);
     }
+    /**
+     * Obtain the appropriate Westures Gesture object.
+     */
+
   }, {
     key: "pincher",
     value: function pincher() {
@@ -13580,17 +13607,31 @@ function () {
         minInputs: 3
       });
     }
+    /**
+     * Transform data received from Westures and forward to the registered
+     * handler.
+     */
+
   }, {
     key: "rotate",
     value: function rotate(_ref3) {
       var detail = _ref3.detail;
       this.handlers.rotate(detail.delta);
     }
+    /**
+     * Obtain the appropriate Westures Gesture object.
+     */
+
   }, {
     key: "rotater",
     value: function rotater() {
       return new Westures.Rotate();
     }
+    /**
+     * Transform data received from Westures and forward to the registered
+     * handler.
+     */
+
   }, {
     key: "swipe",
     value: function swipe(_ref4) {
@@ -13601,17 +13642,30 @@ function () {
           direction = detail.direction;
       this.handlers.swipe(velocity, x, y, direction);
     }
+    /**
+     * Obtain the appropriate Westures Gesture object.
+     */
+
   }, {
     key: "swiper",
     value: function swiper() {
       return new Westures.Swipe();
     }
+    /**
+     * Transform data received from Westures and forward to the registered
+     * handler.
+     */
+
   }, {
     key: "tap",
     value: function tap(_ref5) {
       var detail = _ref5.detail;
       this.handlers.tap(detail.x, detail.y);
     }
+    /**
+     * Obtain the appropriate Westures Gesture object.
+     */
+
   }, {
     key: "tapper",
     value: function tapper() {
@@ -13619,6 +13673,10 @@ function () {
         tolerance: 4
       });
     }
+    /**
+     * Treat scrollwheel events as zoom events.
+     */
+
   }, {
     key: "wheel",
     value: function wheel(event) {
@@ -13680,19 +13738,26 @@ var _require = require('../shared.js'),
     View = _require.View;
 
 var STAMPER = new IdStamper();
-var COLOURS = ['saddlebrown', 'red', 'blue', 'darkgreen', 'orangered', 'purple', 'aqua', 'lime'];
+var COLOURS = ['saddlebrown', 'red', 'blue', 'darkgreen', 'orangered', 'purple', 'aqua', 'lime']; // Symbols to mark these methods as intended for internal use only.
+
 var symbols = Object.freeze({
   align: Symbol('align'),
   style: Symbol('style'),
   outline: Symbol('outline'),
   marker: Symbol('marker')
 });
+/**
+ * Track another active view and render an outline.
+ */
 
 var ShadowView =
 /*#__PURE__*/
 function (_View) {
   (0, _inherits2.default)(ShadowView, _View);
 
+  /**
+   * values: server-provided data describing this view.
+   */
   function ShadowView(values) {
     var _this;
 
@@ -13701,6 +13766,12 @@ function (_View) {
     STAMPER.cloneId((0, _assertThisInitialized2.default)((0, _assertThisInitialized2.default)(_this)), values.id);
     return _this;
   }
+  /**
+   * Render an outline of this view.
+   *
+   * context: CanvasRenderingContext2D on which to draw.
+   */
+
 
   (0, _createClass2.default)(ShadowView, [{
     key: "draw",
@@ -13716,12 +13787,21 @@ function (_View) {
       this[symbols.marker](context);
       context.restore();
     }
+    /**
+     * Aligns the drawing context so the outline will be rendered in the correct
+     * location with the correct orientation.
+     */
+
   }, {
     key: symbols.align,
     value: function value(context) {
       context.translate(this.x, this.y);
       context.rotate(constants.ROTATE_360 - this.rotation);
     }
+    /**
+     * Applies styling to the drawing context.
+     */
+
   }, {
     key: symbols.style,
     value: function value(context) {
@@ -13730,11 +13810,20 @@ function (_View) {
       context.fillStyle = context.strokeStyle;
       context.lineWidth = 5;
     }
+    /**
+     * Draws an outline of the view.
+     */
+
   }, {
     key: symbols.outline,
     value: function value(context) {
       context.strokeRect(0, 0, this.effectiveWidth, this.effectiveHeight);
     }
+    /**
+     * Draws a small triangle in the upper-left corner of the outline, so that
+     * other views can quickly tell which way this view is oriented.
+     */
+
   }, {
     key: symbols.marker,
     value: function value(context) {
