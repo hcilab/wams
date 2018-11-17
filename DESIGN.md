@@ -13,6 +13,7 @@ level classes and code, up to the high level end-user API.
 * [Client Sources](#client-sources)
 * [Server Sources](#server-sources)
 * [Gesture Recognition](#gesture-recognition)
+* [Connection Establishment](#connection-establishment)
 
 ## Installation
 
@@ -354,3 +355,31 @@ called, is as follows:
    interacted with.
 7. The Listener calls the user-supplied function with the appropriate arguments.
    The first argument is _always_ the view from which the gesture originated.
+
+## Connection Establishment
+
+When a user visits the IP address and port where the app is hosted, the
+following sequence of events occurs:
+
+1. HTML and client JavaScript code are delivered.
+2. When the page is loaded, a ClientController is instantiated.
+3. The ClientController generates a ClientView, registers gesture listeners via
+   an Interactor, resizes the CanvasElement to fill the available window, then
+   attempts to establish a socket connection with the server.
+4. The Server receives the 'connect' request. If the client limit has been
+   reached, it rejects the connection. The user is informed of this rejection,
+   and all functionality stops. Otherwise, it accepts the connection.
+5. When the connection is accepted, a Connection is instantiated and slotted
+   into the collection of active connections.
+6. The Connection asks the WorkSpace to spawn a view for it, the issues a "full
+   state report" to the client, detailing the current state of the model so that
+   the client can render the model. (Message type is INITIALIZE).
+7. The ClientController informs the ClientView of this data, then emits a LAYOUT
+   message to the server, detailing the state of the view (essentially, its
+   size).
+8. The Connection receives this message, records the state of the view in the
+   model, and at this point informs all the other active views about this new
+   view.
+9. If a WAMS layout handler has been registered with the server, it is called
+   for the new view. The connection is established, and normal operation
+   proceeds.
