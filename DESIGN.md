@@ -371,7 +371,7 @@ following sequence of events occurs:
    and all functionality stops. Otherwise, it accepts the connection.
 5. When the connection is accepted, a Connection is instantiated and slotted
    into the collection of active connections.
-6. The Connection asks the WorkSpace to spawn a view for it, the issues a "full
+6. The Connection asks the WorkSpace to spawn a view for it, then issues a "full
    state report" to the client, detailing the current state of the model so that
    the client can render the model. (Message type is INITIALIZE).
 7. The ClientController informs the ClientView of this data, then emits a LAYOUT
