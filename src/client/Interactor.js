@@ -13,8 +13,8 @@
 
 'use strict';
 
-const Westures = require('../../../westures');
-// const Westures = require('westures');
+// const Westures = require('../../../westures');
+const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 const HANDLERS = Object.freeze({ 
