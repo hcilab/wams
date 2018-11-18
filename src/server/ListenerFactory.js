@@ -14,6 +14,8 @@
 
 'use strict';
 
+const CoordinateData = require('./CoordinateData.js');
+
 /**
  * Generates a click handler function, which will perform hit detection then
  * call the provided listener with appropriate arguments.
@@ -23,7 +25,7 @@
  */
 function click(listener, workspace) {
   return function handleClick(view, {x, y}) {
-    const mouse = view.refineMouseCoordinates(x, y);
+    const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
       const target = workspace.findItemByCoordinates(x, y) || view;
@@ -42,7 +44,7 @@ function click(listener, workspace) {
  */
 function drag(listener, workspace) {
   return function handleDrag(view, {x, y, dx, dy, phase}) {
-    const mouse = view.refineMouseCoordinates(x, y, dx, dy);
+    const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
     if (mouse) {
       const {x, y, dx, dy} = mouse;
       const target = workspace.findItemByCoordinates(x, y, phase, view) || view;
@@ -102,7 +104,7 @@ function scale(listener, workspace) {
  */
 function swipe(listener, workspace) {
   return function handleSwipe(view, {velocity, x, y, direction}) {
-    const mouse = view.refineMouseCoordinates(x, y);
+    const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x,y} = mouse;
       const target = workspace.findItemByCoordinates(x, y) || view;
