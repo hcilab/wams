@@ -59,7 +59,7 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  * data    : Object with values to use for corresponding properties in defaults.
  *           Properties not found in defaults will be ignored. 
  */
-function getInitialValues(defaults = {}, data = {}) {
+function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
   Object.keys(defaults).forEach( k => {
     rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
@@ -139,7 +139,7 @@ function safeRemoveById(array, item, class_fn) {
 module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
-  getInitialValues,
+  mergeMatches,
   makeOwnPropertyImmutable,
   NOP,
   removeById,

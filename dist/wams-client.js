@@ -13159,7 +13159,7 @@ var ShadowView = require('./ShadowView.js');
 
 var _require = require('../shared.js'),
     globals = _require.constants,
-    getInitialValues = _require.getInitialValues,
+    mergeMatches = _require.mergeMatches,
     removeById = _require.removeById,
     IdStamper = _require.IdStamper,
     Message = _require.Message,
@@ -13203,7 +13203,7 @@ function (_View) {
 
     var values = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     (0, _classCallCheck2.default)(this, ClientView);
-    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(ClientView).call(this, getInitialValues(DEFAULTS, values)));
+    _this = (0, _possibleConstructorReturn2.default)(this, (0, _getPrototypeOf2.default)(ClientView).call(this, mergeMatches(DEFAULTS, values)));
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
      * place.
@@ -13496,7 +13496,7 @@ var Westures = require('../../../westures'); // const Westures = require('westur
 
 
 var _require = require('../shared.js'),
-    getInitialValues = _require.getInitialValues,
+    mergeMatches = _require.mergeMatches,
     NOP = _require.NOP;
 
 var HANDLERS = Object.freeze({
@@ -13537,7 +13537,7 @@ function () {
     (0, _classCallCheck2.default)(this, Interactor);
     this.canvas = canvas;
     this.region = new Westures.Region(window, true, true);
-    this.handlers = getInitialValues(HANDLERS, handlers);
+    this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
@@ -14188,7 +14188,7 @@ var IdStamper = require('./IdStamper.js');
 
 var _require = require('./util.js'),
     defineOwnImmutableEnumerableProperty = _require.defineOwnImmutableEnumerableProperty,
-    getInitialValues = _require.getInitialValues;
+    mergeMatches = _require.mergeMatches;
 
 var STAMPER = new IdStamper();
 /**
@@ -14223,7 +14223,7 @@ function ReporterFactory(coreProperties) {
      */
     function Reporter(data) {
       (0, _classCallCheck2.default)(this, Reporter);
-      return this.assign(getInitialValues(INITIALIZER, data));
+      return this.assign(mergeMatches(INITIALIZER, data));
     }
     /**
      * Save onto this Reporter instance the values in data which correspond to
@@ -14407,7 +14407,7 @@ function findLast(array, callback) {
  */
 
 
-function getInitialValues() {
+function mergeMatches() {
   var defaults = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
   var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   var rv = {};
@@ -14499,7 +14499,7 @@ function safeRemoveById(array, item, class_fn) {
 module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty: defineOwnImmutableEnumerableProperty,
   findLast: findLast,
-  getInitialValues: getInitialValues,
+  mergeMatches: mergeMatches,
   makeOwnPropertyImmutable: makeOwnPropertyImmutable,
   NOP: NOP,
   removeById: removeById,

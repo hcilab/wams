@@ -23,7 +23,7 @@ const expected = [
   'SwipeReporter',
   'defineOwnImmutableEnumerableProperty',
   'findLast',
-  'getInitialValues',
+  'mergeMatches',
   'makeOwnPropertyImmutable',
   'NOP',
   'removeById',

@@ -7,7 +7,7 @@
 const { 
   defineOwnImmutableEnumerableProperty,
   findLast,
-  getInitialValues,
+  mergeMatches,
   makeOwnPropertyImmutable,
   removeById,
   safeRemoveById,
@@ -77,25 +77,25 @@ describe('findLast(array, callback, fromIndex, thisArg)', () => {
   });
 });
 
-describe('getInitialValues(default, data)', () => {
+describe('mergeMatches(default, data)', () => {
   test('does not throw exceptions on empty objects', () => {
-    expect(getInitialValues()).toEqual({});
+    expect(mergeMatches()).toEqual({});
   });
 
   test('returns empty if defaults is empty, regardless of data', () => {
-    expect(getInitialValues({},{})).toEqual({});
-    expect(getInitialValues({})).toEqual({});
-    expect(getInitialValues({},{a:1})).toEqual({});
-    expect(getInitialValues({},1)).toEqual({});
+    expect(mergeMatches({},{})).toEqual({});
+    expect(mergeMatches({})).toEqual({});
+    expect(mergeMatches({},{a:1})).toEqual({});
+    expect(mergeMatches({},1)).toEqual({});
   });
 
   test('Uses defaults if data is empty.', () => {
-    expect(getInitialValues({a:1})).toEqual({a:1});
-    expect(getInitialValues({a:1},{})).toEqual({a:1});
+    expect(mergeMatches({a:1})).toEqual({a:1});
+    expect(mergeMatches({a:1},{})).toEqual({a:1});
   });
 
   test('Overrides default property if data has property with same name', () => {
-    expect(getInitialValues({a:1}, {a:2})).toEqual({a:2});
+    expect(mergeMatches({a:1}, {a:2})).toEqual({a:2});
   });
 });
 

@@ -13,7 +13,7 @@
 
 'use strict';
 
-const { getInitialValues, IdStamper, Item } = require('../shared.js');
+const { mergeMatches, IdStamper, Item } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
   x: 0,
@@ -32,7 +32,7 @@ class ServerItem extends Item {
    * values: User-supplied data detailing the item.
    */
   constructor(values = {}) {
-    super(getInitialValues(DEFAULTS, values));
+    super(mergeMatches(DEFAULTS, values));
 
     /**
      * Some gestures require continous interaction with an item. During this

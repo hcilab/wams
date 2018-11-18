@@ -13,7 +13,7 @@
 
 'use strict';
 
-const { getInitialValues, IdStamper, View } = require('../shared.js');
+const { mergeMatches, IdStamper, View } = require('../shared.js');
 
 const DEFAULTS = {
   x: 0,
@@ -55,7 +55,7 @@ class ServerView extends View {
    *      be handled at a more general level.
    */
   constructor(values = {}) {
-    super(getInitialValues(DEFAULTS, values));
+    super(mergeMatches(DEFAULTS, values));
 
     /**
      * x and y dimensions detailing the boundaries within which the view can

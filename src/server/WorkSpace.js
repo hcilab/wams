@@ -15,7 +15,7 @@
 
 const { 
   findLast,
-  getInitialValues, 
+  mergeMatches, 
   IdStamper, 
   NOP,
   safeRemoveById,
@@ -60,7 +60,7 @@ class WorkSpace {
     /**
      * Configuration settings for the workspace.
      */
-    this.settings = getInitialValues(DEFAULTS, settings);
+    this.settings = mergeMatches(DEFAULTS, settings);
     this.settings.bounds = resolveBounds(this.settings.bounds);
 
     /**

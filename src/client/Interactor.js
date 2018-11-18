@@ -15,7 +15,7 @@
 
 const Westures = require('../../../westures');
 // const Westures = require('westures');
-const { getInitialValues, NOP } = require('../shared.js');
+const { mergeMatches, NOP } = require('../shared.js');
 
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
@@ -51,7 +51,7 @@ class Interactor {
   constructor(canvas, handlers = {}) {
     this.canvas = canvas;
     this.region = new Westures.Region(window, true, true);
-    this.handlers = getInitialValues(HANDLERS, handlers);
+    this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }

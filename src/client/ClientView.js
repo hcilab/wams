@@ -17,7 +17,7 @@ const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const { 
   constants: globals,
-  getInitialValues, 
+  mergeMatches, 
   removeById,
   IdStamper, 
   Message,
@@ -71,7 +71,7 @@ class ClientView extends View {
    *         time that this class is instantiated.
    */
   constructor(values = {}) {
-    super(getInitialValues(DEFAULTS, values));
+    super(mergeMatches(DEFAULTS, values));
 
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
