@@ -191,67 +191,6 @@ class ServerView extends View {
   }
 
   /**
-   * Transform pointer coordinates and movement from a client into the
-   * corresponding coordinates and movement for the server's model.
-   *
-   * TODO: So many inner functions! Should this be a class of its own?
-   */
-  refineMouseCoordinates(x, y, dx, dy) {
-    const data = { x, y, dx, dy };
-    /*
-     * WARNING: It is crucially important that the instructions below occur
-     * in *precisely* this order!
-     */
-    applyScale(data, this.scale);
-    applyRotation(data, (2 * Math.PI) - this.rotation);
-    applyTranslation(data, this.x, this.y);
-    return data;
-
-    /**
-     * Inner helper function for scaling coordinate data.
-     */
-    function applyScale(data, scale) {
-      data.x /= scale;
-      data.y /= scale;
-      data.dx /= scale;
-      data.dy /= scale;
-    }
-
-    /**
-     * Inner helper function for applying a translation to coordinate data.
-     */
-    function applyTranslation(data, x, y) {
-      data.x += x;
-      data.y += y;
-    }
-
-    /**
-     * Inner helper function for applying a rotation to coordinate data.
-     */
-    function applyRotation(data, theta) {
-      const cos_theta = Math.cos(theta);
-      const sin_theta = Math.sin(theta);
-      const x = data.x;
-      const y = data.y;
-      const dx = data.dx;
-      const dy = data.dy;
-
-      data.x = rotateX(x, y, cos_theta, sin_theta);
-      data.y = rotateY(x, y, cos_theta, sin_theta);
-      data.dx = rotateX(dx, dy, cos_theta, sin_theta);
-      data.dy = rotateY(dx, dy, cos_theta, sin_theta);
-
-      function rotateX(x, y, cos_theta, sin_theta) {
-        return x * cos_theta - y * sin_theta;
-      }
-
-      function rotateY(x, y, cos_theta, sin_theta) {
-        return x * sin_theta + y * cos_theta;
-      }
-    }
-  }
-
-  /**
    * Release the view's item lock.
    */
   releaseLockedItem() {
