@@ -5,11 +5,44 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
-const ws = new WAMS.WamsServer({
+const Wams = require('../src/server');
+const ws = new Wams({
   bounds: { x: 7000, y: 7000 },
   color: 'green',
   clientLimit: 5,
+});
+
+const circle = new Wams.Sequence();
+circle.beginPath();
+circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+circle.closePath();
+circle.fillStyle = 'white';
+circle.fill();
+circle.lineWidth = 5;
+circle.strokeStyle = '#003300';
+circle.stroke();
+
+ws.spawnItem({
+  x: 2500,
+  y: 2500,
+  width: 150, 
+  height: 150,
+  type: 'circle',
+  blueprint: circle,
+});
+
+const text = new Wams.Sequence();
+text.font = 'normal 36px Times,serif';
+text.fillStyle = '#1a1a1a';
+text.fillText( 'Click the joker!', '{x}', '{y}');
+
+ws.spawnItem({
+  x: 2380,
+  y: 2480,
+  width: 300,
+  height: 40,
+  type: 'text',
+  blueprint: text,
 });
 
 ws.spawnItem({
@@ -17,27 +50,6 @@ ws.spawnItem({
   y: 2800, 
   type: 'joker',
   imgsrc: 'img/joker.png',
-});
-
-const seq = new WAMS.Sequence();
-seq.beginPath();
-seq.arc( '{x}', '{y}', '{height}', Math.PI * 2, 0, false);
-seq.fillStyle = 'white';
-seq.fill();
-seq.lineWidth = 5;
-seq.strokeStyle = '#003300';
-seq.stroke();
-seq.font = 'normal 36px Times,serif';
-seq.fillStyle = '#1a1a1a';
-seq.fillText( '  Click the joker!', '{x}', '{y}');
-
-ws.spawnItem({
-  x: 2500,
-  y: 2500,
-  width: 150, 
-  height: 150,
-  type: 'text',
-  blueprint: seq,
 });
 
 const handleLayout = (function makeLayoutHandler() {
@@ -48,41 +60,53 @@ const handleLayout = (function makeLayoutHandler() {
   const TOP     = 3;
   const RIGHT   = 4;
 
-  function layoutTable(viewer) {
-    viewer.moveTo( 2000, 2000 );
-    table = viewer;
+  function layoutTable(view) {
+    view.moveTo( 2000, 2000 );
+    table = view;
+    ws.update(view);
   };
 
-  function layoutBottom(viewer) {
-    viewer.moveTo( table.left, table.bottom );
-    viewer.rotation = Math.PI * 1 / 4;
+  function layoutBottom(view) {
+    view.moveTo( table.left, table.bottom );
+    view.rotation = Math.PI * 1 / 4;
   };
 
-  function layoutLeft(viewer) {
-    viewer.moveTo( table.left, table.top );
-    viewer.rotation = Math.PI * 3 / 2;
+  function layoutLeft(view) {
+    view.moveTo( table.left, table.top );
+    view.rotation = Math.PI * 3 / 2;
   };
 
-  function layoutTop(viewer) {
-    viewer.moveTo( table.right, table.top );
-    viewer.rotation = Math.PI;
+  function layoutTop(view) {
+    view.moveTo( table.right, table.top );
+    view.rotation = Math.PI;
   };
 
-  function layoutRight(viewer) {
-    viewer.moveTo( table.right, table.bottom );
-    viewer.rotation = Math.PI / 2;
+  function layoutRight(view) {
+    view.moveTo( table.right, table.bottom );
+    view.rotation = Math.PI / 2;
   };
+
+  function dependOnTable(fn) {
+    return function layoutDepender(view) {
+      if (!table) {
+        console.log('dodged!!!');
+        setTimeout( () => layoutDepender(view), 0 ); 
+      } else {
+        fn(view);
+        ws.update(view);
+      }
+    };
+  }
 
   const user_fns = [];
   user_fns[TABLE]   = layoutTable;
-  user_fns[BOTTOM]  = layoutBottom;
-  user_fns[LEFT]    = layoutLeft;
-  user_fns[TOP]     = layoutTop;
-  user_fns[RIGHT]   = layoutRight;
+  user_fns[BOTTOM]  = dependOnTable( layoutBottom );
+  user_fns[LEFT]    = dependOnTable( layoutLeft );
+  user_fns[TOP]     = dependOnTable( layoutTop );
+  user_fns[RIGHT]   = dependOnTable( layoutRight );
 
-  function handleLayout(viewer, numViewers) {
-    user_fns[numViewers - 1](viewer);
-    ws.update(viewer);
+  function handleLayout(view, position) {
+    user_fns[position](view);
   }
 
   return handleLayout;
@@ -93,7 +117,7 @@ const handleDrag = (function makeDragHandler() {
     return tgt.type === 'joker';
   }
 
-  function handleDrag(viewer, target, x, y, dx, dy) {
+  function handleDrag(view, target, x, y, dx, dy) {
     if (target.type === 'view/background') {
       target.moveBy(-dx, -dy);  
     } else if (isItem(target)) {
@@ -105,15 +129,15 @@ const handleDrag = (function makeDragHandler() {
   return handleDrag;
 })();
 
-const handleScale = function(viewer, newScale) {
-  viewer.rescale(newScale);
-  ws.update(viewer);
+const handleScale = function(view, newScale) {
+  view.scaleTo(newScale);
+  ws.update(view);
 }
 
 const handleClick = (function makeClickHandler() {
   let faceUp = true;
 
-  function handleClick(viewer, target, x, y) {
+  function handleClick(view, target, x, y) {
     if (target.type === 'joker') {
       const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
       target.assign({imgsrc});
@@ -132,7 +156,7 @@ ws.on('layout', handleLayout);
 
 ws.listen(9001);
 
-// const second_ws = new WAMS.WorkSpace(
+// const second_ws = new Wams.WorkSpace(
 //   9501,
 //   {
 //     debug : false,

@@ -5,9 +5,9 @@
 
 'use strict';
 
-const WAMS = require('../src/server');
+const Wams = require('../src/server');
 
-const ws = new WAMS.WamsServer();
+const ws = new Wams({ clientLimit: 2 });
 
 ws.spawnItem({
   x: 200, y: 200, width: 200, height: 200,
@@ -21,7 +21,7 @@ ws.spawnItem({
   imgsrc: 'img/scream.png'
 });
 
-function handleDrag(viewer, target, x, y, dx, dy) {
+function handleDrag(view, target, x, y, dx, dy) {
   if (target.type === 'Draggable') {
     target.moveBy(dx, dy);
     ws.update(target);
@@ -30,12 +30,12 @@ function handleDrag(viewer, target, x, y, dx, dy) {
 
 const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
-  function handleLayout(viewer, numViewers) {
-    if (numViewers <= 1) {
-      nx = viewer.right - 30;
+  function handleLayout(view, position) {
+    if (position === 0) {
+      nx = view.right - 30;
     } else {
-      viewer.moveTo( nx, viewer.top ); 
-      ws.update(viewer);
+      view.moveTo( nx, view.top ); 
+      ws.update(view);
     } 
   }
   return handleLayout;

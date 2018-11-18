@@ -9,7 +9,7 @@ const Wams = require('../src/server.js');
 const ws = new Wams();
 
 // Executed every time a user taps or clicks a screen
-const handleClick = (function makeClickHandler(ws) {
+const handleSwipe = (function makeSwipeHandler(ws) {
   const colours = [
     'blue',
     'red',
@@ -26,25 +26,24 @@ const handleClick = (function makeClickHandler(ws) {
     return seq;
   }
 
-  function square(ix, iy, index) {
-    const x = ix - 64;
-    const y = iy - 64;
-    const width = 128;
-    const height = 128;
+  function square(ix, iy, index, velo) {
+    const x = ix;
+    const y = iy - 16;
+    const width = velo * 10;
+    const height = 32;
     const type = 'colour';
     const blueprint = rectSeq(index);
     return {x, y, width, height, type, blueprint};
   }
 
-  function handleClick(view, target, x, y) {
-    if (target.type === 'colour') {
-      ws.removeItem(target);
-    } else {
-      ws.spawnItem(square(x, y, view.id % 6));
-    }
+  function handleSwipe(view, target, velocity, x, y, direction) {
+    const colour = Math.ceil(velocity * 10) % colours.length;
+    ws.spawnItem(
+      square(x, y, colour, velocity)
+    );
   }
 
-  return handleClick;
+  return handleSwipe;
 })(ws);
 
 // Executed every time a drag occurs on a device
@@ -77,9 +76,9 @@ function handleLayout(view, position) {
 
 // Attaches the defferent function handlers
 ws.on('layout', handleLayout);
-ws.on('click', handleClick);
+ws.on('swipe', handleSwipe);
 ws.on('scale', handleScale);
-ws.on('drag',  handleDrag);
+// ws.on('drag',  handleDrag);
 ws.on('rotate', handleRotate);
 
 ws.listen(9002);
