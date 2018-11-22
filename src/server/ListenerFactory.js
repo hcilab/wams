@@ -70,8 +70,8 @@ function layout(listener, workspace) {
 };
 
 /**
- * Generates a click handler function, which will perform hit detection then
- * call the provided listener with appropriate arguments.
+ * Generates a rotate handler function. Unpacks the arguments and forwards them
+ * to the provided listener.
  *
  * listener : User-supplied function for responding to this event.
  * workspace: The workspace upon which this event will act.

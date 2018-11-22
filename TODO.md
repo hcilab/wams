@@ -32,7 +32,7 @@
 - [X] Write design doc (properly).
 - [ ] Implement item rotation.
   + [ ] Allow a 'rotate' interaction with objects.
-- [ ] Implement 'rotate' for desktop users.
+- [X] Implement 'rotate' for desktop users.
 - [X] Separate the Server from the API endpoint.
   + [ ] Done, but can it be done better? Are there some even better abstractions
         available that will make this code even easier to reason about?

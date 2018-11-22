@@ -5,7 +5,7 @@
     "canvas-sequencer": "^2.0.2",
     "express": "^4.16.4",
     "socket.io": "^2.1.1",
-    "westures": "^0.1.0",
+    "westures": "^0.1.1",
     "zingtouch": "^1.0.6"
   },
   "devDependencies": {

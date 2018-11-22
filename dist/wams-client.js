@@ -13368,13 +13368,31 @@ class Region {
 
 
   activate() {
+    /*
+     * Try to select a device-appropriate event type. Touch events are preferred
+     * on touch devices, and will respond better.
+     */
     let eventNames = [];
 
-    if (window.PointerEvent && !window.TouchEvent) {
-      eventNames = POINTER_EVENTS;
+    if (window.TouchEvent) {
+      eventNames = TOUCH_EVENTS;
+    } else if (window.MouseEvent) {
+      eventNames = MOUSE_EVENTS;
     } else {
-      eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
-    } // Bind detected browser events to the region element.
+      eventNames = POINTER_EVENTS;
+    }
+    /* 
+     * Below is the original decision process for event type that was used by
+     * ZingTouch. I'm not sure why it was used, but I'll leave it here,
+     * commented out, in case it turns out there was a very good / important
+     * reason for using it.
+     */
+    // if (window.PointerEvent && !window.TouchEvent) {
+    //   eventNames = POINTER_EVENTS;
+    // } else {
+    //   eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
+    // }
+    // Bind detected browser events to the region element.
 
 
     const arbiter = this.arbitrate.bind(this);
@@ -13623,7 +13641,8 @@ module.exports = State;
  * @file Westures.js
  * Main object containing API methods and Gesture constructors
  */
-const Core = require('westures-core');
+const Core = require('westures-core'); // const Core    = require('../westures-core');
+
 
 const Pan = require('./src/Pan.js');
 
@@ -13686,6 +13705,13 @@ class Pan extends Gesture {
      */
 
     this.threshold = options.threshold || DEFAULT_MIN_THRESHOLD;
+    /**
+     * Don't emit any data if this key is pressed.
+     *
+     * @type {String}
+     */
+
+    this.muteKey = options.muteKey;
   }
 
   initialize(state) {
@@ -13742,10 +13768,12 @@ class Pan extends Gesture {
     const progress = active[0].getProgressOfGesture(this.id);
     const point = active[0].current.point;
     const diff = point.distanceTo(progress.lastEmitted);
+    const change = point.subtract(progress.lastEmitted);
+    progress.lastEmitted = point;
+    const event = active[0].current.originalEvent;
+    const muted = this.muteKey && event[this.muteKey];
 
-    if (diff >= this.threshold) {
-      const change = point.subtract(progress.lastEmitted);
-      progress.lastEmitted = point;
+    if (!muted && diff >= this.threshold) {
       return {
         change,
         point,
@@ -15308,19 +15336,33 @@ function () {
     var handlers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     (0, _classCallCheck2.default)(this, Interactor);
     this.canvas = canvas;
-    this.region = new Westures.Region(window, true, true);
+    this.region = new Westures.Region(window);
+    this.lastDesktopAngle = null;
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
-    window.addEventListener('wheel', this.wheel.bind(this), false);
+    this.attachListeners();
   }
   /**
-   * Westures uses Gesture objects, and expects those objects to be bound to an
-   * element, along with a handler for responding to that gesture. This method
-   * takes care of those activities.
+   * Attaches extra event listeners to provide functionality on top of what is
+   * available in Westures by default.
    */
 
 
   (0, _createClass2.default)(Interactor, [{
+    key: "attachListeners",
+    value: function attachListeners() {
+      window.addEventListener('wheel', this.wheel.bind(this), false);
+      window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
+        capture: true
+      });
+    }
+    /**
+     * Westures uses Gesture objects, and expects those objects to be bound to an
+     * element, along with a handler for responding to that gesture. This method
+     * takes care of those activities.
+     */
+
+  }, {
     key: "bindRegions",
     value: function bindRegions() {
       var pan = this.pan.bind(this);
@@ -15355,7 +15397,9 @@ function () {
   }, {
     key: "panner",
     value: function panner() {
-      return new Westures.Pan();
+      return new Westures.Pan({
+        muteKey: 'ctrlKey'
+      });
     }
     /**
      * Transform data received from Westures and forward to the registered
@@ -15389,6 +15433,27 @@ function () {
     value: function rotate(_ref3) {
       var detail = _ref3.detail;
       this.handlers.rotate(detail.delta);
+    }
+    /**
+     * Respond to mouse events on the desktop to detect single-pointer rotates.
+     * Require the CTRL key to be down.
+     */
+
+  }, {
+    key: "rotateDesktop",
+    value: function rotateDesktop(event) {
+      var buttons = event.buttons,
+          ctrlKey = event.ctrlKey,
+          clientX = event.clientX,
+          clientY = event.clientY;
+      var angle = Math.atan2(clientX, clientY);
+      var diff = 0;
+      if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
+      this.lastDesktopAngle = angle;
+
+      if (ctrlKey && buttons & 1) {
+        this.handlers.rotate(diff);
+      }
     }
     /**
      * Obtain the appropriate Westures Gesture object.

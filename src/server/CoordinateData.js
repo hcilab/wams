@@ -10,6 +10,15 @@
 
 'use strict';
 
+const { constants } = require('../shared.js');
+
+// symbols to identify these methods as intended only for internal use
+const symbols = Object.freeze({
+  scale: Symbol('scale'),
+  rotate: Symbol('rotate'),
+  translate: Symbol('translate'),
+});
+
 class CoordinateData {
   constructor(x = 0, y = 0, dx = 0, dy = 0) {
     this.x = x;
@@ -19,25 +28,30 @@ class CoordinateData {
   }
 
   /**
-   * Transform pointer coordinates and movement from a client into the
-   * corresponding coordinates and movement for the server's model.
+   * Transform pointer coordinates and movement originating from inside a
+   * client's View into coordinates corresponding to the principle model.
+   *
+   * view: The View corresponding to the client where the coordinates
+   *       originated.
    */
   transformFrom(view) {
     /*
      * WARNING: It is crucially important that the instructions below occur
      * in *precisely* this order!
      */
-    this.applyScale(view.scale);
-    this.applyRotation((2 * Math.PI) - view.rotation);
-    this.applyTranslation(view.x, view.y);
+    this[symbols.scale](view.scale);
+    this[symbols.rotate](constants.ROTATE_360 - view.rotation);
+    this[symbols.translate](view.x, view.y);
 
     return this;
   }
 
   /**
    * Inner helper function for scaling coordinate data.
+   *
+   * scale: Factor by which to scale the coordinates. (Will divide by this much)
    */
-  applyScale(scale) {
+  [symbols.scale](scale) {
     this.x /= scale;
     this.y /= scale;
     this.dx /= scale;
@@ -46,16 +60,21 @@ class CoordinateData {
 
   /**
    * Inner helper function for applying a translation to coordinate data.
+   *
+   * x: distance to move along x axis
+   * y: distance to move along y ayis
    */
-  applyTranslation(x, y) {
+  [symbols.translate](x, y) {
     this.x += x;
     this.y += y;
   }
 
   /**
    * Inner helper function for applying a rotation to coordinate data.
+   *
+   * theta: Amount of rotation, in radians
    */
-  applyRotation(theta) {
+  [symbols.rotate](theta) {
     const cos_theta = Math.cos(theta);
     const sin_theta = Math.sin(theta);
 

@@ -50,10 +50,24 @@ class Interactor {
    */
   constructor(canvas, handlers = {}) {
     this.canvas = canvas;
-    this.region = new Westures.Region(window, true, true);
+    this.region = new Westures.Region(window);
+
+    this.lastDesktopAngle = null;
+
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
+    this.attachListeners();
+  }
+
+  /**
+   * Attaches extra event listeners to provide functionality on top of what is
+   * available in Westures by default.
+   */
+  attachListeners() {
     window.addEventListener('wheel', this.wheel.bind(this), false);
+    window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
+      capture: true
+    });
   }
 
   /**
@@ -88,7 +102,7 @@ class Interactor {
    * Obtain the appropriate Westures Gesture object.
    */
   panner() {
-    return new Westures.Pan();
+    return new Westures.Pan({muteKey: 'ctrlKey'});
   }
 
   /**
@@ -112,6 +126,21 @@ class Interactor {
    */
   rotate({ detail }) {
     this.handlers.rotate( detail.delta );
+  }
+
+  /**
+   * Respond to mouse events on the desktop to detect single-pointer rotates.
+   * Require the CTRL key to be down.
+   */
+  rotateDesktop(event) {
+    const { buttons, ctrlKey, clientX, clientY } = event;
+    const angle = Math.atan2(clientX, clientY);
+    let diff = 0;
+    if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
+    this.lastDesktopAngle = angle;
+    if ( ctrlKey && buttons & 1 ) {
+      this.handlers.rotate( diff );
+    }
   }
 
   /**
