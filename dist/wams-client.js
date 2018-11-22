@@ -13680,6 +13680,14 @@ const {
 
 const REQUIRED_INPUTS = 1;
 const DEFAULT_MIN_THRESHOLD = 1;
+const CANCELED = Object.freeze({
+  change: 0,
+  point: Object.freeze({
+    x: 0,
+    y: 0
+  }),
+  phase: 'cancel'
+});
 /**
  * A Pan is defined as a normal movement in any direction on a screen.  Pan
  * gestures do not track start events and can interact with pinch and expand
@@ -13753,16 +13761,15 @@ class Pan extends Gesture {
 
   move(state) {
     const active = state.getInputsNotInPhase('end');
+    /*
+     * This should only be encountered when a user adds extra inputs beyond what
+     * is used for this gesture. This allows whoever is working with this
+     * library to cancel tracking or locks that may be associated with this
+     * gesture, as it is not what the user is trying to perform.
+     */
 
     if (active.length !== REQUIRED_INPUTS) {
-      return {
-        change: 0,
-        point: {
-          x: 0,
-          y: 0
-        },
-        phase: 'cancel'
-      };
+      return Object.assign({}, CANCELED);
     }
 
     const progress = active[0].getProgressOfGesture(this.id);
@@ -13771,9 +13778,11 @@ class Pan extends Gesture {
     const change = point.subtract(progress.lastEmitted);
     progress.lastEmitted = point;
     const event = active[0].current.originalEvent;
-    const muted = this.muteKey && event[this.muteKey];
+    const muted = this.muteKey && event[this.muteKey]; // See above comment for CANCELED return value. Similar concept here.
 
-    if (!muted && diff >= this.threshold) {
+    if (muted) {
+      return Object.assign({}, CANCELED);
+    } else if (diff >= this.threshold) {
       return {
         change,
         point,
