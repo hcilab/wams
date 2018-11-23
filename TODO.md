@@ -8,6 +8,9 @@
 - [ ] Allow subcanvas to be drawn on top: 
       <https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers>
 - [ ] Switch to HTTPS
+- [ ] Switch away from Socket.io. It's dying out. Is there a channel multiplexor
+        for the web standard WebSockets? Does node.js implement the WebSocket
+        standard?
 - [ ] Regulate 'effective' width and height of views (calculate automatically)
 - [ ] Allow scaling of views to use any viable corner as an anchor.
 - [ ] Look into making the request handler more modular.
@@ -18,28 +21,34 @@
         a regular rate, and not faster. This should help regulate situations
         when multiple handlers are acting on the model in rapid succession.
 - [ ] Write a distributed video player example.
-- [X] Lock drags to a single object (instead of always operating on the first
-      object it finds that's currently under the cursor).
-- [ ] ~~Look into using device orientation for rotation instead of touchscreen
-      inputs.~~
-- [X] Reorganize code, such that each 'class module' is located inside its own
-      file. This will help considerably if the code continues to expand, and
-      will also help with more fine-grained testing.
 - [ ] Add option for users to define whether an item is interactable, and then
       only allow interaction with objects marked as interactable.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
 - [ ] Update API doc.
-- [X] Write design doc (properly).
 - [ ] Implement item rotation.
   + [ ] Allow a 'rotate' interaction with objects.
-- [X] Implement 'rotate' for desktop users.
-- [X] Separate the Server from the API endpoint.
-  + [ ] Done, but can it be done better? Are there some even better abstractions
-        available that will make this code even easier to reason about?
+  + [ ] Implement a server-side 2d point class for polygon points.
+  + [ ] Implement a server-side Polygon class with hit detection.
+  + [ ] Switch to using the Polygon class for hit detection. (Includes adding
+    API details for defining the Polygon for an Item).
+- [ ] Can the API endpoint be done better? Are there some even better
+        abstractions available that will make this code even easier to reason
+        about?
 
 ---
 
 # COMPLETED
+
+_As of: Fri Nov 23 13:54:50 CST 2018_
+
+- [X] Lock drags to a single object (instead of always operating on the first
+      object it finds that's currently under the cursor).
+- [X] Reorganize code, such that each 'class module' is located inside its own
+      file. This will help considerably if the code continues to expand, and
+      will also help with more fine-grained testing.
+- [X] Write design doc (properly).
+- [X] Implement 'rotate' for desktop users.
+- [X] Separate the Server from the API endpoint.
 
 _As of: Fri Aug 17 09:35:12 CST 2018_
 
@@ -89,4 +98,10 @@ _As of: Fri Aug 17 09:35:12 CST 2018_
 - [X] Swap the render order around so that the object that will be dragged is
       the one that appears on top on the canvas. (same for clicked...)
 
+# Nixed
+
+_As of: Fri Nov 23 13:54:50 CST 2018_
+
+- [ ] ~~Look into using device orientation for rotation instead of touchscreen
+      inputs.~~
 
