@@ -22,9 +22,20 @@ class Polygon2D {
   }
 
   /**
-   * Returns true if the given point falls inside this polygon, false otherwise.
+   * Determines if a point is inside the polygon. (Returns true if it is, false
+   * otherwise).
+   *
+   * Rules for deciding whether a point is inside the polygon:
+   *  1. If it is clearly outside, return false.
+   *  2. If it is clearly inside, return true.
+   *  3. If it is on a left or bottom edge, return true.
+   *  4. If it is on a right or top edge, return false.
+   *  5. If it is on a lower-left vertex, return true.
+   *  6. If it is on a lower-right, upper-left, or upper-right vertex, return
+   *      false.
    * 
-   * Uses the winding number method for robust point-in-polygon detection.
+   * Uses the winding number method for robust and efficient point-in-polygon
+   * detection.  
    * See: http://geomalgorithms.com/a03-_inclusion.html
    *
    * p: Point to test.
@@ -43,27 +54,20 @@ class Polygon2D {
   winding_number(p) {
     let wn = 0;
 
-    console.log("Examine: ", p);
     for (let i = 0; i < this.points.length - 1; ++i) {
-      console.group("evaluating", this.points[i], this.points[i+1]);
       if (this.points[i].y <= p.y) {
         if (this.points[i + 1].y > p.y) { // Upward crossing
-          console.log("upward crossing detected");
           if (p.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
-            console.log("left detected");
             ++wn;
           }
         }
       } else {
         if (this.points[i + 1].y <= p.y) { // Downward crossing
-          console.log("downward crossing detected");
           if (p.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
-            console.log("right detected");
             --wn;
           }
         }
       }
-      console.groupEnd();
     }
 
     return wn;
