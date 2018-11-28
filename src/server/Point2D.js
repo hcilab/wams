@@ -48,6 +48,16 @@ class Point2D {
   }
 
   /**
+   * Return a new point which is the simple addition of the given point to this
+   * point.
+   *
+   * p: Point to add to this point. Has {x,y} properties.
+   */
+  plus({ x = 0, y = 0 }) {
+    return new Point2D( this.x + x, this.y + y );
+  }
+
+  /**
    * Rotate the point by theta radians.
    *
    * theta: amount of rotation to apply, in radians.
