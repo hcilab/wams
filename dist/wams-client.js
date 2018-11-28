@@ -14716,9 +14716,11 @@ function () {
 
   }, {
     key: "rotate",
-    value: function rotate(radians) {
+    value: function rotate(radians, px, py) {
       var rreport = new RotateReporter({
-        radians: radians
+        radians: radians,
+        px: px,
+        py: py
       });
       new Message(Message.ROTATE, rreport).emitWith(this.socket);
     }
@@ -15441,7 +15443,7 @@ function () {
     key: "rotate",
     value: function rotate(_ref3) {
       var detail = _ref3.detail;
-      this.handlers.rotate(detail.delta);
+      this.handlers.rotate(detail.delta, detail.pivot.x, detail.pivot.y);
     }
     /**
      * Respond to mouse events on the desktop to detect single-pointer rotates.
@@ -15455,13 +15457,15 @@ function () {
           ctrlKey = event.ctrlKey,
           clientX = event.clientX,
           clientY = event.clientY;
-      var angle = Math.atan2(clientX, clientY);
+      var mx = window.innerWidth / 2;
+      var my = window.innerHeight / 2;
+      var angle = Math.atan2(clientX - mx, clientY - my);
       var diff = 0;
       if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
       this.lastDesktopAngle = angle;
 
       if (ctrlKey && buttons & 1) {
-        this.handlers.rotate(diff);
+        this.handlers.rotate(diff, mx, my);
       }
     }
     /**
@@ -16154,7 +16158,7 @@ var ScaleReporter = ReporterFactory(['scale']);
  * This class allows reporting of rotation data between client and server.
  */
 
-var RotateReporter = ReporterFactory(['radians']);
+var RotateReporter = ReporterFactory(['radians', 'px', 'py']);
 /*
  * This class allows reporting of swipe data between client and server.
  */
