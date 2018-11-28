@@ -134,12 +134,17 @@ class Interactor {
    */
   rotateDesktop(event) {
     const { buttons, ctrlKey, clientX, clientY } = event;
-    const angle = Math.atan2(clientX, clientY);
+    const mx = window.innerWidth / 2;
+    const my = window.innerHeight / 2;
+    const angle = Math.atan2(clientX - mx, clientY - my);
     let diff = 0;
     if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
     this.lastDesktopAngle = angle;
     if ( ctrlKey && buttons & 1 ) {
-      this.handlers.rotate( diff, {x: 0, y: 0});
+      this.handlers.rotate( diff, {
+        x: window.innerWidth / 2, 
+        y: window.innerHeight / 2,
+      });
     }
   }
 
