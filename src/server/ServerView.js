@@ -183,17 +183,11 @@ class ServerView extends View {
     const origin = new Point2D(this.x, this.y);
     const delta = origin.minus(pivot);
     delta.rotate(-radians);
-    this.moveTo(pivot.x + delta.x, pivot.y + delta.y);
-    this.rotateTo(this.rotation + radians);
-  }
-
-  /**
-   * Re-orient the view to the given rotation, in radians.
-   *
-   * radians: The rotation to jump to.
-   */
-  rotateTo(rotation = this.rotation) {
-    this.assign({ rotation });
+    this.assign({
+      x: pivot.x + delta.x,
+      y: pivot.y + delta.y,
+      rotation: this.rotation + radians,
+    });
   }
 
   /**
