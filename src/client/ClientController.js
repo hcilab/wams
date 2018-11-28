@@ -216,8 +216,8 @@ class ClientController {
    *
    * radians: The amount of the rotation, in radians.
    */
-  rotate(radians) {
-    const rreport = new RotateReporter({ radians });
+  rotate(radians, pivot) {
+    const rreport = new RotateReporter({ radians, pivot });
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
   }
 

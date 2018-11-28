@@ -14,6 +14,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, View } = require('../shared.js');
+const Point2D = require('./Point2D.js');
 
 const DEFAULTS = {
   x: 0,
@@ -177,7 +178,12 @@ class ServerView extends View {
    *
    * radians: The amount of rotation to apply to the view.
    */
-  rotateBy(radians = 0) {
+  rotateBy(radians = 0, pivot = {x: this.x, y: this.y}) {
+    const p = new Point2D(pivot.x, pivot.y);
+    const q = new Point2D(this.x, this.y);
+    const d = q.minus(p);
+    d.rotate(-radians);
+    this.moveTo(p.x + d.x, p.y + d.y);
     this.rotateTo(this.rotation + radians);
   }
 

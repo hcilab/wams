@@ -125,7 +125,7 @@ class Interactor {
    * handler.
    */
   rotate({ detail }) {
-    this.handlers.rotate( detail.delta );
+    this.handlers.rotate( detail.delta, detail.pivot );
   }
 
   /**
@@ -139,7 +139,7 @@ class Interactor {
     if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
     this.lastDesktopAngle = angle;
     if ( ctrlKey && buttons & 1 ) {
-      this.handlers.rotate( diff );
+      this.handlers.rotate( diff, {x: 0, y: 0});
     }
   }
 
