@@ -77,9 +77,9 @@ function layout(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function rotate(listener, workspace) {
-  return function handleRotate(view, {radians, pivot}) {
-    const anchor = new CoordinateData(pivot.x, pivot.y).transformFrom(view);
-    listener(view, radians, {x: anchor.x, y: anchor.y});
+  return function handleRotate(view, {radians, px, py}) {
+    const pivot = new CoordinateData(px, py).transformFrom(view);
+    listener(view, radians, pivot.x, pivot.y);
   };
 };
 

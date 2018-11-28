@@ -63,7 +63,8 @@ const ScaleReporter = ReporterFactory([
  */
 const RotateReporter = ReporterFactory([
   'radians',
-  'pivot',
+  'px',
+  'py',
 ]);
 
 /*

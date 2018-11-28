@@ -178,12 +178,12 @@ class ServerView extends View {
    *
    * radians: The amount of rotation to apply to the view.
    */
-  rotateBy(radians = 0, pivot = {x: this.x, y: this.y}) {
-    const p = new Point2D(pivot.x, pivot.y);
-    const q = new Point2D(this.x, this.y);
-    const d = q.minus(p);
-    d.rotate(-radians);
-    this.moveTo(p.x + d.x, p.y + d.y);
+  rotateBy(radians = 0, px = this.x, py = this.y) {
+    const pivot = new Point2D(px, py);
+    const origin = new Point2D(this.x, this.y);
+    const delta = origin.minus(pivot);
+    delta.rotate(-radians);
+    this.moveTo(pivot.x + delta.x, pivot.y + delta.y);
     this.rotateTo(this.rotation + radians);
   }
 
