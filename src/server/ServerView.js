@@ -167,11 +167,11 @@ class ServerView extends View {
    * y: y coordinate to move to
    */
   moveTo(x = this.x, y = this.y) {
-    // const coordinates = { x: this.x, y: this.y };
-    // if (this.canMoveToX(x)) coordinates.x = x;
-    // if (this.canMoveToY(y)) coordinates.y = y;
-    // this.assign(coordinates);
-    this.assign({ x, y });
+    const coordinates = { x: this.x, y: this.y };
+    if (this.canMoveToX(x)) coordinates.x = x;
+    if (this.canMoveToY(y)) coordinates.y = y;
+    this.assign(coordinates);
+    // this.assign({ x, y });
   }
 
   /**
@@ -180,15 +180,13 @@ class ServerView extends View {
    * radians: The amount of rotation to apply to the view.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
-    const pivot = new Point2D(px, py);
-    const origin = new Point2D(this.x, this.y);
-    const delta = origin.minus(pivot);
+    const delta = new Point2D(this.x - px, this.y - py);
     delta.rotate(-radians);
-    this.assign({
-      x: pivot.x + delta.x,
-      y: pivot.y + delta.y,
-      rotation: this.rotation + radians,
-    });
+    const x = px + delta.x;
+    const y = py + delta.y;
+    if (this.canMoveToX(x) && this.canMoveToY(y)) {
+      this.assign({ x, y, rotation: this.rotation + radians });
+    }
   }
 
   /**
