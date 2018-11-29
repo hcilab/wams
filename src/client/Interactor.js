@@ -52,6 +52,11 @@ class Interactor {
     this.canvas = canvas;
     this.region = new Westures.Region(window);
 
+    /**
+     * The scaleFactor is a value by which the "changes" in pinches will be
+     * multiplied. This should effectively normalize pinches across devices.
+     */
+    this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000)
     this.lastDesktopAngle = null;
 
     this.handlers = mergeMatches(HANDLERS, handlers);
@@ -110,7 +115,7 @@ class Interactor {
    * handler.
    */
   pinch({ detail }) {
-    this.handlers.zoom(detail.change * 0.0025);
+    this.handlers.zoom(detail.change * this.scaleFactor);
   }
 
   /**
