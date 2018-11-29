@@ -14771,10 +14771,11 @@ function () {
 
   }, {
     key: "zoom",
-    value: function zoom(diff) {
+    value: function zoom(diff, midpoint) {
       var scale = this.view.scale + diff;
       var sreport = new ScaleReporter({
-        scale: scale
+        scale: scale,
+        midpoint: midpoint
       });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
@@ -15348,6 +15349,12 @@ function () {
     (0, _classCallCheck2.default)(this, Interactor);
     this.canvas = canvas;
     this.region = new Westures.Region(window);
+    /**
+     * The scaleFactor is a value by which the "changes" in pinches will be
+     * multiplied. This should effectively normalize pinches across devices
+     */
+
+    this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000);
     this.lastDesktopAngle = null;
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
@@ -15421,7 +15428,7 @@ function () {
     key: "pinch",
     value: function pinch(_ref2) {
       var detail = _ref2.detail;
-      this.handlers.zoom(detail.change * 0.0025);
+      this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint);
     }
     /**
      * Obtain the appropriate Westures Gesture object.
@@ -16153,7 +16160,7 @@ var MouseReporter = ReporterFactory(['x', 'y', 'dx', 'dy', 'phase']);
  * This class allows reporting of scale data between client and server.
  */
 
-var ScaleReporter = ReporterFactory(['scale']);
+var ScaleReporter = ReporterFactory(['scale', 'midpoint']);
 /*
  * This class allows reporting of rotation data between client and server.
  */
