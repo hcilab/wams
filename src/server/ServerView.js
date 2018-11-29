@@ -167,10 +167,11 @@ class ServerView extends View {
    * y: y coordinate to move to
    */
   moveTo(x = this.x, y = this.y) {
-    const coordinates = { x: this.x, y: this.y };
-    if (this.canMoveToX(x)) coordinates.x = x;
-    if (this.canMoveToY(y)) coordinates.y = y;
-    this.assign(coordinates);
+    // const coordinates = { x: this.x, y: this.y };
+    // if (this.canMoveToX(x)) coordinates.x = x;
+    // if (this.canMoveToY(y)) coordinates.y = y;
+    // this.assign(coordinates);
+    this.assign({ x, y });
   }
 
   /**
