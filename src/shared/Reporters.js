@@ -56,6 +56,7 @@ const MouseReporter = ReporterFactory([
  */
 const ScaleReporter = ReporterFactory([
   'scale',
+  'midpoint',
 ]);
 
 /*

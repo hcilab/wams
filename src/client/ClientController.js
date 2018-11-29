@@ -253,9 +253,9 @@ class ClientController {
    *
    * diff: The change in scale
    */
-  zoom(diff) {
+  zoom(diff, midpoint) {
     const scale = this.view.scale + diff;
-    const sreport = new ScaleReporter({ scale });
+    const sreport = new ScaleReporter({ scale, midpoint });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }

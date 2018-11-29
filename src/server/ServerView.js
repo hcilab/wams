@@ -215,11 +215,18 @@ class ServerView extends View {
    *      failure. (By anchoring, I mean that the given position remains
    *      constant while the scaling is occurring).
    */
-  scaleTo(scale = this.scale) {
+  scaleTo(scale = this.scale, mx = this.x, my = this.y) {
+    const delta = new Point2D(
+      (this.x - mx) * this.scale, 
+      (this.y - my) * this.scale,
+    );
+    delta.scale(scale);
+    const x = mx + delta.x;
+    const y = my + delta.y;
     const effectiveWidth = this.width / scale;
     const effectiveHeight = this.height / scale;
     if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {
-      this.assign({ scale, effectiveWidth, effectiveHeight });
+      this.assign({ scale, effectiveWidth, effectiveHeight, x, y, });
       return true;
     }
     return false;

@@ -54,7 +54,7 @@ class Interactor {
 
     /**
      * The scaleFactor is a value by which the "changes" in pinches will be
-     * multiplied. This should effectively normalize pinches across devices.
+     * multiplied. This should effectively normalize pinches across devices
      */
     this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000)
     this.lastDesktopAngle = null;
@@ -115,7 +115,7 @@ class Interactor {
    * handler.
    */
   pinch({ detail }) {
-    this.handlers.zoom(detail.change * this.scaleFactor);
+    this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint);
   }
 
   /**
