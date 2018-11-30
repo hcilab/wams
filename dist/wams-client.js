@@ -14767,15 +14767,17 @@ function () {
      * Message / Reporter protocol.
      *
      * diff: The change in scale
+     * mx  : x coordinate of the midpoint of the zoom
+     * my  : y coordinate of the midpoint of the zoom
      */
 
   }, {
     key: "zoom",
-    value: function zoom(diff, midpoint) {
-      var scale = this.view.scale + diff;
+    value: function zoom(scale, mx, my) {
       var sreport = new ScaleReporter({
         scale: scale,
-        midpoint: midpoint
+        mx: mx,
+        my: my
       });
       new Message(Message.SCALE, sreport).emitWith(this.socket);
     }
@@ -15428,7 +15430,7 @@ function () {
     key: "pinch",
     value: function pinch(_ref2) {
       var detail = _ref2.detail;
-      this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint);
+      this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint.x, detail.midpoint.y);
     }
     /**
      * Obtain the appropriate Westures Gesture object.
@@ -15539,7 +15541,8 @@ function () {
     value: function wheel(event) {
       event.preventDefault();
       var factor = event.ctrlKey ? 0.10 : 0.02;
-      this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
+      var diff = -(Math.sign(event.deltaY) * factor);
+      this.handlers.zoom(diff, event.clientX, event.clientY);
     }
   }]);
   return Interactor;
@@ -16160,7 +16163,7 @@ var MouseReporter = ReporterFactory(['x', 'y', 'dx', 'dy', 'phase']);
  * This class allows reporting of scale data between client and server.
  */
 
-var ScaleReporter = ReporterFactory(['scale', 'midpoint']);
+var ScaleReporter = ReporterFactory(['scale', 'mx', 'my']);
 /*
  * This class allows reporting of rotation data between client and server.
  */
