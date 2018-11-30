@@ -198,7 +198,8 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.10 : 0.02;
-    this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
+    const diff = -(Math.sign(event.deltaY) * factor);
+    this.handlers.zoom(diff, event.clientX, event.clientY);
   }
 }
 
