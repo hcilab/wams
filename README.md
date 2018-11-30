@@ -40,15 +40,15 @@ Spawns a new item using the given data and immediately informs all clients of
 the new item. `itemdata` is an object which you fill with some or all (or none)
 of the following properties:
 
-Property | Default Value | Description
----------|---------------|------------
-x|0|The position of the left side of the item.
-y|0|The position of the top side of the item.
-width|128|The width of the item.
-height|128|The height of the item.
-type|'view/background'|For use by end-user for distinguishing items.
-imgsrc|''|Define the image source of the item.
-blueprint|null|The Sequence blueprint for custom canvas rendering.
+Property | Default Value   | Description
+---------|-----------------|------------
+x        |0                |The position of the left side of the item.
+y        |0                |The position of the top side of the item.
+width    |128              |The width of the item.
+height   |128              |The height of the item.
+type     |'view/background'|For use by end-user for distinguishing items.
+imgsrc   |''               |Define the image source of the item.
+blueprint|null             |The Sequence blueprint for custom canvas rendering.
 
 Note that while you can assign both and imgsrc and a blueprint to an item, if an
 imgsrc is defined for the item, the blueprint will be ignored when the item is
@@ -79,6 +79,7 @@ handler will be an object describing the view who initiated the event.
 * [layout](#layout)
 * [scale](#scale)
 * [rotate](#rotate)
+* [swipe](#swipe)
 
 ### click
 This handler will be called whenever a user clicks in their view. 
@@ -95,7 +96,7 @@ This handler will be called whenever the user drags somewhere in their view.
   * __y:__ The y coordinate at which the user clicked.
   * __dx:__ The distance between the current drag and the last drag along the x
     axis.
-  * __dx:__ The distance between the current drag and the last drag along the y
+  * __dy:__ The distance between the current drag and the last drag along the y
     axis.
  
 ### layout
@@ -118,4 +119,15 @@ Currently only implemented for touch devices, via two-finger rotate.
 * Arguments:
   * __view:__ The view which initiated the event.
   * __radians:__ The amount of the rotation, in radians.
+  * __px:__ The x coordinate of the pivot point.
+  * __py:__ The y coordinate of the pivot point.
+
+### swipe
+This handler will be called when a user quickly moves a pointer across the view.
+* Arguments:
+  * __view:__ The view which initiated the event.
+  * __velocity:__ The speed of the swipe.
+  * __x:__ The final x coordinate of the swipe.
+  * __y:__ The final y coordinate of the swipe.
+  * __direction:__ The angle, in radians, defining the direction of the swipe.
 

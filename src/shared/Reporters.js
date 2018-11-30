@@ -56,6 +56,8 @@ const MouseReporter = ReporterFactory([
  */
 const ScaleReporter = ReporterFactory([
   'scale',
+  'mx',
+  'my',
 ]);
 
 /*
@@ -63,6 +65,8 @@ const ScaleReporter = ReporterFactory([
  */
 const RotateReporter = ReporterFactory([
   'radians',
+  'px',
+  'py',
 ]);
 
 /*

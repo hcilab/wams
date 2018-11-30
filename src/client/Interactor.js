@@ -52,6 +52,11 @@ class Interactor {
     this.canvas = canvas;
     this.region = new Westures.Region(window);
 
+    /**
+     * The scaleFactor is a value by which the "changes" in pinches will be
+     * multiplied. This should effectively normalize pinches across devices
+     */
+    this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000)
     this.lastDesktopAngle = null;
 
     this.handlers = mergeMatches(HANDLERS, handlers);
@@ -110,7 +115,11 @@ class Interactor {
    * handler.
    */
   pinch({ detail }) {
-    this.handlers.zoom(detail.change * 0.0025);
+    this.handlers.zoom(
+      detail.change * this.scaleFactor,
+      detail.midpoint.x,
+      detail.midpoint.y,
+    );
   }
 
   /**
@@ -125,7 +134,7 @@ class Interactor {
    * handler.
    */
   rotate({ detail }) {
-    this.handlers.rotate( detail.delta );
+    this.handlers.rotate( detail.delta, detail.pivot.x, detail.pivot.y );
   }
 
   /**
@@ -134,12 +143,14 @@ class Interactor {
    */
   rotateDesktop(event) {
     const { buttons, ctrlKey, clientX, clientY } = event;
-    const angle = Math.atan2(clientX, clientY);
+    const mx = window.innerWidth / 2;
+    const my = window.innerHeight / 2;
+    const angle = Math.atan2(clientX - mx, clientY - my);
     let diff = 0;
     if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
     this.lastDesktopAngle = angle;
     if ( ctrlKey && buttons & 1 ) {
-      this.handlers.rotate( diff );
+      this.handlers.rotate( diff, mx, my ); 
     }
   }
 
@@ -186,8 +197,9 @@ class Interactor {
    */
   wheel(event) {
     event.preventDefault();
-    const factor = event.ctrlKey ? 0.10 : 0.02;
-    this.handlers.zoom(-(Math.sign(event.deltaY) * factor));
+    const factor = event.ctrlKey ? 0.02 : 0.10;
+    const diff = -(Math.sign(event.deltaY) * factor);
+    this.handlers.zoom(diff, event.clientX, event.clientY);
   }
 }
 

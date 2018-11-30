@@ -14,6 +14,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, View } = require('../shared.js');
+const Point2D = require('./Point2D.js');
 
 const DEFAULTS = {
   x: 0,
@@ -177,17 +178,14 @@ class ServerView extends View {
    *
    * radians: The amount of rotation to apply to the view.
    */
-  rotateBy(radians = 0) {
-    this.rotateTo(this.rotation + radians);
-  }
-
-  /**
-   * Re-orient the view to the given rotation, in radians.
-   *
-   * radians: The rotation to jump to.
-   */
-  rotateTo(rotation = this.rotation) {
-    this.assign({ rotation });
+  rotateBy(radians = 0, px = this.x, py = this.y) {
+    const delta = new Point2D(this.x - px, this.y - py);
+    delta.rotate(-radians);
+    const x = px + delta.x;
+    const y = py + delta.y;
+    if (this.canMoveToX(x) && this.canMoveToY(y)) {
+      this.assign({ x, y, rotation: this.rotation + radians });
+    }
   }
 
   /**
@@ -217,11 +215,17 @@ class ServerView extends View {
    *      failure. (By anchoring, I mean that the given position remains
    *      constant while the scaling is occurring).
    */
-  scaleTo(scale = this.scale) {
+  scaleBy(scale = 1, mx = this.x, my = this.y) {
+    scale *= this.scale;
+    const delta = new Point2D( this.x - mx, this.y - my );
+    const norm = delta.times(this.scale);
+    norm.scale(scale);
+    const x = mx + norm.x;
+    const y = my + norm.y;
     const effectiveWidth = this.width / scale;
     const effectiveHeight = this.height / scale;
     if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {
-      this.assign({ scale, effectiveWidth, effectiveHeight });
+      this.assign({ scale, effectiveWidth, effectiveHeight, x, y, });
       return true;
     }
     return false;

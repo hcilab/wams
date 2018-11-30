@@ -216,8 +216,8 @@ class ClientController {
    *
    * radians: The amount of the rotation, in radians.
    */
-  rotate(radians) {
-    const rreport = new RotateReporter({ radians });
+  rotate(radians, px, py) {
+    const rreport = new RotateReporter({ radians, px, py });
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
   }
 
@@ -252,10 +252,15 @@ class ClientController {
    * Message / Reporter protocol.
    *
    * diff: The change in scale
+   * mx  : x coordinate of the midpoint of the zoom
+   * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(diff) {
-    const scale = this.view.scale + diff;
-    const sreport = new ScaleReporter({ scale });
+  zoom(diff, mx, my) {
+    // Changes will generally be in range [-1,1], clustered around 0, therefore
+    // bring above zero and cluster around 1 to produce appropriate
+    // multiplicative behaviour on the server end.
+    const scale = diff + 1;
+    const sreport = new ScaleReporter({ scale, mx, my });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }

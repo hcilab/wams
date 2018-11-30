@@ -382,7 +382,7 @@ describe('WorkSpace', () => {
   describe('handle(message, ...args)', () => {
     let ws;
     let vs;
-    let x, y, dx, dy, scale, phase;
+    let x, y, dx, dy, mx, my, scale, phase;
     beforeAll(() => {
       ws = new WorkSpace();
       vs = ws.spawnView();
@@ -390,6 +390,8 @@ describe('WorkSpace', () => {
       y = 78;
       dx = 5.2;
       dy = -8.79;
+      mx = 33.491;
+      my = -17.248;
       scale = 0.883;
       phase = 'move';
     });
@@ -469,13 +471,17 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('scale', vs, {scale})).not.toThrow();
+        expect(() => ws.handle('scale', vs, {scale, mx, my})).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('scale', vs, {scale})).not.toThrow();
-        expect(fn).toHaveBeenLastCalledWith(vs, scale);
+        expect(() => ws.handle('scale', vs, {scale, mx, my})).not.toThrow();
+        expect(fn.mock.calls[0][0]).toBe(vs);
+        expect(fn.mock.calls[0][1]).toBe(scale);
+        expect(fn.mock.calls[0][2]).toBeCloseTo(mx, 3);
+        expect(fn.mock.calls[0][3]).toBeCloseTo(my, 3);
+        // expect(fn).toHaveBeenLastCalledWith(vs, scale, mx, my);
       });
     });
   });

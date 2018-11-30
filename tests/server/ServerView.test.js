@@ -155,45 +155,48 @@ describe('ServerView', () => {
     });
   });
 
-  describe('scaleTo(scale)', () => {
+  describe('scaleBy(scale)', () => {
     const vs = new ServerView(mover);
 
     test('Works with an acceptable scale', () => {
-      expect(vs.scaleTo(2)).toBe(true);
+      expect(vs.scaleBy(2)).toBe(true);
       expect(vs.scale).toBe(2);
       expect(vs.effectiveWidth).toBe(25);
       expect(vs.effectiveHeight).toBe(25);
-      expect(vs.scaleTo(0.5)).toBe(true);
+      expect(vs.scaleBy(0.25)).toBe(true);
       expect(vs.scale).toBe(0.5);
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
     });
 
     test('Has no effect if arguments omitted', () => {
-      expect(() => vs.scaleTo()).not.toThrow();
+      expect(() => vs.scaleBy()).not.toThrow();
       expect(vs.scale).toBe(0.5);
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
     });
 
     test('Does not work with an unnacceptable scale', () => {
-      expect(vs.scaleTo(Number.POSITIVE_INFINITY)).toBe(false);
+      expect(vs.scaleBy(Number.POSITIVE_INFINITY)).toBe(false);
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
-      expect(vs.scaleTo(0.49)).toBe(false);
+      expect(vs.scaleBy(0.49)).toBe(false);
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveWidth).toBe(100);
-      expect(vs.scaleTo(-1)).toBe(false);
+      expect(vs.scaleBy(-1)).toBe(false);
       expect(vs.effectiveHeight).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
-      expect(vs.scaleTo(0)).toBe(false);
+      expect(vs.scaleBy(0)).toBe(false);
       expect(vs.effectiveHeight).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
     });
   });
 
   describe('canMoveTo[X|Y](x|y)', () => {
-    const vs = new ServerView(mover);
+    let vs;
+    beforeEach(() => {
+      vs = new ServerView(mover);
+    });
 
     test('Accepts inputs in centre of acceptable range', () => {
       expect(vs.canMoveToX(25)).toBe(true);
@@ -223,13 +226,13 @@ describe('ServerView', () => {
       expect(vs.canMoveToY(-1)).toBe(false);
     });
 
-    test('Works on a scaleTod view', () => {
-      vs.scaleTo(2);
+    test('Works on a scaled view', () => {
+      vs.scaleBy(2);
       expect(vs.canMoveToX(75)).toBe(true);
       expect(vs.canMoveToY(75)).toBe(true);
       expect(vs.canMoveToX(76)).toBe(false);
       expect(vs.canMoveToY(76)).toBe(false);
-      vs.scaleTo(0.67);
+      vs.scaleBy(0.333334);
       expect(vs.canMoveToX(25)).toBe(true);
       expect(vs.canMoveToY(25)).toBe(true);
       expect(vs.canMoveToX(26)).toBe(false);
@@ -238,7 +241,10 @@ describe('ServerView', () => {
   });
 
   describe('moveTo(x,y)', () => {
-    const vs = new ServerView(mover);
+    let vs;
+    beforeEach(() => {
+      vs = new ServerView(mover);
+    });
 
     test('Has no effect if arguments omitted', () => {
       expect(() => vs.moveTo()).not.toThrow();
