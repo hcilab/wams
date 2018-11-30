@@ -255,7 +255,11 @@ class ClientController {
    * mx  : x coordinate of the midpoint of the zoom
    * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(scale, mx, my) {
+  zoom(diff, mx, my) {
+    // Changes will generally be in range [-1,1], clustered around 0, therefore
+    // bring above zero and cluster around 1 to produce appropriate
+    // multiplicative behaviour on the server end.
+    const scale = diff + 1;
     const sreport = new ScaleReporter({ scale, mx, my });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
