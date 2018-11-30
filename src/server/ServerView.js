@@ -219,9 +219,6 @@ class ServerView extends View {
     scale *= this.scale;
     const delta = new Point2D( this.x - mx, this.y - my );
     const norm = delta.times(this.scale);
-    //   (this.x - mx) * this.scale, 
-    //   (this.y - my) * this.scale,
-    // );
     norm.scale(scale);
     const x = mx + norm.x;
     const y = my + norm.y;
