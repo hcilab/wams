@@ -163,7 +163,7 @@ describe('ServerView', () => {
       expect(vs.scale).toBe(2);
       expect(vs.effectiveWidth).toBe(25);
       expect(vs.effectiveHeight).toBe(25);
-      expect(vs.scaleBy(0.5)).toBe(true);
+      expect(vs.scaleBy(0.25)).toBe(true);
       expect(vs.scale).toBe(0.5);
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveHeight).toBe(100);
@@ -193,7 +193,10 @@ describe('ServerView', () => {
   });
 
   describe('canMoveTo[X|Y](x|y)', () => {
-    const vs = new ServerView(mover);
+    let vs;
+    beforeEach(() => {
+      vs = new ServerView(mover);
+    });
 
     test('Accepts inputs in centre of acceptable range', () => {
       expect(vs.canMoveToX(25)).toBe(true);
@@ -223,13 +226,13 @@ describe('ServerView', () => {
       expect(vs.canMoveToY(-1)).toBe(false);
     });
 
-    test('Works on a scaleByd view', () => {
+    test('Works on a scaled view', () => {
       vs.scaleBy(2);
       expect(vs.canMoveToX(75)).toBe(true);
       expect(vs.canMoveToY(75)).toBe(true);
       expect(vs.canMoveToX(76)).toBe(false);
       expect(vs.canMoveToY(76)).toBe(false);
-      vs.scaleBy(0.67);
+      vs.scaleBy(0.333334);
       expect(vs.canMoveToX(25)).toBe(true);
       expect(vs.canMoveToY(25)).toBe(true);
       expect(vs.canMoveToX(26)).toBe(false);
@@ -238,7 +241,10 @@ describe('ServerView', () => {
   });
 
   describe('moveTo(x,y)', () => {
-    const vs = new ServerView(mover);
+    let vs;
+    beforeEach(() => {
+      vs = new ServerView(mover);
+    });
 
     test('Has no effect if arguments omitted', () => {
       expect(() => vs.moveTo()).not.toThrow();
