@@ -82,6 +82,15 @@ class Point2D {
   }
 
   /**
+   * Return a new point, the multiplation of this point by the given amount.
+   *
+   * coefficient: Amount by which to multiply the values in this point.
+   */
+  times(coefficient) {
+    return new Point2D(this.x * coefficient, this.y * coefficient);
+  }
+
+  /**
    * Move the point by the given amounts.
    *
    * dx: change in x axis position.
