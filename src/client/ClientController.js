@@ -252,10 +252,12 @@ class ClientController {
    * Message / Reporter protocol.
    *
    * diff: The change in scale
+   * mx  : x coordinate of the midpoint of the zoom
+   * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(diff, midpoint) {
+  zoom(diff, mx, my) {
     const scale = this.view.scale + diff;
-    const sreport = new ScaleReporter({ scale, midpoint });
+    const sreport = new ScaleReporter({ scale, mx, my });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }

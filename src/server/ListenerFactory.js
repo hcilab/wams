@@ -91,9 +91,9 @@ function rotate(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function scale(listener, workspace) {
-  return function handleScale(view, {scale, midpoint}) {
-    const mp = new CoordinateData(midpoint.x, midpoint.y).transformFrom(view);
-    listener(view, scale, mp);
+  return function handleScale(view, {scale, mx, my}) {
+    const mp = new CoordinateData(mx, my).transformFrom(view);
+    listener(view, scale, mp.x, mp.y);
   };
 };
 

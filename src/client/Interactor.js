@@ -115,7 +115,11 @@ class Interactor {
    * handler.
    */
   pinch({ detail }) {
-    this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint);
+    this.handlers.zoom(
+      detail.change * this.scaleFactor,
+      detail.midpoint.x,
+      detail.midpoint.y,
+    );
   }
 
   /**
