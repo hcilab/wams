@@ -215,7 +215,7 @@ class ServerView extends View {
    *      failure. (By anchoring, I mean that the given position remains
    *      constant while the scaling is occurring).
    */
-  scaleTo(scale = 0, mx = this.x, my = this.y) {
+  scaleBy(scale = 0, mx = this.x, my = this.y) {
     scale += 1;
     scale *= this.scale;
     const delta = new Point2D( this.x - mx, this.y - my );
