@@ -33,28 +33,6 @@ const DEFAULTS = {
 const STAMPER = new IdStamper();
 
 class ServerView extends View {
-  /*
-   * XXX: At some point, the effective width and height should be made to be
-   *      updated whenever either the width, height, or scale of the
-   *      view get updated. This could be achieve with getters and 
-   *      setters on those three values. Might need to think through all the
-   *      possible complications though.
-   *
-   *      The same thing could maybe be done with the 'center' getter, so
-   *      that it refers to an actual stored value that gets updated whenever
-   *      the effective width or height gets updated, or when the x or y
-   *      values get updated. This would prevent having to recompute every
-   *      time the value is accessed, which is the way things are working
-   *      currently.
-   *
-   *      Perhaps one technique would be to find a way of storing the actual
-   *      x, y, width, height, effectiveWidth, effectiveHeight, and scale
-   *      using some private data technique with alternative names for the
-   *      variables (or some other storage method) and have the original 
-   *      names be used for the getters and setters. Might want to have a
-   *      look at the shared Reporter factory definition to see if this can
-   *      be handled at a more general level.
-   */
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
 
@@ -63,16 +41,6 @@ class ServerView extends View {
      * operate.
      */
     this.bounds = values.bounds || DEFAULTS.bounds;
-
-    /**
-     * The effective width of the view inside the model.
-     */
-    this.effectiveWidth = this.width / this.scale;
-
-    /**
-     * The effective height of the view inside the model.
-     */
-    this.effectiveHeight = this.height / this.scale;
 
     /**
      * If a continuous gesture needs to lock down an item, a reference to that
@@ -92,6 +60,17 @@ class ServerView extends View {
   get left()    { return this.x; }
   get right()   { return this.x + this.effectiveWidth; }
   get top()     { return this.y; }
+
+  /**
+   * Overrides the default Reporter assign() method, wrapping it in
+   * functionality for regulating the effective width and height.
+   */
+  assign(data) {
+    super.assign(data);
+    this.effectiveWidth = this.width / this.scale;
+    this.effectiveHeight = this.height / this.scale;
+    console.log(this);
+  }
 
   /**
    * Returns true if the view can be scaled to the given dimensions and still
