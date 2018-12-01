@@ -383,3 +383,6 @@ following sequence of events occurs:
 9. If a WAMS layout handler has been registered with the server, it is called
    for the new view. The connection is established, and normal operation
    proceeds.
+   - Note that the other views must be informed of the new view _before_ the
+     layout handler is called. Otherwise they will not be able to appropriately
+     respond to the "update" message that arrives from the handler.
