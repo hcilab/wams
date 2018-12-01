@@ -15,6 +15,7 @@ vim \
   src/client/*.js \
   src/server/*.js \
   src/shared/*.js \
+  src/predefined/*.js \
   tests/*.js \
   tests/client/*.js \
   tests/server/*.js \
