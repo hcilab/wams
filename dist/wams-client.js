@@ -1368,10 +1368,11 @@ function fromByteArray(uint8) {
 }
 
 },{}],26:[function(require,module,exports){
+(function (global){
 /**
  * Create a blob builder even when vendor prefixes exist
  */
-var BlobBuilder = typeof BlobBuilder !== 'undefined' ? BlobBuilder : typeof WebKitBlobBuilder !== 'undefined' ? WebKitBlobBuilder : typeof MSBlobBuilder !== 'undefined' ? MSBlobBuilder : typeof MozBlobBuilder !== 'undefined' ? MozBlobBuilder : false;
+var BlobBuilder = global.BlobBuilder || global.WebKitBlobBuilder || global.MSBlobBuilder || global.MozBlobBuilder;
 /**
  * Check if Blob constructor is supported
  */
@@ -1411,7 +1412,9 @@ var blobBuilderSupported = BlobBuilder && BlobBuilder.prototype.append && BlobBu
  */
 
 function mapArrayBufferViews(ary) {
-  return ary.map(function (chunk) {
+  for (var i = 0; i < ary.length; i++) {
+    var chunk = ary[i];
+
     if (chunk.buffer instanceof ArrayBuffer) {
       var buf = chunk.buffer; // if this is a subarray, make a copy so we only
       // include the subarray region from the underlying buffer
@@ -1422,38 +1425,35 @@ function mapArrayBufferViews(ary) {
         buf = copy.buffer;
       }
 
-      return buf;
+      ary[i] = buf;
     }
-
-    return chunk;
-  });
+  }
 }
 
 function BlobBuilderConstructor(ary, options) {
   options = options || {};
   var bb = new BlobBuilder();
-  mapArrayBufferViews(ary).forEach(function (part) {
-    bb.append(part);
-  });
+  mapArrayBufferViews(ary);
+
+  for (var i = 0; i < ary.length; i++) {
+    bb.append(ary[i]);
+  }
+
   return options.type ? bb.getBlob(options.type) : bb.getBlob();
 }
 
 ;
 
 function BlobConstructor(ary, options) {
-  return new Blob(mapArrayBufferViews(ary), options || {});
+  mapArrayBufferViews(ary);
+  return new Blob(ary, options || {});
 }
 
 ;
 
-if (typeof Blob !== 'undefined') {
-  BlobBuilderConstructor.prototype = Blob.prototype;
-  BlobConstructor.prototype = Blob.prototype;
-}
-
 module.exports = function () {
   if (blobSupported) {
-    return blobSupportsArrayBufferView ? Blob : BlobConstructor;
+    return blobSupportsArrayBufferView ? global.Blob : BlobConstructor;
   } else if (blobBuilderSupported) {
     return BlobBuilderConstructor;
   } else {
@@ -1461,6 +1461,7 @@ module.exports = function () {
   }
 }();
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],27:[function(require,module,exports){
 
 },{}],28:[function(require,module,exports){
@@ -5836,6 +5837,7 @@ module.exports = require('./socket');
 module.exports.parser = require('engine.io-parser');
 
 },{"./socket":131,"engine.io-parser":141}],131:[function(require,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -5885,7 +5887,7 @@ function Socket(uri, opts) {
     opts.hostname = parseuri(opts.host).host;
   }
 
-  this.secure = null != opts.secure ? opts.secure : typeof location !== 'undefined' && 'https:' === location.protocol;
+  this.secure = null != opts.secure ? opts.secure : global.location && 'https:' === location.protocol;
 
   if (opts.hostname && !opts.port) {
     // if no port is specified manually, use the protocol default
@@ -5893,8 +5895,8 @@ function Socket(uri, opts) {
   }
 
   this.agent = opts.agent || false;
-  this.hostname = opts.hostname || (typeof location !== 'undefined' ? location.hostname : 'localhost');
-  this.port = opts.port || (typeof location !== 'undefined' && location.port ? location.port : this.secure ? 443 : 80);
+  this.hostname = opts.hostname || (global.location ? location.hostname : 'localhost');
+  this.port = opts.port || (global.location && location.port ? location.port : this.secure ? 443 : 80);
   this.query = opts.query || {};
   if ('string' === typeof this.query) this.query = parseqs.decode(this.query);
   this.upgrade = false !== opts.upgrade;
@@ -5929,11 +5931,11 @@ function Socket(uri, opts) {
   this.ca = opts.ca || null;
   this.ciphers = opts.ciphers || null;
   this.rejectUnauthorized = opts.rejectUnauthorized === undefined ? true : opts.rejectUnauthorized;
-  this.forceNode = !!opts.forceNode; // detect ReactNative environment
+  this.forceNode = !!opts.forceNode; // other options for Node.js client
 
-  this.isReactNative = typeof navigator !== 'undefined' && typeof navigator.product === 'string' && navigator.product.toLowerCase() === 'reactnative'; // other options for Node.js or ReactNative client
+  var freeGlobal = typeof global === 'object' && global;
 
-  if (typeof self === 'undefined' || this.isReactNative) {
+  if (freeGlobal.global === freeGlobal) {
     if (opts.extraHeaders && Object.keys(opts.extraHeaders).length > 0) {
       this.extraHeaders = opts.extraHeaders;
     }
@@ -6023,8 +6025,7 @@ Socket.prototype.createTransport = function (name) {
     forceNode: options.forceNode || this.forceNode,
     localAddress: options.localAddress || this.localAddress,
     requestTimeout: options.requestTimeout || this.requestTimeout,
-    protocols: options.protocols || void 0,
-    isReactNative: this.isReactNative
+    protocols: options.protocols || void 0
   });
   return transport;
 };
@@ -6549,6 +6550,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./transport":132,"./transports/index":133,"component-emitter":34,"debug":139,"engine.io-parser":141,"indexof":147,"parseqs":150,"parseuri":151}],132:[function(require,module,exports){
 /**
  * Module dependencies.
@@ -6589,9 +6591,7 @@ function Transport(opts) {
   this.ca = opts.ca;
   this.ciphers = opts.ciphers;
   this.rejectUnauthorized = opts.rejectUnauthorized;
-  this.forceNode = opts.forceNode; // results of ReactNative environment detection
-
-  this.isReactNative = opts.isReactNative; // other options for Node.js client
+  this.forceNode = opts.forceNode; // other options for Node.js client
 
   this.extraHeaders = opts.extraHeaders;
   this.localAddress = opts.localAddress;
@@ -6707,6 +6707,7 @@ Transport.prototype.onClose = function () {
 };
 
 },{"component-emitter":34,"engine.io-parser":141}],133:[function(require,module,exports){
+(function (global){
 /**
  * Module dependencies
  */
@@ -6737,7 +6738,7 @@ function polling(opts) {
   var xs = false;
   var jsonp = false !== opts.jsonp;
 
-  if (typeof location !== 'undefined') {
+  if (global.location) {
     var isSSL = 'https:' === location.protocol;
     var port = location.port; // some user agents have empty `location.port`
 
@@ -6761,6 +6762,7 @@ function polling(opts) {
   }
 }
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./polling-jsonp":134,"./polling-xhr":135,"./websocket":137,"xmlhttprequest-ssl":138}],134:[function(require,module,exports){
 (function (global){
 /**
@@ -6792,14 +6794,6 @@ var callbacks;
 
 function empty() {}
 /**
- * Until https://github.com/tc39/proposal-global is shipped.
- */
-
-
-function glob() {
-  return typeof self !== 'undefined' ? self : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : {};
-}
-/**
  * JSONP Polling constructor.
  *
  * @param {Object} opts.
@@ -6814,8 +6808,8 @@ function JSONPPolling(opts) {
 
   if (!callbacks) {
     // we need to consider multiple engines in the same page
-    var global = glob();
-    callbacks = global.___eio = global.___eio || [];
+    if (!global.___eio) global.___eio = [];
+    callbacks = global.___eio;
   } // callback identifier
 
 
@@ -6828,8 +6822,8 @@ function JSONPPolling(opts) {
 
   this.query.j = this.index; // prevent spurious errors from being emitted when the window is unloaded
 
-  if (typeof addEventListener === 'function') {
-    addEventListener('beforeunload', function () {
+  if (global.document && global.addEventListener) {
+    global.addEventListener('beforeunload', function () {
       if (self.script) self.script.onerror = empty;
     }, false);
   }
@@ -6992,8 +6986,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./polling":136,"component-inherit":35}],135:[function(require,module,exports){
-/* global attachEvent */
-
+(function (global){
 /**
  * Module requirements.
  */
@@ -7031,7 +7024,7 @@ function XHR(opts) {
   this.requestTimeout = opts.requestTimeout;
   this.extraHeaders = opts.extraHeaders;
 
-  if (typeof location !== 'undefined') {
+  if (global.location) {
     var isSSL = 'https:' === location.protocol;
     var port = location.port; // some user agents have empty `location.port`
 
@@ -7039,7 +7032,7 @@ function XHR(opts) {
       port = isSSL ? 443 : 80;
     }
 
-    this.xd = typeof location !== 'undefined' && opts.hostname !== location.hostname || port !== opts.port;
+    this.xd = opts.hostname !== global.location.hostname || port !== opts.port;
     this.xs = opts.secure !== isSSL;
   }
 }
@@ -7271,7 +7264,7 @@ Request.prototype.create = function () {
     return;
   }
 
-  if (typeof document !== 'undefined') {
+  if (global.document) {
     this.index = Request.requestsCount++;
     Request.requests[this.index] = this;
   }
@@ -7334,7 +7327,7 @@ Request.prototype.cleanup = function (fromError) {
     } catch (e) {}
   }
 
-  if (typeof document !== 'undefined') {
+  if (global.document) {
     delete Request.requests[this.index];
   }
 
@@ -7378,7 +7371,7 @@ Request.prototype.onLoad = function () {
 
 
 Request.prototype.hasXDR = function () {
-  return typeof XDomainRequest !== 'undefined' && !this.xs && this.enablesXDR;
+  return 'undefined' !== typeof global.XDomainRequest && !this.xs && this.enablesXDR;
 };
 /**
  * Aborts the request.
@@ -7400,12 +7393,11 @@ Request.prototype.abort = function () {
 Request.requestsCount = 0;
 Request.requests = {};
 
-if (typeof document !== 'undefined') {
-  if (typeof attachEvent === 'function') {
-    attachEvent('onunload', unloadHandler);
-  } else if (typeof addEventListener === 'function') {
-    var terminationEvent = 'onpagehide' in self ? 'pagehide' : 'unload';
-    addEventListener(terminationEvent, unloadHandler, false);
+if (global.document) {
+  if (global.attachEvent) {
+    global.attachEvent('onunload', unloadHandler);
+  } else if (global.addEventListener) {
+    global.addEventListener('beforeunload', unloadHandler, false);
   }
 }
 
@@ -7417,6 +7409,7 @@ function unloadHandler() {
   }
 }
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./polling":136,"component-emitter":34,"component-inherit":35,"debug":139,"xmlhttprequest-ssl":138}],136:[function(require,module,exports){
 /**
  * Module dependencies.
@@ -7670,7 +7663,7 @@ Polling.prototype.uri = function () {
 };
 
 },{"../transport":132,"component-inherit":35,"debug":139,"engine.io-parser":141,"parseqs":150,"xmlhttprequest-ssl":138,"yeast":182}],137:[function(require,module,exports){
-(function (Buffer){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -7686,14 +7679,13 @@ var yeast = require('yeast');
 
 var debug = require('debug')('engine.io-client:websocket');
 
-var BrowserWebSocket, NodeWebSocket;
+var BrowserWebSocket = global.WebSocket || global.MozWebSocket;
+var NodeWebSocket;
 
-if (typeof self === 'undefined') {
+if (typeof window === 'undefined') {
   try {
     NodeWebSocket = require('ws');
   } catch (e) {}
-} else {
-  BrowserWebSocket = self.WebSocket || self.MozWebSocket;
 }
 /**
  * Get either the `WebSocket` or `MozWebSocket` globals
@@ -7702,10 +7694,15 @@ if (typeof self === 'undefined') {
  */
 
 
-var WebSocket = BrowserWebSocket || NodeWebSocket;
+var WebSocket = BrowserWebSocket;
+
+if (!WebSocket && typeof window === 'undefined') {
+  WebSocket = NodeWebSocket;
+}
 /**
  * Module exports.
  */
+
 
 module.exports = WS;
 /**
@@ -7786,7 +7783,7 @@ WS.prototype.doOpen = function () {
   }
 
   try {
-    this.ws = this.usingBrowserWebSocket && !this.isReactNative ? protocols ? new WebSocket(uri, protocols) : new WebSocket(uri) : new WebSocket(uri, protocols, opts);
+    this.ws = this.usingBrowserWebSocket ? protocols ? new WebSocket(uri, protocols) : new WebSocket(uri) : new WebSocket(uri, protocols, opts);
   } catch (err) {
     return this.emit('error', err);
   }
@@ -7857,7 +7854,7 @@ WS.prototype.write = function (packets) {
           }
 
           if (self.perMessageDeflate) {
-            var len = 'string' === typeof data ? Buffer.byteLength(data) : data.length;
+            var len = 'string' === typeof data ? global.Buffer.byteLength(data) : data.length;
 
             if (len < self.perMessageDeflate.threshold) {
               opts.compress = false;
@@ -7963,8 +7960,9 @@ WS.prototype.check = function () {
   return !!WebSocket && !('__initialize' in WebSocket && this.name === WS.prototype.name);
 };
 
-}).call(this,require("buffer").Buffer)
-},{"../transport":132,"buffer":28,"component-inherit":35,"debug":139,"engine.io-parser":141,"parseqs":150,"ws":27,"yeast":182}],138:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"../transport":132,"component-inherit":35,"debug":139,"engine.io-parser":141,"parseqs":150,"ws":27,"yeast":182}],138:[function(require,module,exports){
+(function (global){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -7994,11 +7992,12 @@ module.exports = function (opts) {
 
   if (!xdomain) {
     try {
-      return new self[['Active'].concat('Object').join('X')]('Microsoft.XMLHTTP');
+      return new global[['Active'].concat('Object').join('X')]('Microsoft.XMLHTTP');
     } catch (e) {}
   }
 };
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"has-cors":145}],139:[function(require,module,exports){
 (function (process){
 /**
@@ -8388,6 +8387,7 @@ function coerce(val) {
 }
 
 },{"ms":149}],141:[function(require,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -8403,7 +8403,7 @@ var utf8 = require('./utf8');
 
 var base64encoder;
 
-if (typeof ArrayBuffer !== 'undefined') {
+if (global && global.ArrayBuffer) {
   base64encoder = require('base64-arraybuffer');
 }
 /**
@@ -8493,9 +8493,9 @@ exports.encodePacket = function (packet, supportsBinary, utf8encode, callback) {
 
   var data = packet.data === undefined ? undefined : packet.data.buffer || packet.data;
 
-  if (typeof ArrayBuffer !== 'undefined' && data instanceof ArrayBuffer) {
+  if (global.ArrayBuffer && data instanceof ArrayBuffer) {
     return encodeArrayBuffer(packet, supportsBinary, callback);
-  } else if (typeof Blob !== 'undefined' && data instanceof Blob) {
+  } else if (Blob && data instanceof global.Blob) {
     return encodeBlob(packet, supportsBinary, callback);
   } // might be an object with { base64: true, data: dataAsBase64String }
 
@@ -8551,10 +8551,8 @@ function encodeBlobAsArrayBuffer(packet, supportsBinary, callback) {
   var fr = new FileReader();
 
   fr.onload = function () {
-    exports.encodePacket({
-      type: packet.type,
-      data: fr.result
-    }, supportsBinary, true, callback);
+    packet.data = fr.result;
+    exports.encodePacket(packet, supportsBinary, true, callback);
   };
 
   return fr.readAsArrayBuffer(packet.data);
@@ -8585,7 +8583,7 @@ function encodeBlob(packet, supportsBinary, callback) {
 exports.encodeBase64Packet = function (packet, callback) {
   var message = 'b' + exports.packets[packet.type];
 
-  if (typeof Blob !== 'undefined' && packet.data instanceof Blob) {
+  if (Blob && packet.data instanceof global.Blob) {
     var fr = new FileReader();
 
     fr.onload = function () {
@@ -8612,7 +8610,7 @@ exports.encodeBase64Packet = function (packet, callback) {
     b64data = String.fromCharCode.apply(null, basic);
   }
 
-  message += btoa(b64data);
+  message += global.btoa(b64data);
   return callback(message);
 };
 /**
@@ -9043,6 +9041,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./keys":142,"./utf8":143,"after":21,"arraybuffer.slice":22,"base64-arraybuffer":24,"blob":26,"has-binary2":144}],142:[function(require,module,exports){
 /**
  * Gets the keys for an object.
@@ -9064,234 +9063,279 @@ module.exports = Object.keys || function keys(obj) {
 };
 
 },{}],143:[function(require,module,exports){
+(function (global){
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
-var stringFromCharCode = String.fromCharCode; // Taken from https://mths.be/punycode
+;
 
-function ucs2decode(string) {
-  var output = [];
-  var counter = 0;
-  var length = string.length;
-  var value;
-  var extra;
+(function (root) {
+  // Detect free variables `exports`
+  var freeExports = typeof exports == 'object' && exports; // Detect free variable `module`
 
-  while (counter < length) {
-    value = string.charCodeAt(counter++);
+  var freeModule = typeof module == 'object' && module && module.exports == freeExports && module; // Detect free variable `global`, from Node.js or Browserified code,
+  // and use it as `root`
 
-    if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
-      // high surrogate, and there is a next character
-      extra = string.charCodeAt(counter++);
+  var freeGlobal = typeof global == 'object' && global;
 
-      if ((extra & 0xFC00) == 0xDC00) {
-        // low surrogate
-        output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+  if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+    root = freeGlobal;
+  }
+  /*--------------------------------------------------------------------------*/
+
+
+  var stringFromCharCode = String.fromCharCode; // Taken from https://mths.be/punycode
+
+  function ucs2decode(string) {
+    var output = [];
+    var counter = 0;
+    var length = string.length;
+    var value;
+    var extra;
+
+    while (counter < length) {
+      value = string.charCodeAt(counter++);
+
+      if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+        // high surrogate, and there is a next character
+        extra = string.charCodeAt(counter++);
+
+        if ((extra & 0xFC00) == 0xDC00) {
+          // low surrogate
+          output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+        } else {
+          // unmatched surrogate; only append this code unit, in case the next
+          // code unit is the high surrogate of a surrogate pair
+          output.push(value);
+          counter--;
+        }
       } else {
-        // unmatched surrogate; only append this code unit, in case the next
-        // code unit is the high surrogate of a surrogate pair
         output.push(value);
-        counter--;
       }
+    }
+
+    return output;
+  } // Taken from https://mths.be/punycode
+
+
+  function ucs2encode(array) {
+    var length = array.length;
+    var index = -1;
+    var value;
+    var output = '';
+
+    while (++index < length) {
+      value = array[index];
+
+      if (value > 0xFFFF) {
+        value -= 0x10000;
+        output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+        value = 0xDC00 | value & 0x3FF;
+      }
+
+      output += stringFromCharCode(value);
+    }
+
+    return output;
+  }
+
+  function checkScalarValue(codePoint, strict) {
+    if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
+      if (strict) {
+        throw Error('Lone surrogate U+' + codePoint.toString(16).toUpperCase() + ' is not a scalar value');
+      }
+
+      return false;
+    }
+
+    return true;
+  }
+  /*--------------------------------------------------------------------------*/
+
+
+  function createByte(codePoint, shift) {
+    return stringFromCharCode(codePoint >> shift & 0x3F | 0x80);
+  }
+
+  function encodeCodePoint(codePoint, strict) {
+    if ((codePoint & 0xFFFFFF80) == 0) {
+      // 1-byte sequence
+      return stringFromCharCode(codePoint);
+    }
+
+    var symbol = '';
+
+    if ((codePoint & 0xFFFFF800) == 0) {
+      // 2-byte sequence
+      symbol = stringFromCharCode(codePoint >> 6 & 0x1F | 0xC0);
+    } else if ((codePoint & 0xFFFF0000) == 0) {
+      // 3-byte sequence
+      if (!checkScalarValue(codePoint, strict)) {
+        codePoint = 0xFFFD;
+      }
+
+      symbol = stringFromCharCode(codePoint >> 12 & 0x0F | 0xE0);
+      symbol += createByte(codePoint, 6);
+    } else if ((codePoint & 0xFFE00000) == 0) {
+      // 4-byte sequence
+      symbol = stringFromCharCode(codePoint >> 18 & 0x07 | 0xF0);
+      symbol += createByte(codePoint, 12);
+      symbol += createByte(codePoint, 6);
+    }
+
+    symbol += stringFromCharCode(codePoint & 0x3F | 0x80);
+    return symbol;
+  }
+
+  function utf8encode(string, opts) {
+    opts = opts || {};
+    var strict = false !== opts.strict;
+    var codePoints = ucs2decode(string);
+    var length = codePoints.length;
+    var index = -1;
+    var codePoint;
+    var byteString = '';
+
+    while (++index < length) {
+      codePoint = codePoints[index];
+      byteString += encodeCodePoint(codePoint, strict);
+    }
+
+    return byteString;
+  }
+  /*--------------------------------------------------------------------------*/
+
+
+  function readContinuationByte() {
+    if (byteIndex >= byteCount) {
+      throw Error('Invalid byte index');
+    }
+
+    var continuationByte = byteArray[byteIndex] & 0xFF;
+    byteIndex++;
+
+    if ((continuationByte & 0xC0) == 0x80) {
+      return continuationByte & 0x3F;
+    } // If we end up here, it’s not a continuation byte
+
+
+    throw Error('Invalid continuation byte');
+  }
+
+  function decodeSymbol(strict) {
+    var byte1;
+    var byte2;
+    var byte3;
+    var byte4;
+    var codePoint;
+
+    if (byteIndex > byteCount) {
+      throw Error('Invalid byte index');
+    }
+
+    if (byteIndex == byteCount) {
+      return false;
+    } // Read first byte
+
+
+    byte1 = byteArray[byteIndex] & 0xFF;
+    byteIndex++; // 1-byte sequence (no continuation bytes)
+
+    if ((byte1 & 0x80) == 0) {
+      return byte1;
+    } // 2-byte sequence
+
+
+    if ((byte1 & 0xE0) == 0xC0) {
+      byte2 = readContinuationByte();
+      codePoint = (byte1 & 0x1F) << 6 | byte2;
+
+      if (codePoint >= 0x80) {
+        return codePoint;
+      } else {
+        throw Error('Invalid continuation byte');
+      }
+    } // 3-byte sequence (may include unpaired surrogates)
+
+
+    if ((byte1 & 0xF0) == 0xE0) {
+      byte2 = readContinuationByte();
+      byte3 = readContinuationByte();
+      codePoint = (byte1 & 0x0F) << 12 | byte2 << 6 | byte3;
+
+      if (codePoint >= 0x0800) {
+        return checkScalarValue(codePoint, strict) ? codePoint : 0xFFFD;
+      } else {
+        throw Error('Invalid continuation byte');
+      }
+    } // 4-byte sequence
+
+
+    if ((byte1 & 0xF8) == 0xF0) {
+      byte2 = readContinuationByte();
+      byte3 = readContinuationByte();
+      byte4 = readContinuationByte();
+      codePoint = (byte1 & 0x07) << 0x12 | byte2 << 0x0C | byte3 << 0x06 | byte4;
+
+      if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
+        return codePoint;
+      }
+    }
+
+    throw Error('Invalid UTF-8 detected');
+  }
+
+  var byteArray;
+  var byteCount;
+  var byteIndex;
+
+  function utf8decode(byteString, opts) {
+    opts = opts || {};
+    var strict = false !== opts.strict;
+    byteArray = ucs2decode(byteString);
+    byteCount = byteArray.length;
+    byteIndex = 0;
+    var codePoints = [];
+    var tmp;
+
+    while ((tmp = decodeSymbol(strict)) !== false) {
+      codePoints.push(tmp);
+    }
+
+    return ucs2encode(codePoints);
+  }
+  /*--------------------------------------------------------------------------*/
+
+
+  var utf8 = {
+    'version': '2.1.2',
+    'encode': utf8encode,
+    'decode': utf8decode
+  }; // Some AMD build optimizers, like r.js, check for specific condition patterns
+  // like the following:
+
+  if (typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+    define(function () {
+      return utf8;
+    });
+  } else if (freeExports && !freeExports.nodeType) {
+    if (freeModule) {
+      // in Node.js or RingoJS v0.8.0+
+      freeModule.exports = utf8;
     } else {
-      output.push(value);
+      // in Narwhal or RingoJS v0.7.0-
+      var object = {};
+      var hasOwnProperty = object.hasOwnProperty;
+
+      for (var key in utf8) {
+        hasOwnProperty.call(utf8, key) && (freeExports[key] = utf8[key]);
+      }
     }
+  } else {
+    // in Rhino or a web browser
+    root.utf8 = utf8;
   }
+})(this);
 
-  return output;
-} // Taken from https://mths.be/punycode
-
-
-function ucs2encode(array) {
-  var length = array.length;
-  var index = -1;
-  var value;
-  var output = '';
-
-  while (++index < length) {
-    value = array[index];
-
-    if (value > 0xFFFF) {
-      value -= 0x10000;
-      output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
-      value = 0xDC00 | value & 0x3FF;
-    }
-
-    output += stringFromCharCode(value);
-  }
-
-  return output;
-}
-
-function checkScalarValue(codePoint, strict) {
-  if (codePoint >= 0xD800 && codePoint <= 0xDFFF) {
-    if (strict) {
-      throw Error('Lone surrogate U+' + codePoint.toString(16).toUpperCase() + ' is not a scalar value');
-    }
-
-    return false;
-  }
-
-  return true;
-}
-/*--------------------------------------------------------------------------*/
-
-
-function createByte(codePoint, shift) {
-  return stringFromCharCode(codePoint >> shift & 0x3F | 0x80);
-}
-
-function encodeCodePoint(codePoint, strict) {
-  if ((codePoint & 0xFFFFFF80) == 0) {
-    // 1-byte sequence
-    return stringFromCharCode(codePoint);
-  }
-
-  var symbol = '';
-
-  if ((codePoint & 0xFFFFF800) == 0) {
-    // 2-byte sequence
-    symbol = stringFromCharCode(codePoint >> 6 & 0x1F | 0xC0);
-  } else if ((codePoint & 0xFFFF0000) == 0) {
-    // 3-byte sequence
-    if (!checkScalarValue(codePoint, strict)) {
-      codePoint = 0xFFFD;
-    }
-
-    symbol = stringFromCharCode(codePoint >> 12 & 0x0F | 0xE0);
-    symbol += createByte(codePoint, 6);
-  } else if ((codePoint & 0xFFE00000) == 0) {
-    // 4-byte sequence
-    symbol = stringFromCharCode(codePoint >> 18 & 0x07 | 0xF0);
-    symbol += createByte(codePoint, 12);
-    symbol += createByte(codePoint, 6);
-  }
-
-  symbol += stringFromCharCode(codePoint & 0x3F | 0x80);
-  return symbol;
-}
-
-function utf8encode(string, opts) {
-  opts = opts || {};
-  var strict = false !== opts.strict;
-  var codePoints = ucs2decode(string);
-  var length = codePoints.length;
-  var index = -1;
-  var codePoint;
-  var byteString = '';
-
-  while (++index < length) {
-    codePoint = codePoints[index];
-    byteString += encodeCodePoint(codePoint, strict);
-  }
-
-  return byteString;
-}
-/*--------------------------------------------------------------------------*/
-
-
-function readContinuationByte() {
-  if (byteIndex >= byteCount) {
-    throw Error('Invalid byte index');
-  }
-
-  var continuationByte = byteArray[byteIndex] & 0xFF;
-  byteIndex++;
-
-  if ((continuationByte & 0xC0) == 0x80) {
-    return continuationByte & 0x3F;
-  } // If we end up here, it’s not a continuation byte
-
-
-  throw Error('Invalid continuation byte');
-}
-
-function decodeSymbol(strict) {
-  var byte1;
-  var byte2;
-  var byte3;
-  var byte4;
-  var codePoint;
-
-  if (byteIndex > byteCount) {
-    throw Error('Invalid byte index');
-  }
-
-  if (byteIndex == byteCount) {
-    return false;
-  } // Read first byte
-
-
-  byte1 = byteArray[byteIndex] & 0xFF;
-  byteIndex++; // 1-byte sequence (no continuation bytes)
-
-  if ((byte1 & 0x80) == 0) {
-    return byte1;
-  } // 2-byte sequence
-
-
-  if ((byte1 & 0xE0) == 0xC0) {
-    byte2 = readContinuationByte();
-    codePoint = (byte1 & 0x1F) << 6 | byte2;
-
-    if (codePoint >= 0x80) {
-      return codePoint;
-    } else {
-      throw Error('Invalid continuation byte');
-    }
-  } // 3-byte sequence (may include unpaired surrogates)
-
-
-  if ((byte1 & 0xF0) == 0xE0) {
-    byte2 = readContinuationByte();
-    byte3 = readContinuationByte();
-    codePoint = (byte1 & 0x0F) << 12 | byte2 << 6 | byte3;
-
-    if (codePoint >= 0x0800) {
-      return checkScalarValue(codePoint, strict) ? codePoint : 0xFFFD;
-    } else {
-      throw Error('Invalid continuation byte');
-    }
-  } // 4-byte sequence
-
-
-  if ((byte1 & 0xF8) == 0xF0) {
-    byte2 = readContinuationByte();
-    byte3 = readContinuationByte();
-    byte4 = readContinuationByte();
-    codePoint = (byte1 & 0x07) << 0x12 | byte2 << 0x0C | byte3 << 0x06 | byte4;
-
-    if (codePoint >= 0x010000 && codePoint <= 0x10FFFF) {
-      return codePoint;
-    }
-  }
-
-  throw Error('Invalid UTF-8 detected');
-}
-
-var byteArray;
-var byteCount;
-var byteIndex;
-
-function utf8decode(byteString, opts) {
-  opts = opts || {};
-  var strict = false !== opts.strict;
-  byteArray = ucs2decode(byteString);
-  byteCount = byteArray.length;
-  byteIndex = 0;
-  var codePoints = [];
-  var tmp;
-
-  while ((tmp = decodeSymbol(strict)) !== false) {
-    codePoints.push(tmp);
-  }
-
-  return ucs2encode(codePoints);
-}
-
-module.exports = {
-  version: '2.1.2',
-  encode: utf8encode,
-  decode: utf8decode
-};
-
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],144:[function(require,module,exports){
 (function (Buffer){
 /* global Blob File */
@@ -11768,6 +11812,7 @@ Socket.prototype.binary = function (binary) {
 };
 
 },{"./on":156,"component-bind":33,"component-emitter":34,"debug":159,"has-binary2":144,"parseqs":150,"socket.io-parser":162,"to-array":166}],158:[function(require,module,exports){
+(function (global){
 /**
  * Module dependencies.
  */
@@ -11792,7 +11837,7 @@ module.exports = url;
 function url(uri, loc) {
   var obj = uri; // default to window.location
 
-  loc = loc || typeof location !== 'undefined' && location;
+  loc = loc || global.location;
   if (null == uri) uri = loc.protocol + '//' + loc.host; // relative path support
 
   if ('string' === typeof uri) {
@@ -11838,11 +11883,13 @@ function url(uri, loc) {
   return obj;
 }
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"debug":159,"parseuri":151}],159:[function(require,module,exports){
 arguments[4][139][0].apply(exports,arguments)
 },{"./debug":160,"_process":152,"dup":139}],160:[function(require,module,exports){
 arguments[4][140][0].apply(exports,arguments)
 },{"dup":140,"ms":149}],161:[function(require,module,exports){
+(function (global){
 /*global Blob,File*/
 
 /**
@@ -11853,8 +11900,8 @@ var isArray = require('isarray');
 var isBuf = require('./is-buffer');
 
 var toString = Object.prototype.toString;
-var withNativeBlob = typeof Blob === 'function' || typeof Blob !== 'undefined' && toString.call(Blob) === '[object BlobConstructor]';
-var withNativeFile = typeof File === 'function' || typeof File !== 'undefined' && toString.call(File) === '[object FileConstructor]';
+var withNativeBlob = typeof global.Blob === 'function' || toString.call(global.Blob) === '[object BlobConstructor]';
+var withNativeFile = typeof global.File === 'function' || toString.call(global.File) === '[object FileConstructor]';
 /**
  * Replaces every Buffer | ArrayBuffer in packet with a numbered placeholder.
  * Anything with blobs or files should be fed through removeBlobs before coming
@@ -12000,6 +12047,7 @@ exports.removeBlobs = function (data, callback) {
   }
 };
 
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"./is-buffer":163,"isarray":148}],162:[function(require,module,exports){
 /**
  * Module dependencies.
@@ -12211,7 +12259,7 @@ function Decoder() {
 
 Emitter(Decoder.prototype);
 /**
- * Decodes an encoded packet string into packet JSON.
+ * Decodes an ecoded packet string into packet JSON.
  *
  * @param {String} obj - encoded packet
  * @return {Object} packet
@@ -12416,14 +12464,20 @@ function error(msg) {
 }
 
 },{"./binary":161,"./is-buffer":163,"component-emitter":34,"debug":164,"isarray":148}],163:[function(require,module,exports){
-(function (Buffer){
+(function (global){
 module.exports = isBuf;
-var withNativeBuffer = typeof Buffer === 'function' && typeof Buffer.isBuffer === 'function';
-var withNativeArrayBuffer = typeof ArrayBuffer === 'function';
+var withNativeBuffer = typeof global.Buffer === 'function' && typeof global.Buffer.isBuffer === 'function';
+var withNativeArrayBuffer = typeof global.ArrayBuffer === 'function';
 
-var isView = function (obj) {
-  return typeof ArrayBuffer.isView === 'function' ? ArrayBuffer.isView(obj) : obj.buffer instanceof ArrayBuffer;
-};
+var isView = function () {
+  if (withNativeArrayBuffer && typeof global.ArrayBuffer.isView === 'function') {
+    return global.ArrayBuffer.isView;
+  } else {
+    return function (obj) {
+      return obj.buffer instanceof global.ArrayBuffer;
+    };
+  }
+}();
 /**
  * Returns true if obj is a buffer or an arraybuffer.
  *
@@ -12432,11 +12486,11 @@ var isView = function (obj) {
 
 
 function isBuf(obj) {
-  return withNativeBuffer && Buffer.isBuffer(obj) || withNativeArrayBuffer && (obj instanceof ArrayBuffer || isView(obj));
+  return withNativeBuffer && global.Buffer.isBuffer(obj) || withNativeArrayBuffer && (obj instanceof global.ArrayBuffer || isView(obj));
 }
 
-}).call(this,require("buffer").Buffer)
-},{"buffer":28}],164:[function(require,module,exports){
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],164:[function(require,module,exports){
 arguments[4][139][0].apply(exports,arguments)
 },{"./debug":165,"_process":152,"dup":139}],165:[function(require,module,exports){
 arguments[4][140][0].apply(exports,arguments)
@@ -13626,14 +13680,6 @@ const {
 
 const REQUIRED_INPUTS = 1;
 const DEFAULT_MIN_THRESHOLD = 1;
-const CANCELED = Object.freeze({
-  change: 0,
-  point: Object.freeze({
-    x: 0,
-    y: 0
-  }),
-  phase: 'cancel'
-});
 /**
  * A Pan is defined as a normal movement in any direction on a screen.  Pan
  * gestures do not track start events and can interact with pinch and expand
@@ -13707,15 +13753,16 @@ class Pan extends Gesture {
 
   move(state) {
     const active = state.getInputsNotInPhase('end');
-    /*
-     * This should only be encountered when a user adds extra inputs beyond what
-     * is used for this gesture. This allows whoever is working with this
-     * library to cancel tracking or locks that may be associated with this
-     * gesture, as it is not what the user is trying to perform.
-     */
 
     if (active.length !== REQUIRED_INPUTS) {
-      return Object.assign({}, CANCELED);
+      return {
+        change: 0,
+        point: {
+          x: 0,
+          y: 0
+        },
+        phase: 'cancel'
+      };
     }
 
     const progress = active[0].getProgressOfGesture(this.id);
@@ -13724,11 +13771,9 @@ class Pan extends Gesture {
     const change = point.subtract(progress.lastEmitted);
     progress.lastEmitted = point;
     const event = active[0].current.originalEvent;
-    const muted = this.muteKey && event[this.muteKey]; // See above comment for CANCELED return value. Similar concept here.
+    const muted = this.muteKey && event[this.muteKey];
 
-    if (muted) {
-      return Object.assign({}, CANCELED);
-    } else if (diff >= this.threshold) {
+    if (!muted && diff >= this.threshold) {
       return {
         change,
         point,
