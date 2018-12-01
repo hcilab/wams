@@ -69,6 +69,8 @@ class Point2D {
 
     this.x = x * cos_theta - y * sin_theta;
     this.y = x * sin_theta + y * cos_theta;
+    
+    return this;
   }
 
   /**
@@ -79,6 +81,8 @@ class Point2D {
   scale(ds) {
     this.x /= ds;
     this.y /= ds;
+    
+    return this;
   }
 
   /**
@@ -99,6 +103,8 @@ class Point2D {
   translate(dx, dy) {
     this.x += dx;
     this.y += dy;
+    
+    return this;
   }
 }
 
