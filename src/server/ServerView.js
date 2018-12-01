@@ -69,7 +69,6 @@ class ServerView extends View {
     super.assign(data);
     this.effectiveWidth = this.width / this.scale;
     this.effectiveHeight = this.height / this.scale;
-    console.log(this);
   }
 
   /**
