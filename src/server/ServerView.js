@@ -103,7 +103,8 @@ class ServerView extends View {
    * x: desired x coordinate to move to
    */
   canMoveToX(x = this.x) {
-    return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
+    // return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
+    return (x >= 0) && (x <= this.bounds.x);
   }
 
   /**
@@ -113,7 +114,8 @@ class ServerView extends View {
    * y: desired y coordinate to move to
    */
   canMoveToY(y = this.y) {
-    return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
+    // return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
+    return (y >= 0) && (y <= this.bounds.y);
   }
 
   /**
@@ -146,10 +148,11 @@ class ServerView extends View {
    * y: y coordinate to move to
    */
   moveTo(x = this.x, y = this.y) {
-    const coordinates = { x: this.x, y: this.y };
-    if (this.canMoveToX(x)) coordinates.x = x;
-    if (this.canMoveToY(y)) coordinates.y = y;
-    this.assign(coordinates);
+    // const coordinates = { x: this.x, y: this.y };
+    // if (this.canMoveToX(x)) coordinates.x = x;
+    // if (this.canMoveToY(y)) coordinates.y = y;
+    // this.assign(coordinates);
+    this.assign({ x, y });
   }
 
   /**
@@ -158,13 +161,12 @@ class ServerView extends View {
    * radians: The amount of rotation to apply to the view.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
-    const delta = new Point2D(this.x - px, this.y - py);
-    delta.rotate(-radians);
-    const x = px + delta.x;
-    const y = py + delta.y;
-    if (this.canMoveToX(x) && this.canMoveToY(y)) {
-      this.assign({ x, y, rotation: this.rotation + radians });
-    }
+    const delta = new Point2D(this.x - px, this.y - py).rotate(-radians);
+    this.assign({ 
+      x: px + delta.x,
+      y: py + delta.y,
+      rotation: this.rotation + radians
+    });
   }
 
   /**
@@ -196,15 +198,15 @@ class ServerView extends View {
    */
   scaleBy(scale = 1, mx = this.x, my = this.y) {
     scale *= this.scale;
-    const delta = new Point2D( this.x - mx, this.y - my );
-    const norm = delta.times(this.scale);
-    norm.scale(scale);
-    const x = mx + norm.x;
-    const y = my + norm.y;
-    const effectiveWidth = this.width / scale;
-    const effectiveHeight = this.height / scale;
-    if (this.canBeScaledTo(effectiveWidth, effectiveHeight)) {
-      this.assign({ scale, effectiveWidth, effectiveHeight, x, y, });
+    if (scale > 0.1 && scale < 10) {
+      const delta = new Point2D( this.x - mx, this.y - my )
+        .times(this.scale)
+        .scale(scale)
+      this.assign({ 
+        scale,
+        x: mx + delta.x,
+        y: my + delta.y,
+      });
       return true;
     }
     return false;
