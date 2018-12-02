@@ -34,7 +34,7 @@ function square(ix, iy, index) {
   return {x, y, width, height, type, blueprint};
 }
 
-// Attaches the defferent function handlers
+// Attaches the different function handlers
 ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
 ws.on('click',  Wams.predefined.tap.spawnOrRemoveItem(ws, square, 'colour'));
 ws.on('scale',  Wams.predefined.scale.view(ws));
