@@ -112,46 +112,16 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-const handleDrag = (function makeDragHandler() {
-  function isItem(tgt) {
-    return tgt.type === 'joker';
-  }
-
-  function handleDrag(view, target, x, y, dx, dy) {
-    if (target.type === 'view/background') {
-      target.moveBy(-dx, -dy);  
-    } else if (isItem(target)) {
-      target.moveBy(dx, dy);
-    }
-    ws.update(target);
-  }
-
-  return handleDrag;
-})();
-
-const handleScale = function(view, newScale) {
-  view.scaleBy(newScale);
-  ws.update(view);
+let faceUp = true;
+function flipCard(card) {
+  const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
+  card.assign({imgsrc});
+  faceUp = !faceUp;
 }
-
-const handleClick = (function makeClickHandler() {
-  let faceUp = true;
-
-  function handleClick(view, target, x, y) {
-    if (target.type === 'joker') {
-      const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
-      target.assign({imgsrc});
-      faceUp = !faceUp;
-      ws.update(target);
-    }
-  }
-
-  return handleClick;
-})();
  
-ws.on('click',  handleClick);
-ws.on('scale',  handleScale);
-ws.on('drag',   handleDrag);
+ws.on('click',  Wams.predefined.tap.modifyItem(ws, flipCard, 'joker'));
+ws.on('scale',  Wams.predefined.scale.view(ws));
+ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['joker']));
 ws.on('layout', handleLayout);
 
 ws.listen(9001);

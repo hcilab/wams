@@ -46,28 +46,6 @@ const handleSwipe = (function makeSwipeHandler(ws) {
   return handleSwipe;
 })(ws);
 
-// Executed every time a drag occurs on a device
-function handleDrag(view, target, x, y, dx, dy) {
-  if (target.type === 'colour') {
-    target.moveBy(dx, dy);
-  } else if (target.type === 'view/background') {
-    target.moveBy(-dx, -dy);
-  }
-  ws.update(target);
-}
-
-// Executed when a user rotates two fingers around the screen.
-function handleRotate(view, radians) {
-  view.rotateBy(radians);
-  ws.update(view);
-}
-
-// Executed when a user pinches a device, or uses the scroll wheel on a computer
-function handleScale(view, newScale) {
-  view.scaleBy(newScale);
-  ws.update(view);
-}
-
 // Executed once per user, when they join.
 function handleLayout(view, position) {
   view.moveTo(4000,4000);
@@ -75,11 +53,8 @@ function handleLayout(view, position) {
 }
 
 // Attaches the defferent function handlers
-ws.on('layout', handleLayout);
-ws.on('swipe', handleSwipe);
-ws.on('scale', handleScale);
-// ws.on('drag',  handleDrag);
-ws.on('rotate', handleRotate);
+ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
+ws.on('swipe',  handleSwipe);
 
 ws.listen(9002);
 
