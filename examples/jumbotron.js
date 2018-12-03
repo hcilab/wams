@@ -7,7 +7,7 @@
 
 const Wams = require('../src/server');
 const ws = new Wams({
-  bounds: { x: 3600, y: 3970 },
+  bounds: { x: 3600, y: 5445 },
   clientLimit: 4,
 });
 
@@ -15,9 +15,9 @@ ws.spawnItem({
   x: 0,
   y: 0,
   width: 3600,
-  height: 3970,
+  height: 5445,
   type: 'mona',
-  imgsrc: 'img/monaLisa.png'
+  imgsrc: 'img/monaLisa.jpg'
 });
 
 // Example Layout function that takes in the newly added client and which 
