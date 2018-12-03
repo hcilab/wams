@@ -98,8 +98,7 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  pan({ detail }) {
-    const { change, point, phase } = detail;
+  pan({ change, point, phase }) {
     this.handlers.pan( point.x, point.y, change.x, change.y, phase);
   }
 
@@ -114,12 +113,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  pinch({ detail }) {
-    this.handlers.zoom(
-      detail.change * this.scaleFactor,
-      detail.midpoint.x,
-      detail.midpoint.y,
-    );
+  pinch({ change, midpoint }) {
+    this.handlers.zoom( change * this.scaleFactor, midpoint.x, midpoint.y );
   }
 
   /**
@@ -133,8 +128,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  rotate({ detail }) {
-    this.handlers.rotate( detail.delta, detail.pivot.x, detail.pivot.y );
+  rotate({ delta, pivot }) {
+    this.handlers.rotate( delta, pivot.x, pivot.y );
   }
 
   /**
@@ -165,8 +160,7 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  swipe({ detail }) {
-    const { velocity, x, y, direction } = detail;
+  swipe({ velocity, x, y, direction }) {
     this.handlers.swipe(velocity, x, y, direction);
   }
 
@@ -181,8 +175,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  tap({ detail }) {
-    this.handlers.tap( detail.x, detail.y );
+  tap({ x, y }) {
+    this.handlers.tap( x, y );
   }
 
   /**
