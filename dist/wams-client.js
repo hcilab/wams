@@ -12504,6 +12504,7 @@ class Binding {
      *
      * @type {Element}
      */
+    if (!(element instanceof Element)) throw 'Invalid Element';
     this.element = element;
     /**
      * A instance of the Gesture type.
@@ -12519,24 +12520,7 @@ class Binding {
      * @type {Function}
      */
 
-    this.handler = handler; // Start listening immediately.
-
-    this.listen();
-  }
-  /**
-   * Dispatches a custom event on the bound element, sending the provided data.
-   * The event's name will be the id of the bound gesture.
-   *
-   * @param {Object} data - The data to send with the event.
-   */
-
-
-  dispatch(data) {
-    this.element.dispatchEvent(new CustomEvent(this.gesture.id, {
-      detail: data,
-      bubbles: true,
-      cancelable: true
-    }));
+    this.handler = handler;
   }
   /**
    * Evalutes the given gesture hook, and dispatches any data that is produced.
@@ -12548,25 +12532,8 @@ class Binding {
 
     if (data) {
       data.events = events;
-      this.dispatch(data);
+      this.handler(data);
     }
-  }
-  /**
-   * Sets the bound element to begin listening to events of the same name as the
-   * bound gesture's id.
-   */
-
-
-  listen() {
-    this.element.addEventListener(this.gesture.id, this.handler);
-  }
-  /**
-   * Stops listening for events of the same name as the bound gesture's id.
-   */
-
-
-  stop() {
-    this.element.removeEventListener(this.gesture.id, this.handler);
   }
 
 }
@@ -15359,10 +15326,9 @@ function () {
   }, {
     key: "pan",
     value: function pan(_ref) {
-      var detail = _ref.detail;
-      var change = detail.change,
-          point = detail.point,
-          phase = detail.phase;
+      var change = _ref.change,
+          point = _ref.point,
+          phase = _ref.phase;
       this.handlers.pan(point.x, point.y, change.x, change.y, phase);
     }
     /**
@@ -15384,8 +15350,9 @@ function () {
   }, {
     key: "pinch",
     value: function pinch(_ref2) {
-      var detail = _ref2.detail;
-      this.handlers.zoom(detail.change * this.scaleFactor, detail.midpoint.x, detail.midpoint.y);
+      var change = _ref2.change,
+          midpoint = _ref2.midpoint;
+      this.handlers.zoom(change * this.scaleFactor, midpoint.x, midpoint.y);
     }
     /**
      * Obtain the appropriate Westures Gesture object.
@@ -15406,8 +15373,9 @@ function () {
   }, {
     key: "rotate",
     value: function rotate(_ref3) {
-      var detail = _ref3.detail;
-      this.handlers.rotate(detail.delta, detail.pivot.x, detail.pivot.y);
+      var delta = _ref3.delta,
+          pivot = _ref3.pivot;
+      this.handlers.rotate(delta, pivot.x, pivot.y);
     }
     /**
      * Respond to mouse events on the desktop to detect single-pointer rotates.
@@ -15449,11 +15417,10 @@ function () {
   }, {
     key: "swipe",
     value: function swipe(_ref4) {
-      var detail = _ref4.detail;
-      var velocity = detail.velocity,
-          x = detail.x,
-          y = detail.y,
-          direction = detail.direction;
+      var velocity = _ref4.velocity,
+          x = _ref4.x,
+          y = _ref4.y,
+          direction = _ref4.direction;
       this.handlers.swipe(velocity, x, y, direction);
     }
     /**
@@ -15473,8 +15440,9 @@ function () {
   }, {
     key: "tap",
     value: function tap(_ref5) {
-      var detail = _ref5.detail;
-      this.handlers.tap(detail.x, detail.y);
+      var x = _ref5.x,
+          y = _ref5.y;
+      this.handlers.tap(x, y);
     }
     /**
      * Obtain the appropriate Westures Gesture object.
