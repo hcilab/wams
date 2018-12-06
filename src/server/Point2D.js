@@ -20,6 +20,13 @@ class Point2D {
   }
 
   /**
+   * Returns a new Point2D, an exact clone of this point.
+   */
+  clone() {
+    return new Point2D( this.x, this.y );
+  }
+
+  /**
    * Tests if a point is Left|On|Right of an infinite line. Assumes that the
    * given points are such that one is above and one is below this point.
    * FIXME: Are those semantics right?
@@ -62,8 +69,8 @@ class Point2D {
    *
    * theta: amount of rotation to apply, in radians.
    */
-  rotate(theta) {
-    const {x,y} = this;
+  rotate(theta = 0) {
+    const { x, y } = this;
     const cos_theta = Math.cos(theta);
     const sin_theta = Math.sin(theta);
 
@@ -78,7 +85,7 @@ class Point2D {
    *
    * ds: divide x,y by this amount
    */
-  scale(ds) {
+  scale(ds = 1) {
     this.x /= ds;
     this.y /= ds;
     
@@ -90,7 +97,7 @@ class Point2D {
    *
    * coefficient: Amount by which to multiply the values in this point.
    */
-  times(coefficient) {
+  times(coefficient = 1) {
     return new Point2D(this.x * coefficient, this.y * coefficient);
   }
 
@@ -100,7 +107,7 @@ class Point2D {
    * dx: change in x axis position.
    * dy: change in y axis position.
    */
-  translate(dx, dy) {
+  translate(dx = 0, dy = 0) {
     this.x += dx;
     this.y += dy;
     

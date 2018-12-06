@@ -13,12 +13,19 @@ const Point2D = require('./Point2D.js');
 
 class Polygon2D {
   /**
+   * anchor: A Point2D object, the "anchor" around which the Polygon will be
+   *         rotated. All the points of the Polygon should be defined relative
+   *         to this point.
    * points: Array of Point2D objects, or simple objects with 'x' and 'y'
-   *         properties holding numerical values.
+   *         properties holding numerical values. All values should be relative
+   *         to the anchor point.
    */
-  constructor(points) {
-    this.points = points.map( ({x,y}) => new Point2D(x,y) );
-    this.points.push(this.points[0]);
+  constructor(points, anchor = {}) {
+    this.anchor = new Point2D(anchor.x, anchor.y);
+    this.points = points.map( ({ x, y }) => new Point2D(x, y) );
+    if (this.points.length > 0) {
+      this.points.push(this.points[0].clone());
+    }
   }
 
   /**
@@ -43,16 +50,24 @@ class Polygon2D {
   contains(p) {
     return this.winding_number(p) !== 0;
   }
+  
+  /**
+   * Translate (move) the polygon by adjusting its anchor point.
+   */
+  translate(dx = 0, dy = 0) {
+     this.centre.translate(dx, dy); 
+  }
 
   /**
    * winding number test for a point in a polygon
    * See: http://geomalgorithms.com/a03-_inclusion.html
    *
-   * Input:   p = a point,
+   * Input:   point = a Point2D
    * Return:  wn = the winding number (=0 only when P is outside)
    */
-  winding_number(p) {
+  winding_number(point = {}) {
     let wn = 0;
+    const p = new Point2D(point.x, point.y).minus(this.anchor);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
       if (this.points[i].y <= p.y) {
