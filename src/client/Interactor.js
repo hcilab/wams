@@ -49,6 +49,10 @@ class Interactor {
    *           recognized.
    */
   constructor(canvas, handlers = {}) {
+    if (!(canvas instanceof CanvasRenderingContext2D)) {
+      throw 'Invalid canvas recieved by Interactor!';
+    }
+
     this.canvas = canvas;
     this.region = new Westures.Region(window);
 
@@ -56,7 +60,7 @@ class Interactor {
      * The scaleFactor is a value by which the "changes" in pinches will be
      * multiplied. This should effectively normalize pinches across devices
      */
-    this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000)
+    this.scaleFactor = 2000 / (window.innerHeight * window.innerWidth)
     this.lastDesktopAngle = null;
 
     this.handlers = mergeMatches(HANDLERS, handlers);
@@ -99,14 +103,14 @@ class Interactor {
    * handler.
    */
   pan({ change, point, phase }) {
-    this.handlers.pan( point.x, point.y, change.x, change.y, phase);
+    this.handlers.pan( point.x, point.y, change.x, change.y, phase );
   }
 
   /**
    * Obtain the appropriate Westures Gesture object.
    */
   panner() {
-    return new Westures.Pan({muteKey: 'ctrlKey'});
+    return new Westures.Pan({ muteKey: 'ctrlKey' });
   }
 
   /**
