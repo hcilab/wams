@@ -42,19 +42,6 @@ describe('Polygon2D', () => {
       expect(triangle.points).toBeDefined();
       expect(triangle.points[0]).toBeInstanceOf(Point2D);
     });
-
-    test('Defaults to a anchor of (0,0)', () => {
-      expect(triangle.anchor).toMatchObject({ x:0, y:0 });
-    });
-
-    test('Uses the anchor, if provided' , () => {
-      expect(() => triangle = new Polygon2D(triangle_points, {
-        x: 14,
-        y: 23
-      })).not.toThrow();
-      expect(triangle.anchor).toMatchObject({ x:14, y:23 });
-    });
-
   });
 
   describe('contains(p)', () => {

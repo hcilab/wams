@@ -52,10 +52,24 @@ class Polygon2D {
   }
   
   /**
+   * Rotate the polygon by the given amount.
+   */
+  rotate(theta) {
+    this.points.forEach( p => p.rotate(theta) );
+  }
+
+  /**
+   * Scale the polygon by the given amount.
+   */
+  scale(ds) {
+    this.points.forEach( p => p.scale(ds) );
+  }
+
+  /**
    * Translate (move) the polygon by adjusting its anchor point.
    */
   translate(dx = 0, dy = 0) {
-     this.centre.translate(dx, dy); 
+     this.anchor.translate(dx, dy); 
   }
 
   /**
