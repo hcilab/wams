@@ -13,7 +13,7 @@ describe('Interactor', () => {
   let canvas, handlers;
 
   beforeAll(() => {
-    canvas = new CanvasRenderingContext2D();
+    canvas = document.createElement('canvas');
     canvas.getBoundingClientRect = jest.fn();
     canvas.getBoundingClientRect.mockReturnValue({
       left: 0,

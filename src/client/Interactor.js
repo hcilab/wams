@@ -49,7 +49,7 @@ class Interactor {
    *           recognized.
    */
   constructor(canvas, handlers = {}) {
-    if (!(canvas instanceof CanvasRenderingContext2D)) {
+    if (!(canvas instanceof HTMLCanvasElement)) {
       throw 'Invalid canvas recieved by Interactor!';
     }
 
