@@ -14,6 +14,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
+const Polygon2D = require('./Polygon2D.js');
 
 const DEFAULTS = Object.freeze({
   x: 0,
@@ -41,6 +42,13 @@ class ServerItem extends Item {
      */
     this.locked = false;
 
+    this.hitbox = new Polygon2D([
+      { x: 0,          y: 0 },
+      { x: this.width, y: 0 },
+      { x: this.width, y: this.height },
+      { x: 0,          y: this.height },
+    ], { x: this.x, y: this.y });
+
     // Items need to be uniquely identifiable.
     STAMPER.stampNewId(this);
   }
@@ -53,10 +61,11 @@ class ServerItem extends Item {
    * y: y coordinate of the point to check.
    */
   containsPoint(x, y) {
-    return (this.x <= x) && 
-      (this.y <= y) && 
-      (this.x + this.width  >= x) && 
-      (this.y + this.height >= y);
+    return this.hitbox.contains({ x,y });
+    // return (this.x <= x) && 
+      // (this.y <= y) && 
+      // (this.x + this.width  >= x) && 
+      // (this.y + this.height >= y);
   }
 
   /**
@@ -102,6 +111,7 @@ class ServerItem extends Item {
    */
   moveBy(dx = 0, dy = 0) {
     this.moveTo(this.x + dx, this.y + dy);
+    this.hitbox.translate(dx, dy);
   }
 }
 

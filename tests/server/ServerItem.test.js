@@ -75,13 +75,6 @@ describe('ServerItem', () => {
       expect(item.containsPoint(200,200)).toBe(false);
     });
 
-    test('Accepts points on the border of the square', () => {
-      expect(item.containsPoint(50,50)).toBe(true);
-      expect(item.containsPoint(150,50)).toBe(true);
-      expect(item.containsPoint(50,150)).toBe(true);
-      expect(item.containsPoint(150,150)).toBe(true);
-    });
-
     test('Rejects points just outside the border of the square', () => {
       expect(item.containsPoint(49,49)).toBe(false);
       expect(item.containsPoint(49,151)).toBe(false);
