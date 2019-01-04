@@ -13,6 +13,7 @@
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 const Wams    = require('./server/Wams.js');
+const items   = require('./predefined/items.js');
 const drags   = require('./predefined/drags.js');
 const layouts = require('./predefined/layouts.js');
 const rotates = require('./predefined/rotates.js');
@@ -22,6 +23,7 @@ const taps    = require('./predefined/taps.js');
 
 Wams.Sequence   = CanvasBlueprint;
 Wams.predefined = Object.freeze({
+  items,
   drag:   drags,
   layout: layouts,
   rotate: rotates,

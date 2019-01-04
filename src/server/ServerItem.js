@@ -19,8 +19,7 @@ const Polygon2D = require('./Polygon2D.js');
 const DEFAULTS = Object.freeze({
   x: 0,
   y: 0,
-  width: 128,
-  height: 128,
+  hitbox: null,
   type: 'item/foreground',
   imgsrc: '',
   blueprint: null,
@@ -42,13 +41,6 @@ class ServerItem extends Item {
      */
     this.locked = false;
 
-    this.hitbox = new Polygon2D([
-      { x: 0,          y: 0 },
-      { x: this.width, y: 0 },
-      { x: this.width, y: this.height },
-      { x: 0,          y: this.height },
-    ], { x: this.x, y: this.y });
-
     // Items need to be uniquely identifiable.
     STAMPER.stampNewId(this);
   }
@@ -61,11 +53,10 @@ class ServerItem extends Item {
    * y: y coordinate of the point to check.
    */
   containsPoint(x, y) {
-    return this.hitbox.contains({ x,y });
-    // return (this.x <= x) && 
-      // (this.y <= y) && 
-      // (this.x + this.width  >= x) && 
-      // (this.y + this.height >= y);
+    return this.hitbox && this.hitbox.contains({ 
+      x: x - this.x,
+      y: y - this.y,
+    });
   }
 
   /**
@@ -100,7 +91,7 @@ class ServerItem extends Item {
    * y: y coordinate of the destination. Defaults to current y coordinate.
    */
   moveTo(x = this.x, y = this.y) {
-    this.assign({x,y});
+    this.assign({ x, y });
   }
 
   /**
@@ -111,7 +102,22 @@ class ServerItem extends Item {
    */
   moveBy(dx = 0, dy = 0) {
     this.moveTo(this.x + dx, this.y + dy);
-    this.hitbox.translate(dx, dy);
+  }
+
+  /**
+   * Rotate the item by the given amount (in radians).
+   */
+  rotateBy(radians = 0) {
+    this.rotation -= radians;
+    this.hitbox && this.hitbox.rotate(radians);
+  }
+
+  /**
+   * Scale the item by the given amount.
+   */
+  scaleBy(ds = 1) {
+    this.scale *= ds;
+    this.hitbox && this.hitbox.scale(ds);
   }
 }
 

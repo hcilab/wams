@@ -16,8 +16,11 @@ const ReporterFactory = require('./ReporterFactory.js');
 const Item = ReporterFactory([
   'x',
   'y',
-  'width',
-  'height',
+  'hitbox', // TODO: May not need to be reported
+  // 'width',
+  // 'height',
+  'rotation',
+  'scale',
   'type',
   'imgsrc',
   'blueprint',

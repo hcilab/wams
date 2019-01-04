@@ -87,20 +87,27 @@ class ClientItem extends Item {
    * context: CanvasRenderingContext2D onto which to draw this item.
    */
   draw(context) {
-    const width = this.width || this.img.width;
-    const height = this.height || this.img.height;
+    // const width = this.width || this.img.width;
+    // const height = this.height || this.img.height;
 
     if (this.sequence) {
       this.sequence.execute(context);
     } else if (this.img && this.img.loaded) {
-      context.drawImage(this.img, this.x, this.y, width, height);
-    } else {
-      // Draw placeholder rectangle.
-      context.save();
-      context.fillStyle = '#252525';
-      context.fillRect(this.x, this.y, width, height);
-      context.restore();
-    }
+      context.drawImage(
+        this.img,
+        this.x,
+        this.y,
+        this.img.width,
+        this.img.height
+      );
+    } 
+    // else {
+    //   // Draw placeholder rectangle.
+    //   context.save();
+    //   context.fillStyle = '#252525';
+    //   context.fillRect(this.x, this.y, width, height);
+    //   context.restore();
+    // }
   }
 }
 

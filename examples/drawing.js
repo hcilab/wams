@@ -9,29 +9,24 @@ const Wams = require('../src/server.js');
 const ws = new Wams();
 
 const colours = [
-  'blue',
+  'saddlebrown',
   'red',
-  'green',
-  'pink',
-  'cyan',
-  'yellow',
+  'blue',
+  'darkgreen',
+  'orangered',
+  'purple',
+  'aqua',
+  'lime',
 ];
 
-function rectSeq(index) {
-  const seq = new Wams.Sequence();
-  seq.fillStyle = colours[index];
-  seq.fillRect('{x}', '{y}', '{width}', '{height}');
-  return seq;
-}
-
 function square(ix, iy, index) {
-  const x = ix - 64;
-  const y = iy - 64;
-  const width = 128;
-  const height = 128;
-  const type = 'colour';
-  const blueprint = rectSeq(index % 6);
-  return {x, y, width, height, type, blueprint};
+  return Wams.predefined.items.square(
+    ix - 64,
+    iy - 64,
+    128,
+    'colour',
+    colours[index % colours.length]
+  );
 }
 
 // Attaches the different function handlers

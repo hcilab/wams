@@ -12504,7 +12504,6 @@ class Binding {
      *
      * @type {Element}
      */
-    if (!(element instanceof Element)) throw 'Invalid Element';
     this.element = element;
     /**
      * A instance of the Gesture type.
@@ -12865,18 +12864,6 @@ class Point2D {
     this.y = y;
   }
   /**
-   * Add this point to the given point.
-   *
-   * @param {Point2D} point
-   *
-   * @return {Point2D} A new Point2D, which is the addition of the two points.
-   */
-
-
-  add(point) {
-    return new Point2D(this.x + point.x, this.y + point.y);
-  }
-  /**
    * Calculates the angle between this point and the given point.
    *   |                (projectionX,projectionY)
    *   |             /°
@@ -12934,20 +12921,6 @@ class Point2D {
     return Math.hypot(point.x - this.x, point.y - this.y);
   }
   /**
-   * Determines if this point is within the given HTML element.
-   *
-   * @param {Element} target
-   *
-   * @return {Boolean} true if the given point is within element, false
-   *    otherwise. 
-   */
-
-
-  isInside(element) {
-    const rect = element.getBoundingClientRect();
-    return this.x >= rect.left && this.x <= rect.left + rect.width && this.y >= rect.top && this.y <= rect.top + rect.height;
-  }
-  /**
    * Calculates the midpoint coordinates between two points.
    *
    * @param {Point2D} point
@@ -12968,8 +12941,20 @@ class Point2D {
    */
 
 
-  subtract(point) {
+  minus(point) {
     return new Point2D(this.x - point.x, this.y - point.y);
+  }
+  /**
+   * Return the summation of this point to the given point.
+   *
+   * @param {Point2D} point
+   *
+   * @return {Point2D} A new Point2D, which is the addition of the two points.
+   */
+
+
+  plus(point) {
+    return new Point2D(this.x + point.x, this.y + point.y);
   }
   /**
    * Calculates the total distance from this point to an array of points.
@@ -13011,11 +12996,7 @@ Point2D.midpoint = function (points = []) {
 
 
 Point2D.sum = function (points = []) {
-  return points.reduce((total, current) => {
-    total.x += current.x;
-    total.y += current.y;
-    return total;
-  }, new Point2D(0, 0));
+  return points.reduce((total, pt) => total.plus(pt), new Point2D(0, 0));
 };
 
 module.exports = Point2D;
@@ -13110,18 +13091,6 @@ class PointerData {
 
   distanceTo(pdata) {
     return this.point.distanceTo(pdata.point);
-  }
-  /**
-   * Determines if this PointerData is within the given HTML element.
-   *
-   * @param {Element} target
-   *
-   * @return {Boolean}
-   */
-
-
-  isInside(element) {
-    return this.point.isInside(element);
   }
   /**
    * Calculates the midpoint coordinates between two PointerData objects.
@@ -13282,22 +13251,18 @@ class Region {
 
   activate() {
     /*
-     * I will now indulge myself in some mild venting about web standards.
+     * Having to listen to both mouse and touch events is annoying, but
+     * necessary due to conflicting standards and browser implementations.
+     * Pointer is a fallback instead of the primary because it lacks useful
+     * properties such as 'ctrlKey' and 'altKey'.
      *
-     * What. The. Ever. Loving. Shit.
+     * Listening to both mouse and touch comes with the difficulty that
+     * preventDefault() must be called to prevent both events from iterating
+     * through the system. However I have left it as an option to the end user,
+     * which defaults to calling preventDefault(), in case there's a use-case I
+     * haven't considered or am not aware of.
      *
-     * Why oh why is this necessary. PointerEvent would have been so nice!
-     * Except they screwed up the standard by not implementing the full range of
-     * properties as were present in the mouse events! Where's my "ctrlKey" and
-     * "altKey" properties!!!! Now I have to limit PointerEvent to a fallback
-     * which will probably never be hit.
-     *
-     * Not to mention the jankyness of having to listen to _both_ touch and
-     * mouse events to make sure that you get the correct behaviour! And _then_
-     * having to call preventDefault() to make sure you don't get double
-     * occurrence of any events!! But that kills default page behaviour!!
-     *
-     * Now I have to recommend to users that they keep regions small! Grr.
+     * It is also a good idea to keep regions small in large pages.
      *
      * See:
      *  https://www.html5rocks.com/en/mobile/touchandmouse/
@@ -13398,7 +13363,6 @@ class Region {
     let unbound = [];
     bindings.forEach(b => {
       if (gesture == undefined || b.gesture === gesture) {
-        b.stop();
         this.bindings.splice(this.bindings.indexOf(b), 1);
         unbound.push(b);
       }
@@ -13693,7 +13657,7 @@ class Pan extends Gesture {
     const progress = active[0].getProgressOfGesture(this.id);
     const point = active[0].current.point;
     const diff = point.distanceTo(progress.lastEmitted);
-    const change = point.subtract(progress.lastEmitted);
+    const change = point.minus(progress.lastEmitted);
     progress.lastEmitted = point;
     const event = active[0].current.originalEvent;
     const muted = this.muteKey && event[this.muteKey]; // See above comment for CANCELED return value. Similar concept here.
@@ -13736,7 +13700,7 @@ class Pan extends Gesture {
 
       if (progress.lastEmitted) {
         const point = ended[0].current.point;
-        const change = point.subtract(progress.lastEmitted);
+        const change = point.minus(progress.lastEmitted);
         data = {
           change,
           point,
@@ -14830,20 +14794,20 @@ function (_Item) {
   }, {
     key: "draw",
     value: function draw(context) {
-      var width = this.width || this.img.width;
-      var height = this.height || this.img.height;
-
+      // const width = this.width || this.img.width;
+      // const height = this.height || this.img.height;
       if (this.sequence) {
         this.sequence.execute(context);
       } else if (this.img && this.img.loaded) {
-        context.drawImage(this.img, this.x, this.y, width, height);
-      } else {
-        // Draw placeholder rectangle.
-        context.save();
-        context.fillStyle = '#252525';
-        context.fillRect(this.x, this.y, width, height);
-        context.restore();
-      }
+        context.drawImage(this.img, this.x, this.y, this.img.width, this.img.height);
+      } // else {
+      //   // Draw placeholder rectangle.
+      //   context.save();
+      //   context.fillStyle = '#252525';
+      //   context.fillRect(this.x, this.y, width, height);
+      //   context.restore();
+      // }
+
     }
   }]);
   return ClientItem;
@@ -15271,6 +15235,11 @@ function () {
   function Interactor(canvas) {
     var handlers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
     (0, _classCallCheck2.default)(this, Interactor);
+
+    if (!(canvas instanceof HTMLCanvasElement)) {
+      throw 'Invalid canvas recieved by Interactor!';
+    }
+
     this.canvas = canvas;
     this.region = new Westures.Region(window);
     /**
@@ -15278,7 +15247,7 @@ function () {
      * multiplied. This should effectively normalize pinches across devices
      */
 
-    this.scaleFactor = 1 / (window.innerHeight * window.innerWidth / 2000);
+    this.scaleFactor = 2000 / (window.innerHeight * window.innerWidth);
     this.lastDesktopAngle = null;
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
@@ -16069,7 +16038,10 @@ var ReporterFactory = require('./ReporterFactory.js');
  */
 
 
-var Item = ReporterFactory(['x', 'y', 'width', 'height', 'type', 'imgsrc', 'blueprint']);
+var Item = ReporterFactory(['x', 'y', 'hitbox', // TODO: May not need to be reported
+// 'width',
+// 'height',
+'rotation', 'scale', 'type', 'imgsrc', 'blueprint']);
 /*
  * This View class provides a common interface between the client and 
  * the server by which the Views can interact safely.

@@ -37,10 +37,16 @@ class ServerView extends View {
     super(mergeMatches(DEFAULTS, values));
 
     /**
+     * Bounding box descriptor of the view.
+     * TODO: Implement and use this for bounds checking!
+     */
+    this.boundingBox = new Point2D();
+    
+    /**
      * x and y dimensions detailing the boundaries within which the view can
      * operate.
      */
-    this.bounds = values.bounds || DEFAULTS.bounds;
+    this.workspaceBounds = values.bounds || DEFAULTS.bounds;
 
     /**
      * If a continuous gesture needs to lock down an item, a reference to that
@@ -81,8 +87,8 @@ class ServerView extends View {
   canBeScaledTo(width = this.width, height = this.height) {
     return  (width  > 0) &&
       (height > 0) &&
-      (this.x + width  <= this.bounds.x) &&
-      (this.y + height <= this.bounds.y);
+      (this.x + width  <= this.workspaceBounds.x) &&
+      (this.y + height <= this.workspaceBounds.y);
   }
 
   /*
@@ -102,8 +108,8 @@ class ServerView extends View {
    * x: desired x coordinate to move to
    */
   canMoveToX(x = this.x) {
-    // return (x >= 0) && (x + this.effectiveWidth <= this.bounds.x);
-    return (x >= 0) && (x <= this.bounds.x);
+    // return (x >= 0) && (x + this.effectiveWidth <= this.workspaceBounds.x);
+    return (x >= 0) && (x <= this.workspaceBounds.x);
   }
 
   /**
@@ -113,8 +119,8 @@ class ServerView extends View {
    * y: desired y coordinate to move to
    */
   canMoveToY(y = this.y) {
-    // return (y >= 0) && (y + this.effectiveHeight <= this.bounds.y);
-    return (y >= 0) && (y <= this.bounds.y);
+    // return (y >= 0) && (y + this.effectiveHeight <= this.workspaceBounds.y);
+    return (y >= 0) && (y <= this.workspaceBounds.y);
   }
 
   /**
@@ -158,6 +164,8 @@ class ServerView extends View {
    * Rotate the view by the given amount, in radians.
    *
    * radians: The amount of rotation to apply to the view.
+   * px     : The x coordinate of the point around which to rotate.
+   * py     : The y coordinate of the point around which to rotate.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
     const delta = new Point2D(this.x - px, this.y - py).rotate(-radians);
@@ -180,20 +188,6 @@ class ServerView extends View {
    * Adjust scale to the given scale.
    *
    * scale: Desired scale.
-   *
-   * The scaled width and height (stored permanently as effective width and
-   * height) are determined by dividing the width or height by the scale.
-   * This might seem odd at first, as that seems to be the opposite of what
-   * should be done. But what these variables are actually representing is the
-   * amount of the underlying workspace that can be displayed inside the
-   * view. So a larger scale means that each portion of the workspace takes
-   * up more of the view, therefore _less_ of the workspace is visible.
-   * Hence, division.
-   *
-   * XXX: One thing that could be done in this function is to try anchoring
-   *      on the right / bottom if anchoring on the left / top produces a
-   *      failure. (By anchoring, I mean that the given position remains
-   *      constant while the scaling is occurring).
    */
   scaleBy(scale = 1, mx = this.x, my = this.y) {
     scale *= this.scale;

@@ -20,8 +20,7 @@ class Polygon2D {
    *         properties holding numerical values. All values should be relative
    *         to the anchor point.
    */
-  constructor(points, anchor = {}) {
-    this.anchor = new Point2D(anchor.x, anchor.y);
+  constructor(points) {
     this.points = points.map( ({ x, y }) => new Point2D(x, y) );
     if (this.points.length > 0) {
       this.points.push(this.points[0].clone());
@@ -66,13 +65,6 @@ class Polygon2D {
   }
 
   /**
-   * Translate (move) the polygon by adjusting its anchor point.
-   */
-  translate(dx = 0, dy = 0) {
-     this.anchor.translate(dx, dy); 
-  }
-
-  /**
    * winding number test for a point in a polygon
    * See: http://geomalgorithms.com/a03-_inclusion.html
    *
@@ -81,7 +73,7 @@ class Polygon2D {
    */
   winding_number(point = {}) {
     let wn = 0;
-    const p = new Point2D(point.x, point.y).minus(this.anchor);
+    const p = new Point2D(point.x, point.y);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
       if (this.points[i].y <= p.y) {
