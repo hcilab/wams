@@ -13,7 +13,7 @@ describe('Interactor', () => {
   let canvas, handlers;
 
   beforeAll(() => {
-    canvas = document.createElement('canvas');
+    canvas = new CanvasRenderingContext2D();
     canvas.getBoundingClientRect = jest.fn();
     canvas.getBoundingClientRect.mockReturnValue({
       left: 0,
@@ -93,6 +93,5 @@ describe('Interactor', () => {
 
   describe('zoom', () => {
   });
-
 });
 
