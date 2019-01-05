@@ -38,9 +38,12 @@ const handleSwipe = (function makeSwipeHandler(ws) {
 
   function handleSwipe(view, target, velocity, x, y, direction) {
     const colour = Math.ceil(velocity * 10) % colours.length;
-    ws.spawnItem(
-      square(x, y, colour, velocity)
-    );
+    ws.spawnItem( Wams.predefined.items.rectangle(
+      velocity * 10,
+      32,
+      colours[Math.ceil(velocity * 10) % colours.length],
+      { x, y, type: 'colour' },
+    ));
   }
 
   return handleSwipe;
