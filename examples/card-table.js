@@ -42,13 +42,18 @@ ws.spawnItem({
   blueprint: text,
 });
 
-ws.spawnItem(Wams.predefined.items.image(
-  2600,
-  2800,
-  'img/joker.png',
-  'joker',
-  1.5
-));
+ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
+  x: 2600,
+  y: 2800,
+  type: 'joker',
+  scale: 1.5,
+}));
+//   2600,
+//   2800,
+//   'img/joker.png',
+//   'joker',
+//   1.5
+// ));
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
