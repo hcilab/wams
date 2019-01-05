@@ -14795,25 +14795,18 @@ function (_Item) {
   }, {
     key: "draw",
     value: function draw(context) {
-      // const width = this.width || this.img.width;
-      // const height = this.height || this.img.height;
-      if (this.sequence) {
-        context.save();
-        context.scale(this.scale, this.scale);
-        context.rotate(constants.ROTATE_360 - this.rotation);
-        context.translate(this.x, this.y);
-        this.sequence.execute(context);
-        context.restore();
-      } else if (this.img && this.img.loaded) {
-        context.drawImage(this.img, this.x, this.y, this.img.width, this.img.height);
-      } // else {
-      //   // Draw placeholder rectangle.
-      //   context.save();
-      //   context.fillStyle = '#252525';
-      //   context.fillRect(this.x, this.y, width, height);
-      //   context.restore();
-      // }
+      context.save();
+      context.translate(this.x, this.y);
+      context.rotate(constants.ROTATE_360 - this.rotation);
+      context.scale(this.scale, this.scale);
 
+      if (this.sequence) {
+        this.sequence.execute(context);
+      } else if (this.img && this.img.loaded) {
+        context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
+      }
+
+      context.restore();
     }
   }]);
   return ClientItem;
