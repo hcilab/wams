@@ -31,7 +31,7 @@
   + [X] Implement a server-side Polygon class with hit detection.
   + [X] Switch to using the Polygon class for hit detection. (Includes adding
     API details for defining the Polygon for an Item).
-  + [ ] Update examples and predefined endpoint functions.
+  + [X] Update examples and predefined endpoint functions.
 - [ ] Can the API endpoint be done better? Are there some even better
         abstractions available that will make this code even easier to reason
         about?
