@@ -25,37 +25,39 @@ function rectangularHitbox(width, height) {
  * Returns an object with the parameters for an image item using the given
  * source.
  */
-function image(x, y, imgsrc = '', type = 'image', scale = 1) {
+function image(imgsrc, itemOptions = {}) {
   const dims = sizeOfImage(imgsrc);
+  const scale = itemOptions.scale || 1;
   const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
-  return { x, y, scale, hitbox, imgsrc, type };
+  return { ...itemOptions, imgsrc, hitbox };
 }
 
 /**
  * Returns an object with the parameters for a rectangular item with the given
- * width and height.
+ * width and height, filled in with the given colour.
  */
-function rectangle(x, y, width, height, type = 'rectangle', colour = 'blue') {
+function rectangle(width, height, colour = 'blue', itemOptions = {}) {
   const hitbox = rectangularHitbox(width, height);
   const blueprint = new CanvasBlueprint();
   blueprint.fillStyle = colour;
   blueprint.fillRect(0, 0, width, height);
   
-  return { x, y, hitbox, type, blueprint };
+  return { ...itemOptions, hitbox, blueprint };
 }
 
 /**
- * Returns an object with the parameters for a square item with the given width
- * and height.
+ * Returns an object with the parameters for a square item with the given side
+ * length, filled in with the given colour.
  */
-function square(x, y, length, type = 'square', colour = 'red') {
-  return rectangle(x, y, length, length, type, colour);
+function square(length, colour = 'red', itemOptions = {}) {
+  return rectangle(length, length, colour, itemOptions);
 }
 
 /**
- * Returns an object with the parameters for a generic polygon.
+ * Returns an object with the parameters for a generic polygon, filled in with
+ * the given colour.
  */
-function polygon(x, y, points = [], type = 'polygon', colour = 'green') {
+function polygon(points = [], colour = 'green', itemOptions = {}) {
   if (points.length < 3) return null;
 
   const hitbox = new Polygon2D(points);
@@ -68,7 +70,7 @@ function polygon(x, y, points = [], type = 'polygon', colour = 'green') {
   blueprint.closePath();
   blueprint.fill();
 
-  return { x, y, hitbox, type, blueprint };
+  return { ...itemOptions, hitbox, blueprint };
 }
 
 module.exports = {
