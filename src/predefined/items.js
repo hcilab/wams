@@ -8,20 +8,35 @@
 'use strict';
 
 const { CanvasBlueprint } = require('canvas-sequencer');
+const sizeOfImage = require('image-size');
 
 const Polygon2D  = require('../server/Polygon2D.js');
+
+function rectangularHitbox(width, height) {
+  return new Polygon2D([
+    { x: 0,     y: 0 },
+    { x: width, y: 0 },
+    { x: width, y: height },
+    { x: 0,     y: height },
+  ]);
+}
+  
+/**
+ * Returns an object with the parameters for an image item using the given
+ * source.
+ */
+function image(x, y, imgsrc = '', type = 'image', scale = 1) {
+  const dims = sizeOfImage(imgsrc);
+  const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
+  return { x, y, scale, hitbox, imgsrc, type };
+}
 
 /**
  * Returns an object with the parameters for a rectangular item with the given
  * width and height.
  */
 function rectangle(x, y, width, height, type = 'rectangle', colour = 'blue') {
-  const hitbox = new Polygon2D([
-    { x: 0,     y: 0 },
-    { x: width, y: 0 },
-    { x: width, y: height },
-    { x: 0,     y: height },
-  ]);
+  const hitbox = rectangularHitbox(width, height);
   const blueprint = new CanvasBlueprint();
   blueprint.fillStyle = colour;
   blueprint.fillRect(0, 0, width, height);
@@ -57,6 +72,7 @@ function polygon(x, y, points = [], type = 'polygon', colour = 'green') {
 }
 
 module.exports = {
+  image,
   polygon,
   rectangle,
   square,
