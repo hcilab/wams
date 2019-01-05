@@ -20,6 +20,8 @@ const DEFAULTS = Object.freeze({
   x: 0,
   y: 0,
   hitbox: null,
+  rotation: 0,
+  scale: 1,
   type: 'item/foreground',
   imgsrc: '',
   blueprint: null,
