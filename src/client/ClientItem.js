@@ -12,7 +12,7 @@
 
 'use strict';
 
-const { IdStamper, Item, Message } = require('../shared.js');
+const { constants, IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
@@ -91,7 +91,12 @@ class ClientItem extends Item {
     // const height = this.height || this.img.height;
 
     if (this.sequence) {
+      context.save();
+      context.scale(this.scale, this.scale);
+      context.rotate(constants.ROTATE_360 - this.rotation);
+      context.translate(this.x, this.y);
       this.sequence.execute(context);
+      context.restore();
     } else if (this.img && this.img.loaded) {
       context.drawImage(
         this.img,
