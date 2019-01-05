@@ -14704,6 +14704,7 @@ var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
 
 var _require = require('../shared.js'),
+    constants = _require.constants,
     IdStamper = _require.IdStamper,
     Item = _require.Item,
     Message = _require.Message;
@@ -14797,7 +14798,12 @@ function (_Item) {
       // const width = this.width || this.img.width;
       // const height = this.height || this.img.height;
       if (this.sequence) {
+        context.save();
+        context.scale(this.scale, this.scale);
+        context.rotate(constants.ROTATE_360 - this.rotation);
+        context.translate(this.x, this.y);
         this.sequence.execute(context);
+        context.restore();
       } else if (this.img && this.img.loaded) {
         context.drawImage(this.img, this.x, this.y, this.img.width, this.img.height);
       } // else {
