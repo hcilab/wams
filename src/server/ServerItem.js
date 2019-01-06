@@ -15,6 +15,7 @@
 
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
 const Polygon2D = require('./Polygon2D.js');
+const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({
   x: 0,
@@ -117,9 +118,15 @@ class ServerItem extends Item {
   /**
    * Scale the item by the given amount.
    */
-  scaleBy(ds = 1) {
-    this.scale *= ds;
-    this.hitbox && this.hitbox.scale(ds);
+  scaleBy(ds = 1, mx = this.x, my = this.y) {
+    const scale = ds * this.scale;
+    if (scale > 0.1 && scale < 10) {
+      const delta = new Point2D( this.x - mx, this.y - my ).times(ds)
+      const x = mx + delta.x;
+      const y = my + delta.y;
+      this.assign({ scale, x, y });
+      this.hitbox && this.hitbox.scale(ds);
+    }
   }
 }
 
