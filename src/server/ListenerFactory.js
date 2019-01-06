@@ -83,7 +83,6 @@ function rotate(listener, workspace) {
       const {x, y} = pivot;
       const target = workspace.findItemByCoordinates(x, y) || view;
       listener(view, target, radians, x, y);
-    // listener(view, radians, pivot.x, pivot.y);
     }
   };
 };
