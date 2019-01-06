@@ -118,10 +118,6 @@ class ServerItem extends Item {
     this.assign({ x, y, rotation });
     this.hitbox && this.hitbox.rotate(radians);
   }
-  // rotateBy(radians = 0) {
-  //   this.rotation -= radians;
-  //   this.hitbox && this.hitbox.rotate(radians);
-  // }
 
   /**
    * Scale the item by the given amount.
