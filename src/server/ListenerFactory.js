@@ -79,7 +79,12 @@ function layout(listener, workspace) {
 function rotate(listener, workspace) {
   return function handleRotate(view, {radians, px, py}) {
     const pivot = new CoordinateData(px, py).transformFrom(view);
-    listener(view, radians, pivot.x, pivot.y);
+    if (pivot) {
+      const {x, y} = pivot;
+      const target = workspace.findItemByCoordinates(x, y) || view;
+      listener(view, target, radians, x, y);
+    // listener(view, radians, pivot.x, pivot.y);
+    }
   };
 };
 

@@ -110,10 +110,18 @@ class ServerItem extends Item {
   /**
    * Rotate the item by the given amount (in radians).
    */
-  rotateBy(radians = 0) {
-    this.rotation -= radians;
+  rotateBy(radians = 0, px = this.x, py = this.y) {
+    const delta = new Point2D(this.x - px, this.y - py).rotate(radians);
+    const x = px + delta.x;
+    const y = py + delta.y;
+    const rotation = this.rotation - radians;
+    this.assign({ x, y, rotation });
     this.hitbox && this.hitbox.rotate(radians);
   }
+  // rotateBy(radians = 0) {
+  //   this.rotation -= radians;
+  //   this.hitbox && this.hitbox.rotate(radians);
+  // }
 
   /**
    * Scale the item by the given amount.
