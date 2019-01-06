@@ -41,7 +41,7 @@ function polygon(ix, iy, index) {
 // Attaches the different function handlers
 ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
 ws.on('click',  Wams.predefined.tap.spawnOrRemoveItem(ws, polygon, 'colour'));
-ws.on('scale',  Wams.predefined.scale.view(ws));
+ws.on('scale',  Wams.predefined.scale.items(ws, ['colour']));
 ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['colour']));
 ws.on('rotate', Wams.predefined.rotate.view(ws));
 
