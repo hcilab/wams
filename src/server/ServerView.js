@@ -194,7 +194,7 @@ class ServerView extends View {
     if (scale > 0.1 && scale < 10) {
       const delta = new Point2D( this.x - mx, this.y - my )
         .times(this.scale)
-        .scale(scale)
+        .divideBy(scale)
       this.assign({ 
         scale,
         x: mx + delta.x,
