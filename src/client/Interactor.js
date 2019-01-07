@@ -17,6 +17,46 @@
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
+class Swivel extends Westures.Gesture {
+  constructor() {
+    super('swivel');
+  }
+
+  start(state) {
+    const started = state.getInputsInPhase('start')[0];
+    const progress = started.getProgressOfGesture(this.id);
+    const current = started.current;
+    const point = current.point;
+    const event = current.originalEvent;
+    if (event.ctrlKey) {
+      progress.pivot = point;
+    }
+  }
+
+  move(state) {
+    const active = state.getInputsNotInPhase('end');
+    if (active.length === 1) {
+      const input = active[0];
+      const event = input.current.originalEvent;
+      if (event.ctrlKey) {
+        const point = input.current.point;
+        const progress = input.getProgressOfGesture(this.id);
+        const pivot = progress.pivot;
+        const angle = Math.atan2(point.x - pivot.x, point.y - pivot.y);
+        let change = 0;
+        if (progress.hasOwnProperty('previousAngle')) {
+          change = progress.previousAngle - angle;
+        }
+        progress.previousAngle = angle;
+        return { change, pivot, point };
+      }
+    }
+  }
+
+  // end(state) {
+  // }
+}
+
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
@@ -74,9 +114,9 @@ class Interactor {
    */
   attachListeners() {
     window.addEventListener('wheel', this.wheel.bind(this), false);
-    window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
-      capture: true
-    });
+    // window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
+    //   capture: true
+    // });
   }
 
   /**
@@ -90,12 +130,14 @@ class Interactor {
     const pinch   = this.pinch.bind(this);
     const rotate  = this.rotate.bind(this);
     const swipe   = this.swipe.bind(this);
+    const swivel  = this.swivel.bind(this);
 
     this.region.bind(this.canvas, this.panner(), pan);
     this.region.bind(this.canvas, this.tapper(), tap);
     this.region.bind(this.canvas, this.pincher(), pinch);
     this.region.bind(this.canvas, this.rotater(), rotate);
     this.region.bind(this.canvas, this.swiper(), swipe);
+    this.region.bind(this.canvas, this.swiveller(), swivel);
   }
 
   /**
@@ -173,6 +215,21 @@ class Interactor {
    */
   swiper() {
     return new Westures.Swipe();
+  }
+
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
+  swivel({ change, pivot, point }) { 
+    this.handlers.rotate( change, pivot.x, pivot.y );
+  }
+
+  /**
+   * Obtain the custom Swivel Gesture object.
+   */
+  swiveller() {
+    return new Swivel();
   }
 
   /**
