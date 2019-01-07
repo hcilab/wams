@@ -79,7 +79,11 @@ function layout(listener, workspace) {
 function rotate(listener, workspace) {
   return function handleRotate(view, {radians, px, py}) {
     const pivot = new CoordinateData(px, py).transformFrom(view);
-    listener(view, radians, pivot.x, pivot.y);
+    if (pivot) {
+      const {x, y} = pivot;
+      const target = workspace.findItemByCoordinates(x, y) || view;
+      listener(view, target, radians, x, y);
+    }
   };
 };
 
@@ -92,8 +96,12 @@ function rotate(listener, workspace) {
  */
 function scale(listener, workspace) {
   return function handleScale(view, {scale, mx, my}) {
-    const mp = new CoordinateData(mx, my).transformFrom(view);
-    listener(view, scale, mp.x, mp.y);
+    const mouse = new CoordinateData(mx, my).transformFrom(view);
+    if (mouse) {
+      const {x, y} = mouse;
+      const target = workspace.findItemByCoordinates(x, y) || view;
+      listener(view, target, scale, x, y);
+    }
   };
 };
 

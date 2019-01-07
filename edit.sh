@@ -24,9 +24,12 @@ vim \
   README.md \
   TODO.md \
   DESIGN.md \
-  "+bot vnew +setlocal\ buftype=nofile" \
-  "+abo new" \
-  "+argu 2" \
+  "+vertical botright terminal" \
+  "+aboveleft new" \
+  "+argument 2" \
   "+resize +10"
+
+  # "+bot vnew +setlocal\ buftype=nofile" \
+  # "+abo new" \
 
 

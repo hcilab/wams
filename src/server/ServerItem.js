@@ -15,11 +15,14 @@
 
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
 const Polygon2D = require('./Polygon2D.js');
+const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({
   x: 0,
   y: 0,
   hitbox: null,
+  rotation: 0,
+  scale: 1,
   type: 'item/foreground',
   imgsrc: '',
   blueprint: null,
@@ -107,17 +110,27 @@ class ServerItem extends Item {
   /**
    * Rotate the item by the given amount (in radians).
    */
-  rotateBy(radians = 0) {
-    this.rotation -= radians;
+  rotateBy(radians = 0, px = this.x, py = this.y) {
+    const delta = new Point2D(this.x - px, this.y - py).rotate(radians);
+    const x = px + delta.x;
+    const y = py + delta.y;
+    const rotation = this.rotation - radians;
+    this.assign({ x, y, rotation });
     this.hitbox && this.hitbox.rotate(radians);
   }
 
   /**
    * Scale the item by the given amount.
    */
-  scaleBy(ds = 1) {
-    this.scale *= ds;
-    this.hitbox && this.hitbox.scale(ds);
+  scaleBy(ds = 1, mx = this.x, my = this.y) {
+    const scale = ds * this.scale;
+    if (scale > 0.1 && scale < 10) {
+      const delta = new Point2D( this.x - mx, this.y - my ).times(ds)
+      const x = mx + delta.x;
+      const y = my + delta.y;
+      this.assign({ scale, x, y });
+      this.hitbox && this.hitbox.scale(ds);
+    }
   }
 }
 

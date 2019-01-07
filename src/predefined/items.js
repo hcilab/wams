@@ -8,34 +8,74 @@
 'use strict';
 
 const { CanvasBlueprint } = require('canvas-sequencer');
+const sizeOfImage = require('image-size');
 
 const Polygon2D  = require('../server/Polygon2D.js');
 
-/**
- * Returns a rectangular item with the given width and height.
- */
-function rectangle(x, y, width, height, type = 'rectangle', colour = 'blue') {
-  const hitbox = new Polygon2D([
+function rectangularHitbox(width, height) {
+  return new Polygon2D([
     { x: 0,     y: 0 },
     { x: width, y: 0 },
     { x: width, y: height },
     { x: 0,     y: height },
   ]);
-  const blueprint = new CanvasBlueprint();
-  blueprint.fillStyle = colour;
-  blueprint.fillRect('{x}', '{y}', width, height);
+}
   
-  return { x, y, hitbox, type, blueprint };
+/**
+ * Returns an object with the parameters for an image item using the given
+ * source.
+ */
+function image(imgsrc, itemOptions = {}) {
+  const dims = sizeOfImage(imgsrc);
+  const scale = itemOptions.scale || 1;
+  const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
+  return { ...itemOptions, imgsrc, hitbox };
 }
 
 /**
- * Returns a square item with the given side length.
+ * Returns an object with the parameters for a rectangular item with the given
+ * width and height, filled in with the given colour.
  */
-function square(x, y, length, type = 'square', colour = 'red') {
-  return rectangle(x, y, length, length, type, colour);
+function rectangle(width, height, colour = 'blue', itemOptions = {}) {
+  const hitbox = rectangularHitbox(width, height);
+  const blueprint = new CanvasBlueprint();
+  blueprint.fillStyle = colour;
+  blueprint.fillRect(0, 0, width, height);
+  
+  return { ...itemOptions, hitbox, blueprint };
+}
+
+/**
+ * Returns an object with the parameters for a square item with the given side
+ * length, filled in with the given colour.
+ */
+function square(length, colour = 'red', itemOptions = {}) {
+  return rectangle(length, length, colour, itemOptions);
+}
+
+/**
+ * Returns an object with the parameters for a generic polygon, filled in with
+ * the given colour.
+ */
+function polygon(points = [], colour = 'green', itemOptions = {}) {
+  if (points.length < 3) return null;
+
+  const hitbox = new Polygon2D(points);
+
+  const blueprint = new CanvasBlueprint();
+  blueprint.fillStyle = colour;
+  blueprint.beginPath();
+  blueprint.moveTo(points[0].x, points[0].y);
+  points.forEach( p => blueprint.lineTo(p.x, p.y));
+  blueprint.closePath();
+  blueprint.fill();
+
+  return { ...itemOptions, hitbox, blueprint };
 }
 
 module.exports = {
+  image,
+  polygon,
   rectangle,
   square,
 };

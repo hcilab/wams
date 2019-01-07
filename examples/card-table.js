@@ -14,7 +14,8 @@ const ws = new Wams({
 
 const circle = new Wams.Sequence();
 circle.beginPath();
-circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+// circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+circle.arc(0, 0, 150, Math.PI, 0, false);
 circle.closePath();
 circle.fillStyle = 'white';
 circle.fill();
@@ -25,8 +26,6 @@ circle.stroke();
 ws.spawnItem({
   x: 2500,
   y: 2500,
-  width: 150, 
-  height: 150,
   type: 'circle',
   blueprint: circle,
 });
@@ -34,23 +33,27 @@ ws.spawnItem({
 const text = new Wams.Sequence();
 text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
-text.fillText( 'Click the joker!', '{x}', '{y}');
+text.fillText( 'Click the joker!', 0, 0);
 
 ws.spawnItem({
   x: 2380,
   y: 2480,
-  width: 300,
-  height: 40,
   type: 'text',
   blueprint: text,
 });
 
-ws.spawnItem({
-  x: 2600, 
-  y: 2800, 
+ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
+  x: 2600,
+  y: 2800,
   type: 'joker',
-  imgsrc: 'img/joker.png',
-});
+  scale: 1.5,
+}));
+//   2600,
+//   2800,
+//   'img/joker.png',
+//   'joker',
+//   1.5
+// ));
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;

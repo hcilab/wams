@@ -27,6 +27,17 @@ class Point2D {
   }
 
   /**
+   * Divide the point's values by the given amount.
+   *
+   * ds: divide x,y by this amount
+   */
+  divideBy(ds = 1) {
+    this.x /= ds;
+    this.y /= ds;
+    return this;
+  }
+
+  /**
    * Tests if a point is Left|On|Right of an infinite line. Assumes that the
    * given points are such that one is above and one is below this point.
    * FIXME: Are those semantics right?
@@ -86,9 +97,8 @@ class Point2D {
    * ds: divide x,y by this amount
    */
   scale(ds = 1) {
-    this.x /= ds;
-    this.y /= ds;
-    
+    this.x *= ds;
+    this.y *= ds;
     return this;
   }
 

@@ -20,13 +20,11 @@ const colours = [
 ];
 
 function square(ix, iy, index) {
-  return Wams.predefined.items.square(
-    ix - 64,
-    iy - 64,
-    128,
-    'colour',
-    colours[index % colours.length]
-  );
+  return Wams.predefined.items.square(128, colours[index % colours.length], {
+    x: ix - 64,
+    y: iy - 64,
+    type: 'colour'
+  });
 }
 
 // Attaches the different function handlers
