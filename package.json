@@ -31,7 +31,7 @@
     "url": "https://github.com/mvanderkamp/wams"
   },
   "scripts": {
-    "build": "browserify 'src/client.js' -g [ babelify ] --standalone wams-client --outfile 'dist/wams-client.js'",
+    "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
     "test": "jest"
   },
   "version": "0.0.2"
