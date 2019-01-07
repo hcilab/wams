@@ -36,7 +36,7 @@
 _As of: Sun Jan  6 20:41:55 CST 2019_
 
 - [X] Implement item rotation.
-  + [ ] Allow a 'rotate' interaction with objects.
+  + [X] Allow a 'rotate' interaction with objects.
   + [X] Implement a server-side 2d point class for polygon points.
   + [X] Implement a server-side Polygon class with hit detection.
   + [X] Switch to using the Polygon class for hit detection. (Includes adding
