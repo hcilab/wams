@@ -25,13 +25,14 @@
       only allow interaction with objects marked as interactable.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
 - [ ] Update API doc.
-- [ ] Implement item rotation.
+- [X] Implement item rotation.
   + [ ] Allow a 'rotate' interaction with objects.
   + [X] Implement a server-side 2d point class for polygon points.
   + [X] Implement a server-side Polygon class with hit detection.
   + [X] Switch to using the Polygon class for hit detection. (Includes adding
     API details for defining the Polygon for an Item).
   + [X] Update examples and predefined endpoint functions.
+- [X] Implement a 'Swivel' gesture for desktop rotates.
 - [ ] Can the API endpoint be done better? Are there some even better
         abstractions available that will make this code even easier to reason
         about?
