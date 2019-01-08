@@ -36,8 +36,25 @@ function items(workspace, itemTypes = []) {
   };
 }
 
+/**
+ * Returns a WAMS rotate handler function which will allow users to rotate
+ * items or their view.
+ *
+ * workspace: The WorkSpace for which this function will be built.
+ * itemTypes: Array of strings, the types of items for which to allow rotating.
+ */
+function itemsAndView(workspace, itemTypes = []) {
+  return function rotate_itemAndView(view, target, radians, px, py) {
+    if (itemTypes.includes(target.type) || view === target) {
+      target.rotateBy(radians, px, py);
+      workspace.update(target);
+    }
+  };
+}
+
 module.exports = {
   items,
   view,
+  itemsAndView,
 };
 
