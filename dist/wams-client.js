@@ -10785,7 +10785,7 @@ class ClientItem extends Item {
   draw(context) {
     context.save();
     context.translate(this.x, this.y);
-    context.rotate(constants.ROTATE_360 - this.rotation);
+    context.rotate(-this.rotation);
     context.scale(this.scale, this.scale);
     if (this.sequence) {
       this.sequence.execute(context);
@@ -10839,8 +10839,6 @@ const STATUS_KEYS = Object.freeze([
   'y',
   'width',
   'height',
-  'effectiveWidth',
-  'effectiveHeight',
   'rotation',
   'scale',
 ]);
@@ -11023,8 +11021,6 @@ class ClientView extends View {
   resizeToFillWindow() {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.effectiveWidth = this.width / this.scale;
-    this.effectiveHeight = this.height / this.scale;
   }
 
   /**
@@ -11400,6 +11396,15 @@ class ShadowView extends View {
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);
+  }
+  
+  /**
+   * Override the default assign() function to take the reciprocal of the scale.
+   */
+  assign(data) {
+    super.assign(data);
+    this.effectiveWidth = this.width / this.scale;
+    this.effectiveHeight = this.height / this.scale;
   }
 
   /**
@@ -11819,8 +11824,6 @@ const View = ReporterFactory([
   'width',
   'height',
   'type',
-  'effectiveWidth',
-  'effectiveHeight',
   'scale',
   'rotation',
 ]);
