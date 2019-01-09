@@ -59,7 +59,6 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutTable(view) {
     view.moveTo( 2000, 2000 );
-    view.rotateBy( Math.PI * 1 / 4 );
     table = view;
     ws.update(view);
   };
@@ -72,25 +71,25 @@ const handleLayout = (function makeLayoutHandler() {
   function layoutLeft(view) {
     const anchor = table.topLeft;
     view.moveTo( anchor.x, anchor.y );
-    view.rotation = Math.PI * 3 / 2;
+    view.rotateBy(Math.PI * 3 / 2);
   };
 
   function layoutTop(view) {
     const anchor = table.topRight;
     view.moveTo( anchor.x, anchor.y );
-    view.rotation = Math.PI;
+    view.rotateBy(Math.PI);
   };
 
   function layoutRight(view) {
     const anchor = table.bottomRight;
     view.moveTo( anchor.x, anchor.y );
-    view.rotation = Math.PI / 2;
+    view.rotateBy(Math.PI / 2);
   };
 
   function dependOnTable(fn) {
     return function layoutDepender(view) {
       if (!table) {
-        console.log('dodged!!!');
+        // console.log('dodged!!!');
         setTimeout( () => layoutDepender(view), 0 ); 
       } else {
         fn(view);
