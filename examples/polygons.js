@@ -21,10 +21,11 @@ const colours = [
 
 function randomPoints(x = 5, lim = 256) {
   const points = [{x: 0, y: 0}];
+  const offset = lim / 2;
   for (let i = 1; i < x; ++i) {
     points.push({
-      x: Math.random() * lim,
-      y: Math.random() * lim,
+      x: Math.random() * lim - offset,
+      y: Math.random() * lim - offset,
     });
   }
   return points;

@@ -19,11 +19,15 @@ const colours = [
   'lime',
 ];
 
-function square(ix, iy, index) {
+function square(x, y, index) {
   return Wams.predefined.items.square(128, colours[index % colours.length], {
-    x: ix - 64,
-    y: iy - 64,
-    type: 'colour'
+    // x: ix - 64,
+    // y: iy - 64,
+    x,
+    y,
+    type: 'colour',
+    scale: Math.random() + 0.5,
+    rotation: Math.random() * 2 * Math.PI,
   });
 }
 
