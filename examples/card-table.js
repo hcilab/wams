@@ -48,12 +48,6 @@ ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
   type: 'joker',
   scale: 1.5,
 }));
-//   2600,
-//   2800,
-//   'img/joker.png',
-//   'joker',
-//   1.5
-// ));
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
