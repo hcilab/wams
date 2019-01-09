@@ -62,11 +62,18 @@ class ServerView extends View {
    * Getters for the sides of the view for positioning elements relative to each
    * other.
    */
-  // get bottom()  { return this.y + this.effectiveHeight; }
-  // get left()    { return this.x; }
-  // get right()   { return this.x + this.effectiveWidth; }
-  // get top()     { return this.y; }
+  side(x, y) {
+    return new Point2D(x, y)
+      .rotate(-this.rotation)
+      .divideBy(this.scale)
+      .plus(this);
+  }
 
+  get bottomLeft()  { return this.side(0, this.height); }
+  get bottomRight() { return this.side(this.width, this.height); }
+  get topLeft()     { return this.side(0, 0); }
+  get topRight()    { return this.side(this.width, 0); }
+        
   /**
    * Overrides the default Reporter assign() method, wrapping it in
    * functionality for regulating the effective width and height.
