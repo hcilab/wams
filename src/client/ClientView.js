@@ -37,8 +37,6 @@ const STATUS_KEYS = Object.freeze([
   'y',
   'width',
   'height',
-  'effectiveWidth',
-  'effectiveHeight',
   'rotation',
   'scale',
 ]);
@@ -221,8 +219,6 @@ class ClientView extends View {
   resizeToFillWindow() {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.effectiveWidth = this.width / this.scale;
-    this.effectiveHeight = this.height / this.scale;
   }
 
   /**

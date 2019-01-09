@@ -51,6 +51,15 @@ class ShadowView extends View {
     super(values);
     STAMPER.cloneId(this, values.id);
   }
+  
+  /**
+   * Override the default assign() function to take the reciprocal of the scale.
+   */
+  assign(data) {
+    super.assign(data);
+    this.effectiveWidth = this.width / this.scale;
+    this.effectiveHeight = this.height / this.scale;
+  }
 
   /**
    * Render an outline of this view.
