@@ -59,27 +59,31 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutTable(view) {
     view.moveTo( 2000, 2000 );
+    view.rotateBy( Math.PI * 1 / 4 );
     table = view;
     ws.update(view);
   };
 
   function layoutBottom(view) {
-    view.moveTo( table.left, table.bottom );
-    view.rotation = Math.PI * 1 / 4;
+    const anchor = table.bottomLeft;
+    view.moveTo( anchor.x, anchor.y );
   };
 
   function layoutLeft(view) {
-    view.moveTo( table.left, table.top );
+    const anchor = table.topLeft;
+    view.moveTo( anchor.x, anchor.y );
     view.rotation = Math.PI * 3 / 2;
   };
 
   function layoutTop(view) {
-    view.moveTo( table.right, table.top );
+    const anchor = table.topRight;
+    view.moveTo( anchor.x, anchor.y );
     view.rotation = Math.PI;
   };
 
   function layoutRight(view) {
-    view.moveTo( table.right, table.bottom );
+    const anchor = table.bottomRight;
+    view.moveTo( anchor.x, anchor.y );
     view.rotation = Math.PI / 2;
   };
 
