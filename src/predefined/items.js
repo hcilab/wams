@@ -12,6 +12,18 @@ const sizeOfImage = require('image-size');
 
 const Polygon2D  = require('../server/Polygon2D.js');
 
+function transformed(data = {}) {
+  if (data.hitbox) {
+    if (data.rotation)  data.hitbox.rotate(-data.rotation);
+    if (data.scale)     data.hitbox.scale(data.scale);
+  }
+  return data;
+}
+
+/**
+ * Returns a 4-point polygon representing a rectangle anchored at (0,0) and with
+ * the given width and height.
+ */
 function rectangularHitbox(width, height) {
   return new Polygon2D([
     { x: 0,     y: 0 },
@@ -29,7 +41,7 @@ function image(imgsrc, itemOptions = {}) {
   const dims = sizeOfImage(imgsrc);
   const scale = itemOptions.scale || 1;
   const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
-  return { ...itemOptions, imgsrc, hitbox };
+  return transformed({ ...itemOptions, imgsrc, hitbox });
 }
 
 /**
@@ -42,7 +54,7 @@ function rectangle(width, height, colour = 'blue', itemOptions = {}) {
   blueprint.fillStyle = colour;
   blueprint.fillRect(0, 0, width, height);
   
-  return { ...itemOptions, hitbox, blueprint };
+  return transformed({ ...itemOptions, hitbox, blueprint });
 }
 
 /**
@@ -70,7 +82,7 @@ function polygon(points = [], colour = 'green', itemOptions = {}) {
   blueprint.closePath();
   blueprint.fill();
 
-  return { ...itemOptions, hitbox, blueprint };
+  return transformed({ ...itemOptions, hitbox, blueprint });
 }
 
 module.exports = {
