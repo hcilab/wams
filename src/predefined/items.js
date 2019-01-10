@@ -24,12 +24,12 @@ function transformed(data = {}) {
  * Returns a 4-point polygon representing a rectangle anchored at (0,0) and with
  * the given width and height.
  */
-function rectangularHitbox(width, height) {
+function rectangularHitbox(x, y, width, height) {
   return new Polygon2D([
-    { x: 0,     y: 0 },
-    { x: width, y: 0 },
-    { x: width, y: height },
-    { x: 0,     y: height },
+    { x: x,     y: y },
+    { x: x + width, y: y },
+    { x: x + width, y: y + height },
+    { x: x,     y: y + height },
   ]);
 }
   
@@ -48,11 +48,11 @@ function image(imgsrc, itemOptions = {}) {
  * Returns an object with the parameters for a rectangular item with the given
  * width and height, filled in with the given colour.
  */
-function rectangle(width, height, colour = 'blue', itemOptions = {}) {
-  const hitbox = rectangularHitbox(width, height);
+function rectangle(x, y, width, height, colour = 'blue', itemOptions = {}) {
+  const hitbox = rectangularHitbox(x, y, width, height);
   const blueprint = new CanvasBlueprint();
   blueprint.fillStyle = colour;
-  blueprint.fillRect(0, 0, width, height);
+  blueprint.fillRect(x, y, width, height);
   
   return transformed({ ...itemOptions, hitbox, blueprint });
 }
@@ -61,8 +61,8 @@ function rectangle(width, height, colour = 'blue', itemOptions = {}) {
  * Returns an object with the parameters for a square item with the given side
  * length, filled in with the given colour.
  */
-function square(length, colour = 'red', itemOptions = {}) {
-  return rectangle(length, length, colour, itemOptions);
+function square(x, y, length, colour = 'red', itemOptions = {}) {
+  return rectangle(x, y, length, length, colour, itemOptions);
 }
 
 /**
