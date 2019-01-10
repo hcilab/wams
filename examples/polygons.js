@@ -31,11 +31,11 @@ function randomPoints(x = 5, lim = 256) {
   return points;
 }
 
-function polygon(ix, iy, index) {
+function polygon(x, y, view) {
   return Wams.predefined.items.polygon(
     randomPoints(7),
-    colours[index % colours.length],
-    { x: ix, y: iy, type: 'colour' }
+    colours[view.id % colours.length],
+    { x, y, type: 'colour', scale: view.scale }
   );
 }
 
