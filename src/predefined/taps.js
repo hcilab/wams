@@ -21,7 +21,7 @@
  */
 function spawnItem(workspace, item_fn) {
   return function tap_spawnItem(view, target, x, y) {
-    workspace.spawnItem(item_fn(x, y, view.id));
+    workspace.spawnItem(item_fn(x, y, view));
   };
 }
 
@@ -44,7 +44,7 @@ function spawnOrRemoveItem(workspace, item_fn, type) {
     if (target.type === type) {
       workspace.removeItem(target);
     } else {
-      workspace.spawnItem(item_fn(x, y, view.id));
+      workspace.spawnItem(item_fn(x, y, view));
     }
   };
 }
@@ -63,7 +63,7 @@ function spawnOrRemoveItem(workspace, item_fn, type) {
 function modifyItem(workspace, modify_fn, type) {
   return function tap_modifyItem(view, target, x, y) {
     if (target.type === type) {
-      modify_fn(target, view.id);
+      modify_fn(target, view);
       workspace.update(target);
     }
   };
