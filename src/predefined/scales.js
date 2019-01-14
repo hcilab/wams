@@ -35,8 +35,25 @@ function items(workspace, itemTypes = []) {
   };
 }
 
+/**
+ * Returns a WAMS scale handler function which will allow users to scale items
+ * and their view.
+ *
+ * workspace: The WorkSpace for which this function will be built.
+ * itemTypes: Array of strings, the types of items for which to allow scaling.
+ */
+function itemsAndView(workspace, itemTypes = []) {
+  return function scale_itemsAndView(view, target, scale, mx, my) {
+    if (itemTypes.includes(target.type) || target === view) {
+      target.scaleBy(scale, mx, my);
+      workspace.update(target);
+    }
+  };
+}
+
 module.exports = {
   items,
   view,
+  itemsAndView,
 };
 

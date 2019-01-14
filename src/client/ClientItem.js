@@ -89,7 +89,7 @@ class ClientItem extends Item {
   draw(context) {
     context.save();
     context.translate(this.x, this.y);
-    context.rotate(constants.ROTATE_360 - this.rotation);
+    context.rotate(-this.rotation);
     context.scale(this.scale, this.scale);
     if (this.sequence) {
       this.sequence.execute(context);

@@ -36,8 +36,6 @@ const View = ReporterFactory([
   'width',
   'height',
   'type',
-  'effectiveWidth',
-  'effectiveHeight',
   'scale',
   'rotation',
 ]);

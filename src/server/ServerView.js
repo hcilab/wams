@@ -62,19 +62,24 @@ class ServerView extends View {
    * Getters for the sides of the view for positioning elements relative to each
    * other.
    */
-  get bottom()  { return this.y + this.effectiveHeight; }
-  get left()    { return this.x; }
-  get right()   { return this.x + this.effectiveWidth; }
-  get top()     { return this.y; }
+  side(x, y) {
+    return new Point2D(x, y)
+      .rotate(-this.rotation)
+      .divideBy(this.scale)
+      .plus(this);
+  }
 
+  get bottomLeft()  { return this.side(0, this.height); }
+  get bottomRight() { return this.side(this.width, this.height); }
+  get topLeft()     { return this.side(0, 0); }
+  get topRight()    { return this.side(this.width, 0); }
+        
   /**
    * Overrides the default Reporter assign() method, wrapping it in
    * functionality for regulating the effective width and height.
    */
   assign(data) {
     super.assign(data);
-    this.effectiveWidth = this.width / this.scale;
-    this.effectiveHeight = this.height / this.scale;
   }
 
   /**
@@ -108,7 +113,6 @@ class ServerView extends View {
    * x: desired x coordinate to move to
    */
   canMoveToX(x = this.x) {
-    // return (x >= 0) && (x + this.effectiveWidth <= this.workspaceBounds.x);
     return (x >= 0) && (x <= this.workspaceBounds.x);
   }
 
@@ -119,7 +123,6 @@ class ServerView extends View {
    * y: desired y coordinate to move to
    */
   canMoveToY(y = this.y) {
-    // return (y >= 0) && (y + this.effectiveHeight <= this.workspaceBounds.y);
     return (y >= 0) && (y <= this.workspaceBounds.y);
   }
 
@@ -153,10 +156,6 @@ class ServerView extends View {
    * y: y coordinate to move to
    */
   moveTo(x = this.x, y = this.y) {
-    // const coordinates = { x: this.x, y: this.y };
-    // if (this.canMoveToX(x)) coordinates.x = x;
-    // if (this.canMoveToY(y)) coordinates.y = y;
-    // this.assign(coordinates);
     this.assign({ x, y });
   }
 
@@ -169,11 +168,10 @@ class ServerView extends View {
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
     const delta = new Point2D(this.x - px, this.y - py).rotate(-radians);
-    this.assign({ 
-      x: px + delta.x,
-      y: py + delta.y,
-      rotation: this.rotation + radians
-    });
+    const x = px + delta.x;
+    const y = py + delta.y;
+    const rotation = this.rotation + radians;
+    this.assign({ x, y, rotation });
   }
 
   /**
@@ -195,11 +193,9 @@ class ServerView extends View {
       const delta = new Point2D( this.x - mx, this.y - my )
         .times(this.scale)
         .divideBy(scale)
-      this.assign({ 
-        scale,
-        x: mx + delta.x,
-        y: my + delta.y,
-      });
+      const x = mx + delta.x;
+      const y = my + delta.y;
+      this.assign({ x, y, scale });
       return true;
     }
     return false;

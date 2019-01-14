@@ -48,12 +48,6 @@ ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
   type: 'joker',
   scale: 1.5,
 }));
-//   2600,
-//   2800,
-//   'img/joker.png',
-//   'joker',
-//   1.5
-// ));
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
@@ -70,29 +64,32 @@ const handleLayout = (function makeLayoutHandler() {
   };
 
   function layoutBottom(view) {
-    view.moveTo( table.left, table.bottom );
-    view.rotation = Math.PI * 1 / 4;
+    const anchor = table.bottomLeft;
+    view.moveTo( anchor.x, anchor.y );
   };
 
   function layoutLeft(view) {
-    view.moveTo( table.left, table.top );
-    view.rotation = Math.PI * 3 / 2;
+    const anchor = table.topLeft;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI * 3 / 2);
   };
 
   function layoutTop(view) {
-    view.moveTo( table.right, table.top );
-    view.rotation = Math.PI;
+    const anchor = table.topRight;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI);
   };
 
   function layoutRight(view) {
-    view.moveTo( table.right, table.bottom );
-    view.rotation = Math.PI / 2;
+    const anchor = table.bottomRight;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI / 2);
   };
 
   function dependOnTable(fn) {
     return function layoutDepender(view) {
       if (!table) {
-        console.log('dodged!!!');
+        // console.log('dodged!!!');
         setTimeout( () => layoutDepender(view), 0 ); 
       } else {
         fn(view);
