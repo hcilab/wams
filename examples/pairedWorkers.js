@@ -9,24 +9,19 @@ const Wams = require('../src/server');
 
 const ws = new Wams({ clientLimit: 2 });
 
-ws.spawnItem({
-  x: 200, y: 200, width: 200, height: 200,
+ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
+  x: 200, 
+  y: 200, 
   type: 'Draggable',
-  imgsrc: 'img/monaLisa.png',
-});
+  scale: 0.2
+}));
 
-ws.spawnItem({
-  x: 400, y: 400, width: 200, height: 200,
+ws.spawnItem(Wams.predefined.items.image('img/scream.png', {
+  x: 400, 
+  y: 400,
   type: 'Draggable',
-  imgsrc: 'img/scream.png'
-});
-
-function handleDrag(view, target, x, y, dx, dy) {
-  if (target.type === 'Draggable') {
-    target.moveBy(dx, dy);
-    ws.update(target);
-  }
-}
+  scale: 0.25
+}));
 
 const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
@@ -41,7 +36,7 @@ const handleLayout = (function defineLayoutHandler() {
   return handleLayout;
 })();
 
-ws.on('drag', handleDrag);
+ws.on('drag',   Wams.predefined.drag.items(ws, ['Draggable']));
 ws.on('layout', handleLayout);
 
 ws.listen(9003);

@@ -4,16 +4,33 @@
  * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
  *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
+ * Bundles together the server API endpoint as well as a set of functions for
+ * generating predefined handlers and items.
  */
 
 'use strict';
 
-const Wams = require('./server/Wams.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
-Wams.Sequence = CanvasBlueprint;
+const Wams    = require('./server/Wams.js');
+const items   = require('./predefined/items.js');
+const drags   = require('./predefined/drags.js');
+const layouts = require('./predefined/layouts.js');
+const rotates = require('./predefined/rotates.js');
+const scales  = require('./predefined/scales.js');
+const swipes  = require('./predefined/swipes.js');
+const taps    = require('./predefined/taps.js');
+
+Wams.Sequence   = CanvasBlueprint;
+Wams.predefined = Object.freeze({
+  items,
+  drag:   drags,
+  layout: layouts,
+  rotate: rotates,
+  scale:  scales,
+  swipe:  swipes,
+  tap:    taps,
+});
 
 module.exports = Wams;
 

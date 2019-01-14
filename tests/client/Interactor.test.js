@@ -93,6 +93,5 @@ describe('Interactor', () => {
 
   describe('zoom', () => {
   });
-
 });
 

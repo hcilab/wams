@@ -18,7 +18,7 @@ const handleDrag = function(view, target, x, y, dx, dy) {
   // Executed every time a drag occurs on a device 
 }
 
-const handleScale = function(view, scale) {
+const handleScale = function(view, scale, mx, my) {
   // Executed when a user pinches a device, or uses the scroll wheel on a
   // computer
 }

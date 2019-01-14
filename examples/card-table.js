@@ -14,7 +14,8 @@ const ws = new Wams({
 
 const circle = new Wams.Sequence();
 circle.beginPath();
-circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+// circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
+circle.arc(0, 0, 150, Math.PI, 0, false);
 circle.closePath();
 circle.fillStyle = 'white';
 circle.fill();
@@ -25,8 +26,6 @@ circle.stroke();
 ws.spawnItem({
   x: 2500,
   y: 2500,
-  width: 150, 
-  height: 150,
   type: 'circle',
   blueprint: circle,
 });
@@ -34,23 +33,21 @@ ws.spawnItem({
 const text = new Wams.Sequence();
 text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
-text.fillText( 'Click the joker!', '{x}', '{y}');
+text.fillText( 'Click the joker!', 0, 0);
 
 ws.spawnItem({
   x: 2380,
   y: 2480,
-  width: 300,
-  height: 40,
   type: 'text',
   blueprint: text,
 });
 
-ws.spawnItem({
-  x: 2600, 
-  y: 2800, 
+ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
+  x: 2600,
+  y: 2800,
   type: 'joker',
-  imgsrc: 'img/joker.png',
-});
+  scale: 1.5,
+}));
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
@@ -67,29 +64,32 @@ const handleLayout = (function makeLayoutHandler() {
   };
 
   function layoutBottom(view) {
-    view.moveTo( table.left, table.bottom );
-    view.rotation = Math.PI * 1 / 4;
+    const anchor = table.bottomLeft;
+    view.moveTo( anchor.x, anchor.y );
   };
 
   function layoutLeft(view) {
-    view.moveTo( table.left, table.top );
-    view.rotation = Math.PI * 3 / 2;
+    const anchor = table.topLeft;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI * 3 / 2);
   };
 
   function layoutTop(view) {
-    view.moveTo( table.right, table.top );
-    view.rotation = Math.PI;
+    const anchor = table.topRight;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI);
   };
 
   function layoutRight(view) {
-    view.moveTo( table.right, table.bottom );
-    view.rotation = Math.PI / 2;
+    const anchor = table.bottomRight;
+    view.moveTo( anchor.x, anchor.y );
+    view.rotateBy(Math.PI / 2);
   };
 
   function dependOnTable(fn) {
     return function layoutDepender(view) {
       if (!table) {
-        console.log('dodged!!!');
+        // console.log('dodged!!!');
         setTimeout( () => layoutDepender(view), 0 ); 
       } else {
         fn(view);
@@ -112,46 +112,16 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-const handleDrag = (function makeDragHandler() {
-  function isItem(tgt) {
-    return tgt.type === 'joker';
-  }
-
-  function handleDrag(view, target, x, y, dx, dy) {
-    if (target.type === 'view/background') {
-      target.moveBy(-dx, -dy);  
-    } else if (isItem(target)) {
-      target.moveBy(dx, dy);
-    }
-    ws.update(target);
-  }
-
-  return handleDrag;
-})();
-
-const handleScale = function(view, newScale) {
-  view.scaleBy(newScale);
-  ws.update(view);
+let faceUp = true;
+function flipCard(card) {
+  const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
+  card.assign({imgsrc});
+  faceUp = !faceUp;
 }
-
-const handleClick = (function makeClickHandler() {
-  let faceUp = true;
-
-  function handleClick(view, target, x, y) {
-    if (target.type === 'joker') {
-      const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
-      target.assign({imgsrc});
-      faceUp = !faceUp;
-      ws.update(target);
-    }
-  }
-
-  return handleClick;
-})();
  
-ws.on('click',  handleClick);
-ws.on('scale',  handleScale);
-ws.on('drag',   handleDrag);
+ws.on('click',  Wams.predefined.tap.modifyItem(ws, flipCard, 'joker'));
+ws.on('scale',  Wams.predefined.scale.view(ws));
+ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['joker']));
 ws.on('layout', handleLayout);
 
 ws.listen(9001);

@@ -31,12 +31,13 @@ describe('Polygon2D', () => {
   });
 
   describe('constructor(points)', () => {
+    let triangle;
+
     test('Constructs an object of the correct type', () => {
       expect(new Polygon2D([])).toBeInstanceOf(Polygon2D);
     });
 
     test('Accepts an array of Point2D objects', () => {
-      let triangle;
       expect(() => triangle = new Polygon2D(triangle_points)).not.toThrow();
       expect(triangle.points).toBeDefined();
       expect(triangle.points[0]).toBeInstanceOf(Point2D);

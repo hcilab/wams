@@ -7,24 +7,14 @@
 
 const Wams = require('../src/server');
 const ws = new Wams({
-  bounds: { x: 4000, y: 4000 },
+  bounds: { x: 3600, y: 5445 },
   clientLimit: 4,
 });
 
-ws.spawnItem({
-  x: 0,
-  y: 0,
-  width: 4000,
-  height: 4000,
+ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
   type: 'mona',
-  imgsrc: 'img/monaLisa.png'
-});
-
-// Takes in the target that was dragged on and who caused the drag event
-const handleDrag = function(view, target, x, y, dx, dy) {
-  view.moveBy(-dx, -dy);
-  ws.update(view);
-}
+  scale: 5
+}));
 
 // Example Layout function that takes in the newly added client and which 
 //  ws they joined.
@@ -52,15 +42,9 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-// Handle Scale, uses the built in view method scaleBy
-const handleScale = function(view, newScale) {
-  view.scaleBy(newScale);
-  ws.update(view);
-}
-
-ws.on('drag',   handleDrag);
 ws.on('layout', handleLayout);
-ws.on('scale',  handleScale);
+ws.on('drag',   Wams.predefined.drag.view(ws));
+ws.on('scale',  Wams.predefined.scale.view(ws));
 
 ws.listen(9000);
 
