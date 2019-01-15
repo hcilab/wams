@@ -39,19 +39,19 @@ class Swivel extends Westures.Gesture {
     if (active.length === 1) {
       const input = active[0];
 
-      if (input.totalDistance() < this.deadzoneRadius) {
+      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
         return null;
       }
 
       const event = input.current.originalEvent;
-      if (event.ctrlKey) {
+      const progress = input.getProgressOfGesture(this.id);
+      if (event.ctrlKey && progress.pivot) {
         const point = input.current.point;
-        const progress = input.getProgressOfGesture(this.id);
         const pivot = progress.pivot;
-        const angle = Math.atan2(point.x - pivot.x, point.y - pivot.y);
+        const angle = pivot.angleTo(point);
         let change = 0;
         if (progress.hasOwnProperty('previousAngle')) {
-          change = progress.previousAngle - angle;
+          change = angle - progress.previousAngle;
         }
         progress.previousAngle = angle;
         return { change, pivot, point };
