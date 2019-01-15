@@ -18,8 +18,9 @@ const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 class Swivel extends Westures.Gesture {
-  constructor() {
+  constructor(deadzoneRadius = 10) {
     super('swivel');
+    this.deadzoneRadius = deadzoneRadius;
   }
 
   start(state) {
@@ -37,6 +38,11 @@ class Swivel extends Westures.Gesture {
     const active = state.getInputsNotInPhase('end');
     if (active.length === 1) {
       const input = active[0];
+
+      if (input.totalDistance() < this.deadzoneRadius) {
+        return null;
+      }
+
       const event = input.current.originalEvent;
       if (event.ctrlKey) {
         const point = input.current.point;
@@ -52,9 +58,6 @@ class Swivel extends Westures.Gesture {
       }
     }
   }
-
-  // end(state) {
-  // }
 }
 
 const HANDLERS = Object.freeze({ 
