@@ -15,7 +15,9 @@
 'use strict';
 
 const Server = require('./Server.js');
+
 const server = Symbol('server');
+const updates = Symbol('updates');
 
 class Wams {
   /**
@@ -23,6 +25,9 @@ class Wams {
    */
   constructor(settings = {}) {
     this[server] = new Server(settings);
+    this[updates] = {};
+
+    setInterval( this.postUpdates.bind(this), 1000/60 );
   }
 
   /**
@@ -51,6 +56,23 @@ class Wams {
    */
   spawnItem(values) {
     this[server].spawnItem(values);
+  }
+
+  /**
+   * Schedules an update at the next update interval.
+   */
+  scheduleUpdate(object) {
+    this[updates][object.id] = object;
+  }
+
+  /**
+   * Post scheduled updates.
+   */
+  postUpdates() {
+    Object.values(this[updates]).forEach( o => {
+      this.update(o);
+      delete this[updates][o.id];
+    });
   }
 
   /**
