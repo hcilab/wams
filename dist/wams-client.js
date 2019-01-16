@@ -10460,6 +10460,8 @@ const STAMPER = new IdStamper();
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
+  render: Symbol('render'),
+  startRender: Symbol('startRender'),
 });
 
 /**
@@ -10505,6 +10507,12 @@ class ClientController {
       zoom:   this.zoom.bind(this),
     });
 
+    /**
+     * This boolean tracks whether a render has been schedule for the next
+     * 1/60th of a second interval.
+     */
+    this.renderScheduled = false;
+
     // For proper function, we need to make sure that the canvas is as large as
     // it can be at all times, and that at all times we know how big the canvas
     // is.
@@ -10516,6 +10524,13 @@ class ClientController {
     // useful for functionality to be inserted between ClientController
     // instantiation and socket establishment.
     this[symbols.establishSocket]();
+    this[symbols.startRender]();
+
+
+    // As no draw loop is used, (there are no animations), need to know when to
+    // re-render in response to an image loading.
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener( Message.IMG_LOAD, schedule_fn );
   }
 
   /**
@@ -10574,6 +10589,24 @@ class ClientController {
   }
 
   /**
+   * Renders a frame.
+   */
+  [symbols.render]() {
+    if (this.renderScheduled) {
+      this.view.draw();
+      this.renderScheduled = false;
+    }
+  }
+
+  /**
+   * Initializes the render loop.
+   */
+  [symbols.startRender]() {
+    const render_fn = this[symbols.render].bind(this);
+    window.setInterval( render_fn, 1000 / 60 );
+  }
+
+  /**
    * Forwards messages to the View.
    *
    * message: string denoting type of message. 
@@ -10581,6 +10614,7 @@ class ClientController {
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
+    this.scheduleRender();
   }
 
   /**
@@ -10617,6 +10651,13 @@ class ClientController {
     this.canvas.width = window.innerWidth; 
     this.canvas.height = window.innerHeight;
     this.handle('resizeToFillWindow');
+  }
+
+  /**
+   * Schedules a render for the next frame interval.
+   */
+  scheduleRender() {
+    this.renderScheduled = true;
   }
 
   /**
@@ -10894,7 +10935,7 @@ class ClientView extends View {
 
     // As no draw loop is used, (there are no animations), need to know when to
     // re-render in response to an image loading.
-    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
+    // document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   /**
@@ -10994,7 +11035,7 @@ class ClientView extends View {
    */
   handle(message, ...args) {
     this[message](...args);
-    this.draw();
+    // this.draw();
   }
 
   /**
@@ -11100,8 +11141,9 @@ const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 class Swivel extends Westures.Gesture {
-  constructor() {
+  constructor(deadzoneRadius = 10) {
     super('swivel');
+    this.deadzoneRadius = deadzoneRadius;
   }
 
   start(state) {
@@ -11119,24 +11161,26 @@ class Swivel extends Westures.Gesture {
     const active = state.getInputsNotInPhase('end');
     if (active.length === 1) {
       const input = active[0];
+
+      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
+        return null;
+      }
+
       const event = input.current.originalEvent;
-      if (event.ctrlKey) {
+      const progress = input.getProgressOfGesture(this.id);
+      if (event.ctrlKey && progress.pivot) {
         const point = input.current.point;
-        const progress = input.getProgressOfGesture(this.id);
         const pivot = progress.pivot;
-        const angle = Math.atan2(point.x - pivot.x, point.y - pivot.y);
+        const angle = pivot.angleTo(point);
         let change = 0;
         if (progress.hasOwnProperty('previousAngle')) {
-          change = progress.previousAngle - angle;
+          change = angle - progress.previousAngle;
         }
         progress.previousAngle = angle;
         return { change, pivot, point };
       }
     }
   }
-
-  // end(state) {
-  // }
 }
 
 const HANDLERS = Object.freeze({ 
@@ -11249,7 +11293,7 @@ class Interactor {
    * Obtain the appropriate Westures Gesture object.
    */
   pincher() {
-    return new Westures.Pinch({ minInputs: 3 });
+    return new Westures.Pinch({ minInputs: 2 });
   }
 
   /**
