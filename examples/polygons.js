@@ -35,7 +35,12 @@ function polygon(x, y, view) {
   return Wams.predefined.items.polygon(
     randomPoints(7),
     colours[view.id % colours.length],
-    { x, y, type: 'colour', scale: view.scale }
+    { 
+      x,
+      y,
+      type: 'colour',
+      scale: 1 / view.scale 
+    }
   );
 }
 
