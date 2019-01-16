@@ -16,7 +16,7 @@
 function placeAtXY(workspace, x, y) {
   return function layout_placeAtXY(view, position) {
     view.moveTo(x, y);
-    workspace.update(view);
+    workspace.scheduleUpdate(view);
   };
 }
 

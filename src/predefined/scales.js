@@ -16,7 +16,7 @@
 function view(workspace) {
   return function scale_view(view, target, scale, mx, my) {
     view.scaleBy(scale, mx, my);
-    workspace.update(view);
+    workspace.scheduleUpdate(view);
   };
 }
 
@@ -30,7 +30,7 @@ function items(workspace, itemTypes = []) {
   return function scale_item(view, target, scale, mx, my) {
     if (itemTypes.includes(target.type)) {
       target.scaleBy(scale, mx, my);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }
@@ -46,7 +46,7 @@ function itemsAndView(workspace, itemTypes = []) {
   return function scale_itemsAndView(view, target, scale, mx, my) {
     if (itemTypes.includes(target.type) || target === view) {
       target.scaleBy(scale, mx, my);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }

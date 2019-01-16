@@ -16,7 +16,7 @@
 function view(workspace) {
   return function drag_view(view, target, x, y, dx, dy) {
     view.moveBy(-dx, -dy);
-    workspace.update(view);
+    workspace.scheduleUpdate(view);
   };
 }
 
@@ -30,7 +30,7 @@ function items(workspace, itemTypes = []) {
   return function drag_item(view, target, x, y, dx, dy) {
     if (itemTypes.includes(target.type)) {
       target.moveBy(dx, dy);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }
@@ -48,7 +48,7 @@ function itemsAndView(workspace, itemTypes = []) {
     } else if (view === target) {
       target.moveBy(-dx, -dy);
     }
-    workspace.update(target);
+    workspace.scheduleUpdate(target);
   };
 }
 

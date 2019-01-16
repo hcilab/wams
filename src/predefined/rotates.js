@@ -16,7 +16,7 @@
 function view(workspace) {
   return function rotate_view(view, target, radians, px, py) {
     view.rotateBy(radians, px, py);
-    workspace.update(view);
+    workspace.scheduleUpdate(view);
   };
 }
 
@@ -31,7 +31,7 @@ function items(workspace, itemTypes = []) {
   return function rotate_item(view, target, radians, px, py) {
     if (itemTypes.includes(target.type)) {
       target.rotateBy(radians, px, py);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }
@@ -47,7 +47,7 @@ function itemsAndView(workspace, itemTypes = []) {
   return function rotate_itemAndView(view, target, radians, px, py) {
     if (itemTypes.includes(target.type) || view === target) {
       target.rotateBy(radians, px, py);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }
