@@ -35,6 +35,8 @@ const STAMPER = new IdStamper();
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
+  render: Symbol('render'),
+  startRender: Symbol('startRender'),
 });
 
 /**
@@ -80,6 +82,12 @@ class ClientController {
       zoom:   this.zoom.bind(this),
     });
 
+    /**
+     * This boolean tracks whether a render has been schedule for the next
+     * 1/60th of a second interval.
+     */
+    this.renderScheduled = false;
+
     // For proper function, we need to make sure that the canvas is as large as
     // it can be at all times, and that at all times we know how big the canvas
     // is.
@@ -91,6 +99,13 @@ class ClientController {
     // useful for functionality to be inserted between ClientController
     // instantiation and socket establishment.
     this[symbols.establishSocket]();
+    this[symbols.startRender]();
+
+
+    // As no draw loop is used, (there are no animations), need to know when to
+    // re-render in response to an image loading.
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener( Message.IMG_LOAD, schedule_fn );
   }
 
   /**
@@ -149,6 +164,24 @@ class ClientController {
   }
 
   /**
+   * Renders a frame.
+   */
+  [symbols.render]() {
+    if (this.renderScheduled) {
+      this.view.draw();
+      this.renderScheduled = false;
+    }
+  }
+
+  /**
+   * Initializes the render loop.
+   */
+  [symbols.startRender]() {
+    const render_fn = this[symbols.render].bind(this);
+    window.setInterval( render_fn, 1000 / 60 );
+  }
+
+  /**
    * Forwards messages to the View.
    *
    * message: string denoting type of message. 
@@ -156,6 +189,7 @@ class ClientController {
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
+    this.scheduleRender();
   }
 
   /**
@@ -192,6 +226,13 @@ class ClientController {
     this.canvas.width = window.innerWidth; 
     this.canvas.height = window.innerHeight;
     this.handle('resizeToFillWindow');
+  }
+
+  /**
+   * Schedules a render for the next frame interval.
+   */
+  scheduleRender() {
+    this.renderScheduled = true;
   }
 
   /**

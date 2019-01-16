@@ -170,7 +170,7 @@ class Interactor {
    * Obtain the appropriate Westures Gesture object.
    */
   pincher() {
-    return new Westures.Pinch({ minInputs: 3 });
+    return new Westures.Pinch({ minInputs: 2 });
   }
 
   /**

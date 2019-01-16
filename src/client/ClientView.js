@@ -92,7 +92,7 @@ class ClientView extends View {
 
     // As no draw loop is used, (there are no animations), need to know when to
     // re-render in response to an image loading.
-    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
+    // document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   /**
@@ -192,7 +192,7 @@ class ClientView extends View {
    */
   handle(message, ...args) {
     this[message](...args);
-    this.draw();
+    // this.draw();
   }
 
   /**
