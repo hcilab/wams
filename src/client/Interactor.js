@@ -135,11 +135,11 @@ class Interactor {
     const swipe   = this.swipe.bind(this);
     const swivel  = this.swivel.bind(this);
 
-    this.region.bind(this.canvas, this.panner(), pan);
-    this.region.bind(this.canvas, this.tapper(), tap);
-    this.region.bind(this.canvas, this.pincher(), pinch);
-    this.region.bind(this.canvas, this.rotater(), rotate);
-    this.region.bind(this.canvas, this.swiper(), swipe);
+    this.region.bind(this.canvas, this.panner(),    pan);
+    this.region.bind(this.canvas, this.tapper(),    tap);
+    this.region.bind(this.canvas, this.pincher(),   pinch);
+    this.region.bind(this.canvas, this.rotater(),   rotate);
+    this.region.bind(this.canvas, this.swiper(),    swipe);
     this.region.bind(this.canvas, this.swiveller(), swivel);
   }
 
