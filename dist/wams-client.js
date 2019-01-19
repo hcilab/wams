@@ -11178,6 +11178,8 @@ class Swivel extends Westures.Gesture {
         }
         progress.previousAngle = angle;
         return { change, pivot, point };
+      } else {
+        delete progress.pivot;
       }
     }
   }
