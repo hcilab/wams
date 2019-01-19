@@ -36,7 +36,7 @@ function square(x, y, view) {
 ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
 ws.on('click',  Wams.predefined.tap.spawnOrRemoveItem(ws, square, 'colour'));
 ws.on('scale',  Wams.predefined.scale.view(ws));
-ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['colour']));
+ws.on('drag',   Wams.predefined.drag.view(ws, ['colour']));
 ws.on('rotate', Wams.predefined.rotate.view(ws));
 
 ws.listen(9002);
