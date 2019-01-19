@@ -54,6 +54,13 @@ class ServerView extends View {
      */
     this.lockedItem = null;
 
+    /**
+     * Some gestures require continous interaction with an item. During this
+     * interaction, no other users should be able to interact with the item, so
+     * need a way lock it down.
+     */
+    this.locked = false;
+
     // Views must be uniquely identifiable.
     STAMPER.stampNewId(this);
   }
@@ -80,6 +87,20 @@ class ServerView extends View {
    */
   assign(data) {
     super.assign(data);
+  }
+
+  /**
+   * Lock this item.
+   */
+  lock() {
+    this.locked = true;
+  }
+
+  /**
+   * Unlock this item.
+   */
+  unlock() {
+    this.locked = false;
   }
 
   /**

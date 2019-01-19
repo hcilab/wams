@@ -131,8 +131,11 @@ class WorkSpace {
   findItemByCoordinates(x, y, phase, view) {
     switch(phase) {
       case 'start':
-        const item = this.findFreeItemByCoordinates(x, y);
-        if (item) view.getLockOnItem(item);
+        if (!view.lockedItem) {
+          const item = this.findFreeItemByCoordinates(x, y);
+          if (item) view.getLockOnItem(item);
+          else view.getLockOnItem(view);
+        }
         return null;
       case 'move':
         return view.lockedItem;
