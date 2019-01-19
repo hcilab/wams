@@ -162,8 +162,14 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  pinch({ change, midpoint }) {
-    this.handlers.zoom( change * this.scaleFactor, midpoint.x, midpoint.y );
+  pinch({ change, midpoint, phase }) {
+    this.handlers.zoom( 
+      // change * this.scaleFactor,
+      change,
+      midpoint.x,
+      midpoint.y,
+      phase 
+    );
   }
 
   /**
@@ -256,9 +262,15 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
-    const diff = -(Math.sign(event.deltaY) * factor);
-    this.handlers.zoom(diff, event.clientX, event.clientY);
+    const diff = -(Math.sign(event.deltaY) * factor) + 1;
+    this.handlers.zoom(diff, event.clientX, event.clientY, 'move');
   }
+}
+
+function guaranteeCoordinates(o = {}) {
+  o.x = o.x || 0;
+  o.y = o.y || 0;
+  return o;
 }
 
 module.exports = Interactor;
