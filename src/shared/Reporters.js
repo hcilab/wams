@@ -59,6 +59,7 @@ const ScaleReporter = ReporterFactory([
   'scale',
   'mx',
   'my',
+  'phase',
 ]);
 
 /*
@@ -68,16 +69,18 @@ const RotateReporter = ReporterFactory([
   'radians',
   'px',
   'py',
+  'phase',
 ]);
 
 /*
  * This class allows reporting of swipe data between client and server.
  */
 const SwipeReporter = ReporterFactory([
+  'direction',
   'velocity',
   'x',
   'y',
-  'direction',
+  'phase',
 ]);
 
 /*

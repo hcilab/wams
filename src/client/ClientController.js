@@ -257,8 +257,8 @@ class ClientController {
    *
    * radians: The amount of the rotation, in radians.
    */
-  rotate(radians, px, py) {
-    const rreport = new RotateReporter({ radians, px, py });
+  rotate(radians, px, py, phase) {
+    const rreport = new RotateReporter({ radians, px, py, phase });
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
   }
 
@@ -271,8 +271,8 @@ class ClientController {
    * y        : y coordinate of swipe.
    * direction: The direction of the swipe.
    */
-  swipe(velocity, x, y, direction) {
-    const sreport = new SwipeReporter({ velocity, x, y, direction });
+  swipe(velocity, x, y, direction, phase) {
+    const sreport = new SwipeReporter({ velocity, x, y, direction, phase });
     new Message(Message.SWIPE, sreport).emitWith(this.socket);
   }
 
@@ -283,8 +283,8 @@ class ClientController {
    * x    : x coordinate of tap
    * y    : y coordinate of tap
    */
-  tap(x, y) {
-    const mreport = new MouseReporter({ x, y });
+  tap(x, y, phase) {
+    const mreport = new MouseReporter({ x, y, phase });
     new Message(Message.CLICK, mreport).emitWith(this.socket);
   }
 
@@ -296,12 +296,13 @@ class ClientController {
    * mx  : x coordinate of the midpoint of the zoom
    * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(diff, mx, my) {
+  zoom(diff, mx, my, phase) {
     // Changes will generally be in range [-1,1], clustered around 0, therefore
     // bring above zero and cluster around 1 to produce appropriate
     // multiplicative behaviour on the server end.
-    const scale = diff + 1;
-    const sreport = new ScaleReporter({ scale, mx, my });
+    // const scale = diff + 1;
+    const scale = diff;
+    const sreport = new ScaleReporter({ scale, mx, my, phase });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }

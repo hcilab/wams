@@ -13,8 +13,8 @@
 
 'use strict';
 
-// const Westures = require('../../../westures');
-const Westures = require('westures');
+const Westures = require('../../../westures');
+// const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 class Swivel extends Westures.Gesture {
@@ -31,6 +31,7 @@ class Swivel extends Westures.Gesture {
     const event = current.originalEvent;
     if (event.ctrlKey) {
       progress.pivot = point;
+      return { pivot: point };
     }
   }
 
@@ -59,6 +60,10 @@ class Swivel extends Westures.Gesture {
         delete progress.pivot;
       }
     }
+  }
+
+  end(state) {
+    return { pivot: {x: 0, y: 0}};
   }
 }
 
@@ -137,11 +142,11 @@ class Interactor {
     const swipe   = this.swipe.bind(this);
     const swivel  = this.swivel.bind(this);
 
-    this.region.bind(this.canvas, this.panner(), pan);
-    this.region.bind(this.canvas, this.tapper(), tap);
-    this.region.bind(this.canvas, this.pincher(), pinch);
-    this.region.bind(this.canvas, this.rotater(), rotate);
-    this.region.bind(this.canvas, this.swiper(), swipe);
+    this.region.bind(this.canvas, this.panner(),    pan);
+    this.region.bind(this.canvas, this.tapper(),    tap);
+    this.region.bind(this.canvas, this.pincher(),   pinch);
+    this.region.bind(this.canvas, this.rotater(),   rotate);
+    this.region.bind(this.canvas, this.swiper(),    swipe);
     this.region.bind(this.canvas, this.swiveller(), swivel);
   }
 
@@ -150,6 +155,8 @@ class Interactor {
    * handler.
    */
   pan({ change, point, phase }) {
+    change = guaranteeCoordinates(change);
+    point = guaranteeCoordinates(point);
     this.handlers.pan( point.x, point.y, change.x, change.y, phase );
   }
 
@@ -164,8 +171,14 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  pinch({ change, midpoint }) {
-    this.handlers.zoom( change * this.scaleFactor, midpoint.x, midpoint.y );
+  pinch({ change, midpoint, phase }) {
+    this.handlers.zoom( 
+      // change * this.scaleFactor,
+      change,
+      midpoint.x,
+      midpoint.y,
+      phase 
+    );
   }
 
   /**
@@ -179,8 +192,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  rotate({ delta, pivot }) {
-    this.handlers.rotate( delta, pivot.x, pivot.y );
+  rotate({ delta, pivot, phase }) {
+    this.handlers.rotate( delta, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -211,8 +224,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  swipe({ velocity, x, y, direction }) {
-    this.handlers.swipe(velocity, x, y, direction);
+  swipe({ velocity, x, y, direction, phase }) {
+    this.handlers.swipe(velocity, x, y, direction, phase);
   }
 
   /**
@@ -226,8 +239,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  swivel({ change, pivot, point }) { 
-    this.handlers.rotate( change, pivot.x, pivot.y );
+  swivel({ change, pivot, point, phase }) { 
+    this.handlers.rotate( change, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -241,8 +254,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  tap({ x, y }) {
-    this.handlers.tap( x, y );
+  tap({ x, y, phase }) {
+    this.handlers.tap( x, y, phase );
   }
 
   /**
@@ -258,9 +271,15 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
-    const diff = -(Math.sign(event.deltaY) * factor);
-    this.handlers.zoom(diff, event.clientX, event.clientY);
+    const diff = -(Math.sign(event.deltaY) * factor) + 1;
+    this.handlers.zoom(diff, event.clientX, event.clientY, 'move');
   }
+}
+
+function guaranteeCoordinates(o = {}) {
+  o.x = o.x || 0;
+  o.y = o.y || 0;
+  return o;
 }
 
 module.exports = Interactor;
