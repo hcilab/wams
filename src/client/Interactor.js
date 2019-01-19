@@ -13,8 +13,8 @@
 
 'use strict';
 
-// const Westures = require('../../../westures');
-const Westures = require('westures');
+const Westures = require('../../../westures');
+// const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 class Swivel extends Westures.Gesture {
@@ -31,6 +31,7 @@ class Swivel extends Westures.Gesture {
     const event = current.originalEvent;
     if (event.ctrlKey) {
       progress.pivot = point;
+      return { pivot: point };
     }
   }
 
@@ -55,8 +56,14 @@ class Swivel extends Westures.Gesture {
         }
         progress.previousAngle = angle;
         return { change, pivot, point };
+      } else {
+        progress.pivot = null;
       }
     }
+  }
+
+  end(state) {
+    return { pivot: {x: 0, y: 0}};
   }
 }
 
@@ -148,6 +155,8 @@ class Interactor {
    * handler.
    */
   pan({ change, point, phase }) {
+    change = guaranteeCoordinates(change);
+    point = guaranteeCoordinates(point);
     this.handlers.pan( point.x, point.y, change.x, change.y, phase );
   }
 
@@ -183,8 +192,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  rotate({ delta, pivot }) {
-    this.handlers.rotate( delta, pivot.x, pivot.y );
+  rotate({ delta, pivot, phase }) {
+    this.handlers.rotate( delta, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -215,8 +224,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  swipe({ velocity, x, y, direction }) {
-    this.handlers.swipe(velocity, x, y, direction);
+  swipe({ velocity, x, y, direction, phase }) {
+    this.handlers.swipe(velocity, x, y, direction, phase);
   }
 
   /**
@@ -230,8 +239,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  swivel({ change, pivot, point }) { 
-    this.handlers.rotate( change, pivot.x, pivot.y );
+  swivel({ change, pivot, point, phase }) { 
+    this.handlers.rotate( change, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -245,8 +254,8 @@ class Interactor {
    * Transform data received from Westures and forward to the registered
    * handler.
    */
-  tap({ x, y }) {
-    this.handlers.tap( x, y );
+  tap({ x, y, phase }) {
+    this.handlers.tap( x, y, phase );
   }
 
   /**

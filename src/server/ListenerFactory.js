@@ -77,11 +77,11 @@ function layout(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function rotate(listener, workspace) {
-  return function handleRotate(view, {radians, px, py}) {
+  return function handleRotate(view, {radians, px, py, phase}) {
     const pivot = new CoordinateData(px, py).transformFrom(view);
     if (pivot) {
       const {x, y} = pivot;
-      const target = workspace.findItemByCoordinates(x, y) || view;
+      const target = workspace.findItemByCoordinates(x, y, phase, view) || view;
       listener(view, target, radians, x, y);
     }
   };
@@ -95,11 +95,11 @@ function rotate(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function scale(listener, workspace) {
-  return function handleScale(view, {scale, mx, my}) {
+  return function handleScale(view, {scale, mx, my, phase}) {
     const mouse = new CoordinateData(mx, my).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
-      const target = workspace.findItemByCoordinates(x, y) || view;
+      const target = workspace.findItemByCoordinates(x, y, phase, view) || view;
       listener(view, target, scale, x, y);
     }
   };

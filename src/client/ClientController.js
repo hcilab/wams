@@ -257,8 +257,8 @@ class ClientController {
    *
    * radians: The amount of the rotation, in radians.
    */
-  rotate(radians, px, py) {
-    const rreport = new RotateReporter({ radians, px, py });
+  rotate(radians, px, py, phase) {
+    const rreport = new RotateReporter({ radians, px, py, phase });
     new Message(Message.ROTATE, rreport).emitWith(this.socket);
   }
 
@@ -271,8 +271,8 @@ class ClientController {
    * y        : y coordinate of swipe.
    * direction: The direction of the swipe.
    */
-  swipe(velocity, x, y, direction) {
-    const sreport = new SwipeReporter({ velocity, x, y, direction });
+  swipe(velocity, x, y, direction, phase) {
+    const sreport = new SwipeReporter({ velocity, x, y, direction, phase });
     new Message(Message.SWIPE, sreport).emitWith(this.socket);
   }
 
@@ -283,8 +283,8 @@ class ClientController {
    * x    : x coordinate of tap
    * y    : y coordinate of tap
    */
-  tap(x, y) {
-    const mreport = new MouseReporter({ x, y });
+  tap(x, y, phase) {
+    const mreport = new MouseReporter({ x, y, phase });
     new Message(Message.CLICK, mreport).emitWith(this.socket);
   }
 
