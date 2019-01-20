@@ -28,7 +28,8 @@ function click(listener, workspace) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
-      const target = workspace.findFreeItemByCoordinates(x, y) || view;
+      const target = view.lockedItem || view;
+      // const target = workspace.findFreeItemByCoordinates(x, y) || view;
       listener(view, target, x, y);
     }
   };
