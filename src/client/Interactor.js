@@ -106,13 +106,6 @@ class Interactor {
     this.canvas = canvas;
     this.region = new Westures.Region(window);
 
-    /**
-     * The scaleFactor is a value by which the "changes" in pinches will be
-     * multiplied. This should effectively normalize pinches across devices
-     */
-    this.scaleFactor = 2000 / (window.innerHeight * window.innerWidth)
-    this.lastDesktopAngle = null;
-
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
     this.attachListeners();
@@ -124,9 +117,6 @@ class Interactor {
    */
   attachListeners() {
     window.addEventListener('wheel', this.wheel.bind(this), false);
-    // window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
-    //   capture: true
-    // });
   }
 
   /**
@@ -194,23 +184,6 @@ class Interactor {
    */
   rotate({ delta, pivot, phase }) {
     this.handlers.rotate( delta, pivot.x, pivot.y, phase );
-  }
-
-  /**
-   * Respond to mouse events on the desktop to detect single-pointer rotates.
-   * Require the CTRL key to be down.
-   */
-  rotateDesktop(event) {
-    const { buttons, ctrlKey, clientX, clientY } = event;
-    const mx = window.innerWidth / 2;
-    const my = window.innerHeight / 2;
-    const angle = Math.atan2(clientX - mx, clientY - my);
-    let diff = 0;
-    if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
-    this.lastDesktopAngle = angle;
-    if ( ctrlKey && buttons & 1 ) {
-      this.handlers.rotate( diff, mx, my ); 
-    }
   }
 
   /**
