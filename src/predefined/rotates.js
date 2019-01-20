@@ -15,8 +15,10 @@
  */
 function view(workspace) {
   return function rotate_view(view, target, radians, px, py) {
-    view.rotateBy(radians, px, py);
-    workspace.scheduleUpdate(view);
+    if (target === view) {
+      view.rotateBy(radians, px, py);
+      workspace.scheduleUpdate(view);
+    }
   };
 }
 

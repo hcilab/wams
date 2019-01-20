@@ -15,8 +15,10 @@
  */
 function view(workspace) {
   return function drag_view(view, target, x, y, dx, dy) {
-    view.moveBy(-dx, -dy);
-    workspace.scheduleUpdate(view);
+    if (target === view) {
+      view.moveBy(-dx, -dy);
+      workspace.scheduleUpdate(view);
+    }
   };
 }
 

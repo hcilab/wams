@@ -28,9 +28,7 @@ function click(listener, workspace) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
-      const target = view.lockedItem || view;
-      // const target = workspace.findFreeItemByCoordinates(x, y) || view;
-      listener(view, target, x, y);
+      listener(view, view.lockedItem, x, y);
     }
   };
 };
@@ -48,9 +46,8 @@ function drag(listener, workspace) {
     const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
     if (mouse) {
       const {x, y, dx, dy} = mouse;
-      const target = view.lockedItem || view;
       if (phase === 'move') {
-        listener(view, target, x, y, dx, dy);
+        listener(view, view.lockedItem, x, y, dx, dy);
       }
     }
   };
@@ -82,8 +79,7 @@ function rotate(listener, workspace) {
     const pivot = new CoordinateData(px, py).transformFrom(view);
     if (pivot) {
       const {x, y} = pivot;
-      const target = view.lockedItem || view;
-      listener(view, target, radians, x, y);
+      listener(view, view.lockedItem, radians, x, y);
     }
   };
 };
@@ -100,8 +96,7 @@ function scale(listener, workspace) {
     const mouse = new CoordinateData(mx, my).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
-      const target = view.lockedItem || view;
-      listener(view, target, scale, x, y);
+      listener(view, view.lockedItem, scale, x, y);
     }
   };
 };
@@ -118,8 +113,7 @@ function swipe(listener, workspace) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x,y} = mouse;
-      const target = view.lockedItem || view;
-      listener(view, target, velocity, x, y, direction);
+      listener(view, view.lockedItem, x, y, direction);
     }
   }
 }

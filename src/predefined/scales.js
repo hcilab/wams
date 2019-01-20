@@ -15,8 +15,10 @@
  */
 function view(workspace) {
   return function scale_view(view, target, scale, mx, my) {
-    view.scaleBy(scale, mx, my);
-    workspace.scheduleUpdate(view);
+    if (target === view) {
+      view.scaleBy(scale, mx, my);
+      workspace.scheduleUpdate(view);
+    }
   };
 }
 
