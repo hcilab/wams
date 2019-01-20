@@ -80,6 +80,7 @@ class ClientController {
       swipe:  this.swipe.bind(this),
       tap:    this.tap.bind(this),
       zoom:   this.zoom.bind(this),
+      track:  this.track.bind(this),
     });
 
     /**
@@ -137,6 +138,7 @@ class ClientController {
       [Message.ROTATE]: NOP,
       [Message.SCALE]:  NOP,
       [Message.SWIPE]:  NOP,
+      [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
@@ -286,6 +288,17 @@ class ClientController {
   tap(x, y, phase) {
     const mreport = new MouseReporter({ x, y, phase });
     new Message(Message.CLICK, mreport).emitWith(this.socket);
+  }
+
+  /**
+   * Forward data pertaining to a track event to the server, using the Message /
+   * Reporter protocol.
+   *
+   * inputs: All active/ending inputs.
+   */
+  track(x, y, phase) {
+    const ireport = new MouseReporter({ x, y, phase });
+    new Message(Message.TRACK, ireport).emitWith(this.socket);
   }
 
   /**

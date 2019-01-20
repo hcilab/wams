@@ -20,6 +20,7 @@ const {
   NOP,
   safeRemoveById,
 } = require('../shared.js');
+const CoordinateData = require('./CoordinateData.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
@@ -120,34 +121,22 @@ class WorkSpace {
   }
 
   /**
-   * Looks for an item at the given coordinates, according to the phase of the
-   * event.
-   *
-   * x    : x coordinate at which to look for items.
-   * y    : y coordinate at which to look for items.
-   * phase: One of 'start', 'move', 'end', or 'cancel'
-   * view : The view associated with this query.
+   * Gives a lock on the item at (x,y) to the view.
    */
-  findItemByCoordinates(x, y, phase, view) {
-    switch(phase) {
-      case 'start':
-        if (!view.lockedItem) {
-          const item = this.findFreeItemByCoordinates(x, y);
-          if (item) view.getLockOnItem(item);
-          else view.getLockOnItem(view);
-        }
-        return null;
-      case 'move':
-        return view.lockedItem;
-      case 'end':
-        view.releaseLockedItem();
-        return null;
-      case 'cancel':
-        view.releaseLockedItem();
-        return null;
-      default:
-        return this.findFreeItemByCoordinates(x, y);
+  giveLock(x, y, view) {
+    const mouse = new CoordinateData(x, y).transformFrom(view);
+    if (mouse) {
+      const {x, y} = mouse;
+      const item = this.findFreeItemByCoordinates(x, y) || view;
+      view.getLockOnItem(item);
     }
+  }
+
+  /**
+   * Releases the view's lock on its item.
+   */
+  removeLock(view) {
+    view.releaseLockedItem();
   }
 
   /**

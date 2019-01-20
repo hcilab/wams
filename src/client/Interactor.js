@@ -67,12 +67,34 @@ class Swivel extends Westures.Gesture {
   }
 }
 
+class Track extends Westures.Gesture {
+  constructor(phases = []) {
+    super('track');
+    this.trackStart = phases.includes('start');
+    this.trackMove = phases.includes('move');
+    this.trackEnd = phases.includes('end');
+  }
+
+  start(state) {
+    if (this.trackStart) return { inputs: state.inputs };
+  }
+
+  move(state) {
+    if (this.trackMove) return { inputs: state.inputs };
+  }
+
+  end(state) {
+    if (this.trackEnd) return { inputs: state.inputs };
+  }
+}
+
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
   tap:    NOP,
   zoom:   NOP,
+  track:  NOP,
 });
 
 /**
@@ -131,6 +153,7 @@ class Interactor {
     const rotate  = this.rotate.bind(this);
     const swipe   = this.swipe.bind(this);
     const swivel  = this.swivel.bind(this);
+    const track   = this.track.bind(this);
 
     this.region.bind(this.canvas, this.panner(),    pan);
     this.region.bind(this.canvas, this.tapper(),    tap);
@@ -138,6 +161,7 @@ class Interactor {
     this.region.bind(this.canvas, this.rotater(),   rotate);
     this.region.bind(this.canvas, this.swiper(),    swipe);
     this.region.bind(this.canvas, this.swiveller(), swivel);
+    this.region.bind(this.canvas, this.tracker(),   track);
   }
 
   /**
@@ -236,6 +260,28 @@ class Interactor {
    */
   tapper() {
     return new Westures.Tap({ tolerance: 4 });
+  }
+
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
+  track({ inputs, phase }) {
+    if (phase === 'start' && inputs.length === 1) {
+      const point = inputs[0].current.point;
+      this.handlers.track( point.x, point.y , phase );
+    } else if (phase === 'end' && 
+        inputs.filter(i => i.phase !== 'end').length === 0) {
+      const point = new Westures.Point2D(0, 0);
+      this.handlers.track( point.x, point.y , phase );
+    }
+  }
+
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
+  tracker() {
+    return new Track(['start', 'end']);
   }
 
   /**

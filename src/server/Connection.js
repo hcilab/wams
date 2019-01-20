@@ -78,6 +78,7 @@ class Connection {
       [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
       [Message.SCALE]:  (...args) => this.handle('scale', ...args),
       [Message.SWIPE]:  (...args) => this.handle('swipe', ...args),
+      [Message.TRACK]:  (...args) => this.track(...args),
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
@@ -142,6 +143,17 @@ class Connection {
   resize(data) {
     this.view.assign(data);
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
+  }
+
+  /**
+   * Performs locking and unlocking based on the phase.
+   */
+  track({ x, y, phase }) {
+    if (phase === 'start') {
+      this.workspace.giveLock(x, y, this.view);
+    } else if (phase === 'end') {
+      this.workspace.removeLock(this.view);
+    }
   }
 }
 
