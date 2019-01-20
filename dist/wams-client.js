@@ -8825,6 +8825,7 @@ class ClientController {
       swipe:  this.swipe.bind(this),
       tap:    this.tap.bind(this),
       zoom:   this.zoom.bind(this),
+      track:  this.track.bind(this),
     });
 
     /**
@@ -8882,6 +8883,7 @@ class ClientController {
       [Message.ROTATE]: NOP,
       [Message.SCALE]:  NOP,
       [Message.SWIPE]:  NOP,
+      [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
@@ -9031,6 +9033,17 @@ class ClientController {
   tap(x, y, phase) {
     const mreport = new MouseReporter({ x, y, phase });
     new Message(Message.CLICK, mreport).emitWith(this.socket);
+  }
+
+  /**
+   * Forward data pertaining to a track event to the server, using the Message /
+   * Reporter protocol.
+   *
+   * inputs: All active/ending inputs.
+   */
+  track(x, y, phase) {
+    const ireport = new MouseReporter({ x, y, phase });
+    new Message(Message.TRACK, ireport).emitWith(this.socket);
   }
 
   /**
@@ -9511,12 +9524,34 @@ class Swivel extends Westures.Gesture {
   }
 }
 
+class Track extends Westures.Gesture {
+  constructor(phases = []) {
+    super('track');
+    this.trackStart = phases.includes('start');
+    this.trackMove = phases.includes('move');
+    this.trackEnd = phases.includes('end');
+  }
+
+  start(state) {
+    if (this.trackStart) return { inputs: state.inputs };
+  }
+
+  move(state) {
+    if (this.trackMove) return { inputs: state.inputs };
+  }
+
+  end(state) {
+    if (this.trackEnd) return { inputs: state.inputs };
+  }
+}
+
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
   tap:    NOP,
   zoom:   NOP,
+  track:  NOP,
 });
 
 /**
@@ -9550,13 +9585,6 @@ class Interactor {
     this.canvas = canvas;
     this.region = new Westures.Region(window);
 
-    /**
-     * The scaleFactor is a value by which the "changes" in pinches will be
-     * multiplied. This should effectively normalize pinches across devices
-     */
-    this.scaleFactor = 2000 / (window.innerHeight * window.innerWidth)
-    this.lastDesktopAngle = null;
-
     this.handlers = mergeMatches(HANDLERS, handlers);
     this.bindRegions();
     this.attachListeners();
@@ -9568,9 +9596,6 @@ class Interactor {
    */
   attachListeners() {
     window.addEventListener('wheel', this.wheel.bind(this), false);
-    // window.addEventListener('mousemove', this.rotateDesktop.bind(this), {
-    //   capture: true
-    // });
   }
 
   /**
@@ -9585,6 +9610,7 @@ class Interactor {
     const rotate  = this.rotate.bind(this);
     const swipe   = this.swipe.bind(this);
     const swivel  = this.swivel.bind(this);
+    const track   = this.track.bind(this);
 
     this.region.bind(this.canvas, this.panner(),    pan);
     this.region.bind(this.canvas, this.tapper(),    tap);
@@ -9592,6 +9618,7 @@ class Interactor {
     this.region.bind(this.canvas, this.rotater(),   rotate);
     this.region.bind(this.canvas, this.swiper(),    swipe);
     this.region.bind(this.canvas, this.swiveller(), swivel);
+    this.region.bind(this.canvas, this.tracker(),   track);
   }
 
   /**
@@ -9638,23 +9665,6 @@ class Interactor {
    */
   rotate({ delta, pivot, phase }) {
     this.handlers.rotate( delta, pivot.x, pivot.y, phase );
-  }
-
-  /**
-   * Respond to mouse events on the desktop to detect single-pointer rotates.
-   * Require the CTRL key to be down.
-   */
-  rotateDesktop(event) {
-    const { buttons, ctrlKey, clientX, clientY } = event;
-    const mx = window.innerWidth / 2;
-    const my = window.innerHeight / 2;
-    const angle = Math.atan2(clientX - mx, clientY - my);
-    let diff = 0;
-    if (this.lastDesktopAngle !== null) diff = this.lastDesktopAngle - angle;
-    this.lastDesktopAngle = angle;
-    if ( ctrlKey && buttons & 1 ) {
-      this.handlers.rotate( diff, mx, my ); 
-    }
   }
 
   /**
@@ -9707,6 +9717,28 @@ class Interactor {
    */
   tapper() {
     return new Westures.Tap({ tolerance: 4 });
+  }
+
+  /**
+   * Transform data received from Westures and forward to the registered
+   * handler.
+   */
+  track({ inputs, phase }) {
+    if (phase === 'start' && inputs.length === 1) {
+      const point = inputs[0].current.point;
+      this.handlers.track( point.x, point.y , phase );
+    } else if (phase === 'end' && 
+        inputs.filter(i => i.phase !== 'end').length === 0) {
+      const point = new Westures.Point2D(0, 0);
+      this.handlers.track( point.x, point.y , phase );
+    }
+  }
+
+  /**
+   * Obtain the appropriate Westures Gesture object.
+   */
+  tracker() {
+    return new Track(['start', 'end']);
   }
 
   /**
@@ -10042,6 +10074,7 @@ const TYPES = Object.freeze({
   ROTATE:     'wams-rotate',
   SCALE:      'wams-scale',
   SWIPE:      'wams-swipe',
+  TRACK:      'wams-track',
 
   // Page event related
   IMG_LOAD:   'wams-image-loaded',
