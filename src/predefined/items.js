@@ -26,10 +26,10 @@ function transformed(data = {}) {
  */
 function rectangularHitbox(x, y, width, height) {
   return new Polygon2D([
-    { x: x,     y: y },
+    { x: x,         y: y },
     { x: x + width, y: y },
     { x: x + width, y: y + height },
-    { x: x,     y: y + height },
+    { x: x,         y: y + height },
   ]);
 }
   
@@ -37,10 +37,9 @@ function rectangularHitbox(x, y, width, height) {
  * Returns an object with the parameters for an image item using the given
  * source.
  */
-function image(imgsrc, itemOptions = {}) {
+function image(x, y, imgsrc, itemOptions = {}) {
   const dims = sizeOfImage(imgsrc);
-  const scale = itemOptions.scale || 1;
-  const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
+  const hitbox = rectangularHitbox(x, y, dims.width, dims.height);
   return transformed({ ...itemOptions, imgsrc, hitbox });
 }
 
