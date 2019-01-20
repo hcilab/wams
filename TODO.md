@@ -8,11 +8,11 @@
 - [ ] Allow subcanvas to be drawn on top: 
       <https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers>
 - [ ] Switch to HTTPS
-- [ ] Switch away from Socket.io. It's dying out. Is there a channel multiplexor
-        for the web standard WebSockets? Does node.js implement the WebSocket
-        standard?
-- [ ] Regulate 'effective' width and height of views (calculate automatically)
-- [ ] Allow scaling of views to use any viable corner as an anchor.
+- [ ] Switch away from `socket.io`. 
+  + [ ] Is there a channel multiplexor for the web standard `WebSockets`? Does
+        `node.js` implement the `WebSocket` standard?
+  + [ ] Is there a performance cost to using `socket.io`, and is there a benefit
+        to this cost in terms of usability across a wider range of devices?
 - [ ] Look into making the request handler more modular.
 - [ ] Improve the end-user API by making it so that users do not have to
       manually inform the wams app of any updates that have been made to the
@@ -21,17 +21,38 @@
         a regular rate, and not faster. This should help regulate situations
         when multiple handlers are acting on the model in rapid succession.
 - [ ] Write a distributed video player example.
-- [ ] Add option for users to define whether an item is interactable, and then
-      only allow interaction with objects marked as interactable.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
 - [ ] Update API doc.
 - [ ] Can the API endpoint be done better? Are there some even better
         abstractions available that will make this code even easier to reason
         about?
+- [ ] Implement multi-device gestures.
+  + [ ] Implement server-side gesture library.
 
 ---
 
 # COMPLETED
+
+_As of: Sun Jan 20 15:56:39 CST 2019_
+
+- [X] Lock client to a max 60fps render rate, to prevent jitter when multiple
+      updates arrive in rapid succession.
+- [X] Lock server to a max 60fps update broadcast rate, to ensure multiple
+      updates to a single object that occur in rapid succession can be lumped
+      together into a single broadcast.
+- [X] Lock rotation and scale interactions to a single item.
+- [X] Generalize item locking procedure such that a single item is locked from
+      the start of the first touch to the end of the last touch.
+- [X] Allow client's view to be locked onto, just like items (but only their
+      view- not someone else's).
+- [X] Allow pan, scale, and rotate gestures to occur simultaneously.
+  + [X] Generalize pan gestures to many touches, not just one.
+- [X] Use multiplicative scaling throughout the gesture process, instead of
+      additive or some combination. This should make scaling much more precise
+      and ensure a more natural feel across all touch devices.
+- [X] Regulate 'effective' width and height of views (calculate automatically)
+- [X] Add option for users to define whether an item is interactable, and then
+      only allow interaction with objects marked as interactable.
 
 _As of: Sun Jan  6 20:41:55 CST 2019_
 
@@ -104,6 +125,10 @@ _As of: Fri Aug 17 09:35:12 CST 2018_
       the one that appears on top on the canvas. (same for clicked...)
 
 # Nixed
+
+_As of: Sun Jan 20 15:56:39 CST 2019_
+
+- [ ] ~~Allow scaling of views to use any viable corner as an anchor.~~
 
 _As of: Fri Nov 23 13:54:50 CST 2018_
 
