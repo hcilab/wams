@@ -11474,7 +11474,11 @@ class State {
       },
 
       MouseEvent: (event) => {
-        this.updateInput(event, DEFAULT_MOUSE_ID);
+        this.updateInput(event, event.button);
+        // getMouseButtons(event).forEach( button => {
+          // this.updateInput(event, button);
+        // });
+        // this.updateInput(event, DEFAULT_MOUSE_ID);
       },
     };
 
@@ -11486,14 +11490,22 @@ class State {
  * @return {Array} Identifiers of the mouse buttons used.
  */
 function getMouseButtons(event) {
-  const btns = [];
-  if (event && event.buttons) {
-    for (let mask = 1; mask < 32; mask <<= 1) {
-      const btn = event.buttons & mask;
-      if (btn > 0) btns.push(btn);
-    }
+  switch(PHASE[ event.type ]) {
+    case 'start':
+    case 'end':
+      return [ event.button ];
+    case 'move':
+      const btns = [];
+      if (event && event.buttons) {
+        for (let mask = 1; mask < 32; mask <<= 1) {
+          const btn = event.buttons & mask;
+          if (btn > 0) btns.push(Math.log2(btn));
+        }
+      }
+      return btns;
+    default:
+      throw 'invalid button arrangement occurred!';
   }
-  return btns;
 }
 
 module.exports = State;
@@ -11604,8 +11616,138 @@ arguments[4][71][0].apply(exports,arguments)
 },{"./PHASE.js":79,"./Point2D.js":80,"dup":71}],82:[function(require,module,exports){
 arguments[4][72][0].apply(exports,arguments)
 },{"./Binding.js":76,"./PHASE.js":79,"./State.js":83,"dup":72}],83:[function(require,module,exports){
-arguments[4][73][0].apply(exports,arguments)
-},{"./Input.js":78,"./PHASE.js":79,"dup":73}],84:[function(require,module,exports){
+/**
+ * @file State.js
+ */
+
+const Input   = require('./Input.js');
+const PHASE   = require('./PHASE.js');
+
+const DEFAULT_MOUSE_ID = 0;
+
+/**
+ * Creates an object related to a Region's state, and contains helper methods to
+ * update and clean up different states.
+ *
+ * @class State
+ */
+class State {
+  /**
+   * Constructor for the State class.
+   */
+  constructor() {
+    /**
+     * An array of current Input objects related to a gesture.
+     *
+     * @type {Input}
+     */
+    this._inputs_obj = {};
+  }
+
+  /**
+   * @return {Array} The currently valid inputs.
+   */
+  get inputs() { return Object.values(this._inputs_obj); }
+
+  /**
+   * Deletes all inputs that are in the 'end' phase.
+   */
+  clearEndedInputs() {
+    for (let k in this._inputs_obj) {
+      if (this._inputs_obj[k].phase === 'end') delete this._inputs_obj[k];
+    }
+  }
+
+  /**
+   * @return {Array} Current event for all inputs.
+   */
+  getCurrentEvents() {
+    return this.inputs.map( i => i.current );
+  }
+
+  /**
+   * @return {Array} Inputs in the given phase.
+   */
+  getInputsInPhase(phase) {
+    return this.inputs.filter( i => i.phase === phase );
+  }
+
+  /**
+   * @return {Array} Inputs _not_ in the given phase.
+   */
+  getInputsNotInPhase(phase) {
+    return this.inputs.filter( i => i.phase !== phase );
+  }
+
+  /**
+   * @return {Boolean} - true if some input was initially inside the element.
+   */
+  someInputWasInitiallyInside(element) {
+    return this.inputs.some( i => i.wasInitiallyInside(element) );
+  }
+
+  /**
+   * Update the input with the given identifier using the given event.
+   *
+   * @param {Event} event - The event being captured.
+   * @param {Number} identifier - The identifier of the input to update.
+   */
+  updateInput(event, identifier) {
+    if (PHASE[ event.type ] === 'start') {
+      this._inputs_obj[identifier] = new Input(event, identifier);
+    } else if (this._inputs_obj[identifier]) {
+      this._inputs_obj[identifier].update(event);
+    }
+  }
+
+  /**
+   * Updates the inputs with new information based upon a new event being fired.
+   *
+   * @param {Event} event - The event being captured.  this current Region is
+   *    bound to.
+   *
+   * @return {boolean} - returns true for a successful update, false if the
+   *    event is invalid.
+   */
+  updateAllInputs(event) {
+    const update_fns = {
+      TouchEvent: (event) => {
+        Array.from(event.changedTouches).forEach( touch => {
+          this.updateInput(event, touch.identifier);
+        });
+      },
+
+      PointerEvent: (event) => {
+        this.updateInput(event, event.pointerId);
+      },
+
+      MouseEvent: (event) => {
+        this.updateInput(event, DEFAULT_MOUSE_ID);
+      },
+    };
+
+    update_fns[event.constructor.name].call(this, event);
+  }
+}
+
+/**
+ * @return {Array} Identifiers of the mouse buttons used.
+ */
+function getMouseButtons(event) {
+  const btns = [];
+  if (event && event.buttons) {
+    for (let mask = 1; mask < 32; mask <<= 1) {
+      const btn = event.buttons & mask;
+      if (btn > 0) btns.push(btn);
+    }
+  }
+  return btns;
+}
+
+module.exports = State;
+
+
+},{"./Input.js":78,"./PHASE.js":79}],84:[function(require,module,exports){
 /**
  * @file Pan.js
  * Contains the Pan class
