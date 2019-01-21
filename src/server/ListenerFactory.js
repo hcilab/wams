@@ -15,6 +15,7 @@
 'use strict';
 
 const CoordinateData = require('./CoordinateData.js');
+const ServerItem     = require('./ServerItem.js');
 
 /**
  * Generates a click handler function, which will perform hit detection then
@@ -28,11 +29,13 @@ function click(listener, workspace) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
-      let target = workspace.findItemByCoordinates(x, y) || view;
-      if (target !== view.lockedItem) {
-        target = workspace.findFreeItemByCoordinates(x, y) || view;
+      if (view.lockedItem instanceof ServerItem && 
+          view.lockedItem.containsPoint(x, y)) {
+        listener(view, view.lockedItem, x, y);
+      } else {
+        const target = workspace.findFreeItemByCoordinates(x, y) || view;
+        listener(view, target, x, y);
       }
-      listener(view, target, x, y);
     }
   };
 };
