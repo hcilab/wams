@@ -44,6 +44,9 @@ function spawnItem(workspace, item_fn) {
 function spawnOrRemoveItem(workspace, item_fn, type) {
   return function tap_spawnOrRemoveItem(view, target, x, y) {
     if (isIncludedIn(target, [type])) {
+      if (target === view.lockedItem) {
+        view.releaseLockedItem();
+      }
       workspace.removeItem(target);
     } else {
       workspace.spawnItem(item_fn(x, y, view));
