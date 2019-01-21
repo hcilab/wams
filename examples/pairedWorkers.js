@@ -27,10 +27,11 @@ const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
   function handleLayout(view, position) {
     if (position === 0) {
-      nx = view.right - 30;
+      nx = view.topRight;
+      nx.x -= 30;
     } else {
-      view.moveTo( nx, view.top ); 
-      ws.update(view);
+      view.moveTo( nx.x, nx.y ); 
+      ws.scheduleUpdate(view);
     } 
   }
   return handleLayout;
