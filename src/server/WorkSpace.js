@@ -121,6 +121,13 @@ class WorkSpace {
   }
 
   /**
+   * Looks for any item at the given coordinates.
+   */
+  findItemByCoordinates(x, y) {
+    return findLast(this.items, i => i.containsPoint(x, y));
+  }
+
+  /**
    * Gives a lock on the item at (x,y) to the view.
    */
   giveLock(x, y, view) {
