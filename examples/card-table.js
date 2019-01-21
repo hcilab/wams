@@ -42,7 +42,7 @@ ws.spawnItem({
   blueprint: text,
 });
 
-ws.spawnItem(Wams.predefined.items.image(0, 0, 'img/joker.png', {
+ws.spawnItem(Wams.predefined.items.image('img/joker.png', {
   x: 2600,
   y: 2800,
   type: 'joker',

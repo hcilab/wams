@@ -11,10 +11,15 @@ const ws = new Wams({
   clientLimit: 4,
 });
 
-ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
+ws.spawnItem({
+  imgsrc: 'img/monaLisa.jpg',
   type: 'mona',
   scale: 5
-}));
+});
+// ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
+  // type: 'mona',
+  // scale: 5
+// }));
 
 // Example Layout function that takes in the newly added client and which 
 //  ws they joined.

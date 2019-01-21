@@ -37,9 +37,9 @@ function rectangularHitbox(x, y, width, height) {
  * Returns an object with the parameters for an image item using the given
  * source.
  */
-function image(x, y, imgsrc, itemOptions = {}) {
+function image(imgsrc, itemOptions = {}) {
   const dims = sizeOfImage(imgsrc);
-  const hitbox = rectangularHitbox(x, y, dims.width, dims.height);
+  const hitbox = rectangularHitbox(0, 0, dims.width, dims.height);
   return transformed({ ...itemOptions, imgsrc, hitbox });
 }
 

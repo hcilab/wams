@@ -9,14 +9,14 @@ const Wams = require('../src/server');
 
 const ws = new Wams({ clientLimit: 2 });
 
-ws.spawnItem(Wams.predefined.items.image(0, 0, 'img/monaLisa.jpg', {
+ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
   x: 200, 
   y: 200, 
   type: 'Draggable',
   scale: 0.2
 }));
 
-ws.spawnItem(Wams.predefined.items.image(0, 0, 'img/scream.png', {
+ws.spawnItem(Wams.predefined.items.image('img/scream.png', {
   x: 400, 
   y: 400,
   type: 'Draggable',
