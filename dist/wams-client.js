@@ -8732,6 +8732,7 @@ const ClientController = require('./client/ClientController.js');
 window.addEventListener(
   'load', 
   function run() {
+    document.addEventListener('contextmenu', e => e.preventDefault());
     new ClientController(document.querySelector('canvas'));
   },
   {
