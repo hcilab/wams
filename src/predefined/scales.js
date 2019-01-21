@@ -14,7 +14,7 @@
  * workspace: The WorkSpace for which this function will be built.
  */
 function view(workspace) {
-  return function scale_view(view, target, scale, mx, my) {
+  return function scale_view(view, target = {}, scale, mx, my) {
     if (target === view) {
       view.scaleBy(scale, mx, my);
       workspace.scheduleUpdate(view);
@@ -29,7 +29,7 @@ function view(workspace) {
  * itemTypes: Array of strings, the types of items for which to allow scaling.
  */
 function items(workspace, itemTypes = []) {
-  return function scale_item(view, target, scale, mx, my) {
+  return function scale_item(view, target = {}, scale, mx, my) {
     if (itemTypes.includes(target.type)) {
       target.scaleBy(scale, mx, my);
       workspace.scheduleUpdate(target);
@@ -45,7 +45,7 @@ function items(workspace, itemTypes = []) {
  * itemTypes: Array of strings, the types of items for which to allow scaling.
  */
 function itemsAndView(workspace, itemTypes = []) {
-  return function scale_itemsAndView(view, target, scale, mx, my) {
+  return function scale_itemsAndView(view, target = {}, scale, mx, my) {
     if (itemTypes.includes(target.type) || target === view) {
       target.scaleBy(scale, mx, my);
       workspace.scheduleUpdate(target);

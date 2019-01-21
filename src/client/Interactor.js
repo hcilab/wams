@@ -31,7 +31,6 @@ class Swivel extends Westures.Gesture {
     const event = current.originalEvent;
     if (event.ctrlKey) {
       progress.pivot = point;
-      return { pivot: point };
     }
   }
 
@@ -57,13 +56,10 @@ class Swivel extends Westures.Gesture {
         progress.previousAngle = angle;
         return { change, pivot, point };
       } else {
+        // CTRL key was released, therefore pivot point is now invalid.
         delete progress.pivot;
       }
     }
-  }
-
-  end(state) {
-    return { pivot: {x: 0, y: 0}};
   }
 }
 

@@ -29,7 +29,7 @@ function view(workspace) {
  * workspace: The WorkSpace for which this function will be built.
  */
 function items(workspace, itemTypes = []) {
-  return function drag_item(view, target, x, y, dx, dy) {
+  return function drag_item(view, target = {}, x, y, dx, dy) {
     if (itemTypes.includes(target.type)) {
       target.moveBy(dx, dy);
       workspace.scheduleUpdate(target);
@@ -44,7 +44,7 @@ function items(workspace, itemTypes = []) {
  * workspace: The WorkSpace for which this function will be built.
  */
 function itemsAndView(workspace, itemTypes = []) {
-  return function drag_itemAndView(view, target, x, y, dx, dy) {
+  return function drag_itemAndView(view, target = {}, x, y, dx, dy) {
     if (itemTypes.includes(target.type)) {
       target.moveBy(dx, dy);
     } else if (view === target) {

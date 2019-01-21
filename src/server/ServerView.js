@@ -52,7 +52,7 @@ class ServerView extends View {
      * If a continuous gesture needs to lock down an item, a reference to that
      * item will be saved here.
      */
-    this.lockedItem = null;
+    this.lockedItem = undefined;
 
     /**
      * Some gestures require continous interaction with an item. During this
@@ -200,7 +200,7 @@ class ServerView extends View {
    */
   releaseLockedItem() {
     if (this.lockedItem) this.lockedItem.unlock();
-    this.lockedItem = null;
+    this.lockedItem = undefined;
   }
 
   /**
