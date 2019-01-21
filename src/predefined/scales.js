@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { isView } = require('./utils.js');
+
 /**
  * Returns a WAMS scale handler function which will allow users to scale their
  * view.
@@ -14,8 +16,8 @@
  * workspace: The WorkSpace for which this function will be built.
  */
 function view(workspace) {
-  return function scale_view(view, target = {}, scale, mx, my) {
-    if (target === view) {
+  return function scale_view(view, target, scale, mx, my) {
+    if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
       workspace.scheduleUpdate(view);
     }
@@ -45,8 +47,11 @@ function items(workspace, itemTypes = []) {
  * itemTypes: Array of strings, the types of items for which to allow scaling.
  */
 function itemsAndView(workspace, itemTypes = []) {
-  return function scale_itemsAndView(view, target = {}, scale, mx, my) {
-    if (itemTypes.includes(target.type) || target === view) {
+  return function scale_itemsAndView(view, target, scale, mx, my) {
+    if (isView(target, view)) {
+      view.scaleBy(scale, mx, my);
+      workspace.scheduleUpdate(view);
+    } else if (itemTypes.includes(target.type)) {
       target.scaleBy(scale, mx, my);
       workspace.scheduleUpdate(target);
     }
