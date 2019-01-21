@@ -46,9 +46,7 @@ function drag(listener, workspace) {
     const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
     if (mouse) {
       const {x, y, dx, dy} = mouse;
-      if (phase === 'move') {
-        listener(view, view.lockedItem, x, y, dx, dy);
-      }
+      listener(view, view.lockedItem, x, y, dx, dy);
     }
   };
 };
