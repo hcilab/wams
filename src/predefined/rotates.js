@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { isView, isIncludedIn } = require('./utils.js');
+
 /**
  * Returns a WAMS rotate handler function which will allow users to rotate their
  * view.
@@ -14,8 +16,8 @@
  * workspace: The WorkSpace for which this function will be built.
  */
 function view(workspace) {
-  return function rotate_view(view, target = {}, radians, px, py) {
-    if (target === view) {
+  return function rotate_view(view, target, radians, px, py) {
+    if (isView(target, view)) {
       view.rotateBy(radians, px, py);
       workspace.scheduleUpdate(view);
     }
@@ -30,8 +32,8 @@ function view(workspace) {
  * itemTypes: Array of strings, the types of items for which to allow rotating.
  */
 function items(workspace, itemTypes = []) {
-  return function rotate_item(view, target = {}, radians, px, py) {
-    if (itemTypes.includes(target.type)) {
+  return function rotate_item(view, target, radians, px, py) {
+    if (isIncludedIn(target, itemTypes)) {
       target.rotateBy(radians, px, py);
       workspace.scheduleUpdate(target);
     }
@@ -47,7 +49,10 @@ function items(workspace, itemTypes = []) {
  */
 function itemsAndView(workspace, itemTypes = []) {
   return function rotate_itemAndView(view, target = {}, radians, px, py) {
-    if (itemTypes.includes(target.type) || view === target) {
+    if (isView(target, view)) {
+      view.rotateBy(radians, px, py);
+      workspace.scheduleUpdate(view);
+    } else if (isIncludedIn(target, itemTypes)) {
       target.rotateBy(radians, px, py);
       workspace.scheduleUpdate(target);
     }

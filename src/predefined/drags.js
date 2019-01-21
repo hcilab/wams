@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { isView, isIncludedIn } = require('./utils.js');
+
 /**
  * Returns a WAMS drag handler function which will allow users to move their
  * view around the workspace, but not move items.
@@ -15,7 +17,7 @@
  */
 function view(workspace) {
   return function drag_view(view, target, x, y, dx, dy) {
-    if (target === view) {
+    if (isView(target, view)) {
       view.moveBy(-dx, -dy);
       workspace.scheduleUpdate(view);
     }
@@ -29,8 +31,8 @@ function view(workspace) {
  * workspace: The WorkSpace for which this function will be built.
  */
 function items(workspace, itemTypes = []) {
-  return function drag_item(view, target = {}, x, y, dx, dy) {
-    if (itemTypes.includes(target.type)) {
+  return function drag_item(view, target, x, y, dx, dy) {
+    if (isIncludedIn(target, itemTypes)) {
       target.moveBy(dx, dy);
       workspace.scheduleUpdate(target);
     }
@@ -44,13 +46,14 @@ function items(workspace, itemTypes = []) {
  * workspace: The WorkSpace for which this function will be built.
  */
 function itemsAndView(workspace, itemTypes = []) {
-  return function drag_itemAndView(view, target = {}, x, y, dx, dy) {
-    if (itemTypes.includes(target.type)) {
+  return function drag_itemAndView(view, target, x, y, dx, dy) {
+    if (isView(target, view)) {
+      view.moveBy(-dx, -dy);
+      workspace.scheduleUpdate(view);
+    } else if (isIncludedIn(target, itemTypes)) {
       target.moveBy(dx, dy);
-    } else if (view === target) {
-      target.moveBy(-dx, -dy);
+      workspace.scheduleUpdate(target);
     }
-    workspace.scheduleUpdate(target);
   };
 }
 
