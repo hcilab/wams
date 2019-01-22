@@ -11755,7 +11755,6 @@ module.exports = State;
 
 const { Gesture, Point2D } = require('westures-core');
 
-const REQUIRED_INPUTS = 1;
 const DEFAULT_MIN_THRESHOLD = 1;
 
 const CANCELED = Object.freeze({ 
@@ -11765,9 +11764,7 @@ const CANCELED = Object.freeze({
 });
 
 /**
- * A Pan is defined as a normal movement in any direction on a screen.  Pan
- * gestures do not track start events and can interact with pinch and expand
- * gestures.
+ * A Pan is defined as a normal movement in any direction on a screen.
  *
  * @class Pan
  */
@@ -11778,6 +11775,8 @@ class Pan extends Gesture {
    * @param {Object} [options] - The options object.
    * @param {Number} [options.threshold=1] - The minimum number of pixels the
    *    input has to move to trigger this gesture.
+   * @param {String} [options.muteKey] - One of the keys reported by touch input
+   *    events. If this key is pressed, this gesture will be muted.
    */
   constructor(options = {}) {
     super('pan');
@@ -11807,8 +11806,8 @@ class Pan extends Gesture {
   }
 
   /**
-   * Event hook for the start of a gesture. Marks each input as active, so it
-   * can invalidate any end events.
+   * Event hook for the start of a Pan gesture. Records the current centroid of
+   * the inputs.
    *
    * @param {State} input status object
    */
@@ -11819,6 +11818,7 @@ class Pan extends Gesture {
 
   /**
    * move() - Event hook for the move of a gesture.  
+   *
    * @param {State} input status object
    *
    * @return {Object} The change in position and the current position.
@@ -11837,11 +11837,7 @@ class Pan extends Gesture {
     const event = active[0].current.originalEvent;
     const muted = this.muteKey && event[this.muteKey];
 
-    if (!muted) {
-      return { change, point, phase: 'move' };
-    } else {
-      return null;
-    }
+    return muted ? null : { change, point };
   }
   /* move*/
 
@@ -11873,7 +11869,7 @@ const DEFAULT_MIN_INPUTS = 2;
 const DEFAULT_MIN_THRESHOLD = 1;
 
 /**
- * A Pinch is defined as two inputs moving either together or apart.
+ * A Pinch is defined as two or more inputs moving either together or apart.
  *
  * @class Pinch
  */
@@ -11910,7 +11906,7 @@ class Pinch extends Gesture {
    */
   initializeProgress(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length < 1) return null;
+    if (active.length < this.minInputs) return null;
 
     const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
 
@@ -11929,13 +11925,11 @@ class Pinch extends Gesture {
   }
 
   /**
-   * Event hook for the move of a gesture.  Determines if the two points are
-   * moved in the expected direction relative to the current distance and the
-   * last distance.
+   * Event hook for the move of a gesture.
    *
    * @param {State} input status object
    *
-   * @return {Object | null} - Returns the distance in pixels between two inputs
+   * @return {Object | null} - Returns the distance in pixels between inputs
    */
   move(state) {
     const active = state.getInputsNotInPhase('end');
@@ -11986,14 +11980,12 @@ module.exports = Pinch;
  * Contains the Rotate class
  */
 
-// const { Gesture } = require('westures-core');
-const { Gesture } = require('../../westures-core');
+const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 2;
 
 /**
- * A Rotate is defined as two inputs moving about a circle, maintaining a
- * relatively equal radius.
+ * A Rotate is defined as two inputs moving with a changing angle between them.
  *
  * @class Rotate
  */
@@ -12006,8 +11998,7 @@ class Rotate extends Gesture {
   }
 
   /**
-   * Initialize the progress of the gesture.  Only runs if the number of active
-   * inputs is the expected amount.
+   * Initialize the progress of the gesture.
    *
    * @param {State} input status object
    */
@@ -12019,8 +12010,6 @@ class Rotate extends Gesture {
     const angle = active[0].currentAngleTo(active[1]);
     const progress = active[0].getProgressOfGesture(this.id);
     progress.previousAngle = angle;
-    progress.distance = 0;
-    progress.change = 0;
   }
 
   /**
@@ -12031,41 +12020,35 @@ class Rotate extends Gesture {
    * @return {null}
    */
   start(state) {
-    const pivot = this.initializeProgress(state);
+    this.initializeProgress(state);
   }
 
   /**
-   * Event hook for the move of a gesture. Obtains the midpoint of two the two
-   * inputs and calculates the projection of the right most input along a unit
-   * circle to obtain an angle. This angle is compared to the previously
-   * calculated angle to output the change of distance, and is compared to the
-   * initial angle to output the distance from the initial angle to the current
-   * angle.
+   * Event hook for the move of a Rotate gesture.
    *
    * @param {State} input status object
    *
    * @return {null} - null if this event did not occur
    * @return {Object} obj.angle - The current angle along the unit circle
-   * @return {Object} obj.distanceFromOrigin - The angular distance travelled
-   *    from the initial right most point.
-   * @return {Object} obj.distanceFromLast - The change of angle between the
-   *    last position and the current position.
+   * @return {Object} obj.pivot - The pivot point of the rotation
+   * @return {Object} obj.delta - The change in angle since the last emitted
+   *                              move.
    */
   move(state) {
     const active = state.getInputsNotInPhase('end');
-    if (active.length !== REQUIRED_INPUTS) return null;
+    if (active.length < REQUIRED_INPUTS) return null;
 
     const pivot = active[0].currentMidpointTo(active[1]);
     const angle = active[0].currentAngleTo(active[1]);
 
     const progress = active[0].getProgressOfGesture(this.id);
-    progress.change = angle - progress.previousAngle;
+    const delta = angle - progress.previousAngle;
     progress.previousAngle = angle;
 
     return {
       angle,
       pivot,
-      delta: progress.change,
+      delta,
     };
   }
   /* move*/
@@ -12085,7 +12068,7 @@ class Rotate extends Gesture {
 module.exports = Rotate;
 
 
-},{"../../westures-core":65}],87:[function(require,module,exports){
+},{"westures-core":75}],87:[function(require,module,exports){
 /**
  * @file Swipe.js
  * Contains the Swipe class
@@ -12283,15 +12266,12 @@ class Tap extends Gesture {
 
   /**
    * Event hook for the end of a gesture.  Determines if this the tap event can
-   * be fired if the delay and tolerance constraints are met. Also waits for all
-   * of the inputs to be off the screen before determining if the gesture is
-   * triggered.
+   * be fired if the delay and tolerance constraints are met. 
    *
    * @param {State} input status object
    *
    * @return {null|Object} - null if the gesture is not to be emitted, Object
-   *    with information otherwise. Returns the interval time between start and
-   *    end events.
+   *    with information otherwise. 
    */
   end(state) {
     const now = Date.now();
