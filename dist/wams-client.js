@@ -11374,6 +11374,7 @@ module.exports = Region;
 
 const Input   = require('./Input.js');
 const PHASE   = require('./PHASE.js');
+const Point2D = require('./Point2D.js');
 
 const DEFAULT_MOUSE_ID = 0;
 
@@ -11389,11 +11390,35 @@ class State {
    */
   constructor() {
     /**
-     * An array of current Input objects related to a gesture.
+     * Keeps track of the current Input objects.
      *
      * @type {Input}
      */
     this._inputs_obj = {};
+
+    /**
+     * The array of currently active inputs, sourced from the current Input
+     * objects.
+     *
+     * "Active" is defined as not being in the 'end' phase.
+     */
+    this.active = [];
+
+    /**
+     * The array of latest point data for the currently active inputs, sourced
+     * from this.active.
+     */
+    this.activePoints = [];
+
+    /**
+     * The centroid of the currently active points. Will be a Point2D.
+     */
+    this.centroid = {};
+
+    /**
+     * The latest event that the state processed.
+     */
+    this.event = null;
   }
 
   /**
@@ -11475,14 +11500,16 @@ class State {
 
       MouseEvent: (event) => {
         this.updateInput(event, event.button);
-        // getMouseButtons(event).forEach( button => {
-          // this.updateInput(event, button);
-        // });
-        // this.updateInput(event, DEFAULT_MOUSE_ID);
       },
     };
 
     update_fns[event.constructor.name].call(this, event);
+    this.active = this.getInputsNotInPhase('end');
+    if (this.active.length > 0) {
+      this.activePoints = this.active.map( i => i.current.point );
+      this.centroid = Point2D.midpoint( this.activePoints );
+    }
+    this.event = event;
   }
 }
 
@@ -11511,7 +11538,7 @@ function getMouseButtons(event) {
 module.exports = State;
 
 
-},{"./Input.js":68,"./PHASE.js":69}],74:[function(require,module,exports){
+},{"./Input.js":68,"./PHASE.js":69,"./Point2D.js":70}],74:[function(require,module,exports){
 /**
  * @file Westures.js
  * Main object containing API methods and Gesture constructors
@@ -11756,6 +11783,7 @@ module.exports = State;
 const { Gesture, Point2D } = require('westures-core');
 
 const DEFAULT_MIN_THRESHOLD = 1;
+const REQUIRED_INPUTS = 1;
 
 const CANCELED = Object.freeze({ 
   change: new Point2D(0,0),
@@ -11797,12 +11825,8 @@ class Pan extends Gesture {
   }
 
   initialize(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length > 0) {
-      const point = Point2D.midpoint(active.map( i => i.current.point));
-      const progress = active[0].getProgressOfGesture(this.id);
-      progress.lastEmitted = point;
-    }
+    const progress = state.active[0].getProgressOfGesture(this.id);
+    progress.lastEmitted = state.centroid;
   }
 
   /**
@@ -11812,6 +11836,7 @@ class Pan extends Gesture {
    * @param {State} input status object
    */
   start(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
     this.initialize(state);
   }
   /* start */
@@ -11824,18 +11849,15 @@ class Pan extends Gesture {
    * @return {Object} The change in position and the current position.
    */
   move(state) {
-    const active = state.getInputsNotInPhase('end');
+    if (state.active.length < REQUIRED_INPUTS) return null;
 
-    const progress = active[0].getProgressOfGesture(this.id);
-    const point = Point2D.midpoint(active.map( i => i.current.point));
-    const diff = point.distanceTo(progress.lastEmitted);
-
+    const progress = state.active[0].getProgressOfGesture(this.id);
+    const point = state.centroid;
     const change = point.minus(progress.lastEmitted);
     progress.lastEmitted = point;
 
     // Mute if the MUTEKEY was pressed.
-    const event = active[0].current.originalEvent;
-    const muted = this.muteKey && event[this.muteKey];
+    const muted = this.muteKey && state.event[this.muteKey];
 
     return muted ? null : { change, point };
   }
@@ -11849,6 +11871,7 @@ class Pan extends Gesture {
    * @return {null} 
    */
   end(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
     this.initialize(state);
   }
   /* end*/
@@ -11905,14 +11928,9 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   initializeProgress(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length < this.minInputs) return null;
-
-    const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
-
-    // Progress is stored on the first active input.
-    const progress = active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = averageDistance;
+    const distance = state.centroid.averageDistanceTo(state.activePoints);
+    const progress = state.active[0].getProgressOfGesture(this.id);
+    progress.previousDistance = distance;
   }
 
   /**
@@ -11921,6 +11939,7 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   start(state) {
+    if (state.active.length < this.minInputs) return null;
     this.initializeProgress(state);
   }
 
@@ -11932,18 +11951,16 @@ class Pinch extends Gesture {
    * @return {Object | null} - Returns the distance in pixels between inputs
    */
   move(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length < this.minInputs) return null;
+    if (state.active.length < this.minInputs) return null;
 
-    const { midpoint, averageDistance } = getMidpointAndAverageDistance(active);
-
-    const progress = active[0].getProgressOfGesture(this.id);
-    let change = averageDistance / progress.previousDistance;
-    progress.previousDistance = averageDistance;
+    const distance = state.centroid.averageDistanceTo(state.activePoints);
+    const progress = state.active[0].getProgressOfGesture(this.id);
+    const change = distance / progress.previousDistance;
+    progress.previousDistance = distance;
 
     return {
-      distance: averageDistance,
-      midpoint,
+      distance,
+      midpoint: state.centroid,
       change,
     };
   }
@@ -11954,6 +11971,7 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   end(state) {
+    if (state.active.length < this.minInputs) return null;
     this.initializeProgress(state);
   }
 }
@@ -11964,12 +11982,12 @@ class Pinch extends Gesture {
  * packed together so that the inputs only have to be mapped to their current
  * points once.
  */
-function getMidpointAndAverageDistance(inputs) {
-  const points = inputs.map( i => i.current.point );
-  const midpoint = Point2D.midpoint(points); 
-  const averageDistance = midpoint.averageDistanceTo(points);
-  return { midpoint, averageDistance };
-}
+// function getMidpointAndAverageDistance(inputs) {
+  // const points = inputs.map( i => i.current.point );
+  // const midpoint = Point2D.midpoint(points); 
+  // const averageDistance = midpoint.averageDistanceTo(points);
+  // return { midpoint, averageDistance };
+// }
 
 module.exports = Pinch;
 
@@ -12013,17 +12031,6 @@ class Rotate extends Gesture {
   }
 
   /**
-   * Initialize the progress of the gesture.
-   *
-   * @param {State} input status object
-   */
-  initializeProgress(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length < REQUIRED_INPUTS) return null;
-    this.getAngle(active);
-  }
-
-  /**
    * Event hook for the start of a gesture.
    *
    * @param {State} input status object
@@ -12031,7 +12038,8 @@ class Rotate extends Gesture {
    * @return {null}
    */
   start(state) {
-    this.initializeProgress(state);
+    if (state.active.length < REQUIRED_INPUTS) return null;
+    this.getAngle(state.active);
   }
 
   /**
@@ -12046,15 +12054,11 @@ class Rotate extends Gesture {
    *                              move.
    */
   move(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length < REQUIRED_INPUTS) return null;
-
-    const pivot = Point2D.midpoint(active.map( i => i.current.point ));
-    const delta = this.getAngle(active);
+    if (state.active.length < REQUIRED_INPUTS) return null;
 
     return {
-      pivot,
-      delta,
+      pivot: state.centroid,
+      delta: this.getAngle(state.active),
     };
   }
   /* move*/
@@ -12067,7 +12071,8 @@ class Rotate extends Gesture {
    * @return {null}
    */
   end(state) {
-    this.initializeProgress(state);
+    if (state.active.length < REQUIRED_INPUTS) return null;
+    this.getAngle(state.active);
   }
 }
 
@@ -12125,9 +12130,9 @@ class Swipe extends Gesture {
    * @return {null} - Swipe does not emit from a move.
    */
   move(state) {
-    const active = state.getInputsNotInPhase('end');
+    if (state.active.length < REQUIRED_INPUTS) return null;
 
-    active.forEach( input => {
+    state.active.forEach( input => {
       const progress = input.getProgressOfGesture(this.id);
       if (!progress.moves) progress.moves = [];
 
