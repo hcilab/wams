@@ -11980,7 +11980,7 @@ module.exports = Pinch;
  * Contains the Rotate class
  */
 
-const { Gesture } = require('westures-core');
+const { Gesture, Point2D } = require('westures-core');
 
 const REQUIRED_INPUTS = 2;
 
@@ -11998,6 +11998,21 @@ class Rotate extends Gesture {
   }
 
   /**
+   * Store individual angle progress on each input, return average angle change.
+   */
+  getAngle(active) {
+    let angle = 0;
+    for (let i = 1; i < active.length; ++i) {
+      const progress = active[i].getProgressOfGesture(this.id);
+      const currentAngle = active[0].currentAngleTo(active[i]);
+      angle += angularMinus(currentAngle, progress.previousAngle);
+      progress.previousAngle = currentAngle;
+    }
+    angle /= (active.length - 1);
+    return angle;
+  }
+
+  /**
    * Initialize the progress of the gesture.
    *
    * @param {State} input status object
@@ -12005,11 +12020,7 @@ class Rotate extends Gesture {
   initializeProgress(state) {
     const active = state.getInputsNotInPhase('end');
     if (active.length < REQUIRED_INPUTS) return null;
-
-    // Progress is stored on the first active input.
-    const angle = active[0].currentAngleTo(active[1]);
-    const progress = active[0].getProgressOfGesture(this.id);
-    progress.previousAngle = angle;
+    this.getAngle(active);
   }
 
   /**
@@ -12038,15 +12049,10 @@ class Rotate extends Gesture {
     const active = state.getInputsNotInPhase('end');
     if (active.length < REQUIRED_INPUTS) return null;
 
-    const pivot = active[0].currentMidpointTo(active[1]);
-    const angle = active[0].currentAngleTo(active[1]);
-
-    const progress = active[0].getProgressOfGesture(this.id);
-    const delta = angle - progress.previousAngle;
-    progress.previousAngle = angle;
+    const pivot = Point2D.midpoint(active.map( i => i.current.point ));
+    const delta = this.getAngle(active);
 
     return {
-      angle,
       pivot,
       delta,
     };
@@ -12063,6 +12069,21 @@ class Rotate extends Gesture {
   end(state) {
     this.initializeProgress(state);
   }
+}
+
+/**
+ * Helper function to regulate angular differences, so they don't jump from 0 to
+ * 2*PI or vice versa.
+ */
+const PI2 = 2 * Math.PI;
+function angularMinus(a, b = 0) {
+  let diff = a - b;
+  if (diff < -Math.PI) {
+    diff += PI2;
+  } else if (diff > Math.PI) {
+    diff -= PI2;
+  }
+  return diff;
 }
 
 module.exports = Rotate;
