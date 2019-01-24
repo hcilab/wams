@@ -11785,12 +11785,6 @@ const { Gesture, Point2D } = require('westures-core');
 const DEFAULT_MIN_THRESHOLD = 1;
 const REQUIRED_INPUTS = 1;
 
-const CANCELED = Object.freeze({ 
-  change: new Point2D(0,0),
-  point: new Point2D(0,0),
-  phase: 'cancel' 
-});
-
 /**
  * A Pan is defined as a normal movement in any direction on a screen.
  *
@@ -11850,16 +11844,14 @@ class Pan extends Gesture {
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
+    if (this.muteKey && state.event[this.muteKey]) return null;
 
     const progress = state.active[0].getProgressOfGesture(this.id);
     const point = state.centroid;
     const change = point.minus(progress.lastEmitted);
     progress.lastEmitted = point;
 
-    // Mute if the MUTEKEY was pressed.
-    const muted = this.muteKey && state.event[this.muteKey];
-
-    return muted ? null : { change, point };
+    return { change, point };
   }
   /* move*/
 
@@ -11976,19 +11968,6 @@ class Pinch extends Gesture {
   }
 }
 
-/**
- * Packs together the midpoint and the average distance to that midpoint of a
- * collection of points, which are gathered from their input objects. These are
- * packed together so that the inputs only have to be mapped to their current
- * points once.
- */
-// function getMidpointAndAverageDistance(inputs) {
-  // const points = inputs.map( i => i.current.point );
-  // const midpoint = Point2D.midpoint(points); 
-  // const averageDistance = midpoint.averageDistanceTo(points);
-  // return { midpoint, averageDistance };
-// }
-
 module.exports = Pinch;
 
 
@@ -12018,15 +11997,15 @@ class Rotate extends Gesture {
   /**
    * Store individual angle progress on each input, return average angle change.
    */
-  getAngle(active) {
+  getAngle(state) {
     let angle = 0;
-    for (let i = 1; i < active.length; ++i) {
-      const progress = active[i].getProgressOfGesture(this.id);
-      const currentAngle = active[0].currentAngleTo(active[i]);
+    state.active.forEach( i => {
+      const progress = i.getProgressOfGesture(this.id);
+      const currentAngle = state.centroid.angleTo(i.current.point);
       angle += angularMinus(currentAngle, progress.previousAngle);
       progress.previousAngle = currentAngle;
-    }
-    angle /= (active.length - 1);
+    });
+    angle /= (state.active.length);
     return angle;
   }
 
@@ -12039,7 +12018,7 @@ class Rotate extends Gesture {
    */
   start(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
-    this.getAngle(state.active);
+    this.getAngle(state);
   }
 
   /**
@@ -12055,10 +12034,9 @@ class Rotate extends Gesture {
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
-
     return {
       pivot: state.centroid,
-      delta: this.getAngle(state.active),
+      delta: this.getAngle(state),
     };
   }
   /* move*/
@@ -12072,7 +12050,7 @@ class Rotate extends Gesture {
    */
   end(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
-    this.getAngle(state.active);
+    this.getAngle(state);
   }
 }
 
