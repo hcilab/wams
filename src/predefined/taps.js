@@ -48,6 +48,7 @@ function spawnOrRemoveItem(workspace, item_fn, type) {
         view.releaseLockedItem();
       }
       workspace.removeItem(target);
+      view.getLockOnItem(view);
     } else {
       workspace.spawnItem(item_fn(x, y, view));
     }
