@@ -22,8 +22,8 @@ const scales  = require('./predefined/scales.js');
 const swipes  = require('./predefined/swipes.js');
 const taps    = require('./predefined/taps.js');
 
-Wams.Sequence = CanvasBlueprint;
-Wams.Router = Router;
+Wams.Sequence   = CanvasBlueprint;
+Wams.Router     = Router;
 Wams.predefined = Object.freeze({
   items,
   drag:   drags,
