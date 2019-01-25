@@ -83,7 +83,7 @@ class Server {
    * settings: User-supplied options, specifying a client limit and workspace
    *           settings.
    */
-  constructor(settings = {}) {
+  constructor(settings = {}, router = new RequestHandler()) {
     /**
      * The number of active clients that are allowed at any given time.
      */
@@ -97,7 +97,7 @@ class Server {
     /**
      * HTTP server for sending and receiving data.
      */
-    this.server = http.createServer(new RequestHandler());
+    this.server = http.createServer(router);
     
     /**
      * Port on which to listen.

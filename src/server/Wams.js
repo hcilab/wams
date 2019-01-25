@@ -23,8 +23,8 @@ class Wams {
   /**
    * settings: Settings data to be forwarded to the server.
    */
-  constructor(settings = {}) {
-    this[server] = new Server(settings);
+  constructor(settings = {}, router) {
+    this[server] = new Server(settings, router);
     this[updates] = {};
 
     setInterval( this.postUpdates.bind(this), 1000/60 );
