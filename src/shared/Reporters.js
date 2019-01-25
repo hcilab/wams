@@ -41,6 +41,17 @@ const View = ReporterFactory([
 ]);
 
 /*
+ * This class allows generic Input data reporting between client and server.
+ * Honestly it's a bit of a cheaty hack around the Message / Reporter protocol,
+ * but it simplifies the code and makes things easier to maintain. And honestly
+ * the Message / Reporter protocol is mostly focused on protecting Views and
+ * Items anyway.
+ */
+const InputReporter = ReporterFactory([
+  'data',
+]);
+
+/*
  * This class is intended for sharing mouse action data between client and
  * server.
  */
@@ -98,6 +109,7 @@ const FullStateReporter = ReporterFactory([
 module.exports = {
   Item,
   View,
+  InputReporter,
   MouseReporter,
   ScaleReporter,
   RotateReporter,
