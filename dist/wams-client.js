@@ -8766,11 +8766,12 @@ const {
   constants, 
   IdStamper, 
   Message, 
-  MouseReporter,
+  DataReporter,
+  // MouseReporter,
   NOP,
-  RotateReporter,
-  ScaleReporter,
-  SwipeReporter,
+  // RotateReporter,
+  // ScaleReporter,
+  // SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -8821,12 +8822,12 @@ class ClientController {
      * gestures.
      */
     this.interactor = new Interactor(this.canvas, {
-      pan:    this.pan.bind(this),
-      rotate: this.rotate.bind(this),
-      swipe:  this.swipe.bind(this),
-      tap:    this.tap.bind(this),
-      zoom:   this.zoom.bind(this),
-      track:  this.track.bind(this),
+      pan:    this.forwarder(Message.DRAG),
+      rotate: this.forwarder(Message.ROTATE),
+      swipe:  this.forwarder(Message.SWIPE),
+      tap:    this.forwarder(Message.CLICK),
+      zoom:   this.forwarder(Message.SCALE),
+      track:  this.forwarder(Message.TRACK),
     });
 
     /**
@@ -8930,6 +8931,24 @@ class ClientController {
   }
 
   /**
+   * Forwards a message and associated data to the server.
+   */
+  forward(message, data) {
+    const dreport = new DataReporter({ data });
+    new Message(message, dreport).emitWith(this.socket);
+  }
+
+  /**
+   * Generates a function for forwarding the given message.
+   */
+  forwarder(message) {
+    function do_forward(data) {
+      this.forward(message, data);
+    }
+    return do_forward.bind(this);
+  }
+
+  /**
    * Forwards messages to the View.
    *
    * message: string denoting type of message. 
@@ -8938,22 +8957,6 @@ class ClientController {
   handle(message, ...args) {
     this.view.handle(message, ...args);
     this.scheduleRender();
-  }
-
-  /**
-   * Forward data pertaining to a pan/drag event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * x    : x coordinate of drag
-   * y    : y coordinate of drag
-   * dx   : change in x coordinate since last drag event
-   * dy   : change in y coordinate since last drag event
-   * phase: one of 'start', 'move', 'end', or 'cancel', the phase of the drag
-   *        event.
-   */
-  pan(x, y, dx, dy, phase) {
-    const mreport = new MouseReporter({ x, y, dx, dy, phase });
-    new Message(Message.DRAG, mreport).emitWith(this.socket);
   }
 
   /**
@@ -8997,70 +9000,6 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a rotate event to the server, using the Message
-   * / Reporter protocol.
-   *
-   * radians: The amount of the rotation, in radians.
-   */
-  rotate(radians, px, py, phase) {
-    const rreport = new RotateReporter({ radians, px, py, phase });
-    new Message(Message.ROTATE, rreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a swipe event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * velocity : The speed of the swipe.
-   * x        : x coordinate of swipe.
-   * y        : y coordinate of swipe.
-   * direction: The direction of the swipe.
-   */
-  swipe(velocity, x, y, direction, phase) {
-    const sreport = new SwipeReporter({ velocity, x, y, direction, phase });
-    new Message(Message.SWIPE, sreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a tap event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * x    : x coordinate of tap
-   * y    : y coordinate of tap
-   */
-  tap(x, y, phase) {
-    const mreport = new MouseReporter({ x, y, phase });
-    new Message(Message.CLICK, mreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a track event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * inputs: All active/ending inputs.
-   */
-  track(x, y, phase) {
-    const ireport = new MouseReporter({ x, y, phase });
-    new Message(Message.TRACK, ireport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a zoom/scale event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * diff: The change in scale
-   * mx  : x coordinate of the midpoint of the zoom
-   * my  : y coordinate of the midpoint of the zoom
-   */
-  zoom(scale, mx, my, phase) {
-    // Changes will generally be in range [-1,1], clustered around 0, therefore
-    // bring above zero and cluster around 1 to produce appropriate
-    // multiplicative behaviour on the server end.
-    const sreport = new ScaleReporter({ scale, mx, my, phase });
-    new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }
 
@@ -9505,12 +9444,12 @@ class Swivel extends Westures.Gesture {
         const point = input.current.point;
         const pivot = progress.pivot;
         const angle = pivot.angleTo(point);
-        let change = 0;
+        let delta = 0;
         if (progress.hasOwnProperty('previousAngle')) {
-          change = angle - progress.previousAngle;
+          delta = angle - progress.previousAngle;
         }
         progress.previousAngle = angle;
-        return { change, pivot, point };
+        return { delta, pivot, point };
       } else {
         // CTRL key was released, therefore pivot point is now invalid.
         delete progress.pivot;
@@ -9527,16 +9466,23 @@ class Track extends Westures.Gesture {
     this.trackEnd = phases.includes('end');
   }
 
+  data(state) {
+    return {
+      inputs: state.inputs,
+      centroid: state.centroid,
+    };
+  }
+
   start(state) {
-    if (this.trackStart) return { inputs: state.inputs };
+    if (this.trackStart) return this.data(state);
   }
 
   move(state) {
-    if (this.trackMove) return { inputs: state.inputs };
+    if (this.trackMove) return this.data(state);
   }
 
   end(state) {
-    if (this.trackEnd) return { inputs: state.inputs };
+    if (this.trackEnd) return this.data(state);
   }
 }
 
@@ -9599,31 +9545,30 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions() {
-    const pan     = this.pan.bind(this);
-    const tap     = this.tap.bind(this);
-    const pinch   = this.pinch.bind(this);
-    const rotate  = this.rotate.bind(this);
-    const swipe   = this.swipe.bind(this);
-    const swivel  = this.swivel.bind(this);
-    const track   = this.track.bind(this);
-
-    this.region.bind(this.canvas, this.panner(),    pan);
-    this.region.bind(this.canvas, this.tapper(),    tap);
-    this.region.bind(this.canvas, this.pincher(),   pinch);
-    this.region.bind(this.canvas, this.rotater(),   rotate);
-    this.region.bind(this.canvas, this.swiper(),    swipe);
-    this.region.bind(this.canvas, this.swiveller(), swivel);
-    this.region.bind(this.canvas, this.tracker(),   track);
+    this.region.bind(this.canvas, this.panner(),    this.forwarder('pan'));
+    this.region.bind(this.canvas, this.tapper(),    this.forwarder('tap'));
+    this.region.bind(this.canvas, this.pincher(),   this.forwarder('zoom'));
+    this.region.bind(this.canvas, this.rotater(),   this.forwarder('rotate'));
+    this.region.bind(this.canvas, this.swiper(),    this.forwarder('swipe'));
+    this.region.bind(this.canvas, this.swiveller(), this.forwarder('rotate'));
+    this.region.bind(this.canvas, this.tracker(),   this.forwarder('track'));
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
+   * Calls the handler for the given gesture, supplying the given data.
    */
-  pan({ change, point, phase }) {
-    change = guaranteeCoordinates(change);
-    point = guaranteeCoordinates(point);
-    this.handlers.pan( point.x, point.y, change.x, change.y, phase );
+  forward(gesture, data) {
+    this.handlers[gesture](data);
+  }
+
+  /**
+   * Generates a function that forwards the appropriate gesture and data.
+   */
+  forwarder(gesture) {
+    function do_forward(data) {
+      this.forward(gesture, data);
+    }
+    return do_forward.bind(this);
   }
 
   /**
@@ -9634,32 +9579,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  pinch({ change, midpoint, phase }) {
-    this.handlers.zoom( 
-      // change * this.scaleFactor,
-      change,
-      midpoint.x,
-      midpoint.y,
-      phase 
-    );
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   pincher() {
     return new Westures.Pinch({ minInputs: 2 });
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  rotate({ delta, pivot, phase }) {
-    this.handlers.rotate( delta, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -9670,26 +9593,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  swipe({ velocity, x, y, direction, phase }) {
-    this.handlers.swipe(velocity, x, y, direction, phase);
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   swiper() {
     return new Westures.Swipe();
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  swivel({ change, pivot, point, phase }) { 
-    this.handlers.rotate( change, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -9700,33 +9607,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  tap({ x, y, phase }) {
-    this.handlers.tap( x, y, phase );
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   tapper() {
-    return new Westures.Tap({ tolerance: 4 });
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  track({ inputs, phase }) {
-    if (phase === 'start' && inputs.length === 1) {
-      const point = inputs[0].current.point;
-      this.handlers.track( point.x, point.y , phase );
-    } else if (phase === 'end' && 
-        inputs.filter(i => i.phase !== 'end').length === 0) {
-      const point = new Westures.Point2D(0, 0);
-      this.handlers.track( point.x, point.y , phase );
-    }
+    return new Westures.Tap({ tolerance: 10 });
   }
 
   /**
@@ -9742,15 +9626,11 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
-    const diff = -(Math.sign(event.deltaY) * factor) + 1;
-    this.handlers.zoom(diff, event.clientX, event.clientY, 'move');
+    const change = -(Math.sign(event.deltaY) * factor) + 1;
+    const midpoint = {x: event.clientX, y: event.clientY};
+    const phase = 'move';
+    this.handlers.zoom({ change, midpoint, phase });
   }
-}
-
-function guaranteeCoordinates(o = {}) {
-  o.x = o.x || 0;
-  o.y = o.y || 0;
-  return o;
 }
 
 module.exports = Interactor;
@@ -10219,8 +10099,6 @@ const Item = ReporterFactory([
   'x',
   'y',
   'hitbox', // TODO: May not need to be reported
-  // 'width',
-  // 'height',
   'rotation',
   'scale',
   'type',
@@ -10249,51 +10127,8 @@ const View = ReporterFactory([
  * the Message / Reporter protocol is mostly focused on protecting Views and
  * Items anyway.
  */
-const InputReporter = ReporterFactory([
+const DataReporter = ReporterFactory([
   'data',
-]);
-
-/*
- * This class is intended for sharing mouse action data between client and
- * server.
- */
-const MouseReporter = ReporterFactory([
-  'x',
-  'y',
-  'dx',
-  'dy',
-  'phase',
-]);
-
-/*
- * This class allows reporting of scale data between client and server.
- */
-const ScaleReporter = ReporterFactory([
-  'scale',
-  'mx',
-  'my',
-  'phase',
-]);
-
-/*
- * This class allows reporting of rotation data between client and server.
- */
-const RotateReporter = ReporterFactory([
-  'radians',
-  'px',
-  'py',
-  'phase',
-]);
-
-/*
- * This class allows reporting of swipe data between client and server.
- */
-const SwipeReporter = ReporterFactory([
-  'direction',
-  'velocity',
-  'x',
-  'y',
-  'phase',
 ]);
 
 /*
@@ -10311,11 +10146,7 @@ const FullStateReporter = ReporterFactory([
 module.exports = {
   Item,
   View,
-  InputReporter,
-  MouseReporter,
-  ScaleReporter,
-  RotateReporter,
-  SwipeReporter,
+  DataReporter,
   FullStateReporter,
 };
 
