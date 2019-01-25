@@ -17,7 +17,7 @@
 
 const io = require('socket.io-client');
 const { 
-  constants: globals, 
+  constants, 
   IdStamper, 
   Message, 
   MouseReporter,
@@ -35,8 +35,8 @@ const STAMPER = new IdStamper();
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
-  render: Symbol('render'),
-  startRender: Symbol('startRender'),
+  render:          Symbol('render'),
+  startRender:     Symbol('startRender'),
 });
 
 /**
@@ -157,7 +157,7 @@ class ClientController {
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( globals.NS_WAMS, {
+    this.socket = io.connect( constants.NS_WAMS, {
       autoConnect: false,
       reconnection: false,
     });
@@ -309,12 +309,10 @@ class ClientController {
    * mx  : x coordinate of the midpoint of the zoom
    * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(diff, mx, my, phase) {
+  zoom(scale, mx, my, phase) {
     // Changes will generally be in range [-1,1], clustered around 0, therefore
     // bring above zero and cluster around 1 to produce appropriate
     // multiplicative behaviour on the server end.
-    // const scale = diff + 1;
-    const scale = diff;
     const sreport = new ScaleReporter({ scale, mx, my, phase });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
