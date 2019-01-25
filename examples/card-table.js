@@ -8,7 +8,7 @@
 const path = require('path');
 const Wams = require('../src/server');
 
-const router = new Wams.RequestHandler();
+const router = new Wams.Router();
 const images = path.join(__dirname, '../img');
 router.use('/img', router.express.static(images));
 

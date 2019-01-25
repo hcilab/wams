@@ -278,7 +278,7 @@ server that it receieves from the Interactor about user interaction.
 * [ListenerFactory](#listenerfactory)
 * [WorkSpace](#workspace)
 * [Connection](#connection)
-* [RequestHandler](#requesthandler)
+* [Router](#router)
 * [Server](#server)
 * [Wams](#wams)
 
@@ -315,9 +315,9 @@ A Connection maintains a `socket.io` connection with a client. It keeps track of
 the ServerView corresponding to that client, and informs the WorkSpace model of
 messages it receives from its client. 
 
-### RequestHandler
+### Router
 
-The RequestHandler provides a layer of abstraction between the server and the
+The Router provides a layer of abstraction between the server and the
 request handling library and its configuration.
 
 ### Server

@@ -25,7 +25,7 @@ const IO = require('socket.io');
 // local project packages.
 const { constants: globals, Message } = require('../shared.js');
 const Connection = require('./Connection.js');
-const RequestHandler = require('./RequestHandler.js');
+const Router = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const WorkSpace = require('./WorkSpace.js');
@@ -83,7 +83,7 @@ class Server {
    * settings: User-supplied options, specifying a client limit and workspace
    *           settings.
    */
-  constructor(settings = {}, router = new RequestHandler()) {
+  constructor(settings = {}, router = new Router()) {
     /**
      * The number of active clients that are allowed at any given time.
      */

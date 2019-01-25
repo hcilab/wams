@@ -12,7 +12,7 @@
 
 const { CanvasBlueprint } = require('canvas-sequencer');
 
-const RequestHandler = require('./server/RequestHandler.js');
+const Router  = require('./server/Router.js');
 const Wams    = require('./server/Wams.js');
 const items   = require('./predefined/items.js');
 const drags   = require('./predefined/drags.js');
@@ -23,7 +23,7 @@ const swipes  = require('./predefined/swipes.js');
 const taps    = require('./predefined/taps.js');
 
 Wams.Sequence = CanvasBlueprint;
-Wams.RequestHandler = RequestHandler;
+Wams.Router = Router;
 Wams.predefined = Object.freeze({
   items,
   drag:   drags,
