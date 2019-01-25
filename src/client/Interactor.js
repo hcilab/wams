@@ -247,7 +247,7 @@ class Interactor {
    * Obtain the appropriate Westures Gesture object.
    */
   tapper() {
-    return new Westures.Tap({ tolerance: 4 });
+    return new Westures.Tap({ tolerance: 10 });
   }
 
   /**
