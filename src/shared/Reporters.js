@@ -47,7 +47,7 @@ const View = ReporterFactory([
  * the Message / Reporter protocol is mostly focused on protecting Views and
  * Items anyway.
  */
-const InputReporter = ReporterFactory([
+const DataReporter = ReporterFactory([
   'data',
 ]);
 
@@ -109,7 +109,7 @@ const FullStateReporter = ReporterFactory([
 module.exports = {
   Item,
   View,
-  InputReporter,
+  DataReporter,
   MouseReporter,
   ScaleReporter,
   RotateReporter,
