@@ -17,8 +17,6 @@ const Item = ReporterFactory([
   'x',
   'y',
   'hitbox', // TODO: May not need to be reported
-  // 'width',
-  // 'height',
   'rotation',
   'scale',
   'type',
@@ -52,49 +50,6 @@ const DataReporter = ReporterFactory([
 ]);
 
 /*
- * This class is intended for sharing mouse action data between client and
- * server.
- */
-const MouseReporter = ReporterFactory([
-  'x',
-  'y',
-  'dx',
-  'dy',
-  'phase',
-]);
-
-/*
- * This class allows reporting of scale data between client and server.
- */
-const ScaleReporter = ReporterFactory([
-  'scale',
-  'mx',
-  'my',
-  'phase',
-]);
-
-/*
- * This class allows reporting of rotation data between client and server.
- */
-const RotateReporter = ReporterFactory([
-  'radians',
-  'px',
-  'py',
-  'phase',
-]);
-
-/*
- * This class allows reporting of swipe data between client and server.
- */
-const SwipeReporter = ReporterFactory([
-  'direction',
-  'velocity',
-  'x',
-  'y',
-  'phase',
-]);
-
-/*
  * This class allows reporting of the full state of the model, for bringing
  * new clients up to speed (or potentially also for recovering a client, if
  * need be).
@@ -110,10 +65,6 @@ module.exports = {
   Item,
   View,
   DataReporter,
-  MouseReporter,
-  ScaleReporter,
-  RotateReporter,
-  SwipeReporter,
   FullStateReporter,
 };
 
