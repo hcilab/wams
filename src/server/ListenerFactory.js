@@ -49,7 +49,11 @@ function click(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function drag(listener, workspace) {
-  return function handleDrag(view, {x, y, dx, dy, phase}) {
+  // return function handleDrag(view, {x, y, dx, dy, phase}) {
+  return function handleDrag(view, { change, point, phase }) {
+    const { x, y } = point;
+    const dx = change.x;
+    const dy = change.y;
     const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
     if (mouse) {
       const {x, y, dx, dy} = mouse;
@@ -80,10 +84,13 @@ function layout(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function rotate(listener, workspace) {
-  return function handleRotate(view, {radians, px, py, phase}) {
-    const pivot = new CoordinateData(px, py).transformFrom(view);
-    if (pivot) {
-      const {x, y} = pivot;
+  // return function handleRotate(view, {radians, px, py, phase}) {
+  return function handleRotate(view, { delta, pivot, phase }) {
+    const radians = delta;
+    const { x, y } = pivot;
+    const point = new CoordinateData(x, y).transformFrom(view);
+    if (point) {
+      const { x, y } = point;
       listener(view, view.lockedItem, radians, x, y);
     }
   };
@@ -97,8 +104,11 @@ function rotate(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function scale(listener, workspace) {
-  return function handleScale(view, {scale, mx, my, phase}) {
-    const mouse = new CoordinateData(mx, my).transformFrom(view);
+  // return function handleScale(view, {scale, mx, my, phase}) {
+  return function handleScale(view, { change, midpoint, phase }) {
+    const { x, y } = midpoint;
+    const scale = change;
+    const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x, y} = mouse;
       listener(view, view.lockedItem, scale, x, y);
@@ -114,7 +124,8 @@ function scale(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function swipe(listener, workspace) {
-  return function handleSwipe(view, {velocity, x, y, direction}) {
+  // return function handleSwipe(view, {velocity, x, y, direction}) {
+  return function handleSwipe(view, { velocity, x, y, direction }) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
       const {x,y} = mouse;

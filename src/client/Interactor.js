@@ -49,12 +49,12 @@ class Swivel extends Westures.Gesture {
         const point = input.current.point;
         const pivot = progress.pivot;
         const angle = pivot.angleTo(point);
-        let change = 0;
+        let delta = 0;
         if (progress.hasOwnProperty('previousAngle')) {
-          change = angle - progress.previousAngle;
+          delta = angle - progress.previousAngle;
         }
         progress.previousAngle = angle;
-        return { change, pivot, point };
+        return { delta, pivot, point };
       } else {
         // CTRL key was released, therefore pivot point is now invalid.
         delete progress.pivot;
@@ -71,16 +71,23 @@ class Track extends Westures.Gesture {
     this.trackEnd = phases.includes('end');
   }
 
+  data(state) {
+    return {
+      inputs: state.inputs,
+      centroid: state.centroid,
+    };
+  }
+
   start(state) {
-    if (this.trackStart) return { inputs: state.inputs };
+    if (this.trackStart) return this.data(state);
   }
 
   move(state) {
-    if (this.trackMove) return { inputs: state.inputs };
+    if (this.trackMove) return this.data(state);
   }
 
   end(state) {
-    if (this.trackEnd) return { inputs: state.inputs };
+    if (this.trackEnd) return this.data(state);
   }
 }
 
@@ -143,29 +150,30 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions() {
-    const pan     = this.pan.bind(this);
-    const tap     = this.tap.bind(this);
-    const pinch   = this.pinch.bind(this);
-    const rotate  = this.rotate.bind(this);
-    const swipe   = this.swipe.bind(this);
-    const swivel  = this.swivel.bind(this);
-    const track   = this.track.bind(this);
-
-    this.region.bind(this.canvas, this.panner(),    pan);
-    this.region.bind(this.canvas, this.tapper(),    tap);
-    this.region.bind(this.canvas, this.pincher(),   pinch);
-    this.region.bind(this.canvas, this.rotater(),   rotate);
-    this.region.bind(this.canvas, this.swiper(),    swipe);
-    this.region.bind(this.canvas, this.swiveller(), swivel);
-    this.region.bind(this.canvas, this.tracker(),   track);
+    this.region.bind(this.canvas, this.panner(),    this.forwarder('pan'));
+    this.region.bind(this.canvas, this.tapper(),    this.forwarder('tap'));
+    this.region.bind(this.canvas, this.pincher(),   this.forwarder('zoom'));
+    this.region.bind(this.canvas, this.rotater(),   this.forwarder('rotate'));
+    this.region.bind(this.canvas, this.swiper(),    this.forwarder('swipe'));
+    this.region.bind(this.canvas, this.swiveller(), this.forwarder('rotate'));
+    this.region.bind(this.canvas, this.tracker(),   this.forwarder('track'));
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
+   * Calls the handler for the given gesture, supplying the given data.
    */
-  pan({ change, point, phase }) {
-    this.handlers.pan( point.x, point.y, change.x, change.y, phase );
+  forward(gesture, data) {
+    this.handlers[gesture](data);
+  }
+
+  /**
+   * Generates a function that forwards the appropriate gesture and data.
+   */
+  forwarder(gesture) {
+    function do_forward(data) {
+      this.forward(gesture, data);
+    }
+    return do_forward.bind(this);
   }
 
   /**
@@ -176,26 +184,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  pinch({ change, midpoint, phase }) {
-    this.handlers.zoom( change, midpoint.x, midpoint.y, phase );
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   pincher() {
     return new Westures.Pinch({ minInputs: 2 });
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  rotate({ delta, pivot, phase }) {
-    this.handlers.rotate( delta, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -206,26 +198,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  swipe({ velocity, x, y, direction, phase }) {
-    this.handlers.swipe(velocity, x, y, direction, phase);
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   swiper() {
     return new Westures.Swipe();
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  swivel({ change, pivot, point, phase }) { 
-    this.handlers.rotate( change, pivot.x, pivot.y, phase );
   }
 
   /**
@@ -236,33 +212,10 @@ class Interactor {
   }
 
   /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  tap({ x, y, phase }) {
-    this.handlers.tap( x, y, phase );
-  }
-
-  /**
    * Obtain the appropriate Westures Gesture object.
    */
   tapper() {
     return new Westures.Tap({ tolerance: 10 });
-  }
-
-  /**
-   * Transform data received from Westures and forward to the registered
-   * handler.
-   */
-  track({ inputs, phase }) {
-    if (phase === 'start' && inputs.length === 1) {
-      const point = inputs[0].current.point;
-      this.handlers.track( point.x, point.y , phase );
-    } else if (phase === 'end' && 
-        inputs.filter(i => i.phase !== 'end').length === 0) {
-      const point = new Westures.Point2D(0, 0);
-      this.handlers.track( point.x, point.y , phase );
-    }
   }
 
   /**
@@ -278,8 +231,10 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
-    const diff = -(Math.sign(event.deltaY) * factor) + 1;
-    this.handlers.zoom(diff, event.clientX, event.clientY, 'move');
+    const change = -(Math.sign(event.deltaY) * factor) + 1;
+    const midpoint = {x: event.clientX, y: event.clientY};
+    const phase = 'move';
+    this.handlers.zoom({ change, midpoint, phase });
   }
 }
 

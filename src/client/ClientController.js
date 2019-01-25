@@ -20,11 +20,12 @@ const {
   constants, 
   IdStamper, 
   Message, 
-  MouseReporter,
+  DataReporter,
+  // MouseReporter,
   NOP,
-  RotateReporter,
-  ScaleReporter,
-  SwipeReporter,
+  // RotateReporter,
+  // ScaleReporter,
+  // SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -75,12 +76,12 @@ class ClientController {
      * gestures.
      */
     this.interactor = new Interactor(this.canvas, {
-      pan:    this.pan.bind(this),
-      rotate: this.rotate.bind(this),
-      swipe:  this.swipe.bind(this),
-      tap:    this.tap.bind(this),
-      zoom:   this.zoom.bind(this),
-      track:  this.track.bind(this),
+      pan:    this.forwarder(Message.DRAG),
+      rotate: this.forwarder(Message.ROTATE),
+      swipe:  this.forwarder(Message.SWIPE),
+      tap:    this.forwarder(Message.CLICK),
+      zoom:   this.forwarder(Message.SCALE),
+      track:  this.forwarder(Message.TRACK),
     });
 
     /**
@@ -184,6 +185,24 @@ class ClientController {
   }
 
   /**
+   * Forwards a message and associated data to the server.
+   */
+  forward(message, data) {
+    const dreport = new DataReporter({ data });
+    new Message(message, dreport).emitWith(this.socket);
+  }
+
+  /**
+   * Generates a function for forwarding the given message.
+   */
+  forwarder(message) {
+    function do_forward(data) {
+      this.forward(message, data);
+    }
+    return do_forward.bind(this);
+  }
+
+  /**
    * Forwards messages to the View.
    *
    * message: string denoting type of message. 
@@ -192,22 +211,6 @@ class ClientController {
   handle(message, ...args) {
     this.view.handle(message, ...args);
     this.scheduleRender();
-  }
-
-  /**
-   * Forward data pertaining to a pan/drag event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * x    : x coordinate of drag
-   * y    : y coordinate of drag
-   * dx   : change in x coordinate since last drag event
-   * dy   : change in y coordinate since last drag event
-   * phase: one of 'start', 'move', 'end', or 'cancel', the phase of the drag
-   *        event.
-   */
-  pan(x, y, dx, dy, phase) {
-    const mreport = new MouseReporter({ x, y, dx, dy, phase });
-    new Message(Message.DRAG, mreport).emitWith(this.socket);
   }
 
   /**
@@ -251,70 +254,6 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a rotate event to the server, using the Message
-   * / Reporter protocol.
-   *
-   * radians: The amount of the rotation, in radians.
-   */
-  rotate(radians, px, py, phase) {
-    const rreport = new RotateReporter({ radians, px, py, phase });
-    new Message(Message.ROTATE, rreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a swipe event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * velocity : The speed of the swipe.
-   * x        : x coordinate of swipe.
-   * y        : y coordinate of swipe.
-   * direction: The direction of the swipe.
-   */
-  swipe(velocity, x, y, direction, phase) {
-    const sreport = new SwipeReporter({ velocity, x, y, direction, phase });
-    new Message(Message.SWIPE, sreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a tap event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * x    : x coordinate of tap
-   * y    : y coordinate of tap
-   */
-  tap(x, y, phase) {
-    const mreport = new MouseReporter({ x, y, phase });
-    new Message(Message.CLICK, mreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a track event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * inputs: All active/ending inputs.
-   */
-  track(x, y, phase) {
-    const ireport = new MouseReporter({ x, y, phase });
-    new Message(Message.TRACK, ireport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a zoom/scale event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * diff: The change in scale
-   * mx  : x coordinate of the midpoint of the zoom
-   * my  : y coordinate of the midpoint of the zoom
-   */
-  zoom(scale, mx, my, phase) {
-    // Changes will generally be in range [-1,1], clustered around 0, therefore
-    // bring above zero and cluster around 1 to produce appropriate
-    // multiplicative behaviour on the server end.
-    const sreport = new ScaleReporter({ scale, mx, my, phase });
-    new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }
 

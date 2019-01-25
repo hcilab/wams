@@ -71,14 +71,16 @@ class Connection {
       [Message.INITIALIZE]: NOP,
       [Message.LAYOUT]:     (...args) => this.layout(...args),
 
-      // User event related
-      [Message.CLICK]:  (...args) => this.handle('click', ...args),
-      [Message.DRAG]:   (...args) => this.handle('drag', ...args),
-      [Message.RESIZE]: (...args) => this.resize(...args),
-      [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
-      [Message.SCALE]:  (...args) => this.handle('scale', ...args),
-      [Message.SWIPE]:  (...args) => this.handle('swipe', ...args),
-      [Message.TRACK]:  (...args) => this.track(...args),
+      // User event related, pass off to WorkSpace to handle
+      [Message.CLICK]:  ({ data }) => this.handle('click',  data),
+      [Message.DRAG]:   ({ data }) => this.handle('drag',   data),
+      [Message.ROTATE]: ({ data }) => this.handle('rotate', data),
+      [Message.SCALE]:  ({ data }) => this.handle('scale',  data),
+      [Message.SWIPE]:  ({ data }) => this.handle('swipe',  data),
+
+      // User event related, handle immediately
+      [Message.RESIZE]: (data)     => this.resize(data),
+      [Message.TRACK]:  ({ data }) => this.track(data),
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
@@ -115,8 +117,8 @@ class Connection {
    * message: A string giving the type of message
    * ...args: Arguments to be passed to the message handler.
    */
-  handle(message, ...args) {
-    this.workspace.handle(message, this.view, ...args);
+  handle(message, data) {
+    this.workspace.handle(message, this.view, data);
   }
 
   /**
@@ -148,10 +150,12 @@ class Connection {
   /**
    * Performs locking and unlocking based on the phase.
    */
-  track({ x, y, phase }) {
-    if (phase === 'start') {
-      this.workspace.giveLock(x, y, this.view);
-    } else if (phase === 'end') {
+  track({ inputs, centroid, phase }) {
+    if (phase === 'start' && inputs.length === 1) {
+      const point = inputs[0].current.point;
+      this.workspace.giveLock(centroid.x, centroid.y, this.view);
+    } else if (phase === 'end' && 
+        inputs.filter(i => i.current.type !== 'end').length === 0) {
       this.workspace.removeLock(this.view);
     }
   }
