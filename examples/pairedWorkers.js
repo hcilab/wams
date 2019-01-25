@@ -5,9 +5,14 @@
 
 'use strict';
 
+const path = require('path');
 const Wams = require('../src/server');
 
-const ws = new Wams({ clientLimit: 2 });
+const router = new Wams.RequestHandler();
+const images = path.join(__dirname, '../img');
+router.use('/img', router.express.static(images));
+
+const ws = new Wams({ clientLimit: 2 }, router);
 
 ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
   x: 200, 

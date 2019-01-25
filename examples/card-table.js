@@ -5,12 +5,18 @@
 
 'use strict';
 
+const path = require('path');
 const Wams = require('../src/server');
+
+const router = new Wams.RequestHandler();
+const images = path.join(__dirname, '../img');
+router.use('/img', router.express.static(images));
+
 const ws = new Wams({
   bounds: { x: 7000, y: 7000 },
   color: 'green',
   clientLimit: 5,
-});
+}, router);
 
 const circle = new Wams.Sequence();
 circle.beginPath();
