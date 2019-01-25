@@ -8763,7 +8763,7 @@ window.addEventListener(
 
 const io = require('socket.io-client');
 const { 
-  constants: globals, 
+  constants, 
   IdStamper, 
   Message, 
   MouseReporter,
@@ -8781,8 +8781,8 @@ const STAMPER = new IdStamper();
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
-  render: Symbol('render'),
-  startRender: Symbol('startRender'),
+  render:          Symbol('render'),
+  startRender:     Symbol('startRender'),
 });
 
 /**
@@ -8903,7 +8903,7 @@ class ClientController {
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( globals.NS_WAMS, {
+    this.socket = io.connect( constants.NS_WAMS, {
       autoConnect: false,
       reconnection: false,
     });
@@ -9055,12 +9055,10 @@ class ClientController {
    * mx  : x coordinate of the midpoint of the zoom
    * my  : y coordinate of the midpoint of the zoom
    */
-  zoom(diff, mx, my, phase) {
+  zoom(scale, mx, my, phase) {
     // Changes will generally be in range [-1,1], clustered around 0, therefore
     // bring above zero and cluster around 1 to produce appropriate
     // multiplicative behaviour on the server end.
-    // const scale = diff + 1;
-    const scale = diff;
     const sreport = new ScaleReporter({ scale, mx, my, phase });
     new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
@@ -10245,6 +10243,17 @@ const View = ReporterFactory([
 ]);
 
 /*
+ * This class allows generic Input data reporting between client and server.
+ * Honestly it's a bit of a cheaty hack around the Message / Reporter protocol,
+ * but it simplifies the code and makes things easier to maintain. And honestly
+ * the Message / Reporter protocol is mostly focused on protecting Views and
+ * Items anyway.
+ */
+const InputReporter = ReporterFactory([
+  'data',
+]);
+
+/*
  * This class is intended for sharing mouse action data between client and
  * server.
  */
@@ -10302,6 +10311,7 @@ const FullStateReporter = ReporterFactory([
 module.exports = {
   Item,
   View,
+  InputReporter,
   MouseReporter,
   ScaleReporter,
   RotateReporter,
@@ -10533,8 +10543,9 @@ class Binding {
   evaluateHook(hook, state, events) {
     const data = this.gesture[hook](state);
     if (data) {
-      if (!data.phase) data.phase = hook;
+      data.phase = hook;
       data.events = events;
+      data.type = this.gesture.type;
       this.handler(data);
     }
   }
@@ -10685,11 +10696,6 @@ class Input {
   get phase()       { return this.current.type; }
 
   /**
-   * @return {Number} The timestamp of the most current event for this input.
-   */
-  get currentTime() { return this.current.time; }
-
-  /**
    * @return {Number} The timestamp of the initiating event for this input.
    */
   get startTime()   { return this.initial.time; }
@@ -10702,29 +10708,6 @@ class Input {
   }
 
   /**
-   * @return {Number} The angle in radians between the inputs' current events.
-   */
-  currentAngleTo(input) {
-    return this.current.angleTo(input.current);
-  }
-
-  /**
-   * Determines the distance between the current events for two inputs.
-   *
-   * @return {Number} The distance between the inputs' current events.
-   */
-  currentDistanceTo(input) {
-    return this.current.distanceTo(input.current);
-  }
-
-  /**
-   * @return {Number} The midpoint between the inputs' current events.
-   */
-  currentMidpointTo(input) {
-    return this.current.midpointTo(input.current);
-  }
-
-  /**
    * @param {String} id - The identifier for each unique Gesture's progress.
    *
    * @return {Object} - The progress of the gesture.
@@ -10734,14 +10717,6 @@ class Input {
       this.progress[id] = {};
     }
     return this.progress[id];
-  }
-
-  /**
-   * @return {Number} The angle, in radians, between the initiating event for
-   * this input and its current event.
-   */
-  totalAngle() {
-    return this.initial.angleTo(this.current);
   }
 
   /**
@@ -10903,20 +10878,6 @@ class Point2D {
   }
 
   /**
-   * Calculates the midpoint coordinates between two points.
-   *
-   * @param {Point2D} point
-   *
-   * @return {Point2D} The coordinates of the midpoint.
-   */
-  midpointTo(point) {
-    return new Point2D(
-      (this.x + point.x) / 2,
-      (this.y + point.y) / 2,
-    );
-  }
-
-  /**
    * Subtract the given point from this point.
    *
    * @param {Point2D} point
@@ -11008,11 +10969,7 @@ class PointerData {
    * @constructor
    *
    * @param {Event} event - The event object being wrapped.
-   * @param {Array} event.touches - The number of touches on a screen (mobile
-   *    only).
-   * @param {Object} event.changedTouches - The TouchList representing points
-   *    that participated in the event.
-   * @param {Number} touchIdentifier - The index of touch if applicable
+   * @param {Number} identifier - The index of touch if applicable
    */
   constructor(event, identifier) {
     /**
@@ -11075,17 +11032,6 @@ class PointerData {
    */
   distanceTo(pdata) {
     return this.point.distanceTo(pdata.point);
-  }
-
-  /**
-   * Calculates the midpoint coordinates between two PointerData objects.
-   *
-   * @param {PointerData} pdata
-   *
-   * @return {Point2D} The coordinates of the midpoint.
-   */
-  midpointTo(pdata) {
-    return this.point.midpointTo(pdata.point);
   }
 
   /**
@@ -11397,6 +11343,11 @@ class State {
     this._inputs_obj = {};
 
     /**
+     * All currently valid inputs, including those that have ended.
+     */
+    this.inputs = [];
+
+    /**
      * The array of currently active inputs, sourced from the current Input
      * objects.
      *
@@ -11420,11 +11371,6 @@ class State {
      */
     this.event = null;
   }
-
-  /**
-   * @return {Array} The currently valid inputs.
-   */
-  get inputs() { return Object.values(this._inputs_obj); }
 
   /**
    * Deletes all inputs that are in the 'end' phase.
@@ -11504,34 +11450,13 @@ class State {
     };
 
     update_fns[event.constructor.name].call(this, event);
+    this.inputs = Object.values(this._inputs_obj);
     this.active = this.getInputsNotInPhase('end');
     if (this.active.length > 0) {
       this.activePoints = this.active.map( i => i.current.point );
       this.centroid = Point2D.midpoint( this.activePoints );
     }
     this.event = event;
-  }
-}
-
-/**
- * @return {Array} Identifiers of the mouse buttons used.
- */
-function getMouseButtons(event) {
-  switch(PHASE[ event.type ]) {
-    case 'start':
-    case 'end':
-      return [ event.button ];
-    case 'move':
-      const btns = [];
-      if (event && event.buttons) {
-        for (let mask = 1; mask < 32; mask <<= 1) {
-          const btn = event.buttons & mask;
-          if (btn > 0) btns.push(Math.log2(btn));
-        }
-      }
-      return btns;
-    default:
-      throw 'invalid button arrangement occurred!';
   }
 }
 
@@ -11633,14 +11558,512 @@ module.exports = Binding;
 },{}],77:[function(require,module,exports){
 arguments[4][67][0].apply(exports,arguments)
 },{"dup":67}],78:[function(require,module,exports){
-arguments[4][68][0].apply(exports,arguments)
-},{"./PointerData.js":81,"dup":68}],79:[function(require,module,exports){
+/**
+ * @file Input.js
+ */
+
+const PointerData = require('./PointerData.js');
+
+/**
+ * Tracks a single input and contains information about the current, previous,
+ * and initial events.  Contains the progress of each Input and it's associated
+ * gestures.
+ *
+ * @class Input
+ */
+class Input {
+  /**
+   * Constructor function for the Input class.
+   *
+   * @param {Event} event - The Event object from the window
+   * @param {Number} [identifier=0] - The identifier for this input (taken
+   *    from event.changedTouches or this input's button number)
+   */
+  constructor(event, identifier = 0) {
+    const currentData = new PointerData(event, identifier);
+
+    /**
+     * Holds the initial data from the mousedown / touchstart / pointerdown that
+     * began this input.
+     *
+     * @type {PointerData}
+     */
+    this.initial = currentData;
+
+    /**
+     * Holds the most current pointer data for this Input.
+     *
+     * @type {PointerData}
+     */
+    this.current = currentData;
+
+    /**
+     * Holds the previous pointer data for this Input.
+     *
+     * @type {PointerData}
+     */
+    this.previous = currentData;
+
+    /**
+     * The identifier for the pointer / touch / mouse button associated with
+     * this input.
+     *
+     * @type {Number}
+     */
+    this.identifier = identifier;
+
+    /**
+     * Stores internal state between events for each gesture based off of the
+     * gesture's id.
+     *
+     * @type {Object}
+     */
+    this.progress = {};
+  }
+
+  /**
+   * @return {String} The phase of the input: 'start' or 'move' or 'end'
+   */
+  get phase()       { return this.current.type; }
+
+  /**
+   * @return {Number} The timestamp of the most current event for this input.
+   */
+  get currentTime() { return this.current.time; }
+
+  /**
+   * @return {Number} The timestamp of the initiating event for this input.
+   */
+  get startTime()   { return this.initial.time; }
+
+  /**
+   * @return {Point2D} A clone of the current point.
+   */
+  cloneCurrentPoint() {
+    return this.current.point.clone();
+  }
+
+  /**
+   * @return {Number} The angle in radians between the inputs' current events.
+   */
+  currentAngleTo(input) {
+    return this.current.angleTo(input.current);
+  }
+
+  /**
+   * Determines the distance between the current events for two inputs.
+   *
+   * @return {Number} The distance between the inputs' current events.
+   */
+  currentDistanceTo(input) {
+    return this.current.distanceTo(input.current);
+  }
+
+  /**
+   * @return {Number} The midpoint between the inputs' current events.
+   */
+  currentMidpointTo(input) {
+    return this.current.midpointTo(input.current);
+  }
+
+  /**
+   * @param {String} id - The identifier for each unique Gesture's progress.
+   *
+   * @return {Object} - The progress of the gesture.
+   */
+  getProgressOfGesture(id) {
+    if (!this.progress[id]) {
+      this.progress[id] = {};
+    }
+    return this.progress[id];
+  }
+
+  /**
+   * @return {Number} The angle, in radians, between the initiating event for
+   * this input and its current event.
+   */
+  totalAngle() {
+    return this.initial.angleTo(this.current);
+  }
+
+  /**
+   * @return {Number} The distance between the initiating event for this input
+   * and its current event.
+   */
+  totalDistance() {
+    return this.initial.distanceTo(this.current);
+  }
+
+  /**
+   * @return {Boolean} true if the total distance is less than or equal to the
+   * tolerance.
+   */
+  totalDistanceIsWithin(tolerance) {
+    return this.totalDistance() <= tolerance;
+  }
+
+  /**
+   * Saves the given raw event in PointerData form as the current data for this
+   * input, pushing the old current data into the previous slot, and tossing
+   * out the old previous data.
+   *
+   * @param {Event} event - The event object to wrap with a PointerData.
+   * @param {Number} touchIdentifier - The index of inputs, from event.touches
+   */
+  update(event) {
+    this.previous = this.current;
+    this.current = new PointerData(event, this.identifier);
+  }
+
+  /**
+   * @return {Boolean} true if the given element existed along the propagation
+   * path of this input's initiating event.
+   */
+  wasInitiallyInside(element) {
+    return this.initial.wasInside(element);
+  }
+}
+
+module.exports = Input;
+
+
+},{"./PointerData.js":81}],79:[function(require,module,exports){
 arguments[4][69][0].apply(exports,arguments)
 },{"dup":69}],80:[function(require,module,exports){
-arguments[4][70][0].apply(exports,arguments)
-},{"dup":70}],81:[function(require,module,exports){
-arguments[4][71][0].apply(exports,arguments)
-},{"./PHASE.js":79,"./Point2D.js":80,"dup":71}],82:[function(require,module,exports){
+/**
+ * @File Point2D.js
+ *
+ * Defines a 2D point class.
+ */
+
+/**
+ * The Point2D class stores and operates on 2-dimensional points, represented as
+ * x and y coordinates.
+ *
+ * @class Point2D
+ */
+class Point2D {
+  /**
+   * Constructor function for the Point2D class.
+   */
+  constructor(x = 0, y = 0) {
+    /**
+     * The horizontal (x) coordinate of the point.
+     *
+     * @type {Number}
+     */
+    this.x = x;
+
+    /**
+     * The vertical (y) coordinate of the point.
+     *
+     * @type {Number}
+     */
+    this.y = y;
+  }
+
+  /**
+   * Calculates the angle between this point and the given point.
+   *   |                (projectionX,projectionY)
+   *   |             /°
+   *   |          /
+   *   |       /
+   *   |    / θ
+   *   | /__________
+   *   ° (originX, originY)
+   *
+   * @param {Point2D} point - The projection
+   *
+   * @return {Number} - Radians along the unit circle where the projection lies.
+   */
+  angleTo(point) {
+    return Math.atan2(point.y - this.y, point.x - this.x);
+  }
+
+  /**
+   * Determine the average distance from this point to the provided array of
+   * points.
+   *
+   * @param {Array} points - the Point2D objects to calculate the average
+   *    distance to.
+   *
+   * @return {Number} The average distance from this point to the provided
+   *    points.
+   */
+  averageDistanceTo(points = []) {
+    return this.totalDistanceTo(points) / points.length;
+  }
+
+  /**
+   * Clone this point.
+   *
+   * @return {Point2D} A new Point2D, identical to this point.
+   */
+  clone() {
+    return new Point2D(this.x, this.y);
+  }
+
+  /**
+   * Calculates the distance between two points.
+   *
+   * @param {Point2D} point
+   *
+   * @return {number} The distance between the two points, a.k.a. the
+   *    hypoteneuse. 
+   */
+  distanceTo(point) {
+    return Math.hypot(point.x - this.x, point.y - this.y);
+  }
+
+  /**
+   * Calculates the midpoint coordinates between two points.
+   *
+   * @param {Point2D} point
+   *
+   * @return {Point2D} The coordinates of the midpoint.
+   */
+  midpointTo(point) {
+    return new Point2D(
+      (this.x + point.x) / 2,
+      (this.y + point.y) / 2,
+    );
+  }
+
+  /**
+   * Subtract the given point from this point.
+   *
+   * @param {Point2D} point
+   *
+   * @return {Point2D} A new Point2D, which is the result of (this - point).
+   */
+  minus(point) {
+    return new Point2D(
+      this.x - point.x,
+      this.y - point.y
+    );
+  }
+
+  /**
+   * Return the summation of this point to the given point.
+   *
+   * @param {Point2D} point
+   *
+   * @return {Point2D} A new Point2D, which is the addition of the two points.
+   */
+  plus(point) {
+    return new Point2D(
+      this.x + point.x,
+      this.y + point.y,
+    );
+  }
+
+  /**
+   * Calculates the total distance from this point to an array of points.
+   *
+   * @param {Array} points - The array of Point2D objects to calculate the total
+   *    distance to.
+   *
+   * @return {Number} The total distance from this point to the provided points.
+   */
+  totalDistanceTo(points = []) {
+    return points.reduce( (d, p) => d + this.distanceTo(p), 0);
+  }
+}
+
+/**
+ * Calculates the midpoint of a list of points.
+ *
+ * @param {Array} points - The array of Point2D objects for which to calculate
+ *    the midpoint
+ *
+ * @return {Point2D} The midpoint of the provided points.
+ */
+Point2D.midpoint = function(points = []) {
+  if (points.length === 0) throw 'Need points to exist to calculate midpoint!';
+  const total = Point2D.sum(points);
+  return new Point2D (
+    total.x / points.length,
+    total.y / points.length,
+  );
+}
+
+/**
+ * Calculates the sum of the given points.
+ *
+ * @param {Array} points - The Point2D objects to sum up.
+ *
+ * @return {Point2D} A new Point2D representing the sum of the given points.
+ */
+Point2D.sum = function(points = []) {
+  return points.reduce( (total, pt) => total.plus(pt), new Point2D(0,0) );
+}
+
+module.exports = Point2D;
+
+
+},{}],81:[function(require,module,exports){
+/**
+ * @file PointerData.js
+ * Contains logic for PointerDatas
+ */
+
+const Point2D = require('./Point2D.js');
+const PHASE   = require('./PHASE.js');
+
+/**
+ * Low-level storage of pointer data based on incoming data from an interaction
+ * event.
+ *
+ * @class PointerData
+ */
+class PointerData {
+  /**
+   * @constructor
+   *
+   * @param {Event} event - The event object being wrapped.
+   * @param {Array} event.touches - The number of touches on a screen (mobile
+   *    only).
+   * @param {Object} event.changedTouches - The TouchList representing points
+   *    that participated in the event.
+   * @param {Number} touchIdentifier - The index of touch if applicable
+   */
+  constructor(event, identifier) {
+    /**
+     * The set of elements along the original event's propagation path at the
+     * time it was dispatched.
+     *
+     * @type {WeakSet}
+     */
+    this.initialElements = getElementsInPath(event);
+
+    /**
+     * The original event object.
+     *
+     * @type {Event}
+     */
+    this.originalEvent = event;
+
+    /**
+     * The type or 'phase' of this batch of pointer data. 'start' or 'move' or
+     * 'end'.
+     *
+     * @type {String | null}
+     */
+    this.type = PHASE[ event.type ];
+
+    /**
+     * The timestamp of the event in milliseconds elapsed since January 1, 1970,
+     * 00:00:00 UTC.
+     * 
+     * @type {Number}
+     */
+    this.time = Date.now();
+
+    /**
+     * The (x,y) coordinate of the event, wrapped in a Point2D.
+     */
+    const eventObj = getEventObject(event, identifier);
+    this.point = new Point2D(eventObj.clientX, eventObj.clientY);
+  }
+
+  /**
+   * Calculates the angle between this event and the given event.
+   *
+   * @param {PointerData} pdata
+   *
+   * @return {Number} - Radians measurement between this event and the given
+   *    event's points.
+   */
+  angleTo(pdata) {
+    return this.point.angleTo(pdata.point);
+  }
+
+  /**
+   * Calculates the distance between two PointerDatas.
+   *
+   * @param {PointerData} pdata
+   *
+   * @return {Number} The distance between the two points, a.k.a. the
+   *    hypoteneuse. 
+   */
+  distanceTo(pdata) {
+    return this.point.distanceTo(pdata.point);
+  }
+
+  /**
+   * Calculates the midpoint coordinates between two PointerData objects.
+   *
+   * @param {PointerData} pdata
+   *
+   * @return {Point2D} The coordinates of the midpoint.
+   */
+  midpointTo(pdata) {
+    return this.point.midpointTo(pdata.point);
+  }
+
+  /**
+   * Determines if this PointerData was inside the given element at the time it
+   * was dispatched.
+   *
+   * @param {Element} element
+   *
+   * @return {Boolean} true if the PointerData occurred inside the element,
+   *    false otherwise.
+   */
+  wasInside(element) {
+    return this.initialElements.has(element);
+  }
+}
+
+/**
+ * @return {Event} The Event object which corresponds to the given identifier.
+ *    Contains clientX, clientY values.
+ */
+function getEventObject(event, identifier) {
+  if (event.changedTouches) {
+    return Array.from(event.changedTouches).find( t => {
+      return t.identifier === identifier;
+    });
+  } 
+  return event;
+}
+
+/**
+ * A WeakSet is used so that references will be garbage collected when the
+ * element they point to is removed from the page.
+ *
+ * @return {WeakSet} The Elements in the path of the given event.
+ */
+function getElementsInPath(event) {
+  return new WeakSet(getPropagationPath(event));
+}
+
+/**
+ * In case event.composedPath() is not available.
+ *
+ * @param {Event} event
+ *
+ * @return {Array}
+ */
+function getPropagationPath(event) {
+  if (typeof event.composedPath === 'function') {
+    return event.composedPath();
+  } 
+
+  const path = [];
+  for (let node = event.target; node !== document; node = node.parentNode) {
+    path.push(node);
+  }
+  path.push(document);
+  path.push(window);
+
+  return path;
+}
+
+module.exports = PointerData;
+
+
+},{"./PHASE.js":79,"./Point2D.js":80}],82:[function(require,module,exports){
 arguments[4][72][0].apply(exports,arguments)
 },{"./Binding.js":76,"./PHASE.js":79,"./State.js":83,"dup":72}],83:[function(require,module,exports){
 /**
