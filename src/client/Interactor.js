@@ -165,8 +165,6 @@ class Interactor {
    * handler.
    */
   pan({ change, point, phase }) {
-    change = guaranteeCoordinates(change);
-    point = guaranteeCoordinates(point);
     this.handlers.pan( point.x, point.y, change.x, change.y, phase );
   }
 
@@ -182,13 +180,7 @@ class Interactor {
    * handler.
    */
   pinch({ change, midpoint, phase }) {
-    this.handlers.zoom( 
-      // change * this.scaleFactor,
-      change,
-      midpoint.x,
-      midpoint.y,
-      phase 
-    );
+    this.handlers.zoom( change, midpoint.x, midpoint.y, phase );
   }
 
   /**
@@ -289,12 +281,6 @@ class Interactor {
     const diff = -(Math.sign(event.deltaY) * factor) + 1;
     this.handlers.zoom(diff, event.clientX, event.clientY, 'move');
   }
-}
-
-function guaranteeCoordinates(o = {}) {
-  o.x = o.x || 0;
-  o.y = o.y || 0;
-  return o;
 }
 
 module.exports = Interactor;
