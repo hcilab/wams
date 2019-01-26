@@ -182,7 +182,7 @@ class ClientController {
   }
 
   /**
-   * Generates a function for forwarding the given message.
+   * Generates a function for forwarding the given message to the server.
    */
   forward(message) {
     function do_forward(data) {
@@ -193,7 +193,7 @@ class ClientController {
   }
 
   /**
-   * Forwards messages to the View.
+   * Passes messages to the View, and schedules a render.
    *
    * message: string denoting type of message. 
    * ...args: arguments to be passed to ultimate handler.
