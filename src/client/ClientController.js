@@ -16,16 +16,13 @@
 'use strict';
 
 const io = require('socket.io-client');
+
 const { 
   constants, 
+  DataReporter,
   IdStamper, 
   Message, 
-  DataReporter,
-  // MouseReporter,
   NOP,
-  // RotateReporter,
-  // ScaleReporter,
-  // SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -76,12 +73,12 @@ class ClientController {
      * gestures.
      */
     this.interactor = new Interactor(this.canvas, {
-      pan:    this.forwarder(Message.DRAG),
-      rotate: this.forwarder(Message.ROTATE),
-      swipe:  this.forwarder(Message.SWIPE),
-      tap:    this.forwarder(Message.CLICK),
-      zoom:   this.forwarder(Message.SCALE),
-      track:  this.forwarder(Message.TRACK),
+      pan:    this.forward(Message.DRAG),
+      rotate: this.forward(Message.ROTATE),
+      swipe:  this.forward(Message.SWIPE),
+      tap:    this.forward(Message.CLICK),
+      zoom:   this.forward(Message.SCALE),
+      track:  this.forward(Message.TRACK),
     });
 
     /**
@@ -185,19 +182,12 @@ class ClientController {
   }
 
   /**
-   * Forwards a message and associated data to the server.
-   */
-  forward(message, data) {
-    const dreport = new DataReporter({ data });
-    new Message(message, dreport).emitWith(this.socket);
-  }
-
-  /**
    * Generates a function for forwarding the given message.
    */
-  forwarder(message) {
+  forward(message) {
     function do_forward(data) {
-      this.forward(message, data);
+      const dreport = new DataReporter({ data });
+      new Message(message, dreport).emitWith(this.socket);
     }
     return do_forward.bind(this);
   }

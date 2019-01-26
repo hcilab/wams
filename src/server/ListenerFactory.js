@@ -49,7 +49,6 @@ function click(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function drag(listener, workspace) {
-  // return function handleDrag(view, {x, y, dx, dy, phase}) {
   return function handleDrag(view, { change, point, phase }) {
     const { x, y } = point;
     const dx = change.x;
@@ -84,7 +83,6 @@ function layout(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function rotate(listener, workspace) {
-  // return function handleRotate(view, {radians, px, py, phase}) {
   return function handleRotate(view, { delta, pivot, phase }) {
     const radians = delta;
     const { x, y } = pivot;
@@ -104,7 +102,6 @@ function rotate(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function scale(listener, workspace) {
-  // return function handleScale(view, {scale, mx, my, phase}) {
   return function handleScale(view, { change, midpoint, phase }) {
     const { x, y } = midpoint;
     const scale = change;
@@ -124,7 +121,6 @@ function scale(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function swipe(listener, workspace) {
-  // return function handleSwipe(view, {velocity, x, y, direction}) {
   return function handleSwipe(view, { velocity, x, y, direction }) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
