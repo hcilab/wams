@@ -41,15 +41,14 @@ function click(listener, workspace) {
 };
 
 /**
- * Generates a drag handler function, which will perform hit detection and item
- * locking (based on drag phase), then call the provided listener with
+ * Generates a drag handler function, which will call the provided listener with
  * appropriate arguments.
  *
  * listener : User-supplied function for responding to this event.
  * workspace: The workspace upon which this event will act.
  */
 function drag(listener, workspace) {
-  return function handleDrag(view, { change, point, phase }) {
+  return function handleDrag(view, { change, point }) {
     const { x, y } = point;
     const dx = change.x;
     const dy = change.y;
@@ -83,10 +82,9 @@ function layout(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function rotate(listener, workspace) {
-  return function handleRotate(view, { delta, pivot, phase }) {
+  return function handleRotate(view, { delta, pivot }) {
     const radians = delta;
-    const { x, y } = pivot;
-    const point = new CoordinateData(x, y).transformFrom(view);
+    const point = new CoordinateData(pivot.x, pivot.y).transformFrom(view);
     if (point) {
       const { x, y } = point;
       listener(view, view.lockedItem, radians, x, y);
@@ -102,7 +100,7 @@ function rotate(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function scale(listener, workspace) {
-  return function handleScale(view, { change, midpoint, phase }) {
+  return function handleScale(view, { change, midpoint }) {
     const { x, y } = midpoint;
     const scale = change;
     const mouse = new CoordinateData(x, y).transformFrom(view);
