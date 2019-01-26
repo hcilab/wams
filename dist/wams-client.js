@@ -8762,16 +8762,13 @@ window.addEventListener(
 'use strict';
 
 const io = require('socket.io-client');
+
 const { 
   constants, 
+  DataReporter,
   IdStamper, 
   Message, 
-  DataReporter,
-  // MouseReporter,
   NOP,
-  // RotateReporter,
-  // ScaleReporter,
-  // SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -8822,12 +8819,12 @@ class ClientController {
      * gestures.
      */
     this.interactor = new Interactor(this.canvas, {
-      pan:    this.forwarder(Message.DRAG),
-      rotate: this.forwarder(Message.ROTATE),
-      swipe:  this.forwarder(Message.SWIPE),
-      tap:    this.forwarder(Message.CLICK),
-      zoom:   this.forwarder(Message.SCALE),
-      track:  this.forwarder(Message.TRACK),
+      pan:    this.forward(Message.DRAG),
+      rotate: this.forward(Message.ROTATE),
+      swipe:  this.forward(Message.SWIPE),
+      tap:    this.forward(Message.CLICK),
+      zoom:   this.forward(Message.SCALE),
+      track:  this.forward(Message.TRACK),
     });
 
     /**
@@ -8931,25 +8928,18 @@ class ClientController {
   }
 
   /**
-   * Forwards a message and associated data to the server.
+   * Generates a function for forwarding the given message to the server.
    */
-  forward(message, data) {
-    const dreport = new DataReporter({ data });
-    new Message(message, dreport).emitWith(this.socket);
-  }
-
-  /**
-   * Generates a function for forwarding the given message.
-   */
-  forwarder(message) {
+  forward(message) {
     function do_forward(data) {
-      this.forward(message, data);
+      const dreport = new DataReporter({ data });
+      new Message(message, dreport).emitWith(this.socket);
     }
     return do_forward.bind(this);
   }
 
   /**
-   * Forwards messages to the View.
+   * Passes messages to the View, and schedules a render.
    *
    * message: string denoting type of message. 
    * ...args: arguments to be passed to ultimate handler.
@@ -9466,23 +9456,16 @@ class Track extends Westures.Gesture {
     this.trackEnd = phases.includes('end');
   }
 
-  data(state) {
-    return {
-      inputs: state.inputs,
-      centroid: state.centroid,
-    };
-  }
-
   start(state) {
-    if (this.trackStart) return this.data(state);
+    if (this.trackStart) return state;
   }
 
   move(state) {
-    if (this.trackMove) return this.data(state);
+    if (this.trackMove) return state;
   }
 
   end(state) {
-    if (this.trackEnd) return this.data(state);
+    if (this.trackEnd) return state;
   }
 }
 
@@ -9545,79 +9528,31 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions() {
-    this.region.bind(this.canvas, this.panner(),    this.forwarder('pan'));
-    this.region.bind(this.canvas, this.tapper(),    this.forwarder('tap'));
-    this.region.bind(this.canvas, this.pincher(),   this.forwarder('zoom'));
-    this.region.bind(this.canvas, this.rotater(),   this.forwarder('rotate'));
-    this.region.bind(this.canvas, this.swiper(),    this.forwarder('swipe'));
-    this.region.bind(this.canvas, this.swiveller(), this.forwarder('rotate'));
-    this.region.bind(this.canvas, this.tracker(),   this.forwarder('track'));
-  }
+    const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
+    const rotate  = new Westures.Rotate();
+    const pinch   = new Westures.Pinch();
+    const swipe   = new Westures.Swipe();
+    const swivel  = new Swivel();
+    const tap     = new Westures.Tap();
+    const track   = new Track(['start', 'end']);
 
-  /**
-   * Calls the handler for the given gesture, supplying the given data.
-   */
-  forward(gesture, data) {
-    this.handlers[gesture](data);
+    this.region.bind(this.canvas, pan,    this.forward('pan'));
+    this.region.bind(this.canvas, tap,    this.forward('tap'));
+    this.region.bind(this.canvas, pinch,  this.forward('zoom'));
+    this.region.bind(this.canvas, rotate, this.forward('rotate'));
+    this.region.bind(this.canvas, swipe,  this.forward('swipe'));
+    this.region.bind(this.canvas, swivel, this.forward('rotate'));
+    this.region.bind(this.canvas, track,  this.forward('track'));
   }
 
   /**
    * Generates a function that forwards the appropriate gesture and data.
    */
-  forwarder(gesture) {
+  forward(gesture) {
     function do_forward(data) {
-      this.forward(gesture, data);
+      this.handlers[gesture](data);
     }
     return do_forward.bind(this);
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  panner() {
-    return new Westures.Pan({ muteKey: 'ctrlKey' });
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  pincher() {
-    return new Westures.Pinch({ minInputs: 2 });
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  rotater() {
-    return new Westures.Rotate();
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  swiper() {
-    return new Westures.Swipe();
-  }
-
-  /**
-   * Obtain the custom Swivel Gesture object.
-   */
-  swiveller() {
-    return new Swivel();
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  tapper() {
-    return new Westures.Tap({ tolerance: 10 });
-  }
-
-  /**
-   * Obtain the appropriate Westures Gesture object.
-   */
-  tracker() {
-    return new Track(['start', 'end']);
   }
 
   /**
