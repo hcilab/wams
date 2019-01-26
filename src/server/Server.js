@@ -22,13 +22,18 @@ const os = require('os');
 // npm packages.
 const IO = require('socket.io');
 
-// local project packages.
-const { constants: globals, Message } = require('../shared.js');
+// local project packages, shared between client and server.
+const { 
+  constants, 
+  Message 
+} = require('../shared.js');
+
+// local project packages for the server.
 const Connection = require('./Connection.js');
-const Router = require('./Router.js');
+const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
-const WorkSpace = require('./WorkSpace.js');
+const WorkSpace  = require('./WorkSpace.js');
 
 // local constant data 
 const DEFAULTS = { clientLimit: 10 };
@@ -112,7 +117,7 @@ class Server {
     /**
      * socket.io namespace in which to operate.
      */
-    this.namespace = this.io.of(globals.NS_WAMS);
+    this.namespace = this.io.of(constants.NS_WAMS);
 
     /**
      * Tracks all active connections. Will pack new connections into the start
