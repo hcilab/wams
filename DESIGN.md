@@ -377,12 +377,14 @@ following sequence of events occurs:
 7. The ClientController informs the ClientView of this data, then emits a LAYOUT
    message to the server, detailing the state of the view (essentially, its
    size).
-8. The Connection receives this message, records the state of the view in the
-   model, and at this point informs all the other active views about this new
-   view.
+8. The Connection receives this message, and records the state of the view in
+   the model.
 9. If a WAMS layout handler has been registered with the server, it is called
-   for the new view. The connection is established, and normal operation
-   proceeds.
-   - Note that the other views must be informed of the new view _before_ the
-     layout handler is called. Otherwise they will not be able to appropriately
-     respond to the "update" message that arrives from the handler.
+   for the new view. 
+10. The view is updated with the new parameters from the layout, and all the
+    other views are now informed of the view, adding it as a "shadow".
+    - Note that layout handlers must not schedule a view update. Doing so would
+      cause an error as the other views haven't added the corresponding shadow
+      yet.
+11. The connection is established, and normal operation proceeds.
+
