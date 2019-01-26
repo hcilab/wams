@@ -98,7 +98,7 @@ class Connection {
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
   }
-  
+
   /**
    * Informs the model of the necessary changes when a client disconnects.
    */
@@ -131,8 +131,9 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
-    new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     this.workspace.handle('layout', this.view, this.index);
+    new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
+    new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
   }
 
   /**
