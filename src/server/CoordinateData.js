@@ -40,7 +40,7 @@ class CoordinateData {
      * in *precisely* this order!
      */
     this[symbols.scale](view.scale);
-    this[symbols.rotate](constants.ROTATE_360 - view.rotation);
+    this[symbols.rotate](-view.rotation);
     this[symbols.translate](view.x, view.y);
 
     return this;
