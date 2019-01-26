@@ -20,7 +20,6 @@ const ws = new Wams({
 
 const circle = new Wams.Sequence();
 circle.beginPath();
-// circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
 circle.arc(0, 0, 150, Math.PI, 0, false);
 circle.closePath();
 circle.fillStyle = 'white';
@@ -66,7 +65,6 @@ const handleLayout = (function makeLayoutHandler() {
   function layoutTable(view) {
     view.moveTo( 2000, 2000 );
     table = view;
-    ws.update(view);
   };
 
   function layoutBottom(view) {
@@ -95,11 +93,9 @@ const handleLayout = (function makeLayoutHandler() {
   function dependOnTable(fn) {
     return function layoutDepender(view) {
       if (!table) {
-        // console.log('dodged!!!');
         setTimeout( () => layoutDepender(view), 0 ); 
       } else {
         fn(view);
-        ws.update(view);
       }
     };
   }

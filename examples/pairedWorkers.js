@@ -36,7 +36,6 @@ const handleLayout = (function defineLayoutHandler() {
       nx.x -= 30;
     } else {
       view.moveTo( nx.x, nx.y ); 
-      ws.scheduleUpdate(view);
     } 
   }
   return handleLayout;
