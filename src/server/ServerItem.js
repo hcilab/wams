@@ -14,7 +14,6 @@
 'use strict';
 
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
-const Polygon2D = require('./Polygon2D.js');
 const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({

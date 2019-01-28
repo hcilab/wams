@@ -20,7 +20,6 @@ const {
   mergeMatches, 
   removeById,
   IdStamper, 
-  Message,
   View,
 } = require('../shared.js');
 
@@ -89,10 +88,6 @@ class ClientView extends View {
      * tracked in full and an outline for each is rendered.
      */
     this.shadows = [];
-
-    // As no draw loop is used, (there are no animations), need to know when to
-    // re-render in response to an image loading.
-    // document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   /**

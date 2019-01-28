@@ -38,16 +38,15 @@ function click(listener, workspace) {
       }
     }
   };
-};
+}
 
 /**
  * Generates a drag handler function, which will call the provided listener with
  * appropriate arguments.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function drag(listener, workspace) {
+function drag(listener) {
   return function handleDrag(view, { change, point }) {
     const { x, y } = point;
     const dx = change.x;
@@ -58,7 +57,7 @@ function drag(listener, workspace) {
       listener(view, view.lockedItem, x, y, dx, dy);
     }
   };
-};
+}
 
 /**
  * Generates a layout handler function. Simply calls the listener with the same
@@ -66,22 +65,20 @@ function drag(listener, workspace) {
  * listeners.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function layout(listener, workspace) {
+function layout(listener) {
   return function handleLayout(view, index) {
     listener(view, index);
   };
-};
+}
 
 /**
  * Generates a rotate handler function. Unpacks the arguments and forwards them
  * to the provided listener.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function rotate(listener, workspace) {
+function rotate(listener) {
   return function handleRotate(view, { delta, pivot }) {
     const radians = delta;
     const point = new CoordinateData(pivot.x, pivot.y).transformFrom(view);
@@ -90,16 +87,15 @@ function rotate(listener, workspace) {
       listener(view, view.lockedItem, radians, x, y);
     }
   };
-};
+}
 
 /**
  * Generates a scale handler function. Unpacks the arguments and forwards to the
  * provided listener.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function scale(listener, workspace) {
+function scale(listener) {
   return function handleScale(view, { change, midpoint }) {
     const { x, y } = midpoint;
     const scale = change;
@@ -109,16 +105,15 @@ function scale(listener, workspace) {
       listener(view, view.lockedItem, scale, x, y);
     }
   };
-};
+}
 
 /**
  * Generates a swipe handler function, which will perform hit detection then
  * call the provided listener with appropriate arguments.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function swipe(listener, workspace) {
+function swipe(listener) {
   return function handleSwipe(view, { x, y, velocity, direction }) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
@@ -151,7 +146,7 @@ function build(type, listener, workspace) {
     throw 'Attached listener must be a function';
   } 
   return BLUEPRINTS[type](listener, workspace);
-};
+}
 
 const ListenerFactory = Object.freeze({
   build,

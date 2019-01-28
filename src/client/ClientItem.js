@@ -12,7 +12,7 @@
 
 'use strict';
 
-const { constants, IdStamper, Item, Message } = require('../shared.js');
+const { IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*

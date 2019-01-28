@@ -69,7 +69,7 @@ function getLocalIP() {
     });
   });
   return ipaddr;
-};
+}
 
 /**
  * Report information about the given connection to the console.
@@ -80,7 +80,7 @@ function getLocalIP() {
  */
 function logConnection(id, port, status) {
   const event = status ? 'connected' : 'disconnected';
-  console.log( 'View', id, event, 'to workspace listening on port', port );
+  console.info( 'View', id, event, 'to workspace listening on port', port );
 }
 
 class Server {
@@ -184,7 +184,7 @@ class Server {
   reject(socket) {
     socket.emit(Message.FULL);
     socket.disconnect(true);
-    console.log('Rejected incoming connection: client limit reached.');
+    console.warn('Rejected incoming connection: client limit reached.');
   }
 
   /**
@@ -195,7 +195,7 @@ class Server {
    */
   listen(port = PORT, host = getLocalIP()) {
     this.server.listen(port, host, () => {
-      console.log('Listening on', this.server.address());
+      console.info('Listening on', this.server.address());
     });
     this.port = port;
   }

@@ -10,8 +10,6 @@
 
 'use strict';
 
-const { constants } = require('../shared.js');
-
 // symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   scale: Symbol('scale'),

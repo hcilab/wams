@@ -14,7 +14,7 @@
  * workspace: The WorkSpace for which this function will be built.
  */
 function placeAtXY(workspace, x, y) {
-  return function layout_placeAtXY(view, position) {
+  return function layout_placeAtXY(view) {
     view.moveTo(x, y);
   };
 }
