@@ -18,6 +18,7 @@
     "babel-jest": "^23.6.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
+    "eslint": "^5.12.1",
     "jest": "^23.6.0"
   },
   "jest": {
