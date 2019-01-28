@@ -18,19 +18,14 @@
 
 'use strict';
 
-const { constants, IdStamper, View } = require('../shared.js');
+const { 
+  colours,
+  constants,
+  IdStamper,
+  View 
+} = require('../shared.js');
 
 const STAMPER = new IdStamper();
-const COLOURS = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -93,7 +88,7 @@ class ShadowView extends View {
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
-    context.strokeStyle = COLOURS[this.id % COLOURS.length];
+    context.strokeStyle = colours[this.id % colours.length];
     context.fillStyle = context.strokeStyle;
     context.lineWidth = 5;
   }
