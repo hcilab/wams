@@ -80,7 +80,7 @@ class Interactor {
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
     const swipe   = new Westures.Swipe();
-    const swivel  = new Westures.Swivel();
+    const swivel  = new Westures.Swivel({ enableKey: 'ctrlKey' });
     const tap     = new Westures.Tap();
     const track   = new Westures.Track(['start', 'end']);
 

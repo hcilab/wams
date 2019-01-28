@@ -9011,7 +9011,7 @@ module.exports = ClientController;
 
 'use strict';
 
-const { constants, IdStamper, Item, Message } = require('../shared.js');
+const { IdStamper, Item, Message } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
@@ -9125,7 +9125,6 @@ const {
   mergeMatches, 
   removeById,
   IdStamper, 
-  Message,
   View,
 } = require('../shared.js');
 
@@ -9194,10 +9193,6 @@ class ClientView extends View {
      * tracked in full and an outline for each is rendered.
      */
     this.shadows = [];
-
-    // As no draw loop is used, (there are no animations), need to know when to
-    // re-render in response to an image loading.
-    // document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   /**
@@ -9464,7 +9459,7 @@ class Interactor {
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
     const swipe   = new Westures.Swipe();
-    const swivel  = new Westures.Swivel();
+    const swivel  = new Westures.Swivel({ enableKey: 'ctrlKey' });
     const tap     = new Westures.Tap();
     const track   = new Westures.Track(['start', 'end']);
 
@@ -10187,6 +10182,8 @@ module.exports = Object.freeze({
  * Main object containing API methods and Gesture constructors
  */
 
+'use strict';
+
 const Region  = require('./src/Region.js');
 const Point2D = require('./src/Point2D.js');
 const Gesture = require('./src/Gesture.js');
@@ -10209,6 +10206,8 @@ module.exports = {
 /**
  * @file Binding.js
  */
+
+'use strict';
 
 /**
  * Responsible for creating a binding between an element and a gesture.
@@ -10271,6 +10270,8 @@ module.exports = Binding;
  * Contains the Gesture class
  */
 
+'use strict';
+
 let nextGestureNum = 0;
 
 /**
@@ -10308,7 +10309,7 @@ class Gesture {
    * @return {null|Object}  - Default of null
    */
   start(state) {
-    return null;
+    return void state;
   }
 
   /**
@@ -10319,7 +10320,7 @@ class Gesture {
    * @return {null|Object} - Default of null
    */
   move(state) {
-    return null;
+    return void state;
   }
 
   /**
@@ -10330,7 +10331,7 @@ class Gesture {
    * @return {null|Object}  - Default of null
    */
   end(state) {
-    return null;
+    return void state;
   }
 }
 
@@ -10341,6 +10342,8 @@ module.exports = Gesture;
 /**
  * @file Input.js
  */
+
+'use strict';
 
 const PointerData = require('./PointerData.js');
 
@@ -10476,6 +10479,8 @@ module.exports = Input;
  * @file PHASE.js
  */
 
+'use strict';
+
 /**
  * Normalizes window events to be either of type start, move, or end.
  *
@@ -10508,6 +10513,8 @@ module.exports = PHASE;
  *
  * Defines a 2D point class.
  */
+
+'use strict';
 
 /**
  * The Point2D class stores and operates on 2-dimensional points, represented as
@@ -10667,6 +10674,8 @@ module.exports = Point2D;
  * Contains logic for PointerDatas
  */
 
+'use strict';
+
 const Point2D = require('./Point2D.js');
 const PHASE   = require('./PHASE.js');
 
@@ -10812,6 +10821,8 @@ module.exports = PointerData;
 /**
  * @file Region.js
  */
+
+'use strict';
 
 const Binding = require('./Binding.js');
 const State   = require('./State.js');
@@ -11030,11 +11041,11 @@ module.exports = Region;
  * @file State.js
  */
 
+'use strict';
+
 const Input   = require('./Input.js');
 const PHASE   = require('./PHASE.js');
 const Point2D = require('./Point2D.js');
-
-const DEFAULT_MOUSE_ID = 0;
 
 /**
  * Creates an object related to a Region's state, and contains helper methods to
@@ -11183,6 +11194,8 @@ module.exports = State;
  * Main object containing API methods and Gesture constructors
  */
 
+'use strict';
+
 // const Core    = require('westures-core');
 const Core    = require('../westures-core');
 const Pan     = require('./src/Pan.js');
@@ -11214,8 +11227,30 @@ module.exports = Object.assign({},
 
 
 },{"../westures-core":65,"./src/Pan.js":84,"./src/Pinch.js":85,"./src/Rotate.js":86,"./src/Swipe.js":87,"./src/Swivel.js":88,"./src/Tap.js":89,"./src/Track.js":90}],75:[function(require,module,exports){
-arguments[4][65][0].apply(exports,arguments)
-},{"./src/Gesture.js":77,"./src/Point2D.js":80,"./src/Region.js":82,"dup":65}],76:[function(require,module,exports){
+/**
+ * @file index.js
+ * Main object containing API methods and Gesture constructors
+ */
+
+const Region  = require('./src/Region.js');
+const Point2D = require('./src/Point2D.js');
+const Gesture = require('./src/Gesture.js');
+
+/**
+ * The global API interface for Westures. Contains a constructor for the Region
+ * Object and the generic Gesture class for user gestures to implement.
+ *
+ * @type {Object}
+ * @namespace Westures
+ */
+module.exports = {
+  Gesture,
+  Point2D,
+  Region,
+};
+
+
+},{"./src/Gesture.js":77,"./src/Point2D.js":80,"./src/Region.js":82}],76:[function(require,module,exports){
 /**
  * @file Binding.js
  */
@@ -11274,8 +11309,78 @@ module.exports = Binding;
 
 
 },{}],77:[function(require,module,exports){
-arguments[4][67][0].apply(exports,arguments)
-},{"dup":67}],78:[function(require,module,exports){
+/**
+ * @file Gesture.js
+ * Contains the Gesture class
+ */
+
+let nextGestureNum = 0;
+
+/**
+ * The Gesture class that all gestures inherit from.
+ * @class Gesture
+ */
+class Gesture {
+  /**
+   * Constructor function for the Gesture class.
+   */
+  constructor(type) {
+    /**
+     * The generic string type of gesture. (e.g. 'pan' or 'tap' or 'pinch').
+     *
+     * @type {String}
+     */
+    if (typeof type === 'undefined') throw 'Gestures require a type!';
+    this.type = type;
+
+    /**
+     * The unique identifier for each gesture. This allows for distinctions
+     * across instance variables of Gestures that are created on the fly (e.g.
+     * gesture-tap-1, gesture-tap-2).
+     *
+     * @type {String}
+     */
+    this.id = `gesture-${this.type}-${nextGestureNum++}`;
+  }
+
+  /**
+   * start() - Event hook for the start of a gesture
+   *
+   * @param {Object} state - The input state object of the current region.
+   *
+   * @return {null|Object}  - Default of null
+   */
+  start(state) {
+    return null;
+  }
+
+  /**
+   * move() - Event hook for the move of a gesture
+   *
+   * @param {Object} state - The input state object of the current region.
+   *
+   * @return {null|Object} - Default of null
+   */
+  move(state) {
+    return null;
+  }
+
+  /**
+   * end() - Event hook for the move of a gesture
+   *
+   * @param {Object} state - The input state object of the current region.
+   *
+   * @return {null|Object}  - Default of null
+   */
+  end(state) {
+    return null;
+  }
+}
+
+module.exports = Gesture;
+
+
+},{}],78:[function(require,module,exports){
 /**
  * @file Input.js
  */
@@ -11446,8 +11551,37 @@ module.exports = Input;
 
 
 },{"./PointerData.js":81}],79:[function(require,module,exports){
-arguments[4][69][0].apply(exports,arguments)
-},{"dup":69}],80:[function(require,module,exports){
+/**
+ * @file PHASE.js
+ */
+
+/**
+ * Normalizes window events to be either of type start, move, or end.
+ *
+ * @param {String} type - The event type emitted by the browser
+ *
+ * @return {null|String} - The normalized event, or null if it is an event not
+ *    predetermined.
+ */
+const PHASE = Object.freeze({
+  mousedown:   'start',
+  touchstart:  'start',
+  pointerdown: 'start',
+
+  mousemove:   'move',
+  touchmove:   'move',
+  pointermove: 'move',
+
+  mouseup:   'end',
+  touchend:  'end',
+  pointerup: 'end',
+});
+/* PHASE*/
+
+module.exports = PHASE;
+
+
+},{}],80:[function(require,module,exports){
 /**
  * @File Point2D.js
  *
@@ -11782,8 +11916,223 @@ module.exports = PointerData;
 
 
 },{"./PHASE.js":79,"./Point2D.js":80}],82:[function(require,module,exports){
-arguments[4][72][0].apply(exports,arguments)
-},{"./Binding.js":76,"./PHASE.js":79,"./State.js":83,"dup":72}],83:[function(require,module,exports){
+/**
+ * @file Region.js
+ */
+
+const Binding = require('./Binding.js');
+const State   = require('./State.js');
+const PHASE   = require('./PHASE.js');
+
+const POINTER_EVENTS = [
+  'pointerdown',
+  'pointermove',
+  'pointerup',
+];
+
+const MOUSE_EVENTS = [
+  'mousedown',
+  'mousemove',
+  'mouseup',
+];
+
+const TOUCH_EVENTS = [
+  'touchstart',
+  'touchmove',
+  'touchend',
+];
+
+/** 
+ * Allows the user to specify the control region which will listen for user
+ * input events.
+ *
+ * @class Region
+ */
+class Region {
+  /**
+   * Constructor function for the Region class.
+   *
+   * @param {Element} element - The element which should listen to input events.
+   * @param {boolean} [capture=false] - Whether the region uses the capture or
+   *    bubble phase of input events.
+   * @param {boolean} [preventDefault=true] - Whether the default browser
+   *    functionality should be disabled;
+   */
+  constructor(element, capture = false, preventDefault = true) {
+    /**
+     * The list of relations between elements, their gestures, and the handlers.
+     *
+     * @type {Binding}
+     */
+    this.bindings = [];
+
+    /**
+     * The element being bound to.
+     *
+     * @type {Element}
+     */
+    this.element = element;
+
+    /**
+     * Whether the region listens for captures or bubbles.
+     *
+     * @type {boolean}
+     */
+    this.capture = capture;
+
+    /**
+     * Boolean to disable browser functionality such as scrolling and zooming
+     * over the region
+     *
+     * @type {boolean}
+     */
+    this.preventDefault = preventDefault;
+
+    /**
+     * The internal state object for a Region.  Keeps track of inputs and
+     * bindings.
+     *
+     * @type {State}
+     */
+    this.state = new State();
+
+    // Begin operating immediately.
+    this.activate();
+  }
+
+  /**
+   * Activates the region by adding event listeners for all appropriate input
+   * events to the region's element.
+   */
+  activate() {
+    /*
+     * Having to listen to both mouse and touch events is annoying, but
+     * necessary due to conflicting standards and browser implementations.
+     * Pointer is a fallback instead of the primary because it lacks useful
+     * properties such as 'ctrlKey' and 'altKey'.
+     *
+     * Listening to both mouse and touch comes with the difficulty that
+     * preventDefault() must be called to prevent both events from iterating
+     * through the system. However I have left it as an option to the end user,
+     * which defaults to calling preventDefault(), in case there's a use-case I
+     * haven't considered or am not aware of.
+     *
+     * It is also a good idea to keep regions small in large pages.
+     *
+     * See:
+     *  https://www.html5rocks.com/en/mobile/touchandmouse/
+     *  https://developer.mozilla.org/en-US/docs/Web/API/Touch_events
+     *  https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
+     */
+    let eventNames = [];
+    if (window.TouchEvent || window.MouseEvent) {
+      eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
+    } else {
+      eventNames = POINTER_EVENTS;
+    }
+
+    // Bind detected browser events to the region element.
+    const arbiter = this.arbitrate.bind(this);
+    eventNames.forEach( eventName => {
+      this.element.addEventListener(eventName, arbiter, {
+        capture: this.capture,
+        once: false,
+        passive: false,
+      });
+    });
+  }
+
+  /**
+   * All input events flow through this function. It makes sure that the input
+   * state is maintained, determines which bindings to analyze based on the
+   * initial position of the inputs, calls the relevant gesture hooks, and
+   * dispatches gesture data.
+   *
+   * @param {Event} event - The event emitted from the window object.
+   */
+  arbitrate(event) {
+    if (this.preventDefault) event.preventDefault();
+
+    this.state.updateAllInputs(event, this.element);
+
+    const hook = PHASE[ event.type ];
+    const events = this.state.getCurrentEvents();
+
+    this.retrieveBindingsByInitialPos().forEach( binding => {
+      binding.evaluateHook(hook, this.state, events);
+    });
+
+    this.state.clearEndedInputs();
+  }
+
+  /**
+   * Bind an element to a gesture with multiple function signatures.
+   *
+   * @param {Element} element - The element object.
+   * @param {Gesture} gesture - Gesture type with which to bind.
+   * @param {Function} [handler] - The function to execute when an event is
+   *    emitted.
+   * @param {Boolean} [capture] - capture/bubble
+   *
+   * @return {Object} - a chainable object that has the same function as bind.
+   */
+  bind(element, gesture, handler) {
+    this.bindings.push( new Binding(element, gesture, handler) );
+  }
+
+  /**
+   * Retrieves the Binding by which an element is associated to.
+   *
+   * @param {Element} element - The element to find bindings to.
+   *
+   * @return {Array} - An array of Bindings to which that element is bound
+   */
+  retrieveBindingsByElement(element) {
+    return this.bindings.filter( b => b.element === element );
+  }
+
+  /**
+   * Retrieves all bindings based upon the initial X/Y position of the inputs.
+   * e.g. if gesture started on the correct target element, but diverted away
+   * into the correct region, this would still be valid.
+   *
+   * @return {Array} - An array of Bindings to which that element is bound
+   */
+  retrieveBindingsByInitialPos() {
+    return this.bindings.filter( 
+      b => this.state.someInputWasInitiallyInside(b.element)
+    );
+  }
+
+  /**
+   * Unbinds an element from either the specified gesture or all if no gesture
+   * is specified.
+   *
+   * @param {Element} element - The element to unbind.
+   * @param {Gesture} gesture - The gesture to unbind.
+   *
+   * @return {Array} - An array of Bindings that were unbound to the element;
+   */
+  unbind(element, gesture) {
+    let bindings = this.retrieveBindingsByElement(element);
+    let unbound = [];
+
+    bindings.forEach( b => {
+      if (gesture == undefined || b.gesture === gesture) {
+        this.bindings.splice(this.bindings.indexOf(b), 1);
+        unbound.push(b);
+      }
+    });
+
+    return unbound;
+  }
+  /* unbind*/
+}
+
+module.exports = Region;
+
+
+},{"./Binding.js":76,"./PHASE.js":79,"./State.js":83}],83:[function(require,module,exports){
 /**
  * @file State.js
  */
@@ -11921,7 +12270,9 @@ module.exports = State;
  * Contains the Pan class
  */
 
-const { Gesture, Point2D } = require('westures-core');
+'use strict';
+
+const { Gesture } = require('westures-core');
 
 const DEFAULT_MIN_THRESHOLD = 1;
 const REQUIRED_INPUTS = 1;
@@ -12022,7 +12373,9 @@ module.exports = Pan;
  * Contains the abstract Pinch class
  */
 
-const { Gesture, Point2D } = require('westures-core');
+'use strict';
+
+const { Gesture } = require('westures-core');
 
 const DEFAULT_MIN_INPUTS = 2;
 const DEFAULT_MIN_THRESHOLD = 1;
@@ -12121,7 +12474,9 @@ module.exports = Pinch;
  * Contains the Rotate class
  */
 
-const { Gesture, Point2D } = require('westures-core');
+'use strict';
+
+const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 2;
 
@@ -12221,6 +12576,8 @@ module.exports = Rotate;
  * @file Swipe.js
  * Contains the Swipe class
  */
+
+'use strict';
 
 const { Gesture } = require('westures-core');
 
@@ -12333,53 +12690,77 @@ module.exports = Swipe;
 const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
+const defaults = Object.freeze({
+  deadzoneRadius: 10,
+});
 
 /**
  * A Swivel is a single input rotating around a fixed point. The fixed point is
  * determined by the input's location at its 'start' phase.
  */
 class Swivel extends Gesture {
-  constructor(deadzoneRadius = 10) {
+  constructor(options = {}) {
     super('swivel');
-    this.deadzoneRadius = deadzoneRadius;
+
+    /**
+     * The radius around the start point in which to do nothing.
+     */
+    this.deadzoneRadius = options.deadzoneRadius || defaults.deadzoneRadius;
+
+    /**
+     * If this is set, gesture will only respond to events where this property
+     * is truthy. Should be one of 'ctrlKey', 'altKey', or 'shiftKey'.
+     */
+    this.enableKey = options.enableKey;
   }
 
+  /**
+   * Returns whether this gesture is currently enabled.
+   */
+  enabled(event) {
+    return !this.enableKey || event[this.enableKey];
+  }
+
+  /**
+   * Event hook for the start of a Swivel gesture.
+   */
   start(state) {
-    const started = state.getInputsInPhase('start')[0];
-    const progress = started.getProgressOfGesture(this.id);
-    const current = started.current;
-    const point = current.point;
-    const event = current.originalEvent;
-    if (event.ctrlKey) {
-      progress.pivot = point;
-    }
+    if (!this.enabled(state.event)) return null;
+
+    const started = state.getInputsInPhase('start');
+    if (started.length !== REQUIRED_INPUTS) return null;
+
+    const progress = started[0].getProgressOfGesture(this.id);
+    progress.pivot = started[0].current.point;
   }
 
+  /**
+   * Event hook for the move of a Swivel gesture.
+   */
   move(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length === 1) {
-      const input = active[0];
+    if (state.active.length !== REQUIRED_INPUTS) return null;
+
+    const input = state.active[0];
+
+    const progress = input.getProgressOfGesture(this.id);
+    if (this.enabled(state.event) && progress.pivot) {
+      const point = input.current.point;
+      const pivot = progress.pivot;
+      const angle = pivot.angleTo(point);
+      let delta = 0;
+      if (progress.hasOwnProperty('previousAngle')) {
+        delta = angle - progress.previousAngle;
+      }
+      progress.previousAngle = angle;
 
       if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
         return null;
-      }
-
-      const event = input.current.originalEvent;
-      const progress = input.getProgressOfGesture(this.id);
-      if (event.ctrlKey && progress.pivot) {
-        const point = input.current.point;
-        const pivot = progress.pivot;
-        const angle = pivot.angleTo(point);
-        let delta = 0;
-        if (progress.hasOwnProperty('previousAngle')) {
-          delta = angle - progress.previousAngle;
-        }
-        progress.previousAngle = angle;
-        return { delta, pivot, point };
       } else {
-        // CTRL key was released, therefore pivot point is now invalid.
-        delete progress.pivot;
+        return { delta, pivot, point };
       }
+    } else {
+      // CTRL key was released, therefore pivot point is now invalid.
+      delete progress.pivot;
     }
   }
 }
@@ -12392,6 +12773,8 @@ module.exports = Swivel;
  * @file Tap.js
  * Contains the Tap class
  */
+
+'use strict';
 
 const { Gesture, Point2D } = require('westures-core');
 
@@ -12507,7 +12890,7 @@ module.exports = Tap;
 
 'use strict';
 
-const { Gesture, Point2D } = require('westures-core');
+const { Gesture } = require('westures-core');
 
 /**
  * A Track gesture forwards a list of active points and their centroid on each
