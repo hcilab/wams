@@ -192,7 +192,6 @@ class ClientView extends View {
    */
   handle(message, ...args) {
     this[message](...args);
-    // this.draw();
   }
 
   /**
