@@ -17,77 +17,6 @@ const Westures = require('../../../westures');
 // const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-class Swivel extends Westures.Gesture {
-  constructor(deadzoneRadius = 10) {
-    super('swivel');
-    this.deadzoneRadius = deadzoneRadius;
-  }
-
-  start(state) {
-    const started = state.getInputsInPhase('start')[0];
-    const progress = started.getProgressOfGesture(this.id);
-    const current = started.current;
-    const point = current.point;
-    const event = current.originalEvent;
-    if (event.ctrlKey) {
-      progress.pivot = point;
-    }
-  }
-
-  move(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length === 1) {
-      const input = active[0];
-
-      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
-        return null;
-      }
-
-      const event = input.current.originalEvent;
-      const progress = input.getProgressOfGesture(this.id);
-      if (event.ctrlKey && progress.pivot) {
-        const point = input.current.point;
-        const pivot = progress.pivot;
-        const angle = pivot.angleTo(point);
-        let delta = 0;
-        if (progress.hasOwnProperty('previousAngle')) {
-          delta = angle - progress.previousAngle;
-        }
-        progress.previousAngle = angle;
-        return { delta, pivot, point };
-      } else {
-        // CTRL key was released, therefore pivot point is now invalid.
-        delete progress.pivot;
-      }
-    }
-  }
-}
-
-class Track extends Westures.Gesture {
-  constructor(phases = []) {
-    super('track');
-    this.trackStart = phases.includes('start');
-    this.trackMove = phases.includes('move');
-    this.trackEnd = phases.includes('end');
-  }
-
-  data({ activePoints, centroid }) {
-    return { active: activePoints, centroid }; 
-  }
-
-  start(state) {
-    if (this.trackStart) return this.data(state);
-  }
-
-  move(state) {
-    if (this.trackMove) return this.data(state);
-  }
-
-  end(state) {
-    if (this.trackEnd) return this.data(state);
-  }
-}
-
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
@@ -151,9 +80,9 @@ class Interactor {
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
     const swipe   = new Westures.Swipe();
-    const swivel  = new Swivel();
+    const swivel  = new Westures.Swivel();
     const tap     = new Westures.Tap();
-    const track   = new Track(['start', 'end']);
+    const track   = new Westures.Track(['start', 'end']);
 
     this.region.bind(this.canvas, pan,    this.forward('pan'));
     this.region.bind(this.canvas, tap,    this.forward('tap'));
