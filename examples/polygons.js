@@ -8,16 +8,7 @@
 const Wams = require('../src/server.js');
 const ws = new Wams();
 
-const colours = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
+console.log(Wams);
 
 function randomPoints(x = 5, lim = 256) {
   const points = [{x: 0, y: 0}];
@@ -34,7 +25,7 @@ function randomPoints(x = 5, lim = 256) {
 function polygon(x, y, view) {
   return Wams.predefined.items.polygon(
     randomPoints(7),
-    colours[view.id % colours.length],
+    Wams.colours[view.id % Wams.colours.length],
     { 
       x,
       y,

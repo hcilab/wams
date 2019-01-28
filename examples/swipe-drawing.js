@@ -10,22 +10,6 @@ const ws = new Wams();
 
 // Executed every time a user taps or clicks a screen
 const handleSwipe = (function makeSwipeHandler(ws) {
-  const colours = [
-    'blue',
-    'red',
-    'green',
-    'pink',
-    'cyan',
-    'yellow',
-  ];
-
-  function rectSeq(index) {
-    const seq = new Wams.Sequence();
-    seq.fillStyle = colours[index];
-    seq.fillRect('{x}', '{y}', '{width}', '{height}');
-    return seq;
-  }
-
   function square(ix, iy, index, velo) {
     const x = ix;
     const y = iy - 16;
@@ -36,13 +20,20 @@ const handleSwipe = (function makeSwipeHandler(ws) {
     return {x, y, width, height, type, blueprint};
   }
 
-  function handleSwipe(view, target, velocity, x, y, direction) {
-    const colour = Math.ceil(velocity * 10) % colours.length;
+  function handleSwipe(view, target, x, y, velocity, direction) {
+    const cidx = Math.ceil(velocity * 10) % Wams.colours.length;
     ws.spawnItem( Wams.predefined.items.rectangle(
+      0,
+      0,
       velocity * 10,
       32,
-      colours[Math.ceil(velocity * 10) % colours.length],
-      { x, y, type: 'colour' },
+      Wams.colours[cidx],
+      { 
+        x,
+        y,
+        type: 'colour',
+        rotation: -direction,
+      },
     ));
   }
 
@@ -50,13 +41,12 @@ const handleSwipe = (function makeSwipeHandler(ws) {
 })(ws);
 
 // Executed once per user, when they join.
-function handleLayout(view, position) {
-  view.moveTo(4000,4000);
-  ws.update(view);
-}
+// function handleLayout(view, position) {
+  // view.moveTo(4000,4000);
+// }
 
 // Attaches the defferent function handlers
-ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
+// ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
 ws.on('swipe',  handleSwipe);
 
 ws.listen(9002);
