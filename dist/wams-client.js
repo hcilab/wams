@@ -9297,7 +9297,6 @@ class ClientView extends View {
    */
   handle(message, ...args) {
     this[message](...args);
-    // this.draw();
   }
 
   /**
@@ -9402,73 +9401,6 @@ const Westures = require('../../../westures');
 // const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-class Swivel extends Westures.Gesture {
-  constructor(deadzoneRadius = 10) {
-    super('swivel');
-    this.deadzoneRadius = deadzoneRadius;
-  }
-
-  start(state) {
-    const started = state.getInputsInPhase('start')[0];
-    const progress = started.getProgressOfGesture(this.id);
-    const current = started.current;
-    const point = current.point;
-    const event = current.originalEvent;
-    if (event.ctrlKey) {
-      progress.pivot = point;
-    }
-  }
-
-  move(state) {
-    const active = state.getInputsNotInPhase('end');
-    if (active.length === 1) {
-      const input = active[0];
-
-      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
-        return null;
-      }
-
-      const event = input.current.originalEvent;
-      const progress = input.getProgressOfGesture(this.id);
-      if (event.ctrlKey && progress.pivot) {
-        const point = input.current.point;
-        const pivot = progress.pivot;
-        const angle = pivot.angleTo(point);
-        let delta = 0;
-        if (progress.hasOwnProperty('previousAngle')) {
-          delta = angle - progress.previousAngle;
-        }
-        progress.previousAngle = angle;
-        return { delta, pivot, point };
-      } else {
-        // CTRL key was released, therefore pivot point is now invalid.
-        delete progress.pivot;
-      }
-    }
-  }
-}
-
-class Track extends Westures.Gesture {
-  constructor(phases = []) {
-    super('track');
-    this.trackStart = phases.includes('start');
-    this.trackMove = phases.includes('move');
-    this.trackEnd = phases.includes('end');
-  }
-
-  start(state) {
-    if (this.trackStart) return state;
-  }
-
-  move(state) {
-    if (this.trackMove) return state;
-  }
-
-  end(state) {
-    if (this.trackEnd) return state;
-  }
-}
-
 const HANDLERS = Object.freeze({ 
   pan:    NOP,
   rotate: NOP,
@@ -9532,9 +9464,9 @@ class Interactor {
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
     const swipe   = new Westures.Swipe();
-    const swivel  = new Swivel();
+    const swivel  = new Westures.Swivel();
     const tap     = new Westures.Tap();
-    const track   = new Track(['start', 'end']);
+    const track   = new Westures.Track(['start', 'end']);
 
     this.region.bind(this.canvas, pan,    this.forward('pan'));
     this.region.bind(this.canvas, tap,    this.forward('tap'));
@@ -9592,19 +9524,14 @@ module.exports = Interactor;
 
 'use strict';
 
-const { constants, IdStamper, View } = require('../shared.js');
+const { 
+  colours,
+  constants,
+  IdStamper,
+  View 
+} = require('../shared.js');
 
 const STAMPER = new IdStamper();
-const COLOURS = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -9667,7 +9594,7 @@ class ShadowView extends View {
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
-    context.strokeStyle = COLOURS[this.id % COLOURS.length];
+    context.strokeStyle = colours[this.id % colours.length];
     context.fillStyle = context.strokeStyle;
     context.lineWidth = 5;
   }
@@ -9734,9 +9661,27 @@ const constants = Object.freeze({
 });
 
 /*
+ * A list of colours, for use by the API for shadows, and by end-point apps too
+ * if desired.
+ */
+const colours = [
+  'saddlebrown',
+  'red',
+  'blue',
+  'darkgreen',
+  'darkorange',
+  'purple',
+  'yellow',
+  'aqua',
+  'lime',
+  'fuchsia',
+];
+
+/*
  * Package up the module and freeze it for delivery.
  */
 module.exports = Object.freeze({
+  colours,
   constants,
   IdStamper,
   Message,
@@ -10693,7 +10638,8 @@ class Point2D {
  * @return {Point2D} The midpoint of the provided points.
  */
 Point2D.midpoint = function(points = []) {
-  if (points.length === 0) throw 'Need points to exist to calculate midpoint!';
+  if (points.length === 0) return null;
+
   const total = Point2D.sum(points);
   return new Point2D (
     total.x / points.length,
@@ -11199,32 +11145,34 @@ class State {
    *    event is invalid.
    */
   updateAllInputs(event) {
-    const update_fns = {
-      TouchEvent: (event) => {
-        Array.from(event.changedTouches).forEach( touch => {
-          this.updateInput(event, touch.identifier);
-        });
-      },
-
-      PointerEvent: (event) => {
-        this.updateInput(event, event.pointerId);
-      },
-
-      MouseEvent: (event) => {
-        this.updateInput(event, event.button);
-      },
-    };
-
     update_fns[event.constructor.name].call(this, event);
     this.inputs = Object.values(this._inputs_obj);
     this.active = this.getInputsNotInPhase('end');
-    if (this.active.length > 0) {
-      this.activePoints = this.active.map( i => i.current.point );
-      this.centroid = Point2D.midpoint( this.activePoints );
-    }
+    this.activePoints = this.active.map( i => i.current.point );
+    this.centroid = Point2D.midpoint( this.activePoints );
     this.event = event;
   }
 }
+
+/*
+ * Set of helper functions for updating inputs based on type of input.
+ * Must be called with a bound 'this', via bind(), or call(), or apply().
+ */
+const update_fns = {
+  TouchEvent: function(event) {
+    Array.from(event.changedTouches).forEach( touch => {
+      this.updateInput(event, touch.identifier);
+    });
+  },
+
+  PointerEvent: function(event) {
+    this.updateInput(event, event.pointerId);
+  },
+
+  MouseEvent: function(event) {
+    this.updateInput(event, event.button);
+  },
+};
 
 module.exports = State;
 
@@ -11241,7 +11189,9 @@ const Pan     = require('./src/Pan.js');
 const Pinch   = require('./src/Pinch.js');
 const Rotate  = require('./src/Rotate.js');
 const Swipe   = require('./src/Swipe.js');
+const Swivel  = require('./src/Swivel.js');
 const Tap     = require('./src/Tap.js');
+const Track   = require('./src/Track.js');
 
 /**
  * The global API interface for Westures. Contains a constructor for the
@@ -11256,12 +11206,14 @@ module.exports = Object.assign({},
     Pinch,
     Rotate,
     Swipe,
+    Swivel,
     Tap,
+    Track,
   },
 );
 
 
-},{"../westures-core":65,"./src/Pan.js":84,"./src/Pinch.js":85,"./src/Rotate.js":86,"./src/Swipe.js":87,"./src/Tap.js":88}],75:[function(require,module,exports){
+},{"../westures-core":65,"./src/Pan.js":84,"./src/Pinch.js":85,"./src/Rotate.js":86,"./src/Swipe.js":87,"./src/Swivel.js":88,"./src/Tap.js":89,"./src/Track.js":90}],75:[function(require,module,exports){
 arguments[4][65][0].apply(exports,arguments)
 },{"./src/Gesture.js":77,"./src/Point2D.js":80,"./src/Region.js":82,"dup":65}],76:[function(require,module,exports){
 /**
@@ -12033,7 +11985,10 @@ class Pan extends Gesture {
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
-    if (this.muteKey && state.event[this.muteKey]) return null;
+    if (this.muteKey && state.event[this.muteKey]) {
+      this.initialize(state);
+      return null;
+    }
 
     const progress = state.active[0].getProgressOfGesture(this.id);
     const point = state.centroid;
@@ -12270,8 +12225,8 @@ module.exports = Rotate;
 const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
-const ESCAPE_VELOCITY = 4.5;
-const PROGRESS_STACK_SIZE = 3;
+// const ESCAPE_VELOCITY = 4.5;
+const PROGRESS_STACK_SIZE = 5;
 
 /**
  * A swipe is defined as input(s) moving in the same direction in an relatively
@@ -12304,7 +12259,7 @@ class Swipe extends Gesture {
       if (!progress.moves) progress.moves = [];
 
       progress.moves.push({
-        time: Date.now(), // TODO: Replace with input.currentTime ?
+        time: Date.now(),
         point: input.cloneCurrentPoint(),
       });
 
@@ -12334,38 +12289,27 @@ class Swipe extends Gesture {
     if (!progress.moves || progress.moves.length < PROGRESS_STACK_SIZE) {
       return null;
     }
-
-    const moves = progress.moves.map( ({time, point}) => {
-      point.x /= window.innerWidth;
-      point.y /= window.innerHeight;
-      return {
-        time,
-        point, 
-      };
-    });
+    const moves = progress.moves;
 
     const vlim = PROGRESS_STACK_SIZE - 1;
+    const point = moves[vlim].point;
     const velos = [];
+    let direction = 0;
     for (let i = 0; i < vlim; ++i) {
       velos[i] = calc_velocity(moves[i], moves[i + 1]);
+      direction += moves[i].point.angleTo(point);
     }
+    direction /= vlim;
 
-    const point = moves[PROGRESS_STACK_SIZE-1].point;
-    const direction = moves[PROGRESS_STACK_SIZE-2].point.angleTo(point);
-    const velocity = velos.reduce((acc,cur) => cur > acc ? cur : acc) * 1000;
+    const velocity = velos.reduce((acc,cur) => cur > acc ? cur : acc);
 
-    if (velocity >= ESCAPE_VELOCITY) {
-      return {
-        velocity,
-        x: point.x * window.innerWidth,
-        y: point.y * window.innerHeight,
-        direction,
-      };
-    }
-
-    return null;
+    return {
+      x: point.x,
+      y: point.y,
+      velocity,
+      direction,
+    };
   }
-
   /* end*/
 }
 
@@ -12379,6 +12323,71 @@ module.exports = Swipe;
 
 
 },{"westures-core":75}],88:[function(require,module,exports){
+/**
+ * @file Rotate.js
+ * Contains the Rotate class
+ */
+
+'use strict';
+
+const { Gesture } = require('westures-core');
+
+const REQUIRED_INPUTS = 1;
+
+/**
+ * A Swivel is a single input rotating around a fixed point. The fixed point is
+ * determined by the input's location at its 'start' phase.
+ */
+class Swivel extends Gesture {
+  constructor(deadzoneRadius = 10) {
+    super('swivel');
+    this.deadzoneRadius = deadzoneRadius;
+  }
+
+  start(state) {
+    const started = state.getInputsInPhase('start')[0];
+    const progress = started.getProgressOfGesture(this.id);
+    const current = started.current;
+    const point = current.point;
+    const event = current.originalEvent;
+    if (event.ctrlKey) {
+      progress.pivot = point;
+    }
+  }
+
+  move(state) {
+    const active = state.getInputsNotInPhase('end');
+    if (active.length === 1) {
+      const input = active[0];
+
+      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
+        return null;
+      }
+
+      const event = input.current.originalEvent;
+      const progress = input.getProgressOfGesture(this.id);
+      if (event.ctrlKey && progress.pivot) {
+        const point = input.current.point;
+        const pivot = progress.pivot;
+        const angle = pivot.angleTo(point);
+        let delta = 0;
+        if (progress.hasOwnProperty('previousAngle')) {
+          delta = angle - progress.previousAngle;
+        }
+        progress.previousAngle = angle;
+        return { delta, pivot, point };
+      } else {
+        // CTRL key was released, therefore pivot point is now invalid.
+        delete progress.pivot;
+      }
+    }
+  }
+}
+
+module.exports = Swivel;
+
+
+},{"westures-core":75}],89:[function(require,module,exports){
 /**
  * @file Tap.js
  * Contains the Tap class
@@ -12488,6 +12497,50 @@ class Tap extends Gesture {
 }
 
 module.exports = Tap;
+
+
+},{"westures-core":75}],90:[function(require,module,exports){
+/**
+ * @file Track.js
+ * Contains the Track class
+ */
+
+'use strict';
+
+const { Gesture, Point2D } = require('westures-core');
+
+/**
+ * A Track gesture forwards a list of active points and their centroid on each
+ * of the selected phases.
+ *
+ * @class Track
+ */
+class Track extends Gesture {
+  constructor(phases = []) {
+    super('track');
+    this.trackStart = phases.includes('start');
+    this.trackMove  = phases.includes('move');
+    this.trackEnd   = phases.includes('end');
+  }
+
+  data({ activePoints, centroid }) {
+    return { active: activePoints, centroid }; 
+  }
+
+  start(state) {
+    if (this.trackStart) return this.data(state);
+  }
+
+  move(state) {
+    if (this.trackMove) return this.data(state);
+  }
+
+  end(state) {
+    if (this.trackEnd) return this.data(state);
+  }
+}
+
+module.exports = Track;
 
 
 },{"westures-core":75}]},{},[53])(53)
