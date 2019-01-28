@@ -151,12 +151,12 @@ class Connection {
   /**
    * Performs locking and unlocking based on the phase.
    */
-  track({ inputs, centroid, phase }) {
-    if (phase === 'start' && inputs.length === 1) {
-      const point = inputs[0].current.point;
+  track({ active, centroid, phase }) {
+    if (phase === 'start' && active.length === 1) {
+      const point = active[0].current.point;
       this.workspace.giveLock(centroid.x, centroid.y, this.view);
     } else if (phase === 'end' && 
-        inputs.filter(i => i.current.type !== 'end').length === 0) {
+        active.filter(i => i.current.type !== 'end').length === 0) {
       this.workspace.removeLock(this.view);
     }
   }

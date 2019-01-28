@@ -71,16 +71,20 @@ class Track extends Westures.Gesture {
     this.trackEnd = phases.includes('end');
   }
 
+  data({ active, centroid }) {
+    return { active, centroid }; 
+  }
+
   start(state) {
-    if (this.trackStart) return state;
+    if (this.trackStart) return this.data(state);
   }
 
   move(state) {
-    if (this.trackMove) return state;
+    if (this.trackMove) return this.data(state);
   }
 
   end(state) {
-    if (this.trackEnd) return state;
+    if (this.trackEnd) return this.data(state);
   }
 }
 
