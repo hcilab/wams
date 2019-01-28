@@ -8,8 +8,6 @@
 const Wams = require('../src/server.js');
 const ws = new Wams();
 
-console.log(Wams);
-
 function randomPoints(x = 5, lim = 256) {
   const points = [{x: 0, y: 0}];
   const offset = lim / 2;
