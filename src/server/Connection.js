@@ -153,10 +153,8 @@ class Connection {
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {
-      const point = active[0].current.point;
       this.workspace.giveLock(centroid.x, centroid.y, this.view);
-    } else if (phase === 'end' && 
-        active.filter(i => i.current.type !== 'end').length === 0) {
+    } else if (phase === 'end' && active.length === 0) {
       this.workspace.removeLock(this.view);
     }
   }
