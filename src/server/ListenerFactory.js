@@ -119,11 +119,11 @@ function scale(listener, workspace) {
  * workspace: The workspace upon which this event will act.
  */
 function swipe(listener, workspace) {
-  return function handleSwipe(view, { velocity, x, y, direction }) {
+  return function handleSwipe(view, { x, y, velocity, direction }) {
     const mouse = new CoordinateData(x, y).transformFrom(view);
     if (mouse) {
-      const {x,y} = mouse;
-      listener(view, view.lockedItem, x, y, direction);
+      const { x,y } = mouse;
+      listener(view, view.lockedItem, x, y, velocity, direction);
     }
   }
 }
