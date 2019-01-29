@@ -8986,7 +8986,7 @@ class ClientController {
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
-    this.handle('setup', data);
+    this.view.setup(data);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
@@ -12732,6 +12732,7 @@ class Swivel extends Gesture {
 
     const progress = started[0].getProgressOfGesture(this.id);
     progress.pivot = started[0].current.point;
+    progress.previousAngle = 0;
   }
 
   /**
@@ -12743,17 +12744,21 @@ class Swivel extends Gesture {
     const input = state.active[0];
 
     const progress = input.getProgressOfGesture(this.id);
-    if (this.enabled(state.event) && progress.pivot) {
+    if (this.enabled(state.event)) {
+      if (!progress.pivot) {
+        // Restart: enableKey was just pressed again.
+        progress.pivot = input.current.point;
+        progress.previousAngle = 0;
+        return null;
+      }
+
       const point = input.current.point;
       const pivot = progress.pivot;
       const angle = pivot.angleTo(point);
-      let delta = 0;
-      if (progress.hasOwnProperty('previousAngle')) {
-        delta = angle - progress.previousAngle;
-      }
+      const delta = angle - progress.previousAngle;
       progress.previousAngle = angle;
 
-      if (input.totalDistanceIsWithin(this.deadzoneRadius)) {
+      if (pivot.distanceTo(point) <= this.deadzoneRadius) {
         return null;
       } else {
         return { delta, pivot, point };
