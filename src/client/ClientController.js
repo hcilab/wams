@@ -240,7 +240,7 @@ class ClientController {
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
-    this.handle('setup', data);
+    this.view.setup(data);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
