@@ -50,17 +50,6 @@ class ServerView extends View {
   }
 
   /**
-   * Transforms a point from the view space to the model space. That is, it
-   * applies to the point the same transformations that apply to this View.
-   */
-  transformPoint(x, y) {
-    return new Point2D(x, y)
-      .rotate(-this.rotation)
-      .divideBy(this.scale)
-      .plus(this);
-  }
-
-  /**
    * Getters for the sides of the view for positioning elements relative to each
    * other.
    */
@@ -69,20 +58,6 @@ class ServerView extends View {
   get topLeft()     { return this.transformPoint(0,          0); }
   get topRight()    { return this.transformPoint(this.width, 0); }
         
-  /**
-   * Lock this item.
-   */
-  lock() {
-    this.locked = true;
-  }
-
-  /**
-   * Unlock this item.
-   */
-  unlock() {
-    this.locked = false;
-  }
-
   /**
    * Obtain a lock on the given item for this view.
    *
@@ -94,6 +69,13 @@ class ServerView extends View {
     item.lock();
   }
       
+  /**
+   * Lock this item.
+   */
+  lock() {
+    this.locked = true;
+  }
+
   /**
    * Move the view by the given amounts.
    *
@@ -115,6 +97,14 @@ class ServerView extends View {
   }
 
   /**
+   * Release the view's item lock.
+   */
+  releaseLockedItem() {
+    if (this.lockedItem) this.lockedItem.unlock();
+    this.lockedItem = undefined;
+  }
+
+  /**
    * Rotate the view by the given amount, in radians.
    *
    * radians: The amount of rotation to apply to the view.
@@ -130,14 +120,6 @@ class ServerView extends View {
   }
 
   /**
-   * Release the view's item lock.
-   */
-  releaseLockedItem() {
-    if (this.lockedItem) this.lockedItem.unlock();
-    this.lockedItem = undefined;
-  }
-
-  /**
    * Adjust scale to the given scale.
    *
    * ds: Change in desired scale.
@@ -150,6 +132,24 @@ class ServerView extends View {
       const y = my + delta.y;
       this.assign({ x, y, scale });
     }
+  }
+
+  /**
+   * Transforms a point from the view space to the model space. That is, it
+   * applies to the point the same transformations that apply to this View.
+   */
+  transformPoint(x, y) {
+    return new Point2D(x, y)
+      .rotate(-this.rotation)
+      .divideBy(this.scale)
+      .plus(this);
+  }
+
+  /**
+   * Unlock this item.
+   */
+  unlock() {
+    this.locked = false;
   }
 }
 
