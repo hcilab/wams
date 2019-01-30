@@ -147,9 +147,7 @@ class ServerView extends View {
       const x = mx + delta.x;
       const y = my + delta.y;
       this.assign({ x, y, scale });
-      return true;
     }
-    return false;
   }
 }
 
