@@ -65,13 +65,6 @@ class WorkSpace {
     this.settings.bounds = resolveBounds(this.settings.bounds);
 
     /**
-     * Track subworkspaces to this workspace.
-     *
-     * Currently unused.
-     */
-    // this.subWS = [];
-
-    /**
      * Track all active views.
      */
     this.views = [];
@@ -102,12 +95,6 @@ class WorkSpace {
   get height() { return this.settings.bounds.y; }
   set width(width)   { this.settings.bounds.x = width;  }
   set height(height) { this.settings.bounds.y = height; }
-
-  // addSubWS(subWS) {
-  //   this.subWS.push(subWS);
-  //   //TODO: add check to make sure subWS is in bounds of the main workspace
-  //   //TODO: probably send a workspace update message
-  // }
 
   /**
    * Looks for an unlocked item at the given coordinates and returns the first
