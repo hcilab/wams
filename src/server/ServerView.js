@@ -24,10 +24,6 @@ const DEFAULTS = {
   type: 'view/background',
   scale: 1,
   rotation: 0,
-  bounds: {
-    x: 10000,
-    y: 10000,
-  },
 };
 
 const STAMPER = new IdStamper();
@@ -35,18 +31,6 @@ const STAMPER = new IdStamper();
 class ServerView extends View {
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
-
-    /**
-     * Bounding box descriptor of the view.
-     * TODO: Implement and use this for bounds checking!
-     */
-    this.boundingBox = new Point2D();
-    
-    /**
-     * x and y dimensions detailing the boundaries within which the view can
-     * operate.
-     */
-    this.workspaceBounds = values.bounds || DEFAULTS.bounds;
 
     /**
      * If a continuous gesture needs to lock down an item, a reference to that
@@ -93,50 +77,6 @@ class ServerView extends View {
    */
   unlock() {
     this.locked = false;
-  }
-
-  /**
-   * Returns true if the view can be scaled to the given dimensions and still
-   * fit in the boundaries of the workspace.
-   *
-   * width : Width of the desired new scale.
-   * height: Height of the desired new scale.
-   */
-  canBeScaledTo(width = this.width, height = this.height) {
-    return  (width  > 0) &&
-      (height > 0) &&
-      (this.x + width  <= this.workspaceBounds.x) &&
-      (this.y + height <= this.workspaceBounds.y);
-  }
-
-  /*
-   * The canMoveTo[XY] functions are split up in order to allow for the x and
-   * y dimensions to be independently moved. In other words, if a move fails
-   * in the x direction, it can still succeed in the y direction. This makes
-   * it easier to push the view into the boundaries.
-   *
-   * XXX: Can they be unified simply while still allowing this kind of 
-   *      separation?
-   */
-
-  /**
-   * Returns true if this view can be moved to the given X coordinate and still
-   * fit within the boundaries of the workspace.
-   *
-   * x: desired x coordinate to move to
-   */
-  canMoveToX(x = this.x) {
-    return (x >= 0) && (x <= this.workspaceBounds.x);
-  }
-
-  /**
-   * Returns true if this view can be moved to the given Y coordinate and still
-   * fit within the boundaries of the workspace.
-   *
-   * y: desired y coordinate to move to
-   */
-  canMoveToY(y = this.y) {
-    return (y >= 0) && (y <= this.workspaceBounds.y);
   }
 
   /**
