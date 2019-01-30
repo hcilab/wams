@@ -118,12 +118,9 @@ class WorkSpace {
    * Gives a lock on the item at (x,y) to the view.
    */
   giveLock(x, y, view) {
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const {x, y} = mouse;
-      const item = this.findFreeItemByCoordinates(x, y) || view;
-      view.getLockOnItem(item);
-    }
+    const p = view.transformPoint(x, y);
+    const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
+    view.getLockOnItem(item);
   }
 
   /**
