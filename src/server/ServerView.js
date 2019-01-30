@@ -146,6 +146,17 @@ class ServerView extends View {
   }
 
   /**
+   * Transforms a "change" point from the view space to the model space. Very
+   * much like the 'transformPoint' function, except that it does not apply
+   * translation.
+   */
+  transformPointChange(dx, dy) {
+    return new Point2D(dx, dy)
+      .rotate(-this.rotation)
+      .divideBy(this.scale);
+  }
+
+  /**
    * Unlock this item.
    */
   unlock() {
