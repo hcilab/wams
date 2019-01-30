@@ -14,7 +14,6 @@
 
 'use strict';
 
-const CoordinateData = require('./CoordinateData.js');
 const ServerItem     = require('./ServerItem.js');
 
 /**

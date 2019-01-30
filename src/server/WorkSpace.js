@@ -20,7 +20,6 @@ const {
   NOP,
   safeRemoveById,
 } = require('../shared.js');
-const CoordinateData = require('./CoordinateData.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
