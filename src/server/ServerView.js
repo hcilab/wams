@@ -138,7 +138,7 @@ class ServerView extends View {
   /**
    * Adjust scale to the given scale.
    *
-   * scale: Change in desired scale.
+   * ds: Change in desired scale.
    */
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     const scale = ds * this.scale;
