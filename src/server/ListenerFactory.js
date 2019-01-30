@@ -25,17 +25,14 @@ const ServerItem     = require('./ServerItem.js');
  * workspace: The workspace upon which this event will act.
  */
 function click(listener, workspace) {
-  return function handleClick(view, {x, y}) {
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const {x, y} = mouse;
-      if (view.lockedItem instanceof ServerItem && 
-          view.lockedItem.containsPoint(x, y)) {
-        listener(view, view.lockedItem, x, y);
-      } else {
-        const target = workspace.findFreeItemByCoordinates(x, y) || view;
-        listener(view, target, x, y);
-      }
+  return function handleClick(view, point) {
+    const { x, y } = view.transformPoint(point.x, point.y);
+    if (view.lockedItem instanceof ServerItem && 
+      view.lockedItem.containsPoint(x, y)) {
+      listener(view, view.lockedItem, x, y);
+    } else {
+      const target = workspace.findFreeItemByCoordinates(x, y) || view;
+      listener(view, target, x, y);
     }
   };
 }
@@ -48,14 +45,9 @@ function click(listener, workspace) {
  */
 function drag(listener) {
   return function handleDrag(view, { change, point }) {
-    const { x, y } = point;
-    const dx = change.x;
-    const dy = change.y;
-    const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
-    if (mouse) {
-      const {x, y, dx, dy} = mouse;
-      listener(view, view.lockedItem, x, y, dx, dy);
-    }
+    const p = view.transformPoint(point.x, point.y);
+    const dp = view.transformPointChange(change.x, change.y);
+    listener(view, view.lockedItem, p.x, p.y, dp.x, dp.y);
   };
 }
 
@@ -81,11 +73,8 @@ function layout(listener) {
 function rotate(listener) {
   return function handleRotate(view, { delta, pivot }) {
     const radians = delta;
-    const point = new CoordinateData(pivot.x, pivot.y).transformFrom(view);
-    if (point) {
-      const { x, y } = point;
-      listener(view, view.lockedItem, radians, x, y);
-    }
+    const { x, y } = view.transformPoint(pivot.x, pivot.y);
+    listener(view, view.lockedItem, radians, x, y);
   };
 }
 
@@ -97,13 +86,9 @@ function rotate(listener) {
  */
 function scale(listener) {
   return function handleScale(view, { change, midpoint }) {
-    const { x, y } = midpoint;
     const scale = change;
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const {x, y} = mouse;
-      listener(view, view.lockedItem, scale, x, y);
-    }
+    const { x, y } = view.transformPoint(midpoint.x, midpoint.y);
+    listener(view, view.lockedItem, scale, x, y);
   };
 }
 
@@ -114,12 +99,9 @@ function scale(listener) {
  * listener : User-supplied function for responding to this event.
  */
 function swipe(listener) {
-  return function handleSwipe(view, { x, y, velocity, direction }) {
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const { x,y } = mouse;
-      listener(view, view.lockedItem, x, y, velocity, direction);
-    }
+  return function handleSwipe(view, data) {
+    const { x, y } = view.transformPoint(data.x, data.y);
+    listener(view, view.lockedItem, x, y, data.velocity, data.direction);
   }
 }
 
