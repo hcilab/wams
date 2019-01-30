@@ -101,12 +101,10 @@ class ServerView extends View {
   }
 
   /**
-   * Move the view to the given coordinates (or attempt to, anyway).
-   * Views are constrained to stay within the boundaries of the workspace.
-   * TODO: Adjust to move to maximal x/y location if unable to move all the way.
+   * Move the view to the given coordinates.
    *
-   * x: x coordinate to move to
-   * y: y coordinate to move to
+   * x: x coordinate to move to.
+   * y: y coordinate to move to.
    */
   moveTo(x = this.x, y = this.y) {
     this.assign({ x, y });
