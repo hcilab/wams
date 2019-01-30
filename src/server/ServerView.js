@@ -50,20 +50,24 @@ class ServerView extends View {
   }
 
   /**
-   * Getters for the sides of the view for positioning elements relative to each
-   * other.
+   * Transforms a point from the view space to the model space. That is, it
+   * applies to the point the same transformations that apply to this View.
    */
-  side(x, y) {
+  transformPoint(x, y) {
     return new Point2D(x, y)
       .rotate(-this.rotation)
       .divideBy(this.scale)
       .plus(this);
   }
 
-  get bottomLeft()  { return this.side(0, this.height); }
-  get bottomRight() { return this.side(this.width, this.height); }
-  get topLeft()     { return this.side(0, 0); }
-  get topRight()    { return this.side(this.width, 0); }
+  /**
+   * Getters for the sides of the view for positioning elements relative to each
+   * other.
+   */
+  get bottomLeft()  { return this.transformPoint(0,          this.height); }
+  get bottomRight() { return this.transformPoint(this.width, this.height); }
+  get topLeft()     { return this.transformPoint(0,          0); }
+  get topRight()    { return this.transformPoint(this.width, 0); }
         
   /**
    * Lock this item.
