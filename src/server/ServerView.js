@@ -141,13 +141,12 @@ class ServerView extends View {
    * scale: Desired scale.
    */
   scaleBy(scale = 1, mx = this.x, my = this.y) {
-    scale *= this.scale;
     if (scale > 0.1 && scale < 10) {
       const delta = new Point2D( this.x - mx, this.y - my )
-        .times(this.scale)
         .divideBy(scale)
       const x = mx + delta.x;
       const y = my + delta.y;
+      scale *= this.scale;
       this.assign({ x, y, scale });
       return true;
     }
