@@ -82,14 +82,6 @@ class ServerView extends View {
   get topRight()    { return this.side(this.width, 0); }
         
   /**
-   * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for regulating the effective width and height.
-   */
-  assign(data) {
-    super.assign(data);
-  }
-
-  /**
    * Lock this item.
    */
   lock() {
