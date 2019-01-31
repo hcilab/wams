@@ -177,17 +177,6 @@ class Server {
   }
 
   /**
-   * Reject the connection associated with the given socket.
-   *
-   * socket: socket.io socket instance for the rejected connection.
-   */
-  reject(socket) {
-    socket.emit(Message.FULL);
-    socket.disconnect(true);
-    console.warn('Rejected incoming connection: client limit reached.');
-  }
-
-  /**
    * Start the server on the given hostname and port.
    *
    * port: Valid port number on which to listen.
@@ -208,6 +197,17 @@ class Server {
    */
   on(event, handler) {
     this.workspace.on(event, handler);
+  }
+
+  /**
+   * Reject the connection associated with the given socket.
+   *
+   * socket: socket.io socket instance for the rejected connection.
+   */
+  reject(socket) {
+    socket.emit(Message.FULL);
+    socket.disconnect(true);
+    console.warn('Rejected incoming connection: client limit reached.');
   }
 
   /**
