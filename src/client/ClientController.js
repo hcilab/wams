@@ -2,7 +2,7 @@
  * WAMS code to be executed in the client browser.
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
+ * Date: July 2018 - January 2019
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
@@ -35,8 +35,7 @@ const symbols = Object.freeze({
 /**
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. This is essentially the
- * controller in an MVC-esque design.
+ * the server detailing changes to post to the view. 
  */
 class ClientController { 
   /**
@@ -80,7 +79,7 @@ class ClientController {
     });
 
     /**
-     * This boolean tracks whether a render has been schedule for the next
+     * This boolean tracks whether a render has been scheduled for the next
      * 1/60th of a second interval.
      */
     this.renderScheduled = false;
@@ -99,8 +98,8 @@ class ClientController {
     this[symbols.startRender]();
 
 
-    // As no draw loop is used, (there are no animations), need to know when to
-    // re-render in response to an image loading.
+    // As no automatic draw loop is used, (there are no animations), need to
+    // know when to re-render in response to an image loading.
     const schedule_fn = this.scheduleRender.bind(this);
     document.addEventListener( Message.IMG_LOAD, schedule_fn );
   }
