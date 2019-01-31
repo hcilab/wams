@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ClientView class is used for all rendering activities on the client
- * side. This is essentially the view in an MVC-esque design.
  */
 
 'use strict';

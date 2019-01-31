@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The WorkSpace keeps track of views and items, and can handle events on
- * those items and views which allow them to be interacted with.
  */
 
 'use strict';
@@ -29,6 +26,10 @@ const DEFAULTS = Object.freeze({
 });
 const STAMPER = new IdStamper();
 
+/**
+ * The WorkSpace keeps track of views and items, and can handle events on
+ * those items and views which allow them to be interacted with.
+ */
 class WorkSpace {
   /**
    * settings: Options received from user.

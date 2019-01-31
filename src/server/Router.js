@@ -15,7 +15,8 @@ const express = require('express');
 
 /**
  * Actually returns an express.js app with routes already established. Maybe not
- * the most elegant solution, but it means we will prioritize the main routes.
+ * the most elegant solution, but it means the end user can access the router,
+ * and the main routes will still get priority.
  */
 class Router {
   constructor() {

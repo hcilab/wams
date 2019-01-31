@@ -6,8 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ClientItem class exposes the draw() funcitonality of wams items.
  */
 
 'use strict';
@@ -45,6 +43,9 @@ function createImage(src) {
   return null;
 }
 
+/**
+ * The ClientItem class exposes the draw() funcitonality of wams items.
+ */
 class ClientItem extends Item {
   /**
    * data: The data from the server describing this item. Only properties

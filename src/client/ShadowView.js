@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ShadowView class exposes a simple draw() function which renders a
- * shadowy outline of the view onto the canvas.
  */
 
 /*
@@ -36,7 +33,8 @@ const symbols = Object.freeze({
 });
 
 /**
- * Track another active view and render an outline.
+ * The ShadowView class exposes a simple draw() function which renders a shadowy
+ * outline of the view onto the canvas.
  */
 class ShadowView extends View {
   /**

@@ -6,10 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * This module defines the API endpoint. In practice, this means it is a thin
- * wrapper around the Server class which exposes only that functionality of the
- * Server which should be available to the end user.
  */
 
 'use strict';
@@ -19,6 +15,11 @@ const Server = require('./Server.js');
 const server = Symbol('server');
 const updates = Symbol('updates');
 
+/**
+ * This module defines the API endpoint. In practice, this means it is a thin
+ * wrapper around the Server class which exposes only that functionality of the
+ * Server which should be available to the end user.
+ */
 class Wams {
   /**
    * settings: Settings data to be forwarded to the server.

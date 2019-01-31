@@ -3,12 +3,13 @@
  *
  * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
- *
- * Define operations for a single 2D point in the model space.
  */
 
 'use strict';
 
+/**
+ * Defines a set of basic operations on a point in a two dimensional space.
+ */
 class Point2D {
   /**
    * x: x coordinate of the point

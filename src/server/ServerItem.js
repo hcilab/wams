@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ServerItem provides operations for the server to locate and move items
- * around.
  */
 
 'use strict';
@@ -29,6 +26,10 @@ const DEFAULTS = Object.freeze({
 
 const STAMPER = new IdStamper();
 
+/**
+ * The ServerItem provides operations for the server to locate and move items
+ * around.
+ */
 class ServerItem extends Item {
   /**
    * values: User-supplied data detailing the item.

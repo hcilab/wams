@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The Interactor class provides a layer of abstraction between the
- * ClientController and the code that processes user inputs.
  */
 
 'use strict';
@@ -27,20 +24,15 @@ const HANDLERS = Object.freeze({
 });
 
 /**
+ * The Interactor class provides a layer of abstraction between the
+ * ClientController and the code that processes user inputs.
+ *
  * Currently, the Interactor makes use of the Westures library.
  *
- * General Design:
- *  The handlers will get called with the arguments that need to be reported
- *  through to the server. This allows the ClientController to use this class
- *  in a very simple way. This is the contract between the Interactor and the
- *  ClientController, and must be honoured.
+ * Data from recognized gestures is reported directly through to the handlers.
  *
- *  The handlers are initialized to NOPs so that the functions which call the
- *  handlers don't need to check whether the handler exists.
- *
- *  The methods of this class that are similarly named as the handlers are
- *  there as an intermediary to collect data from events and call the handlers
- *  with only the requisite data.
+ * The handlers are initialized to NOPs so that the functions which call the
+ * handlers don't need to check whether the handler exists.
  */
 class Interactor {
   /**

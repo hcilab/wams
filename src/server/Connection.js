@@ -6,10 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * A Connection maintains a socket.io connection between a client and the
- * server. It tracks a view associated with the client, as well as the 
- * associated workspace.
  */
 
 'use strict';
@@ -22,6 +18,11 @@ const symbols = Object.freeze({
   fullStateReport: Symbol('fullStateReport'),
 });
 
+/**
+ * A Connection maintains a socket.io connection between a client and the
+ * server. It tracks a view associated with the client, as well as the
+ * associated workspace.
+ */
 class Connection {
   constructor(index, socket, workspace) {
     /**

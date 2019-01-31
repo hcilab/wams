@@ -6,11 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ClientController coordinates communication with the wams server. It sends
- * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. This is essentially the
- * controller in an MVC-esque design.
  */
 
 'use strict';
@@ -38,7 +33,10 @@ const symbols = Object.freeze({
 });
 
 /**
- * A ClientController is responsible for communicating with the server.
+ * The ClientController coordinates communication with the wams server. It sends
+ * messages based on user interaction with the canvas and receives messages from
+ * the server detailing changes to post to the view. This is essentially the
+ * controller in an MVC-esque design.
  */
 class ClientController { 
   /**

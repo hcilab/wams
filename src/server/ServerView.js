@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ServerView provides operations for the server to locate, move,
- * and rescale views.
  */
 
 'use strict';
@@ -28,6 +25,10 @@ const DEFAULTS = {
 
 const STAMPER = new IdStamper();
 
+/**
+ * The ServerView provides operations for the server to locate, move, and
+ * rescale views.
+ */
 class ServerView extends View {
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
