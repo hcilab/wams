@@ -2,7 +2,7 @@
  * WAMS code to be executed in the client browser.
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
+ * Date: July 2018 - Jan 2019
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
