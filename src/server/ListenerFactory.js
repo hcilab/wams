@@ -98,9 +98,9 @@ function scale(listener) {
  * listener : User-supplied function for responding to this event.
  */
 function swipe(listener) {
-  return function handleSwipe(view, data) {
-    const { x, y } = view.transformPoint(data.x, data.y);
-    listener(view, view.lockedItem, x, y, data.velocity, data.direction);
+  return function handleSwipe(view, { point, velocity, direction }) {
+    const { x, y } = view.transformPoint(point.x, point.y);
+    listener(view, view.lockedItem, x, y, velocity, direction);
   }
 }
 
