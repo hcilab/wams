@@ -6,7 +6,7 @@
     "express": "^4.16.4",
     "image-size": "^0.6.3",
     "socket.io": "^2.2.0",
-    "westures": "^0.3.1",
+    "westures": "^0.4.0",
     "zingtouch": "^1.0.6"
   },
   "devDependencies": {
@@ -18,7 +18,7 @@
     "babel-jest": "^23.6.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
-    "eslint": "^5.12.1",
+    "eslint": "^5.13.0",
     "jest": "^23.6.0"
   },
   "jest": {
