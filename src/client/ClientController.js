@@ -2,29 +2,22 @@
  * WAMS code to be executed in the client browser.
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
+ * Date: July 2018 - January 2019
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ClientController coordinates communication with the wams server. It sends
- * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. This is essentially the
- * controller in an MVC-esque design.
  */
 
 'use strict';
 
 const io = require('socket.io-client');
+
 const { 
-  constants: globals, 
+  constants, 
+  DataReporter,
   IdStamper, 
   Message, 
-  MouseReporter,
   NOP,
-  RotateReporter,
-  ScaleReporter,
-  SwipeReporter,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
@@ -35,10 +28,14 @@ const STAMPER = new IdStamper();
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
+  render:          Symbol('render'),
+  startRender:     Symbol('startRender'),
 });
 
 /**
- * A ClientController is responsible for communicating with the server.
+ * The ClientController coordinates communication with the wams server. It sends
+ * messages based on user interaction with the canvas and receives messages from
+ * the server detailing changes to post to the view. 
  */
 class ClientController { 
   /**
@@ -73,12 +70,19 @@ class ClientController {
      * gestures.
      */
     this.interactor = new Interactor(this.canvas, {
-      pan:    this.pan.bind(this),
-      rotate: this.rotate.bind(this),
-      swipe:  this.swipe.bind(this),
-      tap:    this.tap.bind(this),
-      zoom:   this.zoom.bind(this),
+      pan:    this.forward(Message.DRAG),
+      rotate: this.forward(Message.ROTATE),
+      swipe:  this.forward(Message.SWIPE),
+      tap:    this.forward(Message.CLICK),
+      zoom:   this.forward(Message.SCALE),
+      track:  this.forward(Message.TRACK),
     });
+
+    /**
+     * This boolean tracks whether a render has been scheduled for the next
+     * 1/60th of a second interval.
+     */
+    this.renderScheduled = false;
 
     // For proper function, we need to make sure that the canvas is as large as
     // it can be at all times, and that at all times we know how big the canvas
@@ -91,6 +95,13 @@ class ClientController {
     // useful for functionality to be inserted between ClientController
     // instantiation and socket establishment.
     this[symbols.establishSocket]();
+    this[symbols.startRender]();
+
+
+    // As no automatic draw loop is used, (there are no animations), need to
+    // know when to re-render in response to an image loading.
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener( Message.IMG_LOAD, schedule_fn );
   }
 
   /**
@@ -122,6 +133,7 @@ class ClientController {
       [Message.ROTATE]: NOP,
       [Message.SCALE]:  NOP,
       [Message.SWIPE]:  NOP,
+      [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
@@ -140,7 +152,7 @@ class ClientController {
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( globals.NS_WAMS, {
+    this.socket = io.connect( constants.NS_WAMS, {
       autoConnect: false,
       reconnection: false,
     });
@@ -149,29 +161,43 @@ class ClientController {
   }
 
   /**
-   * Forwards messages to the View.
+   * Renders a frame.
+   */
+  [symbols.render]() {
+    if (this.renderScheduled) {
+      this.view.draw();
+      this.renderScheduled = false;
+    }
+  }
+
+  /**
+   * Initializes the render loop.
+   */
+  [symbols.startRender]() {
+    const render_fn = this[symbols.render].bind(this);
+    window.setInterval( render_fn, 1000 / 60 );
+  }
+
+  /**
+   * Generates a function for forwarding the given message to the server.
+   */
+  forward(message) {
+    function do_forward(data) {
+      const dreport = new DataReporter({ data });
+      new Message(message, dreport).emitWith(this.socket);
+    }
+    return do_forward.bind(this);
+  }
+
+  /**
+   * Passes messages to the View, and schedules a render.
    *
    * message: string denoting type of message. 
    * ...args: arguments to be passed to ultimate handler.
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
-  }
-
-  /**
-   * Forward data pertaining to a pan/drag event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * x    : x coordinate of drag
-   * y    : y coordinate of drag
-   * dx   : change in x coordinate since last drag event
-   * dy   : change in y coordinate since last drag event
-   * phase: one of 'start', 'move', 'end', or 'cancel', the phase of the drag
-   *        event.
-   */
-  pan(x, y, dx, dy, phase) {
-    const mreport = new MouseReporter({ x, y, dx, dy, phase });
-    new Message(Message.DRAG, mreport).emitWith(this.socket);
+    this.scheduleRender();
   }
 
   /**
@@ -195,6 +221,13 @@ class ClientController {
   }
 
   /**
+   * Schedules a render for the next frame interval.
+   */
+  scheduleRender() {
+    this.renderScheduled = true;
+  }
+
+  /**
    * As this object will be instantiated on page load, and will generate a view
    * before communication lines with the server have been opened, the view will
    * not reflect the model automatically. This function responds to a message
@@ -204,64 +237,10 @@ class ClientController {
   setup(data) {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
-    this.handle('setup', data);
+    this.view.setup(data);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a rotate event to the server, using the Message
-   * / Reporter protocol.
-   *
-   * radians: The amount of the rotation, in radians.
-   */
-  rotate(radians, px, py) {
-    const rreport = new RotateReporter({ radians, px, py });
-    new Message(Message.ROTATE, rreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a swipe event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * velocity : The speed of the swipe.
-   * x        : x coordinate of swipe.
-   * y        : y coordinate of swipe.
-   * direction: The direction of the swipe.
-   */
-  swipe(velocity, x, y, direction) {
-    const sreport = new SwipeReporter({ velocity, x, y, direction });
-    new Message(Message.SWIPE, sreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a tap event to the server, using the Message /
-   * Reporter protocol.
-   *
-   * x    : x coordinate of tap
-   * y    : y coordinate of tap
-   */
-  tap(x, y) {
-    const mreport = new MouseReporter({ x, y });
-    new Message(Message.CLICK, mreport).emitWith(this.socket);
-  }
-
-  /**
-   * Forward data pertaining to a zoom/scale event to the server, using the
-   * Message / Reporter protocol.
-   *
-   * diff: The change in scale
-   * mx  : x coordinate of the midpoint of the zoom
-   * my  : y coordinate of the midpoint of the zoom
-   */
-  zoom(diff, mx, my) {
-    // Changes will generally be in range [-1,1], clustered around 0, therefore
-    // bring above zero and cluster around 1 to produce appropriate
-    // multiplicative behaviour on the server end.
-    const scale = diff + 1;
-    const sreport = new ScaleReporter({ scale, mx, my });
-    new Message(Message.SCALE, sreport).emitWith(this.socket);
   }
 }
 

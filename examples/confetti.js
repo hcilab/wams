@@ -8,20 +8,9 @@
 const Wams = require('../src/server.js');
 const ws = new Wams();
 
-const colours = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
-
 function square(x, y, view) {
   return Wams.predefined.items.square(-64, -64, 128, 
-    colours[view.id % colours.length], 
+    Wams.colours[view.id % Wams.colours.length], 
     {
       x,
       y,

@@ -3,14 +3,15 @@
  *
  * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
- *
- * Track a 2D polygon as an in-order list of Point2D objects.
  */
 
 'use strict';
 
 const Point2D = require('./Point2D.js');
 
+/**
+ * Track a 2D polygon as an in-order list of Point2D objects.
+ */
 class Polygon2D {
   /**
    * anchor: A Point2D object, the "anchor" around which the Polygon will be

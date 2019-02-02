@@ -17,8 +17,6 @@ const Item = ReporterFactory([
   'x',
   'y',
   'hitbox', // TODO: May not need to be reported
-  // 'width',
-  // 'height',
   'rotation',
   'scale',
   'type',
@@ -41,43 +39,14 @@ const View = ReporterFactory([
 ]);
 
 /*
- * This class is intended for sharing mouse action data between client and
- * server.
+ * This class allows generic Input data reporting between client and server.
+ * Honestly it's a bit of a cheaty hack around the Message / Reporter protocol,
+ * but it simplifies the code and makes things easier to maintain. And honestly
+ * the Message / Reporter protocol is mostly focused on protecting Views and
+ * Items anyway.
  */
-const MouseReporter = ReporterFactory([
-  'x',
-  'y',
-  'dx',
-  'dy',
-  'phase',
-]);
-
-/*
- * This class allows reporting of scale data between client and server.
- */
-const ScaleReporter = ReporterFactory([
-  'scale',
-  'mx',
-  'my',
-]);
-
-/*
- * This class allows reporting of rotation data between client and server.
- */
-const RotateReporter = ReporterFactory([
-  'radians',
-  'px',
-  'py',
-]);
-
-/*
- * This class allows reporting of swipe data between client and server.
- */
-const SwipeReporter = ReporterFactory([
-  'velocity',
-  'x',
-  'y',
-  'direction',
+const DataReporter = ReporterFactory([
+  'data',
 ]);
 
 /*
@@ -95,10 +64,7 @@ const FullStateReporter = ReporterFactory([
 module.exports = {
   Item,
   View,
-  MouseReporter,
-  ScaleReporter,
-  RotateReporter,
-  SwipeReporter,
+  DataReporter,
   FullStateReporter,
 };
 

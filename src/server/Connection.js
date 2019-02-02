@@ -6,10 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * A Connection maintains a socket.io connection between a client and the
- * server. It tracks a view associated with the client, as well as the 
- * associated workspace.
  */
 
 'use strict';
@@ -22,6 +18,11 @@ const symbols = Object.freeze({
   fullStateReport: Symbol('fullStateReport'),
 });
 
+/**
+ * A Connection maintains a socket.io connection between a client and the
+ * server. It tracks a view associated with the client, as well as the
+ * associated workspace.
+ */
 class Connection {
   constructor(index, socket, workspace) {
     /**
@@ -71,13 +72,16 @@ class Connection {
       [Message.INITIALIZE]: NOP,
       [Message.LAYOUT]:     (...args) => this.layout(...args),
 
-      // User event related
-      [Message.CLICK]:  (...args) => this.handle('click', ...args),
-      [Message.DRAG]:   (...args) => this.handle('drag', ...args),
-      [Message.RESIZE]: (...args) => this.resize(...args),
-      [Message.ROTATE]: (...args) => this.handle('rotate', ...args),
-      [Message.SCALE]:  (...args) => this.handle('scale', ...args),
-      [Message.SWIPE]:  (...args) => this.handle('swipe', ...args),
+      // User event related, pass off to WorkSpace to handle
+      [Message.CLICK]:  ({ data }) => this.handle('click',  data),
+      [Message.DRAG]:   ({ data }) => this.handle('drag',   data),
+      [Message.ROTATE]: ({ data }) => this.handle('rotate', data),
+      [Message.SCALE]:  ({ data }) => this.handle('scale',  data),
+      [Message.SWIPE]:  ({ data }) => this.handle('swipe',  data),
+
+      // User event related, handle immediately
+      [Message.RESIZE]: (data)     => this.resize(data),
+      [Message.TRACK]:  ({ data }) => this.track(data),
     };
 
     Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
@@ -95,7 +99,7 @@ class Connection {
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
   }
-  
+
   /**
    * Informs the model of the necessary changes when a client disconnects.
    */
@@ -114,8 +118,8 @@ class Connection {
    * message: A string giving the type of message
    * ...args: Arguments to be passed to the message handler.
    */
-  handle(message, ...args) {
-    this.workspace.handle(message, this.view, ...args);
+  handle(message, data) {
+    this.workspace.handle(message, this.view, data);
   }
 
   /**
@@ -128,8 +132,9 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
-    new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     this.workspace.handle('layout', this.view, this.index);
+    new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
+    new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
   }
 
   /**
@@ -142,6 +147,17 @@ class Connection {
   resize(data) {
     this.view.assign(data);
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
+  }
+
+  /**
+   * Performs locking and unlocking based on the phase.
+   */
+  track({ active, centroid, phase }) {
+    if (phase === 'start' && active.length === 1) {
+      this.workspace.giveLock(centroid.x, centroid.y, this.view);
+    } else if (phase === 'end' && active.length === 0) {
+      this.workspace.removeLock(this.view);
+    }
   }
 }
 

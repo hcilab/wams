@@ -14,7 +14,7 @@
 
 'use strict';
 
-const CoordinateData = require('./CoordinateData.js');
+const ServerItem     = require('./ServerItem.js');
 
 /**
  * Generates a click handler function, which will perform hit detection then
@@ -24,36 +24,31 @@ const CoordinateData = require('./CoordinateData.js');
  * workspace: The workspace upon which this event will act.
  */
 function click(listener, workspace) {
-  return function handleClick(view, {x, y}) {
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const {x, y} = mouse;
-      const target = workspace.findItemByCoordinates(x, y) || view;
+  return function handleClick(view, point) {
+    const { x, y } = view.transformPoint(point.x, point.y);
+    if (view.lockedItem instanceof ServerItem && 
+      view.lockedItem.containsPoint(x, y)) {
+      listener(view, view.lockedItem, x, y);
+    } else {
+      const target = workspace.findFreeItemByCoordinates(x, y) || view;
       listener(view, target, x, y);
     }
   };
-};
+}
 
 /**
- * Generates a drag handler function, which will perform hit detection and item
- * locking (based on drag phase), then call the provided listener with
+ * Generates a drag handler function, which will call the provided listener with
  * appropriate arguments.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function drag(listener, workspace) {
-  return function handleDrag(view, {x, y, dx, dy, phase}) {
-    const mouse = new CoordinateData(x, y, dx, dy).transformFrom(view);
-    if (mouse) {
-      const {x, y, dx, dy} = mouse;
-      const target = workspace.findItemByCoordinates(x, y, phase, view) || view;
-      if (phase === 'move') {
-        listener(view, target, x, y, dx, dy);
-      }
-    }
+function drag(listener) {
+  return function handleDrag(view, { change, point }) {
+    const p = view.transformPoint(point.x, point.y);
+    const dp = view.transformPointChange(change.x, change.y);
+    listener(view, view.lockedItem, p.x, p.y, dp.x, dp.y);
   };
-};
+}
 
 /**
  * Generates a layout handler function. Simply calls the listener with the same
@@ -61,65 +56,51 @@ function drag(listener, workspace) {
  * listeners.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function layout(listener, workspace) {
+function layout(listener) {
   return function handleLayout(view, index) {
     listener(view, index);
   };
-};
+}
 
 /**
  * Generates a rotate handler function. Unpacks the arguments and forwards them
  * to the provided listener.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function rotate(listener, workspace) {
-  return function handleRotate(view, {radians, px, py}) {
-    const pivot = new CoordinateData(px, py).transformFrom(view);
-    if (pivot) {
-      const {x, y} = pivot;
-      const target = workspace.findItemByCoordinates(x, y) || view;
-      listener(view, target, radians, x, y);
-    }
+function rotate(listener) {
+  return function handleRotate(view, { delta, pivot }) {
+    const radians = delta;
+    const { x, y } = view.transformPoint(pivot.x, pivot.y);
+    listener(view, view.lockedItem, radians, x, y);
   };
-};
+}
 
 /**
  * Generates a scale handler function. Unpacks the arguments and forwards to the
  * provided listener.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function scale(listener, workspace) {
-  return function handleScale(view, {scale, mx, my}) {
-    const mouse = new CoordinateData(mx, my).transformFrom(view);
-    if (mouse) {
-      const {x, y} = mouse;
-      const target = workspace.findItemByCoordinates(x, y) || view;
-      listener(view, target, scale, x, y);
-    }
+function scale(listener) {
+  return function handleScale(view, { change, midpoint }) {
+    const scale = change;
+    const { x, y } = view.transformPoint(midpoint.x, midpoint.y);
+    listener(view, view.lockedItem, scale, x, y);
   };
-};
+}
 
 /**
  * Generates a swipe handler function, which will perform hit detection then
  * call the provided listener with appropriate arguments.
  *
  * listener : User-supplied function for responding to this event.
- * workspace: The workspace upon which this event will act.
  */
-function swipe(listener, workspace) {
-  return function handleSwipe(view, {velocity, x, y, direction}) {
-    const mouse = new CoordinateData(x, y).transformFrom(view);
-    if (mouse) {
-      const {x,y} = mouse;
-      const target = workspace.findItemByCoordinates(x, y) || view;
-      listener(view, target, velocity, x, y, direction);
-    }
+function swipe(listener) {
+  return function handleSwipe(view, { point, velocity, direction }) {
+    const { x, y } = view.transformPoint(point.x, point.y);
+    listener(view, view.lockedItem, x, y, velocity, direction);
   }
 }
 
@@ -146,7 +127,7 @@ function build(type, listener, workspace) {
     throw 'Attached listener must be a function';
   } 
   return BLUEPRINTS[type](listener, workspace);
-};
+}
 
 const ListenerFactory = Object.freeze({
   build,

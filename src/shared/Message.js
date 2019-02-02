@@ -44,6 +44,7 @@ const TYPES = Object.freeze({
   ROTATE:     'wams-rotate',
   SCALE:      'wams-scale',
   SWIPE:      'wams-swipe',
+  TRACK:      'wams-track',
 
   // Page event related
   IMG_LOAD:   'wams-image-loaded',

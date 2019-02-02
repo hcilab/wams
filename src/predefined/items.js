@@ -26,21 +26,25 @@ function transformed(data = {}) {
  */
 function rectangularHitbox(x, y, width, height) {
   return new Polygon2D([
-    { x: x,     y: y },
+    { x: x,         y: y },
     { x: x + width, y: y },
     { x: x + width, y: y + height },
-    { x: x,     y: y + height },
+    { x: x,         y: y + height },
   ]);
 }
   
 /**
  * Returns an object with the parameters for an image item using the given
  * source.
+ * 
+ * NOTE: This function should only be used for images that are intended to be
+ * interactable! If you want an image that shouldn't be interacted with, simply
+ * spawn an item directly with the itemOptions (including the imgsrc as a
+ * property) that you would have supplied here.
  */
 function image(imgsrc, itemOptions = {}) {
   const dims = sizeOfImage(imgsrc);
-  const scale = itemOptions.scale || 1;
-  const hitbox = rectangularHitbox(dims.width * scale, dims.height * scale);
+  const hitbox = rectangularHitbox(0, 0, dims.width, dims.height);
   return transformed({ ...itemOptions, imgsrc, hitbox });
 }
 

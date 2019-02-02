@@ -6,15 +6,11 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ServerItem provides operations for the server to locate and move items
- * around.
  */
 
 'use strict';
 
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
-const Polygon2D = require('./Polygon2D.js');
 const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({
@@ -30,6 +26,10 @@ const DEFAULTS = Object.freeze({
 
 const STAMPER = new IdStamper();
 
+/**
+ * The ServerItem provides operations for the server to locate and move items
+ * around.
+ */
 class ServerItem extends Item {
   /**
    * values: User-supplied data detailing the item.

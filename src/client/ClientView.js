@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ClientView class is used for all rendering activities on the client
- * side. This is essentially the view in an MVC-esque design.
  */
 
 'use strict';
@@ -20,7 +17,6 @@ const {
   mergeMatches, 
   removeById,
   IdStamper, 
-  Message,
   View,
 } = require('../shared.js');
 
@@ -89,10 +85,6 @@ class ClientView extends View {
      * tracked in full and an outline for each is rendered.
      */
     this.shadows = [];
-
-    // As no draw loop is used, (there are no animations), need to know when to
-    // re-render in response to an image loading.
-    document.addEventListener( Message.IMG_LOAD, this.draw.bind(this) );
   }
 
   /**
@@ -192,7 +184,6 @@ class ClientView extends View {
    */
   handle(message, ...args) {
     this[message](...args);
-    this.draw();
   }
 
   /**

@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { isView, isIncludedIn } = require('./utils.js');
+
 /**
  * Returns a WAMS scale handler function which will allow users to scale their
  * view.
@@ -15,8 +17,10 @@
  */
 function view(workspace) {
   return function scale_view(view, target, scale, mx, my) {
-    view.scaleBy(scale, mx, my);
-    workspace.update(view);
+    if (isView(target, view)) {
+      view.scaleBy(scale, mx, my);
+      workspace.scheduleUpdate(view);
+    }
   };
 }
 
@@ -28,9 +32,9 @@ function view(workspace) {
  */
 function items(workspace, itemTypes = []) {
   return function scale_item(view, target, scale, mx, my) {
-    if (itemTypes.includes(target.type)) {
+    if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }
@@ -44,9 +48,12 @@ function items(workspace, itemTypes = []) {
  */
 function itemsAndView(workspace, itemTypes = []) {
   return function scale_itemsAndView(view, target, scale, mx, my) {
-    if (itemTypes.includes(target.type) || target === view) {
+    if (isView(target, view)) {
+      view.scaleBy(scale, mx, my);
+      workspace.scheduleUpdate(view);
+    } else if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      workspace.update(target);
+      workspace.scheduleUpdate(target);
     }
   };
 }

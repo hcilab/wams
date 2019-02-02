@@ -22,13 +22,18 @@ const os = require('os');
 // npm packages.
 const IO = require('socket.io');
 
-// local project packages.
-const { constants: globals, Message } = require('../shared.js');
+// local project packages, shared between client and server.
+const { 
+  constants, 
+  Message 
+} = require('../shared.js');
+
+// local project packages for the server.
 const Connection = require('./Connection.js');
-const RequestHandler = require('./RequestHandler.js');
+const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
-const WorkSpace = require('./WorkSpace.js');
+const WorkSpace  = require('./WorkSpace.js');
 
 // local constant data 
 const DEFAULTS = { clientLimit: 10 };
@@ -64,7 +69,7 @@ function getLocalIP() {
     });
   });
   return ipaddr;
-};
+}
 
 /**
  * Report information about the given connection to the console.
@@ -75,7 +80,7 @@ function getLocalIP() {
  */
 function logConnection(id, port, status) {
   const event = status ? 'connected' : 'disconnected';
-  console.log( 'View', id, event, 'to workspace listening on port', port );
+  console.info( 'View', id, event, 'to workspace listening on port', port );
 }
 
 class Server {
@@ -83,7 +88,7 @@ class Server {
    * settings: User-supplied options, specifying a client limit and workspace
    *           settings.
    */
-  constructor(settings = {}) {
+  constructor(settings = {}, router = new Router()) {
     /**
      * The number of active clients that are allowed at any given time.
      */
@@ -97,7 +102,7 @@ class Server {
     /**
      * HTTP server for sending and receiving data.
      */
-    this.server = http.createServer(new RequestHandler());
+    this.server = http.createServer(router);
     
     /**
      * Port on which to listen.
@@ -112,7 +117,7 @@ class Server {
     /**
      * socket.io namespace in which to operate.
      */
-    this.namespace = this.io.of(globals.NS_WAMS);
+    this.namespace = this.io.of(constants.NS_WAMS);
 
     /**
      * Tracks all active connections. Will pack new connections into the start
@@ -172,17 +177,6 @@ class Server {
   }
 
   /**
-   * Reject the connection associated with the given socket.
-   *
-   * socket: socket.io socket instance for the rejected connection.
-   */
-  reject(socket) {
-    socket.emit(Message.FULL);
-    socket.disconnect(true);
-    console.log('Rejected incoming connection: client limit reached.');
-  }
-
-  /**
    * Start the server on the given hostname and port.
    *
    * port: Valid port number on which to listen.
@@ -190,7 +184,7 @@ class Server {
    */
   listen(port = PORT, host = getLocalIP()) {
     this.server.listen(port, host, () => {
-      console.log('Listening on', this.server.address());
+      console.info('Listening on', this.server.address());
     });
     this.port = port;
   }
@@ -203,6 +197,17 @@ class Server {
    */
   on(event, handler) {
     this.workspace.on(event, handler);
+  }
+
+  /**
+   * Reject the connection associated with the given socket.
+   *
+   * socket: socket.io socket instance for the rejected connection.
+   */
+  reject(socket) {
+    socket.emit(Message.FULL);
+    socket.disconnect(true);
+    console.warn('Rejected incoming connection: client limit reached.');
   }
 
   /**

@@ -32,9 +32,27 @@ const constants = Object.freeze({
 });
 
 /*
+ * A list of colours, for use by the API for shadows, and by end-point apps too
+ * if desired.
+ */
+const colours = [
+  'saddlebrown',
+  'red',
+  'blue',
+  'darkgreen',
+  'darkorange',
+  'purple',
+  'yellow',
+  'aqua',
+  'lime',
+  'fuchsia',
+];
+
+/*
  * Package up the module and freeze it for delivery.
  */
 module.exports = Object.freeze({
+  colours,
   constants,
   IdStamper,
   Message,

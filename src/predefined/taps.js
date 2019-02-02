@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { isIncludedIn } = require('./utils.js');
+
 /**
  * Returns a WAMS tap handler function which will spawn a new item using values
  * returned by the provided item_fn every time a user taps anywhere in the
@@ -41,8 +43,12 @@ function spawnItem(workspace, item_fn) {
  */
 function spawnOrRemoveItem(workspace, item_fn, type) {
   return function tap_spawnOrRemoveItem(view, target, x, y) {
-    if (target.type === type) {
+    if (isIncludedIn(target, [type])) {
+      if (target === view.lockedItem) {
+        view.releaseLockedItem();
+      }
       workspace.removeItem(target);
+      view.getLockOnItem(view);
     } else {
       workspace.spawnItem(item_fn(x, y, view));
     }
@@ -61,8 +67,8 @@ function spawnOrRemoveItem(workspace, item_fn, type) {
  * type     : Type of item that can be modified.
  */
 function modifyItem(workspace, modify_fn, type) {
-  return function tap_modifyItem(view, target, x, y) {
-    if (target.type === type) {
+  return function tap_modifyItem(view, target) {
+    if (isIncludedIn(target, [type])) {
       modify_fn(target, view);
       workspace.update(target);
     }

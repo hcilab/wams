@@ -6,9 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * The ShadowView class exposes a simple draw() function which renders a
- * shadowy outline of the view onto the canvas.
  */
 
 /*
@@ -18,19 +15,14 @@
 
 'use strict';
 
-const { constants, IdStamper, View } = require('../shared.js');
+const { 
+  colours,
+  constants,
+  IdStamper,
+  View 
+} = require('../shared.js');
 
 const STAMPER = new IdStamper();
-const COLOURS = [
-  'saddlebrown',
-  'red',
-  'blue',
-  'darkgreen',
-  'orangered',
-  'purple',
-  'aqua',
-  'lime',
-];
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -41,7 +33,8 @@ const symbols = Object.freeze({
 });
 
 /**
- * Track another active view and render an outline.
+ * The ShadowView class exposes a simple draw() function which renders a shadowy
+ * outline of the view onto the canvas.
  */
 class ShadowView extends View {
   /**
@@ -93,7 +86,7 @@ class ShadowView extends View {
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
-    context.strokeStyle = COLOURS[this.id % COLOURS.length];
+    context.strokeStyle = colours[this.id % colours.length];
     context.fillStyle = context.strokeStyle;
     context.lineWidth = 5;
   }

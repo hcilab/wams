@@ -5,9 +5,14 @@
 
 'use strict';
 
+const path = require('path');
 const Wams = require('../src/server');
 
-const ws = new Wams({ clientLimit: 2 });
+const router = new Wams.Router();
+const images = path.join(__dirname, '../img');
+router.use('/img', router.express.static(images));
+
+const ws = new Wams({ clientLimit: 2 }, router);
 
 ws.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
   x: 200, 
@@ -27,10 +32,10 @@ const handleLayout = (function defineLayoutHandler() {
   let nx = 0;
   function handleLayout(view, position) {
     if (position === 0) {
-      nx = view.right - 30;
+      nx = view.topRight;
+      nx.x -= 30;
     } else {
-      view.moveTo( nx, view.top ); 
-      ws.update(view);
+      view.moveTo( nx.x, nx.y ); 
     } 
   }
   return handleLayout;

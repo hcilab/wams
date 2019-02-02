@@ -5,16 +5,20 @@
 
 'use strict';
 
+const path = require('path');
 const Wams = require('../src/server');
+
+const router = new Wams.Router();
+const images = path.join(__dirname, '../img');
+router.use('/img', router.express.static(images));
+
 const ws = new Wams({
-  bounds: { x: 7000, y: 7000 },
   color: 'green',
   clientLimit: 5,
-});
+}, router);
 
 const circle = new Wams.Sequence();
 circle.beginPath();
-// circle.arc( '{x}', '{y}', '{height}', Math.PI, 0, false);
 circle.arc(0, 0, 150, Math.PI, 0, false);
 circle.closePath();
 circle.fillStyle = 'white';
@@ -42,7 +46,7 @@ ws.spawnItem({
   blueprint: text,
 });
 
-ws.spawnItem(Wams.predefined.items.image( 'img/joker.png', {
+ws.spawnItem(Wams.predefined.items.image('img/joker.png', {
   x: 2600,
   y: 2800,
   type: 'joker',
@@ -60,7 +64,6 @@ const handleLayout = (function makeLayoutHandler() {
   function layoutTable(view) {
     view.moveTo( 2000, 2000 );
     table = view;
-    ws.update(view);
   };
 
   function layoutBottom(view) {
@@ -89,11 +92,9 @@ const handleLayout = (function makeLayoutHandler() {
   function dependOnTable(fn) {
     return function layoutDepender(view) {
       if (!table) {
-        // console.log('dodged!!!');
         setTimeout( () => layoutDepender(view), 0 ); 
       } else {
         fn(view);
-        ws.update(view);
       }
     };
   }
