@@ -19,7 +19,9 @@
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.13.0",
-    "jest": "^23.6.0"
+    "jest": "^23.6.0",
+    "jsdoc": "^3.5.5",
+    "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./tests/setup.js",
@@ -33,6 +35,7 @@
   },
   "scripts": {
     "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
+    "docs": "jsdoc -c .jsdocrc.json",
     "test": "jest"
   },
   "version": "0.0.2"
