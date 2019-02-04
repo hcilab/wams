@@ -131,7 +131,7 @@ class ClientView extends View {
       .map( k => `${k}: ${this[k].toFixed(2)}` )
       .concat([`# of Shadows: ${this.shadows.length}`]);
     let ty = 40;
-    let tx = 20;
+    const tx = 20;
 
     this.context.save();
     this.context.setTransform(1, 0, 0, 1, 0, 0);
