@@ -19,7 +19,7 @@ const {
   colours,
   constants,
   IdStamper,
-  View 
+  View, 
 } = require('../shared.js');
 
 const STAMPER = new IdStamper();
@@ -99,7 +99,7 @@ class ShadowView extends View {
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.align](context) {
-    context.translate(this.x,this.y);
+    context.translate(this.x, this.y);
     context.rotate(constants.ROTATE_360 - this.rotation);
   }
 
@@ -133,10 +133,10 @@ class ShadowView extends View {
     const height = 25;
 
     context.beginPath();
-    context.moveTo(base,base);
-    context.lineTo(base,height);
-    context.lineTo(height,base);
-    context.lineTo(base,base);
+    context.moveTo(base, base);
+    context.lineTo(base, height);
+    context.lineTo(height, base);
+    context.lineTo(base, base);
     context.fill();
   }
 }

@@ -20,7 +20,7 @@ const IO = require('socket.io');
 // Local project packages, shared between client and server.
 const { 
   constants, 
-  Message 
+  Message, 
 } = require('../shared.js');
 
 // Local project packages for the server.

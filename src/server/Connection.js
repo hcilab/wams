@@ -101,7 +101,7 @@ class Connection {
       [Message.TRACK]:  ({ data }) => this.track(data),
     };
 
-    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+    Object.entries(listeners).forEach( ([p, v]) => this.socket.on(p, v) );
   }
 
   /**

@@ -88,7 +88,7 @@ class Message {
 
 // Only define the messages once, above, and now attach them to the Message
 // Class object for external reference.
-Object.entries(TYPES).forEach( ([p,v]) => {
+Object.entries(TYPES).forEach( ([p, v]) => {
   defineOwnImmutableEnumerableProperty( Message, p, v );
 });
 
