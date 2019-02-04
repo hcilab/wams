@@ -127,7 +127,7 @@ class Connection {
       this.view.releaseLockedItem();
       this.socket.disconnect(true);
       return true;
-    } 
+    }
     return false;
   }
 
@@ -174,7 +174,7 @@ class Connection {
    *
    * @param {TrackData} data
    * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.  
+   * points.
    * @param {module:server.Point2D} centroid - Centroid of active contact
    * points.
    * @param {string} phase - 'start', 'move', or 'end', the gesture phase.

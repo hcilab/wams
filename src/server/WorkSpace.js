@@ -10,10 +10,10 @@
 
 'use strict';
 
-const { 
+const {
   findLast,
-  mergeMatches, 
-  IdStamper, 
+  mergeMatches,
+  IdStamper,
   NOP,
   safeRemoveById,
 } = require('../shared.js');

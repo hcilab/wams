@@ -42,9 +42,9 @@ class Polygon2D {
    *  5. If it is on a lower-left vertex, return true.
    *  6. If it is on a lower-right, upper-left, or upper-right vertex, return
    *      false.
-   * 
+   *
    * Uses the winding number method for robust and efficient point-in-polygon
-   * detection.  
+   * detection.
    * See: http://geomalgorithms.com/a03-_inclusion.html
    *
    * p: Point to test.
@@ -52,7 +52,7 @@ class Polygon2D {
   contains(p) {
     return this.winding_number(p) !== 0;
   }
-  
+
   /**
    * Rotate the polygon by the given amount.
    */

@@ -60,7 +60,7 @@ class ServerView extends View {
   get bottomRight() { return this.transformPoint(this.width, this.height); }
   get topLeft()     { return this.transformPoint(0,          0); }
   get topRight()    { return this.transformPoint(this.width, 0); }
-        
+
   /**
    * Obtain a lock on the given item for this view.
    *
@@ -71,7 +71,7 @@ class ServerView extends View {
     this.lockedItem = item;
     item.lock();
   }
-      
+
   /**
    * Lock this item.
    */

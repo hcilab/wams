@@ -10,7 +10,7 @@
 const ReporterFactory = require('./ReporterFactory.js');
 
 /**
- * This Item class provides a common interface between the client and 
+ * This Item class provides a common interface between the client and
  * the server by which the Items can interact safely.
  *
  * @class Item
@@ -37,7 +37,7 @@ const Item = ReporterFactory([
    * @instance
    */
   'y',
-  
+
   /**
    * The item's hitbox.
    *
@@ -100,7 +100,7 @@ const Item = ReporterFactory([
 ]);
 
 /**
- * This View class provides a common interface between the client and 
+ * This View class provides a common interface between the client and
  * the server by which the Views can interact safely.
  *
  * @class View
@@ -213,32 +213,32 @@ const DataReporter = ReporterFactory([
  * @extends module:shared.Reporter
  */
 const FullStateReporter = ReporterFactory([
-  /** 
+  /**
    * All currently active views.
    *
    * @name views
    * @type {View[]}
-   * @memberof module:shared.FullStateReporter 
+   * @memberof module:shared.FullStateReporter
    * @instance
    */
   'views',
 
-  /** 
+  /**
    * All current items.
    *
    * @name items
    * @type {Item[]}
-   * @memberof module:shared.FullStateReporter 
+   * @memberof module:shared.FullStateReporter
    * @instance
    */
   'items',
 
-  /** 
+  /**
    * The background colour of the workspace.
    *
    * @name color
    * @type {string}
-   * @memberof module:shared.FullStateReporter 
+   * @memberof module:shared.FullStateReporter
    * @instance
    */
   'color',

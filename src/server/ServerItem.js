@@ -58,7 +58,7 @@ class ServerItem extends Item {
    * y: y coordinate of the point to check.
    */
   containsPoint(x, y) {
-    return this.hitbox && this.hitbox.contains({ 
+    return this.hitbox && this.hitbox.contains({
       x: x - this.x,
       y: y - this.y,
     });

@@ -15,11 +15,11 @@
 
 'use strict';
 
-const { 
+const {
   colours,
   constants,
   IdStamper,
-  View, 
+  View,
 } = require('../shared.js');
 
 const STAMPER = new IdStamper();
@@ -48,7 +48,7 @@ class ShadowView extends View {
     super(values);
     STAMPER.cloneId(this, values.id);
   }
-  
+
   /**
    * Override the default assign() function to take the reciprocal of the scale.
    *

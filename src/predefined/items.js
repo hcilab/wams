@@ -32,11 +32,11 @@ function rectangularHitbox(x, y, width, height) {
     { x: x,         y: y + height },
   ]);
 }
-  
+
 /**
  * Returns an object with the parameters for an image item using the given
  * source.
- * 
+ *
  * NOTE: This function should only be used for images that are intended to be
  * interactable! If you want an image that shouldn't be interacted with, simply
  * spawn an item directly with the itemOptions (including the imgsrc as a
@@ -57,7 +57,7 @@ function rectangle(x, y, width, height, colour = 'blue', itemOptions = {}) {
   const blueprint = new CanvasBlueprint();
   blueprint.fillStyle = colour;
   blueprint.fillRect(x, y, width, height);
-  
+
   return transformed({ ...itemOptions, hitbox, blueprint });
 }
 

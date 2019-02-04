@@ -8,7 +8,7 @@
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const { 
+const {
   defineOwnImmutableEnumerableProperty,
   mergeMatches,
 } = require('./util.js');
@@ -40,7 +40,7 @@ function ReporterFactory(coreProperties) {
   /**
    * A Reporter regulates communication between client and server by enforcing a
    * strict set of rules over what data can be shared for the given class.
-   * 
+   *
    * @memberof module:shared
    */
   class Reporter {
@@ -60,8 +60,8 @@ function ReporterFactory(coreProperties) {
      * data: Data values to attempt to save.
      */
     assign(data = {}) {
-      KEYS.forEach( p => { 
-        if (data.hasOwnProperty(p)) this[p] = data[p]; 
+      KEYS.forEach( p => {
+        if (data.hasOwnProperty(p)) this[p] = data[p];
       });
     }
 
@@ -76,7 +76,7 @@ function ReporterFactory(coreProperties) {
         data[p] = this[p];
       });
       STAMPER.cloneId(data, this.id);
-      return data; 
+      return data;
     }
   }
 

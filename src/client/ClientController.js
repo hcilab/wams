@@ -12,11 +12,11 @@
 
 const io = require('socket.io-client');
 
-const { 
-  constants, 
+const {
+  constants,
   DataReporter,
-  IdStamper, 
-  Message, 
+  IdStamper,
+  Message,
   NOP,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
@@ -35,11 +35,11 @@ const symbols = Object.freeze({
 /**
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. 
+ * the server detailing changes to post to the view.
  *
  * @memberof module:client
  */
-class ClientController { 
+class ClientController {
   /**
    * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
    *    (not the context), which will fill the page.
@@ -50,10 +50,10 @@ class ClientController {
      * is able to respond to user events triggered on the canvas. The view only
      * needs to know about the canvas drawing context.
      *
-     * @type {HTMLCanvasElement} 
+     * @type {HTMLCanvasElement}
      */
     this.canvas = canvas;
-    
+
     /**
      * From socket.io, the socket provides a channel of communication with the
      * server.
@@ -159,7 +159,7 @@ class ClientController {
   /**
    * Establishes a socket.io connection with the server, using the global WAMS
    * namespace. Connections should be non-persistent over disconnects, (i.e., no
-   * reconnections), as this was the cause of many bugs. 
+   * reconnections), as this was the cause of many bugs.
    *  - TODO: Revisit? Should reconnections be allowed?
    *
    * This internal routine should be called automatically upon ClientController
@@ -233,7 +233,7 @@ class ClientController {
    * view accordingly.
    */
   resizeCanvasToFillWindow() {
-    this.canvas.width = window.innerWidth; 
+    this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.handle('resizeToFillWindow');
   }

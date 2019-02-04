@@ -25,7 +25,7 @@ const ServerItem     = require('./ServerItem.js');
  * @memberof ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the click
- * originates.  
+ * originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  * the click targets.
  * @param {number} x - x coordinate of the click.
@@ -38,15 +38,15 @@ const ServerItem     = require('./ServerItem.js');
  *
  * @memberof BLUEPRINTS
  * @param {ClickListener} listener - User-supplied function for responding to
- *    this event.  
+ *    this event.
  * @param {module:server.Workspace} workspace - The workspace upon which this
- * event will act.  
+ * event will act.
  * @return {function} Click handler.
  */
 function click(listener, workspace) {
   return function handleClick(view, point) {
     const { x, y } = view.transformPoint(point.x, point.y);
-    if (view.lockedItem instanceof ServerItem && 
+    if (view.lockedItem instanceof ServerItem &&
       view.lockedItem.containsPoint(x, y)) {
       listener(view, view.lockedItem, x, y);
     } else {
@@ -95,7 +95,7 @@ function drag(listener) {
  * @memberof ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the layout
- * originates.  
+ * originates.
  * @param {number} index - internal index / id of the view.
  */
 
@@ -122,7 +122,7 @@ function layout(listener) {
  * @memberof ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the rotate
- * originates.  
+ * originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the rotate targets.
  * @param {number} radians - Change in angle since last rotate, in radians.
@@ -154,7 +154,7 @@ function rotate(listener) {
  * @memberof ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the scale
- * originates.  
+ * originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} scale - Change in scale since last emit.
@@ -186,7 +186,7 @@ function scale(listener) {
  * @memberof ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the scale
- * originates.  
+ * originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} x - x coordinate of the swipe.
@@ -233,7 +233,7 @@ const BLUEPRINTS = Object.freeze({
  * @param {string} type - Type of Listener to build. One of 'click', 'drag',
  *    'layout', 'rotate', 'scale', or 'swipe'.
  * @param {Function} listener - Function which will respond to the listened-to
- *    event. 
+ *    event.
  * @param {module:server.WorkSpace} workspace - Workspace on which the Listener
  * will act.
  *
@@ -242,12 +242,12 @@ const BLUEPRINTS = Object.freeze({
 function build(type, listener, workspace) {
   if (typeof listener !== 'function') {
     throw 'Attached listener must be a function';
-  } 
+  }
   return BLUEPRINTS[type](listener, workspace);
 }
 
 /**
- * The types of blueprints that are available.  
+ * The types of blueprints that are available.
  *
  * @type {string[]}
  * @memberof module:server.ListenerFactory

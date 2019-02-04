@@ -26,7 +26,7 @@ const STAMPER = new IdStamper();
  * so that it can be displayed.
  *
  * @param {string} src - Image source path.
- * @returns {?Image} 
+ * @returns {?Image}
  */
 function createImage(src) {
   if (src) {
@@ -104,7 +104,7 @@ class ClientItem extends Item {
       this.sequence.execute(context);
     } else if (this.img && this.img.loaded) {
       context.drawImage( this.img, 0, 0, this.img.width, this.img.height );
-    } 
+    }
     context.restore();
   }
 }

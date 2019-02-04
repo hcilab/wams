@@ -7,7 +7,7 @@
  * The purpose of this class is to provide a funnel through which all messages
  * between client and server must pass. In concert with the Reporter interface,
  * it allows for a sanity check such that the correct sort of data is getting
- * passed back and forth. 
+ * passed back and forth.
  *
  * Unfortunately this does not provide a strict guarantee that informal and ad
  * hoc messages aren't getting emitted somewhere, so it is up to the programmer
@@ -22,7 +22,7 @@ const { defineOwnImmutableEnumerableProperty } = require('./util.js');
  * TYPES is an explicit list of the types of messages that will be passed back
  * and forth. Messages not on this list should be ignored!
  */
-const TYPES = Object.freeze({ 
+const TYPES = Object.freeze({
   // For the server to inform about changes to the model
   ADD_ITEM:   'wams-add-item',
   ADD_SHADOW: 'wams-add-shadow',

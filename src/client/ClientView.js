@@ -12,11 +12,11 @@
 
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
-const { 
+const {
   constants: globals,
-  mergeMatches, 
+  mergeMatches,
   removeById,
-  IdStamper, 
+  IdStamper,
   View,
 } = require('../shared.js');
 
@@ -107,7 +107,7 @@ class ClientView extends View {
     this.context.rotate(this.rotation);
     this.context.translate(-this.x, -this.y);
   }
-  
+
   /**
    * Renders all the items.
    */
@@ -244,7 +244,7 @@ class ClientView extends View {
    * does not need to be defined twice for both of the items and shadows arrays.
    *
    * @param {string} container - Name of the ClientView property defining the
-   *    array which contains the object to update.  
+   *    array which contains the object to update.
    * @param {( module:shared.Item | module:shared.View )} data - Data with which
    * an object in the container will be updated.  Note that the object is
    * located using an 'id' field on this data object.

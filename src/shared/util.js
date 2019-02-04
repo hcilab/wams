@@ -27,7 +27,7 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
 /**
  * Find the last value in an Array for which the supplied callback function
  *  returns true. Operates on each index in the Array, starting at 'fromIndex'
- *  and going backwards to the start of the Array or until the desired value 
+ *  and going backwards to the start of the Array or until the desired value
  *  is found.
  *
  * Returns the value that passed the callback, if found, or null.
@@ -57,7 +57,7 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  *           or all the property names of data are disjoint with the property
  *           names of defaults, then defaults will be returned.
  * data    : Object with values to use for corresponding properties in defaults.
- *           Properties not found in defaults will be ignored. 
+ *           Properties not found in defaults will be ignored.
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
@@ -68,15 +68,15 @@ function mergeMatches(defaults = {}, data = {}) {
 }
 
 /**
- * This method will set an already-existing property on an object to be 
+ * This method will set an already-existing property on an object to be
  *  immutable. In other words, it will configure it as such:
  *
  *    configurable: false
  *    writable: false
  *
- * It will have no effect on non-configurable properties, and will turn an 
- *  accessor descriptor  a data descriptor. (I.e. if the property is 
- *  defined with getters and setters, they will be lost).  
+ * It will have no effect on non-configurable properties, and will turn an
+ *  accessor descriptor  a data descriptor. (I.e. if the property is
+ *  defined with getters and setters, they will be lost).
  *
  * It will have no effect on properties that do not exist directly on the
  *  Object (properties further up the prototype chain are not affected).

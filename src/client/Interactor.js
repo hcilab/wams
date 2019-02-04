@@ -14,7 +14,7 @@
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-const HANDLERS = Object.freeze({ 
+const HANDLERS = Object.freeze({
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
@@ -39,7 +39,7 @@ const HANDLERS = Object.freeze({
 class Interactor {
   /**
    * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
-   *    for interaction events.  
+   *    for interaction events.
    * @param {Object} handlers - Object with keys as the names gestures and
    *    values as the corresponding function for handling that gesture when it
    *    is recognized.

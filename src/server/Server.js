@@ -18,9 +18,9 @@ const os = require('os');
 const IO = require('socket.io');
 
 // Local project packages, shared between client and server.
-const { 
-  constants, 
-  Message, 
+const {
+  constants,
+  Message,
 } = require('../shared.js');
 
 // Local project packages for the server.
@@ -30,7 +30,7 @@ const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const WorkSpace  = require('./WorkSpace.js');
 
-// Local constant data 
+// Local constant data
 const DEFAULTS = { clientLimit: 10 };
 const PORT = 9000;
 
@@ -96,7 +96,7 @@ class Server {
      * The number of active clients that are allowed at any given time.
      */
     this.clientLimit = settings.clientLimit || DEFAULTS.clientLimit;
-    
+
     /**
      * The principle workspace for this server.
      */
@@ -106,7 +106,7 @@ class Server {
      * HTTP server for sending and receiving data.
      */
     this.server = http.createServer(router);
-    
+
     /**
      * Port on which to listen.
      */
