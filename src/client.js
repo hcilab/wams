@@ -26,7 +26,7 @@ window.addEventListener(
   },
   {
     capture: false,
-    once: true,
+    once:    true,
     passive: true,
   }
 );

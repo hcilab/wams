@@ -14,12 +14,12 @@ const { mergeMatches, IdStamper, View } = require('../shared.js');
 const Point2D = require('./Point2D.js');
 
 const DEFAULTS = {
-  x: 0,
-  y: 0,
-  width: 1600,
-  height: 900,
-  type: 'view/background',
-  scale: 1,
+  x:        0,
+  y:        0,
+  width:    1600,
+  height:   900,
+  type:     'view/background',
+  scale:    1,
   rotation: 0,
 };
 

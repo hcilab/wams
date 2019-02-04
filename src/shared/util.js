@@ -17,10 +17,10 @@
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
-    value: val,
+    value:        val,
     configurable: false,
-    enumerable: true,
-    writable: false,
+    enumerable:   true,
+    writable:     false,
   });
 }
 
@@ -96,7 +96,7 @@ function makeOwnPropertyImmutable(obj, prop) {
   if (desc && desc.configurable) {
     Object.defineProperty(obj, prop, {
       configurable: false,
-      writable: false,
+      writable:     false,
     });
   }
   return obj;

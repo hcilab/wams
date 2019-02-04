@@ -165,7 +165,7 @@ class ClientController {
    */
   [symbols.establishSocket]() {
     this.socket = io.connect( constants.NS_WAMS, {
-      autoConnect: false,
+      autoConnect:  false,
       reconnection: false,
     });
     this[symbols.attachListeners]();

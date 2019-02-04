@@ -14,13 +14,13 @@ const { mergeMatches, IdStamper, Item } = require('../shared.js');
 const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({
-  x: 0,
-  y: 0,
-  hitbox: null,
-  rotation: 0,
-  scale: 1,
-  type: 'item/foreground',
-  imgsrc: '',
+  x:         0,
+  y:         0,
+  hitbox:    null,
+  rotation:  0,
+  scale:     1,
+  type:      'item/foreground',
+  imgsrc:    '',
   blueprint: null,
 });
 

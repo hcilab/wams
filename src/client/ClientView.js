@@ -21,11 +21,11 @@ const {
 } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
-  x: 0,
-  y: 0,
+  x:        0,
+  y:        0,
   rotation: globals.ROTATE_0,
-  scale: 1,
-  type: 'view/background',
+  scale:    1,
+  type:     'view/background',
 });
 
 const STATUS_KEYS = Object.freeze([

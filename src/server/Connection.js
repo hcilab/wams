@@ -112,7 +112,7 @@ class Connection {
       views: this.workspace.reportViews(),
       items: this.workspace.reportItems(),
       color: this.workspace.settings.color,
-      id: this.view.id,
+      id:    this.view.id,
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
   }
