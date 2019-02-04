@@ -6,8 +6,12 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
+ */
+
+/**
  * This file defines the entry point for the client side of a WAMS application.
+ *
+ * @namespace client
  */
 
 'use strict';

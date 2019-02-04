@@ -24,6 +24,9 @@ const STAMPER = new IdStamper();
  * Abstraction of the requisite logic for generating an image object which will
  * load the appropriate image and report when it has finished loading the image
  * so that it can be displayed.
+ *
+ * @param {string} src - Image source path.
+ * @returns {?Image} 
  */
 function createImage(src) {
   if (src) {
@@ -45,12 +48,15 @@ function createImage(src) {
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
+ *
+ * @extends shared.Item
+ * @memberof client
  */
 class ClientItem extends Item {
   /**
-   * data: The data from the server describing this item. Only properties
-   *       explicity listed in the array passed to the ReporterFactory when the
-   *       Item class was defined will be accepted.
+   * @param {ItemProperties} data - The data from the server describing this
+   *       item. Only properties explicity listed in the array passed to the
+   *       ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
     super(data);
@@ -62,7 +68,8 @@ class ClientItem extends Item {
    * functionality for generating an image, or a canvas drawing blueprint and
    * sequence.
    *
-   * data: The data from the server describing this item.
+   * @param {ItemProperties} data - The data from the server describing this
+   * item.
    */
   assign(data) {
     const updateImage = data.imgsrc !== this.imgsrc;
@@ -82,10 +89,11 @@ class ClientItem extends Item {
   }
 
   /**
-   * Render the item onto the given context.
-   * Prioritizes blueprints over images.
+   * Render the item onto the given context.  Prioritizes blueprints over
+   * images.
    *
-   * context: CanvasRenderingContext2D onto which to draw this item.
+   * @param {CanvasRenderingContext2D} context - context onto which to draw this
+   * item.
    */
   draw(context) {
     context.save();

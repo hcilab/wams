@@ -3,9 +3,13 @@
  *
  * Author: Michael van der Kamp
  * Date: July / August 2018
+ */
+
+/**
+ * Intended for use by both the client and the server, in order to provide a
+ * common interface.
  *
- *  The below set of utilities and classes are intended for use by both the
- *  client and the server, in order to provide a common interface.
+ * @namespace shared
  */
 
 'use strict';

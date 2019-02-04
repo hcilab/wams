@@ -9,19 +9,34 @@
 
 /**
  * Defines a set of basic operations on a point in a two dimensional space.
+ *
+ * @memberof server
  */
 class Point2D {
   /**
-   * x: x coordinate of the point
-   * y: y coordinate of the point
+   * @param {number} x - x coordinate of the point.
+   * @param {number} y - y coordinate of the point.
    */
   constructor(x = 0, y = 0) {
+    /**
+     * x coordinate of the point.
+     *
+     * @type {number}
+     */
     this.x = x;
+
+    /**
+     * x coordinate of the point.
+     *
+     * @type {number}
+     */
     this.y = y;
   }
 
   /**
-   * Returns a new Point2D, an exact clone of this point.
+   * Clones this point.
+   *
+   * @returns {server.Point2D} An exact clone of this point.
    */
   clone() {
     return new Point2D( this.x, this.y );
@@ -30,7 +45,8 @@ class Point2D {
   /**
    * Divide the point's values by the given amount.
    *
-   * ds: divide x,y by this amount
+   * @param {number} ds - divide x,y by this amount.
+   * @return {server.Point2D} this
    */
   divideBy(ds = 1) {
     this.x /= ds;
@@ -40,15 +56,18 @@ class Point2D {
 
   /**
    * Tests if a point is Left|On|Right of an infinite line. Assumes that the
-   * given points are such that one is above and one is below this point.
-   * FIXME: Are those semantics right?
+   * given points are such that one is above and one is below this point. Note
+   * that the semantics of left/right is based on the normal coordinate space,
+   * not the y-axis-inverted coordinate space of images and the canvas.
    *
-   * See: http://geomalgorithms.com/a03-_inclusion.html  
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
-   * Input:  two points p0, p1
-   * Return: >0 if this point is left of the line through p0 and p1
-   *         =0 if this point is on the line
-   *         <0 if this point is right of the line
+   * @param {server.Point2D} p0 - first point of the line.
+   * @param {server.Point2D} p1 - second point of the line.
+   *
+   * @return {number} >0 if this point is left of the line through p0 and p1
+   * @return {number} =0 if this point is on the line
+   * @return {number} <0 if this point is right of the line
    */
   isLeftOf(p0, p1) {
     const dl = p1.minus(p0);
@@ -57,20 +76,22 @@ class Point2D {
   }
 
   /**
-   * Return a new point which is the simple subraction of the given point from
-   * this point.
+   * Subtracts the given point from this point to form a new point.
    *
-   * p: Point to subtract from this point. Has {x,y} properties.
+   * @param {server.Point2D} p - Point to subtract from this point.
+   * @return {Point} A new point which is the simple subraction of the given
+   * point from this point.
    */
   minus({ x = 0, y = 0 }) {
     return new Point2D( this.x - x, this.y - y );
   }
 
   /**
-   * Return a new point which is the simple addition of the given point to this
-   * point.
+   * Add the given point to this point.
    *
-   * p: Point to add to this point. Has {x,y} properties.
+   * @param {server.Point2D} p - Point to add to this point.
+   * @return {Point} A new point which is the simple addition of the given point
+   * from this point.
    */
   plus({ x = 0, y = 0 }) {
     return new Point2D( this.x + x, this.y + y );
@@ -79,7 +100,8 @@ class Point2D {
   /**
    * Rotate the point by theta radians.
    *
-   * theta: amount of rotation to apply, in radians.
+   * @param {number} theta - Amount of rotation to apply, in radians.
+   * @return {server.Point2D} this
    */
   rotate(theta = 0) {
     const { x, y } = this;
@@ -95,7 +117,8 @@ class Point2D {
   /**
    * Apply the given scale modifier to the point.
    *
-   * ds: divide x,y by this amount
+   * @param {number} ds - Divide x,y by this amount.
+   * @return {server.Point2D} this
    */
   scale(ds = 1) {
     this.x *= ds;
@@ -104,9 +127,12 @@ class Point2D {
   }
 
   /**
-   * Return a new point, the multiplation of this point by the given amount.
+   * Multiply this point by the given point to form a new point.
    *
-   * coefficient: Amount by which to multiply the values in this point.
+   * @param {number} coefficient - Amount by which to multiply the values in
+   * this point.
+   * @return {server.Point2D} Return a new point, the multiplation of this point by the
+   * given amount.
    */
   times(coefficient = 1) {
     return new Point2D(this.x * coefficient, this.y * coefficient);
@@ -115,8 +141,9 @@ class Point2D {
   /**
    * Move the point by the given amounts.
    *
-   * dx: change in x axis position.
-   * dy: change in y axis position.
+   * @param {number} dx - change in x axis position.
+   * @param {number} dy - change in y axis position.
+   * @return {server.Point2D} this
    */
   translate(dx = 0, dy = 0) {
     this.x += dx;

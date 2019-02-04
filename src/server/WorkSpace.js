@@ -29,6 +29,8 @@ const STAMPER = new IdStamper();
 /**
  * The WorkSpace keeps track of views and items, and can handle events on
  * those items and views which allow them to be interacted with.
+ *
+ * @memberof server
  */
 class WorkSpace {
   /**

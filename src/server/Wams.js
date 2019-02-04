@@ -19,6 +19,8 @@ const updates = Symbol('updates');
  * This module defines the API endpoint. In practice, this means it is a thin
  * wrapper around the Server class which exposes only that functionality of the
  * Server which should be available to the end user.
+ *
+ * @memberof server
  */
 class Wams {
   /**

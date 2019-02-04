@@ -57,12 +57,15 @@ const symbols = Object.freeze({
  * The ClientView is responsible for rendering the view. To do this, it keeps
  * track of its own position, scale, and orientation, as well as those values
  * for all items and all other views (which will be represented with outlines).
+ *
+ * @extends shared.View
+ * @memberof client
  */
 class ClientView extends View {
   /**
-   * values: Data for initializing this view. Likely does not come from the
-   *         server, as communication lines probably won't be open yet at the
-   *         time that this class is instantiated.
+   * @param {ViewProperties} values Data for initializing this view. Likely does
+   *         not come from the server, as communication lines probably won't be
+   *         open yet at the time that this class is instantiated.
    */
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
@@ -77,12 +80,16 @@ class ClientView extends View {
     /**
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
+     *
+     * @type {client.ClientItem[]}
      */
     this.items = [];
 
     /**
      * The shadows are all the other views that are currently active. They are
      * tracked in full and an outline for each is rendered.
+     *
+     * @type {client.ShadowView[]}
      */
     this.shadows = [];
   }
@@ -147,7 +154,7 @@ class ClientView extends View {
   /**
    * Generate and store an Item with the given values.
    *
-   * values: state of the item
+   * @param {ItemProperties} values - State of the new Item.
    */
   addItem(values) {
     this.items.push(new ClientItem(values));
@@ -156,7 +163,7 @@ class ClientView extends View {
   /**
    * Generate and store a 'shadow view' to track another active view.
    *
-   * values: state of the View.
+   * @param {ViewProperties} values - State of the new View.
    */
   addShadow(values) {
     this.shadows.push(new ShadowView(values));
@@ -178,27 +185,29 @@ class ClientView extends View {
   /**
    * Handle a message from the ClientController.
    *
-   * message: The type of message.
-   * ...args: The arguments to be passed to the ultimate message handling
-   *          function.
+   * @param {string } message - The type of message.
+   * @param {Object} ...args - The arguments to be passed to the ultimate
+   * message handling function.
    */
   handle(message, ...args) {
     this[message](...args);
   }
 
   /**
-   * Message handler. Removes the given item.
+   * Removes the given item.
    *
-   * item: The Item to remove.
+   * @param {ItemProperties} item - The Item to remove.
+   * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
     return removeById( this.items, item );
   }
 
   /**
-   * Message handler. Removes the given 'shadow' view.
+   * Removes the given 'shadow' view.
    *
-   * shadow: The 'shadow' view to remove.
+   * @param {ViewProperties} shadow - The 'shadow' view to remove.
+   * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
     return removeById( this.shadows, shadow );
@@ -216,9 +225,9 @@ class ClientView extends View {
    * Set up the internal copy of the model according to the data provided by the
    * server.
    *
-   * data: The data from the server detailing the current state of the model.
-   *       See REQUIRED_DATA. If any is missing, something has gone terribly
-   *       wrong, and an exception will be thrown.
+   * @param {FullStateReport} data - The data from the server detailing the
+   *       current state of the model.  See REQUIRED_DATA. If any is missing,
+   *       something has gone terribly wrong, and an exception will be thrown.
    */
   setup(data) {
     REQUIRED_DATA.forEach( d => {
@@ -233,10 +242,11 @@ class ClientView extends View {
    * Intended for use as an internal helper function, so that this functionality
    * does not need to be defined twice for both of the items and shadows arrays.
    *
-   * container: Array containing the object to update.
-   * data     : Data with which an object in the container will be updated.
-   *            Note that the object is located using an 'id' field on this data
-   *            object.
+   * @param {string} container - Name of the ClientView property defining the
+   *    array which contains the object to update.  
+   * @param {( ItemProperties | ViewProperties )} data - Data with which an
+   *    object in the container will be updated.  Note that the object is
+   *    located using an 'id' field on this data object.
    */
   update(container, data) {
     const object = this[container].find( o => o.id === data.id );
@@ -247,8 +257,8 @@ class ClientView extends View {
   /**
    * Update an item.
    *
-   * data: data from the server, has an 'id' field with which the item will be
-   *       located.
+   * @param {ItemProperties} data - data from the server, has an 'id' field with
+   *       which the item will be located.
    */
   updateItem(data) {
     this.update('items', data);
@@ -257,8 +267,8 @@ class ClientView extends View {
   /**
    * Update a 'shadow' view.
    *
-   * data: data from the server, has an 'id' field with which the view will be
-   *       located.
+   * @param {ViewProperties} data - data from the server, has an 'id' field with
+   *       which the view will be located.
    */
   updateShadow(data) {
     this.update('shadows', data);

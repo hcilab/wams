@@ -54,6 +54,8 @@ const gen = Symbol();
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
  * per-IdStamper basis.
+ *
+ * @memberof shared
  */
 class IdStamper {
   constructor() {

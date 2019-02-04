@@ -28,6 +28,8 @@ const STAMPER = new IdStamper();
 /**
  * The ServerView provides operations for the server to locate, move, and
  * rescale views.
+ *
+ * @memberof server
  */
 class ServerView extends View {
   constructor(values = {}) {

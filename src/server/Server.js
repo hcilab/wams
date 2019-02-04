@@ -6,11 +6,6 @@
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
- * A WamsServer handles the core server operations of a Wams program, including
- * server establishment, and establishing Connections when new clients connect
- * to the server, as well as tracking the workspace associated with the server
- * so that Connections can be linked to the workspace.
  */
 
 'use strict';
@@ -83,6 +78,14 @@ function logConnection(id, port, status) {
   console.info( 'View', id, event, 'to workspace listening on port', port );
 }
 
+/**
+ * A Server handles the core server operations of a Wams program, including
+ * server establishment, and establishing Connections when new clients connect
+ * to the server, as well as tracking the workspace associated with the server
+ * so that Connections can be linked to the workspace.
+ *
+ * @memberof server
+ */
 class Server {
   /**
    * settings: User-supplied options, specifying a client limit and workspace

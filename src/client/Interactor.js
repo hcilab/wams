@@ -33,6 +33,8 @@ const HANDLERS = Object.freeze({
  * handlers don't need to check whether the handler exists.
  *
  * Currently, the Interactor makes use of the Westures library.
+ *
+ * @memberof client
  */
 class Interactor {
   /**
@@ -123,6 +125,8 @@ class Interactor {
 
   /**
    * Treat scrollwheel events as zoom events.
+   *
+   * @param {WheelEvent} event - The wheel event from the window.
    */
   wheel(event) {
     event.preventDefault();

@@ -35,10 +35,13 @@ const symbols = Object.freeze({
 /**
  * The ShadowView class exposes a simple draw() function which renders a shadowy
  * outline of the view onto the canvas.
+ *
+ * @extends shared.View
+ * @memberof client
  */
 class ShadowView extends View {
   /**
-   * values: server-provided data describing this view.
+   * @param {ViewProperties} values - server-provided data describing this view.
    */
   constructor(values) {
     super(values);
@@ -47,17 +50,33 @@ class ShadowView extends View {
   
   /**
    * Override the default assign() function to take the reciprocal of the scale.
+   *
+   * @param {ViewProperties} data - values to assign to the view.
    */
   assign(data) {
     super.assign(data);
+
+    /**
+     * Caches the effective width so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveWidth = this.width / this.scale;
+
+    /**
+     * Caches the effective height so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveHeight = this.height / this.scale;
   }
 
   /**
    * Render an outline of this view.
    *
-   * context: CanvasRenderingContext2D on which to draw.
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   draw(context) {
     /*
@@ -75,6 +94,8 @@ class ShadowView extends View {
   /**
    * Aligns the drawing context so the outline will be rendered in the correct
    * location with the correct orientation.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.align](context) {
     context.translate(this.x,this.y);
@@ -83,6 +104,8 @@ class ShadowView extends View {
 
   /**
    * Applies styling to the drawing context.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
@@ -101,6 +124,8 @@ class ShadowView extends View {
   /**
    * Draws a small triangle in the upper-left corner of the outline, so that
    * other views can quickly tell which way this view is oriented.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.marker](context) {
     const base = context.lineWidth / 2;

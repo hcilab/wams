@@ -36,29 +36,37 @@ const symbols = Object.freeze({
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view. 
+ *
+ * @memberof client
  */
 class ClientController { 
   /**
-   * canvas: The underlying CanvasRenderingContext2D object, (not the context),
-   *         which will fill the page.
+   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   *    (not the context), which will fill the page.
    */
   constructor(canvas) {
     /**
-     * The CanvasRenderingContext2D object is stored by the ClientController so
-     * that it is able to respond to user events triggered on the canvas. The
-     * view only needs to know about the canvas drawing context.
+     * The HTMLCanvasElement object is stored by the ClientController so that it
+     * is able to respond to user events triggered on the canvas. The view only
+     * needs to know about the canvas drawing context.
+     *
+     * @type {HTMLCanvasElement} 
      */
     this.canvas = canvas;
     
     /**
      * From socket.io, the socket provides a channel of communication with the
      * server.
+     *
+     * @type {Socket}
      */
     this.socket = null;
 
     /**
      * The ClientView handles the final rendering of the model, as informed by
      * the controller, and as such needs to konw the canvas rendering context.
+     *
+     * @type {client.ClientView}
      */
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
 
@@ -68,6 +76,8 @@ class ClientController {
      * more easily, if need be. At least in theory. All the ClientController
      * needs to provide is handler functions for responding to the recognized
      * gestures.
+     *
+     * @type {client.Interactor}
      */
     this.interactor = new Interactor(this.canvas, {
       pan:    this.forward(Message.DRAG),
@@ -79,8 +89,10 @@ class ClientController {
     });
 
     /**
-     * This boolean tracks whether a render has been scheduled for the next
-     * 1/60th of a second interval.
+     * Tracks whether a render has been scheduled for the next 1/60th of a
+     * second interval.
+     *
+     * @type {boolean}
      */
     this.renderScheduled = false;
 
@@ -180,6 +192,10 @@ class ClientController {
 
   /**
    * Generates a function for forwarding the given message to the server.
+   *
+   * @param {MessageType} message - The type of message to forward.
+   * @return {Function} A function bound to this instance for forwarding data to
+   * the server with the given message type label.
    */
   forward(message) {
     function do_forward(data) {
@@ -192,8 +208,8 @@ class ClientController {
   /**
    * Passes messages to the View, and schedules a render.
    *
-   * message: string denoting type of message. 
-   * ...args: arguments to be passed to ultimate handler.
+   * @param {string} message - The name of a ClientView method to run.
+   * @param {Object} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
@@ -233,6 +249,9 @@ class ClientController {
    * not reflect the model automatically. This function responds to a message
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
+   *
+   * @param {FullStateReport} data - All the information necessary to initially
+   * synchronize this client's model with the server's model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);
