@@ -72,7 +72,9 @@ function ReporterFactory(coreProperties) {
      */
     report() {
       const data = {};
-      KEYS.forEach( p => data[p] = this[p] );
+      KEYS.forEach( p => {
+        data[p] = this[p];
+      });
       STAMPER.cloneId(data, this.id);
       return data; 
     }

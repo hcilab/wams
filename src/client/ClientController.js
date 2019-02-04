@@ -148,7 +148,9 @@ class ClientController {
       [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
-      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
+      [Message.FULL]: () => {
+        document.body.innerHTML = 'WAMS is full! :(';
+      },
     };
 
     Object.entries(listeners).forEach( ([p, v]) => this.socket.on(p, v) );
