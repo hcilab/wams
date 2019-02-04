@@ -61,7 +61,7 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
-  Object.keys(defaults).forEach( k => {
+  Object.keys(defaults).forEach(k => {
     rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
   });
   return rv;
@@ -114,7 +114,7 @@ const NOP = () => {};
  * item : The item to remove from array according to its Id
  */
 function removeById(array, item) {
-  const idx = array.findIndex( o => o.id === item.id );
+  const idx = array.findIndex(o => o.id === item.id);
   if (idx >= 0) {
     array.splice(idx, 1);
     return true;

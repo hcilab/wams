@@ -39,7 +39,7 @@ class Point2D {
    * @returns {module:server.Point2D} An exact clone of this point.
    */
   clone() {
-    return new Point2D( this.x, this.y );
+    return new Point2D(this.x, this.y);
   }
 
   /**
@@ -72,7 +72,7 @@ class Point2D {
   isLeftOf(p0, p1) {
     const dl = p1.minus(p0);
     const dp = this.minus(p0);
-    return ( dl.x * dp.y ) - ( dl.y * dp.x );
+    return (dl.x * dp.y) - (dl.y * dp.x);
   }
 
   /**
@@ -83,7 +83,7 @@ class Point2D {
    * of the given point from this point.
    */
   minus({ x = 0, y = 0 }) {
-    return new Point2D( this.x - x, this.y - y );
+    return new Point2D(this.x - x, this.y - y);
   }
 
   /**
@@ -94,7 +94,7 @@ class Point2D {
    * the given point from this point.
    */
   plus({ x = 0, y = 0 }) {
-    return new Point2D( this.x + x, this.y + y );
+    return new Point2D(this.x + x, this.y + y);
   }
 
   /**

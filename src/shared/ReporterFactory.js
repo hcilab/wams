@@ -32,7 +32,7 @@ function ReporterFactory(coreProperties) {
   // Generate a default initial object containing all the core properties, each
   // With a value of null.
   const INITIALIZER = {};
-  coreProperties.forEach( p => {
+  coreProperties.forEach(p => {
     defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
   });
   Object.freeze(INITIALIZER);
@@ -60,7 +60,7 @@ function ReporterFactory(coreProperties) {
      * data: Data values to attempt to save.
      */
     assign(data = {}) {
-      KEYS.forEach( p => {
+      KEYS.forEach(p => {
         if (data.hasOwnProperty(p)) this[p] = data[p];
       });
     }
@@ -72,7 +72,7 @@ function ReporterFactory(coreProperties) {
      */
     report() {
       const data = {};
-      KEYS.forEach( p => {
+      KEYS.forEach(p => {
         data[p] = this[p];
       });
       STAMPER.cloneId(data, this.id);

@@ -127,7 +127,7 @@ class ServerItem extends Item {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     const scale = ds * this.scale;
     if (scale > 0.1 && scale < 10) {
-      const delta = new Point2D( this.x - mx, this.y - my ).times(ds);
+      const delta = new Point2D(this.x - mx, this.y - my).times(ds);
       const x = mx + delta.x;
       const y = my + delta.y;
       this.assign({ scale, x, y });

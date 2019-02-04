@@ -67,7 +67,7 @@ class ServerView extends View {
    * item: The item to lock down.
    */
   getLockOnItem(item) {
-    if ( this.lockedItem ) this.lockedItem.unlock();
+    if (this.lockedItem) this.lockedItem.unlock();
     this.lockedItem = item;
     item.lock();
   }
@@ -130,7 +130,7 @@ class ServerView extends View {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     const scale = ds * this.scale;
     if (scale > 0.1 && scale < 10) {
-      const delta = new Point2D( this.x - mx, this.y - my ).divideBy(ds);
+      const delta = new Point2D(this.x - mx, this.y - my).divideBy(ds);
       const x = mx + delta.x;
       const y = my + delta.y;
       this.assign({ x, y, scale });

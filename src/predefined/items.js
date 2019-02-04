@@ -82,7 +82,7 @@ function polygon(points = [], colour = 'green', itemOptions = {}) {
   blueprint.fillStyle = colour;
   blueprint.beginPath();
   blueprint.moveTo(points[0].x, points[0].y);
-  points.forEach( p => blueprint.lineTo(p.x, p.y));
+  points.forEach(p => blueprint.lineTo(p.x, p.y));
   blueprint.closePath();
   blueprint.fill();
 

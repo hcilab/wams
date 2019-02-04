@@ -45,7 +45,7 @@ const PORT = 9000;
 function findEmptyIndex(array) {
   // This is a very deliberate use of '==' instead of '==='. It should catch
   // Both undefined and null.
-  const index = array.findIndex( e => e == null );
+  const index = array.findIndex(e => e == null);
   return index < 0 ? array.length : index;
 }
 
@@ -54,8 +54,8 @@ function findEmptyIndex(array) {
  */
 function getLocalIP() {
   let ipaddr = null;
-  Object.values(os.networkInterfaces()).some( f => {
-    return f.some( a => {
+  Object.values(os.networkInterfaces()).some(f => {
+    return f.some(a => {
       if (a.family === 'IPv4' && a.internal === false) {
         ipaddr = a.address;
         return true;
@@ -75,7 +75,7 @@ function getLocalIP() {
  */
 function logConnection(id, port, status) {
   const event = status ? 'connected' : 'disconnected';
-  console.info( 'View', id, event, 'to workspace listening on port', port );
+  console.info('View', id, event, 'to workspace listening on port', port);
 }
 
 /**
@@ -143,7 +143,7 @@ class Server {
     const cn = new Connection(index, socket, this.workspace);
 
     this.connections[index] = cn;
-    socket.on('disconnect', () => this.disconnect(cn) );
+    socket.on('disconnect', () => this.disconnect(cn));
 
     logConnection(cn.view.id, this.port, true);
   }
@@ -264,7 +264,7 @@ class Server {
    * view: ServerView that has been updated.
    */
   updateView(view) {
-    const cn = this.connections.find( c => c && c.view.id === view.id );
+    const cn = this.connections.find(c => c && c.view.id === view.id);
     if (cn) {
       new Message(Message.UD_SHADOW, view).emitWith(cn.socket.broadcast);
       new Message(Message.UD_VIEW,   view).emitWith(cn.socket);

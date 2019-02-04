@@ -24,7 +24,7 @@ class Polygon2D {
    *         to the anchor point.
    */
   constructor(points) {
-    this.points = points.map( ({ x, y }) => new Point2D(x, y) );
+    this.points = points.map(({ x, y }) => new Point2D(x, y));
     if (this.points.length > 0) {
       this.points.push(this.points[0].clone());
     }
@@ -57,14 +57,14 @@ class Polygon2D {
    * Rotate the polygon by the given amount.
    */
   rotate(theta) {
-    this.points.forEach( p => p.rotate(theta) );
+    this.points.forEach(p => p.rotate(theta));
   }
 
   /**
    * Scale the polygon by the given amount.
    */
   scale(ds) {
-    this.points.forEach( p => p.scale(ds) );
+    this.points.forEach(p => p.scale(ds));
   }
 
   /**

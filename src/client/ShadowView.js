@@ -119,7 +119,7 @@ class ShadowView extends View {
    * Draws an outline of the view.
    */
   [symbols.outline](context) {
-    context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+    context.strokeRect(0, 0, this.effectiveWidth, this.effectiveHeight);
   }
 
   /**

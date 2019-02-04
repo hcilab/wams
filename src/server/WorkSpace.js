@@ -58,7 +58,7 @@ class WorkSpace {
     this.handlers = {};
 
     // Attach NOPs for the event listeners, so they are callable.
-    ListenerFactory.TYPES.forEach( ev => {
+    ListenerFactory.TYPES.forEach(ev => {
       this.handlers[ev] = NOP;
     });
 
@@ -127,7 +127,7 @@ class WorkSpace {
    * view: View to remove.
    */
   removeView(view) {
-    return safeRemoveById( this.views, view, ServerView );
+    return safeRemoveById(this.views, view, ServerView);
   }
 
   /**
@@ -136,21 +136,21 @@ class WorkSpace {
    * item: Item to remove.
    */
   removeItem(item) {
-    return safeRemoveById( this.items, item, ServerItem );
+    return safeRemoveById(this.items, item, ServerItem);
   }
 
   /**
    * Returns an array of View reports, one for each view.
    */
   reportViews() {
-    return this.views.map( v => v.report() );
+    return this.views.map(v => v.report());
   }
 
   /**
    * Returns an array of Item reports, one for each item.
    */
   reportItems() {
-    return this.items.map( o => o.report() );
+    return this.items.map(o => o.report());
   }
 
   /**

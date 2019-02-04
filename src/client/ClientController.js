@@ -113,7 +113,7 @@ class ClientController {
     // As no automatic draw loop is used, (there are no animations), need to
     // Know when to re-render in response to an image loading.
     const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener( Message.IMG_LOAD, schedule_fn );
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -153,7 +153,7 @@ class ClientController {
       },
     };
 
-    Object.entries(listeners).forEach( ([p, v]) => this.socket.on(p, v) );
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
   }
 
   /**
@@ -166,7 +166,7 @@ class ClientController {
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( constants.NS_WAMS, {
+    this.socket = io.connect(constants.NS_WAMS, {
       autoConnect:  false,
       reconnection: false,
     });
@@ -189,7 +189,7 @@ class ClientController {
    */
   [symbols.startRender]() {
     const render_fn = this[symbols.render].bind(this);
-    window.setInterval( render_fn, 1000 / 60 );
+    window.setInterval(render_fn, 1000 / 60);
   }
 
   /**

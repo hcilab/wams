@@ -30,7 +30,7 @@ class Wams {
     this[server] = new Server(settings, router);
     this[updates] = {};
 
-    setInterval( this.postUpdates.bind(this), 1000/60 );
+    setInterval(this.postUpdates.bind(this), 1000/60);
   }
 
   /**
@@ -72,7 +72,7 @@ class Wams {
    * Post scheduled updates.
    */
   postUpdates() {
-    Object.values(this[updates]).forEach( o => {
+    Object.values(this[updates]).forEach(o => {
       this.update(o);
       delete this[updates][o.id];
     });

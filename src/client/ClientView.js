@@ -112,14 +112,14 @@ class ClientView extends View {
    * Renders all the items.
    */
   [symbols.drawItems]() {
-    this.items.forEach( o => o.draw(this.context) );
+    this.items.forEach(o => o.draw(this.context));
   }
 
   /**
    * Renders outlines of all the other views.
    */
   [symbols.drawShadows]() {
-    this.shadows.forEach( v => v.draw(this.context) );
+    this.shadows.forEach(v => v.draw(this.context));
   }
 
   /**
@@ -128,7 +128,7 @@ class ClientView extends View {
    */
   [symbols.drawStatus]() {
     const messages = STATUS_KEYS
-      .map( k => `${k}: ${this[k].toFixed(2)}` )
+      .map(k => `${k}: ${this[k].toFixed(2)}`)
       .concat([`# of Shadows: ${this.shadows.length}`]);
     let ty = 40;
     const tx = 20;
@@ -136,7 +136,7 @@ class ClientView extends View {
     this.context.save();
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.font = '18px Georgia';
-    messages.forEach( m => {
+    messages.forEach(m => {
       this.context.fillText(m, tx, ty);
       ty += 20;
     });
@@ -200,7 +200,7 @@ class ClientView extends View {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
-    return removeById( this.items, item );
+    return removeById(this.items, item);
   }
 
   /**
@@ -210,7 +210,7 @@ class ClientView extends View {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
-    return removeById( this.shadows, shadow );
+    return removeById(this.shadows, shadow);
   }
 
   /**
@@ -231,12 +231,12 @@ class ClientView extends View {
    *       be thrown.
    */
   setup(data) {
-    REQUIRED_DATA.forEach( d => {
+    REQUIRED_DATA.forEach(d => {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
     STAMPER.cloneId(this, data.id);
-    data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
-    data.items.forEach( o => this.addItem(o) );
+    data.views.forEach(v => v.id !== this.id && this.addShadow(v));
+    data.items.forEach(o => this.addItem(o));
   }
 
   /**
@@ -250,7 +250,7 @@ class ClientView extends View {
    * located using an 'id' field on this data object.
    */
   update(container, data) {
-    const object = this[container].find( o => o.id === data.id );
+    const object = this[container].find(o => o.id === data.id);
     if (object) object.assign(data);
     else console.warn(`Unable to find in ${container}: id: `, data.id);
   }

@@ -103,7 +103,7 @@ class ClientItem extends Item {
     if (this.sequence) {
       this.sequence.execute(context);
     } else if (this.img && this.img.loaded) {
-      context.drawImage( this.img, 0, 0, this.img.width, this.img.height );
+      context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
     }
     context.restore();
   }
