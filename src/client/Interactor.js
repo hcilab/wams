@@ -132,7 +132,7 @@ class Interactor {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
     const change = -(Math.sign(event.deltaY) * factor) + 1;
-    const midpoint = {x: event.clientX, y: event.clientY };
+    const midpoint = { x: event.clientX, y: event.clientY };
     const phase = 'move';
     this.handlers.zoom({ change, midpoint, phase });
   }
