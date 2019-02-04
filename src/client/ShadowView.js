@@ -85,10 +85,10 @@ class ShadowView extends View {
      * save() and restore().
      */
     context.save();
-    this[symbols.align]   (context);
-    this[symbols.style]   (context);
-    this[symbols.outline] (context);
-    this[symbols.marker]  (context);
+    this[symbols.align](context);
+    this[symbols.style](context);
+    this[symbols.outline](context);
+    this[symbols.marker](context);
     context.restore();
   }
 

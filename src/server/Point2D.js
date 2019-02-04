@@ -79,8 +79,8 @@ class Point2D {
    * Subtracts the given point from this point to form a new point.
    *
    * @param {module:server.Point2D} p - Point to subtract from this point.
-   * @return {module:server.Point2D} A new point which is the simple subraction of the given
-   * point from this point.
+   * @return {module:server.Point2D} A new point which is the simple subraction
+   * of the given point from this point.
    */
   minus({ x = 0, y = 0 }) {
     return new Point2D( this.x - x, this.y - y );
@@ -90,8 +90,8 @@ class Point2D {
    * Add the given point to this point.
    *
    * @param {module:server.Point2D} p - Point to add to this point.
-   * @return {module:server.Point2D} A new point which is the simple addition of the given point
-   * from this point.
+   * @return {module:server.Point2D} A new point which is the simple addition of
+   * the given point from this point.
    */
   plus({ x = 0, y = 0 }) {
     return new Point2D( this.x + x, this.y + y );
