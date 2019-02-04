@@ -41,6 +41,7 @@ case $1 in
             --exclude-dir='libs' \
             --exclude-dir='coverage' \
             --exclude-dir='dist' \
+            --exclude-dir='docs' \
             "$1"
         ;;
 esac
