@@ -34,7 +34,7 @@ const HANDLERS = Object.freeze({
  *
  * Currently, the Interactor makes use of the Westures library.
  *
- * @memberof client
+ * @memberof module:client
  */
 class Interactor {
   /**

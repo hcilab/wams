@@ -37,11 +37,17 @@ function ReporterFactory(coreProperties) {
   });
   Object.freeze(INITIALIZER);
 
+  /**
+   * A Reporter regulates communication between client and server by enforcing a
+   * strict set of rules over what data can be shared for the given class.
+   * 
+   * @memberof module:shared
+   */
   class Reporter {
     /**
-     * data: data to store in the reporter. Only properties with keys matching
-     *       those provided in coreProperties and saved in KEYS will be
-     *       accepted.
+     * @param {Object} data - data to store in the reporter. Only properties
+     * with keys matching those provided in coreProperties and saved in KEYS
+     * will be accepted.
      */
     constructor(data) {
       return this.assign(mergeMatches(INITIALIZER, data));

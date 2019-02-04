@@ -11,7 +11,7 @@
 /**
  * This file defines the entry point for the client side of a WAMS application.
  *
- * @namespace client
+ * @module client
  */
 
 'use strict';

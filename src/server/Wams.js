@@ -20,7 +20,7 @@ const updates = Symbol('updates');
  * wrapper around the Server class which exposes only that functionality of the
  * Server which should be available to the end user.
  *
- * @memberof server
+ * @memberof module:server
  */
 class Wams {
   /**

@@ -30,7 +30,7 @@ const STAMPER = new IdStamper();
  * The ServerItem provides operations for the server to locate and move items
  * around.
  *
- * @memberof server
+ * @memberof module:server
  */
 class ServerItem extends Item {
   /**

@@ -10,7 +10,7 @@
  * custom route generation plus a set of functions for generating predefined
  * handlers and items.
  *
- * @namespace server
+ * @module server
  */
 
 'use strict';

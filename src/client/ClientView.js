@@ -58,12 +58,12 @@ const symbols = Object.freeze({
  * track of its own position, scale, and orientation, as well as those values
  * for all items and all other views (which will be represented with outlines).
  *
- * @extends shared.View
- * @memberof client
+ * @extends module:shared.View
+ * @memberof module:client
  */
 class ClientView extends View {
   /**
-   * @param {ViewProperties} values Data for initializing this view. Likely does
+   * @param {module:shared.View} values Data for initializing this view. Likely does
    *         not come from the server, as communication lines probably won't be
    *         open yet at the time that this class is instantiated.
    */
@@ -81,7 +81,7 @@ class ClientView extends View {
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
      *
-     * @type {client.ClientItem[]}
+     * @type {module:client.ClientItem[]}
      */
     this.items = [];
 
@@ -89,7 +89,7 @@ class ClientView extends View {
      * The shadows are all the other views that are currently active. They are
      * tracked in full and an outline for each is rendered.
      *
-     * @type {client.ShadowView[]}
+     * @type {module:client.ShadowView[]}
      */
     this.shadows = [];
   }
@@ -154,7 +154,7 @@ class ClientView extends View {
   /**
    * Generate and store an Item with the given values.
    *
-   * @param {ItemProperties} values - State of the new Item.
+   * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
     this.items.push(new ClientItem(values));
@@ -163,7 +163,7 @@ class ClientView extends View {
   /**
    * Generate and store a 'shadow view' to track another active view.
    *
-   * @param {ViewProperties} values - State of the new View.
+   * @param {module:shared.View} values - State of the new View.
    */
   addShadow(values) {
     this.shadows.push(new ShadowView(values));
@@ -196,7 +196,7 @@ class ClientView extends View {
   /**
    * Removes the given item.
    *
-   * @param {ItemProperties} item - The Item to remove.
+   * @param {module:shared.Item} item - The Item to remove.
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
@@ -206,7 +206,7 @@ class ClientView extends View {
   /**
    * Removes the given 'shadow' view.
    *
-   * @param {ViewProperties} shadow - The 'shadow' view to remove.
+   * @param {module:shared.View} shadow - The 'shadow' view to remove.
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
@@ -225,9 +225,10 @@ class ClientView extends View {
    * Set up the internal copy of the model according to the data provided by the
    * server.
    *
-   * @param {FullStateReport} data - The data from the server detailing the
-   *       current state of the model.  See REQUIRED_DATA. If any is missing,
-   *       something has gone terribly wrong, and an exception will be thrown.
+   * @param {module:shared.FullStateReporter} data - The data from the server detailing
+   *       the current state of the model.  See REQUIRED_DATA. If any is
+   *       missing, something has gone terribly wrong, and an exception will be
+   *       thrown.
    */
   setup(data) {
     REQUIRED_DATA.forEach( d => {
@@ -244,7 +245,7 @@ class ClientView extends View {
    *
    * @param {string} container - Name of the ClientView property defining the
    *    array which contains the object to update.  
-   * @param {( ItemProperties | ViewProperties )} data - Data with which an
+   * @param {( module:shared.Item | module:shared.View )} data - Data with which an
    *    object in the container will be updated.  Note that the object is
    *    located using an 'id' field on this data object.
    */
@@ -257,7 +258,7 @@ class ClientView extends View {
   /**
    * Update an item.
    *
-   * @param {ItemProperties} data - data from the server, has an 'id' field with
+   * @param {module:shared.Item} data - data from the server, has an 'id' field with
    *       which the item will be located.
    */
   updateItem(data) {
@@ -267,7 +268,7 @@ class ClientView extends View {
   /**
    * Update a 'shadow' view.
    *
-   * @param {ViewProperties} data - data from the server, has an 'id' field with
+   * @param {module:shared.View} data - data from the server, has an 'id' field with
    *       which the view will be located.
    */
   updateShadow(data) {

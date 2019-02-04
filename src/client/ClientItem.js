@@ -49,12 +49,12 @@ function createImage(src) {
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
  *
- * @extends shared.Item
- * @memberof client
+ * @extends module:shared.Item
+ * @memberof module:client
  */
 class ClientItem extends Item {
   /**
-   * @param {ItemProperties} data - The data from the server describing this
+   * @param {module:shared.Item} data - The data from the server describing this
    *       item. Only properties explicity listed in the array passed to the
    *       ReporterFactory when the Item class was defined will be accepted.
    */
@@ -68,7 +68,7 @@ class ClientItem extends Item {
    * functionality for generating an image, or a canvas drawing blueprint and
    * sequence.
    *
-   * @param {ItemProperties} data - The data from the server describing this
+   * @param {module:shared.Item} data - The data from the server describing this
    * item.
    */
   assign(data) {

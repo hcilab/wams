@@ -84,7 +84,7 @@ function logConnection(id, port, status) {
  * to the server, as well as tracking the workspace associated with the server
  * so that Connections can be linked to the workspace.
  *
- * @memberof server
+ * @memberof module:server
  */
 class Server {
   /**

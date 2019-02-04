@@ -23,14 +23,14 @@ const symbols = Object.freeze({
  * server. It tracks a view associated with the client, as well as the
  * associated workspace.
  *
- * @memberof server
+ * @memberof module:server
  */
 class Connection {
   /**
    * @param {number} index - The index of this Connection in the workspace, can
    * be used as a unique identifier.
    * @param {Socket} socket - A socket.io connection with a client.
-   * @param {server.WorkSpace} workspace - The workspace associated with this
+   * @param {module:server.WorkSpace} workspace - The workspace associated with this
    * connection.
    */
   constructor(index, socket, workspace) {
@@ -53,14 +53,14 @@ class Connection {
      * This is a shared reference to the single principle WorkSpace. Think of it
      * like a 'parent' reference in a tree node.
      *
-     * @type {server.WorkSpace}
+     * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
 
     /**
      * The view corresponding to the client on the other end of this Connection.
      *
-     * @type {server.ServerView}
+     * @type {module:server.ServerView}
      */
     this.view = this.workspace.spawnView();
 
@@ -146,7 +146,7 @@ class Connection {
    * set itself up, and informs all other views of these changes. Also triggers
    * a 'layout handler' if one has been registered.
    *
-   * @param {ViewProperties} data - Data from the client describing the state of
+   * @param {module:shared.View} data - Data from the client describing the state of
    *       the window in which it is displayed.
    */
   layout(data) {
@@ -160,7 +160,7 @@ class Connection {
    * Updates the model and informs all other views when a user resizes their
    * window.
    *
-   * @param {ViewProperties} data - Data from the client describing the state of
+   * @param {module:shared.View} data - Data from the client describing the state of
    *       the window in which it is displayed.
    */
   resize(data) {
@@ -173,8 +173,8 @@ class Connection {
    * points.
    *
    * @param {TrackData} data
-   * @param {server.Point2D[]} data.active - Currently active contact points.
-   * @param {server.Point2D} centroid - Centroid of active contact points.
+   * @param {module:server.Point2D[]} data.active - Currently active contact points.
+   * @param {module:server.Point2D} centroid - Centroid of active contact points.
    * @param {string} phase - 'start', 'move', or 'end', the gesture phase.
    */
   track({ active, centroid, phase }) {

@@ -36,12 +36,12 @@ const symbols = Object.freeze({
  * The ShadowView class exposes a simple draw() function which renders a shadowy
  * outline of the view onto the canvas.
  *
- * @extends shared.View
- * @memberof client
+ * @extends module:shared.View
+ * @memberof module:client
  */
 class ShadowView extends View {
   /**
-   * @param {ViewProperties} values - server-provided data describing this view.
+   * @param {module:shared.View} values - server-provided data describing this view.
    */
   constructor(values) {
     super(values);
@@ -51,7 +51,7 @@ class ShadowView extends View {
   /**
    * Override the default assign() function to take the reciprocal of the scale.
    *
-   * @param {ViewProperties} data - values to assign to the view.
+   * @param {module:shared.View} data - values to assign to the view.
    */
   assign(data) {
     super.assign(data);

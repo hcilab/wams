@@ -12,7 +12,7 @@ const Point2D = require('./Point2D.js');
 /**
  * Track a 2D polygon as an in-order list of Point2D objects.
  *
- * @memberof server
+ * @memberof module:server
  */
 class Polygon2D {
   /**

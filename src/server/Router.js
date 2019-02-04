@@ -18,7 +18,7 @@ const express = require('express');
  * the most elegant solution, but it means the end user can access the router,
  * and the main routes will still get priority.
  *
- * @memberof server
+ * @memberof module:server
  */
 class Router {
   constructor() {

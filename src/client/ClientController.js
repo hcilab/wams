@@ -37,7 +37,7 @@ const symbols = Object.freeze({
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view. 
  *
- * @memberof client
+ * @memberof module:client
  */
 class ClientController { 
   /**
@@ -66,7 +66,7 @@ class ClientController {
      * The ClientView handles the final rendering of the model, as informed by
      * the controller, and as such needs to konw the canvas rendering context.
      *
-     * @type {client.ClientView}
+     * @type {module:client.ClientView}
      */
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
 
@@ -77,7 +77,7 @@ class ClientController {
      * needs to provide is handler functions for responding to the recognized
      * gestures.
      *
-     * @type {client.Interactor}
+     * @type {module:client.Interactor}
      */
     this.interactor = new Interactor(this.canvas, {
       pan:    this.forward(Message.DRAG),
@@ -250,8 +250,8 @@ class ClientController {
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
    *
-   * @param {FullStateReport} data - All the information necessary to initially
-   * synchronize this client's model with the server's model.
+   * @param {module:shared.FullStateReporter} data - All the information necessary to
+   * initially synchronize this client's model with the server's model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);

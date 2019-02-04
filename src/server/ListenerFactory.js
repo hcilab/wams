@@ -13,11 +13,18 @@
 const ServerItem     = require('./ServerItem.js');
 
 /**
+ * The user event listeners must conform to these specifications.
+ *
+ * @namespace ListenerTypes
+ */
+
+/**
  * User-supplied listener to respond to click events.
  *
  * @typedef ClickListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the click originates.
+ * @param {module:server.ServerView} view - View from which the click originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  * the click targets.
  * @param {number} x - x coordinate of the click.
@@ -31,7 +38,7 @@ const ServerItem     = require('./ServerItem.js');
  * @memberof BLUEPRINTS
  * @param {ClickListener} listener - User-supplied function for responding to
  *    this event.  
- * @param {server.Workspace} workspace - The workspace upon which this event
+ * @param {module:server.Workspace} workspace - The workspace upon which this event
  *    will act.  
  * @return {function} Click handler.
  */
@@ -52,8 +59,9 @@ function click(listener, workspace) {
  * User-supplied listener to respond to drag events.
  *
  * @typedef DragListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the drag originates.
+ * @param {module:server.ServerView} view - View from which the drag originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the drag targets.
  * @param {number} x - x coordinate of the drag.
@@ -83,8 +91,9 @@ function drag(listener) {
  * User-supplied listener to respond to layout events.
  *
  * @typedef LayoutListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the layout originates.
+ * @param {module:server.ServerView} view - View from which the layout originates.
  * @param {number} index - internal index / id of the view.
  */
 
@@ -108,8 +117,9 @@ function layout(listener) {
  * User-supplied listener to respond to rotate events.
  *
  * @typedef RotateListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the rotate originates.
+ * @param {module:server.ServerView} view - View from which the rotate originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the rotate targets.
  * @param {number} radians - Change in angle since last rotate, in radians.
@@ -138,8 +148,9 @@ function rotate(listener) {
  * User-supplied listener to respond to scale events.
  *
  * @typedef ScaleListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the scale originates.
+ * @param {module:server.ServerView} view - View from which the scale originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} scale - Change in scale since last emit.
@@ -168,8 +179,9 @@ function scale(listener) {
  * User-supplied listener to respond to swipe events.
  *
  * @typedef SwipeListener
+ * @memberof ListenerTypes
  * @type {function}
- * @param {server.ServerView} view - View from which the scale originates.
+ * @param {module:server.ServerView} view - View from which the scale originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} x - x coordinate of the swipe.
@@ -217,10 +229,10 @@ const BLUEPRINTS = Object.freeze({
  *    'layout', 'rotate', 'scale', or 'swipe'.
  * @param {Function} listener - Function which will respond to the listened-to
  *    event. 
- * @param {server.WorkSpace} workspace - Workspace on which the Listener will
+ * @param {module:server.WorkSpace} workspace - Workspace on which the Listener will
  *    act.
  *
- * @memberof server.ListenerFactory
+ * @memberof module:server.ListenerFactory
  */
 function build(type, listener, workspace) {
   if (typeof listener !== 'function') {
@@ -233,7 +245,7 @@ function build(type, listener, workspace) {
  * The types of blueprints that are available.  
  *
  * @type {string[]}
- * @memberof server.ListenerFactory
+ * @memberof module:server.ListenerFactory
  */
 const TYPES = Object.keys(BLUEPRINTS);
 
@@ -243,7 +255,7 @@ const TYPES = Object.keys(BLUEPRINTS);
  * usage is for generating appropriate listeners via its 'build' function.
  *
  * @namespace ListenerFactory
- * @memberof server
+ * @memberof module:server
  */
 const ListenerFactory = Object.freeze({
   build,

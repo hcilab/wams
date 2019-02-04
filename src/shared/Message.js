@@ -56,7 +56,7 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  * The Message class provides a funnel through which data passed between the
  * client and server must flow.
  *
- * @memberof shared
+ * @memberof module:shared
  */
 class Message {
   /**

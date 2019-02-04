@@ -9,7 +9,7 @@
  * Intended for use by both the client and the server, in order to provide a
  * common interface.
  *
- * @namespace shared
+ * @module shared
  */
 
 'use strict';
