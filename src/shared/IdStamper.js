@@ -49,7 +49,7 @@ function* id_gen() {
 /**
  * Mark the class instance's generator as not intended for external use.
  */
-const gen = Symbol();
+const gen = Symbol('gen');
 
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
