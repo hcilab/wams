@@ -36,6 +36,7 @@
   "scripts": {
     "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
     "docs": "jsdoc -c .jsdocrc.json",
+    "lint": "eslint src",
     "test": "jest"
   },
   "version": "0.0.2"
