@@ -131,8 +131,8 @@ class Point2D {
    *
    * @param {number} coefficient - Amount by which to multiply the values in
    * this point.
-   * @return {module:server.Point2D} Return a new point, the multiplation of this point by the
-   * given amount.
+   * @return {module:server.Point2D} Return a new point, the multiplation of
+   * this point by the given amount.
    */
   times(coefficient = 1) {
     return new Point2D(this.x * coefficient, this.y * coefficient);

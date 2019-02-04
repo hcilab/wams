@@ -24,7 +24,8 @@ const ServerItem     = require('./ServerItem.js');
  * @typedef ClickListener
  * @memberof ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the click originates.
+ * @param {module:server.ServerView} view - View from which the click
+ * originates.  
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  * the click targets.
  * @param {number} x - x coordinate of the click.
@@ -38,8 +39,8 @@ const ServerItem     = require('./ServerItem.js');
  * @memberof BLUEPRINTS
  * @param {ClickListener} listener - User-supplied function for responding to
  *    this event.  
- * @param {module:server.Workspace} workspace - The workspace upon which this event
- *    will act.  
+ * @param {module:server.Workspace} workspace - The workspace upon which this
+ * event will act.  
  * @return {function} Click handler.
  */
 function click(listener, workspace) {
@@ -93,7 +94,8 @@ function drag(listener) {
  * @typedef LayoutListener
  * @memberof ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the layout originates.
+ * @param {module:server.ServerView} view - View from which the layout
+ * originates.  
  * @param {number} index - internal index / id of the view.
  */
 
@@ -119,7 +121,8 @@ function layout(listener) {
  * @typedef RotateListener
  * @memberof ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the rotate originates.
+ * @param {module:server.ServerView} view - View from which the rotate
+ * originates.  
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the rotate targets.
  * @param {number} radians - Change in angle since last rotate, in radians.
@@ -150,7 +153,8 @@ function rotate(listener) {
  * @typedef ScaleListener
  * @memberof ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the scale originates.
+ * @param {module:server.ServerView} view - View from which the scale
+ * originates.  
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} scale - Change in scale since last emit.
@@ -181,7 +185,8 @@ function scale(listener) {
  * @typedef SwipeListener
  * @memberof ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the scale originates.
+ * @param {module:server.ServerView} view - View from which the scale
+ * originates.  
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
  *    the scale targets.
  * @param {number} x - x coordinate of the swipe.
@@ -229,8 +234,8 @@ const BLUEPRINTS = Object.freeze({
  *    'layout', 'rotate', 'scale', or 'swipe'.
  * @param {Function} listener - Function which will respond to the listened-to
  *    event. 
- * @param {module:server.WorkSpace} workspace - Workspace on which the Listener will
- *    act.
+ * @param {module:server.WorkSpace} workspace - Workspace on which the Listener
+ * will act.
  *
  * @memberof module:server.ListenerFactory
  */

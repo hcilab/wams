@@ -250,8 +250,9 @@ class ClientController {
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
    *
-   * @param {module:shared.FullStateReporter} data - All the information necessary to
-   * initially synchronize this client's model with the server's model.
+   * @param {module:shared.FullStateReporter} data - All the information
+   * necessary to initially synchronize this client's model with the server's
+   * model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);

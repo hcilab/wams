@@ -41,7 +41,8 @@ const symbols = Object.freeze({
  */
 class ShadowView extends View {
   /**
-   * @param {module:shared.View} values - server-provided data describing this view.
+   * @param {module:shared.View} values - server-provided data describing this
+   * view.
    */
   constructor(values) {
     super(values);

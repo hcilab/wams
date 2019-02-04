@@ -30,8 +30,8 @@ class Connection {
    * @param {number} index - The index of this Connection in the workspace, can
    * be used as a unique identifier.
    * @param {Socket} socket - A socket.io connection with a client.
-   * @param {module:server.WorkSpace} workspace - The workspace associated with this
-   * connection.
+   * @param {module:server.WorkSpace} workspace - The workspace associated with
+   * this connection.
    */
   constructor(index, socket, workspace) {
     /**
@@ -146,8 +146,8 @@ class Connection {
    * set itself up, and informs all other views of these changes. Also triggers
    * a 'layout handler' if one has been registered.
    *
-   * @param {module:shared.View} data - Data from the client describing the state of
-   *       the window in which it is displayed.
+   * @param {module:shared.View} data - Data from the client describing the
+   *       state of the window in which it is displayed.
    */
   layout(data) {
     this.view.assign(data);
@@ -160,8 +160,8 @@ class Connection {
    * Updates the model and informs all other views when a user resizes their
    * window.
    *
-   * @param {module:shared.View} data - Data from the client describing the state of
-   *       the window in which it is displayed.
+   * @param {module:shared.View} data - Data from the client describing the
+   *       state of the window in which it is displayed.
    */
   resize(data) {
     this.view.assign(data);
@@ -173,8 +173,10 @@ class Connection {
    * points.
    *
    * @param {TrackData} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact points.
-   * @param {module:server.Point2D} centroid - Centroid of active contact points.
+   * @param {module:server.Point2D[]} data.active - Currently active contact
+   * points.  
+   * @param {module:server.Point2D} centroid - Centroid of active contact
+   * points.
    * @param {string} phase - 'start', 'move', or 'end', the gesture phase.
    */
   track({ active, centroid, phase }) {
