@@ -16,7 +16,7 @@ const Point2D = require('./Point2D.js');
  */
 class Polygon2D {
   /**
-   * anchor: A Point2D object, the "anchor" around which the Polygon will be
+   * Anchor: A Point2D object, the "anchor" around which the Polygon will be
    *         rotated. All the points of the Polygon should be defined relative
    *         to this point.
    * points: Array of Point2D objects, or simple objects with 'x' and 'y'
@@ -68,7 +68,7 @@ class Polygon2D {
   }
 
   /**
-   * winding number test for a point in a polygon
+   * Winding number test for a point in a polygon
    * See: http://geomalgorithms.com/a03-_inclusion.html
    *
    * Input:   point = a Point2D

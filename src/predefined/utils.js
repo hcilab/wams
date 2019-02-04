@@ -11,7 +11,7 @@
  * Helper function to determine whether the target should be the view.
  */
 function isView(target, view) {
-  return target == undefined || target === view;
+  return target == null || target === view;
 }
 
 /**
@@ -19,7 +19,7 @@ function isView(target, view) {
  * types.
  */
 function isIncludedIn(target, itemTypes) {
-  return target != undefined && itemTypes.includes(target.type);
+  return target != null && itemTypes.includes(target.type);
 }
 
 module.exports = {

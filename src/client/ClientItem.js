@@ -80,9 +80,9 @@ class ClientItem extends Item {
     if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
 
     // Rather than doing a bunch of checks, let's just always rebuild the
-    // sequence when updating any data in the item. Doing the checks to see if
-    // this is necessary would probably take as much or more time as just
-    // going ahead and rebuilding like this anyway.
+    // Sequence when updating any data in the item. Doing the checks to see if
+    // This is necessary would probably take as much or more time as just
+    // Going ahead and rebuilding like this anyway.
     if (this.blueprint) {
       this.sequence = this.blueprint.build(this.report());
     }

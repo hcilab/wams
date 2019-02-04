@@ -24,13 +24,13 @@ const STAMPER = new IdStamper();
  */
 function ReporterFactory(coreProperties) {
   // Use scoping to permanently save the list of core property names. Make sure
-  // to create a local copy and freeze it to guarantee immutability as best
+  // To create a local copy and freeze it to guarantee immutability as best
   // JavaScript will allow. If a better method for ensuring immutability is
-  // available, use it here instead.
+  // Available, use it here instead.
   const KEYS = Object.freeze(Array.from(coreProperties));
 
   // Generate a default initial object containing all the core properties, each
-  // with a value of null.
+  // With a value of null.
   const INITIALIZER = {};
   coreProperties.forEach( p => {
     defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);

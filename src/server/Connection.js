@@ -65,7 +65,7 @@ class Connection {
     this.view = this.workspace.spawnView();
 
     // Automatically begin operations by registering Message listeners and
-    // informing the client on the current state of the model.
+    // Informing the client on the current state of the model.
     this[symbols.attachListeners]();
     this[symbols.fullStateReport]();
   }

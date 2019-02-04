@@ -208,7 +208,7 @@ function swipe(listener) {
   return function handleSwipe(view, { point, velocity, direction }) {
     const { x, y } = view.transformPoint(point.x, point.y);
     listener(view, view.lockedItem, x, y, velocity, direction);
-  }
+  };
 }
 
 /**

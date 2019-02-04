@@ -19,7 +19,7 @@ const ReporterFactory = require('./ReporterFactory.js');
  */
 const Item = ReporterFactory([
   /**
-   * x coordinate of the Item.
+   * X coordinate of the Item.
    *
    * @name x
    * @type {number}
@@ -29,7 +29,7 @@ const Item = ReporterFactory([
   'x',
 
   /**
-   * y coordinate of the Item.
+   * Y coordinate of the Item.
    *
    * @name y
    * @type {number}
@@ -109,7 +109,7 @@ const Item = ReporterFactory([
  */
 const View = ReporterFactory([
   /**
-   * x coordinate of the View.
+   * X coordinate of the View.
    *
    * @name x
    * @type {number}
@@ -119,7 +119,7 @@ const View = ReporterFactory([
   'x',
 
   /**
-   * y coordinate of the View.
+   * Y coordinate of the View.
    *
    * @name y
    * @type {number}

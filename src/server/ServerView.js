@@ -39,7 +39,7 @@ class ServerView extends View {
      * If a continuous gesture needs to lock down an item, a reference to that
      * item will be saved here.
      */
-    this.lockedItem = undefined;
+    this.lockedItem = null;
 
     /**
      * Some gestures require continous interaction with an item. During this
@@ -104,7 +104,7 @@ class ServerView extends View {
    */
   releaseLockedItem() {
     if (this.lockedItem) this.lockedItem.unlock();
-    this.lockedItem = undefined;
+    this.lockedItem = null;
   }
 
   /**
@@ -130,7 +130,7 @@ class ServerView extends View {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     const scale = ds * this.scale;
     if (scale > 0.1 && scale < 10) {
-      const delta = new Point2D( this.x - mx, this.y - my ).divideBy(ds)
+      const delta = new Point2D( this.x - mx, this.y - my ).divideBy(ds);
       const x = mx + delta.x;
       const y = my + delta.y;
       this.assign({ x, y, scale });

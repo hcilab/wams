@@ -19,14 +19,14 @@ class Point2D {
    */
   constructor(x = 0, y = 0) {
     /**
-     * x coordinate of the point.
+     * X coordinate of the point.
      *
      * @type {number}
      */
     this.x = x;
 
     /**
-     * x coordinate of the point.
+     * X coordinate of the point.
      *
      * @type {number}
      */
@@ -79,7 +79,7 @@ class Point2D {
    * Subtracts the given point from this point to form a new point.
    *
    * @param {module:server.Point2D} p - Point to subtract from this point.
-   * @return {Point} A new point which is the simple subraction of the given
+   * @return {module:server.Point2D} A new point which is the simple subraction of the given
    * point from this point.
    */
   minus({ x = 0, y = 0 }) {
@@ -90,7 +90,7 @@ class Point2D {
    * Add the given point to this point.
    *
    * @param {module:server.Point2D} p - Point to add to this point.
-   * @return {Point} A new point which is the simple addition of the given point
+   * @return {module:server.Point2D} A new point which is the simple addition of the given point
    * from this point.
    */
   plus({ x = 0, y = 0 }) {

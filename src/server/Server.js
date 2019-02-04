@@ -14,23 +14,23 @@
 const http = require('http');
 const os = require('os');
 
-// npm packages.
+// Npm packages.
 const IO = require('socket.io');
 
-// local project packages, shared between client and server.
+// Local project packages, shared between client and server.
 const { 
   constants, 
   Message 
 } = require('../shared.js');
 
-// local project packages for the server.
+// Local project packages for the server.
 const Connection = require('./Connection.js');
 const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const WorkSpace  = require('./WorkSpace.js');
 
-// local constant data 
+// Local constant data 
 const DEFAULTS = { clientLimit: 10 };
 const PORT = 9000;
 
@@ -44,8 +44,8 @@ const PORT = 9000;
  */
 function findEmptyIndex(array) {
   // This is a very deliberate use of '==' instead of '==='. It should catch
-  // both undefined and null.
-  const index = array.findIndex( e => e == undefined );
+  // Both undefined and null.
+  const index = array.findIndex( e => e == null );
   return index < 0 ? array.length : index;
 }
 
@@ -88,7 +88,7 @@ function logConnection(id, port, status) {
  */
 class Server {
   /**
-   * settings: User-supplied options, specifying a client limit and workspace
+   * Settings: User-supplied options, specifying a client limit and workspace
    *           settings.
    */
   constructor(settings = {}, router = new Router()) {
@@ -113,12 +113,12 @@ class Server {
     this.port = null;
 
     /**
-     * socket.io instance for maintaining connections with clients.
+     * Socket.io instance for maintaining connections with clients.
      */
     this.io = IO(this.server);
 
     /**
-     * socket.io namespace in which to operate.
+     * Socket.io namespace in which to operate.
      */
     this.namespace = this.io.of(constants.NS_WAMS);
 
@@ -171,7 +171,7 @@ class Server {
    */
   disconnect(cn) {
     if (cn.disconnect()) {
-      this.connections[cn.index] = undefined;
+      this.connections[cn.index] = null;
       new Message(Message.RM_SHADOW, cn.view).emitWith(this.namespace);
       logConnection(cn.view.id, this.port, false);
     } else {

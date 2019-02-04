@@ -24,7 +24,7 @@ const updates = Symbol('updates');
  */
 class Wams {
   /**
-   * settings: Settings data to be forwarded to the server.
+   * Settings: Settings data to be forwarded to the server.
    */
   constructor(settings = {}, router) {
     this[server] = new Server(settings, router);

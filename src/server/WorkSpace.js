@@ -34,7 +34,7 @@ const STAMPER = new IdStamper();
  */
 class WorkSpace {
   /**
-   * settings: Options received from user.
+   * Settings: Options received from user.
    */
   constructor(settings) {
     /**
