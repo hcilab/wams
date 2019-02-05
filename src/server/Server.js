@@ -40,7 +40,8 @@ const PORT = 9000;
  * of the array. JavaScript arrays allow arbitrary insertion, so in this case
  * the length of the array _is_ the first empty index!
  *
- * @private
+ * @inner
+ * @memberof module:server.Server
  * @param {Array} array - The array to search.
  * @return {number} The first empty index in the array.
  */
@@ -54,7 +55,8 @@ function findEmptyIndex(array) {
 }
 
 /**
- * @private
+ * @inner
+ * @memberof module:server.Server
  * @returns {string} The first valid local IPv4 address it finds.
  */
 function getLocalIP() {
@@ -74,7 +76,8 @@ function getLocalIP() {
 /**
  * Report information about the given connection to the console.
  *
- * @private
+ * @inner
+ * @memberof module:server.Server
  * @param {number} id - ID of the view corresponding to the connection.
  * @param {number} port - Port on which the workspace is listening for the
  * connection.
@@ -98,6 +101,7 @@ class Server {
   /**
    * @param {Object} settings - User-supplied options, specifying a client limit
    * and workspace settings.
+   * @param {module:server.Router} [router=Router()] - Route handler to use.
    */
   constructor(settings = {}, router = Router()) {
     /**
@@ -205,8 +209,10 @@ class Server {
   /**
    * Start the server on the given hostname and port.
    *
-   * @param {number} port - Valid port number on which to listen.
-   * @param {string} host - IP address or hostname on which to listen.
+   * @param {number} [port=9000] - Valid port number on which to listen.
+   * @param {string} [host=getLocalIP()] - IP address or hostname on which to
+   * listen.
+   * @see module:server.Server~getLocalIP
    */
   listen(port = PORT, host = getLocalIP()) {
     this.server.listen(port, host, () => {

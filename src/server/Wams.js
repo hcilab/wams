@@ -24,7 +24,10 @@ const updates = Symbol('updates');
  */
 class Wams {
   /**
-   * Settings: Settings data to be forwarded to the server.
+   * @param {object} [settings={}] - Settings data to be forwarded to the
+   * server.
+   * @param {module:server.Router} [router=Router()] - Route handler to
+   * use.
    */
   constructor(settings = {}, router) {
     this[server] = new Server(settings, router);
@@ -35,6 +38,11 @@ class Wams {
 
   /**
    * Activate the server, listening on the given host and port.
+   *
+   * @param {number} [port=9000] - Valid port number on which to listen.
+   * @param {string} [host=getLocalIP()] - IP address or hostname on which to
+   * listen.
+   * @see module:server.Server~getLocalIP
    */
   listen(port, host) {
     this[server].listen(port, host);
@@ -42,6 +50,9 @@ class Wams {
 
   /**
    * Register a handler for the given event.
+   *
+   * @param {string} event - Event to respond to.
+   * @param {function} handler - Function for responding to the given event.
    */
   on(event, handler) {
     this[server].on(event, handler);
@@ -49,6 +60,8 @@ class Wams {
 
   /**
    * Remove the given item from the workspace.
+   *
+   * @param {module:server.ServerItem} item - Item to remove.
    */
   removeItem(item) {
     this[server].removeItem(item);
@@ -56,13 +69,19 @@ class Wams {
 
   /**
    * Spawn a new item with the given values in the workspace.
+   *
+   * @param {Object} itemdata - Data describing the item to spawn.
+   * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values) {
     this[server].spawnItem(values);
   }
 
   /**
-   * Schedules an update at the next update interval.
+   * Schedules an update announcement at the next update interval.
+   *
+   * @param {( module:server.ServerItem | module:server.ServerView )} object -
+   * Item or view that has been updated.
    */
   scheduleUpdate(object) {
     this[updates][object.id] = object;
@@ -80,6 +99,9 @@ class Wams {
 
   /**
    * Announce an update to the given object to all clients.
+   *
+   * @param {( module:server.ServerItem | module:server.ServerView )} object -
+   * Item or view that has been updated.
    */
   update(object) {
     this[server].update(object);

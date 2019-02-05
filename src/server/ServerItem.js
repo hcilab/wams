@@ -31,6 +31,7 @@ const STAMPER = new IdStamper();
  * around.
  *
  * @memberof module:server
+ * @extends module:shared.Item
  */
 class ServerItem extends Item {
   /**
