@@ -172,12 +172,12 @@ class Connection {
    * Performs locking and unlocking based on the phase and number of active
    * points.
    *
-   * @param {TrackData} data
+   * @param {Object} data
    * @param {module:server.Point2D[]} data.active - Currently active contact
    * points.
-   * @param {module:server.Point2D} centroid - Centroid of active contact
+   * @param {module:server.Point2D} data.centroid - Centroid of active contact
    * points.
-   * @param {string} phase - 'start', 'move', or 'end', the gesture phase.
+   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {

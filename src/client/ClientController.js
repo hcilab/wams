@@ -96,22 +96,28 @@ class ClientController {
      */
     this.renderScheduled = false;
 
-    // For proper function, we need to make sure that the canvas is as large as
-    // It can be at all times, and that at all times we know how big the canvas
-    // Is.
+    /*
+     * For proper function, we need to make sure that the canvas is as large as
+     * it can be at all times, and that at all times we know how big the canvas
+     * is.
+     */
     this.resizeCanvasToFillWindow();
     window.addEventListener('resize', this.resize.bind(this), false);
 
-    // Automatically establish a socket connection with the server. This may
-    // Need to be changed to be non-automatic if it is discovered that it is
-    // Useful for functionality to be inserted between ClientController
-    // Instantiation and socket establishment.
+    /*
+     * Automatically establish a socket connection with the server. This may
+     * need to be changed to be non-automatic if it is discovered that it is
+     * useful for functionality to be inserted between ClientController
+     * instantiation and socket establishment.
+     */
     this[symbols.establishSocket]();
     this[symbols.startRender]();
 
 
-    // As no automatic draw loop is used, (there are no animations), need to
-    // Know when to re-render in response to an image loading.
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
     const schedule_fn = this.scheduleRender.bind(this);
     document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }

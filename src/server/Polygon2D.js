@@ -10,20 +10,23 @@
 const Point2D = require('./Point2D.js');
 
 /**
- * Track a 2D polygon as an in-order list of Point2D objects.
+ * A polygon in two dimensions. Can be complex.
  *
  * @memberof module:server
  */
 class Polygon2D {
   /**
-   * Anchor: A Point2D object, the "anchor" around which the Polygon will be
-   *         rotated. All the points of the Polygon should be defined relative
-   *         to this point.
-   * points: Array of Point2D objects, or simple objects with 'x' and 'y'
-   *         properties holding numerical values. All values should be relative
-   *         to the anchor point.
+   * @param {module:server.Point2D[]} points - The points that make up the
+   * polygon, given in order (clockwise and counter-clockwise are both fine).
    */
   constructor(points) {
+    /**
+     * A closed list of the points making up this polygon. "Closed" here means
+     * that the first and last entries of the list are the same. Closing the
+     * polygon in this manner is handled by the constructor.
+     *
+     * @type {module:server.Point2D[]}
+     */
     this.points = points.map(({ x, y }) => new Point2D(x, y));
     if (this.points.length > 0) {
       this.points.push(this.points[0].clone());
@@ -31,8 +34,7 @@ class Polygon2D {
   }
 
   /**
-   * Determines if a point is inside the polygon. (Returns true if it is, false
-   * otherwise).
+   * Determines if a point is inside the polygon.
    *
    * Rules for deciding whether a point is inside the polygon:
    *  1. If it is clearly outside, return false.
@@ -45,9 +47,10 @@ class Polygon2D {
    *
    * Uses the winding number method for robust and efficient point-in-polygon
    * detection.
-   * See: http://geomalgorithms.com/a03-_inclusion.html
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
-   * p: Point to test.
+   * @param {module:server.Point2D[]} p - Point to test.
+   * @return {boolean} true if the point is inside the polygon, false otherwise.
    */
   contains(p) {
     return this.winding_number(p) !== 0;
@@ -55,6 +58,9 @@ class Polygon2D {
 
   /**
    * Rotate the polygon by the given amount.
+   *
+   * @param {number} theta - The amount, in radians, that the polygon should be
+   * rotated.
    */
   rotate(theta) {
     this.points.forEach(p => p.rotate(theta));
@@ -62,6 +68,10 @@ class Polygon2D {
 
   /**
    * Scale the polygon by the given amount.
+   *
+   * @param {number} ds - The amount of scaling to apply to the polygon. Will be
+   * multiplicative, so should probably be in the range (0.8 - 1.2) most of the
+   * time.
    */
   scale(ds) {
     this.points.forEach(p => p.scale(ds));
@@ -69,12 +79,13 @@ class Polygon2D {
 
   /**
    * Winding number test for a point in a polygon
-   * See: http://geomalgorithms.com/a03-_inclusion.html
    *
-   * Input:   point = a Point2D
-   * Return:  wn = the winding number (=0 only when P is outside)
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+   *
+   * @param {module:server.Point2D[]} point - The point to test.
+   * @return {number} The winding number (=0 only when P is outside)
    */
-  winding_number(point = {}) {
+  winding_number(point) {
     let wn = 0;
     const p = new Point2D(point.x, point.y);
 

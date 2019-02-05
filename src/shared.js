@@ -19,9 +19,11 @@ const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
 const Utils     = require('./shared/util.js');
 
-/*
+/**
  * This object stores a set of core constants for use by both the client and
  *  the server.
+ *
+ * @memberof module:shared
  */
 const constants = Object.freeze({
   // General constants
@@ -35,9 +37,11 @@ const constants = Object.freeze({
   NS_WAMS:  '/wams',
 });
 
-/*
+/**
  * A list of colours, for use by the API for shadows, and by end-point apps too
  * if desired.
+ *
+ * @memberof module:shared
  */
 const colours = [
   'saddlebrown',

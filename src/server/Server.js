@@ -40,17 +40,22 @@ const PORT = 9000;
  * of the array. JavaScript arrays allow arbitrary insertion, so in this case
  * the length of the array _is_ the first empty index!
  *
- * array: The array to search.
+ * @private
+ * @param {Array} array - The array to search.
+ * @return {number} The first empty index in the array.
  */
 function findEmptyIndex(array) {
-  // This is a very deliberate use of '==' instead of '==='. It should catch
-  // Both undefined and null.
+  /*
+   * This is a very deliberate use of '==' instead of '==='. It should catch
+   * both undefined and null.
+   */
   const index = array.findIndex(e => e == null);
   return index < 0 ? array.length : index;
 }
 
 /**
- * Returns the first valid local IPv4 address.
+ * @private
+ * @returns {string} The first valid local IPv4 address it finds.
  */
 function getLocalIP() {
   let ipaddr = null;
@@ -69,9 +74,12 @@ function getLocalIP() {
 /**
  * Report information about the given connection to the console.
  *
- * id    : ID of the view corresponding to the connection.
- * port  : Port on which the workspace is listening for the connection.
- * status: True if this is a new connection, False if this is a disconnection.
+ * @private
+ * @param {number} id - ID of the view corresponding to the connection.
+ * @param {number} port - Port on which the workspace is listening for the
+ * connection.
+ * @param {boolean} status - True if this is a new connection, False if this is
+ * a disconnection.
  */
 function logConnection(id, port, status) {
   const event = status ? 'connected' : 'disconnected';
@@ -88,37 +96,49 @@ function logConnection(id, port, status) {
  */
 class Server {
   /**
-   * Settings: User-supplied options, specifying a client limit and workspace
-   *           settings.
+   * @param {Object} settings - User-supplied options, specifying a client limit
+   * and workspace settings.
    */
-  constructor(settings = {}, router = new Router()) {
+  constructor(settings = {}, router = Router()) {
     /**
      * The number of active clients that are allowed at any given time.
+     *
+     * @type {number}
      */
     this.clientLimit = settings.clientLimit || DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
+     *
+     * @type {module:server.WorkSpace}
      */
     this.workspace = new WorkSpace(settings);
 
     /**
      * HTTP server for sending and receiving data.
+     *
+     * @type {http.Server}
      */
     this.server = http.createServer(router);
 
     /**
      * Port on which to listen.
+     *
+     * @type {number}
      */
     this.port = null;
 
     /**
      * Socket.io instance for maintaining connections with clients.
+     *
+     * @type {Socket}
      */
     this.io = IO(this.server);
 
     /**
      * Socket.io namespace in which to operate.
+     *
+     * @type {Namespace}
      */
     this.namespace = this.io.of(constants.NS_WAMS);
 
@@ -126,6 +146,8 @@ class Server {
      * Tracks all active connections. Will pack new connections into the start
      * of this array at all times. Old connections will not have their position
      * in the array changed.
+     *
+     * @type {module:server.Connection[]}
      */
     this.connections = [];
 
@@ -136,7 +158,8 @@ class Server {
   /**
    * Accept the connection associated with the given socket.
    *
-   * socket: socket.io socket instance for the new accepted connection.
+   * @param {Socket} socket - socket.io socket instance for the new accepted
+   * connection.
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
@@ -151,7 +174,7 @@ class Server {
   /**
    * Respond to a new socket.io connection.
    *
-   * socket: socket.io socket instance for the new connection.
+   * @param {Socket} socket - socket.io socket instance for the new connection.
    */
   connect(socket) {
     this.namespace.clients((error, clients) => {
@@ -167,7 +190,7 @@ class Server {
   /**
    * Disconnect the given connection.
    *
-   * cn: Connection to disconnect.
+   * @param {Connection} cn - Connection to disconnect.
    */
   disconnect(cn) {
     if (cn.disconnect()) {
@@ -182,8 +205,8 @@ class Server {
   /**
    * Start the server on the given hostname and port.
    *
-   * port: Valid port number on which to listen.
-   * host: IP address or hostname on which to listen.
+   * @param {number} port - Valid port number on which to listen.
+   * @param {string} host - IP address or hostname on which to listen.
    */
   listen(port = PORT, host = getLocalIP()) {
     this.server.listen(port, host, () => {
@@ -195,8 +218,8 @@ class Server {
   /**
    * Register a handler for the given event.
    *
-   * event  : Event to respond to.
-   * handler: Function for responding to the given event.
+   * @param {string} event - Event to respond to.
+   * @param {function} handler - Function for responding to the given event.
    */
   on(event, handler) {
     this.workspace.on(event, handler);
@@ -205,7 +228,8 @@ class Server {
   /**
    * Reject the connection associated with the given socket.
    *
-   * socket: socket.io socket instance for the rejected connection.
+   * @param {Socket} socket - socket.io socket instance for the rejected
+   * connection.
    */
   reject(socket) {
     socket.emit(Message.FULL);
@@ -216,7 +240,7 @@ class Server {
   /**
    * Remove the item from the model.
    *
-   * item: Item to remove.
+   * @param {module:server.ServerItem} item - Item to remove.
    */
   removeItem(item) {
     if (this.workspace.removeItem(item)) {
@@ -227,7 +251,8 @@ class Server {
   /**
    * Spawn a new item.
    *
-   * itemdata: Data describing the item to spawn.
+   * @param {Object} itemdata - Data describing the item to spawn.
+   * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(itemdata) {
     const item = this.workspace.spawnItem(itemdata);
@@ -238,7 +263,8 @@ class Server {
   /**
    * Announce to all active clients that the given object has been updated.
    *
-   * object: ServerItem or ServerView that has been updated.
+   * @param {( module:server.ServerItem | module:server.ServerView )} object -
+   * Item or view that has been updated.
    */
   update(object) {
     if (object instanceof ServerItem) {
@@ -251,7 +277,7 @@ class Server {
   /**
    * Inform all clients that the given item has been updated.
    *
-   * item: ServerItem that has been updated.
+   * @param {module:server.ServerItem} item - ServerItem that has been updated.
    */
   updateItem(item) {
     new Message(Message.UD_ITEM, item).emitWith(this.namespace);
@@ -261,7 +287,7 @@ class Server {
    * Inform the client corresponding to the given view that it has been updated,
    * and inform all other clients that a 'shadow' view has been updated.
    *
-   * view: ServerView that has been updated.
+   * @param {module:server.ServerView} view - ServerView that has been updated.
    */
   updateView(view) {
     const cn = this.connections.find(c => c && c.view.id === view.id);
