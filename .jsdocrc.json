@@ -22,6 +22,9 @@
   },
   "templates": {
     "cleverLinks": false,
+    "css": [
+      "styles/custom.css"
+    ],
     "footerText": "Workspaces Across Multiple Surfaces",
     "monospaceLinks": false,
     "name": "WAMS"
