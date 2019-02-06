@@ -11,7 +11,7 @@ const IdStamper = require('./IdStamper.js');
 const {
   defineOwnImmutableEnumerableProperty,
   mergeMatches,
-} = require('./util.js');
+} = require('./utilities.js');
 
 const STAMPER = new IdStamper();
 

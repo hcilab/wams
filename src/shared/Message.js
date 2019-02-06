@@ -16,7 +16,7 @@
 
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
 
 /**
  * TYPES is an explicit list of the types of messages that will be passed back

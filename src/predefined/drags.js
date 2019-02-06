@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { isView, isIncludedIn } = require('./utils.js');
+const { isView, isIncludedIn } = require('./utilities.js');
 
 /**
  * Returns a WAMS drag handler function which will allow users to move their

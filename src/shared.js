@@ -17,7 +17,7 @@
 const IdStamper = require('./shared/IdStamper.js');
 const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
-const Utils     = require('./shared/util.js');
+const Utils     = require('./shared/utilities.js');
 
 /**
  * This object stores a set of core constants for use by both the client and

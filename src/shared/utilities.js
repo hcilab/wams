@@ -8,7 +8,7 @@
 'use strict';
 
 /**
- * @namespace utils
+ * @namespace utilities
  * @memberof module:shared
  */
 
@@ -16,11 +16,11 @@
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  *
- * obj : The object on which the property will be defined.
- * prop: The property to define on obj.
- * val : The value to assign to the property.
+ * param {object} obj - The object on which the property will be defined.
+ * param {string} prop - The property to define on obj.
+ * param {any} val - The value to assign to the property.
  *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
@@ -42,13 +42,12 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
  * Callback function should be of similar form to the Array.findIndex()
  *  standard library function.
  *
- * array    : The array to search.
- * callback : The condition function used for the search.
- * fromIndex: Index to begin search, goes backward from here. Default is last
- *            item in array.
- * thisArg  : 'this' context for the callback function.
- *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
+ * @param {Array} array - The array to search.
+ * @param {function} callback - The condition function used for the search.
+ * @param {number} [ fromIndex=(array.length-1) ] - Index to begin search, goes
+ * backward from here.
+ * @param {?Object} thisArg  - 'this' context for the callback function.
  */
 function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   while (fromIndex >= 0 &&
@@ -68,7 +67,7 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  * data    : Object with values to use for corresponding properties in defaults.
  *           Properties not found in defaults will be ignored.
  *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
@@ -102,7 +101,7 @@ function mergeMatches(defaults = {}, data = {}) {
  * obj : The object to modify
  * prop: The property of obj to make immutable
  *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
  */
 function makeOwnPropertyImmutable(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
@@ -117,6 +116,8 @@ function makeOwnPropertyImmutable(obj, prop) {
 
 /**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
+ *
+ * @memberof module:shared.utilities
  */
 const NOP = () => {};
 
@@ -126,7 +127,7 @@ const NOP = () => {};
  * array: The array to modify
  * item : The item to remove from array according to its Id
  *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
  */
 function removeById(array, item) {
   const idx = array.findIndex(o => o.id === item.id);
@@ -146,7 +147,7 @@ function removeById(array, item) {
  *           instance of class_fn
  * class_fn: Insist that item be an instance of this class function.
  *
- * @memberof module:shared.utils
+ * @memberof module:shared.utilities
  */
 function safeRemoveById(array, item, class_fn) {
   if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;

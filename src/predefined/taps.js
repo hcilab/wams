@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { isIncludedIn } = require('./utils.js');
+const { isIncludedIn } = require('./utilities.js');
 
 /**
  * Returns a WAMS tap handler function which will spawn a new item using values

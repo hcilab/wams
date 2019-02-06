@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { isView, isIncludedIn } = require('./utils.js');
+const { isView, isIncludedIn } = require('./utilities.js');
 
 /**
  * Returns a WAMS scale handler function which will allow users to scale their

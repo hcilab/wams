@@ -13,7 +13,7 @@
 
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
 
 /**
  * Generator for integers from 0 to MAX_SAFE_INTEGER.

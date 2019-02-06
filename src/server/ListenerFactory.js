@@ -16,13 +16,14 @@ const ServerItem     = require('./ServerItem.js');
  * The user event listeners must conform to these specifications.
  *
  * @namespace ListenerTypes
+ * @memberof module:server
  */
 
 /**
  * User-supplied listener to respond to click events.
  *
  * @typedef ClickListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the click
  * originates.
@@ -60,7 +61,7 @@ function click(listener, workspace) {
  * User-supplied listener to respond to drag events.
  *
  * @typedef DragListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the drag originates.
  * @param {( server.ServerView|server.ServerItem )} target - View or Item which
@@ -92,7 +93,7 @@ function drag(listener) {
  * User-supplied listener to respond to layout events.
  *
  * @typedef LayoutListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the layout
  * originates.
@@ -119,7 +120,7 @@ function layout(listener) {
  * User-supplied listener to respond to rotate events.
  *
  * @typedef RotateListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the rotate
  * originates.
@@ -151,7 +152,7 @@ function rotate(listener) {
  * User-supplied listener to respond to scale events.
  *
  * @typedef ScaleListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the scale
  * originates.
@@ -183,7 +184,7 @@ function scale(listener) {
  * User-supplied listener to respond to swipe events.
  *
  * @typedef SwipeListener
- * @memberof ListenerTypes
+ * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the scale
  * originates.
