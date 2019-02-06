@@ -19,8 +19,10 @@ const STAMPER = new IdStamper();
  * This factory can generate the basic classes that need to communicate
  *  property values between the client and server.
  *
- * coreProperties: An array of property names. It is these properties, and only
- *                 these properties, which will be report()ed by the reporter.
+ * @memberof module:shared
+ * @param {string[]} coreProperties - An array of property names. It is these
+ * properties, and only these properties, which will be report()ed by the
+ * reporter.
  */
 function ReporterFactory(coreProperties) {
   // Use scoping to permanently save the list of core property names. Make sure
@@ -57,7 +59,7 @@ function ReporterFactory(coreProperties) {
      * Save onto this Reporter instance the values in data which correspond to
      * properties named in KEYS.
      *
-     * data: Data values to attempt to save.
+     * @param {Object} data - Data values to attempt to save.
      */
     assign(data = {}) {
       KEYS.forEach(p => {
@@ -69,6 +71,8 @@ function ReporterFactory(coreProperties) {
      * Provide a report of the data saved in this Reporter instance. Only those
      * instance properties which correspond to properties named in KEYS will be
      * reported.
+     *
+     * @return {Object} Contains the core properties of this Reporter instance.
      */
     report() {
       const data = {};

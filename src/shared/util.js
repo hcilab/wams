@@ -8,12 +8,19 @@
 'use strict';
 
 /**
+ * @namespace utils
+ * @memberof module:shared
+ */
+
+/**
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  *
  * obj : The object on which the property will be defined.
  * prop: The property to define on obj.
  * val : The value to assign to the property.
+ *
+ * @memberof module:shared.utils
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
@@ -40,6 +47,8 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
  * fromIndex: Index to begin search, goes backward from here. Default is last
  *            item in array.
  * thisArg  : 'this' context for the callback function.
+ *
+ * @memberof module:shared.utils
  */
 function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   while (fromIndex >= 0 &&
@@ -58,6 +67,8 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  *           names of defaults, then defaults will be returned.
  * data    : Object with values to use for corresponding properties in defaults.
  *           Properties not found in defaults will be ignored.
+ *
+ * @memberof module:shared.utils
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
@@ -90,6 +101,8 @@ function mergeMatches(defaults = {}, data = {}) {
  *
  * obj : The object to modify
  * prop: The property of obj to make immutable
+ *
+ * @memberof module:shared.utils
  */
 function makeOwnPropertyImmutable(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
@@ -112,6 +125,8 @@ const NOP = () => {};
  *
  * array: The array to modify
  * item : The item to remove from array according to its Id
+ *
+ * @memberof module:shared.utils
  */
 function removeById(array, item) {
   const idx = array.findIndex(o => o.id === item.id);
@@ -130,6 +145,8 @@ function removeById(array, item) {
  * item    : The item to remove from array according to its Id, if it is an
  *           instance of class_fn
  * class_fn: Insist that item be an instance of this class function.
+ *
+ * @memberof module:shared.utils
  */
 function safeRemoveById(array, item, class_fn) {
   if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;

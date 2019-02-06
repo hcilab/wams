@@ -34,26 +34,42 @@ const STAMPER = new IdStamper();
  */
 class WorkSpace {
   /**
-   * Settings: Options received from user.
+   * @param {object} [settings] - Options received from user.
+   * @param {string} [settings.color] - Background color for the workspace.
    */
   constructor(settings) {
     /**
      * Configuration settings for the workspace.
+     *
+     * @type {object}
+     * @property {string} [color] - Background color for the workspace.
      */
     this.settings = mergeMatches(DEFAULTS, settings);
 
     /**
      * Track all active views.
+     *
+     * @type {module:server.ServerView[]}
      */
     this.views = [];
 
     /**
      * Track all items in the workspace.
+     *
+     * @type {module:server.ServerItem[]}
      */
     this.items = [];
 
     /**
      * Store event listeners in an object, for easy access by event type.
+     *
+     * @type {object}
+     * @property {function} click - Handler for click events.
+     * @property {function} drag - Handler for drag events.
+     * @property {function} layout - Handler for layout events.
+     * @property {function} rotate - Handler for rotate events.
+     * @property {function} scale - Handler for scale events.
+     * @property {function} swipe - Handler for swipe events.
      */
     this.handlers = {};
 
@@ -70,8 +86,8 @@ class WorkSpace {
    * Looks for an unlocked item at the given coordinates and returns the first
    * one that it finds, or none if no unlocked items are found.
    *
-   * x: x coordinate at which to look for items.
-   * y: y coordinate at which to look for items.
+   * @param {number} x - x coordinate at which to look for items.
+   * @param {number} y - y coordinate at which to look for items.
    */
   findFreeItemByCoordinates(x, y) {
     return findLast(this.items, i => i.isFreeItemAt(x, y));
@@ -79,6 +95,9 @@ class WorkSpace {
 
   /**
    * Looks for any item at the given coordinates.
+   *
+   * @param {number} x - x coordinate at which to look for items.
+   * @param {number} y - y coordinate at which to look for items.
    */
   findItemByCoordinates(x, y) {
     return findLast(this.items, i => i.containsPoint(x, y));
@@ -86,6 +105,11 @@ class WorkSpace {
 
   /**
    * Gives a lock on the item at (x,y) to the view.
+   *
+   * @param {number} x - x coordinate at which to look for items.
+   * @param {number} y - y coordinate at which to look for items.
+   * @param {module:server.ServerView} view - View that will receive a lock on
+   * the item.
    */
   giveLock(x, y, view) {
     const p = view.transformPoint(x, y);
@@ -95,6 +119,8 @@ class WorkSpace {
 
   /**
    * Releases the view's lock on its item.
+   *
+   * @param {module:server.ServerView} view - View that will release its lock.
    */
   removeLock(view) {
     view.releaseLockedItem();
@@ -103,8 +129,8 @@ class WorkSpace {
   /**
    * Call the registered handler for the given message type.
    *
-   * message: Type of message.
-   * ...args: Arguments to pass to the handler.
+   * @param {string} message - Type of message.
+   * @param {...varies} ...args - Arguments to pass to the handler.
    */
   handle(message, ...args) {
     return this.handlers[message](...args);
@@ -113,8 +139,8 @@ class WorkSpace {
   /**
    * Register a handler for the given event.
    *
-   * event   : Event to respond to.
-   * listener: Handler / listener to register.
+   * @param {string} event - Event to respond to.
+   * @param {function} listener - Handler / listener to register.
    */
   on(event, listener) {
     const type = event.toLowerCase();
@@ -124,7 +150,9 @@ class WorkSpace {
   /**
    * Remove the given view from the workspace.
    *
-   * view: View to remove.
+   * @param {module:server.ServerView} view - View to remove.
+   * @return {boolean} true if the view was located and removed, false
+   * otherwise.
    */
   removeView(view) {
     return safeRemoveById(this.views, view, ServerView);
@@ -133,21 +161,23 @@ class WorkSpace {
   /**
    * Remove the given item from the workspace.
    *
-   * item: Item to remove.
+   * @param {module:server.ServerItem} item - Item to remove.
+   * @return {boolean} true if the item was located and removed, false
+   * otherwise.
    */
   removeItem(item) {
     return safeRemoveById(this.items, item, ServerItem);
   }
 
   /**
-   * Returns an array of View reports, one for each view.
+   * @return {module:shared.View[]} Reports of the currently active views.
    */
   reportViews() {
     return this.views.map(v => v.report());
   }
 
   /**
-   * Returns an array of Item reports, one for each item.
+   * @return {module:shared.Item[]} Reports of the currently active items.
    */
   reportItems() {
     return this.items.map(o => o.report());
@@ -155,6 +185,9 @@ class WorkSpace {
 
   /**
    * Spawn a new view with the given values.
+   *
+   * @param {object} values - Values describing the view to spawn.
+   * @return {module:server.ServerView} The newly spawned view.
    */
   spawnView(values = {}) {
     const v = new ServerView(values);
@@ -164,6 +197,9 @@ class WorkSpace {
 
   /**
    * Spawn a new item with the given values.
+   *
+   * @param {object} values - Values describing the item to spawn.
+   * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
     const o = new ServerItem(values);
