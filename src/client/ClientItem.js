@@ -25,7 +25,8 @@ const STAMPER = new IdStamper();
  * load the appropriate image and report when it has finished loading the image
  * so that it can be displayed.
  *
- * @private
+ * @inner
+ * @memberof module:client.ClientItem
  * @param {string} src - Image source path.
  * @returns {?Image}
  */
