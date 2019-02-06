@@ -8,7 +8,7 @@
 /**
  * Bundles together the predefined callback factories.
  *
- * @module server
+ * @module predefined
  */
 
 'use strict';
