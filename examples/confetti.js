@@ -22,11 +22,11 @@ function square(x, y, view) {
 }
 
 // Attaches the different function handlers
-ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
-ws.on('click',  Wams.predefined.tap.spawnOrRemoveItem(ws, square, 'colour'));
-ws.on('scale',  Wams.predefined.scale.view(ws));
-ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['colour']));
-ws.on('rotate', Wams.predefined.rotate.view(ws));
+ws.on('layout', Wams.predefined.layouts.placeAtXY(ws, 4000, 4000));
+ws.on('click',  Wams.predefined.taps.spawnOrRemoveItem(ws, square, 'colour'));
+ws.on('scale',  Wams.predefined.scales.view(ws));
+ws.on('drag',   Wams.predefined.drags.itemsAndView(ws, ['colour']));
+ws.on('rotate', Wams.predefined.rotates.view(ws));
 
 ws.listen(9002);
 

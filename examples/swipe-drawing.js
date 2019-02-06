@@ -40,13 +40,7 @@ const handleSwipe = (function makeSwipeHandler(ws) {
   return handleSwipe;
 })(ws);
 
-// Executed once per user, when they join.
-// function handleLayout(view, position) {
-  // view.moveTo(4000,4000);
-// }
-
 // Attaches the defferent function handlers
-// ws.on('layout', Wams.predefined.layout.placeAtXY(ws, 4000, 4000));
 ws.on('swipe',  handleSwipe);
 
 ws.listen(9002);
