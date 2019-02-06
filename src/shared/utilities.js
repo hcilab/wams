@@ -43,11 +43,15 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
  *  standard library function.
  *
  * @memberof module:shared.utilities
- * @param {Array} array - The array to search.
+ *
+ * @param {mixed[]} array - The array to search.
  * @param {function} callback - The condition function used for the search.
  * @param {number} [ fromIndex=(array.length-1) ] - Index to begin search, goes
  * backward from here.
- * @param {?Object} thisArg  - 'this' context for the callback function.
+ * @param {Object} [ thisArg ] - 'this' context for the callback function.
+ *
+ * @return {?mixed} The last item in the array for which the callback returned
+ * true, or null if the callback never returned true;
  */
 function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   while (fromIndex >= 0 &&
@@ -61,11 +65,11 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  * Returns a new object, with all the own properties of 'defaults' having
  *  values from 'data', if found, otherwise with values from 'defaults'.
  *
- * defaults: Object with default properties and values. If data is not provided
- *           or all the property names of data are disjoint with the property
- *           names of defaults, then defaults will be returned.
- * data    : Object with values to use for corresponding properties in defaults.
- *           Properties not found in defaults will be ignored.
+ * @param {Object} defaults - Object with default properties and values. If data
+ * is not provided or all the property names of data are disjoint with the
+ * property names of defaults, then defaults will be returned.
+ * @param {} data - Object with values to use for corresponding properties in
+ * defaults. Properties not found in defaults will be ignored.
  *
  * @memberof module:shared.utilities
  */
@@ -96,12 +100,12 @@ function mergeMatches(defaults = {}, data = {}) {
  * This method is intended for use when the only reason for a call to
  *  Object.defineProperty() was to make the property immutable.
  *
- * Returns the modified object.
- *
- * obj : The object to modify
- * prop: The property of obj to make immutable
- *
  * @memberof module:shared.utilities
+ *
+ * @param {Object} obj - The object to modify.
+ * @param {string} prop - The name of the property of obj to make immutable.
+ *
+ * @returns {Object} The modified object.
  */
 function makeOwnPropertyImmutable(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
@@ -124,10 +128,12 @@ const NOP = () => {};
 /**
  * Removes the given item from the given array, according to its Id.
  *
- * array: The array to modify
- * item : The item to remove from array according to its Id
- *
  * @memberof module:shared.utilities
+ *
+ * @param {Object[]} array - The array to modify.
+ * @param {Object} item  - The item to remove from array according to its Id.
+ *
+ * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function removeById(array, item) {
   const idx = array.findIndex(o => o.id === item.id);
@@ -142,12 +148,16 @@ function removeById(array, item) {
  * Removes the given item of the given class (enforced by throwing an
  * exception if not an instance) from the given array.
  *
- * array   : The array to modify
- * item    : The item to remove from array according to its Id, if it is an
- *           instance of class_fn
- * class_fn: Insist that item be an instance of this class function.
- *
  * @memberof module:shared.utilities
+ *
+ * @param {Object[]} array - The array to modify.
+ * @param {Object} item - The item to remove from array according to its Id, if
+ * it is an instance of class_fn
+ * @param {Class} class_fn - Insist that item be an instance of this class
+ * function.
+ *
+ * @throws {string}
+ * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function safeRemoveById(array, item, class_fn) {
   if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;

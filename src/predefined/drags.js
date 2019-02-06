@@ -10,16 +10,28 @@
 const { isView, isIncludedIn } = require('./utilities.js');
 
 /**
+ * Factories for predefined drag handlers.
+ *
+ * @namespace drags
+ * @memberof module:predefined
+ */
+
+/**
  * Returns a WAMS drag handler function which will allow users to move their
  * view around the workspace, but not move items.
  *
- * workspace: The WorkSpace for which this function will be built.
+ * @memberof module:predefined.drags
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this
+ * function will be built.
+ *
+ * @return {module:server.ListenerTypes.DragListener}
  */
-function view(workspace) {
+function view(wams) {
   return function drag_view(view, target, x, y, dx, dy) {
     if (isView(target, view)) {
       view.moveBy(-dx, -dy);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     }
   };
 }
@@ -28,13 +40,20 @@ function view(workspace) {
  * Returns a WAMS drag handler function which will allow users to move items
  * around the workspace, but their view will be fixed in place.
  *
- * workspace: The WorkSpace for which this function will be built.
+ * wams: The Wams instance for which this function will be built.
+ *
+ * @memberof module:predefined.drags
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this
+ * function will be built.
+ *
+ * @return {module:server.ListenerTypes.DragListener}
  */
-function items(workspace, itemTypes = []) {
+function items(wams, itemTypes = []) {
   return function drag_item(view, target, x, y, dx, dy) {
     if (isIncludedIn(target, itemTypes)) {
       target.moveBy(dx, dy);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }
@@ -43,16 +62,23 @@ function items(workspace, itemTypes = []) {
  * Returns a WAMS drag handler function which will allow users to move their
  * view around the workspace and also move items.
  *
- * workspace: The WorkSpace for which this function will be built.
+ * wams: The Wams for which this function will be built.
+ *
+ * @memberof module:predefined.drags
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this
+ * function will be built.
+ *
+ * @return {module:server.ListenerTypes.DragListener}
  */
-function itemsAndView(workspace, itemTypes = []) {
+function itemsAndView(wams, itemTypes = []) {
   return function drag_itemAndView(view, target, x, y, dx, dy) {
     if (isView(target, view)) {
       view.moveBy(-dx, -dy);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     } else if (isIncludedIn(target, itemTypes)) {
       target.moveBy(dx, dy);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }

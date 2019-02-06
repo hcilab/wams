@@ -130,7 +130,7 @@ class WorkSpace {
    * Call the registered handler for the given message type.
    *
    * @param {string} message - Type of message.
-   * @param {...varies} ...args - Arguments to pass to the handler.
+   * @param {...mixed} ...args - Arguments to pass to the handler.
    */
   handle(message, ...args) {
     return this.handlers[message](...args);
