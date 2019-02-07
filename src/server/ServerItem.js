@@ -61,6 +61,7 @@ class ServerItem extends Item {
    *
    * @param {number} x - x coordinate of the point to check.
    * @param {number} y - y coordinate of the point to check.
+   *
    * @return {boolean} True if the (x,y) point is located inside this Item.
    * False otherwise.
    */
@@ -75,6 +76,7 @@ class ServerItem extends Item {
    *
    * @param {number} x - x coordinate of the point to check.
    * @param {number} y - y coordinate of the point to check.
+   *
    * @return {boolean} True if the (x,y) point is located inside this Item, and
    * this Item is not currently locked. False otherwise.
    */

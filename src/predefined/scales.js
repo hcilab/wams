@@ -10,50 +10,75 @@
 const { isView, isIncludedIn } = require('./utilities.js');
 
 /**
- * Returns a WAMS scale handler function which will allow users to scale their
- * view.
+ * Factories for predefined scale handlers.
  *
- * workspace: The WorkSpace for which this function will be built.
+ * @namespace scales
+ * @memberof module:predefined
  */
-function view(workspace) {
+
+/**
+ * Generates a scale handler that will only scale the user's view.
+ *
+ * @memberof module:predefined.scales
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ *
+ * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
+ * function which will allow users to scale their view.
+ */
+function view(wams) {
   return function scale_view(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     }
   };
 }
 
 /**
- * Returns a WAMS scale handler function which will allow users to scale items.
+ * Generates a scale handler that will only scale item types from the given
+ * list.
  *
- * workspace: The WorkSpace for which this function will be built.
- * itemTypes: Array of strings, the types of items for which to allow scaling.
+ * @memberof module:predefined.scales
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ * @param {string[]} itemTypes - The item types for which to allow rotating.
+ *
+ * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
+ * function which will allow users to scale items.
  */
-function items(workspace, itemTypes = []) {
+function items(wams, itemTypes = []) {
   return function scale_item(view, target, scale, mx, my) {
     if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }
 
 /**
- * Returns a WAMS scale handler function which will allow users to scale items
- * and their view.
+ * Generates a scale handler that will only scale the user's view or item types
+ * from the given list.
  *
- * workspace: The WorkSpace for which this function will be built.
- * itemTypes: Array of strings, the types of items for which to allow scaling.
+ * @memberof module:predefined.scales
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ * @param {string[]} itemTypes - The item types for which to allow rotating.
+ *
+ * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
+ * function which will allow users to scale items and their view.
  */
-function itemsAndView(workspace, itemTypes = []) {
+function itemsAndView(wams, itemTypes = []) {
   return function scale_itemsAndView(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     } else if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }

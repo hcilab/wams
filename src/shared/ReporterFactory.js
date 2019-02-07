@@ -52,7 +52,7 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
-      return this.assign(mergeMatches(INITIALIZER, data));
+      this.assign(mergeMatches(INITIALIZER, data));
     }
 
     /**

@@ -27,7 +27,9 @@ const STAMPER = new IdStamper();
  *
  * @inner
  * @memberof module:client.ClientItem
+ *
  * @param {string} src - Image source path.
+ *
  * @returns {?Image}
  */
 function createImage(src) {

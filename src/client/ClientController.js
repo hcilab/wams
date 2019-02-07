@@ -201,7 +201,11 @@ class ClientController {
   /**
    * Generates a function for forwarding the given message to the server.
    *
-   * @param {MessageType} message - The type of message to forward.
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The type of message to forward. One of the static
+   * members of the Message class.
+   *
    * @return {Function} A function bound to this instance for forwarding data to
    * the server with the given message type label.
    */
@@ -216,8 +220,10 @@ class ClientController {
   /**
    * Passes messages to the View, and schedules a render.
    *
+   * @see {@link module:shared.Message}
+   *
    * @param {string} message - The name of a ClientView method to run.
-   * @param {Object} ...args - The arguments to pass to the ClientView method.
+   * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);

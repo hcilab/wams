@@ -38,10 +38,12 @@ const ServerItem     = require('./ServerItem.js');
  * call the provided listener with appropriate arguments.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {ClickListener} listener - User-supplied function for responding to
  *    this event.
  * @param {module:server.Workspace} workspace - The workspace upon which this
  * event will act.
+ *
  * @return {function} Click handler.
  */
 function click(listener, workspace) {
@@ -77,8 +79,10 @@ function click(listener, workspace) {
  * appropriate arguments.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {DragListener} listener - User-supplied function for responding to
  *    this event.
+ *
  * @return {function} Drag handler.
  */
 function drag(listener) {
@@ -106,8 +110,10 @@ function drag(listener) {
  * listeners.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {LayoutListener} listener - User-supplied function for responding to
  * this event.
+ *
  * @return {function} Layout handler.
  */
 function layout(listener) {
@@ -136,8 +142,10 @@ function layout(listener) {
  * to the provided listener.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {RotateListener} listener - User-supplied function for responding to
  * this event.
+ *
  * @return {function} Rotate handler.
  */
 function rotate(listener) {
@@ -168,8 +176,10 @@ function rotate(listener) {
  * provided listener.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {ScaleListener} listener - User-supplied function for responding to
  * this event.
+ *
  * @return {function} Scale handler.
  */
 function scale(listener) {
@@ -201,8 +211,10 @@ function scale(listener) {
  * call the provided listener with appropriate arguments.
  *
  * @memberof BLUEPRINTS
+ *
  * @param {SwipeListener} listener - User-supplied function for responding to
  * this event.
+ *
  * @return {function} Swipe handler.
  */
 function swipe(listener) {
@@ -231,14 +243,14 @@ const BLUEPRINTS = Object.freeze({
  * Builds a Listener of the given type, using the provided listener and
  * workspace.
  *
+ * @memberof module:server.ListenerFactory
+ *
  * @param {string} type - Type of Listener to build. One of 'click', 'drag',
  *    'layout', 'rotate', 'scale', or 'swipe'.
  * @param {Function} listener - Function which will respond to the listened-to
  *    event.
  * @param {module:server.WorkSpace} workspace - Workspace on which the Listener
  * will act.
- *
- * @memberof module:server.ListenerFactory
  */
 function build(type, listener, workspace) {
   if (typeof listener !== 'function') {

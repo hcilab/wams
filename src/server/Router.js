@@ -19,6 +19,8 @@ const express = require('express');
  * will get priority.
  *
  * @memberof module:server
+ *
+ * @return {express.app} An express app with main WAMS routes established.
  */
 function Router() {
   const app = express();

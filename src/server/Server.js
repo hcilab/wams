@@ -42,7 +42,9 @@ const PORT = 9000;
  *
  * @inner
  * @memberof module:server.Server
+ *
  * @param {Array} array - The array to search.
+ *
  * @return {number} The first empty index in the array.
  */
 function findEmptyIndex(array) {
@@ -57,6 +59,7 @@ function findEmptyIndex(array) {
 /**
  * @inner
  * @memberof module:server.Server
+ *
  * @returns {string} The first valid local IPv4 address it finds.
  */
 function getLocalIP() {
@@ -258,6 +261,7 @@ class Server {
    * Spawn a new item.
    *
    * @param {Object} itemdata - Data describing the item to spawn.
+   *
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(itemdata) {

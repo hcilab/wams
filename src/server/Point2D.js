@@ -46,6 +46,7 @@ class Point2D {
    * Divide the point's values by the given amount.
    *
    * @param {number} ds - divide x,y by this amount.
+   *
    * @return {module:server.Point2D} this
    */
   divideBy(ds = 1) {
@@ -79,6 +80,7 @@ class Point2D {
    * Subtracts the given point from this point to form a new point.
    *
    * @param {module:server.Point2D} p - Point to subtract from this point.
+   *
    * @return {module:server.Point2D} A new point which is the simple subraction
    * of the given point from this point.
    */
@@ -90,6 +92,7 @@ class Point2D {
    * Add the given point to this point.
    *
    * @param {module:server.Point2D} p - Point to add to this point.
+   *
    * @return {module:server.Point2D} A new point which is the simple addition of
    * the given point from this point.
    */
@@ -101,6 +104,7 @@ class Point2D {
    * Rotate the point by theta radians.
    *
    * @param {number} theta - Amount of rotation to apply, in radians.
+   *
    * @return {module:server.Point2D} this
    */
   rotate(theta = 0) {
@@ -118,6 +122,7 @@ class Point2D {
    * Apply the given scale modifier to the point.
    *
    * @param {number} ds - Divide x,y by this amount.
+   *
    * @return {module:server.Point2D} this
    */
   scale(ds = 1) {
@@ -131,6 +136,7 @@ class Point2D {
    *
    * @param {number} coefficient - Amount by which to multiply the values in
    * this point.
+   *
    * @return {module:server.Point2D} Return a new point, the multiplation of
    * this point by the given amount.
    */
@@ -143,6 +149,7 @@ class Point2D {
    *
    * @param {number} dx - change in x axis position.
    * @param {number} dy - change in y axis position.
+   *
    * @return {module:server.Point2D} this
    */
   translate(dx = 0, dy = 0) {

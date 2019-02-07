@@ -24,8 +24,9 @@ const Utils     = require('./shared/utilities.js');
  *  the server.
  *
  * @memberof module:shared
+ * @enum {number}
  */
-const constants = Object.freeze({
+const constants = {
   // General constants
   ROTATE_0:   0,
   ROTATE_90:  Math.PI / 2,
@@ -34,14 +35,16 @@ const constants = Object.freeze({
   ROTATE_360: Math.PI * 2,
 
   // Namespaces
+  /** @type {string} */
   NS_WAMS:  '/wams',
-});
+};
 
 /**
  * A list of colours, for use by the API for shadows, and by end-point apps too
  * if desired.
  *
  * @memberof module:shared
+ * @type {string[]}
  */
 const colours = [
   'saddlebrown',

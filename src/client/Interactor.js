@@ -113,6 +113,7 @@ class Interactor {
    * Generates a function that forwards the appropriate gesture and data.
    *
    * @param {string} gesture - name of a gesture to forward.
+   *
    * @return {Function} Handler for westures that receives a data object and
    * forwards it according to the given gesture name.
    */

@@ -62,8 +62,10 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 }
 
 /**
- * Returns a new object, with all the own properties of 'defaults' having
- *  values from 'data', if found, otherwise with values from 'defaults'.
+ * Create a new object, with all the own properties of 'defaults' having values
+ * from 'data', if found, otherwise with values from 'defaults'.
+ *
+ * @memberof module:shared.utilities
  *
  * @param {Object} defaults - Object with default properties and values. If data
  * is not provided or all the property names of data are disjoint with the
@@ -71,7 +73,7 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
  * @param {} data - Object with values to use for corresponding properties in
  * defaults. Properties not found in defaults will be ignored.
  *
- * @memberof module:shared.utilities
+ * @returns {Object} The new object.
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
@@ -149,6 +151,7 @@ function removeById(array, item) {
  * exception if not an instance) from the given array.
  *
  * @memberof module:shared.utilities
+ * @throws {string}
  *
  * @param {Object[]} array - The array to modify.
  * @param {Object} item - The item to remove from array according to its Id, if
@@ -156,7 +159,6 @@ function removeById(array, item) {
  * @param {Class} class_fn - Insist that item be an instance of this class
  * function.
  *
- * @throws {string}
  * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function safeRemoveById(array, item, class_fn) {

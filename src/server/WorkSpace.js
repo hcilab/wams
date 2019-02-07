@@ -88,6 +88,9 @@ class WorkSpace {
    *
    * @param {number} x - x coordinate at which to look for items.
    * @param {number} y - y coordinate at which to look for items.
+   *
+   * @return {?module:server.ServerItem} A free item at the given coordinates,
+   * or null if there is none.
    */
   findFreeItemByCoordinates(x, y) {
     return findLast(this.items, i => i.isFreeItemAt(x, y));
@@ -98,6 +101,9 @@ class WorkSpace {
    *
    * @param {number} x - x coordinate at which to look for items.
    * @param {number} y - y coordinate at which to look for items.
+   *
+   * @return {?module:server.ServerItem} An item at the given coordinates, or
+   * null if there is none.
    */
   findItemByCoordinates(x, y) {
     return findLast(this.items, i => i.containsPoint(x, y));
@@ -133,7 +139,7 @@ class WorkSpace {
    * @param {...mixed} ...args - Arguments to pass to the handler.
    */
   handle(message, ...args) {
-    return this.handlers[message](...args);
+    this.handlers[message](...args);
   }
 
   /**
@@ -151,6 +157,7 @@ class WorkSpace {
    * Remove the given view from the workspace.
    *
    * @param {module:server.ServerView} view - View to remove.
+   *
    * @return {boolean} true if the view was located and removed, false
    * otherwise.
    */
@@ -162,6 +169,7 @@ class WorkSpace {
    * Remove the given item from the workspace.
    *
    * @param {module:server.ServerItem} item - Item to remove.
+   *
    * @return {boolean} true if the item was located and removed, false
    * otherwise.
    */
@@ -187,6 +195,7 @@ class WorkSpace {
    * Spawn a new view with the given values.
    *
    * @param {object} values - Values describing the view to spawn.
+   *
    * @return {module:server.ServerView} The newly spawned view.
    */
   spawnView(values = {}) {
@@ -199,6 +208,7 @@ class WorkSpace {
    * Spawn a new item with the given values.
    *
    * @param {object} values - Values describing the item to spawn.
+   *
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {

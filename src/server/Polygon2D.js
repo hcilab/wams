@@ -50,6 +50,7 @@ class Polygon2D {
    * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
    * @param {module:server.Point2D[]} p - Point to test.
+   *
    * @return {boolean} true if the point is inside the polygon, false otherwise.
    */
   contains(p) {
@@ -83,6 +84,7 @@ class Polygon2D {
    * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
    * @param {module:server.Point2D[]} point - The point to test.
+   *
    * @return {number} The winding number (=0 only when P is outside)
    */
   winding_number(point) {

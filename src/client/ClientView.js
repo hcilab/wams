@@ -197,6 +197,7 @@ class ClientView extends View {
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.
+   *
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
@@ -207,6 +208,7 @@ class ClientView extends View {
    * Removes the given 'shadow' view.
    *
    * @param {module:shared.View} shadow - The 'shadow' view to remove.
+   *
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
