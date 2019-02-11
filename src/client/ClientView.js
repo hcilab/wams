@@ -83,7 +83,8 @@ class ClientView extends View {
      *
      * @type {module:client.ClientItem[]}
      */
-    this.items = [];
+    this.itemOrder = [];
+    this.items = new Map();
 
     /**
      * The shadows are all the other views that are currently active. They are
@@ -112,7 +113,7 @@ class ClientView extends View {
    * Renders all the items.
    */
   [symbols.drawItems]() {
-    this.items.forEach(o => o.draw(this.context));
+    this.itemOrder.forEach(o => o.draw(this.context));
   }
 
   /**
@@ -157,7 +158,9 @@ class ClientView extends View {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    this.items.push(new ClientItem(values));
+    const item = new ClientItem(values);
+    this.itemOrder.push(item);
+    this.items.set(item.id, item);
   }
 
   /**
@@ -201,7 +204,8 @@ class ClientView extends View {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
-    return removeById(this.items, item);
+    this.items.delete(item.id);
+    return removeById(this.itemOrder, item);
   }
 
   /**
@@ -264,7 +268,11 @@ class ClientView extends View {
    *       with which the item will be located.
    */
   updateItem(data) {
-    this.update('items', data);
+    if (this.items.has(data.id)) {
+      this.items.get(data.id).assign(data);
+    } else {
+      console.warn('Unable to find in items: id: ', data.id);
+    }
   }
 
   /**
