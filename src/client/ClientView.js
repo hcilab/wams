@@ -81,18 +81,25 @@ class ClientView extends View {
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
      *
+     * @type {Map.<module:client.ClientItem>}
+     */
+    this.items = new Map();
+
+    /**
+     * An ordered list of the items, so that the render order can accurately
+     * match the order on the server, and be adjusted likewise.
+     *
      * @type {module:client.ClientItem[]}
      */
     this.itemOrder = [];
-    this.items = new Map();
 
     /**
      * The shadows are all the other views that are currently active. They are
      * tracked in full and an outline for each is rendered.
      *
-     * @type {module:client.ShadowView[]}
+     * @type {Map.<module:client.ShadowView>}
      */
-    this.shadows = [];
+    this.shadows = new Map();
   }
 
   /**
@@ -130,7 +137,7 @@ class ClientView extends View {
   [symbols.drawStatus]() {
     const messages = STATUS_KEYS
       .map(k => `${k}: ${this[k].toFixed(2)}`)
-      .concat([`# of Shadows: ${this.shadows.length}`]);
+      .concat([`# of Shadows: ${this.shadows.size}`]);
     let ty = 40;
     const tx = 20;
 
@@ -169,7 +176,8 @@ class ClientView extends View {
    * @param {module:shared.View} values - State of the new View.
    */
   addShadow(values) {
-    this.shadows.push(new ShadowView(values));
+    const shadow = new ShadowView(values);
+    this.shadows.set(shadow.id, shadow);
   }
 
   /**
@@ -216,7 +224,7 @@ class ClientView extends View {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
-    return removeById(this.shadows, shadow);
+    return this.shadows.delete(shadow.id);
   }
 
   /**
@@ -256,9 +264,11 @@ class ClientView extends View {
    * located using an 'id' field on this data object.
    */
   update(container, data) {
-    const object = this[container].find(o => o.id === data.id);
-    if (object) object.assign(data);
-    else console.warn(`Unable to find in ${container}: id: `, data.id);
+    if (this[container].has(data.id)) {
+      this[container].get(data.id).assign(data);
+    } else {
+      console.warn(`Unable to find in ${container}: id: `, data.id);
+    }
   }
 
   /**
@@ -268,11 +278,7 @@ class ClientView extends View {
    *       with which the item will be located.
    */
   updateItem(data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id).assign(data);
-    } else {
-      console.warn('Unable to find in items: id: ', data.id);
-    }
+    this.update('items', data);
   }
 
   /**
