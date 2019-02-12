@@ -6,7 +6,7 @@
     "express": "^4.16.4",
     "image-size": "^0.6.3",
     "socket.io": "^2.2.0",
-    "westures": "^0.4.0"
+    "westures": "^0.4.1"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
