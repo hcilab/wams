@@ -1,12 +1,22 @@
 
-wams:
+.PHONY: wams lint fix bundle docs tags
+
+wams: lint bundle docs tags
+
+lint:
 	npx eslint src;
+
+fix:
+	npx eslint src --fix;
+
+bundle:
 	npx browserify 'src/client.js' \
 		--standalone wams-client \
 		--outfile 'dist/wams-client.js';
-	npx jsdoc -c .jsdocrc.json;
-	ctags -R src;
 
-test:
-	npm test
+docs:
+	npx jsdoc -c .jsdocrc.json;
+
+tags:
+	ctags -R src;
 
