@@ -73,9 +73,10 @@ class ClientView extends View {
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
      * place.
+     *
+     * @type {CanvasRenderingContext2D}
      */
-    if (values.context) this.context = values.context;
-    else throw 'ClientView requires a CanvasRenderingContext2D!';
+    this.context = values.context;
 
     /**
      * All the items in the model, which may all need rendering at some point.
