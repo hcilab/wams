@@ -14,7 +14,6 @@
 const http = require('http');
 const os = require('os');
 
-// Npm packages.
 const IO = require('socket.io');
 
 // Local project packages, shared between client and server.
@@ -139,6 +138,7 @@ class Server {
      * Socket.io instance for maintaining connections with clients.
      *
      * @type {Socket}
+     * @see {@link https://socket.io/docs/server-api/}
      */
     this.io = IO(this.server);
 

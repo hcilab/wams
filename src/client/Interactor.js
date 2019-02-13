@@ -10,7 +10,7 @@
 
 'use strict';
 
-// Const Westures = require('../../../westures');
+// const Westures = require('../../../westures');
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
@@ -35,6 +35,8 @@ const HANDLERS = Object.freeze({
  * Currently, the Interactor makes use of the Westures library.
  *
  * @memberof module:client
+ *
+ * @see {@link https://mvanderkamp.github.io/westures-core/}
  */
 class Interactor {
   /**

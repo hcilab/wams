@@ -59,6 +59,7 @@ class ClientController {
      * server.
      *
      * @type {Socket}
+     * @see {@link https://socket.io/docs/client-api/}
      */
     this.socket = null;
 
