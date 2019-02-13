@@ -77,19 +77,22 @@ class ClientItem extends Item {
    */
   assign(data) {
     const updateImage = data.imgsrc !== this.imgsrc;
-    const updateBlueprint = Boolean(data.blueprint);
+    // const updateBlueprint = Boolean(data.blueprint);
+    const updateBlueprint = this.sequence == null && data.blueprint;
 
     super.assign(data);
     if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
+    if (updateBlueprint) {
+      this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
+    }
 
     // Rather than doing a bunch of checks, let's just always rebuild the
     // Sequence when updating any data in the item. Doing the checks to see if
     // This is necessary would probably take as much or more time as just
     // Going ahead and rebuilding like this anyway.
-    if (this.blueprint) {
-      this.sequence = this.blueprint.build(this.report());
-    }
+    // if (this.blueprint) {
+    //   this.sequence = this.blueprint.build(this.report());
+    // }
   }
 
   /**
