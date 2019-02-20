@@ -11,13 +11,26 @@ const { NOP } = require('../../src/shared.js');
 const WorkSpace = require('../../src/server/WorkSpace.js');
 const ServerItem = require('../../src/server/ServerItem.js');
 const ServerView = require('../../src/server/ServerView.js');
+const Polygon2D = require('../../src/server/Polygon2D.js');
+
+function rectangle(w, h) {
+  return new Polygon2D([
+    { x: 0, y: 0 },
+    { x: w, y: 0 },
+    { x: w, y: h },
+    { x: 0, y: h },
+  ]);
+}
+
+let ia, ib, ic;
+beforeAll(() => {
+  ia = { x: 0,   y: 0,   hitbox: rectangle(100, 100) };
+  ib = { x: 20,  y: 40,  hitbox: rectangle(100, 100) };
+  ic = { x: 220, y: 240, hitbox: rectangle(50,  50)  };
+});
 
 describe('WorkSpace', () => {
   const DEFAULTS = Object.freeze({
-    bounds: {
-      x: 10000,
-      y: 10000,
-    },
     color: '#aaaaaa',
   });
 
@@ -38,10 +51,6 @@ describe('WorkSpace', () => {
     test('Uses user-defined settings, if provided', () => {
       const custom = {
         color: 'rgb(155,72, 84)',
-        bounds: {
-          x: 1080,
-          y: 1920,
-        },
       };
       expect(new WorkSpace(custom).settings).toMatchObject(custom);
 
@@ -52,36 +61,14 @@ describe('WorkSpace', () => {
     });
   });
 
-  describe('getters and setters', () => {
-    const bounded = {bounds: {x: 700, y: 800} };
-    const ws = new WorkSpace(bounded);
-
-    test('can get width', () => {
-      expect(ws.width).toBe(bounded.bounds.x);
-    });
-
-    test('can get height', () => {
-      expect(ws.height).toBe(bounded.bounds.y);
-    });
-
-    test('can set width', () => {
-      ws.width = 42;
-      expect(ws.width).toBe(42);
-    });
-
-    test('can set height', () => {
-      ws.height = 43;
-      expect(ws.height).toBe(43);
-    });
-  });
-
   describe('spawnItem(values)', () => {
     const ws = new WorkSpace();
     const DEFAULTS = Object.freeze({
       x: 0,
       y: 0,
-      width: 128,
-      height: 128,
+      hitbox: null,
+      rotation: 0,
+      scale: 1,
       type: 'item/foreground',
       imgsrc: '',
       blueprint: null,
@@ -96,15 +83,13 @@ describe('WorkSpace', () => {
     });
 
     test('Uses user-defined Item values, if provided', () => {
-      const i = ws.spawnItem({x:70,y:40});
-      expect(i.x).toBe(70);
-      expect(i.y).toBe(40);
-      expect(i.width).toBe(DEFAULTS.width);
-      expect(i.height).toBe(DEFAULTS.height);
+      const i = ws.spawnItem(ia);
+      expect(i.x).toBe(ia.x);
+      expect(i.y).toBe(ia.y);
     });
 
     test('Keeps track of the item', () => {
-      const i = ws.spawnItem({x:155,y:155});
+      const i = ws.spawnItem(ia);
       expect(ws.items).toContain(i);
     });
   });
@@ -114,19 +99,20 @@ describe('WorkSpace', () => {
     const expectedProperties = [
       'x',
       'y',
-      'width',
-      'height',
       'type',
       'imgsrc',
       'blueprint',
+      'hitbox',
+      'rotation',
+      'scale',
       'id',
     ];
 
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnItem();
-      ws.spawnItem({x:20,y:40});
-      ws.spawnItem({x:220,y:240,width:50,height:50});
+      ws.spawnItem(ia);
+      ws.spawnItem(ib);
+      ws.spawnItem(ic);
     });
 
     test('Returns an array', () => {
@@ -134,8 +120,7 @@ describe('WorkSpace', () => {
     });
 
     test('Does not return the actual items, but simple Objects', () => {
-      const r = ws.reportItems();
-      r.forEach( i => {
+      ws.reportItems().forEach(i => {
         expect(i).not.toBeInstanceOf(ServerItem);
         expect(i).toBeInstanceOf(Object);
       });
@@ -144,7 +129,9 @@ describe('WorkSpace', () => {
     test('Objects returned contain only the expected data', () => {
       const r = ws.reportItems();
       r.forEach( i => {
-        expect(Object.getOwnPropertyNames(i)).toEqual(expectedProperties);
+        expect(Object.getOwnPropertyNames(i)).toEqual(
+          expect.arrayContaining(expectedProperties)
+        );
       });
     });
 
@@ -157,9 +144,9 @@ describe('WorkSpace', () => {
     let ws;
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnItem({x:0,y:0,width:100,height:100});
-      ws.spawnItem({x:20,y:40,width:100,height:100});
-      ws.spawnItem({x:220,y:240,width:50,height:50});
+      ws.spawnItem(ia);
+      ws.spawnItem(ib);
+      ws.spawnItem(ic);
     });
 
     test('Finds an item at the given coordinates, if one exists', () => {
@@ -196,9 +183,9 @@ describe('WorkSpace', () => {
     let item;
     beforeAll(() => {
       ws = new WorkSpace();
-      ws.spawnItem({x:0,y:0,width:100,height:100});
-      ws.spawnItem({x:20,y:40,width:100,height:100});
-      ws.spawnItem({x:220,y:240,width:50,height:50});
+      ws.spawnItem(ia);
+      ws.spawnItem(ib);
+      ws.spawnItem(ic);
       item = ws.findItemByCoordinates(101,101);
     });
 
@@ -229,8 +216,6 @@ describe('WorkSpace', () => {
         width: 1600,
         height: 900,
         type: 'view/background',
-        effectiveWidth: 1600,
-        effectiveHeight: 900,
         scale: 1,
         rotation: 0,
       };
@@ -276,8 +261,6 @@ describe('WorkSpace', () => {
       'width',
       'height',
       'type',
-      'effectiveWidth',
-      'effectiveHeight',
       'scale',
       'rotation',
       'id',
@@ -372,7 +355,15 @@ describe('WorkSpace', () => {
       test('Attached handler will call the listener when invoked', () => {
         const fn = jest.fn();
         ws.on(s, fn);
-        ws.handlers[s](vs, {x:1, y:2, phase: 'move'});
+        ws.handlers[s](vs, {
+          x: 3,
+          y: 4,
+          delta: 33,
+          point: { x: 1, y: 2 }, 
+          change: { x: 42, y: 43 },
+          pivot: { x: 9, y: 10 },
+          midpoint: { x: 50, y: 51 },
+        });
         expect(fn).toHaveBeenCalledTimes(1);
         expect(fn.mock.calls[0][0]).toBe(vs);
       });
@@ -382,18 +373,18 @@ describe('WorkSpace', () => {
   describe('handle(message, ...args)', () => {
     let ws;
     let vs;
-    let x, y, dx, dy, mx, my, scale, phase;
+    let x, y, dx, dy, mx, my, scale, point, change, midpoint, delta, pivot;
     beforeAll(() => {
       ws = new WorkSpace();
       vs = ws.spawnView();
       x = 42;
       y = 78;
-      dx = 5.2;
-      dy = -8.79;
-      mx = 33.491;
-      my = -17.248;
       scale = 0.883;
-      phase = 'move';
+      delta = 1.1;
+      point = { x, y };
+      change = point;
+      midpoint = point;
+      pivot = point;
     });
 
     test('Throws if invalid message type provided', () => {
@@ -429,20 +420,20 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('drag', vs, {x, y, dx, dy, phase}))
+        expect(() => ws.handle('drag', vs, { change, point }))
           .not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('drag', vs, {x, y, dx, dy, phase}))
+        expect(() => ws.handle('drag', vs, { change, point }))
           .not.toThrow();
         expect(fn.mock.calls[0][0]).toBe(vs);
-        expect(fn.mock.calls[0][1]).toBe(vs);
-        expect(fn.mock.calls[0][2]).toBeCloseTo(x);
-        expect(fn.mock.calls[0][3]).toBeCloseTo(y);
-        expect(fn.mock.calls[0][4]).toBeCloseTo(dx);
-        expect(fn.mock.calls[0][5]).toBeCloseTo(dy);
+        expect(fn.mock.calls[0][1]).toBe(null);
+        expect(fn.mock.calls[0][2]).toBeCloseTo(change.x);
+        expect(fn.mock.calls[0][3]).toBeCloseTo(change.y);
+        expect(fn.mock.calls[0][4]).toBeCloseTo(pivot.x);
+        expect(fn.mock.calls[0][5]).toBeCloseTo(pivot.y);
       });
     });
 
@@ -471,17 +462,17 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('scale', vs, {scale, mx, my})).not.toThrow();
+        expect(() => ws.handle('scale', vs, { change, midpoint })).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('scale', vs, {scale, mx, my})).not.toThrow();
+        expect(() => ws.handle('scale', vs, { change, midpoint })).not.toThrow();
         expect(fn.mock.calls[0][0]).toBe(vs);
-        expect(fn.mock.calls[0][1]).toBe(scale);
-        expect(fn.mock.calls[0][2]).toBeCloseTo(mx, 3);
-        expect(fn.mock.calls[0][3]).toBeCloseTo(my, 3);
-        // expect(fn).toHaveBeenLastCalledWith(vs, scale, mx, my);
+        expect(fn.mock.calls[0][1]).toBe(null);
+        expect(fn.mock.calls[0][2]).toBe(change);
+        expect(fn.mock.calls[0][3]).toBeCloseTo(midpoint.x, 3);
+        expect(fn.mock.calls[0][4]).toBeCloseTo(midpoint.y, 3);
       });
     });
   });

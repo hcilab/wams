@@ -25,8 +25,6 @@ describe('ClientView', () => {
     item = {
       x: 42, 
       y: 43, 
-      width: 80, 
-      height: 97, 
       type: 'booyah', 
       imgsrc: 'home', 
       id: 11
@@ -35,6 +33,9 @@ describe('ClientView', () => {
     shadow = { 
       x: 43, 
       y: 42, 
+      width: 1800,
+      height: 240,
+      scale: 2,
       effectiveWidth: 900, 
       effectiveHeight: 120, 
       id: 25
@@ -44,10 +45,6 @@ describe('ClientView', () => {
   });
 
   describe('constructor(values)', () => {
-    test('Throws an exception if no context provided', () => {
-      expect(() => new ClientView()).toThrow();
-    });
-
     test('Creates correct type of object', () => {
       expect(new ClientView({ context })).toBeInstanceOf(ClientView);
     });
@@ -75,8 +72,8 @@ describe('ClientView', () => {
 
     test('Adds a ClientItem using the provided values', () => {
       expect(() => cv.addItem(item)).not.toThrow();
-      expect(cv.items[0]).toMatchObject(item);
-      expect(cv.items[0]).toBeInstanceOf(ClientItem);
+      expect(cv.items.get(item.id)).toMatchObject(item);
+      expect(cv.items.get(item.id)).toBeInstanceOf(ClientItem);
     });
   });
 
@@ -90,18 +87,20 @@ describe('ClientView', () => {
 
     test('Adds a ShadowView using the provided values', () => {
       expect(() => cv.addShadow(shadow)).not.toThrow();
-      expect(cv.shadows[0]).toMatchObject(shadow);
-      expect(cv.shadows[0]).toBeInstanceOf(ShadowView);
+      expect(cv.shadows.get(shadow.id)).toMatchObject(shadow);
+      expect(cv.shadows.get(shadow.id)).toBeInstanceOf(ShadowView);
     });
   });
 
   describe('removeItem(item)', () => {
-    let cv;
+    let cv, bitem, citem;
     beforeAll(() => {
+      bitem = { x: 555, y: 253, id: 50};
+      citem = { x: 1, y: 2, id: 89 };
       cv = new ClientView({ context });
-      cv.addItem({x:555, y:253, id:50});
+      cv.addItem(bitem);
       cv.addItem(item);
-      cv.addItem({x:1,y:2, id:89});
+      cv.addItem(citem);
     });
 
     test('Throws exception if no item provided', () => {
@@ -109,20 +108,23 @@ describe('ClientView', () => {
     });
 
     test('Removes the item', () => {
-      const i = cv.items[1];
+      const i = cv.items.get(item.id);
       expect(() => cv.removeItem(i.report())).not.toThrow();
-      expect(cv.items.length).toBe(2);
+      expect(cv.items.size).toBe(2);
       expect(cv.items).not.toContain(i);
     });
   });
 
   describe('removeShadow(shadow)', () => {
-    let cv;
+    let cv, bshadow, cshadow;
     beforeAll(() => { 
+      bshadow = { x: 80, y: 90, id: 44};
+      cshadow = { x: 22, y: 5, id: 900};
+
       cv = new ClientView({ context });
-      cv.addShadow({x:80,y:90,id:44});
+      cv.addShadow(bshadow);
       cv.addShadow(shadow);
-      cv.addShadow({x:22,y:5,id:900});
+      cv.addShadow(cshadow);
     });
 
     test('Throws exception if no shadow provided', () => {
@@ -130,9 +132,9 @@ describe('ClientView', () => {
     });
 
     test('Removes the shadow', () => {
-      const s = cv.shadows[1];
+      const s = cv.shadows.get(shadow.id);
       expect(() => cv.removeShadow(s.report())).not.toThrow();
-      expect(cv.shadows.length).toBe(2);
+      expect(cv.shadows.size).toBe(2);
       expect(cv.shadows).not.toContain(s);
     });
   });
@@ -179,31 +181,6 @@ describe('ClientView', () => {
       });
     });
 
-  });
-
-  describe('handle(message, ...args)', () => {
-    let cv;
-    beforeAll(() => {
-      cv = new ClientView({ context });
-      cv.addItem = jest.fn();
-      cv.draw = jest.fn();
-    });
-
-    test('Calls the specified method', () => {
-      expect(() => cv.handle('addItem', 42)).not.toThrow();
-    });
-
-    test('Calls the specified method with the given args', () => {
-      expect(cv.addItem).toHaveBeenLastCalledWith(42);
-    });
-
-    test('Draws the view after handling the method', () => {
-      expect(cv.draw).toHaveBeenCalledTimes(1);
-    });
-
-    test('Throws exception if invalid message provided', () => {
-      expect(() => cv.handle('blah')).toThrow();
-    });
   });
 
   describe('resizeToFillWindow()', () => {
@@ -259,14 +236,16 @@ describe('ClientView', () => {
 
     test('Adds all the views in the data as shadows', () => {
       data.views.forEach( v => {
-        const s = cv.shadows.find( x => x.id === v.id );
+        expect(cv.shadows.has(v.id)).toBe(true);
+        const s = cv.shadows.get(v.id);
         expect(s).toMatchObject(v);
       });
     });
   
     test('Adds all the items in the data', () => {
       data.items.forEach( i => {
-        const t = cv.items.find( y => y.id === i.id );
+        expect(cv.items.has(i.id)).toBe(true);
+        const t = cv.items.get(i.id);
         expect(t).toMatchObject(i);
       });
     });
@@ -293,7 +272,7 @@ describe('ClientView', () => {
     });
 
     test('Updates item data to the provided values', () => {
-      const i = cv.items.find( x => x.id === item.id );
+      const i = cv.items.get(item.id);
       expect(i.x).toBe(data.x);
       expect(i.y).toBe(data.y);
     });
@@ -320,7 +299,7 @@ describe('ClientView', () => {
     });
 
     test('Updates shadow data to the provided values', () => {
-      const s = cv.shadows.find( x => x.id === shadow.id );
+      const s = cv.shadows.get(shadow.id);
       expect(s.x).toBe(data.x);
       expect(s.y).toBe(data.y);
     });
