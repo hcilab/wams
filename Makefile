@@ -1,5 +1,5 @@
 
-.PHONY: wams lint fix bundle docs tags
+.PHONY: wams lint fix bundle docs tags test
 
 wams: lint bundle docs tags
 
@@ -19,4 +19,7 @@ docs:
 
 tags:
 	ctags -R src;
+
+test:
+	npx jest --bail 1
 
