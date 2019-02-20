@@ -102,13 +102,13 @@ class Interactor {
     const track   = new Westures.Track(['start', 'end']);
 
     const region = new Westures.Region(window);
-    region.bind(canvas, pan,    this.forward('pan'));
-    region.bind(canvas, tap,    this.forward('tap'));
-    region.bind(canvas, pinch,  this.forward('zoom'));
-    region.bind(canvas, rotate, this.forward('rotate'));
-    region.bind(canvas, swipe,  this.forward('swipe'));
-    region.bind(canvas, swivel, this.forward('rotate'));
-    region.bind(canvas, track,  this.forward('track'));
+    region.addGesture(canvas, pan,    this.forward('pan'));
+    region.addGesture(canvas, tap,    this.forward('tap'));
+    region.addGesture(canvas, pinch,  this.forward('zoom'));
+    region.addGesture(canvas, rotate, this.forward('rotate'));
+    region.addGesture(canvas, swipe,  this.forward('swipe'));
+    region.addGesture(canvas, swivel, this.forward('rotate'));
+    region.addGesture(canvas, track,  this.forward('track'));
   }
 
   /**
