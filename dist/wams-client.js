@@ -8648,18 +8648,13 @@ function toArray(list, index) {
  * {@link Region} and the generic {@link Gesture} class for user gestures to
  * implement, as well as the {@link Point2D} class, which may be useful.
  *
- * @module westures-core
+ * @namespace westures-core
  */
 
 'use strict';
 
-/** {@link Region} */
 const Region  = require('./src/Region.js');
-
-/** {@link Point2D} */
 const Point2D = require('./src/Point2D.js');
-
-/** {@link Gesture} */
 const Gesture = require('./src/Gesture.js');
 
 module.exports = {
@@ -8679,13 +8674,15 @@ module.exports = {
 /**
  * A Binding associates a gesture with an element and a handler function that
  * will be called when the gesture is recognized.
+ *
+ * @private
  */
 class Binding {
   /**
    * Constructor function for the Binding class.
    *
    * @param {Element} element - The element to which to associate the gesture.
-   * @param {Gesture} gesture - A instance of the Gesture type.
+   * @param {westures-core.Gesture} gesture - A instance of the Gesture type.
    * @param {Function} handler - The function handler to execute when a gesture
    *    is recognized on the associated element.
    */
@@ -8720,10 +8717,10 @@ class Binding {
    * Evalutes the given gesture hook, and dispatches any data that is produced.
    *
    * @private
-   * @param {string} hook - which gesture hook to call, must be one of 'start', 
+   *
+   * @param {string} hook - which gesture hook to call, must be one of 'start',
    *    'move', or 'end'.
    * @param {State} state - The current State instance.
-   * @return {undefined}
    */
   evaluateHook(hook, state) {
     const data = this.gesture[hook](state);
@@ -8731,6 +8728,7 @@ class Binding {
       data.phase = hook;
       data.event = state.event;
       data.type = this.gesture.type;
+      data.target = this.element;
       this.handler(data);
     }
   }
@@ -8750,18 +8748,25 @@ let nextGestureNum = 0;
 
 /**
  * The Gesture class that all gestures inherit from.
+ *
+ * @memberof westures-core
  */
 class Gesture {
   /**
    * Constructor function for the Gesture class.
+   *
+   * @param {string} type - The name of the gesture.
    */
   constructor(type) {
+    if (typeof type !== 'string') {
+      throw new TypeError('Gestures require a string type');
+    }
+
     /**
-     * The type or name of the gesture. (e.g. 'pan' or 'tap' or 'pinch').
+     * The name of the gesture. (e.g. 'pan' or 'tap' or 'pinch').
      *
      * @type {string}
      */
-    if (typeof type === 'undefined') throw 'Gestures require a type!';
     this.type = type;
 
     /**
@@ -8775,39 +8780,39 @@ class Gesture {
   }
 
   /**
-   * Event hook for the start of a gesture.
+   * Event hook for the start phase of a gesture.
    *
-   * @private
    * @param {State} state - The input state object of the current region.
+   *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.
    */
-  start(state) {
-    return void state;
+  start() {
+    return null;
   }
 
   /**
-   * Event hook for the move of a gesture.
+   * Event hook for the move phase of a gesture.
    *
-   * @private
    * @param {State} state - The input state object of the current region.
+   *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.
    */
-  move(state) {
-    return void state;
+  move() {
+    return null;
   }
 
   /**
-   * Event hook for the move of a gesture.
+   * Event hook for the end phase of a gesture.
    *
-   * @private
    * @param {State} state - The input state object of the current region.
+   *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.
    */
-  end(state) {
-    return void state;
+  end() {
+    return null;
   }
 }
 
@@ -8824,9 +8829,46 @@ module.exports = Gesture;
 const PointerData = require('./PointerData.js');
 
 /**
+ * In case event.composedPath() is not available.
+ *
+ * @private
+ *
+ * @param {Event} event
+ *
+ * @return {Element[]} The elements along the composed path of the event.
+ */
+function getPropagationPath(event) {
+  if (typeof event.composedPath === 'function') {
+    return event.composedPath();
+  }
+
+  const path = [];
+  for (let node = event.target; node !== document; node = node.parentNode) {
+    path.push(node);
+  }
+  path.push(document);
+  path.push(window);
+
+  return path;
+}
+
+/**
+ * A WeakSet is used so that references will be garbage collected when the
+ * element they point to is removed from the page.
+ *
+ * @private
+ * @return {WeakSet.<Element>} The Elements in the path of the given event.
+ */
+function getElementsInPath(event) {
+  return new WeakSet(getPropagationPath(event));
+}
+
+/**
  * Tracks a single input and contains information about the current, previous,
  * and initial events. Contains the progress of each Input and its associated
  * gestures.
+ *
+ * @hideconstructor
  */
 class Input {
   /**
@@ -8892,7 +8934,7 @@ class Input {
   /**
    * The phase of the input: 'start' or 'move' or 'end'
    *
-   * @type {string} 
+   * @type {string}
    */
   get phase() { return this.current.type; }
 
@@ -8905,6 +8947,7 @@ class Input {
 
   /**
    * @param {string} id - The ID of the gesture whose progress is sought.
+   *
    * @return {Object} The progress of the gesture.
    */
   getProgressOfGesture(id) {
@@ -8928,8 +8971,8 @@ class Input {
    * out the old previous data.
    *
    * @private
+   *
    * @param {Event} event - The event object to wrap with a PointerData.
-   * @return {undefined}
    */
   update(event) {
     this.previous = this.current;
@@ -8941,46 +8984,15 @@ class Input {
    * was dispatched.
    *
    * @private
+   *
    * @param {Element} element
-   * @return {boolean} true if the PointerData occurred inside the element,
-   *    false otherwise.
+   *
+   * @return {boolean} true if the Input began inside the element, false
+   *    otherwise.
    */
   wasInitiallyInside(element) {
     return this.initialElements.has(element);
   }
-}
-
-/**
- * A WeakSet is used so that references will be garbage collected when the
- * element they point to is removed from the page.
- *
- * @private
- * @return {WeakSet.<Element>} The Elements in the path of the given event.
- */
-function getElementsInPath(event) {
-  return new WeakSet(getPropagationPath(event));
-}
-
-/**
- * In case event.composedPath() is not available.
- *
- * @private
- * @param {Event} event
- * @return {Element[]} The elements along the composed path of the event.
- */
-function getPropagationPath(event) {
-  if (typeof event.composedPath === 'function') {
-    return event.composedPath();
-  } 
-
-  const path = [];
-  for (let node = event.target; node !== document; node = node.parentNode) {
-    path.push(node);
-  }
-  path.push(document);
-  path.push(window);
-
-  return path;
 }
 
 module.exports = Input;
@@ -8998,6 +9010,7 @@ module.exports = Input;
  * Normalizes window events to be either of type start, move, or end.
  *
  * @private
+ * @enum {string}
  */
 const PHASE = Object.freeze({
   mousedown:   'start',
@@ -9026,13 +9039,15 @@ module.exports = PHASE;
 /**
  * The Point2D class stores and operates on 2-dimensional points, represented as
  * x and y coordinates.
+ *
+ * @memberof westures-core
  */
 class Point2D {
   /**
    * Constructor function for the Point2D class.
    *
-   * @param {number} x - The x coordinate of the point.
-   * @param {number} y - The y coordinate of the point.
+   * @param {number} [ x=0 ] - The x coordinate of the point.
+   * @param {number} [ y=0 ] - The y coordinate of the point.
    */
   constructor(x = 0, y = 0) {
     /**
@@ -9053,9 +9068,11 @@ class Point2D {
   /**
    * Calculates the angle between this point and the given point.
    *
-   * @param {Point2D} point - Projected point for calculating the angle.
-   * @return {number} Radians along the unit circle where the projected point
-   *    lies.
+   * @param {!westures-core.Point2D} point - Projected point for calculating the
+   * angle.
+   *
+   * @return {number} Radians along the unit circle where the projected
+   * point lies.
    */
   angleTo(point) {
     return Math.atan2(point.y - this.y, point.x - this.x);
@@ -9065,19 +9082,20 @@ class Point2D {
    * Determine the average distance from this point to the provided array of
    * points.
    *
-   * @param {Point2D[]} points - the Point2D objects to calculate the average
-   *    distance to.
+   * @param {!westures-core.Point2D[]} points - the Point2D objects to calculate
+   *    the average distance to.
+   *
    * @return {number} The average distance from this point to the provided
    *    points.
    */
-  averageDistanceTo(points = []) {
+  averageDistanceTo(points) {
     return this.totalDistanceTo(points) / points.length;
   }
 
   /**
    * Clone this point.
    *
-   * @return {Point2D} A new Point2D, identical to this point.
+   * @return {westures-core.Point2D} A new Point2D, identical to this point.
    */
   clone() {
     return new Point2D(this.x, this.y);
@@ -9086,9 +9104,11 @@ class Point2D {
   /**
    * Calculates the distance between two points.
    *
-   * @param {Point2D} point - Point to which the distance is calculated.
+   * @param {!westures-core.Point2D} point - Point to which the distance is
+   * calculated.
+   *
    * @return {number} The distance between the two points, a.k.a. the
-   *    hypoteneuse. 
+   *    hypoteneuse.
    */
   distanceTo(point) {
     return Math.hypot(point.x - this.x, point.y - this.y);
@@ -9097,8 +9117,10 @@ class Point2D {
   /**
    * Subtract the given point from this point.
    *
-   * @param {Point2D} point - Point to subtract from this point.
-   * @return {Point2D} A new Point2D, which is the result of (this - point).
+   * @param {!westures-core.Point2D} point - Point to subtract from this point.
+   *
+   * @return {westures-core.Point2D} A new Point2D, which is the result of (this
+   * - point).
    */
   minus(point) {
     return new Point2D(
@@ -9110,8 +9132,10 @@ class Point2D {
   /**
    * Return the summation of this point to the given point.
    *
-   * @param {Point2D} point - Point to add to this point.
-   * @return {Point2D} A new Point2D, which is the addition of the two points.
+   * @param {!westures-core.Point2D} point - Point to add to this point.
+   *
+   * @return {westures-core.Point2D} A new Point2D, which is the addition of the
+   * two points.
    */
   plus(point) {
     return new Point2D(
@@ -9123,26 +9147,28 @@ class Point2D {
   /**
    * Calculates the total distance from this point to an array of points.
    *
-   * @param {Point2D[]} points - The array of Point2D objects to calculate the
-   *    total distance to.
+   * @param {!westures-core.Point2D[]} points - The array of Point2D objects to
+   *    calculate the total distance to.
+   *
    * @return {number} The total distance from this point to the provided points.
    */
-  totalDistanceTo(points = []) {
-    return points.reduce( (d, p) => d + this.distanceTo(p), 0);
+  totalDistanceTo(points) {
+    return points.reduce((d, p) => d + this.distanceTo(p), 0);
   }
 
   /**
    * Calculates the midpoint of a list of points.
    *
-   * @param {Point2D[]} points - The array of Point2D objects for which to
-   *    calculate the midpoint
-   * @return {Point2D} The midpoint of the provided points.
+   * @param {westures-core.Point2D[]} points - The array of Point2D objects for
+   *    which to calculate the midpoint
+   *
+   * @return {westures-core.Point2D} The midpoint of the provided points.
    */
   static midpoint(points = []) {
     if (points.length === 0) return null;
 
     const total = Point2D.sum(points);
-    return new Point2D (
+    return new Point2D(
       total.x / points.length,
       total.y / points.length,
     );
@@ -9151,11 +9177,13 @@ class Point2D {
   /**
    * Calculates the sum of the given points.
    *
-   * @param {Point2D[]} points - The Point2D objects to sum up.
-   * @return {Point2D} A new Point2D representing the sum of the given points.
+   * @param {westures-core.Point2D[]} points - The Point2D objects to sum up.
+   *
+   * @return {westures-core.Point2D} A new Point2D representing the sum of the
+   * given points.
    */
   static sum(points = []) {
-    return points.reduce( (total, pt) => total.plus(pt), new Point2D(0,0) );
+    return points.reduce((total, pt) => total.plus(pt), new Point2D(0, 0));
   }
 }
 
@@ -9173,8 +9201,24 @@ const Point2D = require('./Point2D.js');
 const PHASE   = require('./PHASE.js');
 
 /**
+ * @private
+ * @return {Event} The Event object which corresponds to the given identifier.
+ *    Contains clientX, clientY values.
+ */
+function getEventObject(event, identifier) {
+  if (event.changedTouches) {
+    return Array.from(event.changedTouches).find(t => {
+      return t.identifier === identifier;
+    });
+  }
+  return event;
+}
+
+/**
  * Low-level storage of pointer data based on incoming data from an interaction
  * event.
+ *
+ * @hideconstructor
  */
 class PointerData {
   /**
@@ -9195,14 +9239,14 @@ class PointerData {
      * The type or 'phase' of this batch of pointer data. 'start' or 'move' or
      * 'end'.
      *
-     * @type {( String | null )}
+     * @type {string}
      */
-    this.type = PHASE[ event.type ];
+    this.type = PHASE[event.type];
 
     /**
      * The timestamp of the event in milliseconds elapsed since January 1, 1970,
      * 00:00:00 UTC.
-     * 
+     *
      * @type {number}
      */
     this.time = Date.now();
@@ -9211,7 +9255,7 @@ class PointerData {
     /**
      * The (x,y) coordinate of the event, wrapped in a Point2D.
      *
-     * @type {Point2D}
+     * @type {westures-core.Point2D}
      */
     this.point = new Point2D(eventObj.clientX, eventObj.clientY);
   }
@@ -9220,6 +9264,7 @@ class PointerData {
    * Calculates the angle between this event and the given event.
    *
    * @param {PointerData} pdata
+   *
    * @return {number} Radians measurement between this event and the given
    *    event's points.
    */
@@ -9231,26 +9276,13 @@ class PointerData {
    * Calculates the distance between two PointerDatas.
    *
    * @param {PointerData} pdata
+   *
    * @return {number} The distance between the two points, a.k.a. the
-   *    hypoteneuse. 
+   *    hypoteneuse.
    */
   distanceTo(pdata) {
     return this.point.distanceTo(pdata.point);
   }
-}
-
-/**
- * @private
- * @return {Event} The Event object which corresponds to the given identifier.
- *    Contains clientX, clientY values.
- */
-function getEventObject(event, identifier) {
-  if (event.changedTouches) {
-    return Array.from(event.changedTouches).find( t => {
-      return t.identifier === identifier;
-    });
-  } 
-  return event;
 }
 
 module.exports = PointerData;
@@ -9285,9 +9317,11 @@ const TOUCH_EVENTS = [
   'touchend',
 ];
 
-/** 
+/**
  * Allows the user to specify the control region which will listen for user
  * input events.
+ *
+ * @memberof westures-core
  */
 class Region {
   /**
@@ -9310,6 +9344,22 @@ class Region {
     this.bindings = [];
 
     /**
+     * The list of active bindings for the current input session.
+     *
+     * @private
+     * @type {Binding[]}
+     */
+    this.activeBindings = [];
+
+    /**
+     * Whether an input session is currently active.
+     *
+     * @private
+     * @type {boolean}
+     */
+    this.isWaiting = true;
+
+    /**
      * The element being bound to.
      *
      * @private
@@ -9328,7 +9378,7 @@ class Region {
     /**
      * Whether the default browser functionality should be disabled. This option
      * should most likely be ignored. Here there by dragons if set to false.
-     *   
+     *
      * @private
      * @type {boolean}
      */
@@ -9351,14 +9401,14 @@ class Region {
    * events to the region's element.
    *
    * @private
-   * @return {undefined}
    */
   activate() {
     /*
      * Having to listen to both mouse and touch events is annoying, but
      * necessary due to conflicting standards and browser implementations.
-     * Pointer is a fallback instead of the primary because it lacks useful
-     * properties such as 'ctrlKey' and 'altKey'.
+     * Pointer is a fallback for now instead of the primary, until I figure out
+     * all the details to do with pointer-events and touch-action and their
+     * cross browser compatibility.
      *
      * Listening to both mouse and touch comes with the difficulty that
      * preventDefault() must be called to prevent both events from iterating
@@ -9382,13 +9432,39 @@ class Region {
 
     // Bind detected browser events to the region element.
     const arbiter = this.arbitrate.bind(this);
-    eventNames.forEach( eventName => {
+    eventNames.forEach(eventName => {
       this.element.addEventListener(eventName, arbiter, {
         capture: this.capture,
-        once: false,
+        once:    false,
         passive: false,
       });
     });
+  }
+
+  /**
+   * Selects the bindings that are active for the current input sequence.
+   *
+   * @private
+   */
+  updateBindings() {
+    if (this.isWaiting && this.state.inputs.length > 0) {
+      const input = this.state.inputs[0];
+      this.activeBindings = this.bindings.filter(b => {
+        return input.wasInitiallyInside(b.element);
+      });
+      this.isWaiting = false;
+    }
+  }
+
+  /**
+   * Evaluates whether the current input session has completed.
+   *
+   * @private
+   */
+  pruneBindings() {
+    if (this.state.hasNoActiveInputs()) {
+      this.isWaiting = true;
+    }
   }
 
   /**
@@ -9399,56 +9475,46 @@ class Region {
    *
    * @private
    * @param {Event} event - The event emitted from the window object.
-   * @return {undefined}
    */
   arbitrate(event) {
-    if (this.preventDefault) event.preventDefault();
-
     this.state.updateAllInputs(event, this.element);
+    this.updateBindings();
 
-    this.retrieveBindingsByInitialPos().forEach( binding => {
-      binding.evaluateHook(PHASE[ event.type ], this.state);
-    });
+    if (this.activeBindings.length > 0) {
+      if (this.preventDefault) event.preventDefault();
+
+      this.activeBindings.forEach(binding => {
+        binding.evaluateHook(PHASE[event.type], this.state);
+      });
+    }
 
     this.state.clearEndedInputs();
+    this.pruneBindings();
   }
 
   /**
-   * Bind an element to a gesture with multiple function signatures.
+   * Bind an element to a gesture with an associated handler.
    *
    * @param {Element} element - The element object.
-   * @param {Gesture} gesture - Gesture type with which to bind.
+   * @param {westures-core.Gesture} gesture - Gesture type with which to bind.
    * @param {Function} handler - The function to execute when a gesture is
    *    recognized.
-   * @return {undefined}
    */
-  bind(element, gesture, handler) {
-    this.bindings.push( new Binding(element, gesture, handler) );
+  addGesture(element, gesture, handler) {
+    this.bindings.push(new Binding(element, gesture, handler));
   }
 
   /**
    * Retrieves Bindings by their associated element.
    *
    * @private
+   *
    * @param {Element} element - The element for which to find bindings.
+   *
    * @return {Binding[]} Bindings to which the element is bound.
    */
-  retrieveBindingsByElement(element) {
-    return this.bindings.filter( b => b.element === element );
-  }
-
-  /**
-   * Retrieves all bindings based upon the initial X/Y position of the inputs.
-   * e.g. if gesture started on the correct target element, but diverted away
-   * into the correct region, this would still be valid.
-   *
-   * @private
-   * @return {Binding[]} Bindings in which an active input began.
-   */
-  retrieveBindingsByInitialPos() {
-    return this.bindings.filter( 
-      b => this.state.someInputWasInitiallyInside(b.element)
-    );
+  getBindingsByElement(element) {
+    return this.bindings.filter(b => b.element === element);
   }
 
   /**
@@ -9456,22 +9522,15 @@ class Region {
    * is specified.
    *
    * @param {Element} element - The element to unbind.
-   * @param {Gesture} [ gesture ] - The gesture to unbind. If undefined, will
-   *    unbind all Bindings associated with the given element.
-   * @return {Binding[]} Bindings that were unbound to the element.
+   * @param {westures-core.Gesture} [ gesture ] - The gesture to unbind. If
+   * undefined, will unbind all Bindings associated with the given element.
    */
-  unbind(element, gesture) {
-    let bindings = this.retrieveBindingsByElement(element);
-    let unbound = [];
-
-    bindings.forEach( b => {
-      if (gesture == undefined || b.gesture === gesture) {
+  removeGestures(element, gesture) {
+    this.getBindingsByElement(element).forEach(b => {
+      if (gesture == null || b.gesture === gesture) {
         this.bindings.splice(this.bindings.indexOf(b), 1);
-        unbound.push(b);
       }
     });
-
-    return unbound;
   }
 }
 
@@ -9489,9 +9548,39 @@ const Input   = require('./Input.js');
 const PHASE   = require('./PHASE.js');
 const Point2D = require('./Point2D.js');
 
+const symbols = Object.freeze({
+  inputs: Symbol.for('inputs'),
+});
+
+/*
+ * Set of helper functions for updating inputs based on type of input.
+ * Must be called with a bound 'this', via bind(), or call(), or apply().
+ *
+ * @private
+ */
+const update_fns = {
+  TouchEvent: function TouchEvent(event) {
+    Array.from(event.changedTouches).forEach(touch => {
+      this.updateInput(event, touch.identifier);
+    });
+  },
+
+  PointerEvent: function PointerEvent(event) {
+    this.updateInput(event, event.pointerId);
+  },
+
+  MouseEvent: function MouseEvent(event) {
+    if (event.button === 0) {
+      this.updateInput(event, event.button);
+    }
+  },
+};
+
 /**
  * Keeps track of currently active and ending input points on the interactive
  * surface.
+ *
+ * @hideconstructor
  */
 class State {
   /**
@@ -9502,13 +9591,13 @@ class State {
      * Keeps track of the current Input objects.
      *
      * @private
-     * @type {Object}
+     * @type {Map}
      */
-    this._inputs_obj = {};
+    this[symbols.inputs] = new Map();
 
     /**
      * All currently valid inputs, including those that have ended.
-     * 
+     *
      * @type {Input[]}
      */
     this.inputs = [];
@@ -9525,14 +9614,14 @@ class State {
      * The array of latest point data for the currently active inputs, sourced
      * from this.active.
      *
-     * @type {Point2D[]}
+     * @type {westures-core.Point2D[]}
      */
     this.activePoints = [];
 
     /**
      * The centroid of the currently active points.
      *
-     * @type {Point2D}
+     * @type {westures-core.Point2D}
      */
     this.centroid = {};
 
@@ -9548,52 +9637,52 @@ class State {
    * Deletes all inputs that are in the 'end' phase.
    *
    * @private
-   * @return {undefined}
    */
   clearEndedInputs() {
-    for (let k in this._inputs_obj) {
-      if (this._inputs_obj[k].phase === 'end') delete this._inputs_obj[k];
-    }
+    this[symbols.inputs].forEach((v, k) => {
+      if (v.phase === 'end') this[symbols.inputs].delete(k);
+    });
   }
 
   /**
    * @param {string} phase - One of 'start', 'move', or 'end'.
+   *
    * @return {Input[]} Inputs in the given phase.
    */
   getInputsInPhase(phase) {
-    return this.inputs.filter( i => i.phase === phase );
+    return this.inputs.filter(i => i.phase === phase);
   }
 
   /**
    * @param {string} phase - One of 'start', 'move', or 'end'.
+   *
    * @return {Input[]} Inputs <b>not</b> in the given phase.
    */
   getInputsNotInPhase(phase) {
-    return this.inputs.filter( i => i.phase !== phase );
+    return this.inputs.filter(i => i.phase !== phase);
   }
 
   /**
    * @private
-   * @param {Element} element - The Element to test.
-   * @return {boolean} True if some input was initially inside the element.
+   * @return {boolean} True if there are no active inputs. False otherwise.
    */
-  someInputWasInitiallyInside(element) {
-    return this.inputs.some( i => i.wasInitiallyInside(element) );
+  hasNoActiveInputs() {
+    return this[symbols.inputs].size === 0;
   }
 
   /**
    * Update the input with the given identifier using the given event.
    *
    * @private
+   *
    * @param {Event} event - The event being captured.
    * @param {number} identifier - The identifier of the input to update.
-   * @return {undefined}
    */
   updateInput(event, identifier) {
-    if (PHASE[ event.type ] === 'start') {
-      this._inputs_obj[identifier] = new Input(event, identifier);
-    } else if (this._inputs_obj[identifier]) {
-      this._inputs_obj[identifier].update(event);
+    if (PHASE[event.type] === 'start') {
+      this[symbols.inputs].set(identifier, new Input(event, identifier));
+    } else if (this[symbols.inputs].has(identifier)) {
+      this[symbols.inputs].get(identifier).update(event);
     }
   }
 
@@ -9601,57 +9690,34 @@ class State {
    * Updates the inputs with new information based upon a new event being fired.
    *
    * @private
-   * @param {Event} event - The event being captured. 
-   * @return {undefined}
+   * @param {Event} event - The event being captured.
    */
   updateAllInputs(event) {
     update_fns[event.constructor.name].call(this, event);
-    this.inputs = Object.values(this._inputs_obj);
+    this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
-    this.activePoints = this.active.map( i => i.current.point );
-    this.centroid = Point2D.midpoint( this.activePoints );
+    this.activePoints = this.active.map(i => i.current.point);
+    this.centroid = Point2D.midpoint(this.activePoints);
     this.event = event;
   }
 }
-
-/*
- * Set of helper functions for updating inputs based on type of input.
- * Must be called with a bound 'this', via bind(), or call(), or apply().
- * 
- * @private
- */
-const update_fns = {
-  TouchEvent: function(event) {
-    Array.from(event.changedTouches).forEach( touch => {
-      this.updateInput(event, touch.identifier);
-    });
-  },
-
-  PointerEvent: function(event) {
-    this.updateInput(event, event.pointerId);
-  },
-
-  MouseEvent: function(event) {
-    this.updateInput(event, event.button);
-  },
-};
 
 module.exports = State;
 
 
 },{"./Input.js":55,"./PHASE.js":56,"./Point2D.js":57}],61:[function(require,module,exports){
 /**
- * The API interface for Westures. Contains the {@link Region} class, a {@link
- * Point2D} class, the {@link Gesture} interface, and the following predefined
- * gestures: {@link Pan}, {@link Pinch}, {@link Rotate}, {@link Swipe}, {@link
- * Swivel}, {@link Tap}, {@link Track}.
+ * The API interface for Westures. Defines a number of gestures on top of the
+ * engine provided by {@link
+ * https://mvanderkamp.github.io/westures-core/index.html|westures-core}.
  *
- * @module westures 
+ * @namespace westures 
  */
 
 'use strict';
 
 const { Gesture, Point2D, Region } = require('westures-core');
+
 const Pan     = require('./src/Pan.js');
 const Pinch   = require('./src/Pinch.js');
 const Rotate  = require('./src/Rotate.js');
@@ -9661,18 +9727,73 @@ const Tap     = require('./src/Tap.js');
 const Track   = require('./src/Track.js');
 
 module.exports = {
-  /** {@link Gesture} */  Gesture,
-  /** {@link Point2D} */  Point2D,
-  /** {@link Region} */   Region,
-  /** {@link Pan} */      Pan,
-  /** {@link Pinch} */    Pinch,
-  /** {@link Rotate} */   Rotate,
-  /** {@link Swipe} */    Swipe,
-  /** {@link Swivel} */   Swivel,
-  /** {@link Tap} */      Tap,
-  /** {@link Track} */    Track,
+  Gesture,
+  Point2D,
+  Region,
+  Pan,
+  Pinch,
+  Rotate,
+  Swipe,
+  Swivel,
+  Tap,
+  Track,
 };
 
+/**
+ * Here are the return "types" of the gestures that are included in this
+ * package.
+ *
+ * @namespace ReturnTypes
+ */
+
+/**
+ * The base Gesture class which all other classes extend.
+ *
+ * @see {@link
+ * https://mvanderkamp.github.io/westures-core/westures-core.Gesture.html|
+ * westures-core.Gesture}
+ *
+ * @class Gesture
+ * @memberof westures
+ */
+
+/**
+ * The Region class, which is the entry point for the Westures system, through
+ * which you bind handlers with gestures and elements.
+ *
+ * @see {@link
+ * https://mvanderkamp.github.io/westures-core/westures-core.Region.html|
+ * westures-core.Region}
+ *
+ * @class Region
+ * @memberof westures
+ */
+
+/**
+ * Provides some basic operations on two-dimensional points.
+ *
+ * @see {@link
+ * https://mvanderkamp.github.io/westures-core/westures-core.Point2D.html|
+ * westures-core.Point2D}
+ *
+ * @class Point2D
+ * @memberof westures
+ */
+
+/**
+ * The base data that is included for all emitted gestures.
+ *
+ * @typedef {Object} BaseData
+ *
+ * @property {Event} event - The input event which caused the gesture to be
+ *    recognized.
+ * @property {string} phase - 'start', 'move', or 'end'.
+ * @property {string} type - The name of the gesture as specified by its
+ *    designer.
+ * @property {Element} target - The bound target of the gesture.
+ *
+ * @memberof ReturnTypes
+ */
 
 },{"./src/Pan.js":62,"./src/Pinch.js":63,"./src/Rotate.js":64,"./src/Swipe.js":65,"./src/Swivel.js":66,"./src/Tap.js":67,"./src/Track.js":68,"westures-core":52}],62:[function(require,module,exports){
 /*
@@ -9683,28 +9804,27 @@ module.exports = {
 
 const { Gesture } = require('westures-core');
 
-const DEFAULT_MIN_THRESHOLD = 1;
 const REQUIRED_INPUTS = 1;
 
 /**
  * Data returned when a Pan is recognized.
  *
- * @typedef PanData
- * @type {Object}
- * @property {Point2D} change - The change vector from the last emit.
- * @property {Point2D} point - The centroid of the currently active points.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ * @typedef {Object} PanData
+ * @mixes ReturnTypes.BaseData
+ *
+ * @property {westures.Point2D} change - The change vector from the last emit.
+ * @property {westures.Point2D} point - The centroid of the currently active
+ *    points.
+ *
+ * @memberof ReturnTypes
  */
 
 /**
- * A Pan is defined as a normal movement in any direction. 
+ * A Pan is defined as a normal movement in any direction.
  *
- * @extends Gesture 
- * @see PanData
+ * @extends westures.Gesture
+ * @see ReturnTypes.PanData
+ * @memberof westures
  */
 class Pan extends Gesture {
   /**
@@ -9719,6 +9839,7 @@ class Pan extends Gesture {
     /**
      * Don't emit any data if this key is pressed.
      *
+     * @private
      * @type {string}
      */
     this.muteKey = options.muteKey;
@@ -9742,19 +9863,19 @@ class Pan extends Gesture {
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined}
    */
   start(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    this.initialize(state);
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.initialize(state);
+    }
   }
 
   /**
    * Event hook for the move of a Pan.
    *
    * @param {State} state - current input state.
-   * @return {?PanData} <tt>null</tt> if the gesture was muted or otherwise not
-   *    recognized.
+   * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
+   * otherwise not recognized.
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
@@ -9777,11 +9898,11 @@ class Pan extends Gesture {
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined} 
    */
   end(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    this.initialize(state);
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.initialize(state);
+    }
   }
 }
 
@@ -9800,24 +9921,26 @@ const { Gesture } = require('westures-core');
 const DEFAULT_MIN_INPUTS = 2;
 
 /**
- * @typedef PinchData
- * @type {Object}
+ * Data returned when a Pinch is recognized.
+ *
+ * @typedef {Object} PinchData
+ * @mixes ReturnTypes.BaseData
+ *
  * @property {number} distance - The average distance from an active input to
  *    the centroid.
  * @property {number} change - The change in distance since last emit.
- * @property {Point2D} midpoint - The centroid of the currently active points.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ * @property {westures.Point2D} midpoint - The centroid of the currently active
+ *    points.
+ *
+ * @memberof ReturnTypes
  */
 
 /**
  * A Pinch is defined as two or more inputs moving either together or apart.
  *
- * @extends Gesture 
- * @see PinchData
+ * @extends westures.Gesture
+ * @see ReturnTypes.PinchData
+ * @memberof westures
  */
 class Pinch extends Gesture {
   /**
@@ -9834,6 +9957,7 @@ class Pinch extends Gesture {
      * The minimum number of inputs that must be active for a Pinch to be
      * recognized.
      *
+     * @private
      * @type {number}
      */
     this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
@@ -9845,7 +9969,6 @@ class Pinch extends Gesture {
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined}
    */
   initializeProgress(state) {
     const distance = state.centroid.averageDistanceTo(state.activePoints);
@@ -9858,18 +9981,18 @@ class Pinch extends Gesture {
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined}
    */
   start(state) {
-    if (state.active.length < this.minInputs) return null;
-    this.initializeProgress(state);
+    if (state.active.length >= this.minInputs) {
+      this.initializeProgress(state);
+    }
   }
 
   /**
    * Event hook for the move of a Pinch.
    *
    * @param {State} state - current input state.
-   * @return {?PinchData} <tt>null</tt> if not recognized.
+   * @return {?ReturnTypes.PinchData} <tt>null</tt> if not recognized.
    */
   move(state) {
     if (state.active.length < this.minInputs) return null;
@@ -9891,11 +10014,11 @@ class Pinch extends Gesture {
    *
    * @private
    * @param {State} input status object
-   * @return {undefined}
    */
   end(state) {
-    if (state.active.length < this.minInputs) return null;
-    this.initializeProgress(state);
+    if (state.active.length >= this.minInputs) {
+      this.initializeProgress(state);
+    }
   }
 }
 
@@ -9914,88 +10037,17 @@ const { Gesture } = require('westures-core');
 const REQUIRED_INPUTS = 2;
 
 /**
- * @typedef RotateData
- * @type {Object}
- * @property {number} delta - In radians, the change in angle since last emit.
- * @property {Point2D} pivot - The centroid of the currently active points.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
- */
-
-/**
- * A Rotate is defined as two inputs moving with a changing angle between them.
+ * Data returned when a Rotate is recognized.
  *
- * @extends Gesture 
- * @see RotateData
+ * @typedef {Object} RotateData
+ * @mixes ReturnTypes.BaseData
+ *
+ * @property {number} delta - In radians, the change in angle since last emit.
+ * @property {westures.Point2D} pivot - The centroid of the currently active
+ *    points.
+ *
+ * @memberof ReturnTypes
  */
-class Rotate extends Gesture {
-  /**
-   * Constructor function for the Rotate class.
-   */
-  constructor() {
-    super('rotate');
-  }
-
-  /**
-   * Store individual angle progress on each input, return average angle change.
-   *
-   * @private
-   * @param {State} state - current input state.
-   * @return {null}
-   */
-  getAngle(state) {
-    let angle = 0;
-    state.active.forEach( i => {
-      const progress = i.getProgressOfGesture(this.id);
-      const currentAngle = state.centroid.angleTo(i.current.point);
-      angle += angularMinus(currentAngle, progress.previousAngle);
-      progress.previousAngle = currentAngle;
-    });
-    angle /= (state.active.length);
-    return angle;
-  }
-
-  /**
-   * Event hook for the start of a gesture.
-   *
-   * @private
-   * @param {State} state - current input state.
-   * @return {undefined}
-   */
-  start(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    this.getAngle(state);
-  }
-
-  /**
-   * Event hook for the move of a Rotate gesture.
-   *
-   * @param {State} state - current input state.
-   * @return {?RotateData} <tt>null</tt> if this event did not occur
-   */
-  move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    return {
-      pivot: state.centroid,
-      delta: this.getAngle(state),
-    };
-  }
-
-  /**
-   * Event hook for the end of a gesture.
-   *
-   * @private
-   * @param {State} state - current input state.
-   * @return {undefined}
-   */
-  end(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    this.getAngle(state);
-  }
-}
 
 const PI2 = 2 * Math.PI;
 
@@ -10018,6 +10070,78 @@ function angularMinus(a, b = 0) {
   return diff;
 }
 
+/**
+ * A Rotate is defined as two inputs moving with a changing angle between them.
+ *
+ * @extends westures.Gesture
+ * @see ReturnTypes.RotateData
+ * @memberof westures
+ */
+class Rotate extends Gesture {
+  /**
+   * Constructor function for the Rotate class.
+   */
+  constructor() {
+    super('rotate');
+  }
+
+  /**
+   * Store individual angle progress on each input, return average angle change.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  getAngle(state) {
+    let angle = 0;
+    state.active.forEach(i => {
+      const progress = i.getProgressOfGesture(this.id);
+      const currentAngle = state.centroid.angleTo(i.current.point);
+      angle += angularMinus(currentAngle, progress.previousAngle);
+      progress.previousAngle = currentAngle;
+    });
+    angle /= (state.active.length);
+    return angle;
+  }
+
+  /**
+   * Event hook for the start of a gesture.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  start(state) {
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.getAngle(state);
+    }
+  }
+
+  /**
+   * Event hook for the move of a Rotate gesture.
+   *
+   * @param {State} state - current input state.
+   * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
+   */
+  move(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
+    return {
+      pivot: state.centroid,
+      delta: this.getAngle(state),
+    };
+  }
+
+  /**
+   * Event hook for the end of a gesture.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  end(state) {
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.getAngle(state);
+    }
+  }
+}
+
 module.exports = Rotate;
 
 
@@ -10034,25 +10158,47 @@ const REQUIRED_INPUTS = 1;
 const PROGRESS_STACK_SIZE = 5;
 
 /**
- * @typedef SwipeData
- * @type {Object}
+ * Data returned when a Swipe is recognized.
+ *
+ * @typedef {Object} SwipeData
+ * @mixes ReturnTypes.BaseData
+ *
  * @property {number} velocity - The velocity of the swipe.
  * @property {number} direction - In radians, the direction of the swipe.
- * @property {Point2D} point - The point at which the swipe ended.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ * @property {westures.Point2D} point - The point at which the swipe ended.
+ *
+ * @memberof ReturnTypes
  */
+
+/**
+ * Local helper function for calculating the velocity between two timestamped
+ * points.
+ *
+ * @private
+ *
+ * @param {object} start
+ * @param {westures.Point2D} start.point
+ * @param {number} start.time
+ * @param {object} end
+ * @param {westures.Point2D} end.point
+ * @param {number} end.time
+ *
+ * @return {number} velocity from start to end point.
+ */
+function calc_velocity(start, end) {
+  const distance = end.point.distanceTo(start.point);
+  const time = end.time - start.time;
+  return distance / time;
+}
 
 /**
  * A swipe is defined as input(s) moving in the same direction in an relatively
  * increasing velocity and leaving the screen at some point before it drops
  * below it's escape velocity.
  *
- * @extends Gesture 
- * @see SwipeData
+ * @extends westures.Gesture
+ * @see ReturnTypes.SwipeData
+ * @memberof westures
  */
 class Swipe extends Gesture {
   /**
@@ -10068,17 +10214,16 @@ class Swipe extends Gesture {
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined}
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
 
-    state.active.forEach( input => {
+    state.active.forEach(input => {
       const progress = input.getProgressOfGesture(this.id);
       if (!progress.moves) progress.moves = [];
 
       progress.moves.push({
-        time: Date.now(),
+        time:  Date.now(),
         point: input.current.point,
       });
 
@@ -10094,7 +10239,8 @@ class Swipe extends Gesture {
    * Determines if the input's history validates a swipe motion.
    *
    * @param {State} state - current input state.
-   * @return {?SwipeData} <tt>null</tt> if the gesture is not recognized.
+   * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
+   * recognized.
    */
   end(state) {
     const ended = state.getInputsInPhase('end');
@@ -10117,7 +10263,9 @@ class Swipe extends Gesture {
     }
     direction /= vlim;
 
-    const velocity = velos.reduce((acc,cur) => cur > acc ? cur : acc);
+    const velocity = velos.reduce((acc, cur) => {
+      return cur > acc ? cur : acc;
+    });
 
     return {
       point,
@@ -10125,16 +10273,6 @@ class Swipe extends Gesture {
       direction,
     };
   }
-}
-
-/*
- * Local helper function for calculating the velocity between two timestamped
- * points.
- */
-function calc_velocity(start, end) {
-  const distance = end.point.distanceTo(start.point);
-  const time = end.time - start.time;
-  return distance / time;
 }
 
 module.exports = Swipe;
@@ -10147,7 +10285,7 @@ module.exports = Swipe;
 
 'use strict';
 
-const { Gesture } = require('westures-core');
+const { Gesture, Point2D } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
 const defaults = Object.freeze({
@@ -10155,24 +10293,25 @@ const defaults = Object.freeze({
 });
 
 /**
- * @typedef SwivelData
- * @type {Object}
+ * Data returned when a Swivel is recognized.
+ *
+ * @typedef {Object} SwivelData
+ * @mixes ReturnTypes.BaseData
+ *
  * @property {number} delta - In radians, the change in angle since last emit.
- * @property {Point2D} pivot - The pivot point.
- * @property {Point2D} point - The current location of the input point.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ * @property {westures.Point2D} pivot - The pivot point.
+ * @property {westures.Point2D} point - The current location of the input point.
+ *
+ * @memberof ReturnTypes
  */
 
 /**
  * A Swivel is a single input rotating around a fixed point. The fixed point is
  * determined by the input's location at its 'start' phase.
  *
- * @extends Gesture 
- * @see SwivelData
+ * @extends westures.Gesture
+ * @see ReturnTypes.SwivelData
+ * @memberof westures
  */
 class Swivel extends Gesture {
   /**
@@ -10184,20 +10323,38 @@ class Swivel extends Gesture {
    * @param {string} [options.enableKey=undefined] - One of 'altKey', 'ctrlKey',
    *    'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
    *    this key is down.
+   * @param {boolean} [options.pivotCenter] - If true, the swivel's pivot point
+   *    will be set to the center of the element. Otherwise, the pivot will be
+   *    the location of the first pointerdown/mousedown/touchstart.
    */
   constructor(options = {}) {
     super('swivel');
 
     /**
      * The radius around the start point in which to do nothing.
+     *
+     * @private
+     * @type {number}
      */
     this.deadzoneRadius = options.deadzoneRadius || defaults.deadzoneRadius;
 
     /**
      * If this is set, gesture will only respond to events where this property
      * is truthy. Should be one of 'ctrlKey', 'altKey', or 'shiftKey'.
+     *
+     * @private
+     * @type {string}
      */
     this.enableKey = options.enableKey;
+
+    /**
+     * If this is set, the swivel will use the center of the element as its
+     * pivot point. Unreliable if the element is moved during a swivel gesture.
+     *
+     * @private
+     * @type {Element}
+     */
+    this.pivotCenter = options.pivotCenter;
   }
 
   /**
@@ -10212,58 +10369,90 @@ class Swivel extends Gesture {
   }
 
   /**
+   * Restart the given progress object using the given input object.
+   *
+   * @private
+   *
+   * @param {Object} progress - Progress object to restart.
+   * @param {Input} input - Input object to use for restarting progress.
+   */
+  restart(progress, input) {
+    progress.active = true;
+    if (this.pivotCenter) {
+      const rect = this.pivotCenter.getBoundingClientRect();
+      progress.pivot = new Point2D(
+        rect.x + (rect.width / 2),
+        rect.y + (rect.height / 2)
+      );
+      progress.previousAngle = progress.pivot.angleTo(input.current.point);
+    } else {
+      progress.pivot = input.current.point;
+      progress.previousAngle = 0;
+    }
+  }
+
+  /**
    * Event hook for the start of a Swivel gesture.
    *
    * @private
    * @param {State} state - current input state.
-   * @return {undefined}
    */
   start(state) {
-    if (!this.enabled(state.event)) return null;
-
     const started = state.getInputsInPhase('start');
-    if (started.length !== REQUIRED_INPUTS) return null;
+    if (started.length === REQUIRED_INPUTS && this.enabled(state.event)) {
+      this.restart(started[0].getProgressOfGesture(this.id), started[0]);
+    }
+  }
 
-    const progress = started[0].getProgressOfGesture(this.id);
-    progress.pivot = started[0].current.point;
-    progress.previousAngle = 0;
+  /**
+   * Determine the data to emit. To be called once valid state for a swivel has
+   * been assured, except for deadzone.
+   *
+   * @private
+   *
+   * @param {Object} progress - Progress object to restart.
+   * @param {Input} input - Input object to use for restarting progress.
+   */
+  calculateOutput(progress, input) {
+    const point = input.current.point;
+    const pivot = progress.pivot;
+    const angle = pivot.angleTo(point);
+    const delta = angle - progress.previousAngle;
+    progress.previousAngle = angle;
+
+    if (pivot.distanceTo(point) > this.deadzoneRadius) {
+      return { delta, pivot, point };
+    }
+    return null;
   }
 
   /**
    * Event hook for the move of a Swivel gesture.
    *
    * @param {State} state - current input state.
-   * @return {?SwivelData} <tt>null</tt> if the gesture is not recognized.
+   * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
+   * recognized.
    */
   move(state) {
     if (state.active.length !== REQUIRED_INPUTS) return null;
 
     const input = state.active[0];
-
     const progress = input.getProgressOfGesture(this.id);
+    let output = null;
+
     if (this.enabled(state.event)) {
-      if (!progress.pivot) {
-        // Restart: enableKey was just pressed again.
-        progress.pivot = input.current.point;
-        progress.previousAngle = 0;
-        return null;
-      }
-
-      const point = input.current.point;
-      const pivot = progress.pivot;
-      const angle = pivot.angleTo(point);
-      const delta = angle - progress.previousAngle;
-      progress.previousAngle = angle;
-
-      if (pivot.distanceTo(point) <= this.deadzoneRadius) {
-        return null;
+      if (progress.active) {
+        output = this.calculateOutput(progress, input);
       } else {
-        return { delta, pivot, point };
+        // The enableKey was just pressed again.
+        this.restart(progress, input);
       }
     } else {
-      // CTRL key was released, therefore pivot point is now invalid.
-      delete progress.pivot;
+      // The enableKey was released, therefore pivot point is now invalid.
+      progress.active = false;
     }
+
+    return output;
   }
 }
 
@@ -10280,29 +10469,30 @@ module.exports = Swivel;
 const { Gesture, Point2D } = require('westures-core');
 
 const defaults = Object.freeze({
-  MIN_DELAY_MS: 0,
-  MAX_DELAY_MS: 300,
-  NUM_INPUTS: 1,
+  MIN_DELAY_MS:      0,
+  MAX_DELAY_MS:      300,
+  NUM_INPUTS:        1,
   MOVE_PX_TOLERANCE: 10,
 });
 
 /**
- * @typedef TapData
- * @type {Object}
+ * Data returned when a Tap is recognized.
+ *
+ * @typedef {Object} TapData
+ * @mixes ReturnTypes.BaseData
+ *
  * @property {number} x - x coordinate of tap point.
  * @property {number} y - y coordinate of tap point.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ *
+ * @memberof ReturnTypes
  */
 
 /**
  * A Tap is defined as a touchstart to touchend event in quick succession.
  *
- * @extends Gesture 
- * @see TapData
+ * @extends westures.Gesture
+ * @see ReturnTypes.TapData
+ * @memberof westures
  */
 class Tap extends Gesture {
   /**
@@ -10324,8 +10514,9 @@ class Tap extends Gesture {
      * The minimum amount between a touchstart and a touchend can be configured
      * in milliseconds. The minimum delay starts to count down when the expected
      * number of inputs are on the screen, and ends when ALL inputs are off the
-     * screen.  
+     * screen.
      *
+     * @private
      * @type {number}
      */
     this.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
@@ -10336,6 +10527,7 @@ class Tap extends Gesture {
      * number of inputs are on the screen, and ends when ALL inputs are off the
      * screen.
      *
+     * @private
      * @type {number}
      */
     this.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
@@ -10344,6 +10536,7 @@ class Tap extends Gesture {
      * The number of inputs to trigger a Tap can be variable, and the maximum
      * number being a factor of the browser.
      *
+     * @private
      * @type {number}
      */
     this.numInputs = options.numInputs || defaults.NUM_INPUTS;
@@ -10352,40 +10545,44 @@ class Tap extends Gesture {
      * A move tolerance in pixels allows some slop between a user's start to end
      * events. This allows the Tap gesture to be triggered more easily.
      *
+     * @private
      * @type {number}
      */
     this.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
 
     /**
      * An array of inputs that have ended recently.
+     *
+     * @private
+     * @type {Input[]}
      */
     this.ended = [];
   }
 
   /**
    * Event hook for the end of a gesture.  Determines if this the tap event can
-   * be fired if the delay and tolerance constraints are met. 
+   * be fired if the delay and tolerance constraints are met.
    *
    * @param {State} state - current input state.
-   * @return {?TapData} <tt>null</tt> if the gesture is not to be emitted,
-   *    Object with information otherwise. 
+   * @return {?ReturnTypes.TapData} <tt>null</tt> if the gesture is not to be
+   * emitted, Object with information otherwise.
    */
   end(state) {
     const now = Date.now();
 
     this.ended = this.ended.concat(state.getInputsInPhase('end'))
-      .filter( i => {
+      .filter(i => {
         const tdiff = now - i.startTime;
         return tdiff <= this.maxDelay && tdiff >= this.minDelay;
       });
 
     if (this.ended.length === 0 ||
-        this.ended.length !== this.numInputs || 
-        !this.ended.every( i => i.totalDistance() <= this.tolerance)) {
+        this.ended.length !== this.numInputs ||
+        !this.ended.every(i => i.totalDistance() <= this.tolerance)) {
       return null;
     }
 
-    const { x, y } = Point2D.midpoint( this.ended.map( i => i.current.point ) );
+    const { x, y } = Point2D.midpoint(this.ended.map(i => i.current.point));
     return { x, y };
   }
 }
@@ -10403,23 +10600,25 @@ module.exports = Tap;
 const { Gesture } = require('westures-core');
 
 /**
- * @typedef TrackData
- * @type {Object}
- * @property {Point2D[]} active - Points currently in 'start' or 'move' phase.
- * @property {Point2D} centroid - centroid of currently active points.
- * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
- * @property {string} type - The name of the gesture as specified by its
- *    designer.
+ * Data returned when a Track is recognized.
+ *
+ * @typedef {Object} TrackData
+ * @mixes ReturnTypes.BaseData
+ *
+ * @property {westures.Point2D[]} active - Points currently in 'start' or 'move'
+ *    phase.
+ * @property {westures.Point2D} centroid - centroid of currently active points.
+ *
+ * @memberof ReturnTypes
  */
 
 /**
  * A Track gesture forwards a list of active points and their centroid on each
  * of the selected phases.
  *
- * @extends Gesture 
- * @see TrackData
+ * @extends westures.Gesture
+ * @see ReturnTypes.TrackData
+ * @memberof westures
  */
 class Track extends Gesture {
   /**
@@ -10438,40 +10637,40 @@ class Track extends Gesture {
   /**
    * @private
    * @param {State} state - current input state.
-   * @return {TrackData}
+   * @return {ReturnTypes.TrackData}
    */
   data({ activePoints, centroid }) {
-    return { active: activePoints, centroid }; 
+    return { active: activePoints, centroid };
   }
 
   /**
    * Event hook for the start of a Track gesture.
    *
    * @param {State} state - current input state.
-   * @return {?TrackData} <tt>null</tt> if not recognized.
+   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
   start(state) {
-    if (this.trackStart) return this.data(state);
+    return this.trackStart ? this.data(state) : null;
   }
 
   /**
    * Event hook for the move of a Track gesture.
    *
    * @param {State} state - current input state.
-   * @return {?TrackData} <tt>null</tt> if not recognized.
+   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
   move(state) {
-    if (this.trackMove) return this.data(state);
+    return this.trackMove ? this.data(state) : null;
   }
 
   /**
    * Event hook for the end of a Track gesture.
    *
    * @param {State} state - current input state.
-   * @return {?TrackData} <tt>null</tt> if not recognized.
+   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
   end(state) {
-    if (this.trackEnd) return this.data(state);
+    return this.trackEnd ? this.data(state) : null;
   }
 }
 
@@ -10557,8 +10756,12 @@ module.exports = yeast;
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
- *
+ */
+
+/**
  * This file defines the entry point for the client side of a WAMS application.
+ *
+ * @module client
  */
 
 'use strict';
@@ -10566,14 +10769,14 @@ module.exports = yeast;
 const ClientController = require('./client/ClientController.js');
 
 window.addEventListener(
-  'load', 
+  'load',
   function run() {
     document.addEventListener('contextmenu', e => e.preventDefault());
     new ClientController(document.querySelector('canvas'));
   },
   {
     capture: false,
-    once: true,
+    once:    true,
     passive: true,
   }
 );
@@ -10594,11 +10797,11 @@ window.addEventListener(
 
 const io = require('socket.io-client');
 
-const { 
-  constants, 
+const {
+  constants,
   DataReporter,
-  IdStamper, 
-  Message, 
+  IdStamper,
+  Message,
   NOP,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
@@ -10606,7 +10809,7 @@ const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
 
-// symbols to identify these methods as intended only for internal use
+// Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
@@ -10617,30 +10820,39 @@ const symbols = Object.freeze({
 /**
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. 
+ * the server detailing changes to post to the view.
+ *
+ * @memberof module:client
  */
-class ClientController { 
+class ClientController {
   /**
-   * canvas: The underlying CanvasRenderingContext2D object, (not the context),
-   *         which will fill the page.
+   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   *    (not the context), which will fill the page.
    */
   constructor(canvas) {
     /**
-     * The CanvasRenderingContext2D object is stored by the ClientController so
-     * that it is able to respond to user events triggered on the canvas. The
-     * view only needs to know about the canvas drawing context.
+     * The HTMLCanvasElement object is stored by the ClientController so that it
+     * is able to respond to user events triggered on the canvas. The view only
+     * needs to know about the canvas drawing context.
+     *
+     * @type {HTMLCanvasElement}
      */
     this.canvas = canvas;
-    
+
     /**
      * From socket.io, the socket provides a channel of communication with the
      * server.
+     *
+     * @type {Socket}
+     * @see {@link https://socket.io/docs/client-api/}
      */
     this.socket = null;
 
     /**
      * The ClientView handles the final rendering of the model, as informed by
      * the controller, and as such needs to konw the canvas rendering context.
+     *
+     * @type {module:client.ClientView}
      */
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
 
@@ -10650,6 +10862,8 @@ class ClientController {
      * more easily, if need be. At least in theory. All the ClientController
      * needs to provide is handler functions for responding to the recognized
      * gestures.
+     *
+     * @type {module:client.Interactor}
      */
     this.interactor = new Interactor(this.canvas, {
       pan:    this.forward(Message.DRAG),
@@ -10661,29 +10875,37 @@ class ClientController {
     });
 
     /**
-     * This boolean tracks whether a render has been scheduled for the next
-     * 1/60th of a second interval.
+     * Tracks whether a render has been scheduled for the next 1/60th of a
+     * second interval.
+     *
+     * @type {boolean}
      */
     this.renderScheduled = false;
 
-    // For proper function, we need to make sure that the canvas is as large as
-    // it can be at all times, and that at all times we know how big the canvas
-    // is.
+    /*
+     * For proper function, we need to make sure that the canvas is as large as
+     * it can be at all times, and that at all times we know how big the canvas
+     * is.
+     */
     this.resizeCanvasToFillWindow();
     window.addEventListener('resize', this.resize.bind(this), false);
 
-    // Automatically establish a socket connection with the server. This may
-    // need to be changed to be non-automatic if it is discovered that it is
-    // useful for functionality to be inserted between ClientController
-    // instantiation and socket establishment.
+    /*
+     * Automatically establish a socket connection with the server. This may
+     * need to be changed to be non-automatic if it is discovered that it is
+     * useful for functionality to be inserted between ClientController
+     * instantiation and socket establishment.
+     */
     this[symbols.establishSocket]();
     this[symbols.startRender]();
 
 
-    // As no automatic draw loop is used, (there are no animations), need to
-    // know when to re-render in response to an image loading.
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
     const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener( Message.IMG_LOAD, schedule_fn );
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -10718,24 +10940,26 @@ class ClientController {
       [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
-      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
+      [Message.FULL]: () => {
+        document.body.innerHTML = 'WAMS is full! :(';
+      },
     };
 
-    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
   }
 
   /**
    * Establishes a socket.io connection with the server, using the global WAMS
    * namespace. Connections should be non-persistent over disconnects, (i.e., no
-   * reconnections), as this was the cause of many bugs. 
+   * reconnections), as this was the cause of many bugs.
    *  - TODO: Revisit? Should reconnections be allowed?
    *
    * This internal routine should be called automatically upon ClientController
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( constants.NS_WAMS, {
-      autoConnect: false,
+    this.socket = io.connect(constants.NS_WAMS, {
+      autoConnect:  false,
       reconnection: false,
     });
     this[symbols.attachListeners]();
@@ -10757,11 +10981,19 @@ class ClientController {
    */
   [symbols.startRender]() {
     const render_fn = this[symbols.render].bind(this);
-    window.setInterval( render_fn, 1000 / 60 );
+    window.setInterval(render_fn, 1000 / 60);
   }
 
   /**
    * Generates a function for forwarding the given message to the server.
+   *
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The type of message to forward. One of the static
+   * members of the Message class.
+   *
+   * @return {Function} A function bound to this instance for forwarding data to
+   * the server with the given message type label.
    */
   forward(message) {
     function do_forward(data) {
@@ -10774,8 +11006,10 @@ class ClientController {
   /**
    * Passes messages to the View, and schedules a render.
    *
-   * message: string denoting type of message. 
-   * ...args: arguments to be passed to ultimate handler.
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The name of a ClientView method to run.
+   * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
@@ -10797,7 +11031,7 @@ class ClientController {
    * view accordingly.
    */
   resizeCanvasToFillWindow() {
-    this.canvas.width = window.innerWidth; 
+    this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.handle('resizeToFillWindow');
   }
@@ -10815,6 +11049,10 @@ class ClientController {
    * not reflect the model automatically. This function responds to a message
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
+   *
+   * @param {module:shared.FullStateReporter} data - All the information
+   * necessary to initially synchronize this client's model with the server's
+   * model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);
@@ -10856,6 +11094,13 @@ const STAMPER = new IdStamper();
  * Abstraction of the requisite logic for generating an image object which will
  * load the appropriate image and report when it has finished loading the image
  * so that it can be displayed.
+ *
+ * @inner
+ * @memberof module:client.ClientItem
+ *
+ * @param {string} src - Image source path.
+ *
+ * @returns {?Image}
  */
 function createImage(src) {
   if (src) {
@@ -10877,12 +11122,15 @@ function createImage(src) {
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
+ *
+ * @extends module:shared.Item
+ * @memberof module:client
  */
 class ClientItem extends Item {
   /**
-   * data: The data from the server describing this item. Only properties
-   *       explicity listed in the array passed to the ReporterFactory when the
-   *       Item class was defined will be accepted.
+   * @param {module:shared.Item} data - The data from the server describing this
+   *       item. Only properties explicity listed in the array passed to the
+   *       ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
     super(data);
@@ -10894,30 +11142,35 @@ class ClientItem extends Item {
    * functionality for generating an image, or a canvas drawing blueprint and
    * sequence.
    *
-   * data: The data from the server describing this item.
+   * @param {module:shared.Item} data - The data from the server describing this
+   * item.
    */
   assign(data) {
     const updateImage = data.imgsrc !== this.imgsrc;
-    const updateBlueprint = Boolean(data.blueprint);
+    // const updateBlueprint = Boolean(data.blueprint);
+    const updateBlueprint = this.sequence == null && data.blueprint;
 
     super.assign(data);
     if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
+    if (updateBlueprint) {
+      this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
+    }
 
     // Rather than doing a bunch of checks, let's just always rebuild the
-    // sequence when updating any data in the item. Doing the checks to see if
-    // this is necessary would probably take as much or more time as just
-    // going ahead and rebuilding like this anyway.
-    if (this.blueprint) {
-      this.sequence = this.blueprint.build(this.report());
-    }
+    // Sequence when updating any data in the item. Doing the checks to see if
+    // This is necessary would probably take as much or more time as just
+    // Going ahead and rebuilding like this anyway.
+    // if (this.blueprint) {
+    //   this.sequence = this.blueprint.build(this.report());
+    // }
   }
 
   /**
-   * Render the item onto the given context.
-   * Prioritizes blueprints over images.
+   * Render the item onto the given context.  Prioritizes blueprints over
+   * images.
    *
-   * context: CanvasRenderingContext2D onto which to draw this item.
+   * @param {CanvasRenderingContext2D} context - context onto which to draw this
+   * item.
    */
   draw(context) {
     context.save();
@@ -10927,8 +11180,8 @@ class ClientItem extends Item {
     if (this.sequence) {
       this.sequence.execute(context);
     } else if (this.img && this.img.loaded) {
-      context.drawImage( this.img, 0, 0, this.img.width, this.img.height );
-    } 
+      context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
+    }
     context.restore();
   }
 }
@@ -10951,20 +11204,20 @@ module.exports = ClientItem;
 
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
-const { 
+const {
   constants: globals,
-  mergeMatches, 
+  mergeMatches,
   removeById,
-  IdStamper, 
+  IdStamper,
   View,
 } = require('../shared.js');
 
 const DEFAULTS = Object.freeze({
-  x: 0,
-  y: 0,
+  x:        0,
+  y:        0,
   rotation: globals.ROTATE_0,
-  scale: 1,
-  type: 'view/background',
+  scale:    1,
+  type:     'view/background',
 });
 
 const STATUS_KEYS = Object.freeze([
@@ -10996,12 +11249,15 @@ const symbols = Object.freeze({
  * The ClientView is responsible for rendering the view. To do this, it keeps
  * track of its own position, scale, and orientation, as well as those values
  * for all items and all other views (which will be represented with outlines).
+ *
+ * @extends module:shared.View
+ * @memberof module:client
  */
 class ClientView extends View {
   /**
-   * values: Data for initializing this view. Likely does not come from the
-   *         server, as communication lines probably won't be open yet at the
-   *         time that this class is instantiated.
+   * @param {module:shared.View} values Data for initializing this view. Likely
+   * does not come from the server, as communication lines probably won't be
+   * open yet at the time that this class is instantiated.
    */
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
@@ -11009,21 +11265,34 @@ class ClientView extends View {
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
      * place.
+     *
+     * @type {CanvasRenderingContext2D}
      */
-    if (values.context) this.context = values.context;
-    else throw 'ClientView requires a CanvasRenderingContext2D!';
+    this.context = values.context;
 
     /**
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
+     *
+     * @type {Map.<module:client.ClientItem>}
      */
-    this.items = [];
+    this.items = new Map();
+
+    /**
+     * An ordered list of the items, so that the render order can accurately
+     * match the order on the server, and be adjusted likewise.
+     *
+     * @type {module:client.ClientItem[]}
+     */
+    this.itemOrder = [];
 
     /**
      * The shadows are all the other views that are currently active. They are
      * tracked in full and an outline for each is rendered.
+     *
+     * @type {Map.<module:client.ShadowView>}
      */
-    this.shadows = [];
+    this.shadows = new Map();
   }
 
   /**
@@ -11039,19 +11308,19 @@ class ClientView extends View {
     this.context.rotate(this.rotation);
     this.context.translate(-this.x, -this.y);
   }
-  
+
   /**
    * Renders all the items.
    */
   [symbols.drawItems]() {
-    this.items.forEach( o => o.draw(this.context) );
+    this.itemOrder.forEach(o => o.draw(this.context));
   }
 
   /**
    * Renders outlines of all the other views.
    */
   [symbols.drawShadows]() {
-    this.shadows.forEach( v => v.draw(this.context) );
+    this.shadows.forEach(v => v.draw(this.context));
   }
 
   /**
@@ -11060,15 +11329,15 @@ class ClientView extends View {
    */
   [symbols.drawStatus]() {
     const messages = STATUS_KEYS
-      .map( k => `${k}: ${this[k].toFixed(2)}` )
-      .concat([`# of Shadows: ${this.shadows.length}`]);
+      .map(k => `${k}: ${this[k].toFixed(2)}`)
+      .concat([`# of Shadows: ${this.shadows.size}`]);
     let ty = 40;
-    let tx = 20;
+    const tx = 20;
 
     this.context.save();
-    this.context.setTransform(1,0,0,1,0,0);
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.font = '18px Georgia';
-    messages.forEach( m => {
+    messages.forEach(m => {
       this.context.fillText(m, tx, ty);
       ty += 20;
     });
@@ -11086,19 +11355,22 @@ class ClientView extends View {
   /**
    * Generate and store an Item with the given values.
    *
-   * values: state of the item
+   * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    this.items.push(new ClientItem(values));
+    const item = new ClientItem(values);
+    this.itemOrder.push(item);
+    this.items.set(item.id, item);
   }
 
   /**
    * Generate and store a 'shadow view' to track another active view.
    *
-   * values: state of the View.
+   * @param {module:shared.View} values - State of the new View.
    */
   addShadow(values) {
-    this.shadows.push(new ShadowView(values));
+    const shadow = new ShadowView(values);
+    this.shadows.set(shadow.id, shadow);
   }
 
   /**
@@ -11117,30 +11389,35 @@ class ClientView extends View {
   /**
    * Handle a message from the ClientController.
    *
-   * message: The type of message.
-   * ...args: The arguments to be passed to the ultimate message handling
-   *          function.
+   * @param {string } message - The type of message.
+   * @param {Object} ...args - The arguments to be passed to the ultimate
+   * message handling function.
    */
   handle(message, ...args) {
     this[message](...args);
   }
 
   /**
-   * Message handler. Removes the given item.
+   * Removes the given item.
    *
-   * item: The Item to remove.
+   * @param {module:shared.Item} item - The Item to remove.
+   *
+   * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
-    return removeById( this.items, item );
+    this.items.delete(item.id);
+    return removeById(this.itemOrder, item);
   }
 
   /**
-   * Message handler. Removes the given 'shadow' view.
+   * Removes the given 'shadow' view.
    *
-   * shadow: The 'shadow' view to remove.
+   * @param {module:shared.View} shadow - The 'shadow' view to remove.
+   *
+   * @return {boolean} true if removal was successful, false otherwise.
    */
   removeShadow(shadow) {
-    return removeById( this.shadows, shadow );
+    return this.shadows.delete(shadow.id);
   }
 
   /**
@@ -11155,39 +11432,43 @@ class ClientView extends View {
    * Set up the internal copy of the model according to the data provided by the
    * server.
    *
-   * data: The data from the server detailing the current state of the model.
-   *       See REQUIRED_DATA. If any is missing, something has gone terribly
-   *       wrong, and an exception will be thrown.
+   * @param {module:shared.FullStateReporter} data - The data from the server
+   *       detailing the current state of the model.  See REQUIRED_DATA. If any
+   *       is missing, something has gone terribly wrong, and an exception will
+   *       be thrown.
    */
   setup(data) {
-    REQUIRED_DATA.forEach( d => {
+    REQUIRED_DATA.forEach(d => {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
     STAMPER.cloneId(this, data.id);
-    data.views.forEach( v => v.id !== this.id && this.addShadow(v) );
-    data.items.forEach( o => this.addItem(o) );
+    data.views.forEach(v => v.id !== this.id && this.addShadow(v));
+    data.items.forEach(o => this.addItem(o));
   }
 
   /**
    * Intended for use as an internal helper function, so that this functionality
    * does not need to be defined twice for both of the items and shadows arrays.
    *
-   * container: Array containing the object to update.
-   * data     : Data with which an object in the container will be updated.
-   *            Note that the object is located using an 'id' field on this data
-   *            object.
+   * @param {string} container - Name of the ClientView property defining the
+   *    array which contains the object to update.
+   * @param {( module:shared.Item | module:shared.View )} data - Data with which
+   * an object in the container will be updated.  Note that the object is
+   * located using an 'id' field on this data object.
    */
   update(container, data) {
-    const object = this[container].find( o => o.id === data.id );
-    if (object) object.assign(data);
-    else console.warn(`Unable to find in ${container}: id: `, data.id);
+    if (this[container].has(data.id)) {
+      this[container].get(data.id).assign(data);
+    } else {
+      console.warn(`Unable to find in ${container}: id: `, data.id);
+    }
   }
 
   /**
    * Update an item.
    *
-   * data: data from the server, has an 'id' field with which the item will be
-   *       located.
+   * @param {module:shared.Item} data - data from the server, has an 'id' field
+   *       with which the item will be located.
    */
   updateItem(data) {
     this.update('items', data);
@@ -11196,8 +11477,8 @@ class ClientView extends View {
   /**
    * Update a 'shadow' view.
    *
-   * data: data from the server, has an 'id' field with which the view will be
-   *       located.
+   * @param {module:shared.View} data - data from the server, has an 'id' field
+   *       with which the view will be located.
    */
   updateShadow(data) {
     this.update('shadows', data);
@@ -11224,7 +11505,7 @@ module.exports = ClientView;
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-const HANDLERS = Object.freeze({ 
+const HANDLERS = Object.freeze({
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
@@ -11237,30 +11518,52 @@ const HANDLERS = Object.freeze({
  * The Interactor class provides a layer of abstraction between the
  * ClientController and the code that processes user inputs.
  *
- * Currently, the Interactor makes use of the Westures library.
- *
  * Data from recognized gestures is reported directly through to the handlers.
  *
  * The handlers are initialized to NOPs so that the functions which call the
  * handlers don't need to check whether the handler exists.
+ *
+ * Currently, the Interactor makes use of the Westures library.
+ *
+ * @memberof module:client
+ *
+ * @see {@link https://mvanderkamp.github.io/westures-core/}
  */
 class Interactor {
   /**
-   * canvas  : The <canvs> element on which to listen for interaction events.
-   * handlers: Object with keys as the names gestures and values as the
-   *           corresponding function for handling that gesture when it is
-   *           recognized.
+   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
+   *    for interaction events.
+   * @param {Object} handlers - Object with keys as the names gestures and
+   *    values as the corresponding function for handling that gesture when it
+   *    is recognized.
+   * @param {Function} [handlers.pan=NOP]
+   * @param {Function} [handlers.rotate=NOP]
+   * @param {Function} [handlers.swipe=NOP]
+   * @param {Function} [handlers.tap=NOP]
+   * @param {Function} [handlers.zoom=NOP]
+   * @param {Function} [handlers.track=NOP]
    */
   constructor(canvas, handlers = {}) {
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw 'Invalid canvas recieved by Interactor!';
     }
 
-    this.canvas = canvas;
-    this.region = new Westures.Region(window);
-
+    /**
+     * Object holding the handlers, so they can be dynamically referenced by
+     * name.
+     *
+     * @type {Object}
+     * @property {Function} pan=NOP
+     * @property {Function} rotate=NOP
+     * @property {Function} swipe=NOP
+     * @property {Function} top=NOP
+     * @property {Function} zoom=NOP
+     * @property {Function} track=NOP
+     */
     this.handlers = mergeMatches(HANDLERS, handlers);
-    this.bindRegions();
+
+    // Begin listening activities immediately.
+    this.bindRegions(canvas);
     this.attachListeners();
   }
 
@@ -11276,8 +11579,11 @@ class Interactor {
    * Westures uses Gesture objects, and expects those objects to be bound to an
    * element, along with a handler for responding to that gesture. This method
    * takes care of those activities.
+   *
+   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
+   * for gestures.
    */
-  bindRegions() {
+  bindRegions(canvas) {
     const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
@@ -11286,17 +11592,23 @@ class Interactor {
     const tap     = new Westures.Tap();
     const track   = new Westures.Track(['start', 'end']);
 
-    this.region.bind(this.canvas, pan,    this.forward('pan'));
-    this.region.bind(this.canvas, tap,    this.forward('tap'));
-    this.region.bind(this.canvas, pinch,  this.forward('zoom'));
-    this.region.bind(this.canvas, rotate, this.forward('rotate'));
-    this.region.bind(this.canvas, swipe,  this.forward('swipe'));
-    this.region.bind(this.canvas, swivel, this.forward('rotate'));
-    this.region.bind(this.canvas, track,  this.forward('track'));
+    const region = new Westures.Region(window);
+    region.addGesture(canvas, pan,    this.forward('pan'));
+    region.addGesture(canvas, tap,    this.forward('tap'));
+    region.addGesture(canvas, pinch,  this.forward('zoom'));
+    region.addGesture(canvas, rotate, this.forward('rotate'));
+    region.addGesture(canvas, swipe,  this.forward('swipe'));
+    region.addGesture(canvas, swivel, this.forward('rotate'));
+    region.addGesture(canvas, track,  this.forward('track'));
   }
 
   /**
    * Generates a function that forwards the appropriate gesture and data.
+   *
+   * @param {string} gesture - name of a gesture to forward.
+   *
+   * @return {Function} Handler for westures that receives a data object and
+   * forwards it according to the given gesture name.
    */
   forward(gesture) {
     function do_forward(data) {
@@ -11307,12 +11619,14 @@ class Interactor {
 
   /**
    * Treat scrollwheel events as zoom events.
+   *
+   * @param {WheelEvent} event - The wheel event from the window.
    */
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
     const change = -(Math.sign(event.deltaY) * factor) + 1;
-    const midpoint = {x: event.clientX, y: event.clientY};
+    const midpoint = { x: event.clientX, y: event.clientY };
     const phase = 'move';
     this.handlers.zoom({ change, midpoint, phase });
   }
@@ -11339,11 +11653,11 @@ module.exports = Interactor;
 
 'use strict';
 
-const { 
+const {
   colours,
   constants,
   IdStamper,
-  View 
+  View,
 } = require('../shared.js');
 
 const STAMPER = new IdStamper();
@@ -11359,29 +11673,49 @@ const symbols = Object.freeze({
 /**
  * The ShadowView class exposes a simple draw() function which renders a shadowy
  * outline of the view onto the canvas.
+ *
+ * @extends module:shared.View
+ * @memberof module:client
  */
 class ShadowView extends View {
   /**
-   * values: server-provided data describing this view.
+   * @param {module:shared.View} values - server-provided data describing this
+   * view.
    */
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);
   }
-  
+
   /**
    * Override the default assign() function to take the reciprocal of the scale.
+   *
+   * @param {module:shared.View} data - values to assign to the view.
    */
   assign(data) {
     super.assign(data);
+
+    /**
+     * Caches the effective width so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveWidth = this.width / this.scale;
+
+    /**
+     * Caches the effective height so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveHeight = this.height / this.scale;
   }
 
   /**
    * Render an outline of this view.
    *
-   * context: CanvasRenderingContext2D on which to draw.
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   draw(context) {
     /*
@@ -11389,24 +11723,28 @@ class ShadowView extends View {
      * save() and restore().
      */
     context.save();
-    this[symbols.align]   (context);
-    this[symbols.style]   (context);
-    this[symbols.outline] (context);
-    this[symbols.marker]  (context);
+    this[symbols.align](context);
+    this[symbols.style](context);
+    this[symbols.outline](context);
+    this[symbols.marker](context);
     context.restore();
   }
 
   /**
    * Aligns the drawing context so the outline will be rendered in the correct
    * location with the correct orientation.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.align](context) {
-    context.translate(this.x,this.y);
+    context.translate(this.x, this.y);
     context.rotate(constants.ROTATE_360 - this.rotation);
   }
 
   /**
    * Applies styling to the drawing context.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
@@ -11419,22 +11757,24 @@ class ShadowView extends View {
    * Draws an outline of the view.
    */
   [symbols.outline](context) {
-    context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+    context.strokeRect(0, 0, this.effectiveWidth, this.effectiveHeight);
   }
 
   /**
    * Draws a small triangle in the upper-left corner of the outline, so that
    * other views can quickly tell which way this view is oriented.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.marker](context) {
     const base = context.lineWidth / 2;
     const height = 25;
 
     context.beginPath();
-    context.moveTo(base,base);
-    context.lineTo(base,height);
-    context.lineTo(height,base);
-    context.lineTo(base,base);
+    context.moveTo(base, base);
+    context.lineTo(base, height);
+    context.lineTo(height, base);
+    context.lineTo(base, base);
     context.fill();
   }
 }
@@ -11448,9 +11788,13 @@ module.exports = ShadowView;
  *
  * Author: Michael van der Kamp
  * Date: July / August 2018
+ */
+
+/**
+ * Intended for use by both the client and the server, in order to provide a
+ * common interface.
  *
- *  The below set of utilities and classes are intended for use by both the
- *  client and the server, in order to provide a common interface.
+ * @module shared
  */
 
 'use strict';
@@ -11458,13 +11802,16 @@ module.exports = ShadowView;
 const IdStamper = require('./shared/IdStamper.js');
 const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
-const Utils     = require('./shared/util.js');
+const Utils     = require('./shared/utilities.js');
 
-/*
+/**
  * This object stores a set of core constants for use by both the client and
  *  the server.
+ *
+ * @memberof module:shared
+ * @enum {number}
  */
-const constants = Object.freeze({
+const constants = {
   // General constants
   ROTATE_0:   0,
   ROTATE_90:  Math.PI / 2,
@@ -11473,12 +11820,16 @@ const constants = Object.freeze({
   ROTATE_360: Math.PI * 2,
 
   // Namespaces
+  /** @type {string} */
   NS_WAMS:  '/wams',
-});
+};
 
-/*
+/**
  * A list of colours, for use by the API for shadows, and by end-point apps too
  * if desired.
+ *
+ * @memberof module:shared
+ * @type {string[]}
  */
 const colours = [
   'saddlebrown',
@@ -11506,7 +11857,7 @@ module.exports = Object.freeze({
 });
 
 
-},{"./shared/IdStamper.js":77,"./shared/Message.js":78,"./shared/Reporters.js":80,"./shared/util.js":81}],77:[function(require,module,exports){
+},{"./shared/IdStamper.js":77,"./shared/Message.js":78,"./shared/Reporters.js":80,"./shared/utilities.js":81}],77:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -11514,41 +11865,23 @@ module.exports = Object.freeze({
  * Date: July / August 2018
  *
  * I wrote this generator class to make Id generation more controlled.
- * The class has access to a private (local lexical scope) generator 
+ * The class has access to a private (local lexical scope) generator
  *  function and Symbol for generators, and exposes a pair of methods for
  *  stamping new Ids onto objects and cloning previously existing Ids onto
  *  objects.
- *
- * stampNewId(object):
- *  object:   The object to stamp with an id.
- *
- *  All Ids produced by this method are guaranteed to be unique, on a
- *  per-stamper basis. (Two uniquely constructed stampers can and will
- *  generate identical Ids).
- *
- * cloneId(object, id):
- *  object:   Will receive a cloned id.
- *  id:       The id to clone onto the object.
- *
- * For example:
- *    const stamper = new IdStamper();
- *    const obj = {};
- *    stamper.stampNewId(obj);
- *    console.log(obj.id);  // an integer unique to Ids stamped by stamper
- *    obj.id = 2;           // has no effect.
- *    delete obj.id;        // false
- *
- *    const danger = {};
- *    stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
- *                                     // now both using the same Id.
  */
 
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
 
 /**
  * Generator for integers from 0 to MAX_SAFE_INTEGER.
+ *
+ * @inner
+ * @memberof module:shared.IdStamper
+ * @generator
+ * @returns {number} Unique integers.
  */
 function* id_gen() {
   let next_id = 0;
@@ -11557,27 +11890,54 @@ function* id_gen() {
 
 /**
  * Mark the class instance's generator as not intended for external use.
+ *
+ * @inner
+ * @memberof module:shared.IdStamper
+ * @type {Symbol}
  */
-const gen = Symbol();
+const gen = Symbol('gen');
 
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
  * per-IdStamper basis.
+ *
+ * @example
+ * const stamper = new IdStamper();
+ * const obj = {};
+ * stamper.stampNewId(obj);
+ * console.log(obj.id);  // an integer unique to Ids stamped by stamper
+ * obj.id = 2;           // has no effect.
+ * delete obj.id;        // false
+ *
+ * const danger = {};
+ * stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+ *                                  // now both using the same Id.
+ *
+ * @memberof module:shared
  */
 class IdStamper {
   constructor() {
+    /**
+     * A generator instance that yields unique integers.
+     *
+     * @type {Generator}
+     */
     this[gen] = id_gen();
   }
 
   /**
    * Stamps an integer ID, unique to this IdStamper, onto the given object.
    *
-   * obj: An object onto which an ID will be stamped.
+   * All Ids produced by this method are guaranteed to be unique, on a
+   * per-stamper basis. (Two uniquely constructed stampers can and will generate
+   * identical Ids).
+   *
+   * @param {Object} obj - An object onto which an ID will be stamped.
    */
   stampNewId(obj) {
     defineOwnImmutableEnumerableProperty(
-      obj, 
-      'id', 
+      obj,
+      'id',
       this[gen].next().value
     );
   }
@@ -11585,8 +11945,8 @@ class IdStamper {
   /**
    * Stamps a clone of the given ID onto the given object.
    *
-   * obj: An object onto which an ID will be stamped.
-   * id : The ID to clone onto obj.
+   * @param {Object} obj - An object onto which an ID will be stamped.
+   * @param {number} id - The ID to clone onto obj.
    */
   cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
@@ -11598,7 +11958,7 @@ class IdStamper {
 module.exports = IdStamper;
 
 
-},{"./util.js":81}],78:[function(require,module,exports){
+},{"./utilities.js":81}],78:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -11608,7 +11968,7 @@ module.exports = IdStamper;
  * The purpose of this class is to provide a funnel through which all messages
  * between client and server must pass. In concert with the Reporter interface,
  * it allows for a sanity check such that the correct sort of data is getting
- * passed back and forth. 
+ * passed back and forth.
  *
  * Unfortunately this does not provide a strict guarantee that informal and ad
  * hoc messages aren't getting emitted somewhere, so it is up to the programmer
@@ -11617,54 +11977,62 @@ module.exports = IdStamper;
 
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty } = require('./util.js');
+const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
 
 /**
  * TYPES is an explicit list of the types of messages that will be passed back
  * and forth. Messages not on this list should be ignored!
+ *
+ * @enum {string}
+ * @readonly
+ * @lends module:shared.Message
  */
-const TYPES = Object.freeze({ 
+const TYPES = {
   // For the server to inform about changes to the model
-  ADD_ITEM:   'wams-add-item',
-  ADD_SHADOW: 'wams-add-shadow',
-  RM_ITEM:    'wams-remove-item',
-  RM_SHADOW:  'wams-remove-shadow',
-  UD_ITEM:    'wams-update-item',
-  UD_SHADOW:  'wams-update-shadow',
-  UD_VIEW:    'wams-update-view',
+  /** @const */ ADD_ITEM:   'wams-add-item',
+  /** @const */ ADD_SHADOW: 'wams-add-shadow',
+  /** @const */ RM_ITEM:    'wams-remove-item',
+  /** @const */ RM_SHADOW:  'wams-remove-shadow',
+  /** @const */ UD_ITEM:    'wams-update-item',
+  /** @const */ UD_SHADOW:  'wams-update-shadow',
+  /** @const */ UD_VIEW:    'wams-update-view',
 
   // Connection establishment related (disconnect, initial setup)
-  INITIALIZE: 'wams-initialize',
-  LAYOUT:     'wams-layout',
-  FULL:       'wams-full',
+  /** @const */ INITIALIZE: 'wams-initialize',
+  /** @const */ LAYOUT:     'wams-layout',
+  /** @const */ FULL:       'wams-full',
 
   // User event related
-  CLICK:      'wams-click',
-  DRAG:       'wams-drag',
-  RESIZE:     'wams-resize',
-  ROTATE:     'wams-rotate',
-  SCALE:      'wams-scale',
-  SWIPE:      'wams-swipe',
-  TRACK:      'wams-track',
+  /** @const */ CLICK:      'wams-click',
+  /** @const */ DRAG:       'wams-drag',
+  /** @const */ RESIZE:     'wams-resize',
+  /** @const */ ROTATE:     'wams-rotate',
+  /** @const */ SCALE:      'wams-scale',
+  /** @const */ SWIPE:      'wams-swipe',
+  /** @const */ TRACK:      'wams-track',
 
   // Page event related
-  IMG_LOAD:   'wams-image-loaded',
-});
+  /** @const */ IMG_LOAD:   'wams-image-loaded',
+};
+Object.freeze(TYPES);
 
 const TYPE_VALUES = Object.freeze(Object.values(TYPES));
 
 /**
  * The Message class provides a funnel through which data passed between the
  * client and server must flow.
+ *
+ * @memberof module:shared
  */
 class Message {
   /**
    * If an invalid type is received, throws an exception. If an invalid reporter
    * is received, an exception will not be thrown until 'emitWith()' is called.
    *
-   * type    : The message type. Must be one of the explicitly listed message
-   *           types available on the Message object.
-   * reporter: A Reporter instance, containing the data to be emitted.
+   * @param {string} type - The message type. Must be one of the explicitly
+   * listed message types available on the Message object.
+   * @param {module:shared.Reporter} reporter - A Reporter instance, containing
+   * the data to be emitted.
    */
   constructor(type, reporter) {
     if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
@@ -11677,24 +12045,26 @@ class Message {
    * Emits the data contained in the reporter along the channel defined by
    * emitter.
    *
-   * emitter: An object capable of emitting data packets. Must have an 'emit()'
-   *          function.
+   * @param {Emitter} emitter - An object capable of emitting data packets. Must
+   * have an 'emit()' function.
    */
   emitWith(emitter) {
     emitter.emit(this.type, this.reporter.report());
   }
 }
 
-// Only define the messages once, above, and now attach them to the Message
-// class object for external reference.
-Object.entries(TYPES).forEach( ([p,v]) => {
-  defineOwnImmutableEnumerableProperty( Message, p, v );
+/*
+ * Only define the messages once, above, and now attach them to the Message
+ * Class object for external reference.
+ */
+Object.entries(TYPES).forEach(([p, v]) => {
+  defineOwnImmutableEnumerableProperty(Message, p, v);
 });
 
 module.exports = Message;
 
 
-},{"./util.js":81}],79:[function(require,module,exports){
+},{"./utilities.js":81}],79:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -11705,10 +12075,10 @@ module.exports = Message;
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const { 
+const {
   defineOwnImmutableEnumerableProperty,
   mergeMatches,
-} = require('./util.js');
+} = require('./utilities.js');
 
 const STAMPER = new IdStamper();
 
@@ -11716,43 +12086,51 @@ const STAMPER = new IdStamper();
  * This factory can generate the basic classes that need to communicate
  *  property values between the client and server.
  *
- * coreProperties: An array of property names. It is these properties, and only
- *                 these properties, which will be report()ed by the reporter.
+ * @memberof module:shared
+ * @param {string[]} coreProperties - An array of property names. It is these
+ * properties, and only these properties, which will be report()ed by the
+ * reporter.
  */
 function ReporterFactory(coreProperties) {
   // Use scoping to permanently save the list of core property names. Make sure
-  // to create a local copy and freeze it to guarantee immutability as best
+  // To create a local copy and freeze it to guarantee immutability as best
   // JavaScript will allow. If a better method for ensuring immutability is
-  // available, use it here instead.
+  // Available, use it here instead.
   const KEYS = Object.freeze(Array.from(coreProperties));
 
   // Generate a default initial object containing all the core properties, each
-  // with a value of null.
+  // With a value of null.
   const INITIALIZER = {};
-  coreProperties.forEach( p => {
+  coreProperties.forEach(p => {
     defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
   });
   Object.freeze(INITIALIZER);
 
+  /**
+   * A Reporter regulates communication between client and server by enforcing a
+   * strict set of rules over what data can be shared for the given class.
+   *
+   * @memberof module:shared
+   */
   class Reporter {
     /**
-     * data: data to store in the reporter. Only properties with keys matching
-     *       those provided in coreProperties and saved in KEYS will be
-     *       accepted.
+     * @param {Object} data - data to store in the reporter. Only properties
+     * with keys matching those provided in coreProperties and saved in KEYS
+     * will be accepted.
      */
     constructor(data) {
-      return this.assign(mergeMatches(INITIALIZER, data));
+      this.assign(mergeMatches(INITIALIZER, data));
     }
 
     /**
      * Save onto this Reporter instance the values in data which correspond to
      * properties named in KEYS.
      *
-     * data: Data values to attempt to save.
+     * @param {Object} data - Data values to attempt to save.
      */
     assign(data = {}) {
-      KEYS.forEach( p => { 
-        if (data.hasOwnProperty(p)) this[p] = data[p]; 
+      KEYS.forEach(p => {
+        if (data.hasOwnProperty(p)) this[p] = data[p];
       });
     }
 
@@ -11760,12 +12138,16 @@ function ReporterFactory(coreProperties) {
      * Provide a report of the data saved in this Reporter instance. Only those
      * instance properties which correspond to properties named in KEYS will be
      * reported.
+     *
+     * @return {Object} Contains the core properties of this Reporter instance.
      */
     report() {
       const data = {};
-      KEYS.forEach( p => data[p] = this[p] );
+      KEYS.forEach(p => {
+        data[p] = this[p];
+      });
       STAMPER.cloneId(data, this.id);
-      return data; 
+      return data;
     }
   }
 
@@ -11775,7 +12157,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":77,"./util.js":81}],80:[function(require,module,exports){
+},{"./IdStamper.js":77,"./utilities.js":81}],80:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -11787,55 +12169,248 @@ module.exports = ReporterFactory;
 
 const ReporterFactory = require('./ReporterFactory.js');
 
-/*
- * This Item class provides a common interface between the client and 
+/**
+ * This Item class provides a common interface between the client and
  * the server by which the Items can interact safely.
+ *
+ * @class Item
+ * @memberof module:shared
+ * @extends module:shared.Reporter
  */
 const Item = ReporterFactory([
+  /**
+   * X coordinate of the Item.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'x',
+
+  /**
+   * Y coordinate of the Item.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'y',
+
+  /**
+   * The item's hitbox.
+   *
+   * @name hitbox
+   * @type {module:server.Polygon2D}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'hitbox', // TODO: May not need to be reported
+
+  /**
+   * Rotation of the Item.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'rotation',
+
+  /**
+   * Scale of the Item.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'scale',
+
+  /**
+   * Type description of the Item.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'type',
+
+  /**
+   * Image source path of the Item.
+   *
+   * @name imgsrc
+   * @type {string}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'imgsrc',
+
+  /**
+   * Canvas blueprint for the item.
+   *
+   * @name blueprint
+   * @type {CanvasBlueprint}
+   * @memberof module:shared.Item
+   * @instance
+   */
   'blueprint',
 ]);
 
-/*
- * This View class provides a common interface between the client and 
+/**
+ * This View class provides a common interface between the client and
  * the server by which the Views can interact safely.
+ *
+ * @class View
+ * @memberof module:shared
+ * @extends module:shared.Reporter
  */
 const View = ReporterFactory([
+  /**
+   * X coordinate of the View.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'x',
+
+  /**
+   * Y coordinate of the View.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'y',
+
+  /**
+   * Width of the View.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'width',
+
+  /**
+   * Height of the View.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'height',
+
+  /**
+   * Type of object.
+   *
+   * @name type
+   * @type {string}
+   * @default 'view/background'
+   * @memberof module:shared.View
+   * @instance
+   */
   'type',
+
+  /**
+   * Scale of the View.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'scale',
+
+  /**
+   * Rotation of the View.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.View
+   * @instance
+   */
   'rotation',
 ]);
 
-/*
+/**
  * This class allows generic Input data reporting between client and server.
  * Honestly it's a bit of a cheaty hack around the Message / Reporter protocol,
  * but it simplifies the code and makes things easier to maintain. And honestly
  * the Message / Reporter protocol is mostly focused on protecting Views and
  * Items anyway.
+ *
+ * @class DataReporter
+ * @memberof module:shared
+ * @extends module:shared.Reporter
  */
 const DataReporter = ReporterFactory([
+  /**
+   * Generic data pass-through.
+   *
+   * @name data
+   * @type {Object}
+   * @memberof module:shared.DataReporter
+   * @instance
+   */
   'data',
 ]);
 
-/*
+/**
  * This class allows reporting of the full state of the model, for bringing
  * new clients up to speed (or potentially also for recovering a client, if
  * need be).
+ *
+ * @class FullStateReporter
+ * @memberof module:shared
+ * @extends module:shared.Reporter
  */
 const FullStateReporter = ReporterFactory([
+  /**
+   * All currently active views.
+   *
+   * @name views
+   * @type {View[]}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
   'views',
+
+  /**
+   * All current items.
+   *
+   * @name items
+   * @type {Item[]}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
   'items',
+
+  /**
+   * The background colour of the workspace.
+   *
+   * @name color
+   * @type {string}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
   'color',
+
+  /**
+   * The id assigned to this view.
+   *
+   * @name id
+   * @type {number}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
   'id',
 ]);
 
@@ -11858,26 +12433,33 @@ module.exports = {
 'use strict';
 
 /**
+ * @namespace utilities
+ * @memberof module:shared
+ */
+
+/**
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  *
- * obj : The object on which the property will be defined.
- * prop: The property to define on obj.
- * val : The value to assign to the property.
+ * param {object} obj - The object on which the property will be defined.
+ * param {string} prop - The property to define on obj.
+ * param {any} val - The value to assign to the property.
+ *
+ * @memberof module:shared.utilities
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
-    value: val,
+    value:        val,
     configurable: false,
-    enumerable: true,
-    writable: false
+    enumerable:   true,
+    writable:     false,
   });
 }
 
 /**
  * Find the last value in an Array for which the supplied callback function
  *  returns true. Operates on each index in the Array, starting at 'fromIndex'
- *  and going backwards to the start of the Array or until the desired value 
+ *  and going backwards to the start of the Array or until the desired value
  *  is found.
  *
  * Returns the value that passed the callback, if found, or null.
@@ -11885,11 +12467,16 @@ function defineOwnImmutableEnumerableProperty(obj, prop, val) {
  * Callback function should be of similar form to the Array.findIndex()
  *  standard library function.
  *
- * array    : The array to search.
- * callback : The condition function used for the search.
- * fromIndex: Index to begin search, goes backward from here. Default is last
- *            item in array.
- * thisArg  : 'this' context for the callback function.
+ * @memberof module:shared.utilities
+ *
+ * @param {mixed[]} array - The array to search.
+ * @param {function} callback - The condition function used for the search.
+ * @param {number} [ fromIndex=(array.length-1) ] - Index to begin search, goes
+ * backward from here.
+ * @param {Object} [ thisArg ] - 'this' context for the callback function.
+ *
+ * @return {?mixed} The last item in the array for which the callback returned
+ * true, or null if the callback never returned true;
  */
 function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
   while (fromIndex >= 0 &&
@@ -11900,33 +12487,37 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 }
 
 /**
- * Returns a new object, with all the own properties of 'defaults' having
- *  values from 'data', if found, otherwise with values from 'defaults'.
+ * Create a new object, with all the own properties of 'defaults' having values
+ * from 'data', if found, otherwise with values from 'defaults'.
  *
- * defaults: Object with default properties and values. If data is not provided
- *           or all the property names of data are disjoint with the property
- *           names of defaults, then defaults will be returned.
- * data    : Object with values to use for corresponding properties in defaults.
- *           Properties not found in defaults will be ignored. 
+ * @memberof module:shared.utilities
+ *
+ * @param {Object} defaults - Object with default properties and values. If data
+ * is not provided or all the property names of data are disjoint with the
+ * property names of defaults, then defaults will be returned.
+ * @param {} data - Object with values to use for corresponding properties in
+ * defaults. Properties not found in defaults will be ignored.
+ *
+ * @returns {Object} The new object.
  */
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
-  Object.keys(defaults).forEach( k => {
+  Object.keys(defaults).forEach(k => {
     rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
   });
   return rv;
 }
 
 /**
- * This method will set an already-existing property on an object to be 
+ * This method will set an already-existing property on an object to be
  *  immutable. In other words, it will configure it as such:
  *
  *    configurable: false
  *    writable: false
  *
- * It will have no effect on non-configurable properties, and will turn an 
- *  accessor descriptor  a data descriptor. (I.e. if the property is 
- *  defined with getters and setters, they will be lost).  
+ * It will have no effect on non-configurable properties, and will turn an
+ *  accessor descriptor  a data descriptor. (I.e. if the property is
+ *  defined with getters and setters, they will be lost).
  *
  * It will have no effect on properties that do not exist directly on the
  *  Object (properties further up the prototype chain are not affected).
@@ -11936,17 +12527,19 @@ function mergeMatches(defaults = {}, data = {}) {
  * This method is intended for use when the only reason for a call to
  *  Object.defineProperty() was to make the property immutable.
  *
- * Returns the modified object.
+ * @memberof module:shared.utilities
  *
- * obj : The object to modify
- * prop: The property of obj to make immutable
+ * @param {Object} obj - The object to modify.
+ * @param {string} prop - The name of the property of obj to make immutable.
+ *
+ * @returns {Object} The modified object.
  */
 function makeOwnPropertyImmutable(obj, prop) {
   const desc = Object.getOwnPropertyDescriptor(obj, prop);
   if (desc && desc.configurable) {
     Object.defineProperty(obj, prop, {
       configurable: false,
-      writable: false
+      writable:     false,
     });
   }
   return obj;
@@ -11954,17 +12547,23 @@ function makeOwnPropertyImmutable(obj, prop) {
 
 /**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
+ *
+ * @memberof module:shared.utilities
  */
 const NOP = () => {};
 
 /**
  * Removes the given item from the given array, according to its Id.
  *
- * array: The array to modify
- * item : The item to remove from array according to its Id
+ * @memberof module:shared.utilities
+ *
+ * @param {Object[]} array - The array to modify.
+ * @param {Object} item  - The item to remove from array according to its Id.
+ *
+ * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function removeById(array, item) {
-  const idx = array.findIndex( o => o.id === item.id );
+  const idx = array.findIndex(o => o.id === item.id);
   if (idx >= 0) {
     array.splice(idx, 1);
     return true;
@@ -11976,10 +12575,16 @@ function removeById(array, item) {
  * Removes the given item of the given class (enforced by throwing an
  * exception if not an instance) from the given array.
  *
- * array   : The array to modify
- * item    : The item to remove from array according to its Id, if it is an
- *           instance of class_fn
- * class_fn: Insist that item be an instance of this class function.
+ * @memberof module:shared.utilities
+ * @throws {string}
+ *
+ * @param {Object[]} array - The array to modify.
+ * @param {Object} item - The item to remove from array according to its Id, if
+ * it is an instance of class_fn
+ * @param {Class} class_fn - Insist that item be an instance of this class
+ * function.
+ *
+ * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function safeRemoveById(array, item, class_fn) {
   if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
