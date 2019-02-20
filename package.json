@@ -1,7 +1,6 @@
 {
   "description": "API for Nodejs to make multi-surface applications",
   "dependencies": {
-    "@babel/polyfill": "^7.2.5",
     "canvas-sequencer": "^2.0.4",
     "express": "^4.16.4",
     "image-size": "^0.6.3",
@@ -9,13 +8,6 @@
     "westures": "^0.5.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.3.3",
-    "@babel/plugin-transform-runtime": "^7.2.0",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/runtime": "^7.3.1",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^24.1.0",
-    "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.14.1",
     "jest": "^24.1.0",
@@ -23,7 +15,9 @@
     "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
-    "setupTestFrameworkScriptFile": "./tests/setup.js",
+    "setupFilesAfterEnv": [
+      "./tests/setup.js"
+    ],
     "testURL": "http://localhost/"
   },
   "name": "WAMS_API",
@@ -31,12 +25,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/mvanderkamp/wams"
-  },
-  "scripts": {
-    "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
-    "docs": "jsdoc -c .jsdocrc.json",
-    "lint": "eslint src",
-    "test": "jest"
   },
   "version": "0.0.2"
 }
