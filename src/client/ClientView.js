@@ -195,17 +195,6 @@ class ClientView extends View {
   }
 
   /**
-   * Handle a message from the ClientController.
-   *
-   * @param {string } message - The type of message.
-   * @param {Object} ...args - The arguments to be passed to the ultimate
-   * message handling function.
-   */
-  handle(message, ...args) {
-    this[message](...args);
-  }
-
-  /**
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.

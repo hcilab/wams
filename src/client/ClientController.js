@@ -227,7 +227,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.view.handle(message, ...args);
+    this.view[message](...args);
     this.scheduleRender();
   }
 
