@@ -11012,7 +11012,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.view.handle(message, ...args);
+    this.view[message](...args);
     this.scheduleRender();
   }
 
@@ -11384,17 +11384,6 @@ class ClientView extends View {
     this[symbols.drawShadows]();
     this[symbols.drawStatus]();
     this.context.restore();
-  }
-
-  /**
-   * Handle a message from the ClientController.
-   *
-   * @param {string } message - The type of message.
-   * @param {Object} ...args - The arguments to be passed to the ultimate
-   * message handling function.
-   */
-  handle(message, ...args) {
-    this[message](...args);
   }
 
   /**
