@@ -12,11 +12,11 @@
 
 const io = require('socket.io-client');
 
-const { 
-  constants, 
+const {
+  constants,
   DataReporter,
-  IdStamper, 
-  Message, 
+  IdStamper,
+  Message,
   NOP,
 } = require('../shared.js');
 const ClientView = require('./ClientView.js');
@@ -24,7 +24,7 @@ const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
 
-// symbols to identify these methods as intended only for internal use
+// Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   establishSocket: Symbol('establishSocket'),
@@ -35,30 +35,39 @@ const symbols = Object.freeze({
 /**
  * The ClientController coordinates communication with the wams server. It sends
  * messages based on user interaction with the canvas and receives messages from
- * the server detailing changes to post to the view. 
+ * the server detailing changes to post to the view.
+ *
+ * @memberof module:client
  */
-class ClientController { 
+class ClientController {
   /**
-   * canvas: The underlying CanvasRenderingContext2D object, (not the context),
-   *         which will fill the page.
+   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   *    (not the context), which will fill the page.
    */
   constructor(canvas) {
     /**
-     * The CanvasRenderingContext2D object is stored by the ClientController so
-     * that it is able to respond to user events triggered on the canvas. The
-     * view only needs to know about the canvas drawing context.
+     * The HTMLCanvasElement object is stored by the ClientController so that it
+     * is able to respond to user events triggered on the canvas. The view only
+     * needs to know about the canvas drawing context.
+     *
+     * @type {HTMLCanvasElement}
      */
     this.canvas = canvas;
-    
+
     /**
      * From socket.io, the socket provides a channel of communication with the
      * server.
+     *
+     * @type {Socket}
+     * @see {@link https://socket.io/docs/client-api/}
      */
     this.socket = null;
 
     /**
      * The ClientView handles the final rendering of the model, as informed by
      * the controller, and as such needs to konw the canvas rendering context.
+     *
+     * @type {module:client.ClientView}
      */
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
 
@@ -68,6 +77,8 @@ class ClientController {
      * more easily, if need be. At least in theory. All the ClientController
      * needs to provide is handler functions for responding to the recognized
      * gestures.
+     *
+     * @type {module:client.Interactor}
      */
     this.interactor = new Interactor(this.canvas, {
       pan:    this.forward(Message.DRAG),
@@ -79,29 +90,37 @@ class ClientController {
     });
 
     /**
-     * This boolean tracks whether a render has been scheduled for the next
-     * 1/60th of a second interval.
+     * Tracks whether a render has been scheduled for the next 1/60th of a
+     * second interval.
+     *
+     * @type {boolean}
      */
     this.renderScheduled = false;
 
-    // For proper function, we need to make sure that the canvas is as large as
-    // it can be at all times, and that at all times we know how big the canvas
-    // is.
+    /*
+     * For proper function, we need to make sure that the canvas is as large as
+     * it can be at all times, and that at all times we know how big the canvas
+     * is.
+     */
     this.resizeCanvasToFillWindow();
     window.addEventListener('resize', this.resize.bind(this), false);
 
-    // Automatically establish a socket connection with the server. This may
-    // need to be changed to be non-automatic if it is discovered that it is
-    // useful for functionality to be inserted between ClientController
-    // instantiation and socket establishment.
+    /*
+     * Automatically establish a socket connection with the server. This may
+     * need to be changed to be non-automatic if it is discovered that it is
+     * useful for functionality to be inserted between ClientController
+     * instantiation and socket establishment.
+     */
     this[symbols.establishSocket]();
     this[symbols.startRender]();
 
 
-    // As no automatic draw loop is used, (there are no animations), need to
-    // know when to re-render in response to an image loading.
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
     const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener( Message.IMG_LOAD, schedule_fn );
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -136,24 +155,26 @@ class ClientController {
       [Message.TRACK]:  NOP,
 
       // TODO: This could be more... elegant...
-      [Message.FULL]: () => document.body.innerHTML = 'WAMS is full! :(',
+      [Message.FULL]: () => {
+        document.body.innerHTML = 'WAMS is full! :(';
+      },
     };
 
-    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
   }
 
   /**
    * Establishes a socket.io connection with the server, using the global WAMS
    * namespace. Connections should be non-persistent over disconnects, (i.e., no
-   * reconnections), as this was the cause of many bugs. 
+   * reconnections), as this was the cause of many bugs.
    *  - TODO: Revisit? Should reconnections be allowed?
    *
    * This internal routine should be called automatically upon ClientController
    * instantiation.
    */
   [symbols.establishSocket]() {
-    this.socket = io.connect( constants.NS_WAMS, {
-      autoConnect: false,
+    this.socket = io.connect(constants.NS_WAMS, {
+      autoConnect:  false,
       reconnection: false,
     });
     this[symbols.attachListeners]();
@@ -175,11 +196,19 @@ class ClientController {
    */
   [symbols.startRender]() {
     const render_fn = this[symbols.render].bind(this);
-    window.setInterval( render_fn, 1000 / 60 );
+    window.setInterval(render_fn, 1000 / 60);
   }
 
   /**
    * Generates a function for forwarding the given message to the server.
+   *
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The type of message to forward. One of the static
+   * members of the Message class.
+   *
+   * @return {Function} A function bound to this instance for forwarding data to
+   * the server with the given message type label.
    */
   forward(message) {
     function do_forward(data) {
@@ -192,8 +221,10 @@ class ClientController {
   /**
    * Passes messages to the View, and schedules a render.
    *
-   * message: string denoting type of message. 
-   * ...args: arguments to be passed to ultimate handler.
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The name of a ClientView method to run.
+   * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
     this.view.handle(message, ...args);
@@ -215,7 +246,7 @@ class ClientController {
    * view accordingly.
    */
   resizeCanvasToFillWindow() {
-    this.canvas.width = window.innerWidth; 
+    this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
     this.handle('resizeToFillWindow');
   }
@@ -233,6 +264,10 @@ class ClientController {
    * not reflect the model automatically. This function responds to a message
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
+   *
+   * @param {module:shared.FullStateReporter} data - All the information
+   * necessary to initially synchronize this client's model with the server's
+   * model.
    */
   setup(data) {
     STAMPER.cloneId(this, data.id);

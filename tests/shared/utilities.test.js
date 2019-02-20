@@ -1,5 +1,5 @@
 /*
- * Test suite for util.js
+ * Test suite for shared/utilities.js
  */
 
 'use strict';
@@ -11,7 +11,7 @@ const {
   makeOwnPropertyImmutable,
   removeById,
   safeRemoveById,
-} = require('../../src/shared/util.js');
+} = require('../../src/shared/utilities.js');
 
 describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
   const x = {};

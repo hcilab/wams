@@ -41,7 +41,7 @@ const handleLayout = (function defineLayoutHandler() {
   return handleLayout;
 })();
 
-ws.on('drag',   Wams.predefined.drag.items(ws, ['Draggable']));
+ws.on('drag',   Wams.predefined.drags.items(ws, ['Draggable']));
 ws.on('layout', handleLayout);
 
 ws.listen(9003);

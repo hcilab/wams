@@ -6,20 +6,21 @@
     "express": "^4.16.4",
     "image-size": "^0.6.3",
     "socket.io": "^2.2.0",
-    "westures": "^0.4.0",
-    "zingtouch": "^1.0.6"
+    "westures": "^0.5.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.2.2",
+    "@babel/core": "^7.3.3",
     "@babel/plugin-transform-runtime": "^7.2.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/runtime": "^7.3.1",
     "babel-core": "^7.0.0-bridge.0",
-    "babel-jest": "^23.6.0",
+    "babel-jest": "^24.1.0",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
-    "eslint": "^5.13.0",
-    "jest": "^23.6.0"
+    "eslint": "^5.14.1",
+    "jest": "^24.1.0",
+    "jsdoc": "^3.5.5",
+    "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
     "setupTestFrameworkScriptFile": "./tests/setup.js",
@@ -33,6 +34,8 @@
   },
   "scripts": {
     "build": "browserify 'src/client.js' --standalone wams-client --outfile 'dist/wams-client.js'",
+    "docs": "jsdoc -c .jsdocrc.json",
+    "lint": "eslint src",
     "test": "jest"
   },
   "version": "0.0.2"

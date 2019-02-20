@@ -1,0 +1,36 @@
+{
+  "markdown": {
+    "idInHeadings": true
+  },
+  "opts": {
+    "destination": "docs",
+    "mainpagetitle": "Home | WAMS Documentation",
+    "package": "package.json",
+    "readme": "README.md",
+    "recurse": true,
+    "template": "node_modules/tui-jsdoc-template"
+  },
+  "plugins": [],
+  "recurseDepth": 10,
+  "source": {
+    "include": [
+      "src"
+    ],
+    "includePattern": ".js$"
+  },
+  "sourceType": "module",
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc"]
+  },
+  "templates": {
+    "cleverLinks": false,
+    "css": [
+      "styles/custom.css"
+    ],
+    "footerText": "Workspaces Across Multiple Surfaces",
+    "monospaceLinks": false,
+    "name": "WAMS"
+  }
+}
+

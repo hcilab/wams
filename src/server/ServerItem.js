@@ -14,13 +14,13 @@ const { mergeMatches, IdStamper, Item } = require('../shared.js');
 const Point2D   = require('./Point2D.js');
 
 const DEFAULTS = Object.freeze({
-  x: 0,
-  y: 0,
-  hitbox: null,
-  rotation: 0,
-  scale: 1,
-  type: 'item/foreground',
-  imgsrc: '',
+  x:         0,
+  y:         0,
+  hitbox:    null,
+  rotation:  0,
+  scale:     1,
+  type:      'item/foreground',
+  imgsrc:    '',
   blueprint: null,
 });
 
@@ -29,10 +29,15 @@ const STAMPER = new IdStamper();
 /**
  * The ServerItem provides operations for the server to locate and move items
  * around.
+ *
+ * @memberof module:server
+ * @extends module:shared.Item
  */
 class ServerItem extends Item {
   /**
-   * values: User-supplied data detailing the item.
+   * @param {Object} values - User-supplied data detailing the item. Properties
+   * on this object that line up with {@link module:shared.Item} members will be
+   * stored. Any other properties will be ignored.
    */
   constructor(values = {}) {
     super(mergeMatches(DEFAULTS, values));
@@ -40,7 +45,9 @@ class ServerItem extends Item {
     /**
      * Some gestures require continous interaction with an item. During this
      * interaction, no other users should be able to interact with the item, so
-     * need a way lock it down.
+     * need a way lock it down. This value enables this capability.
+     *
+     * @type {boolean}
      */
     this.locked = false;
 
@@ -49,25 +56,29 @@ class ServerItem extends Item {
   }
 
   /**
-   * Returns true if the (x,y) point is located inside this Item. False
-   * otherwise.
+   * Checks whether a point with the given x,y coordinates is contained by this
+   * item.
    *
-   * x: x coordinate of the point to check.
-   * y: y coordinate of the point to check.
+   * @param {number} x - x coordinate of the point to check.
+   * @param {number} y - y coordinate of the point to check.
+   *
+   * @return {boolean} True if the (x,y) point is located inside this Item.
+   * False otherwise.
    */
   containsPoint(x, y) {
-    return this.hitbox && this.hitbox.contains({ 
+    return this.hitbox && this.hitbox.contains({
       x: x - this.x,
       y: y - this.y,
     });
   }
 
   /**
-   * Returns true if the (x,y) point is located inside this Item, and this Item
-   * is not currently locked. False otherwise.
    *
-   * x: x coordinate of the point to check.
-   * y: y coordinate of the point to check.
+   * @param {number} x - x coordinate of the point to check.
+   * @param {number} y - y coordinate of the point to check.
+   *
+   * @return {boolean} True if the (x,y) point is located inside this Item, and
+   * this Item is not currently locked. False otherwise.
    */
   isFreeItemAt(x, y) {
     return !this.locked && this.containsPoint(x, y);
@@ -90,8 +101,8 @@ class ServerItem extends Item {
   /**
    * Move this item to the given coordinates.
    *
-   * x: x coordinate of the destination. Defaults to current x coordinate.
-   * y: y coordinate of the destination. Defaults to current y coordinate.
+   * @param {number} [ x=this.x ] - x coordinate of the destination.
+   * @param {number} [ y=this.y ] - y coordinate of the destination.
    */
   moveTo(x = this.x, y = this.y) {
     this.assign({ x, y });
@@ -100,8 +111,8 @@ class ServerItem extends Item {
   /**
    * Move this item by the given amount.
    *
-   * dx: Change in x coordinate. Defaults to 0.
-   * dy: Change in y coordinate. Defaults to 0.
+   * @param {number} [ dx=0 ] - Change in x coordinate.
+   * @param {number} [ dy=0 ] - Change in y coordinate.
    */
   moveBy(dx = 0, dy = 0) {
     this.moveTo(this.x + dx, this.y + dy);
@@ -109,6 +120,10 @@ class ServerItem extends Item {
 
   /**
    * Rotate the item by the given amount (in radians).
+   *
+   * @param {number} [radians=0] Amount of rotation to apply, in radians.
+   * @param {number} [x=this.x] x coordinate at which to anchor the rotation.
+   * @param {number} [y=this.y] y coordinate at which to anchor the rotation.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
     const delta = new Point2D(this.x - px, this.y - py).rotate(radians);
@@ -121,11 +136,15 @@ class ServerItem extends Item {
 
   /**
    * Scale the item by the given amount.
+   *
+   * @param {number} [scale=1] Amount of scaling to apply.
+   * @param {number} [x=this.x] x coordinate at which to anchor the scaling.
+   * @param {number} [y=this.y] y coordinate at which to anchor the scaling.
    */
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     const scale = ds * this.scale;
     if (scale > 0.1 && scale < 10) {
-      const delta = new Point2D( this.x - mx, this.y - my ).times(ds)
+      const delta = new Point2D(this.x - mx, this.y - my).times(ds);
       const x = mx + delta.x;
       const y = my + delta.y;
       this.assign({ scale, x, y });

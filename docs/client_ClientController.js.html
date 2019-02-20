@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Source: client/ClientController.js | WAMS</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-jsdoc.css">
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/tui-doc.css">
+
+    
+        
+            <link type="text/css" rel="stylesheet" href="styles/custom.css">
+        
+    
+</head>
+<body>
+<nav class="lnb" id="lnb">
+    <div class="logo" style="">
+        
+            <img src="img/toast-ui.png" width="100%" height="100%">
+        
+    </div>
+    <div class="title">
+        <h1><a href="index.html" class="link">WAMS</a></h1>
+        
+            <span class="version">v0.0.2</span>
+        
+    </div>
+    <div class="search-container" id="search-container">
+        <input type="text" placeholder="Search">
+        <ul></ul>
+    </div>
+    
+    <div class="lnb-api hidden"><h3>Modules</h3><ul><li><a href="module-client.html">client</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client_sub"></div></li><li><a href="module-predefined.html">predefined</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined_sub"></div></li><li><a href="module-server.html">server</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.html#.Router">Router</a></li></ul></div></li><li><a href="module-shared.html">shared</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.html#.colours">colours</a></li><li><a href="module-shared.html#.constants">constants</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.html#.ReporterFactory">ReporterFactory</a></li></ul></div></li></ul></div><div class="lnb-api hidden"><h3>Classes</h3><ul><li><a href="module-client.ClientController.html">ClientController</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client.ClientController_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-client.ClientController.html#canvas">canvas</a></li><li><a href="module-client.ClientController.html#interactor">interactor</a></li><li><a href="module-client.ClientController.html#renderScheduled">renderScheduled</a></li><li><a href="module-client.ClientController.html#socket">socket</a></li><li><a href="module-client.ClientController.html#view">view</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-client.ClientController.html#forward">forward</a></li><li><a href="module-client.ClientController.html#handle">handle</a></li><li><a href="module-client.ClientController.html#resize">resize</a></li><li><a href="module-client.ClientController.html#resizeCanvasToFillWindow">resizeCanvasToFillWindow</a></li><li><a href="module-client.ClientController.html#scheduleRender">scheduleRender</a></li><li><a href="module-client.ClientController.html#setup">setup</a></li><li><a href="module-client.ClientController.html#symbols.attachListeners">symbols.attachListeners</a></li><li><a href="module-client.ClientController.html#symbols.establishSocket">symbols.establishSocket</a></li><li><a href="module-client.ClientController.html#symbols.render">symbols.render</a></li><li><a href="module-client.ClientController.html#symbols.startRender">symbols.startRender</a></li></ul></div></li><li><a href="module-client.ClientItem.html">ClientItem</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client.ClientItem_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-client.ClientItem.html#blueprint">blueprint</a></li><li><a href="module-client.ClientItem.html#hitbox">hitbox</a></li><li><a href="module-client.ClientItem.html#imgsrc">imgsrc</a></li><li><a href="module-client.ClientItem.html#rotation">rotation</a></li><li><a href="module-client.ClientItem.html#scale">scale</a></li><li><a href="module-client.ClientItem.html#type">type</a></li><li><a href="module-client.ClientItem.html#x">x</a></li><li><a href="module-client.ClientItem.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-client.ClientItem.html#assign">assign</a></li><li><a href="module-client.ClientItem.html#draw">draw</a></li><li><a href="module-client.ClientItem.html#report">report</a></li><li><a href="module-client.ClientItem.html#~createImage">createImage</a></li></ul></div></li><li><a href="module-client.ClientView.html">ClientView</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client.ClientView_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-client.ClientView.html#context">context</a></li><li><a href="module-client.ClientView.html#height">height</a></li><li><a href="module-client.ClientView.html#itemOrder">itemOrder</a></li><li><a href="module-client.ClientView.html#items">items</a></li><li><a href="module-client.ClientView.html#rotation">rotation</a></li><li><a href="module-client.ClientView.html#scale">scale</a></li><li><a href="module-client.ClientView.html#shadows">shadows</a></li><li><a href="module-client.ClientView.html#type">type</a></li><li><a href="module-client.ClientView.html#width">width</a></li><li><a href="module-client.ClientView.html#x">x</a></li><li><a href="module-client.ClientView.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-client.ClientView.html#addItem">addItem</a></li><li><a href="module-client.ClientView.html#addShadow">addShadow</a></li><li><a href="module-client.ClientView.html#assign">assign</a></li><li><a href="module-client.ClientView.html#draw">draw</a></li><li><a href="module-client.ClientView.html#handle">handle</a></li><li><a href="module-client.ClientView.html#removeItem">removeItem</a></li><li><a href="module-client.ClientView.html#removeShadow">removeShadow</a></li><li><a href="module-client.ClientView.html#report">report</a></li><li><a href="module-client.ClientView.html#resizeToFillWindow">resizeToFillWindow</a></li><li><a href="module-client.ClientView.html#setup">setup</a></li><li><a href="module-client.ClientView.html#symbols.align">symbols.align</a></li><li><a href="module-client.ClientView.html#symbols.drawItems">symbols.drawItems</a></li><li><a href="module-client.ClientView.html#symbols.drawShadows">symbols.drawShadows</a></li><li><a href="module-client.ClientView.html#symbols.drawStatus">symbols.drawStatus</a></li><li><a href="module-client.ClientView.html#symbols.wipe">symbols.wipe</a></li><li><a href="module-client.ClientView.html#update">update</a></li><li><a href="module-client.ClientView.html#updateItem">updateItem</a></li><li><a href="module-client.ClientView.html#updateShadow">updateShadow</a></li></ul></div></li><li><a href="module-client.Interactor.html">Interactor</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client.Interactor_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-client.Interactor.html#handlers">handlers</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-client.Interactor.html#attachListeners">attachListeners</a></li><li><a href="module-client.Interactor.html#bindRegions">bindRegions</a></li><li><a href="module-client.Interactor.html#forward">forward</a></li><li><a href="module-client.Interactor.html#wheel">wheel</a></li></ul></div></li><li><a href="module-client.ShadowView.html">ShadowView</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:client.ShadowView_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-client.ShadowView.html#effectiveHeight">effectiveHeight</a></li><li><a href="module-client.ShadowView.html#effectiveWidth">effectiveWidth</a></li><li><a href="module-client.ShadowView.html#height">height</a></li><li><a href="module-client.ShadowView.html#rotation">rotation</a></li><li><a href="module-client.ShadowView.html#scale">scale</a></li><li><a href="module-client.ShadowView.html#type">type</a></li><li><a href="module-client.ShadowView.html#width">width</a></li><li><a href="module-client.ShadowView.html#x">x</a></li><li><a href="module-client.ShadowView.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-client.ShadowView.html#assign">assign</a></li><li><a href="module-client.ShadowView.html#draw">draw</a></li><li><a href="module-client.ShadowView.html#report">report</a></li><li><a href="module-client.ShadowView.html#symbols.align">symbols.align</a></li><li><a href="module-client.ShadowView.html#symbols.marker">symbols.marker</a></li><li><a href="module-client.ShadowView.html#symbols.outline">symbols.outline</a></li><li><a href="module-client.ShadowView.html#symbols.style">symbols.style</a></li></ul></div></li><li><a href="module-server.Connection.html">Connection</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.Connection_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.Connection.html#index">index</a></li><li><a href="module-server.Connection.html#socket">socket</a></li><li><a href="module-server.Connection.html#view">view</a></li><li><a href="module-server.Connection.html#workspace">workspace</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.Connection.html#disconnect">disconnect</a></li><li><a href="module-server.Connection.html#handle">handle</a></li><li><a href="module-server.Connection.html#layout">layout</a></li><li><a href="module-server.Connection.html#resize">resize</a></li><li><a href="module-server.Connection.html#symbols.attachListeners">symbols.attachListeners</a></li><li><a href="module-server.Connection.html#symbols.fullStateReport">symbols.fullStateReport</a></li><li><a href="module-server.Connection.html#track">track</a></li></ul></div></li><li><a href="module-server.Point2D.html">Point2D</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.Point2D_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.Point2D.html#x">x</a></li><li><a href="module-server.Point2D.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.Point2D.html#clone">clone</a></li><li><a href="module-server.Point2D.html#divideBy">divideBy</a></li><li><a href="module-server.Point2D.html#isLeftOf">isLeftOf</a></li><li><a href="module-server.Point2D.html#minus">minus</a></li><li><a href="module-server.Point2D.html#plus">plus</a></li><li><a href="module-server.Point2D.html#rotate">rotate</a></li><li><a href="module-server.Point2D.html#scale">scale</a></li><li><a href="module-server.Point2D.html#times">times</a></li><li><a href="module-server.Point2D.html#translate">translate</a></li></ul></div></li><li><a href="module-server.Polygon2D.html">Polygon2D</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.Polygon2D_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.Polygon2D.html#points">points</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.Polygon2D.html#contains">contains</a></li><li><a href="module-server.Polygon2D.html#rotate">rotate</a></li><li><a href="module-server.Polygon2D.html#scale">scale</a></li><li><a href="module-server.Polygon2D.html#winding_number">winding_number</a></li></ul></div></li><li><a href="module-server.Server.html">Server</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.Server_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.Server.html#clientLimit">clientLimit</a></li><li><a href="module-server.Server.html#connections">connections</a></li><li><a href="module-server.Server.html#io">io</a></li><li><a href="module-server.Server.html#namespace">namespace</a></li><li><a href="module-server.Server.html#port">port</a></li><li><a href="module-server.Server.html#server">server</a></li><li><a href="module-server.Server.html#workspace">workspace</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.Server.html#accept">accept</a></li><li><a href="module-server.Server.html#connect">connect</a></li><li><a href="module-server.Server.html#disconnect">disconnect</a></li><li><a href="module-server.Server.html#listen">listen</a></li><li><a href="module-server.Server.html#on">on</a></li><li><a href="module-server.Server.html#reject">reject</a></li><li><a href="module-server.Server.html#removeItem">removeItem</a></li><li><a href="module-server.Server.html#spawnItem">spawnItem</a></li><li><a href="module-server.Server.html#update">update</a></li><li><a href="module-server.Server.html#updateItem">updateItem</a></li><li><a href="module-server.Server.html#updateView">updateView</a></li><li><a href="module-server.Server.html#~findEmptyIndex">findEmptyIndex</a></li><li><a href="module-server.Server.html#~getLocalIP">getLocalIP</a></li><li><a href="module-server.Server.html#~logConnection">logConnection</a></li></ul></div></li><li><a href="module-server.ServerItem.html">ServerItem</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.ServerItem_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.ServerItem.html#blueprint">blueprint</a></li><li><a href="module-server.ServerItem.html#hitbox">hitbox</a></li><li><a href="module-server.ServerItem.html#imgsrc">imgsrc</a></li><li><a href="module-server.ServerItem.html#locked">locked</a></li><li><a href="module-server.ServerItem.html#rotation">rotation</a></li><li><a href="module-server.ServerItem.html#scale">scale</a></li><li><a href="module-server.ServerItem.html#type">type</a></li><li><a href="module-server.ServerItem.html#x">x</a></li><li><a href="module-server.ServerItem.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.ServerItem.html#assign">assign</a></li><li><a href="module-server.ServerItem.html#containsPoint">containsPoint</a></li><li><a href="module-server.ServerItem.html#isFreeItemAt">isFreeItemAt</a></li><li><a href="module-server.ServerItem.html#lock">lock</a></li><li><a href="module-server.ServerItem.html#moveBy">moveBy</a></li><li><a href="module-server.ServerItem.html#moveTo">moveTo</a></li><li><a href="module-server.ServerItem.html#report">report</a></li><li><a href="module-server.ServerItem.html#rotateBy">rotateBy</a></li><li><a href="module-server.ServerItem.html#scaleBy">scaleBy</a></li><li><a href="module-server.ServerItem.html#unlock">unlock</a></li></ul></div></li><li><a href="module-server.ServerView.html">ServerView</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.ServerView_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.ServerView.html#bottomLeft">bottomLeft</a></li><li><a href="module-server.ServerView.html#bottomRight">bottomRight</a></li><li><a href="module-server.ServerView.html#height">height</a></li><li><a href="module-server.ServerView.html#locked">locked</a></li><li><a href="module-server.ServerView.html#lockedItem">lockedItem</a></li><li><a href="module-server.ServerView.html#rotation">rotation</a></li><li><a href="module-server.ServerView.html#scale">scale</a></li><li><a href="module-server.ServerView.html#topLeft">topLeft</a></li><li><a href="module-server.ServerView.html#topRight">topRight</a></li><li><a href="module-server.ServerView.html#type">type</a></li><li><a href="module-server.ServerView.html#width">width</a></li><li><a href="module-server.ServerView.html#x">x</a></li><li><a href="module-server.ServerView.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.ServerView.html#assign">assign</a></li><li><a href="module-server.ServerView.html#getLockOnItem">getLockOnItem</a></li><li><a href="module-server.ServerView.html#lock">lock</a></li><li><a href="module-server.ServerView.html#moveBy">moveBy</a></li><li><a href="module-server.ServerView.html#moveTo">moveTo</a></li><li><a href="module-server.ServerView.html#releaseLockedItem">releaseLockedItem</a></li><li><a href="module-server.ServerView.html#report">report</a></li><li><a href="module-server.ServerView.html#rotateBy">rotateBy</a></li><li><a href="module-server.ServerView.html#scaleBy">scaleBy</a></li><li><a href="module-server.ServerView.html#transformPoint">transformPoint</a></li><li><a href="module-server.ServerView.html#transformPointChange">transformPointChange</a></li><li><a href="module-server.ServerView.html#unlock">unlock</a></li></ul></div></li><li><a href="module-server.Wams.html">Wams</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.Wams_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.Wams.html#listen">listen</a></li><li><a href="module-server.Wams.html#on">on</a></li><li><a href="module-server.Wams.html#postUpdates">postUpdates</a></li><li><a href="module-server.Wams.html#removeItem">removeItem</a></li><li><a href="module-server.Wams.html#scheduleUpdate">scheduleUpdate</a></li><li><a href="module-server.Wams.html#spawnItem">spawnItem</a></li><li><a href="module-server.Wams.html#update">update</a></li></ul></div></li><li><a href="module-server.WorkSpace.html">WorkSpace</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.WorkSpace_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.WorkSpace.html#handlers">handlers</a></li><li><a href="module-server.WorkSpace.html#items">items</a></li><li><a href="module-server.WorkSpace.html#settings">settings</a></li><li><a href="module-server.WorkSpace.html#views">views</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.WorkSpace.html#findFreeItemByCoordinates">findFreeItemByCoordinates</a></li><li><a href="module-server.WorkSpace.html#findItemByCoordinates">findItemByCoordinates</a></li><li><a href="module-server.WorkSpace.html#giveLock">giveLock</a></li><li><a href="module-server.WorkSpace.html#handle">handle</a></li><li><a href="module-server.WorkSpace.html#on">on</a></li><li><a href="module-server.WorkSpace.html#removeItem">removeItem</a></li><li><a href="module-server.WorkSpace.html#removeLock">removeLock</a></li><li><a href="module-server.WorkSpace.html#removeView">removeView</a></li><li><a href="module-server.WorkSpace.html#reportItems">reportItems</a></li><li><a href="module-server.WorkSpace.html#reportViews">reportViews</a></li><li><a href="module-server.WorkSpace.html#spawnItem">spawnItem</a></li><li><a href="module-server.WorkSpace.html#spawnView">spawnView</a></li></ul></div></li><li><a href="module-shared.DataReporter.html">DataReporter</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.DataReporter_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.DataReporter.html#data">data</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.DataReporter.html#assign">assign</a></li><li><a href="module-shared.DataReporter.html#report">report</a></li></ul></div></li><li><a href="module-shared.FullStateReporter.html">FullStateReporter</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.FullStateReporter_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.FullStateReporter.html#color">color</a></li><li><a href="module-shared.FullStateReporter.html#id">id</a></li><li><a href="module-shared.FullStateReporter.html#items">items</a></li><li><a href="module-shared.FullStateReporter.html#views">views</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.FullStateReporter.html#assign">assign</a></li><li><a href="module-shared.FullStateReporter.html#report">report</a></li></ul></div></li><li><a href="module-shared.IdStamper.html">IdStamper</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.IdStamper_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.IdStamper.html#%255Bundefined%255D">[undefined]</a></li><li><a href="module-shared.IdStamper.html#~gen">gen</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.IdStamper.html#cloneId">cloneId</a></li><li><a href="module-shared.IdStamper.html#stampNewId">stampNewId</a></li><li><a href="module-shared.IdStamper.html#~id_gen">id_gen</a></li></ul></div></li><li><a href="module-shared.Item.html">Item</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.Item_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.Item.html#blueprint">blueprint</a></li><li><a href="module-shared.Item.html#hitbox">hitbox</a></li><li><a href="module-shared.Item.html#imgsrc">imgsrc</a></li><li><a href="module-shared.Item.html#rotation">rotation</a></li><li><a href="module-shared.Item.html#scale">scale</a></li><li><a href="module-shared.Item.html#type">type</a></li><li><a href="module-shared.Item.html#x">x</a></li><li><a href="module-shared.Item.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.Item.html#assign">assign</a></li><li><a href="module-shared.Item.html#report">report</a></li></ul></div></li><li><a href="module-shared.Message.html">Message</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.Message_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.Message.html#.ADD_ITEM">ADD_ITEM</a></li><li><a href="module-shared.Message.html#.ADD_SHADOW">ADD_SHADOW</a></li><li><a href="module-shared.Message.html#.CLICK">CLICK</a></li><li><a href="module-shared.Message.html#.DRAG">DRAG</a></li><li><a href="module-shared.Message.html#.FULL">FULL</a></li><li><a href="module-shared.Message.html#.IMG_LOAD">IMG_LOAD</a></li><li><a href="module-shared.Message.html#.INITIALIZE">INITIALIZE</a></li><li><a href="module-shared.Message.html#.LAYOUT">LAYOUT</a></li><li><a href="module-shared.Message.html#.RESIZE">RESIZE</a></li><li><a href="module-shared.Message.html#.RM_ITEM">RM_ITEM</a></li><li><a href="module-shared.Message.html#.RM_SHADOW">RM_SHADOW</a></li><li><a href="module-shared.Message.html#.ROTATE">ROTATE</a></li><li><a href="module-shared.Message.html#.SCALE">SCALE</a></li><li><a href="module-shared.Message.html#.SWIPE">SWIPE</a></li><li><a href="module-shared.Message.html#.TRACK">TRACK</a></li><li><a href="module-shared.Message.html#.UD_ITEM">UD_ITEM</a></li><li><a href="module-shared.Message.html#.UD_SHADOW">UD_SHADOW</a></li><li><a href="module-shared.Message.html#.UD_VIEW">UD_VIEW</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.Message.html#emitWith">emitWith</a></li></ul></div></li><li><a href="module-shared.Reporter.html">Reporter</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.Reporter_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.Reporter.html#assign">assign</a></li><li><a href="module-shared.Reporter.html#report">report</a></li></ul></div></li><li><a href="module-shared.View.html">View</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.View_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-shared.View.html#height">height</a></li><li><a href="module-shared.View.html#rotation">rotation</a></li><li><a href="module-shared.View.html#scale">scale</a></li><li><a href="module-shared.View.html#type">type</a></li><li><a href="module-shared.View.html#width">width</a></li><li><a href="module-shared.View.html#x">x</a></li><li><a href="module-shared.View.html#y">y</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.View.html#assign">assign</a></li><li><a href="module-shared.View.html#report">report</a></li></ul></div></li></ul></div><div class="lnb-api hidden"><h3>Namespaces</h3><ul><li><a href="module-predefined.drags.html">predefined.drags</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.drags_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.drags.html#.items">items</a></li><li><a href="module-predefined.drags.html#.itemsAndView">itemsAndView</a></li><li><a href="module-predefined.drags.html#.view">view</a></li></ul></div></li><li><a href="module-predefined.items.html">predefined.items</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.items_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.items.html#.image">image</a></li><li><a href="module-predefined.items.html#.polygon">polygon</a></li><li><a href="module-predefined.items.html#.rectangle">rectangle</a></li><li><a href="module-predefined.items.html#.square">square</a></li><li><a href="module-predefined.items.html#~rectangularHitbox">rectangularHitbox</a></li><li><a href="module-predefined.items.html#~transformed">transformed</a></li></ul></div></li><li><a href="module-predefined.layouts.html">predefined.layouts</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.layouts_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.layouts.html#.placeAtXY">placeAtXY</a></li></ul></div></li><li><a href="module-predefined.rotates.html">predefined.rotates</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.rotates_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.rotates.html#.items">items</a></li><li><a href="module-predefined.rotates.html#.itemsAndView">itemsAndView</a></li><li><a href="module-predefined.rotates.html#.view">view</a></li></ul></div></li><li><a href="module-predefined.scales.html">predefined.scales</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.scales_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.scales.html#.items">items</a></li><li><a href="module-predefined.scales.html#.itemsAndView">itemsAndView</a></li><li><a href="module-predefined.scales.html#.view">view</a></li></ul></div></li><li><a href="module-predefined.taps.html">predefined.taps</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.taps_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.taps.html#.spawnItem">spawnItem</a></li><li><a href="module-predefined.taps.html#.spawnOrRemoveItem">spawnOrRemoveItem</a></li></ul><div class="member-type">Typedef</div><ul class="inner"><li><a href="module-predefined.taps.html#.TapItemDescriber">TapItemDescriber</a></li></ul></div></li><li><a href="module-predefined.utilities.html">predefined.utilities</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:predefined.utilities_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-predefined.utilities.html#.isIncludedIn">isIncludedIn</a></li><li><a href="module-predefined.utilities.html#.isView">isView</a></li></ul></div></li><li><a href="module-server.ListenerFactory.html">server.ListenerFactory</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.ListenerFactory_sub"><div class="member-type">Members</div><ul class="inner"><li><a href="module-server.ListenerFactory.html#.TYPES">TYPES</a></li></ul><div class="member-type">Methods</div><ul class="inner"><li><a href="module-server.ListenerFactory.html#.build">build</a></li></ul></div></li><li><a href="module-server.ListenerTypes.html">server.ListenerTypes</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:server.ListenerTypes_sub"><div class="member-type">Typedef</div><ul class="inner"><li><a href="module-server.ListenerTypes.html#.ClickListener">ClickListener</a></li><li><a href="module-server.ListenerTypes.html#.DragListener">DragListener</a></li><li><a href="module-server.ListenerTypes.html#.LayoutListener">LayoutListener</a></li><li><a href="module-server.ListenerTypes.html#.RotateListener">RotateListener</a></li><li><a href="module-server.ListenerTypes.html#.ScaleListener">ScaleListener</a></li><li><a href="module-server.ListenerTypes.html#.SwipeListener">SwipeListener</a></li></ul></div></li><li><a href="module-shared.utilities.html">shared.utilities</a><button type="button" class="hidden toggle-subnav btn btn-link">  <span class="glyphicon glyphicon-plus"></span></button><div class="hidden" id="module:shared.utilities_sub"><div class="member-type">Methods</div><ul class="inner"><li><a href="module-shared.utilities.html#.defineOwnImmutableEnumerableProperty">defineOwnImmutableEnumerableProperty</a></li><li><a href="module-shared.utilities.html#.findLast">findLast</a></li><li><a href="module-shared.utilities.html#.makeOwnPropertyImmutable">makeOwnPropertyImmutable</a></li><li><a href="module-shared.utilities.html#.mergeMatches">mergeMatches</a></li><li><a href="module-shared.utilities.html#.NOP">NOP</a></li><li><a href="module-shared.utilities.html#.removeById">removeById</a></li><li><a href="module-shared.utilities.html#.safeRemoveById">safeRemoveById</a></li></ul></div></li></ul></div>
+</nav>
+<div id="resizer"></div>
+
+<div class="main" id="main">
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ * Date: July 2018 - January 2019
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ */
+
+'use strict';
+
+const io = require('socket.io-client');
+
+const {
+  constants,
+  DataReporter,
+  IdStamper,
+  Message,
+  NOP,
+} = require('../shared.js');
+const ClientView = require('./ClientView.js');
+const Interactor = require('./Interactor.js');
+
+const STAMPER = new IdStamper();
+
+// Symbols to identify these methods as intended only for internal use
+const symbols = Object.freeze({
+  attachListeners: Symbol('attachListeners'),
+  establishSocket: Symbol('establishSocket'),
+  render:          Symbol('render'),
+  startRender:     Symbol('startRender'),
+});
+
+/**
+ * The ClientController coordinates communication with the wams server. It sends
+ * messages based on user interaction with the canvas and receives messages from
+ * the server detailing changes to post to the view.
+ *
+ * @memberof module:client
+ */
+class ClientController {
+  /**
+   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   *    (not the context), which will fill the page.
+   */
+  constructor(canvas) {
+    /**
+     * The HTMLCanvasElement object is stored by the ClientController so that it
+     * is able to respond to user events triggered on the canvas. The view only
+     * needs to know about the canvas drawing context.
+     *
+     * @type {HTMLCanvasElement}
+     */
+    this.canvas = canvas;
+
+    /**
+     * From socket.io, the socket provides a channel of communication with the
+     * server.
+     *
+     * @type {Socket}
+     * @see {@link https://socket.io/docs/client-api/}
+     */
+    this.socket = null;
+
+    /**
+     * The ClientView handles the final rendering of the model, as informed by
+     * the controller, and as such needs to konw the canvas rendering context.
+     *
+     * @type {module:client.ClientView}
+     */
+    this.view = new ClientView({ context: this.canvas.getContext('2d') });
+
+    /**
+     * The Interactor is a level of abstraction between the ClientController and
+     * the gesture recognition library such that libraries can be swapped out
+     * more easily, if need be. At least in theory. All the ClientController
+     * needs to provide is handler functions for responding to the recognized
+     * gestures.
+     *
+     * @type {module:client.Interactor}
+     */
+    this.interactor = new Interactor(this.canvas, {
+      pan:    this.forward(Message.DRAG),
+      rotate: this.forward(Message.ROTATE),
+      swipe:  this.forward(Message.SWIPE),
+      tap:    this.forward(Message.CLICK),
+      zoom:   this.forward(Message.SCALE),
+      track:  this.forward(Message.TRACK),
+    });
+
+    /**
+     * Tracks whether a render has been scheduled for the next 1/60th of a
+     * second interval.
+     *
+     * @type {boolean}
+     */
+    this.renderScheduled = false;
+
+    /*
+     * For proper function, we need to make sure that the canvas is as large as
+     * it can be at all times, and that at all times we know how big the canvas
+     * is.
+     */
+    this.resizeCanvasToFillWindow();
+    window.addEventListener('resize', this.resize.bind(this), false);
+
+    /*
+     * Automatically establish a socket connection with the server. This may
+     * need to be changed to be non-automatic if it is discovered that it is
+     * useful for functionality to be inserted between ClientController
+     * instantiation and socket establishment.
+     */
+    this[symbols.establishSocket]();
+    this[symbols.startRender]();
+
+
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
+  }
+
+  /**
+   * Attaches listeners to messages received over the socket connection. All
+   * received messages at this layer should be those conforming to the Message /
+   * Reporter protocol.
+   *
+   * This internal routine will be called as part of socket establishment.
+   */
+  [symbols.attachListeners]() {
+    const listeners = {
+      // For the server to inform about changes to the model
+      [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
+      [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
+      [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
+      [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
+      [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
+      [Message.UD_VIEW]:    (...args) => this.handle('assign', ...args),
+
+      // Connection establishment related (disconnect, initial setup)
+      [Message.INITIALIZE]: (...args) => this.setup(...args),
+      [Message.LAYOUT]:     NOP,
+
+      // User event related
+      [Message.CLICK]:  NOP,
+      [Message.DRAG]:   NOP,
+      [Message.RESIZE]: NOP,
+      [Message.ROTATE]: NOP,
+      [Message.SCALE]:  NOP,
+      [Message.SWIPE]:  NOP,
+      [Message.TRACK]:  NOP,
+
+      // TODO: This could be more... elegant...
+      [Message.FULL]: () => {
+        document.body.innerHTML = 'WAMS is full! :(';
+      },
+    };
+
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+  }
+
+  /**
+   * Establishes a socket.io connection with the server, using the global WAMS
+   * namespace. Connections should be non-persistent over disconnects, (i.e., no
+   * reconnections), as this was the cause of many bugs.
+   *  - TODO: Revisit? Should reconnections be allowed?
+   *
+   * This internal routine should be called automatically upon ClientController
+   * instantiation.
+   */
+  [symbols.establishSocket]() {
+    this.socket = io.connect(constants.NS_WAMS, {
+      autoConnect:  false,
+      reconnection: false,
+    });
+    this[symbols.attachListeners]();
+    this.socket.connect();
+  }
+
+  /**
+   * Renders a frame.
+   */
+  [symbols.render]() {
+    if (this.renderScheduled) {
+      this.view.draw();
+      this.renderScheduled = false;
+    }
+  }
+
+  /**
+   * Initializes the render loop.
+   */
+  [symbols.startRender]() {
+    const render_fn = this[symbols.render].bind(this);
+    window.setInterval(render_fn, 1000 / 60);
+  }
+
+  /**
+   * Generates a function for forwarding the given message to the server.
+   *
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The type of message to forward. One of the static
+   * members of the Message class.
+   *
+   * @return {Function} A function bound to this instance for forwarding data to
+   * the server with the given message type label.
+   */
+  forward(message) {
+    function do_forward(data) {
+      const dreport = new DataReporter({ data });
+      new Message(message, dreport).emitWith(this.socket);
+    }
+    return do_forward.bind(this);
+  }
+
+  /**
+   * Passes messages to the View, and schedules a render.
+   *
+   * @see {@link module:shared.Message}
+   *
+   * @param {string} message - The name of a ClientView method to run.
+   * @param {...mixed} ...args - The arguments to pass to the ClientView method.
+   */
+  handle(message, ...args) {
+    this.view.handle(message, ...args);
+    this.scheduleRender();
+  }
+
+  /**
+   * For responding to window resizing by the user. Resizes the canvas to fit
+   * the new window size, and reports the change to the server so it can be
+   * reflected in the model.
+   */
+  resize() {
+    this.resizeCanvasToFillWindow();
+    new Message(Message.RESIZE, this.view).emitWith(this.socket);
+  }
+
+  /**
+   * Stretches the canvas to fit the available window space, and updates the
+   * view accordingly.
+   */
+  resizeCanvasToFillWindow() {
+    this.canvas.width = window.innerWidth;
+    this.canvas.height = window.innerHeight;
+    this.handle('resizeToFillWindow');
+  }
+
+  /**
+   * Schedules a render for the next frame interval.
+   */
+  scheduleRender() {
+    this.renderScheduled = true;
+  }
+
+  /**
+   * As this object will be instantiated on page load, and will generate a view
+   * before communication lines with the server have been opened, the view will
+   * not reflect the model automatically. This function responds to a message
+   * from the server which contains the current state of the model, and forwards
+   * this data to the view so that it can correctly render the model.
+   *
+   * @param {module:shared.FullStateReporter} data - All the information
+   * necessary to initially synchronize this client's model with the server's
+   * model.
+   */
+  setup(data) {
+    STAMPER.cloneId(this, data.id);
+    this.canvas.style.backgroundColor = data.color;
+    this.view.setup(data);
+
+    // Need to tell the model what the view looks like once setup is complete.
+    new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+}
+
+module.exports = ClientController;
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<footer>
+    <img class="logo" src="img/toast-ui.png" style="">
+    <div class="footer-text">Workspaces Across Multiple Surfaces</div>
+</footer>
+<script>prettyPrint();</script>
+<script src="scripts/jquery.min.js"></script>
+<script src="scripts/tui-doc.js"></script>
+<script src="scripts/linenumber.js"></script>
+
+    <script>
+        var id = '_sub'.replace(/"/g, '_');
+        var selectedApi = document.getElementById(id); // do not use jquery selector
+        var $selectedApi = $(selectedApi);
+
+        $selectedApi.removeClass('hidden');
+        $selectedApi.parent().find('.glyphicon').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+        showLnbApi();
+    </script>
+
+</body>
+</html>

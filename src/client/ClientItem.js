@@ -24,6 +24,13 @@ const STAMPER = new IdStamper();
  * Abstraction of the requisite logic for generating an image object which will
  * load the appropriate image and report when it has finished loading the image
  * so that it can be displayed.
+ *
+ * @inner
+ * @memberof module:client.ClientItem
+ *
+ * @param {string} src - Image source path.
+ *
+ * @returns {?Image}
  */
 function createImage(src) {
   if (src) {
@@ -45,12 +52,15 @@ function createImage(src) {
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
+ *
+ * @extends module:shared.Item
+ * @memberof module:client
  */
 class ClientItem extends Item {
   /**
-   * data: The data from the server describing this item. Only properties
-   *       explicity listed in the array passed to the ReporterFactory when the
-   *       Item class was defined will be accepted.
+   * @param {module:shared.Item} data - The data from the server describing this
+   *       item. Only properties explicity listed in the array passed to the
+   *       ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
     super(data);
@@ -62,30 +72,35 @@ class ClientItem extends Item {
    * functionality for generating an image, or a canvas drawing blueprint and
    * sequence.
    *
-   * data: The data from the server describing this item.
+   * @param {module:shared.Item} data - The data from the server describing this
+   * item.
    */
   assign(data) {
     const updateImage = data.imgsrc !== this.imgsrc;
-    const updateBlueprint = Boolean(data.blueprint);
+    // const updateBlueprint = Boolean(data.blueprint);
+    const updateBlueprint = this.sequence == null && data.blueprint;
 
     super.assign(data);
     if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) this.blueprint = new CanvasBlueprint(this.blueprint);
+    if (updateBlueprint) {
+      this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
+    }
 
     // Rather than doing a bunch of checks, let's just always rebuild the
-    // sequence when updating any data in the item. Doing the checks to see if
-    // this is necessary would probably take as much or more time as just
-    // going ahead and rebuilding like this anyway.
-    if (this.blueprint) {
-      this.sequence = this.blueprint.build(this.report());
-    }
+    // Sequence when updating any data in the item. Doing the checks to see if
+    // This is necessary would probably take as much or more time as just
+    // Going ahead and rebuilding like this anyway.
+    // if (this.blueprint) {
+    //   this.sequence = this.blueprint.build(this.report());
+    // }
   }
 
   /**
-   * Render the item onto the given context.
-   * Prioritizes blueprints over images.
+   * Render the item onto the given context.  Prioritizes blueprints over
+   * images.
    *
-   * context: CanvasRenderingContext2D onto which to draw this item.
+   * @param {CanvasRenderingContext2D} context - context onto which to draw this
+   * item.
    */
   draw(context) {
     context.save();
@@ -95,8 +110,8 @@ class ClientItem extends Item {
     if (this.sequence) {
       this.sequence.execute(context);
     } else if (this.img && this.img.loaded) {
-      context.drawImage( this.img, 0, 0, this.img.width, this.img.height );
-    } 
+      context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
+    }
     context.restore();
   }
 }

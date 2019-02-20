@@ -7,54 +7,78 @@
 
 'use strict';
 
-const { isView, isIncludedIn } = require('./utils.js');
+const { isView, isIncludedIn } = require('./utilities.js');
 
 /**
- * Returns a WAMS rotate handler function which will allow users to rotate their
- * view.
+ * Factories for predefined rotate handlers.
  *
- * workspace: The WorkSpace for which this function will be built.
+ * @namespace rotates
+ * @memberof module:predefined
  */
-function view(workspace) {
+
+/**
+ * Generate a rotate handler that will only rotate the user's view.
+ *
+ * @memberof module:predefined.rotates
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ *
+ * @returns {module:server.ListenerTypes.RotateListener} A WAMS rotate handler
+ * function which will allow users to rotate their view.
+ */
+function view(wams) {
   return function rotate_view(view, target, radians, px, py) {
     if (isView(target, view)) {
       view.rotateBy(radians, px, py);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     }
   };
 }
 
 /**
- * Returns a WAMS rotate handler function which will allow users to rotate
- * items.
+ * Generate a rotate handler that will only rotate items with types from the
+ * given list.
  *
- * workspace: The WorkSpace for which this function will be built.
- * itemTypes: Array of strings, the types of items for which to allow rotating.
+ * @memberof module:predefined.rotates
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ * @param {string[]} itemTypes - The item types for which to allow rotating.
+ *
+ * @returns {module:server.ListenerTypes.RotateListener} A WAMS rotate handler
+ * function which will allow users to rotate items.
  */
-function items(workspace, itemTypes = []) {
+function items(wams, itemTypes = []) {
   return function rotate_item(view, target, radians, px, py) {
     if (isIncludedIn(target, itemTypes)) {
       target.rotateBy(radians, px, py);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }
 
 /**
- * Returns a WAMS rotate handler function which will allow users to rotate
- * items or their view.
+ * Generate a rotate handler that will only rotate either the view or item types
+ * from the given list.
  *
- * workspace: The WorkSpace for which this function will be built.
- * itemTypes: Array of strings, the types of items for which to allow rotating.
+ * @memberof module:predefined.rotates
+ *
+ * @param {module:server.Wams} wams - The Wams instance for which this function
+ * will be built.
+ * @param {string[]} itemTypes - The item types for which to allow rotating.
+ *
+ * @returns {module:server.ListenerTypes.RotateListener} A WAMS rotate handler
+ * function which will allow users to rotate items or their view.
  */
-function itemsAndView(workspace, itemTypes = []) {
+function itemsAndView(wams, itemTypes = []) {
   return function rotate_itemAndView(view, target = {}, radians, px, py) {
     if (isView(target, view)) {
       view.rotateBy(radians, px, py);
-      workspace.scheduleUpdate(view);
+      wams.scheduleUpdate(view);
     } else if (isIncludedIn(target, itemTypes)) {
       target.rotateBy(radians, px, py);
-      workspace.scheduleUpdate(target);
+      wams.scheduleUpdate(target);
     }
   };
 }

@@ -3,9 +3,13 @@
  *
  * Author: Michael van der Kamp
  * Date: July / August 2018
+ */
+
+/**
+ * Intended for use by both the client and the server, in order to provide a
+ * common interface.
  *
- *  The below set of utilities and classes are intended for use by both the
- *  client and the server, in order to provide a common interface.
+ * @module shared
  */
 
 'use strict';
@@ -13,13 +17,16 @@
 const IdStamper = require('./shared/IdStamper.js');
 const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
-const Utils     = require('./shared/util.js');
+const Utils     = require('./shared/utilities.js');
 
-/*
+/**
  * This object stores a set of core constants for use by both the client and
  *  the server.
+ *
+ * @memberof module:shared
+ * @enum {number}
  */
-const constants = Object.freeze({
+const constants = {
   // General constants
   ROTATE_0:   0,
   ROTATE_90:  Math.PI / 2,
@@ -28,12 +35,16 @@ const constants = Object.freeze({
   ROTATE_360: Math.PI * 2,
 
   // Namespaces
+  /** @type {string} */
   NS_WAMS:  '/wams',
-});
+};
 
-/*
+/**
  * A list of colours, for use by the API for shadows, and by end-point apps too
  * if desired.
+ *
+ * @memberof module:shared
+ * @type {string[]}
  */
 const colours = [
   'saddlebrown',

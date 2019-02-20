@@ -22,33 +22,50 @@ const symbols = Object.freeze({
  * A Connection maintains a socket.io connection between a client and the
  * server. It tracks a view associated with the client, as well as the
  * associated workspace.
+ *
+ * @memberof module:server
  */
 class Connection {
+  /**
+   * @param {number} index - The index of this Connection in the workspace, can
+   * be used as a unique identifier.
+   * @param {Socket} socket - A socket.io connection with a client.
+   * @param {module:server.WorkSpace} workspace - The workspace associated with
+   * this connection.
+   */
   constructor(index, socket, workspace) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
+     *
+     * @type {number}
      */
     this.index = index;
 
     /**
      * The socket is a socket.io connection with a client.
+     *
+     * @type {Socket}
      */
     this.socket = socket;
 
     /**
      * This is a shared reference to the single principle WorkSpace. Think of it
      * like a 'parent' reference in a tree node.
+     *
+     * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
 
     /**
      * The view corresponding to the client on the other end of this Connection.
+     *
+     * @type {module:server.ServerView}
      */
     this.view = this.workspace.spawnView();
 
     // Automatically begin operations by registering Message listeners and
-    // informing the client on the current state of the model.
+    // Informing the client on the current state of the model.
     this[symbols.attachListeners]();
     this[symbols.fullStateReport]();
   }
@@ -84,7 +101,7 @@ class Connection {
       [Message.TRACK]:  ({ data }) => this.track(data),
     };
 
-    Object.entries(listeners).forEach( ([p,v]) => this.socket.on(p, v) );
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
   }
 
   /**
@@ -95,28 +112,30 @@ class Connection {
       views: this.workspace.reportViews(),
       items: this.workspace.reportItems(),
       color: this.workspace.settings.color,
-      id: this.view.id,
+      id:    this.view.id,
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
   }
 
   /**
    * Informs the model of the necessary changes when a client disconnects.
+   *
+   * @returns {boolean} true if disconnection was successful, false otherwise.
    */
   disconnect() {
     if (this.workspace.removeView(this.view)) {
       this.view.releaseLockedItem();
       this.socket.disconnect(true);
       return true;
-    } 
+    }
     return false;
   }
 
   /**
    * Forwards a message to the WorkSpace.
    *
-   * message: A string giving the type of message
-   * ...args: Arguments to be passed to the message handler.
+   * @param {string} message - A string giving the type of message.
+   * @param {Object} data - Argument to be passed to the message handler.
    */
   handle(message, data) {
     this.workspace.handle(message, this.view, data);
@@ -127,8 +146,8 @@ class Connection {
    * set itself up, and informs all other views of these changes. Also triggers
    * a 'layout handler' if one has been registered.
    *
-   * data: Data from the client describing the state of the window in which it
-   *       is displayed.
+   * @param {module:shared.View} data - Data from the client describing the
+   *       state of the window in which it is displayed.
    */
   layout(data) {
     this.view.assign(data);
@@ -141,8 +160,8 @@ class Connection {
    * Updates the model and informs all other views when a user resizes their
    * window.
    *
-   * data: Data from the client describing the state of the window in which it
-   *       is displayed.
+   * @param {module:shared.View} data - Data from the client describing the
+   *       state of the window in which it is displayed.
    */
   resize(data) {
     this.view.assign(data);
@@ -150,7 +169,15 @@ class Connection {
   }
 
   /**
-   * Performs locking and unlocking based on the phase.
+   * Performs locking and unlocking based on the phase and number of active
+   * points.
+   *
+   * @param {Object} data
+   * @param {module:server.Point2D[]} data.active - Currently active contact
+   * points.
+   * @param {module:server.Point2D} data.centroid - Centroid of active contact
+   * points.
+   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {

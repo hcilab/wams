@@ -14,7 +14,7 @@
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-const HANDLERS = Object.freeze({ 
+const HANDLERS = Object.freeze({
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
@@ -27,30 +27,52 @@ const HANDLERS = Object.freeze({
  * The Interactor class provides a layer of abstraction between the
  * ClientController and the code that processes user inputs.
  *
- * Currently, the Interactor makes use of the Westures library.
- *
  * Data from recognized gestures is reported directly through to the handlers.
  *
  * The handlers are initialized to NOPs so that the functions which call the
  * handlers don't need to check whether the handler exists.
+ *
+ * Currently, the Interactor makes use of the Westures library.
+ *
+ * @memberof module:client
+ *
+ * @see {@link https://mvanderkamp.github.io/westures-core/}
  */
 class Interactor {
   /**
-   * canvas  : The <canvs> element on which to listen for interaction events.
-   * handlers: Object with keys as the names gestures and values as the
-   *           corresponding function for handling that gesture when it is
-   *           recognized.
+   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
+   *    for interaction events.
+   * @param {Object} handlers - Object with keys as the names gestures and
+   *    values as the corresponding function for handling that gesture when it
+   *    is recognized.
+   * @param {Function} [handlers.pan=NOP]
+   * @param {Function} [handlers.rotate=NOP]
+   * @param {Function} [handlers.swipe=NOP]
+   * @param {Function} [handlers.tap=NOP]
+   * @param {Function} [handlers.zoom=NOP]
+   * @param {Function} [handlers.track=NOP]
    */
   constructor(canvas, handlers = {}) {
     if (!(canvas instanceof HTMLCanvasElement)) {
       throw 'Invalid canvas recieved by Interactor!';
     }
 
-    this.canvas = canvas;
-    this.region = new Westures.Region(window);
-
+    /**
+     * Object holding the handlers, so they can be dynamically referenced by
+     * name.
+     *
+     * @type {Object}
+     * @property {Function} pan=NOP
+     * @property {Function} rotate=NOP
+     * @property {Function} swipe=NOP
+     * @property {Function} top=NOP
+     * @property {Function} zoom=NOP
+     * @property {Function} track=NOP
+     */
     this.handlers = mergeMatches(HANDLERS, handlers);
-    this.bindRegions();
+
+    // Begin listening activities immediately.
+    this.bindRegions(canvas);
     this.attachListeners();
   }
 
@@ -66,8 +88,11 @@ class Interactor {
    * Westures uses Gesture objects, and expects those objects to be bound to an
    * element, along with a handler for responding to that gesture. This method
    * takes care of those activities.
+   *
+   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
+   * for gestures.
    */
-  bindRegions() {
+  bindRegions(canvas) {
     const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
@@ -76,17 +101,23 @@ class Interactor {
     const tap     = new Westures.Tap();
     const track   = new Westures.Track(['start', 'end']);
 
-    this.region.bind(this.canvas, pan,    this.forward('pan'));
-    this.region.bind(this.canvas, tap,    this.forward('tap'));
-    this.region.bind(this.canvas, pinch,  this.forward('zoom'));
-    this.region.bind(this.canvas, rotate, this.forward('rotate'));
-    this.region.bind(this.canvas, swipe,  this.forward('swipe'));
-    this.region.bind(this.canvas, swivel, this.forward('rotate'));
-    this.region.bind(this.canvas, track,  this.forward('track'));
+    const region = new Westures.Region(window);
+    region.addGesture(canvas, pan,    this.forward('pan'));
+    region.addGesture(canvas, tap,    this.forward('tap'));
+    region.addGesture(canvas, pinch,  this.forward('zoom'));
+    region.addGesture(canvas, rotate, this.forward('rotate'));
+    region.addGesture(canvas, swipe,  this.forward('swipe'));
+    region.addGesture(canvas, swivel, this.forward('rotate'));
+    region.addGesture(canvas, track,  this.forward('track'));
   }
 
   /**
    * Generates a function that forwards the appropriate gesture and data.
+   *
+   * @param {string} gesture - name of a gesture to forward.
+   *
+   * @return {Function} Handler for westures that receives a data object and
+   * forwards it according to the given gesture name.
    */
   forward(gesture) {
     function do_forward(data) {
@@ -97,12 +128,14 @@ class Interactor {
 
   /**
    * Treat scrollwheel events as zoom events.
+   *
+   * @param {WheelEvent} event - The wheel event from the window.
    */
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
     const change = -(Math.sign(event.deltaY) * factor) + 1;
-    const midpoint = {x: event.clientX, y: event.clientY};
+    const midpoint = { x: event.clientX, y: event.clientY };
     const phase = 'move';
     this.handlers.zoom({ change, midpoint, phase });
   }

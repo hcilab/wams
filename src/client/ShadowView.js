@@ -15,11 +15,11 @@
 
 'use strict';
 
-const { 
+const {
   colours,
   constants,
   IdStamper,
-  View 
+  View,
 } = require('../shared.js');
 
 const STAMPER = new IdStamper();
@@ -35,29 +35,49 @@ const symbols = Object.freeze({
 /**
  * The ShadowView class exposes a simple draw() function which renders a shadowy
  * outline of the view onto the canvas.
+ *
+ * @extends module:shared.View
+ * @memberof module:client
  */
 class ShadowView extends View {
   /**
-   * values: server-provided data describing this view.
+   * @param {module:shared.View} values - server-provided data describing this
+   * view.
    */
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);
   }
-  
+
   /**
    * Override the default assign() function to take the reciprocal of the scale.
+   *
+   * @param {module:shared.View} data - values to assign to the view.
    */
   assign(data) {
     super.assign(data);
+
+    /**
+     * Caches the effective width so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveWidth = this.width / this.scale;
+
+    /**
+     * Caches the effective height so it doesn't need to be recomputed on every
+     * render.
+     *
+     * @type {number}
+     */
     this.effectiveHeight = this.height / this.scale;
   }
 
   /**
    * Render an outline of this view.
    *
-   * context: CanvasRenderingContext2D on which to draw.
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   draw(context) {
     /*
@@ -65,24 +85,28 @@ class ShadowView extends View {
      * save() and restore().
      */
     context.save();
-    this[symbols.align]   (context);
-    this[symbols.style]   (context);
-    this[symbols.outline] (context);
-    this[symbols.marker]  (context);
+    this[symbols.align](context);
+    this[symbols.style](context);
+    this[symbols.outline](context);
+    this[symbols.marker](context);
     context.restore();
   }
 
   /**
    * Aligns the drawing context so the outline will be rendered in the correct
    * location with the correct orientation.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.align](context) {
-    context.translate(this.x,this.y);
+    context.translate(this.x, this.y);
     context.rotate(constants.ROTATE_360 - this.rotation);
   }
 
   /**
    * Applies styling to the drawing context.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.style](context) {
     context.globalAlpha = 0.5;
@@ -95,22 +119,24 @@ class ShadowView extends View {
    * Draws an outline of the view.
    */
   [symbols.outline](context) {
-    context.strokeRect( 0, 0, this.effectiveWidth, this.effectiveHeight);
+    context.strokeRect(0, 0, this.effectiveWidth, this.effectiveHeight);
   }
 
   /**
    * Draws a small triangle in the upper-left corner of the outline, so that
    * other views can quickly tell which way this view is oriented.
+   *
+   * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.marker](context) {
     const base = context.lineWidth / 2;
     const height = 25;
 
     context.beginPath();
-    context.moveTo(base,base);
-    context.lineTo(base,height);
-    context.lineTo(height,base);
-    context.lineTo(base,base);
+    context.moveTo(base, base);
+    context.lineTo(base, height);
+    context.lineTo(height, base);
+    context.lineTo(base, base);
     context.fill();
   }
 }

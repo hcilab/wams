@@ -120,9 +120,9 @@ function flipCard(card) {
   faceUp = !faceUp;
 }
  
-ws.on('click',  Wams.predefined.tap.modifyItem(ws, flipCard, 'joker'));
-ws.on('scale',  Wams.predefined.scale.view(ws));
-ws.on('drag',   Wams.predefined.drag.itemsAndView(ws, ['joker']));
+ws.on('click',  Wams.predefined.taps.modifyItem(ws, flipCard, 'joker'));
+ws.on('scale',  Wams.predefined.scales.view(ws));
+ws.on('drag',   Wams.predefined.drags.itemsAndView(ws, ['joker']));
 ws.on('layout', handleLayout);
 
 ws.listen(9001);

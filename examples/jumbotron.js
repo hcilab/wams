@@ -76,8 +76,8 @@ const handleLayout = (function makeLayoutHandler() {
 })();
 
 ws.on('layout', handleLayout);
-ws.on('drag',   Wams.predefined.drag.view(ws));
-ws.on('scale',  Wams.predefined.scale.view(ws));
+ws.on('drag',   Wams.predefined.drags.view(ws));
+ws.on('scale',  Wams.predefined.scales.view(ws));
 
 ws.listen(9000);
 

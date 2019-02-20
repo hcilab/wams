@@ -14,25 +14,27 @@ const path = require('path');
 const express = require('express');
 
 /**
- * Actually returns an express.js app with routes already established. Maybe not
- * the most elegant solution, but it means the end user can access the router,
- * and the main routes will still get priority.
+ * This function wraps a layer of abstraction around the route handler. It will
+ * set up the main routes for a WAMS app before returning, so that those routes
+ * will get priority.
+ *
+ * @memberof module:server
+ *
+ * @return {express.app} An express app with main WAMS routes established.
  */
-class Router {
-  constructor() {
-    const app = express();
+function Router() {
+  const app = express();
 
-    // Establish main routes.
-    const view   = path.join(__dirname, '../../dist/view.html');
-    const source = path.join(__dirname, '../../dist/wams-client.js');
-    app.get('/',               (req, res) => res.sendFile(view)  );
-    app.get('/wams-client.js', (req, res) => res.sendFile(source));
+  // Establish main routes.
+  const view   = path.join(__dirname, '../../dist/view.html');
+  const source = path.join(__dirname, '../../dist/wams-client.js');
+  app.get('/',               (req, res) => res.sendFile(view));
+  app.get('/wams-client.js', (req, res) => res.sendFile(source));
 
-    // Make the express object accessible (e.g. for express.static())
-    app.express = express;
+  // Make the express object accessible (e.g. for express.static())
+  app.express = express;
 
-    return app;
-  }
+  return app;
 }
 
 module.exports = Router;
