@@ -22,7 +22,7 @@ const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 
 const DEFAULTS = Object.freeze({
-  color: '#aaaaaa',
+  color: 'gray',
 });
 const STAMPER = new IdStamper();
 
