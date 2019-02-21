@@ -28,6 +28,10 @@
     "css": [
       "styles/custom.css"
     ],
+    "default": {
+      "outputSourceFiles": true,
+      "useLongnameInNav": true
+    },
     "footerText": "Workspaces Across Multiple Surfaces",
     "monospaceLinks": false,
     "name": "WAMS"
