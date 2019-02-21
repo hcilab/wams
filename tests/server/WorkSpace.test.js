@@ -31,7 +31,7 @@ beforeAll(() => {
 
 describe('WorkSpace', () => {
   const DEFAULTS = Object.freeze({
-    color: '#aaaaaa',
+    color: 'gray',
   });
 
   describe('constructor(port, settings)', () => {
