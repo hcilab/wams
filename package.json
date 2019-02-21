@@ -20,6 +20,7 @@
     ],
     "testURL": "http://localhost/"
   },
+  "main": "index.js",
   "name": "WAMS_API",
   "private": true,
   "repository": {
