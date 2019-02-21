@@ -6,13 +6,13 @@
 'use strict';
 
 const path = require('path');
-const Wams = require('../src/server');
+const Wams = require('..');
 
 const router = new Wams.Router();
 const images = path.join(__dirname, '../img');
 router.use('/img', router.express.static(images));
 
-const ws = new Wams({
+const app = new Wams.Application({
   color: 'green',
   clientLimit: 5,
 }, router);
@@ -27,7 +27,7 @@ circle.lineWidth = 5;
 circle.strokeStyle = '#003300';
 circle.stroke();
 
-ws.spawnItem({
+app.spawnItem({
   x: 2500,
   y: 2500,
   type: 'circle',
@@ -39,14 +39,14 @@ text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
 text.fillText( 'Click the joker!', 0, 0);
 
-ws.spawnItem({
+app.spawnItem({
   x: 2380,
   y: 2480,
   type: 'text',
   blueprint: text,
 });
 
-ws.spawnItem(Wams.predefined.items.image('img/joker.png', {
+app.spawnItem(Wams.predefined.items.image('img/joker.png', {
   x: 2600,
   y: 2800,
   type: 'joker',
@@ -120,24 +120,10 @@ function flipCard(card) {
   faceUp = !faceUp;
 }
  
-ws.on('click',  Wams.predefined.taps.modifyItem(ws, flipCard, 'joker'));
-ws.on('scale',  Wams.predefined.scales.view(ws));
-ws.on('drag',   Wams.predefined.drags.itemsAndView(ws, ['joker']));
-ws.on('layout', handleLayout);
+app.on('click',  Wams.predefined.taps.modifyItem(app, flipCard, 'joker'));
+app.on('scale',  Wams.predefined.scales.view(app));
+app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['joker']));
+app.on('layout', handleLayout);
 
-ws.listen(9001);
-
-// const second_ws = new Wams.WorkSpace(
-//   9501,
-//   {
-//     debug : false,
-//     BGcolor: 'blue',
-//     bounds: {
-//       x: 1000,
-//       y: 1000,
-//     },
-//     clientLimit: 5, // 4 players plus one for the table
-//   }
-// );
-// main_ws.addSubWS(second_ws);
+app.listen(9001);
 

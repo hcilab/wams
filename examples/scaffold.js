@@ -3,8 +3,8 @@
 // Scaffold example for Wams
 
 // Includes the Wams API
-const Wams = require("../src/server");
-const ws = new Wams();
+const Wams = require('..');
+const app = new Wams.Application();
 
 const handleLayout = function(view, numViews) {
   // Executed once every time a new user joins
@@ -24,12 +24,12 @@ const handleScale = function(view, scale, mx, my) {
 }
 
 // Attaches the defferent function handlers
-ws.on('click',  handleClick);
-ws.on('drag',   handleDrag);
-ws.on('scale',  handleScale);
-ws.on('layout', handleLayout);
+app.on('click',  handleClick);
+app.on('drag',   handleDrag);
+app.on('scale',  handleScale);
+app.on('layout', handleLayout);
 
 // Once all the handlers are attached, open up the workspace and listen for
 // connections.
-ws.listen(9004);
+app.listen(9004);
 
