@@ -12,11 +12,10 @@ const symbols = Object.freeze({
   inputs: Symbol.for('inputs'),
 });
 
-/*
+/**
  * Set of helper functions for updating inputs based on type of input.
  * Must be called with a bound 'this', via bind(), or call(), or apply().
  *
- * @private
  * @inner
  * @memberof module:gestures.State
  */
@@ -42,7 +41,6 @@ const symbols = Object.freeze({
  * Keeps track of currently active and ending input points on the interactive
  * surface.
  *
- * @hideconstructor
  * @memberof module:gestures
  */
 class State {
@@ -53,7 +51,6 @@ class State {
     /**
      * Keeps track of the current Input objects.
      *
-     * @private
      * @type {Map}
      */
     this[symbols.inputs] = new Map();
@@ -77,29 +74,27 @@ class State {
      * The array of latest point data for the currently active inputs, sourced
      * from this.active.
      *
-     * @type {gestures.Point2D[]}
+     * @type {module:gestures.Point2D[]}
      */
     this.activePoints = [];
 
     /**
      * The centroid of the currently active points.
      *
-     * @type {gestures.Point2D}
+     * @type {module:gestures.Point2D}
      */
     this.centroid = {};
 
     /**
      * The latest event that the state processed.
      *
-     * @type {Event}
+     * @type {PointerEvent}
      */
     this.event = null;
   }
 
   /**
    * Deletes all inputs that are in the 'end' phase.
-   *
-   * @private
    */
   clearEndedInputs() {
     this[symbols.inputs].forEach((v, k) => {
@@ -110,7 +105,7 @@ class State {
   /**
    * @param {string} phase - One of 'start', 'move', or 'end'.
    *
-   * @return {Input[]} Inputs in the given phase.
+   * @return {module:gestures.Input[]} Inputs in the given phase.
    */
   getInputsInPhase(phase) {
     return this.inputs.filter(i => i.phase === phase);
@@ -119,14 +114,13 @@ class State {
   /**
    * @param {string} phase - One of 'start', 'move', or 'end'.
    *
-   * @return {Input[]} Inputs <b>not</b> in the given phase.
+   * @return {module:gestures.Input[]} Inputs <b>not</b> in the given phase.
    */
   getInputsNotInPhase(phase) {
     return this.inputs.filter(i => i.phase !== phase);
   }
 
   /**
-   * @private
    * @return {boolean} True if there are no active inputs. False otherwise.
    */
   hasNoActiveInputs() {
@@ -136,10 +130,8 @@ class State {
   /**
    * Update the input with the given identifier using the given event.
    *
-   * @private
-   *
-   * @param {Event} event - The event being captured.
-   * @param {number} identifier - The identifier of the input to update.
+   * @param {PointerEvent} event - The event being captured.
+   * @param {string} identifier - The identifier of the input to update.
    */
   updateInput(event, identifier) {
     if (PHASE[event.type] === 'start') {
@@ -152,8 +144,7 @@ class State {
   /**
    * Updates the inputs with new information based upon a new event being fired.
    *
-   * @private
-   * @param {Event} event - The event being captured.
+   * @param {PointerEvent} event - The event being captured.
    */
   updateAllInputs(event) {
     // update_fns[event.constructor.name].call(this, event);

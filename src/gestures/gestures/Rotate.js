@@ -12,13 +12,13 @@ const REQUIRED_INPUTS = 2;
  * Data returned when a Rotate is recognized.
  *
  * @typedef {Object} RotateData
- * @mixes ReturnTypes.BaseData
+ * @mixes module:gestures.ReturnTypes.BaseData
  *
  * @property {number} delta - In radians, the change in angle since last emit.
- * @property {westures.Point2D} pivot - The centroid of the currently active
- *    points.
+ * @property {module:gestures.Point2D} pivot - The centroid of the currently
+ * active points.
  *
- * @memberof ReturnTypes
+ * @memberof module:gestures.ReturnTypes
  */
 
 const PI2 = 2 * Math.PI;
@@ -27,9 +27,12 @@ const PI2 = 2 * Math.PI;
  * Helper function to regulate angular differences, so they don't jump from 0 to
  * 2*PI or vice versa.
  *
- * @private
+ * @inner
+ * @memberof module:gestures.Rotate
+ *
  * @param {number} a - Angle in radians.
  * @param {number} b - Angle in radians.
+ *
  * @return {number} c, given by: c = a - b such that || < PI
  */
 function angularMinus(a, b = 0) {
@@ -45,8 +48,8 @@ function angularMinus(a, b = 0) {
 /**
  * A Rotate is defined as two inputs moving with a changing angle between them.
  *
- * @extends westures.Gesture
- * @see ReturnTypes.RotateData
+ * @extends module:gestures.Gesture
+ * @see module:gestures.ReturnTypes.RotateData
  * @memberof module:gestures
  */
 class Rotate extends Gesture {
@@ -60,8 +63,7 @@ class Rotate extends Gesture {
   /**
    * Store individual angle progress on each input, return average angle change.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   getAngle(state) {
     let angle = 0;
@@ -78,8 +80,7 @@ class Rotate extends Gesture {
   /**
    * Event hook for the start of a gesture.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   start(state) {
     if (state.active.length >= REQUIRED_INPUTS) {
@@ -90,8 +91,9 @@ class Rotate extends Gesture {
   /**
    * Event hook for the move of a Rotate gesture.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.RotateData} <tt>null</tt> if this
+   * event did not occur
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
@@ -104,8 +106,7 @@ class Rotate extends Gesture {
   /**
    * Event hook for the end of a gesture.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   end(state) {
     if (state.active.length >= REQUIRED_INPUTS) {

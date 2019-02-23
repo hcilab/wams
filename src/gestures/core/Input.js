@@ -11,15 +11,15 @@ const PointerData = require('./PointerData.js');
  * and initial events. Contains the progress of each Input and its associated
  * gestures.
  *
- * @hideconstructor
+ * @memberof module:gestures
  */
 class Input {
   /**
    * Constructor function for the Input class.
    *
-   * @param {(PointerEvent | MouseEvent | TouchEvent)} event - The input event
-   *    which will initialize this Input object.
-   * @param {number} identifier - The identifier for this input, so that it can
+   * @param {PointerEvent} event - The input event which will initialize this
+   *    Input object.
+   * @param {string} identifier - The identifier for this input, so that it can
    *    be located in subsequent Event objects.
    */
   constructor(event, identifier) {
@@ -29,21 +29,21 @@ class Input {
      * Holds the initial data from the mousedown / touchstart / pointerdown that
      * began this input.
      *
-     * @type {PointerData}
+     * @type {module:gestures.PointerData}
      */
     this.initial = currentData;
 
     /**
      * Holds the most current pointer data for this Input.
      *
-     * @type {PointerData}
+     * @type {module:gestures.PointerData}
      */
     this.current = currentData;
 
     /**
      * Holds the previous pointer data for this Input.
      *
-     * @type {PointerData}
+     * @type {module:gestures.PointerData}
      */
     this.previous = currentData;
 
@@ -59,7 +59,6 @@ class Input {
      * Stores internal state between events for each gesture based off of the
      * gesture's id.
      *
-     * @private
      * @type {Object}
      */
     this.progress = {};
@@ -104,9 +103,7 @@ class Input {
    * input, pushing the old current data into the previous slot, and tossing
    * out the old previous data.
    *
-   * @private
-   *
-   * @param {Event} event - The event object to wrap with a PointerData.
+   * @param {PointerEvent} event - The event object to wrap with a PointerData.
    */
   update(event) {
     this.previous = this.current;

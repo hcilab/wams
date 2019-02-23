@@ -10,21 +10,22 @@ const Gesture = require('../core/Gesture.js');
  * Data returned when a Track is recognized.
  *
  * @typedef {Object} TrackData
- * @mixes ReturnTypes.BaseData
+ * @mixes module:gestures.ReturnTypes.BaseData
  *
- * @property {westures.Point2D[]} active - Points currently in 'start' or 'move'
- *    phase.
- * @property {westures.Point2D} centroid - centroid of currently active points.
+ * @property {module:gestures.Point2D[]} active - Points currently in 'start' or
+ *    'move' phase.
+ * @property {module:gestures.Point2D} centroid - centroid of currently active
+ * points.
  *
- * @memberof ReturnTypes
+ * @memberof module:gestures.ReturnTypes
  */
 
 /**
  * A Track gesture forwards a list of active points and their centroid on each
  * of the selected phases.
  *
- * @extends westures.Gesture
- * @see ReturnTypes.TrackData
+ * @extends module:gestures.Gesture
+ * @see module:gestures.ReturnTypes.TrackData
  * @memberof module:gestures
  */
 class Track extends Gesture {
@@ -42,9 +43,10 @@ class Track extends Gesture {
   }
 
   /**
-   * @private
-   * @param {State} state - current input state.
-   * @return {ReturnTypes.TrackData}
+   * Unpacks the state and returns a slimmed down object for emitting.
+   *
+   * @param {module:gestures.State} state - current input state.
+   * @return {module:gestures.ReturnTypes.TrackData}
    */
   data({ activePoints, centroid }) {
     return { active: activePoints, centroid };
@@ -53,8 +55,9 @@ class Track extends Gesture {
   /**
    * Event hook for the start of a Track gesture.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.TrackData} <tt>null</tt> if not
+   * recognized.
    */
   start(state) {
     return this.trackStart ? this.data(state) : null;
@@ -63,8 +66,9 @@ class Track extends Gesture {
   /**
    * Event hook for the move of a Track gesture.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.TrackData} <tt>null</tt> if not
+   * recognized.
    */
   move(state) {
     return this.trackMove ? this.data(state) : null;
@@ -73,8 +77,9 @@ class Track extends Gesture {
   /**
    * Event hook for the end of a Track gesture.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.TrackData} <tt>null</tt> if not
+   * recognized.
    */
   end(state) {
     return this.trackEnd ? this.data(state) : null;

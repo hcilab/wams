@@ -12,20 +12,21 @@ const REQUIRED_INPUTS = 1;
  * Data returned when a Pan is recognized.
  *
  * @typedef {Object} PanData
- * @mixes ReturnTypes.BaseData
+ * @mixes module:gestures.ReturnTypes.BaseData
  *
- * @property {westures.Point2D} change - The change vector from the last emit.
- * @property {westures.Point2D} point - The centroid of the currently active
- *    points.
+ * @property {module:gestures.Point2D} change - The change vector from the last
+ * emit.
+ * @property {module:gestures.Point2D} point - The centroid of the currently
+ * active points.
  *
- * @memberof ReturnTypes
+ * @memberof module:gestures.ReturnTypes
  */
 
 /**
  * A Pan is defined as a normal movement in any direction.
  *
- * @extends westures.Gesture
- * @see ReturnTypes.PanData
+ * @extends module:gestures.Gesture
+ * @see module:gestures.ReturnTypes.PanData
  * @memberof module:gestures
  */
 class Pan extends Gesture {
@@ -41,7 +42,6 @@ class Pan extends Gesture {
     /**
      * Don't emit any data if this key is pressed.
      *
-     * @private
      * @type {string}
      */
     this.muteKey = options.muteKey;
@@ -51,8 +51,7 @@ class Pan extends Gesture {
    * Resets the gesture's progress by saving the current centroid of the active
    * inputs. To be called whenever the number of inputs changes.
    *
-   * @private
-   * @param {State} state - The state object received by a hook.
+   * @param {module:gestures.State} state - The state object received by a hook.
    */
   initialize(state) {
     const progress = state.active[0].getProgressOfGesture(this.id);
@@ -63,8 +62,7 @@ class Pan extends Gesture {
    * Event hook for the start of a Pan. Records the current centroid of
    * the inputs.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   start(state) {
     if (state.active.length >= REQUIRED_INPUTS) {
@@ -75,9 +73,9 @@ class Pan extends Gesture {
   /**
    * Event hook for the move of a Pan.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
-   * otherwise not recognized.
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.PanData} <tt>null</tt> if the gesture
+   * was muted or otherwise not recognized.
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
@@ -98,8 +96,7 @@ class Pan extends Gesture {
    * Event hook for the end of a Pan. Records the current centroid of
    * the inputs.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   end(state) {
     if (state.active.length >= REQUIRED_INPUTS) {

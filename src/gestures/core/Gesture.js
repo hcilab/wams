@@ -42,7 +42,8 @@ class Gesture {
   /**
    * Event hook for the start phase of a gesture.
    *
-   * @param {State} state - The input state object of the current region.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
    *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.
@@ -54,7 +55,8 @@ class Gesture {
   /**
    * Event hook for the move phase of a gesture.
    *
-   * @param {State} state - The input state object of the current region.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
    *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.
@@ -66,7 +68,8 @@ class Gesture {
   /**
    * Event hook for the end phase of a gesture.
    *
-   * @param {State} state - The input state object of the current region.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
    *
    * @return {?Object} Gesture is considered recognized if an Object is
    *    returned.

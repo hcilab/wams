@@ -40,16 +40,14 @@ class Region {
     /**
      * The list of relations between elements, their gestures, and the handlers.
      *
-     * @private
-     * @type {Binding[]}
+     * @type {module:gestures.Binding[]}
      */
     this.bindings = [];
 
     /**
      * The internal state object for a Region.  Keeps track of inputs.
      *
-     * @private
-     * @type {State}
+     * @type {module:gestures.State}
      */
     this.state = new State();
   }
@@ -60,8 +58,7 @@ class Region {
    * initial position of the inputs, calls the relevant gesture hooks, and
    * dispatches gesture data.
    *
-   * @private
-   * @param {Event} event - The event emitted from the window object.
+   * @param {PointerEvent} event - The event received from a client.
    */
   arbitrate(event) {
     this.state.updateAllInputs(event);
@@ -77,7 +74,7 @@ class Region {
    * Bind an element to a gesture with an associated handler.
    *
    * @param {Element} element - The element object.
-   * @param {gestures.Gesture} gesture - Gesture type with which to bind.
+   * @param {module:gestures.Gesture} gesture - Gesture type with which to bind.
    * @param {Function} handler - The function to execute when a gesture is
    *    recognized.
    */
@@ -90,7 +87,7 @@ class Region {
    * is specified.
    *
    * @param {Element} element - The element to unbind.
-   * @param {gestures.Gesture} [ gesture ] - The gesture to unbind. If
+   * @param {module:gestures.Gesture} [ gesture ] - The gesture to unbind. If
    * undefined, will unbind all Bindings associated with the given element.
    */
   removeGestures(element, gesture) {

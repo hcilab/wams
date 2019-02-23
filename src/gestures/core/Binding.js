@@ -8,14 +8,13 @@
  * A Binding associates a gesture with an element and a handler function that
  * will be called when the gesture is recognized.
  *
- * @private
  * @memberof module:gestures
  */
 class Binding {
   /**
    * Constructor function for the Binding class.
    *
-   * @param {gestures.Gesture} gesture - A instance of the Gesture type.
+   * @param {module:gestures.Gesture} gesture - A instance of the Gesture type.
    * @param {Function} handler - The function handler to execute when a gesture
    *    is recognized on the associated element.
    */
@@ -23,7 +22,7 @@ class Binding {
     /**
      * The gesture to associate with the given element.
      *
-     * @type {Gesture}
+     * @type {module:gestures.Gesture}
      */
     this.gesture = gesture;
 
@@ -41,7 +40,7 @@ class Binding {
    *
    * @param {string} hook - which gesture hook to call, must be one of 'start',
    *    'move', or 'end'.
-   * @param {State} state - The current State instance.
+   * @param {module:gestures.State} state - The current State instance.
    */
   evaluateHook(hook, state) {
     const data = this.gesture[hook](state);

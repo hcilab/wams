@@ -18,19 +18,19 @@ const defaults = Object.freeze({
  * Data returned when a Tap is recognized.
  *
  * @typedef {Object} TapData
- * @mixes ReturnTypes.BaseData
+ * @mixes module:gestures.ReturnTypes.BaseData
  *
  * @property {number} x - x coordinate of tap point.
  * @property {number} y - y coordinate of tap point.
  *
- * @memberof ReturnTypes
+ * @memberof module:gestures.ReturnTypes
  */
 
 /**
  * A Tap is defined as a touchstart to touchend event in quick succession.
  *
- * @extends westures.Gesture
- * @see ReturnTypes.TapData
+ * @extends module:gestures.Gesture
+ * @see module:gestures.ReturnTypes.TapData
  * @memberof module:gestures
  */
 class Tap extends Gesture {
@@ -55,7 +55,6 @@ class Tap extends Gesture {
      * number of inputs are on the screen, and ends when ALL inputs are off the
      * screen.
      *
-     * @private
      * @type {number}
      */
     this.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
@@ -66,7 +65,6 @@ class Tap extends Gesture {
      * number of inputs are on the screen, and ends when ALL inputs are off the
      * screen.
      *
-     * @private
      * @type {number}
      */
     this.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
@@ -75,7 +73,6 @@ class Tap extends Gesture {
      * The number of inputs to trigger a Tap can be variable, and the maximum
      * number being a factor of the browser.
      *
-     * @private
      * @type {number}
      */
     this.numInputs = options.numInputs || defaults.NUM_INPUTS;
@@ -84,7 +81,6 @@ class Tap extends Gesture {
      * A move tolerance in pixels allows some slop between a user's start to end
      * events. This allows the Tap gesture to be triggered more easily.
      *
-     * @private
      * @type {number}
      */
     this.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
@@ -92,7 +88,6 @@ class Tap extends Gesture {
     /**
      * An array of inputs that have ended recently.
      *
-     * @private
      * @type {Input[]}
      */
     this.ended = [];
@@ -102,9 +97,10 @@ class Tap extends Gesture {
    * Event hook for the end of a gesture.  Determines if this the tap event can
    * be fired if the delay and tolerance constraints are met.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.TapData} <tt>null</tt> if the gesture is not to be
-   * emitted, Object with information otherwise.
+   * @param {module:gestures.State} state - current input state.
+   *
+   * @return {?module:gestures.ReturnTypes.TapData} <tt>null</tt> if the gesture
+   * is not to be emitted, Object with information otherwise.
    */
   end(state) {
     const now = Date.now();

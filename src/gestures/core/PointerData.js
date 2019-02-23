@@ -17,13 +17,13 @@ class PointerData {
   /**
    * @constructor
    *
-   * @param {Event} event - The event object being wrapped.
+   * @param {PointerEvent} event - The event object being wrapped.
    */
   constructor(event) {
     /**
      * The original event object.
      *
-     * @type {Event}
+     * @type {PointerEvent}
      */
     this.originalEvent = event;
 
@@ -46,7 +46,7 @@ class PointerData {
     /**
      * The (x,y) coordinate of the event, wrapped in a Point2D.
      *
-     * @type {gestures.Point2D}
+     * @type {module:gestures.Point2D}
      */
     this.point = new Point2D(event.clientX, event.clientY);
   }
@@ -54,7 +54,7 @@ class PointerData {
   /**
    * Calculates the angle between this event and the given event.
    *
-   * @param {PointerData} pdata
+   * @param {module:gestures.PointerData} pdata
    *
    * @return {number} Radians measurement between this event and the given
    *    event's points.
@@ -66,7 +66,7 @@ class PointerData {
   /**
    * Calculates the distance between two PointerDatas.
    *
-   * @param {PointerData} pdata
+   * @param {module:gestures.PointerData} pdata
    *
    * @return {number} The distance between the two points, a.k.a. the
    *    hypoteneuse.

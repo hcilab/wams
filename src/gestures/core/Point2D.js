@@ -36,8 +36,8 @@ class Point2D {
   /**
    * Calculates the angle between this point and the given point.
    *
-   * @param {!gestures.Point2D} point - Projected point for calculating the
-   * angle.
+   * @param {!module:gestures.Point2D} point - Projected point for calculating
+   * the angle.
    *
    * @return {number} Radians along the unit circle where the projected
    * point lies.
@@ -50,8 +50,8 @@ class Point2D {
    * Determine the average distance from this point to the provided array of
    * points.
    *
-   * @param {!gestures.Point2D[]} points - the Point2D objects to calculate
-   *    the average distance to.
+   * @param {!module:gestures.Point2D[]} points - the Point2D objects to
+   *    calculate the average distance to.
    *
    * @return {number} The average distance from this point to the provided
    *    points.
@@ -63,7 +63,7 @@ class Point2D {
   /**
    * Clone this point.
    *
-   * @return {gestures.Point2D} A new Point2D, identical to this point.
+   * @return {module:gestures.Point2D} A new Point2D, identical to this point.
    */
   clone() {
     return new Point2D(this.x, this.y);
@@ -72,7 +72,7 @@ class Point2D {
   /**
    * Calculates the distance between two points.
    *
-   * @param {!gestures.Point2D} point - Point to which the distance is
+   * @param {!module:gestures.Point2D} point - Point to which the distance is
    * calculated.
    *
    * @return {number} The distance between the two points, a.k.a. the
@@ -85,10 +85,11 @@ class Point2D {
   /**
    * Subtract the given point from this point.
    *
-   * @param {!gestures.Point2D} point - Point to subtract from this point.
+   * @param {!module:gestures.Point2D} point - Point to subtract from this
+   * point.
    *
-   * @return {gestures.Point2D} A new Point2D, which is the result of (this
-   * - point).
+   * @return {module:gestures.Point2D} A new Point2D, which is the result of
+   *   (this - point).
    */
   minus(point) {
     return new Point2D(
@@ -100,10 +101,10 @@ class Point2D {
   /**
    * Return the summation of this point to the given point.
    *
-   * @param {!gestures.Point2D} point - Point to add to this point.
+   * @param {!module:gestures.Point2D} point - Point to add to this point.
    *
-   * @return {gestures.Point2D} A new Point2D, which is the addition of the
-   * two points.
+   * @return {module:gestures.Point2D} A new Point2D, which is the addition of
+   * the two points.
    */
   plus(point) {
     return new Point2D(
@@ -115,8 +116,8 @@ class Point2D {
   /**
    * Calculates the total distance from this point to an array of points.
    *
-   * @param {!gestures.Point2D[]} points - The array of Point2D objects to
-   *    calculate the total distance to.
+   * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
+   *    to calculate the total distance to.
    *
    * @return {number} The total distance from this point to the provided points.
    */
@@ -127,10 +128,10 @@ class Point2D {
   /**
    * Calculates the midpoint of a list of points.
    *
-   * @param {gestures.Point2D[]} points - The array of Point2D objects for
-   *    which to calculate the midpoint
+   * @param {module:gestures.Point2D[]} points - The array of Point2D objects
+   *    for which to calculate the midpoint
    *
-   * @return {gestures.Point2D} The midpoint of the provided points.
+   * @return {module:gestures.Point2D} The midpoint of the provided points.
    */
   static midpoint(points = []) {
     if (points.length === 0) return null;
@@ -145,9 +146,9 @@ class Point2D {
   /**
    * Calculates the sum of the given points.
    *
-   * @param {gestures.Point2D[]} points - The Point2D objects to sum up.
+   * @param {module:gestures.Point2D[]} points - The Point2D objects to sum up.
    *
-   * @return {gestures.Point2D} A new Point2D representing the sum of the
+   * @return {module:gestures.Point2D} A new Point2D representing the sum of the
    * given points.
    */
   static sum(points = []) {

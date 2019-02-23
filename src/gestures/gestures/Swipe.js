@@ -13,22 +13,24 @@ const PROGRESS_STACK_SIZE = 5;
  * Data returned when a Swipe is recognized.
  *
  * @typedef {Object} SwipeData
- * @mixes ReturnTypes.BaseData
+ * @mixes module:gestures.ReturnTypes.BaseData
  *
  * @property {number} velocity - The velocity of the swipe.
  * @property {number} direction - In radians, the direction of the swipe.
- * @property {westures.Point2D} point - The point at which the swipe ended.
+ * @property {module:gestures.Point2D} point - The point at which the swipe
+ * ended.
  *
- * @memberof ReturnTypes
+ * @memberof module:gestures.ReturnTypes
  */
 
 /**
  * Calculates the angle of movement along a series of moves.
  *
- * @private
+ * @inner
+ * @memberof module:gestures.Swipe
  * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
  *
- * @param {{time: number, point: module:westures-core.Point2D}} moves - The
+ * @param {{time: number, point: module:gestures.Point2D}} moves - The
  * moves list to process.
  * @param {number} vlim - The number of moves to process.
  *
@@ -52,13 +54,14 @@ function calc_angle(moves, vlim) {
  * Local helper function for calculating the velocity between two timestamped
  * points.
  *
- * @private
+ * @inner
+ * @memberof module:gestures.Swipe
  *
  * @param {object} start
- * @param {westures.Point2D} start.point
+ * @param {module:gestures.Point2D} start.point
  * @param {number} start.time
  * @param {object} end
- * @param {westures.Point2D} end.point
+ * @param {module:gestures.Point2D} end.point
  * @param {number} end.time
  *
  * @return {number} velocity from start to end point.
@@ -72,8 +75,10 @@ function velocity(start, end) {
 /**
  * Calculates the veloctiy of movement through a series of moves.
  *
- * @private
- * @param {{time: number, point: module:westures-core.Point2D}} moves - The
+ * @inner
+ * @memberof module:gestures.Swipe
+ *
+ * @param {{time: number, point: module:gestures.Point2D}} moves - The
  * moves list to process.
  * @param {number} vlim - The number of moves to process.
  *
@@ -92,8 +97,8 @@ function calc_velocity(moves, vlim) {
  * increasing velocity and leaving the screen at some point before it drops
  * below it's escape velocity.
  *
- * @extends westures.Gesture
- * @see ReturnTypes.SwipeData
+ * @extends module:gestures.Gesture
+ * @see module:gestures.ReturnTypes.SwipeData
  * @memberof module:gestures
  */
 class Swipe extends Gesture {
@@ -108,8 +113,7 @@ class Swipe extends Gesture {
    * Event hook for the move of a gesture. Captures an input's x/y coordinates
    * and the time of it's event on a stack.
    *
-   * @private
-   * @param {State} state - current input state.
+   * @param {module:gestures.State} state - current input state.
    */
   move(state) {
     if (state.active.length !== REQUIRED_INPUTS) return null;
@@ -134,9 +138,10 @@ class Swipe extends Gesture {
   /**
    * Determines if the input's history validates a swipe motion.
    *
-   * @param {State} state - current input state.
-   * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
-   * recognized.
+   * @param {module:gestures.State} state - current input state.
+   *
+   * @return {?module:gestures.ReturnTypes.SwipeData} <tt>null</tt> if the
+   * gesture is not recognized.
    */
   end(state) {
     const ended = state.getInputsInPhase('end');
