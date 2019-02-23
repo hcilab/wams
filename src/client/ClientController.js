@@ -72,24 +72,6 @@ class ClientController {
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
 
     /**
-     * The Interactor is a level of abstraction between the ClientController and
-     * the gesture recognition library such that libraries can be swapped out
-     * more easily, if need be. At least in theory. All the ClientController
-     * needs to provide is handler functions for responding to the recognized
-     * gestures.
-     *
-     * @type {module:client.Interactor}
-     */
-    this.interactor = new Interactor(this.canvas, {
-      pan:    this.forward(Message.DRAG),
-      rotate: this.forward(Message.ROTATE),
-      swipe:  this.forward(Message.SWIPE),
-      tap:    this.forward(Message.CLICK),
-      zoom:   this.forward(Message.SCALE),
-      track:  this.forward(Message.TRACK),
-    });
-
-    /**
      * Tracks whether a render has been scheduled for the next 1/60th of a
      * second interval.
      *
@@ -273,9 +255,36 @@ class ClientController {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
     this.view.setup(data);
+    this.setupInteractor(data.useServerGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+
+
+  /**
+   * The Interactor is a level of abstraction between the ClientController and
+   * the gesture recognition library such that libraries can be swapped out
+   * more easily, if need be. At least in theory. All the ClientController
+   * needs to provide is handler functions for responding to the recognized
+   * gestures.
+   *
+   * @param {boolean} [useServerGestures=false] Whether to use server-side
+   * gestures. Default is to use client-side gestures.
+   */
+  setupInteractor(useServerGestures = false) {
+    if (useServerGestures) {
+      NOP();
+    } else {
+      new Interactor(this.canvas, {
+        pan:    this.forward(Message.DRAG),
+        rotate: this.forward(Message.ROTATE),
+        swipe:  this.forward(Message.SWIPE),
+        tap:    this.forward(Message.CLICK),
+        zoom:   this.forward(Message.SCALE),
+        track:  this.forward(Message.TRACK),
+      });
+    }
   }
 }
 

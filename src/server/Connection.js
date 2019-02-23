@@ -109,9 +109,9 @@ class Connection {
    */
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
+      ...this.workspace.settings,
       views: this.workspace.reportViews(),
       items: this.workspace.reportItems(),
-      color: this.workspace.settings.color,
       id:    this.view.id,
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);

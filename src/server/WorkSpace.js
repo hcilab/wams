@@ -22,7 +22,8 @@ const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 
 const DEFAULTS = Object.freeze({
-  color: 'gray',
+  color:             'gray',
+  useServerGestures: false,
 });
 const STAMPER = new IdStamper();
 
@@ -35,14 +36,19 @@ const STAMPER = new IdStamper();
 class WorkSpace {
   /**
    * @param {object} [settings] - Options received from user.
-   * @param {string} [settings.color] - Background color for the workspace.
+   * @param {string} [settings.color='gray'] - Background color for the
+   * workspace.
+   * @param {boolean} [settings.useServerGestures=false] - Whether to use
+   * server-side gestures. Default is to use client-side gestures.
    */
   constructor(settings) {
     /**
      * Configuration settings for the workspace.
      *
      * @type {object}
-     * @property {string} [color] - Background color for the workspace.
+     * @property {string} [color='gray'] - Background color for the workspace.
+     * @property {boolean} [settings.useServerGestures=false] - Whether to use
+     * server-side gestures. Default is to use client-side gestures.
      */
     this.settings = mergeMatches(DEFAULTS, settings);
 
