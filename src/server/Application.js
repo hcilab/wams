@@ -83,16 +83,6 @@ class Application {
   scheduleUpdate(object) {
     this[server].scheduleUpdate(object);
   }
-
-  /**
-   * Announce an update to the given object to all clients.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
-   */
-  update(object) {
-    this[server].update(object);
-  }
 }
 
 module.exports = Application;
