@@ -252,6 +252,105 @@ const FullStateReporter = ReporterFactory([
    * @instance
    */
   'id',
+
+  /**
+   * Whether to use server-side gestures.
+   *
+   * @name useServerGestures
+   * @type {boolean}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  'useServerGestures',
+]);
+
+/**
+ * Enables forwarding of PointerEvents from the client to the server.
+ *
+ * @class PointerReporter
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const PointerReporter = ReporterFactory([
+  /**
+   * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'type',
+
+  /**
+   * The pointer identifier.
+   *
+   * @name pointerId
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'pointerId',
+
+  /**
+   * The clientX coordinate of the event.
+   *
+   * @name clientX
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'clientX',
+
+  /**
+   * The clientY coordinate of the event.
+   *
+   * @name clientY
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'clientY',
+
+  /**
+   * Whether the CTRL key was pressed at the time of the event.
+   *
+   * @name ctrlKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'ctrlKey',
+
+  /**
+   * Whether the ALT key was pressed at the time of the event.
+   *
+   * @name altKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'altKey',
+
+  /**
+   * Whether the SHIFT key was pressed at the time of the event.
+   *
+   * @name shiftKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'shiftKey',
+
+  /**
+   * Whether the META key was pressed at the time of the event.
+   *
+   * @name metaKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'metaKey',
 ]);
 
 module.exports = {
@@ -259,5 +358,6 @@ module.exports = {
   View,
   DataReporter,
   FullStateReporter,
+  PointerReporter,
 };
 
