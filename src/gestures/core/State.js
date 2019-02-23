@@ -20,23 +20,23 @@ const symbols = Object.freeze({
  * @inner
  * @memberof module:gestures.State
  */
-const update_fns = {
-  TouchEvent: function TouchEvent(event) {
-    Array.from(event.changedTouches).forEach(touch => {
-      this.updateInput(event, touch.identifier);
-    });
-  },
+// const update_fns = {
+//   TouchEvent: function TouchEvent(event) {
+//     Array.from(event.changedTouches).forEach(touch => {
+//       this.updateInput(event, touch.identifier);
+//     });
+//   },
 
-  PointerEvent: function PointerEvent(event) {
-    this.updateInput(event, event.pointerId);
-  },
+//   PointerEvent: function PointerEvent(event) {
+//     this.updateInput(event, event.pointerId);
+//   },
 
-  MouseEvent: function MouseEvent(event) {
-    if (event.button === 0) {
-      this.updateInput(event, event.button);
-    }
-  },
-};
+//   MouseEvent: function MouseEvent(event) {
+//     if (event.button === 0) {
+//       this.updateInput(event, event.button);
+//     }
+//   },
+// };
 
 /**
  * Keeps track of currently active and ending input points on the interactive
@@ -77,14 +77,14 @@ class State {
      * The array of latest point data for the currently active inputs, sourced
      * from this.active.
      *
-     * @type {westures-core.Point2D[]}
+     * @type {gestures.Point2D[]}
      */
     this.activePoints = [];
 
     /**
      * The centroid of the currently active points.
      *
-     * @type {westures-core.Point2D}
+     * @type {gestures.Point2D}
      */
     this.centroid = {};
 
@@ -156,7 +156,8 @@ class State {
    * @param {Event} event - The event being captured.
    */
   updateAllInputs(event) {
-    update_fns[event.constructor.name].call(this, event);
+    // update_fns[event.constructor.name].call(this, event);
+    this.updateInput(event, event.pointerId);
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
