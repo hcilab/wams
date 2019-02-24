@@ -78,7 +78,8 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
   Object.keys(defaults).forEach(k => {
-    rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+    // rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+    rv[k] = k in data ? data[k] : defaults[k];
   });
   return rv;
 }

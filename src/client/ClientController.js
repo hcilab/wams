@@ -15,6 +15,7 @@ const io = require('socket.io-client');
 const {
   constants,
   DataReporter,
+  PointerReporter,
   IdStamper,
   Message,
   NOP,
@@ -128,13 +129,14 @@ class ClientController {
       [Message.LAYOUT]:     NOP,
 
       // User event related
-      [Message.CLICK]:  NOP,
-      [Message.DRAG]:   NOP,
-      [Message.RESIZE]: NOP,
-      [Message.ROTATE]: NOP,
-      [Message.SCALE]:  NOP,
-      [Message.SWIPE]:  NOP,
-      [Message.TRACK]:  NOP,
+      [Message.CLICK]:   NOP,
+      [Message.DRAG]:    NOP,
+      [Message.RESIZE]:  NOP,
+      [Message.ROTATE]:  NOP,
+      [Message.SCALE]:   NOP,
+      [Message.SWIPE]:   NOP,
+      [Message.TRACK]:   NOP,
+      [Message.POINTER]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -274,7 +276,21 @@ class ClientController {
    */
   setupInteractor(useServerGestures = false) {
     if (useServerGestures) {
-      NOP();
+      ['pointerdown', 'pointermove', 'pointerup'].forEach(type => {
+        window.addEventListener(
+          type,
+          (event) => {
+            event.preventDefault();
+            const preport = new PointerReporter(event);
+            new Message(Message.POINTER, preport).emitWith(this.socket);
+          },
+          {
+            capture: true,
+            once:    false,
+            passive: false,
+          }
+        );
+      });
     } else {
       new Interactor(this.canvas, {
         pan:    this.forward(Message.DRAG),
