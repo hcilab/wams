@@ -30,8 +30,6 @@ const ServerView = require('./ServerView.js');
 const WorkSpace  = require('./WorkSpace.js');
 
 // Local constant data
-const DEFAULTS = { clientLimit: 10 };
-const PORT = 9000;
 const SIXTY_FPS = 1000 / 60;
 
 // Symbol to mark this property for internal use.
@@ -115,7 +113,7 @@ class Server {
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || DEFAULTS.clientLimit;
+    this.clientLimit = settings.clientLimit || Server.DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
@@ -229,7 +227,7 @@ class Server {
    * listen.
    * @see module:server.Server~getLocalIP
    */
-  listen(port = PORT, host = getLocalIP()) {
+  listen(port = Server.DEFAULTS.port, host = getLocalIP()) {
     this.server.listen(port, host, () => {
       console.info('Listening on', this.server.address());
     });
@@ -341,6 +339,16 @@ class Server {
     }
   }
 }
+
+/**
+ * The default values for the Server.
+ *
+ * @type {object}
+ */
+Server.DEFAULTS = Object.freeze({
+  clientLimit: 10,
+  port:        9000,
+});
 
 module.exports = Server;
 
