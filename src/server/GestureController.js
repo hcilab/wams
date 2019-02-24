@@ -109,7 +109,7 @@ class GestureController {
  *
  * @type {object}
  */
-Gestures.DEFAULT_HANDLERS = Object.freeze({
+GestureController.DEFAULT_HANDLERS = Object.freeze({
   pan:    NOP,
   rotate: NOP,
   swipe:  NOP,
