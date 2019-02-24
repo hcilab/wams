@@ -1,6 +1,7 @@
 node_modules/
 *.bak
 *.swp
+custom.css
 
 coverage
 tags
