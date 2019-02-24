@@ -13,17 +13,6 @@
 const { mergeMatches, IdStamper, Item } = require('../shared.js');
 const Point2D   = require('./Point2D.js');
 
-const DEFAULTS = Object.freeze({
-  x:         0,
-  y:         0,
-  hitbox:    null,
-  rotation:  0,
-  scale:     1,
-  type:      'item/foreground',
-  imgsrc:    '',
-  blueprint: null,
-});
-
 const STAMPER = new IdStamper();
 
 /**
@@ -40,7 +29,7 @@ class ServerItem extends Item {
    * stored. Any other properties will be ignored.
    */
   constructor(values = {}) {
-    super(mergeMatches(DEFAULTS, values));
+    super(mergeMatches(ServerItem.DEFAULTS, values));
 
     /**
      * Some gestures require continous interaction with an item. During this
@@ -152,6 +141,22 @@ class ServerItem extends Item {
     }
   }
 }
+
+/**
+ * The default values for a ServerItem.
+ *
+ * @type {Object}
+ */
+ServerItem.DEFAULTS = Object.freeze({
+  x:         0,
+  y:         0,
+  hitbox:    null,
+  rotation:  0,
+  scale:     1,
+  type:      'item/foreground',
+  imgsrc:    '',
+  blueprint: null,
+});
 
 module.exports = ServerItem;
 
