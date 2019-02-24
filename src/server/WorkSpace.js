@@ -98,11 +98,6 @@ class WorkSpace {
     if (settings.useServerGestures) {
       this.gestureView = new ServerView();
       this.gestureController = new GestureController({
-        // pan:    (data) => this.propagate('drag',   data),
-        // rotate: (data) => this.propagate('rotate', data),
-        // swipe:  (data) => this.propagate('swipe',  data),
-        // tap:    (data) => this.propagate('click',  data),
-        // zoom:   (data) => this.propagate('scale',  data),
         pan:    (data) => this.handle('drag',   this.gestureView, data),
         rotate: (data) => this.handle('rotate', this.gestureView, data),
         swipe:  (data) => this.handle('swipe',  this.gestureView, data),
@@ -199,13 +194,6 @@ class WorkSpace {
    */
   pointerEvent(event) {
     this.gestureController.process(event);
-  }
-
-  /**
-   * Propagates a gesture event through the first view.
-   */
-  propagate(message, args) {
-    this.handle(message, this.views[0], args);
   }
 
   /**
