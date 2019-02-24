@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Message | WAMS</title>
+    <title>Class: GestureController | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,10 +53,10 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>Message<span class="signature">(type, reporter)</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-server.html">server</a>.</span>GestureController<span class="signature">(handlers)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">The Message class provides a funnel through which data passed between the
-client and server must flow.</div>
+            <div class="class-description">The GestureController is in charge of processing server-side gestures for the
+purpose of enabling multi-device gestures.</div>
         
     
 </header>
@@ -69,14 +69,14 @@ client and server must flow.</div>
 
 <dt>
     
-        <h4 class="name" id="Message">
+        <h4 class="name" id="GestureController">
             
-                new <span class="type-signature"></span>Message<span class="signature">(type, reporter)</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>GestureController<span class="signature">(handlers)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-                <code><a href="shared_Message.js.html#line67">line 67</a></code>
+                <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+                <code><a href="server_GestureController.js.html#line31">line 31</a></code>
             </div>
             
         </h4>
@@ -86,11 +86,6 @@ client and server must flow.</div>
 </dt>
 <dd>
 
-    
-    <div class="description">
-        If an invalid type is received, throws an exception. If an invalid reporter
-is received, an exception will not be thrown until 'emitWith()' is called.
-    </div>
     
 
     
@@ -125,13 +120,13 @@ is received, an exception will not be thrown until 'emitWith()' is called.
 
         <tr>
             
-                <td class="name"><code>type</code></td>
+                <td class="name"><code>handlers</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
             
@@ -141,32 +136,272 @@ is received, an exception will not be thrown until 'emitWith()' is called.
 
             
 
-            <td class="description last">The message type. Must be one of the explicitly
-listed message types available on the Message object.</td>
+            <td class="description last">Object with keys as the names gestures and
+   values as the corresponding function for handling that gesture when it
+   is recognized.
+                <h6>Properties</h6>
+                
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>pan</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>reporter</code></td>
+                <td class="name"><code>rotate</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-shared.Reporter.html">module:shared.Reporter</a></span>
+<span class="param-type">function</span>
 
 
             
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">A Reporter instance, containing
-the data to be emitted.</td>
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>swipe</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tap</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>zoom</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>track</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
         </tr>
 
     
@@ -252,12 +487,12 @@ the data to be emitted.</td>
             
 
 <dt>
-<h4 class="name" id=".ADD_ITEM">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>ADD_ITEM<span class="type-signature"> :string</span>
+<h4 class="name" id="handlers">
+    <span class="type-signature"></span>handlers<span class="type-signature"> :Object</span>
     
     <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line31">line 31</a></code>
+        <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+        <code><a href="server_GestureController.js.html#line56">line 56</a></code>
     </div>
     
 </h4>
@@ -266,6 +501,11 @@ the data to be emitted.</td>
 </dt>
 <dd>
     
+    <div class="description">
+        Object holding the handlers, so they can be dynamically referenced by
+name.
+    </div>
+    
 
     <!--
     
@@ -273,7 +513,7 @@ the data to be emitted.</td>
         <ul>
             <li>
                 
-<span class="param-type">string</span>
+<span class="param-type">Object</span>
 
 
             </li>
@@ -282,6 +522,211 @@ the data to be emitted.</td>
     -->
 
     
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>pan</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rotate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>swipe</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>top</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>zoom</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>track</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+                <td class="default">
+                
+                    NOP
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
 
 
 <dl class="details">
@@ -308,11 +753,6 @@ the data to be emitted.</td>
 
     
 
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-add-item</li>
-        </ul></dd>
     
 
     
@@ -332,12 +772,12 @@ the data to be emitted.</td>
             
 
 <dt>
-<h4 class="name" id=".ADD_SHADOW">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>ADD_SHADOW<span class="type-signature"> :string</span>
+<h4 class="name" id="region">
+    <span class="type-signature"></span>region<span class="type-signature"> :module:server.Gestures.Region</span>
     
     <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line32">line 32</a></code>
+        <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+        <code><a href="server_GestureController.js.html#line63">line 63</a></code>
     </div>
     
 </h4>
@@ -346,6 +786,10 @@ the data to be emitted.</td>
 </dt>
 <dd>
     
+    <div class="description">
+        The "region" which takes care of gesture processing.
+    </div>
+    
 
     <!--
     
@@ -353,7 +797,7 @@ the data to be emitted.</td>
         <ul>
             <li>
                 
-<span class="param-type">string</span>
+<span class="param-type">module:server.Gestures.Region</span>
 
 
             </li>
@@ -388,1371 +832,6 @@ the data to be emitted.</td>
 
     
 
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-add-shadow</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".CLICK">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>CLICK<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line45">line 45</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-click</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".DRAG">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>DRAG<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line46">line 46</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-drag</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".FULL">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>FULL<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line42">line 42</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-full</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".IMG_LOAD">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>IMG_LOAD<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line55">line 55</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-image-loaded</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".INITIALIZE">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>INITIALIZE<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line40">line 40</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-initialize</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".LAYOUT">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>LAYOUT<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line41">line 41</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-layout</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".POINTER">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>POINTER<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line52">line 52</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-pointer</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".RESIZE">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>RESIZE<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line47">line 47</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-resize</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".RM_ITEM">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>RM_ITEM<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line33">line 33</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-remove-item</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".RM_SHADOW">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>RM_SHADOW<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line34">line 34</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-remove-shadow</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".ROTATE">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>ROTATE<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line48">line 48</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-rotate</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".SCALE">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>SCALE<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line49">line 49</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-scale</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".SWIPE">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>SWIPE<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line50">line 50</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-swipe</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".TRACK">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>TRACK<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line51">line 51</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-track</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".UD_ITEM">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>UD_ITEM<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line35">line 35</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-update-item</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".UD_SHADOW">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>UD_SHADOW<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line36">line 36</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-update-shadow</li>
-        </ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id=".UD_VIEW">
-    <span class="type-signature"><span class="icon green">static</span>, <span class="icon green">constant</span> </span>UD_VIEW<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-        <code><a href="shared_Message.js.html#line37">line 37</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-default">Default Value:</dt>
-    <dd class="tag-default"><ul class="dummy">
-            <li>wams-update-view</li>
-        </ul></dd>
     
 
     
@@ -1779,14 +858,14 @@ the data to be emitted.</td>
 
 <dt>
     
-        <h4 class="name" id="emitWith">
+        <h4 class="name" id="begin">
             
-                <span class="type-signature"></span>emitWith<span class="signature">(emitter)</span><span class="type-signature"></span>
+                <span class="type-signature"></span>begin<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-                <code><a href="shared_Message.js.html#line91">line 91</a></code>
+                <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+                <code><a href="server_GestureController.js.html#line73">line 73</a></code>
             </div>
             
         </h4>
@@ -1798,8 +877,98 @@ the data to be emitted.</td>
 
     
     <div class="description">
-        Emits the data contained in the reporter along the channel defined by
-emitter.
+        The Gestures component uses Gesture objects, and expects those objects to
+be bound to a handler for responding to that gesture. This method takes
+care of those activities.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="handle">
+            
+                <span class="type-signature"></span>handle<span class="signature">(gesture)</span><span class="type-signature"> &rarr; {function}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+                <code><a href="server_GestureController.js.html#line99">line 99</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Generates a function that handles the appropriate gesture and data.
     </div>
     
 
@@ -1835,13 +1004,13 @@ emitter.
 
         <tr>
             
-                <td class="name"><code>emitter</code></td>
+                <td class="name"><code>gesture</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Emitter</span>
+<span class="param-type">string</span>
 
 
             
@@ -1851,8 +1020,168 @@ emitter.
 
             
 
-            <td class="description last">An object capable of emitting data packets. Must
-have an 'emit()' function.</td>
+            <td class="description last">name of a gesture to handle.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">function</span>
+
+
+
+
+
+- Handler for westures that receives a data object and
+handles it according to the given gesture name.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="process">
+            
+                <span class="type-signature"></span>process<span class="signature">(event)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="server_GestureController.js.html">server/GestureController.js</a></code>,
+                <code><a href="server_GestureController.js.html#line111">line 111</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Processes a PointerEvent that has been forwarded from a client.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">PointerEvent</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The event from the client.</td>
         </tr>
 
     
@@ -1940,7 +1269,7 @@ have an 'emit()' function.</td>
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:shared.Message_sub'.replace(/"/g, '_');
+        var id = 'module:server.GestureController_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
