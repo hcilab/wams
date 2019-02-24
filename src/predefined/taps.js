@@ -81,11 +81,10 @@ function spawnItem(app, item_fn) {
 function spawnOrRemoveItem(app, item_fn, type) {
   return function tap_spawnOrRemoveItem(view, target, x, y) {
     if (isIncludedIn(target, [type])) {
-      if (target === view.lockedItem) {
-        view.releaseLockedItem();
-      }
       app.removeItem(target);
-      view.getLockOnItem(view);
+      if (target === view.lockedItem) {
+        view.getLockOnItem(view);
+      }
     } else {
       app.spawnItem(item_fn(x, y, view));
     }
