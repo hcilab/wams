@@ -10,19 +10,6 @@
 const ServerView = require('../../src/server/ServerView.js');
 
 describe('ServerView', () => {
-  const DEFAULTS = {
-    x: 0,
-    y: 0,
-    width: 1600,
-    height: 900,
-    type: 'view/background',
-    effectiveWidth: 1600,
-    effectiveHeight: 900,
-    scale: 1,
-    rotation: 0,
-    bounds: { x: 10000, y: 10000 },
-  };
-
   const custom = {
     x: 42,
     y: 43,
@@ -49,7 +36,7 @@ describe('ServerView', () => {
     test('Uses default values if none provided', () => {
       let vs;
       expect(() => vs = new ServerView()).not.toThrow();
-      expect(vs).toMatchObject(DEFAULTS);
+      expect(vs).toMatchObject(ServerView.DEFAULTS);
     });
 
     test('Uses user-defined values, if provided', () => {
