@@ -13,15 +13,6 @@
 const { mergeMatches, NOP } = require('../shared.js');
 const Gestures = require('../gestures.js');
 
-const HANDLERS = Object.freeze({
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-  track:  NOP,
-});
-
 /**
  * The GestureController is in charge of processing server-side gestures for the
  * purpose of enabling multi-device gestures.
@@ -53,7 +44,7 @@ class GestureController {
      * @property {Function} zoom=NOP
      * @property {Function} track=NOP
      */
-    this.handlers = mergeMatches(HANDLERS, handlers);
+    this.handlers = mergeMatches(GestureController.DEFAULT_HANDLERS, handlers);
 
     /**
      * The "region" which takes care of gesture processing.
@@ -112,6 +103,20 @@ class GestureController {
     this.region.arbitrate(event);
   }
 }
+
+/**
+ * The default handlers for the GestureController.
+ *
+ * @type {object}
+ */
+Gestures.DEFAULT_HANDLERS = Object.freeze({
+  pan:    NOP,
+  rotate: NOP,
+  swipe:  NOP,
+  tap:    NOP,
+  zoom:   NOP,
+  track:  NOP,
+});
 
 module.exports = GestureController;
 
