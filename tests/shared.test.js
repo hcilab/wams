@@ -11,16 +11,14 @@
 const WamsShared = require('../src/shared.js');
 
 const expected = [
+  'colours',
   'constants',
   'IdStamper',
   'Message',
   'View',
   'Item',
-  'MouseReporter',
-  'ScaleReporter',
-  'RotateReporter',
+  'DataReporter',
   'FullStateReporter',
-  'SwipeReporter',
   'defineOwnImmutableEnumerableProperty',
   'findLast',
   'mergeMatches',

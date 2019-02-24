@@ -10171,6 +10171,32 @@ const PROGRESS_STACK_SIZE = 5;
  */
 
 /**
+ * Calculates the angle of movement along a series of moves.
+ *
+ * @private
+ * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
+ *
+ * @param {{time: number, point: module:westures-core.Point2D}} moves - The
+ * moves list to process.
+ * @param {number} vlim - The number of moves to process.
+ *
+ * @return {number} The angle of the movement.
+ */
+function calc_angle(moves, vlim) {
+  const point = moves[vlim].point;
+  let sin = 0;
+  let cos = 0;
+  for (let i = 0; i < vlim; ++i) {
+    const angle = moves[i].point.angleTo(point);
+    sin += Math.sin(angle);
+    cos += Math.cos(angle);
+  }
+  sin /= vlim;
+  cos /= vlim;
+  return Math.atan2(sin, cos);
+}
+
+/**
  * Local helper function for calculating the velocity between two timestamped
  * points.
  *
@@ -10185,10 +10211,28 @@ const PROGRESS_STACK_SIZE = 5;
  *
  * @return {number} velocity from start to end point.
  */
-function calc_velocity(start, end) {
+function velocity(start, end) {
   const distance = end.point.distanceTo(start.point);
-  const time = end.time - start.time;
+  const time = end.time - start.time + 1;
   return distance / time;
+}
+
+/**
+ * Calculates the veloctiy of movement through a series of moves.
+ *
+ * @private
+ * @param {{time: number, point: module:westures-core.Point2D}} moves - The
+ * moves list to process.
+ * @param {number} vlim - The number of moves to process.
+ *
+ * @return {number} The velocity of the moves.
+ */
+function calc_velocity(moves, vlim) {
+  let sum = 0;
+  for (let i = 0; i < vlim; ++i) {
+    sum += velocity(moves[i], moves[i + 1]);
+  }
+  return sum / vlim;
 }
 
 /**
@@ -10216,7 +10260,7 @@ class Swipe extends Gesture {
    * @param {State} state - current input state.
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
+    if (state.active.length !== REQUIRED_INPUTS) return null;
 
     state.active.forEach(input => {
       const progress = input.getProgressOfGesture(this.id);
@@ -10248,24 +10292,15 @@ class Swipe extends Gesture {
     if (ended.length !== REQUIRED_INPUTS) return null;
 
     const progress = ended[0].getProgressOfGesture(this.id);
-    if (!progress.moves || progress.moves.length < PROGRESS_STACK_SIZE) {
+    const moves = progress.moves;
+    if (!moves || moves.length < PROGRESS_STACK_SIZE) {
       return null;
     }
-    const moves = progress.moves;
 
     const vlim = PROGRESS_STACK_SIZE - 1;
     const point = moves[vlim].point;
-    const velos = [];
-    let direction = 0;
-    for (let i = 0; i < vlim; ++i) {
-      velos[i] = calc_velocity(moves[i], moves[i + 1]);
-      direction += moves[i].point.angleTo(point);
-    }
-    direction /= vlim;
-
-    const velocity = velos.reduce((acc, cur) => {
-      return cur > acc ? cur : acc;
-    });
+    const velocity = calc_velocity(moves, vlim);
+    const direction = calc_angle(moves, vlim);
 
     return {
       point,
@@ -10323,9 +10358,9 @@ class Swivel extends Gesture {
    * @param {string} [options.enableKey=undefined] - One of 'altKey', 'ctrlKey',
    *    'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
    *    this key is down.
-   * @param {boolean} [options.pivotCenter] - If true, the swivel's pivot point
-   *    will be set to the center of the element. Otherwise, the pivot will be
-   *    the location of the first pointerdown/mousedown/touchstart.
+   * @param {Element} [options.pivotCenter] - If set, the swivel's pivot point
+   *    will be set to the center of the given pivotCenter element. Otherwise,
+   *    the pivot will be the location of the first contact point.
    */
   constructor(options = {}) {
     super('swivel');
@@ -10453,6 +10488,20 @@ class Swivel extends Gesture {
     }
 
     return output;
+  }
+
+  /**
+   * Event hook for the end of a Swivel.
+   *
+   * @param {State} state - current input state.
+   * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
+   * recognized.
+   */
+  end(state) {
+    const active = state.active;
+    if (active.length === REQUIRED_INPUTS && this.enabled(state.event)) {
+      this.restart(active[0].getProgressOfGesture(this.id), active[0]);
+    }
   }
 }
 
@@ -10800,6 +10849,7 @@ const io = require('socket.io-client');
 const {
   constants,
   DataReporter,
+  PointerReporter,
   IdStamper,
   Message,
   NOP,
@@ -10855,24 +10905,6 @@ class ClientController {
      * @type {module:client.ClientView}
      */
     this.view = new ClientView({ context: this.canvas.getContext('2d') });
-
-    /**
-     * The Interactor is a level of abstraction between the ClientController and
-     * the gesture recognition library such that libraries can be swapped out
-     * more easily, if need be. At least in theory. All the ClientController
-     * needs to provide is handler functions for responding to the recognized
-     * gestures.
-     *
-     * @type {module:client.Interactor}
-     */
-    this.interactor = new Interactor(this.canvas, {
-      pan:    this.forward(Message.DRAG),
-      rotate: this.forward(Message.ROTATE),
-      swipe:  this.forward(Message.SWIPE),
-      tap:    this.forward(Message.CLICK),
-      zoom:   this.forward(Message.SCALE),
-      track:  this.forward(Message.TRACK),
-    });
 
     /**
      * Tracks whether a render has been scheduled for the next 1/60th of a
@@ -10931,13 +10963,14 @@ class ClientController {
       [Message.LAYOUT]:     NOP,
 
       // User event related
-      [Message.CLICK]:  NOP,
-      [Message.DRAG]:   NOP,
-      [Message.RESIZE]: NOP,
-      [Message.ROTATE]: NOP,
-      [Message.SCALE]:  NOP,
-      [Message.SWIPE]:  NOP,
-      [Message.TRACK]:  NOP,
+      [Message.CLICK]:   NOP,
+      [Message.DRAG]:    NOP,
+      [Message.RESIZE]:  NOP,
+      [Message.ROTATE]:  NOP,
+      [Message.SCALE]:   NOP,
+      [Message.SWIPE]:   NOP,
+      [Message.TRACK]:   NOP,
+      [Message.POINTER]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -11012,7 +11045,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.view.handle(message, ...args);
+    this.view[message](...args);
     this.scheduleRender();
   }
 
@@ -11058,9 +11091,50 @@ class ClientController {
     STAMPER.cloneId(this, data.id);
     this.canvas.style.backgroundColor = data.color;
     this.view.setup(data);
+    this.setupInteractor(data.useServerGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+
+
+  /**
+   * The Interactor is a level of abstraction between the ClientController and
+   * the gesture recognition library such that libraries can be swapped out
+   * more easily, if need be. At least in theory. All the ClientController
+   * needs to provide is handler functions for responding to the recognized
+   * gestures.
+   *
+   * @param {boolean} [useServerGestures=false] Whether to use server-side
+   * gestures. Default is to use client-side gestures.
+   */
+  setupInteractor(useServerGestures = false) {
+    if (useServerGestures) {
+      ['pointerdown', 'pointermove', 'pointerup'].forEach(type => {
+        window.addEventListener(
+          type,
+          (event) => {
+            event.preventDefault();
+            const preport = new PointerReporter(event);
+            new Message(Message.POINTER, preport).emitWith(this.socket);
+          },
+          {
+            capture: true,
+            once:    false,
+            passive: false,
+          }
+        );
+      });
+    } else {
+      new Interactor(this.canvas, {
+        pan:    this.forward(Message.DRAG),
+        rotate: this.forward(Message.ROTATE),
+        swipe:  this.forward(Message.SWIPE),
+        tap:    this.forward(Message.CLICK),
+        zoom:   this.forward(Message.SCALE),
+        track:  this.forward(Message.TRACK),
+      });
+    }
   }
 }
 
@@ -11384,17 +11458,6 @@ class ClientView extends View {
     this[symbols.drawShadows]();
     this[symbols.drawStatus]();
     this.context.restore();
-  }
-
-  /**
-   * Handle a message from the ClientController.
-   *
-   * @param {string } message - The type of message.
-   * @param {Object} ...args - The arguments to be passed to the ultimate
-   * message handling function.
-   */
-  handle(message, ...args) {
-    this[message](...args);
   }
 
   /**
@@ -12010,6 +12073,7 @@ const TYPES = {
   /** @const */ SCALE:      'wams-scale',
   /** @const */ SWIPE:      'wams-swipe',
   /** @const */ TRACK:      'wams-track',
+  /** @const */ POINTER:    'wams-pointer',
 
   // Page event related
   /** @const */ IMG_LOAD:   'wams-image-loaded',
@@ -12130,7 +12194,8 @@ function ReporterFactory(coreProperties) {
      */
     assign(data = {}) {
       KEYS.forEach(p => {
-        if (data.hasOwnProperty(p)) this[p] = data[p];
+        // if (data.hasOwnProperty(p)) this[p] = data[p];
+        if (p in data) this[p] = data[p];
       });
     }
 
@@ -12412,6 +12477,105 @@ const FullStateReporter = ReporterFactory([
    * @instance
    */
   'id',
+
+  /**
+   * Whether to use server-side gestures.
+   *
+   * @name useServerGestures
+   * @type {boolean}
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  'useServerGestures',
+]);
+
+/**
+ * Enables forwarding of PointerEvents from the client to the server.
+ *
+ * @class PointerReporter
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const PointerReporter = ReporterFactory([
+  /**
+   * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'type',
+
+  /**
+   * The pointer identifier.
+   *
+   * @name pointerId
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'pointerId',
+
+  /**
+   * The clientX coordinate of the event.
+   *
+   * @name clientX
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'clientX',
+
+  /**
+   * The clientY coordinate of the event.
+   *
+   * @name clientY
+   * @type {number}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'clientY',
+
+  /**
+   * Whether the CTRL key was pressed at the time of the event.
+   *
+   * @name ctrlKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'ctrlKey',
+
+  /**
+   * Whether the ALT key was pressed at the time of the event.
+   *
+   * @name altKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'altKey',
+
+  /**
+   * Whether the SHIFT key was pressed at the time of the event.
+   *
+   * @name shiftKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'shiftKey',
+
+  /**
+   * Whether the META key was pressed at the time of the event.
+   *
+   * @name metaKey
+   * @type {boolean}
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  'metaKey',
 ]);
 
 module.exports = {
@@ -12419,6 +12583,7 @@ module.exports = {
   View,
   DataReporter,
   FullStateReporter,
+  PointerReporter,
 };
 
 
@@ -12503,7 +12668,8 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
   Object.keys(defaults).forEach(k => {
-    rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+    // rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
+    rv[k] = k in data ? data[k] : defaults[k];
   });
   return rv;
 }

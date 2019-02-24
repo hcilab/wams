@@ -63,7 +63,8 @@ function ReporterFactory(coreProperties) {
      */
     assign(data = {}) {
       KEYS.forEach(p => {
-        if (data.hasOwnProperty(p)) this[p] = data[p];
+        // if (data.hasOwnProperty(p)) this[p] = data[p];
+        if (p in data) this[p] = data[p];
       });
     }
 

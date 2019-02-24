@@ -97,8 +97,9 @@ class Connection {
       [Message.SWIPE]:  ({ data }) => this.handle('swipe',  data),
 
       // User event related, handle immediately
-      [Message.RESIZE]: (data)     => this.resize(data),
-      [Message.TRACK]:  ({ data }) => this.track(data),
+      [Message.RESIZE]:  (data)     => this.resize(data),
+      [Message.TRACK]:   ({ data }) => this.track(data),
+      [Message.POINTER]: (event)   => this.pointerEvent(event),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -109,9 +110,9 @@ class Connection {
    */
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
+      ...this.workspace.settings,
       views: this.workspace.reportViews(),
       items: this.workspace.reportItems(),
-      color: this.workspace.settings.color,
       id:    this.view.id,
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
@@ -154,6 +155,19 @@ class Connection {
     this.workspace.handle('layout', this.view, this.index);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
+  }
+
+  /**
+   * Forwards a PointerEvent to the WorkSpace.
+   *
+   * @param {PointerEvent} event - The event to forward.
+   */
+  pointerEvent(event) {
+    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
+    const { x, y } = this.view.transformPoint(event.clientX, event.clientY);
+    event.clientX = x;
+    event.clientY = y;
+    this.workspace.pointerEvent(event);
   }
 
   /**

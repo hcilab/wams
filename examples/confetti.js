@@ -5,8 +5,8 @@
 
 'use strict';
 
-const Wams = require('../src/server.js');
-const ws = new Wams();
+const Wams = require('..');
+const app = new Wams.Application();
 
 function square(x, y, view) {
   return Wams.predefined.items.square(-64, -64, 128, 
@@ -22,11 +22,11 @@ function square(x, y, view) {
 }
 
 // Attaches the different function handlers
-ws.on('layout', Wams.predefined.layouts.placeAtXY(ws, 4000, 4000));
-ws.on('click',  Wams.predefined.taps.spawnOrRemoveItem(ws, square, 'colour'));
-ws.on('scale',  Wams.predefined.scales.view(ws));
-ws.on('drag',   Wams.predefined.drags.itemsAndView(ws, ['colour']));
-ws.on('rotate', Wams.predefined.rotates.view(ws));
+app.on('layout', Wams.predefined.layouts.placeAtXY(app, 4000, 4000));
+app.on('click',  Wams.predefined.taps.spawnOrRemoveItem(app, square, 'colour'));
+app.on('scale',  Wams.predefined.scales.view(app));
+app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['colour']));
+app.on('rotate', Wams.predefined.rotates.view(app));
 
-ws.listen(9002);
+app.listen(9002);
 

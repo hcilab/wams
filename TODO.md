@@ -13,25 +13,31 @@
         `node.js` implement the `WebSocket` standard?
   + [ ] Is there a performance cost to using `socket.io`, and is there a benefit
         to this cost in terms of usability across a wider range of devices?
-- [ ] Look into making the request handler more modular.
 - [ ] Improve the end-user API by making it so that users do not have to
       manually inform the wams app of any updates that have been made to the
       items or views.
-  + [ ] As part of this, try to regulate updates such that they are processed at
-        a regular rate, and not faster. This should help regulate situations
-        when multiple handlers are acting on the model in rapid succession.
 - [ ] Write a distributed video player example.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
-- [ ] Update API doc.
 - [ ] Can the API endpoint be done better? Are there some even better
         abstractions available that will make this code even easier to reason
         about?
 - [ ] Implement multi-device gestures.
   + [ ] Implement server-side gesture library.
+- [ ] Provide installation instructions, simplify installation.
+    + [ ] Write an entry-point 'index.js' file and add to package.json
+    + [ ] Write installation instructions into README.md
+    + [ ] Merge DESIGN.md into README.md
 
 ---
 
 # COMPLETED
+
+_As of: Wed Feb 20 12:54:28 CST 2019_
+
+- [X] Look into making the request handler more modular.
+- [X] Update API doc.
+    + [X] Refactor internal comments throughout codebase into jsdoc style, so
+      that API documentation can be auto-generated into a convenient format.
 
 _As of: Sun Jan 20 15:56:39 CST 2019_
 

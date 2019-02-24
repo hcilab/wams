@@ -5,11 +5,11 @@
 
 'use strict';
 
-const Wams = require('../src/server.js');
-const ws = new Wams();
+const Wams = require('..');
+const app = new Wams.Application();
 
 // Executed every time a user taps or clicks a screen
-const handleSwipe = (function makeSwipeHandler(ws) {
+const handleSwipe = (function makeSwipeHandler(app) {
   function square(ix, iy, index, velo) {
     const x = ix;
     const y = iy - 16;
@@ -22,7 +22,7 @@ const handleSwipe = (function makeSwipeHandler(ws) {
 
   function handleSwipe(view, target, x, y, velocity, direction) {
     const cidx = Math.ceil(velocity * 10) % Wams.colours.length;
-    ws.spawnItem( Wams.predefined.items.rectangle(
+    app.spawnItem( Wams.predefined.items.rectangle(
       0,
       0,
       velocity * 10,
@@ -38,10 +38,10 @@ const handleSwipe = (function makeSwipeHandler(ws) {
   }
 
   return handleSwipe;
-})(ws);
+})(app);
 
 // Attaches the defferent function handlers
-ws.on('swipe',  handleSwipe);
+app.on('swipe',  handleSwipe);
 
-ws.listen(9002);
+app.listen(9002);
 

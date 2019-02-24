@@ -19,15 +19,15 @@
  *
  * @memberof module:predefined.layouts
  *
- * @param {module:server.Wams} wams - The Wams instance for which this function
- * will be built.
+ * @param {module:server.Application} app - The Application instance for which
+ * this function will be built.
  * @param {number} x
  * @param {number} y
  *
  * @returns {module:server.ListenerTypes.LayoutListener} A WAMS layout handler
  * function which will place all new users at the given (x,y) coordinates.
  */
-function placeAtXY(wams, x, y) {
+function placeAtXY(app, x, y) {
   return function layout_placeAtXY(view) {
     view.moveTo(x, y);
   };

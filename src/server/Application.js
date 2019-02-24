@@ -13,16 +13,16 @@
 const Server = require('./Server.js');
 
 const server = Symbol('server');
-const updates = Symbol('updates');
 
 /**
  * This module defines the API endpoint. In practice, this means it is a thin
  * wrapper around the Server class which exposes only that functionality of the
- * Server which should be available to the end user.
+ * Server which should be available to the end user. But calling it the
+ * "Application" makes it sound more important.
  *
  * @memberof module:server
  */
-class Wams {
+class Application {
   /**
    * @param {object} [settings={}] - Settings data to be forwarded to the
    * server.
@@ -31,9 +31,6 @@ class Wams {
    */
   constructor(settings = {}, router) {
     this[server] = new Server(settings, router);
-    this[updates] = {};
-
-    setInterval(this.postUpdates.bind(this), 1000 / 60);
   }
 
   /**
@@ -84,29 +81,9 @@ class Wams {
    * Item or view that has been updated.
    */
   scheduleUpdate(object) {
-    this[updates][object.id] = object;
-  }
-
-  /**
-   * Post scheduled updates.
-   */
-  postUpdates() {
-    Object.values(this[updates]).forEach(o => {
-      this.update(o);
-      delete this[updates][o.id];
-    });
-  }
-
-  /**
-   * Announce an update to the given object to all clients.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
-   */
-  update(object) {
-    this[server].update(object);
+    this[server].scheduleUpdate(object);
   }
 }
 
-module.exports = Wams;
+module.exports = Application;
 

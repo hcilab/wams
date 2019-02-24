@@ -49,6 +49,7 @@ const TYPES = {
   /** @const */ SCALE:      'wams-scale',
   /** @const */ SWIPE:      'wams-swipe',
   /** @const */ TRACK:      'wams-track',
+  /** @const */ POINTER:    'wams-pointer',
 
   // Page event related
   /** @const */ IMG_LOAD:   'wams-image-loaded',

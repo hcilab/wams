@@ -5,8 +5,8 @@
 
 'use strict';
 
-const Wams = require('../src/server.js');
-const ws = new Wams();
+const Wams = require('..');
+const app = new Wams.Application();
 
 function randomPoints(x = 5, lim = 256) {
   const points = [{x: 0, y: 0}];
@@ -34,11 +34,13 @@ function polygon(x, y, view) {
 }
 
 // Attaches the different function handlers
-ws.on('layout', Wams.predefined.layouts.placeAtXY(ws, 4000, 4000));
-ws.on('click',  Wams.predefined.taps.spawnOrRemoveItem(ws, polygon, 'colour'));
-ws.on('scale',  Wams.predefined.scales.itemsAndView(ws, ['colour']));
-ws.on('drag',   Wams.predefined.drags.itemsAndView(ws, ['colour']));
-ws.on('rotate', Wams.predefined.rotates.itemsAndView(ws, ['colour']));
+app.on('layout', Wams.predefined.layouts.placeAtXY(app, 4000, 4000));
+app.on('scale',  Wams.predefined.scales.itemsAndView(app, ['colour']));
+app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['colour']));
+app.on('rotate', Wams.predefined.rotates.itemsAndView(app, ['colour']));
+app.on('click',  
+  Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
+);
 
-ws.listen(9002);
+app.listen(9002);
 

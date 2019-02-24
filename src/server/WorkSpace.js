@@ -17,12 +17,14 @@ const {
   NOP,
   safeRemoveById,
 } = require('../shared.js');
+const GestureController = require('./GestureController.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 
 const DEFAULTS = Object.freeze({
-  color: '#aaaaaa',
+  color:             'gray',
+  useServerGestures: false,
 });
 const STAMPER = new IdStamper();
 
@@ -35,14 +37,19 @@ const STAMPER = new IdStamper();
 class WorkSpace {
   /**
    * @param {object} [settings] - Options received from user.
-   * @param {string} [settings.color] - Background color for the workspace.
+   * @param {string} [settings.color='gray'] - Background color for the
+   * workspace.
+   * @param {boolean} [settings.useServerGestures=false] - Whether to use
+   * server-side gestures. Default is to use client-side gestures.
    */
   constructor(settings) {
     /**
      * Configuration settings for the workspace.
      *
      * @type {object}
-     * @property {string} [color] - Background color for the workspace.
+     * @property {string} [color='gray'] - Background color for the workspace.
+     * @property {boolean} [settings.useServerGestures=false] - Whether to use
+     * server-side gestures. Default is to use client-side gestures.
      */
     this.settings = mergeMatches(DEFAULTS, settings);
 
@@ -72,6 +79,38 @@ class WorkSpace {
      * @property {function} swipe - Handler for swipe events.
      */
     this.handlers = {};
+
+    /**
+     * Processes server-side multi-device gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = null;
+
+    /**
+     * A fake view for handling multi-device gestures.
+     *
+     * @type {module:server.ServerView}
+     */
+    this.gestureView = null;
+
+    // Enable server-side gestures, if requested.
+    if (settings.useServerGestures) {
+      this.gestureView = new ServerView();
+      this.gestureController = new GestureController({
+        // pan:    (data) => this.propagate('drag',   data),
+        // rotate: (data) => this.propagate('rotate', data),
+        // swipe:  (data) => this.propagate('swipe',  data),
+        // tap:    (data) => this.propagate('click',  data),
+        // zoom:   (data) => this.propagate('scale',  data),
+        pan:    (data) => this.handle('drag',   this.gestureView, data),
+        rotate: (data) => this.handle('rotate', this.gestureView, data),
+        swipe:  (data) => this.handle('swipe',  this.gestureView, data),
+        tap:    (data) => this.handle('click',  this.gestureView, data),
+        zoom:   (data) => this.handle('scale',  this.gestureView, data),
+        track:  (data) => this.track(data),
+      });
+    }
 
     // Attach NOPs for the event listeners, so they are callable.
     ListenerFactory.TYPES.forEach(ev => {
@@ -154,6 +193,22 @@ class WorkSpace {
   }
 
   /**
+   * Forwards a PointerEvent to the GestureController.
+   *
+   * @param {PointerEvent} event - The event to forward.
+   */
+  pointerEvent(event) {
+    this.gestureController.process(event);
+  }
+
+  /**
+   * Propagates a gesture event through the first view.
+   */
+  propagate(message, args) {
+    this.handle(message, this.views[0], args);
+  }
+
+  /**
    * Remove the given view from the workspace.
    *
    * @param {module:server.ServerView} view - View to remove.
@@ -215,6 +270,25 @@ class WorkSpace {
     const o = new ServerItem(values);
     this.items.push(o);
     return o;
+  }
+
+  /**
+   * Performs locking and unlocking based on the phase and number of active
+   * points.
+   *
+   * @param {Object} data
+   * @param {module:server.Point2D[]} data.active - Currently active contact
+   * points.
+   * @param {module:server.Point2D} data.centroid - Centroid of active contact
+   * points.
+   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
+   */
+  track({ active, centroid, phase }) {
+    if (phase === 'start' && active.length === 1) {
+      this.giveLock(centroid.x, centroid.y, this.gestureView);
+    } else if (phase === 'end' && active.length === 0) {
+      this.removeLock(this.gestureView);
+    }
   }
 }
 

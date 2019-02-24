@@ -15,17 +15,20 @@
 
 'use strict';
 
-const { CanvasBlueprint } = require('canvas-sequencer');
+// const { CanvasBlueprint } = require('canvas-sequencer');
 
-const predefined  = require('./predefined.js');
-const { colours } = require('./shared.js');
+// const predefined  = require('./predefined.js');
+// const { colours } = require('./shared.js');
 const Router      = require('./server/Router.js');
-const Wams        = require('./server/Wams.js');
+const Application = require('./server/Application.js');
 
-Wams.Sequence   = CanvasBlueprint;
-Wams.Router     = Router;
-Wams.colours    = colours;
-Wams.predefined = predefined;
+// Wams.Sequence   = CanvasBlueprint;
+// Wams.Router     = Router;
+// Wams.colours    = colours;
+// Wams.predefined = predefined;
 
-module.exports = Wams;
+module.exports = {
+  Application,
+  Router,
+};
 

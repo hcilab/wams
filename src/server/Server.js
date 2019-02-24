@@ -32,6 +32,10 @@ const WorkSpace  = require('./WorkSpace.js');
 // Local constant data
 const DEFAULTS = { clientLimit: 10 };
 const PORT = 9000;
+const SIXTY_FPS = 1000 / 60;
+
+// Symbol to mark this property for internal use.
+const updates = Symbol('updates');
 
 /**
  * Finds the first null or undefined index in the given array, and returns that
@@ -158,6 +162,14 @@ class Server {
      */
     this.connections = [];
 
+    /**
+     * Dictionary of objects to update, keyed by id.
+     *
+     * @type {object}
+     */
+    this[updates] = {};
+    setInterval(this.postUpdates.bind(this), SIXTY_FPS);
+
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
   }
@@ -235,6 +247,16 @@ class Server {
   }
 
   /**
+   * Post scheduled updates.
+   */
+  postUpdates() {
+    Object.values(this[updates]).forEach(o => {
+      this.update(o);
+      delete this[updates][o.id];
+    });
+  }
+
+  /**
    * Reject the connection associated with the given socket.
    *
    * @param {Socket} socket - socket.io socket instance for the rejected
@@ -255,6 +277,16 @@ class Server {
     if (this.workspace.removeItem(item)) {
       new Message(Message.RM_ITEM, item).emitWith(this.namespace);
     }
+  }
+
+  /**
+   * Schedules an update announcement at the next update interval.
+   *
+   * @param {( module:server.ServerItem | module:server.ServerView )} object -
+   * Item or view that has been updated.
+   */
+  scheduleUpdate(object) {
+    this[updates][object.id] = object;
   }
 
   /**
