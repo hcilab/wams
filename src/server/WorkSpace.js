@@ -22,10 +22,6 @@ const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 
-const DEFAULTS = Object.freeze({
-  color:             'gray',
-  useServerGestures: false,
-});
 const STAMPER = new IdStamper();
 
 /**
@@ -51,7 +47,7 @@ class WorkSpace {
      * @property {boolean} [settings.useServerGestures=false] - Whether to use
      * server-side gestures. Default is to use client-side gestures.
      */
-    this.settings = mergeMatches(DEFAULTS, settings);
+    this.settings = mergeMatches(WorkSpace.DEFAULTS, settings);
 
     /**
      * Track all active views.
@@ -279,6 +275,16 @@ class WorkSpace {
     }
   }
 }
+
+/**
+ * The default values for a WorkSpace.
+ *
+ * @type {object}
+ */
+WorkSpace.DEFAULTS = Object.freeze({
+  color:             'gray',
+  useServerGestures: false,
+});
 
 module.exports = WorkSpace;
 

@@ -30,10 +30,6 @@ beforeAll(() => {
 });
 
 describe('WorkSpace', () => {
-  const DEFAULTS = Object.freeze({
-    color: 'gray',
-  });
-
   describe('constructor(port, settings)', () => {
     test('constructs correct type of object', () => {
       expect(new WorkSpace()).toBeInstanceOf(WorkSpace);
@@ -45,7 +41,7 @@ describe('WorkSpace', () => {
     });
 
     test('Uses default settings if none provided', () => {
-      expect(new WorkSpace().settings).toMatchObject(DEFAULTS);
+      expect(new WorkSpace().settings).toMatchObject(WorkSpace.DEFAULTS);
     });
 
     test('Uses user-defined settings, if provided', () => {
@@ -55,31 +51,19 @@ describe('WorkSpace', () => {
       expect(new WorkSpace(custom).settings).toMatchObject(custom);
 
       const ws = new WorkSpace({color: 'a'});
-      expect(ws.settings).not.toEqual(DEFAULTS);
-      expect(ws.settings.bounds).toEqual(DEFAULTS.bounds);
+      expect(ws.settings).not.toEqual(WorkSpace.DEFAULTS);
       expect(ws.settings.color).toEqual('a');
     });
   });
 
   describe('spawnItem(values)', () => {
     const ws = new WorkSpace();
-    const DEFAULTS = Object.freeze({
-      x: 0,
-      y: 0,
-      hitbox: null,
-      rotation: 0,
-      scale: 1,
-      type: 'item/foreground',
-      imgsrc: '',
-      blueprint: null,
-    });
-
     test('Returns a ServerItem', () => {
       expect(ws.spawnItem()).toBeInstanceOf(ServerItem);
     });
 
     test('Uses default Item values if none provided', () => {
-      expect(ws.spawnItem()).toMatchObject(DEFAULTS);
+      expect(ws.spawnItem()).toMatchObject(ServerItem.DEFAULTS);
     });
 
     test('Uses user-defined Item values, if provided', () => {
@@ -206,19 +190,9 @@ describe('WorkSpace', () => {
   });
 
   describe('spawnView(values)', () => {
-    let DEFAULTS;
     let ws;
     beforeAll(() => {
       ws = new WorkSpace({clientLimit:4});
-      DEFAULTS = {
-        x: 0,
-        y: 0,
-        width: 1600,
-        height: 900,
-        type: 'view/background',
-        scale: 1,
-        rotation: 0,
-      };
     });
 
     test('Returns a ServerView', () => {
@@ -226,7 +200,7 @@ describe('WorkSpace', () => {
     });
 
     test('Uses default View values if none provided', () => {
-      expect(ws.spawnView()).toMatchObject(DEFAULTS);
+      expect(ws.spawnView()).toMatchObject(ServerView.DEFAULTS);
     });
 
     test('Uses user-defined View values, if provided', () => {
@@ -238,8 +212,8 @@ describe('WorkSpace', () => {
       expect(vs.x).toBe(42);
       expect(vs.y).toBe(71);
       expect(vs.scale).toBe(3.5);
-      expect(vs.width).toBe(DEFAULTS.width);
-      expect(vs.height).toBe(DEFAULTS.height);
+      expect(vs.width).toBe(ServerView.DEFAULTS.width);
+      expect(vs.height).toBe(ServerView.DEFAULTS.height);
     });
 
     test('Keeps track of View', () => {
