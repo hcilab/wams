@@ -13,20 +13,12 @@
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const {
-  constants: globals,
+  constants,
   mergeMatches,
   removeById,
   IdStamper,
   View,
 } = require('../shared.js');
-
-const DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  rotation: globals.ROTATE_0,
-  scale:    1,
-  type:     'view/background',
-});
 
 const STATUS_KEYS = Object.freeze([
   'x',
@@ -68,7 +60,7 @@ class ClientView extends View {
    * open yet at the time that this class is instantiated.
    */
   constructor(values = {}) {
-    super(mergeMatches(DEFAULTS, values));
+    super(mergeMatches(ClientView.DEFAULTS, values));
 
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
@@ -281,6 +273,19 @@ class ClientView extends View {
     this.update('shadows', data);
   }
 }
+
+/**
+ * The default values for a ClientView.
+ *
+ * @type {object}
+ */
+ClientView.DEFAULTS = Object.freeze({
+  x:        0,
+  y:        0,
+  rotation: constants.ROTATE_0,
+  scale:    1,
+  type:     'view/background',
+});
 
 module.exports = ClientView;
 
