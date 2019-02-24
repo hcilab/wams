@@ -13,16 +13,6 @@
 const { mergeMatches, IdStamper, View } = require('../shared.js');
 const Point2D = require('./Point2D.js');
 
-const DEFAULTS = {
-  x:        0,
-  y:        0,
-  width:    1600,
-  height:   900,
-  type:     'view/background',
-  scale:    1,
-  rotation: 0,
-};
-
 const STAMPER = new IdStamper();
 
 /**
@@ -38,7 +28,7 @@ class ServerView extends View {
    * the view.
    */
   constructor(values = {}) {
-    super(mergeMatches(DEFAULTS, values));
+    super(mergeMatches(ServerView.DEFAULTS, values));
 
     /**
      * If a continuous gesture needs to lock down an item, a reference to that
@@ -212,6 +202,21 @@ class ServerView extends View {
     this.locked = false;
   }
 }
+
+/**
+ * The default values for a ServerView.
+ *
+ * @type {Object}
+ */
+ServerView.DEFAULTS = Object.freeze({
+  x:        0,
+  y:        0,
+  width:    1600,
+  height:   900,
+  type:     'view/background',
+  scale:    1,
+  rotation: 0,
+});
 
 module.exports = ServerView;
 
