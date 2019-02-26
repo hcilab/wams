@@ -20,7 +20,6 @@ const Pan     = require('./gestures/gestures/Pan.js');
 const Pinch   = require('./gestures/gestures/Pinch.js');
 const Rotate  = require('./gestures/gestures/Rotate.js');
 const Swipe   = require('./gestures/gestures/Swipe.js');
-const Swivel  = require('./gestures/gestures/Swivel.js');
 const Tap     = require('./gestures/gestures/Tap.js');
 const Track   = require('./gestures/gestures/Track.js');
 
@@ -32,7 +31,6 @@ module.exports = {
   Pinch,
   Rotate,
   Swipe,
-  Swivel,
   Tap,
   Track,
 };
