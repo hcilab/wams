@@ -131,7 +131,7 @@ class Server {
      * @type {object}
      */
     this[updates] = {};
-    setInterval(this.postUpdates.bind(this), SIXTY_FPS);
+    setInterval(this.publishUpdates.bind(this), SIXTY_FPS);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
@@ -191,9 +191,9 @@ class Server {
   }
 
   /**
-   * Post scheduled updates.
+   * Publish scheduled updates.
    */
-  postUpdates() {
+  publishUpdates() {
     Object.values(this[updates]).forEach(o => {
       o.publish();
       delete this[updates][o.id];
