@@ -20,7 +20,6 @@ const Transformable2D = (superclass) => class extends superclass {
   /**
    * Move the transformable by the given amounts.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} [ dx=0 ] - Movement along the x axis.
@@ -33,7 +32,6 @@ const Transformable2D = (superclass) => class extends superclass {
   /**
    * Move the transformable to the given coordinates.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} [ x=this.x ] - x coordinate to move to.
@@ -48,7 +46,6 @@ const Transformable2D = (superclass) => class extends superclass {
    * Rotate the transformable by the given amount, in radians, around the given
    * x,y point.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} [ radians=0 ] - The amount of rotation to apply to the
@@ -68,7 +65,6 @@ const Transformable2D = (superclass) => class extends superclass {
   /**
    * Adjust the transformable by the given scale.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} [ ds=1 ] - Change in desired scale.
@@ -92,7 +88,6 @@ const Transformable2D = (superclass) => class extends superclass {
    * is, it applies to the point the same transformations that apply to this
    * Transformable2D, but in reverse.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} x - x coordinate to transform.
@@ -112,7 +107,6 @@ const Transformable2D = (superclass) => class extends superclass {
    * space. Very much like the 'transformPoint' function, except that it does
    * not apply translation.
    *
-   * @instance
    * @memberof module:mixins.Transformable2D
    *
    * @param {number} dx - dx coordinate to transform.
