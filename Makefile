@@ -17,6 +17,12 @@ bundle:
 docs:
 	npx jsdoc -c .jsdocrc.json;
 
+redoc:
+	rm -rf docs;
+	mkdir -p docs/styles;
+	cp custom.css docs/styles/;
+	npx jsdoc -c .jsdocrc.json;
+
 tags:
 	ctags -R src;
 
