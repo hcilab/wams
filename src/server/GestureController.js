@@ -21,8 +21,6 @@ const Gestures = require('../gestures.js');
  */
 class GestureController {
   /**
-   * @param {module:server.ServerViewGroup} group - The view group associated
-   * with this GestureController.
    * @param {Object} handlers - Object with keys as the names gestures and
    *    values as the corresponding function for handling that gesture when it
    *    is recognized.
@@ -33,7 +31,7 @@ class GestureController {
    * @param {Function} [handlers.zoom=NOP]
    * @param {Function} [handlers.track=NOP]
    */
-  constructor(group, handlers = {}) {
+  constructor(handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
@@ -47,14 +45,6 @@ class GestureController {
      * @property {Function} track=NOP
      */
     this.handlers = mergeMatches(GestureController.DEFAULT_HANDLERS, handlers);
-
-    /**
-     * The GestureController needs to know which ServerViewGroup it is
-     * associated with, so that it can keep some of its state up to date.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = null;
 
     /**
      * The "region" which takes care of gesture processing.

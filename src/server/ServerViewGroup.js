@@ -10,23 +10,18 @@
 
 'use strict';
 
-const { safeRemoveById } = require('../shared.js');
-const ServerView = require('./ServerView.js');
+const { removeById, View } = require('../shared.js');
+const { Transformable2D } = require('../mixins.js');
+const GestureController = require('./GestureController.js');
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
  * View, so that they can move together as one block.
  *
  * @memberof module:server
- * @extends module:server.ServerView
+ * @extends module:server.View
  */
-class ServerViewGroup extends ServerView {
-  /**
-   * @param {Object} [ values ] - Object with user supplied values describing
-   * the view.
-   *
-   * @see {@link module:shared.View}
-   */
+class ServerViewGroup extends Transformable2D(View) {
   constructor() {
     /*
      * Not supplying any values, as the default x, y, scale, and rotation values
@@ -46,50 +41,8 @@ class ServerViewGroup extends ServerView {
      *
      * @type {module:server.GestureController}
      */
-    this.gestureController = null;
+    this.gestureController = new GestureController();
   }
-
-  /**
-   * Throws a bad operation ReferenceError.
-   *
-   * @throws ReferenceError.
-   */
-  badGroupOp() {
-    throw new ReferenceError('Invalid operation for groups.');
-  }
-
-  /**
-   * Disallow bottomLeft getter.
-   *
-   * @override
-   * @throws ReferenceError
-   */
-  get bottomLeft() { return this.badGroupOp(); }
-
-  /**
-   * Disallow bottomRight getter.
-   *
-   * @override
-   * @throws ReferenceError
-   */
-  get bottomRight() { return this.badGroupOp(); }
-
-  /**
-   * Disallow topLeft getter.
-   *
-   * @override
-   * @throws ReferenceError
-   */
-  get topLeft() { return this.badGroupOp(); }
-
-  /**
-   * Disallow topRight getter.
-   *
-   * @override
-   * @throws ReferenceError
-   */
-  get topRight() { return this.badGroupOp(); }
-
 
   /**
    * Add a view into the group.
@@ -111,12 +64,8 @@ class ServerViewGroup extends ServerView {
   moveBy(dx = 0, dy = 0) {
     this.views.forEach(v => v.moveBy(dx, dy));
     this.gestureController.centroid.add({ x: dx, y: dy });
-    // console.log(`dx: ${dx}, dy: ${dy}`);
     this.gestureController.inputs.forEach(input => {
-      // const p = input.current.physical;
-      // console.log(`BEFORE: ${p.x}, ${p.y}`);
       input.current.physical.add({ x: dx, y: dy });
-      // console.log(`AFTER: ${p.x}, ${p.y}`);
     });
   }
 
@@ -127,7 +76,7 @@ class ServerViewGroup extends ServerView {
    * @throws ReferenceError
    */
   moveTo() {
-    this.badGroupOp();
+    throw new ReferenceError('Invalid operation for groups.');
   }
 
   /**
@@ -136,7 +85,7 @@ class ServerViewGroup extends ServerView {
    * @param {module:server.ServerView} view - View to remove from the group.
    */
   removeView(view) {
-    safeRemoveById(this.views, view, ServerView);
+    removeById(this.views, view);
   }
 
   /**
@@ -179,6 +128,21 @@ class ServerViewGroup extends ServerView {
     this.gestureController = controller;
   }
 }
+
+/**
+ * The default values for a ServerViewGroup.
+ *
+ * @type {object}
+ */
+ServerViewGroup.DEFAULTS = Object.freeze({
+  x:        0,
+  y:        0,
+  width:    1600,
+  height:   900,
+  type:     'viewgroup',
+  scale:    1,
+  rotation: 0,
+});
 
 module.exports = ServerViewGroup;
 

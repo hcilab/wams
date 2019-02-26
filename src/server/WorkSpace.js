@@ -16,7 +16,6 @@ const {
   IdStamper,
   safeRemoveById,
 } = require('../shared.js');
-const GestureController = require('./GestureController.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
@@ -63,31 +62,15 @@ class WorkSpace {
     this.items = [];
 
     /**
-     * Processes server-side multi-device gestures.
+     * Track all active groups.
      *
-     * @type {module:server.GestureController}
+     * @type {module:server.ServerViewGroup[]}
      */
-    this.gestureController = null;
-
-    /**
-     * A fake view for handling multi-device gestures.
-     *
-     * @type {module:server.ServerView}
-     */
-    this.gestureView = null;
+    this.groups = [];
 
     // Enable server-side gestures, if requested.
     if (settings.useServerGestures) {
-      this.gestureView = new ServerViewGroup();
-      this.gestureController = new GestureController(this.gestureView, {
-        pan:    (data) => this.handle('drag',   this.gestureView, data),
-        rotate: (data) => this.handle('rotate', this.gestureView, data),
-        swipe:  (data) => this.handle('swipe',  this.gestureView, data),
-        tap:    (data) => this.handle('click',  this.gestureView, data),
-        zoom:   (data) => this.handle('scale',  this.gestureView, data),
-        track:  (data) => this.track(data),
-      });
-      this.gestureView.setGestureController(this.gestureController);
+      this.groups[0] = new ServerViewGroup();
     }
 
     // Workspaces should be uniquely identifiable.
@@ -133,15 +116,6 @@ class WorkSpace {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
     view.getLockOnItem(item);
-  }
-
-  /**
-   * Forwards a PointerEvent to the GestureController.
-   *
-   * @param {PointerEvent} event - The event to forward.
-   */
-  pointerEvent(event) {
-    this.gestureController.process(event);
   }
 
   /**
