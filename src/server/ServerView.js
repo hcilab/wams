@@ -11,7 +11,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, View } = require('../shared.js');
-const { Lockable, Transformable2D } = require('../mixins.js');
+const { Locker, Lockable, Transformable2D } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
 
@@ -24,7 +24,7 @@ const STAMPER = new IdStamper();
  * @mixes module:mixins.Transformable2D
  * @mixes module:mixins.Lockable
  */
-class ServerView extends Lockable(Transformable2D(View)) {
+class ServerView extends Locker(Lockable(Transformable2D(View))) {
   /**
    * @param {Object} [ values ] - Object with user supplied values describing
    * the view.
@@ -71,26 +71,6 @@ class ServerView extends Lockable(Transformable2D(View)) {
    * @type {module:server.Point2D}
    */
   get topRight() { return this.transformPoint(this.width, 0); }
-
-  /**
-   * Obtain a lock on the given item for this view.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} item - The
-   * item to lock down.
-   */
-  getLockOnItem(item) {
-    if (this.lockedItem) this.lockedItem.unlock();
-    this.lockedItem = item;
-    item.lock();
-  }
-
-  /**
-   * Release the view's item lock.
-   */
-  releaseLockedItem() {
-    if (this.lockedItem) this.lockedItem.unlock();
-    this.lockedItem = null;
-  }
 
   /*
    * Scale the item by the given amount.

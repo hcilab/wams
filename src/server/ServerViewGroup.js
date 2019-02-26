@@ -11,8 +11,7 @@
 'use strict';
 
 const { removeById, View } = require('../shared.js');
-const { Transformable2D } = require('../mixins.js');
-const GestureController = require('./GestureController.js');
+const { Lockable, Transformable2D } = require('../mixins.js');
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
@@ -21,7 +20,7 @@ const GestureController = require('./GestureController.js');
  * @memberof module:server
  * @extends module:server.View
  */
-class ServerViewGroup extends Transformable2D(View) {
+class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   constructor() {
     /*
      * Not supplying any values, as the default x, y, scale, and rotation values
@@ -35,13 +34,6 @@ class ServerViewGroup extends Transformable2D(View) {
      * @type {module:server.ServerView[]}
      */
     this.views = [];
-
-    /**
-     * The gesture controller for this group.
-     *
-     * @type {module:server.GestureController}
-     */
-    this.gestureController = new GestureController();
   }
 
   /**
@@ -63,10 +55,6 @@ class ServerViewGroup extends Transformable2D(View) {
    */
   moveBy(dx = 0, dy = 0) {
     this.views.forEach(v => v.moveBy(dx, dy));
-    this.gestureController.centroid.add({ x: dx, y: dy });
-    this.gestureController.inputs.forEach(input => {
-      input.current.physical.add({ x: dx, y: dy });
-    });
   }
 
   /**
@@ -117,15 +105,6 @@ class ServerViewGroup extends Transformable2D(View) {
    */
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     this.views.forEach(v => v.scaleBy(ds, mx, my));
-  }
-
-  /**
-   * Assigns a GestureController to this group.
-   *
-   * @param {module:server.GestureController} controller
-   */
-  setGestureController(controller) {
-    this.gestureController = controller;
   }
 }
 
