@@ -179,11 +179,12 @@ class Connection {
    *       state of the window in which it is displayed.
    */
   layout(data) {
-    this.view.assign(data);
-    this.messageHandler.handle('layout', this.view, this.index);
+    const { width, height } = data;
+    this.view.assign({ width, height });
+    this.device.assign({ width, height });
+    this.messageHandler.handle('layout', this.view, this.index, this.device);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
-    this.device.assign(this.view);
   }
 
   /**

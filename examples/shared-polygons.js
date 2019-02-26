@@ -51,27 +51,30 @@ const handleLayout = (function makeLayoutHandler() {
     table = view;
   };
 
-  function layoutLeft(view) {
+  function layoutLeft(view, device) {
     const anchor = table.bottomLeft.minus({ x: 0, y: OVERLAP });
     view.moveTo( anchor.x, anchor.y );
+    device.moveTo( 0, table.height - OVERLAP );
   };
 
-  function layoutRight(view) {
+  function layoutRight(view, device) {
     const anchor = table.topRight.minus({ x: OVERLAP, y: 0 });
     view.moveTo( anchor.x, anchor.y );
+    device.moveTo( table.width - OVERLAP, 0 );
   };
 
-  function layoutBottom(view) {
+  function layoutBottom(view, device) {
     const anchor = table.bottomRight.minus({ x: OVERLAP, y: OVERLAP });
     view.moveTo( anchor.x, anchor.y );
+    device.moveTo( table.width - OVERLAP, table.height - OVERLAP);
   };
 
   function dependOnTable(fn) {
-    return function layoutDepender(view) {
+    return function layoutDepender(view, device) {
       if (!table) {
-        setTimeout( () => layoutDepender(view), 0 ); 
+        setTimeout( () => layoutDepender(view, device), 0 ); 
       } else {
-        fn(view);
+        fn(view, device);
       }
     };
   }
@@ -82,8 +85,8 @@ const handleLayout = (function makeLayoutHandler() {
   user_fns[LEFT]    = dependOnTable( layoutLeft );
   user_fns[BOTTOM]  = dependOnTable( layoutBottom );
 
-  function handleLayout(view, position) {
-    user_fns[position](view);
+  function handleLayout(view, position, device) {
+    user_fns[position](view, device);
   }
 
   return handleLayout;
