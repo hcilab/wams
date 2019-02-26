@@ -171,21 +171,21 @@ class WorkSpace {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
-    const item = new ServerItem(values);
+    const item = new ServerItem(this.namespace, values);
     this.items.push(item);
-    new Message(Message.ADD_ITEM, item).emitWith(this.namespace);
     return item;
   }
 
   /**
    * Spawn a new view with the given values.
    *
+   * @param {Namespace} socket - Socket.io socket for publishing changes.
    * @param {object} values - Values describing the view to spawn.
    *
    * @return {module:server.ServerView} The newly spawned view.
    */
-  spawnView(values = {}) {
-    const v = new ServerView(values);
+  spawnView(socket, values = {}) {
+    const v = new ServerView(socket, values);
     this.views.push(v);
     this.group.addView(v);
     v.assign(this.group);

@@ -12,16 +12,10 @@
 
 
 // Local project packages, shared between client and server.
-const {
-  // constants,
-  Message,
-} = require('../shared.js');
+const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const Connection = require('./Connection.js');
-const ServerItem = require('./ServerItem.js');
-const ServerView = require('./ServerView.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 const GestureController = require('./GestureController.js');
 
 // Local constant data
@@ -201,7 +195,7 @@ class Server {
    */
   postUpdates() {
     Object.values(this[updates]).forEach(o => {
-      this.update(o);
+      o.publish();
       delete this[updates][o.id];
     });
   }
@@ -226,56 +220,6 @@ class Server {
    */
   scheduleUpdate(object) {
     this[updates][object.id] = object;
-  }
-
-  /**
-   * Announce to all active clients that the given object has been updated.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
-   */
-  update(object) {
-    if (object instanceof ServerItem) {
-      this.updateItem(object);
-    } else if (object instanceof ServerViewGroup) {
-      this.updateViewGroup(object);
-    } else if (object instanceof ServerView) {
-      this.updateView(object);
-    }
-  }
-
-  /**
-   * Inform all clients that the given item has been updated.
-   *
-   * @param {module:server.ServerItem} item - ServerItem that has been updated.
-   */
-  updateItem(item) {
-    new Message(Message.UD_ITEM, item).emitWith(this.namespace);
-  }
-
-  /**
-   * Inform the client corresponding to the given view that it has been updated,
-   * and inform all other clients that a 'shadow' view has been updated.
-   *
-   * @param {module:server.ServerView} view - ServerView that has been updated.
-   */
-  updateView(view) {
-    const cn = this.connections.find(c => c && c.view.id === view.id);
-    if (cn) {
-      new Message(Message.UD_SHADOW, view).emitWith(cn.socket.broadcast);
-      new Message(Message.UD_VIEW,   view).emitWith(cn.socket);
-    } else {
-      console.warn('Failed to locate connection');
-    }
-  }
-
-  /**
-   * Update all the views in the group.
-   *
-   * @param {module:server.ServerViewGroup} group - Group that has been updated.
-   */
-  updateViewGroup(group) {
-    group.views.forEach(v => this.updateView(v));
   }
 }
 

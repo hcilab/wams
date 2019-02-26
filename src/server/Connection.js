@@ -81,7 +81,7 @@ class Connection {
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.workspace.spawnView();
+    this.view = this.workspace.spawnView(this.socket);
 
     /**
      * The device corresponding to the client's device's physical orientation.
