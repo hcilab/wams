@@ -20,6 +20,7 @@ const Lockable = (superclass) => class extends superclass {
   /**
    * Lock this item.
    *
+   * @instance
    * @memberof module:mixins.Lockable
    */
   lock() {
@@ -29,6 +30,7 @@ const Lockable = (superclass) => class extends superclass {
   /**
    * Unlock this item.
    *
+   * @instance
    * @memberof module:mixins.Lockable
    */
   unlock() {
