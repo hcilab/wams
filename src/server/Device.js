@@ -6,10 +6,8 @@
 
 'use strict';
 
-const { mergeMatches, IdStamper, View } = require('../shared.js');
+const { View } = require('../shared.js');
 const { Transformable2D } = require('../mixins.js');
-
-const STAMPER = new IdStamper();
 
 /**
  * A Device keeps track of the physical position of a device connected to an
@@ -19,16 +17,7 @@ const STAMPER = new IdStamper();
  * @extends module:shared.View
  * @mixes module:mixins.Transformable2D
  */
-class Device extends Transformable2D(View) {
-  /**
-   * @param {object} [values=module:server.Device.DEFAULTS] - Object with values
-   * describing the device.
-   */
-  constructor(values = {}) {
-    super(mergeMatches(Device.DEFAULTS, values));
-    STAMPER.stampNewId(this);
-  }
-}
+class Device extends Transformable2D(View) {}
 
 /**
  * The default values for a Device.

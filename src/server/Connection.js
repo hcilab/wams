@@ -11,6 +11,7 @@
 'use strict';
 
 const { FullStateReporter, Message, NOP } = require('../shared.js');
+const Device = require('./Device.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -34,8 +35,10 @@ class Connection {
    * this connection.
    * @param {module:server.MessageHandler} messageHandler - For responding to
    * messages from clients.
+   * @param {module:server.GestureController} gestureController - For
+   * server-side gestures.
    */
-  constructor(index, socket, workspace, messageHandler) {
+  constructor(index, socket, workspace, messageHandler, gestureController) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -67,11 +70,25 @@ class Connection {
     this.messageHandler = messageHandler;
 
     /**
+     * For server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = gestureController;
+
+    /**
      * The view corresponding to the client on the other end of this Connection.
      *
      * @type {module:server.ServerView}
      */
     this.view = this.workspace.spawnView();
+
+    /**
+     * The device corresponding to the client's device's physical orientation.
+     *
+     * @type {module:server.Device}
+     */
+    this.device = new Device();
 
     // Automatically begin operations by registering Message listeners and
     // Informing the client on the current state of the model.
@@ -163,6 +180,7 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
+    this.device.assign(data);
     this.messageHandler.handle('layout', this.view, this.index);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
@@ -175,8 +193,10 @@ class Connection {
    */
   pointerEvent(event) {
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-    event.viewSource = this.view;
-    this.workspace.pointerEvent(event);
+    const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
+    event.clientX = x;
+    event.clientY = y;
+    this.gestureController.process(event);
   }
 
   /**

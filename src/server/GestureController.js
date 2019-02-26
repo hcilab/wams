@@ -25,14 +25,7 @@ class GestureController {
    * @param {module:server.ServerViewGroup} group - The view group associated
    * with this controller.
    */
-  constructor(messageHandler, group, workspace) {
-    /**
-     * The view group associated with this controller.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = group;
-
+  constructor(messageHandler, workspace) {
     /**
      * For responding to gestures.
      *
@@ -76,7 +69,7 @@ class GestureController {
     this.region.addGesture(pinch,  this.handle('scale'));
     this.region.addGesture(rotate, this.handle('rotate'));
     this.region.addGesture(swipe,  this.handle('swipe'));
-    this.region.addGesture(track,  this.handle('track'));
+    this.region.addGesture(track,  (data) => this.track(data));
   }
 
   /**
@@ -89,7 +82,7 @@ class GestureController {
    */
   handle(message) {
     function do_handle(data) {
-      this.messageHandler.handle(message, this.group, data);
+      this.messageHandler.handle(message, this.workspace.group, data);
     }
     return do_handle.bind(this);
   }
@@ -116,9 +109,9 @@ class GestureController {
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {
-      this.workspace.obtainLock(centroid.x, centroid.y, this.group);
+      this.workspace.obtainLock(centroid.x, centroid.y, this.workspace.group);
     } else if (phase === 'end' && active.length === 0) {
-      this.group.releaseLockedItem();
+      this.workspace.group.releaseLockedItem();
     }
   }
 }

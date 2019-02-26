@@ -28,7 +28,7 @@ const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
-// const WorkSpace  = require('./WorkSpace.js');
+const GestureController = require('./GestureController.js');
 
 // Local constant data
 const SIXTY_FPS = 1000 / 60;
@@ -167,6 +167,13 @@ class Server {
      * @type {module:server.Connection[]}
      */
     this.connections = [];
+
+    /**
+     * Controls server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = new GestureController(messageHandler, workspace);
 
     /**
      * Dictionary of objects to update, keyed by id.
