@@ -49,6 +49,8 @@ const TYPES = {
   /** @const */ SCALE:      'wams-scale',
   /** @const */ SWIPE:      'wams-swipe',
   /** @const */ TRACK:      'wams-track',
+
+  // Multi-device gesture related
   /** @const */ POINTER:    'wams-pointer',
 
   // Page event related
