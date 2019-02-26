@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: gestures/gestures/Pinch.js | WAMS</title>
+    <title>Source: server/MessageHandler.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,122 +53,77 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * Contains the abstract Pinch class.
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
  */
 
 'use strict';
 
-const Gesture = require('../core/Gesture.js');
-
-const DEFAULT_MIN_INPUTS = 2;
-
-/**
- * Data returned when a Pinch is recognized.
- *
- * @typedef {Object} PinchData
- * @mixes module:gestures.ReturnTypes.BaseData
- *
- * @property {number} distance - The average distance from an active input to
- *    the centroid.
- * @property {number} change - The change in distance since last emit.
- * @property {module:gestures.Point2D} midpoint - The centroid of the currently
- * active points.
- *
- * @memberof module:gestures.ReturnTypes
- */
+const ListenerFactory = require('./ListenerFactory.js');
+const { NOP } = require('../shared.js');
 
 /**
- * A Pinch is defined as two or more inputs moving either together or apart.
+ * The MessageHandler logs listeners that are attached by the user and receives
+ * messages from clients, which it then uses to call the appropriate listener.
  *
- * @extends module:gestures.Gesture
- * @see module:gestures.ReturnTypes.PinchData
- * @memberof module:gestures
+ * @memberof module:server
  */
-class Pinch extends Gesture {
+class MessageHandler {
   /**
-   * Constructor function for the Pinch class.
-   *
-   * @param {Object} [options]
-   * @param {number} [options.minInputs=2] The minimum number of inputs that
-   *    must be active for a Pinch to be recognized.
+   * @param {module:server.WorkSpace} workspace - the model used when responding
+   * to messages.
    */
-  constructor(options = {}) {
-    super('pinch');
+  constructor(workspace) {
+    /**
+     * The model to access when responding to messages.
+     *
+     * @type {module:server.WorkSpace}
+     */
+    this.workspace = workspace;
 
     /**
-     * The minimum number of inputs that must be active for a Pinch to be
-     * recognized.
+     * Store event listeners in an object, for easy access by event type.
      *
-     * @type {number}
+     * @type {object}
+     * @property {function} click - Handler for click events.
+     * @property {function} drag - Handler for drag events.
+     * @property {function} layout - Handler for layout events.
+     * @property {function} rotate - Handler for rotate events.
+     * @property {function} scale - Handler for scale events.
+     * @property {function} swipe - Handler for swipe events.
      */
-    this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
+    this.handlers = {};
+
+    // Attach NOPs for the event listeners, so they are callable.
+    ListenerFactory.TYPES.forEach(ev => {
+      this.handlers[ev] = NOP;
+    });
   }
 
   /**
-   * Initializes the gesture progress and stores it in the first input for
-   * reference events.
+   * Call the registered handler for the given message type.
    *
-   * @param {module:gestures.State} state - current input state.
+   * @param {string} message - Type of message.
+   * @param {...mixed} ...args - Arguments to pass to the handler.
    */
-  initializeProgress(state) {
-    const distance = state.physicalCentroid
-      .averageDistanceTo(state.physicalPoints);
-    // const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = distance;
-    // console.log(`INITIAL: ${distance}`);
+  handle(message, ...args) {
+    this.handlers[message](...args);
   }
 
   /**
-   * Event hook for the start of a Pinch.
+   * Register a handler for the given event.
    *
-   * @param {module:gestures.State} state - current input state.
+   * @param {string} event - Event to respond to.
+   * @param {function} listener - Handler / listener to register.
    */
-  start(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
-  }
-
-  /**
-   * Event hook for the move of a Pinch.
-   *
-   * @param {module:gestures.State} state - current input state.
-   * @return {?module:gestures.ReturnTypes.PinchData} &lt;tt>null&lt;/tt> if not
-   * recognized.
-   */
-  move(state) {
-    if (state.active.length &lt; this.minInputs) return null;
-
-    const distance = state.physicalCentroid
-      .averageDistanceTo(state.physicalPoints);
-    // const distance = state.centroid.averageDistanceTo(state.activePoints);
-    // console.log(`EMITTED: ${distance}`);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    const change = distance / progress.previousDistance;
-    // console.log(`CHANGE: ${change}`);
-    progress.previousDistance = distance;
-
-    return {
-      distance,
-      midpoint: state.centroid,
-      change,
-    };
-  }
-
-  /**
-   * Event hook for the end of a Pinch.
-   *
-   * @param {module:gestures.State} input status object
-   */
-  end(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+  on(event, listener) {
+    const type = event.toLowerCase();
+    this.handlers[type] = ListenerFactory.build(type, listener, this.workspace);
   }
 }
 
-module.exports = Pinch;
+module.exports = MessageHandler;
 
 </code></pre>
         </article>

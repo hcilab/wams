@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: gestures/gestures/Pinch.js | WAMS</title>
+    <title>Class: MessageHandler | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -49,130 +47,862 @@
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/*
- * Contains the abstract Pinch class.
- */
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-server.html">server</a>.</span>MessageHandler<span class="signature">(workspace)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">The MessageHandler logs listeners that are attached by the user and receives
+messages from clients, which it then uses to call the appropriate listener.</div>
+        
+    
+</header>
 
-'use strict';
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-const Gesture = require('../core/Gesture.js');
+<dt>
+    
+        <h4 class="name" id="MessageHandler">
+            
+                new <span class="type-signature"></span>MessageHandler<span class="signature">(workspace)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="server_MessageHandler.js.html">server/MessageHandler.js</a></code>,
+                <code><a href="server_MessageHandler.js.html#line18">line 18</a></code>
+            </div>
+            
+        </h4>
 
-const DEFAULT_MIN_INPUTS = 2;
+        
+    
+</dt>
+<dd>
 
-/**
- * Data returned when a Pinch is recognized.
- *
- * @typedef {Object} PinchData
- * @mixes module:gestures.ReturnTypes.BaseData
- *
- * @property {number} distance - The average distance from an active input to
- *    the centroid.
- * @property {number} change - The change in distance since last emit.
- * @property {module:gestures.Point2D} midpoint - The centroid of the currently
- * active points.
- *
- * @memberof module:gestures.ReturnTypes
- */
+    
 
-/**
- * A Pinch is defined as two or more inputs moving either together or apart.
- *
- * @extends module:gestures.Gesture
- * @see module:gestures.ReturnTypes.PinchData
- * @memberof module:gestures
- */
-class Pinch extends Gesture {
-  /**
-   * Constructor function for the Pinch class.
-   *
-   * @param {Object} [options]
-   * @param {number} [options.minInputs=2] The minimum number of inputs that
-   *    must be active for a Pinch to be recognized.
-   */
-  constructor(options = {}) {
-    super('pinch');
+    
 
-    /**
-     * The minimum number of inputs that must be active for a Pinch to be
-     * recognized.
-     *
-     * @type {number}
-     */
-    this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
-  }
+    
 
-  /**
-   * Initializes the gesture progress and stores it in the first input for
-   * reference events.
-   *
-   * @param {module:gestures.State} state - current input state.
-   */
-  initializeProgress(state) {
-    const distance = state.physicalCentroid
-      .averageDistanceTo(state.physicalPoints);
-    // const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = distance;
-    // console.log(`INITIAL: ${distance}`);
-  }
+    
 
-  /**
-   * Event hook for the start of a Pinch.
-   *
-   * @param {module:gestures.State} state - current input state.
-   */
-  start(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
-  }
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-  /**
-   * Event hook for the move of a Pinch.
-   *
-   * @param {module:gestures.State} state - current input state.
-   * @return {?module:gestures.ReturnTypes.PinchData} &lt;tt>null&lt;/tt> if not
-   * recognized.
-   */
-  move(state) {
-    if (state.active.length &lt; this.minInputs) return null;
+        <th>Type</th>
 
-    const distance = state.physicalCentroid
-      .averageDistanceTo(state.physicalPoints);
-    // const distance = state.centroid.averageDistanceTo(state.activePoints);
-    // console.log(`EMITTED: ${distance}`);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    const change = distance / progress.previousDistance;
-    // console.log(`CHANGE: ${change}`);
-    progress.previousDistance = distance;
+        
 
-    return {
-      distance,
-      midpoint: state.centroid,
-      change,
-    };
-  }
+        
 
-  /**
-   * Event hook for the end of a Pinch.
-   *
-   * @param {module:gestures.State} input status object
-   */
-  end(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
-  }
-}
+        <th class="last">Description</th>
+    </tr>
+    </thead>
 
-module.exports = Pinch;
+    <tbody>
+    
 
-</code></pre>
-        </article>
-    </section>
+        <tr>
+            
+                <td class="name"><code>workspace</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-server.WorkSpace.html">module:server.WorkSpace</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">the model used when responding
+to messages.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="handlers">
+    <span class="type-signature"></span>handlers<span class="type-signature"> :object</span>
+    
+    <div class="container-source members">
+        <code><a href="server_MessageHandler.js.html">server/MessageHandler.js</a></code>,
+        <code><a href="server_MessageHandler.js.html#line42">line 42</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        Store event listeners in an object, for easy access by event type.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">object</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>click</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for click events.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>drag</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for drag events.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>layout</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for layout events.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>rotate</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for rotate events.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>scale</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for scale events.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>swipe</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler for swipe events.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="workspace">
+    <span class="type-signature"></span>workspace<span class="type-signature"> :<a href="module-server.WorkSpace.html">module:server.WorkSpace</a></span>
+    
+    <div class="container-source members">
+        <code><a href="server_MessageHandler.js.html">server/MessageHandler.js</a></code>,
+        <code><a href="server_MessageHandler.js.html#line29">line 29</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The model to access when responding to messages.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="module-server.WorkSpace.html">module:server.WorkSpace</a></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id="handle">
+            
+                <span class="type-signature"></span>handle<span class="signature">(message)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="server_MessageHandler.js.html">server/MessageHandler.js</a></code>,
+                <code><a href="server_MessageHandler.js.html#line56">line 56</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Call the registered handler for the given message type.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>message</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Type of message.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>...args</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">mixed</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                    &lt;repeatable><br>
+                
+                </td>
+            
+
+            
+
+            <td class="description last">Arguments to pass to the handler.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="on">
+            
+                <span class="type-signature"></span>on<span class="signature">(event, listener)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="server_MessageHandler.js.html">server/MessageHandler.js</a></code>,
+                <code><a href="server_MessageHandler.js.html#line66">line 66</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Register a handler for the given event.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>event</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Event to respond to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>listener</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Handler / listener to register.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -189,7 +919,7 @@ module.exports = Pinch;
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = '_sub'.replace(/"/g, '_');
+        var id = 'module:server.MessageHandler_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
