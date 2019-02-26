@@ -183,25 +183,6 @@ class WorkSpace {
     this.items.push(o);
     return o;
   }
-
-  /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
-   *
-   * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
-   */
-  track({ active, centroid, phase }) {
-    if (phase === 'start' && active.length === 1) {
-      this.obtainLock(centroid.x, centroid.y, this.gestureView);
-    } else if (phase === 'end' && active.length === 0) {
-      this.gestureView.releaseLockedItem();
-    }
-  }
 }
 
 /**
