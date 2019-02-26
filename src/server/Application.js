@@ -70,19 +70,12 @@ class Application {
     this.server = http.createServer(router);
 
     /**
-     * Socket.io instance for maintaining connections with clients.
-     *
-     * @type {Socket}
-     * @see {@link https://socket.io/docs/server-api/}
-     */
-    this.io = IO(this.server);
-
-    /**
      * Socket.io namespace in which to operate.
      *
      * @type {Namespace}
+     * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = this.io.of(constants.NS_WAMS);
+    this.namespace = IO(this.server).of(constants.NS_WAMS);
 
     /**
      * The main model. The buck stops here.
