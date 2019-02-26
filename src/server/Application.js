@@ -70,13 +70,6 @@ class Application {
     this.server = http.createServer(router);
 
     /**
-     * Port on which to listen.
-     *
-     * @type {number}
-     */
-    this.port = null;
-
-    /**
      * Socket.io instance for maintaining connections with clients.
      *
      * @type {Socket}
@@ -115,21 +108,8 @@ class Application {
       this[messageHandler],
       this.namespace,
       settings,
-      // router
     );
   }
-
-  /**
-   * Activate the server, listening on the given host and port.
-   *
-   * @param {number} [port=9000] - Valid port number on which to listen.
-   * @param {string} [host=getLocalIP()] - IP address or hostname on which to
-   * listen.
-   * @see module:server.Server~getLocalIP
-   */
-  // listen(port, host) {
-  //   this[server].listen(port, host);
-  // }
 
   /**
    * Start the server on the given hostname and port.
@@ -143,7 +123,6 @@ class Application {
     this.server.listen(port, host, () => {
       console.info('Listening on', this.server.address());
     });
-    this.port = port;
   }
 
   /**
