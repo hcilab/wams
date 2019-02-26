@@ -63,7 +63,7 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
    * this Item is not currently locked. False otherwise.
    */
   isFreeItemAt(x, y) {
-    return !this.locked && this.containsPoint(x, y);
+    return !this.isLocked() && this.containsPoint(x, y);
   }
 
   /*

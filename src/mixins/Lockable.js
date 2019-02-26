@@ -18,6 +18,18 @@ const locked = Symbol.for('locked');
  */
 const Lockable = (superclass) => class extends superclass {
   /**
+   * Checks whether this item is locked.
+   *
+   * @instance
+   * @memberof module:mixins.Lockable
+   *
+   * @return {boolean} True if the item is locked, false otherwise.
+   */
+  isLocked() {
+    return this[locked];
+  }
+
+  /**
    * Lock this item.
    *
    * @instance
