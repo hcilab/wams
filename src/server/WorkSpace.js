@@ -118,6 +118,18 @@ class WorkSpace {
     view.getLockOnItem(item);
   }
 
+
+  /**
+   * Remove the given item from the workspace.
+   *
+   * @param {module:server.ServerItem} item - Item to remove.
+   *
+   * @return {boolean} true if the item was located and removed, false
+   * otherwise.
+   */
+  removeItem(item) {
+    return safeRemoveById(this.items, item, ServerItem);
+  }
   /**
    * Remove the given view from the workspace.
    *
@@ -132,15 +144,10 @@ class WorkSpace {
   }
 
   /**
-   * Remove the given item from the workspace.
-   *
-   * @param {module:server.ServerItem} item - Item to remove.
-   *
-   * @return {boolean} true if the item was located and removed, false
-   * otherwise.
+   * @return {module:shared.Item[]} Reports of the currently active items.
    */
-  removeItem(item) {
-    return safeRemoveById(this.items, item, ServerItem);
+  reportItems() {
+    return this.items.map(o => o.report());
   }
 
   /**
@@ -151,10 +158,16 @@ class WorkSpace {
   }
 
   /**
-   * @return {module:shared.Item[]} Reports of the currently active items.
+   * Spawn a new item with the given values.
+   *
+   * @param {object} values - Values describing the item to spawn.
+   *
+   * @return {module:server.ServerItem} The newly spawned item.
    */
-  reportItems() {
-    return this.items.map(o => o.report());
+  spawnItem(values = {}) {
+    const o = new ServerItem(values);
+    this.items.push(o);
+    return o;
   }
 
   /**
@@ -169,19 +182,6 @@ class WorkSpace {
     this.views.push(v);
     if (this.gestureView) this.gestureView.addView(v);
     return v;
-  }
-
-  /**
-   * Spawn a new item with the given values.
-   *
-   * @param {object} values - Values describing the item to spawn.
-   *
-   * @return {module:server.ServerItem} The newly spawned item.
-   */
-  spawnItem(values = {}) {
-    const o = new ServerItem(values);
-    this.items.push(o);
-    return o;
   }
 }
 
