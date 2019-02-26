@@ -62,16 +62,11 @@ class WorkSpace {
     this.items = [];
 
     /**
-     * Track all active groups.
+     * Track the active group.
      *
-     * @type {module:server.ServerViewGroup[]}
+     * @type {module:server.ServerViewGroup}
      */
-    this.groups = [];
-
-    // Enable server-side gestures, if requested.
-    if (settings.useServerGestures) {
-      this.groups[0] = new ServerViewGroup();
-    }
+    this.group = new ServerViewGroup();
 
     // Workspaces should be uniquely identifiable.
     STAMPER.stampNewId(this);
@@ -118,7 +113,6 @@ class WorkSpace {
     view.getLockOnItem(item);
   }
 
-
   /**
    * Remove the given item from the workspace.
    *
@@ -130,6 +124,7 @@ class WorkSpace {
   removeItem(item) {
     return safeRemoveById(this.items, item, ServerItem);
   }
+
   /**
    * Remove the given view from the workspace.
    *
@@ -139,7 +134,7 @@ class WorkSpace {
    * otherwise.
    */
   removeView(view) {
-    if (this.gestureView) this.gestureView.removeView(view);
+    this.group.removeView(view);
     return safeRemoveById(this.views, view, ServerView);
   }
 
@@ -180,7 +175,7 @@ class WorkSpace {
   spawnView(values = {}) {
     const v = new ServerView(values);
     this.views.push(v);
-    if (this.gestureView) this.gestureView.addView(v);
+    this.group.addView(v);
     return v;
   }
 }
