@@ -28,7 +28,7 @@ const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
-const WorkSpace  = require('./WorkSpace.js');
+// const WorkSpace  = require('./WorkSpace.js');
 
 // Local constant data
 const SIXTY_FPS = 1000 / 60;
@@ -108,7 +108,7 @@ class Server {
    * and workspace settings.
    * @param {module:server.Router} [router=Router()] - Route handler to use.
    */
-  constructor(settings = {}, router = Router()) {
+  constructor(workspace, messageHandler, settings = {}, router = Router()) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -121,7 +121,14 @@ class Server {
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings);
+    this.workspace = workspace;
+
+    /**
+     * The Message handler for responding to messages.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this.messageHandler = messageHandler;
 
     /**
      * HTTP server for sending and receiving data.
@@ -181,7 +188,12 @@ class Server {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const cn = new Connection(index, socket, this.workspace);
+    const cn = new Connection(
+      index,
+      socket,
+      this.workspace,
+      this.messageHandler
+    );
 
     this.connections[index] = cn;
     socket.on('disconnect', () => this.disconnect(cn));
@@ -233,16 +245,6 @@ class Server {
       console.info('Listening on', this.server.address());
     });
     this.port = port;
-  }
-
-  /**
-   * Register a handler for the given event.
-   *
-   * @param {string} event - Event to respond to.
-   * @param {function} handler - Function for responding to the given event.
-   */
-  on(event, handler) {
-    this.workspace.on(event, handler);
   }
 
   /**

@@ -11,8 +11,12 @@
 'use strict';
 
 const Server = require('./Server.js');
+const WorkSpace = require('./WorkSpace.js');
+const MessageHandler = require('./MessageHandler.js');
 
 const server = Symbol('server');
+const workspace = Symbol('workspace');
+const messageHandler = Symbol('messageHandler');
 
 /**
  * This module defines the API endpoint. In practice, this means it is a thin
@@ -30,7 +34,31 @@ class Application {
    * use.
    */
   constructor(settings = {}, router) {
-    this[server] = new Server(settings, router);
+    /**
+     * The main model. The buck stops here.
+     *
+     * @type {module:server.WorkSpace}
+     */
+    this[workspace] = new WorkSpace(settings);
+
+    /**
+     * The MessageHandler responds to messages.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this[messageHandler] = new MessageHandler(this[workspace]);
+
+    /**
+     * The server allows communication with clients
+     *
+     * @type {module:server.Server}
+     */
+    this[server] = new Server(
+      this[workspace],
+      this[messageHandler],
+      settings,
+      router
+    );
   }
 
   /**
@@ -52,7 +80,7 @@ class Application {
    * @param {function} handler - Function for responding to the given event.
    */
   on(event, handler) {
-    this[server].on(event, handler);
+    this[messageHandler].on(event, handler);
   }
 
   /**

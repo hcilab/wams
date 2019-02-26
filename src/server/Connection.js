@@ -32,8 +32,10 @@ class Connection {
    * @param {Socket} socket - A socket.io connection with a client.
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * messages from clients.
    */
-  constructor(index, socket, workspace) {
+  constructor(index, socket, workspace, messageHandler) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -56,6 +58,13 @@ class Connection {
      * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
+
+    /**
+     * Responds to messages from clients.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this.messageHandler = messageHandler;
 
     /**
      * The view corresponding to the client on the other end of this Connection.
@@ -141,7 +150,7 @@ class Connection {
    * @param {Object} data - Argument to be passed to the message handler.
    */
   handle(message, data) {
-    this.workspace.handle(message, this.view, data);
+    this.messageHandler.handle(message, this.view, data);
   }
 
   /**
@@ -154,7 +163,7 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
-    this.workspace.handle('layout', this.view, this.index);
+    this.messageHandler.handle('layout', this.view, this.index);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
   }
