@@ -19,6 +19,8 @@ const Locker = (superclass) => class extends superclass {
   /**
    * The locked item.
    *
+   * @memberof module:mixins.Locker
+   *
    * @type {module:mixins.Lockable}
    */
   get lockedItem() { return this[lockedItem]; }
