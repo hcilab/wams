@@ -136,15 +136,6 @@ class WorkSpace {
   }
 
   /**
-   * Releases the view's lock on its item.
-   *
-   * @param {module:server.ServerView} view - View that will release its lock.
-   */
-  removeLock(view) {
-    view.releaseLockedItem();
-  }
-
-  /**
    * Forwards a PointerEvent to the GestureController.
    *
    * @param {PointerEvent} event - The event to forward.

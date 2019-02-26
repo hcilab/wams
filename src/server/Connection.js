@@ -206,7 +206,7 @@ class Connection {
     if (phase === 'start' && active.length === 1) {
       this.workspace.giveLock(centroid.x, centroid.y, this.view);
     } else if (phase === 'end' && active.length === 0) {
-      this.workspace.removeLock(this.view);
+      this.view.releaseLockedItem();
     }
   }
 }
