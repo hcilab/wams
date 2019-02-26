@@ -185,11 +185,11 @@ class WorkSpace {
    * @return {module:server.ServerView} The newly spawned view.
    */
   spawnView(socket, values = {}) {
-    const v = new ServerView(socket, values);
-    this.views.push(v);
-    this.group.addView(v);
-    v.assign(this.group);
-    return v;
+    const view = new ServerView(socket, values);
+    this.views.push(view);
+    this.group.addView(view);
+    view.assign(this.group);
+    return view;
   }
 }
 
