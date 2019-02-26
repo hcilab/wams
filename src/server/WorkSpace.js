@@ -13,8 +13,9 @@
 const {
   findLast,
   mergeMatches,
-  IdStamper,
   safeRemoveById,
+  IdStamper,
+  Message,
 } = require('../shared.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
@@ -35,8 +36,9 @@ class WorkSpace {
    * workspace.
    * @param {boolean} [settings.useServerGestures=false] - Whether to use
    * server-side gestures. Default is to use client-side gestures.
+   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    */
-  constructor(settings) {
+  constructor(settings, namespace) {
     /**
      * Configuration settings for the workspace.
      *
@@ -46,6 +48,13 @@ class WorkSpace {
      * server-side gestures. Default is to use client-side gestures.
      */
     this.settings = mergeMatches(WorkSpace.DEFAULTS, settings);
+
+    /**
+     * Socket.io namespace in which to operate.
+     *
+     * @type {Namespace}
+     */
+    this.namespace = namespace;
 
     /**
      * Track all active views.
@@ -122,7 +131,9 @@ class WorkSpace {
    * otherwise.
    */
   removeItem(item) {
-    return safeRemoveById(this.items, item, ServerItem);
+    if (safeRemoveById(this.items, item, ServerItem)) {
+      new Message(Message.RM_ITEM, item).emitWith(this.namespace);
+    }
   }
 
   /**
@@ -160,9 +171,10 @@ class WorkSpace {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
-    const o = new ServerItem(values);
-    this.items.push(o);
-    return o;
+    const item = new ServerItem(values);
+    this.items.push(item);
+    new Message(Message.ADD_ITEM, item).emitWith(this.namespace);
+    return item;
   }
 
   /**
