@@ -204,7 +204,7 @@ class Connection {
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {
-      this.workspace.giveLock(centroid.x, centroid.y, this.view);
+      this.workspace.obtainLock(centroid.x, centroid.y, this.view);
     } else if (phase === 'end' && active.length === 0) {
       this.view.releaseLockedItem();
     }

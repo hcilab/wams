@@ -129,7 +129,7 @@ class WorkSpace {
    * @param {module:server.ServerView} view - View that will receive a lock on
    * the item.
    */
-  giveLock(x, y, view) {
+  obtainLock(x, y, view) {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
     view.getLockOnItem(item);
@@ -223,9 +223,9 @@ class WorkSpace {
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {
-      this.giveLock(centroid.x, centroid.y, this.gestureView);
+      this.obtainLock(centroid.x, centroid.y, this.gestureView);
     } else if (phase === 'end' && active.length === 0) {
-      this.removeLock(this.gestureView);
+      this.gestureView.releaseLockedItem();
     }
   }
 }
