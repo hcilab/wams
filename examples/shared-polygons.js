@@ -91,8 +91,8 @@ const handleLayout = (function makeLayoutHandler() {
 
 // Attaches the different function handlers
 app.on('layout', handleLayout);
-app.on('scale',  Wams.predefined.scales.items(app, ['colour']));
-app.on('drag',   Wams.predefined.drags.items(app, ['colour']));
+app.on('scale',  Wams.predefined.scales .itemsAndView(app, ['colour']));
+app.on('drag',   Wams.predefined.drags  .itemsAndView(app, ['colour']));
 app.on('rotate', Wams.predefined.rotates.items(app, ['colour']));
 app.on('click',  
   Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
