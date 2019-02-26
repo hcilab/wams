@@ -10931,7 +10931,6 @@ class ClientController {
     this[symbols.establishSocket]();
     this[symbols.startRender]();
 
-
     /*
      * As no automatic draw loop is used, (there are no animations), need to
      * know when to re-render in response to an image loading.
@@ -10970,6 +10969,8 @@ class ClientController {
       [Message.SCALE]:   NOP,
       [Message.SWIPE]:   NOP,
       [Message.TRACK]:   NOP,
+
+      // Multi-device gesture related
       [Message.POINTER]: NOP,
 
       // TODO: This could be more... elegant...
@@ -11279,20 +11280,12 @@ module.exports = ClientItem;
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const {
-  constants: globals,
+  constants,
   mergeMatches,
   removeById,
   IdStamper,
   View,
 } = require('../shared.js');
-
-const DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  rotation: globals.ROTATE_0,
-  scale:    1,
-  type:     'view/background',
-});
 
 const STATUS_KEYS = Object.freeze([
   'x',
@@ -11334,7 +11327,7 @@ class ClientView extends View {
    * open yet at the time that this class is instantiated.
    */
   constructor(values = {}) {
-    super(mergeMatches(DEFAULTS, values));
+    super(mergeMatches(ClientView.DEFAULTS, values));
 
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
@@ -11548,6 +11541,19 @@ class ClientView extends View {
   }
 }
 
+/**
+ * The default values for a ClientView.
+ *
+ * @type {object}
+ */
+ClientView.DEFAULTS = Object.freeze({
+  x:        0,
+  y:        0,
+  rotation: constants.ROTATE_0,
+  scale:    1,
+  type:     'view/background',
+});
+
 module.exports = ClientView;
 
 
@@ -11567,15 +11573,6 @@ module.exports = ClientView;
 // const Westures = require('../../../westures');
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
-
-const HANDLERS = Object.freeze({
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-  track:  NOP,
-});
 
 /**
  * The Interactor class provides a layer of abstraction between the
@@ -11623,7 +11620,7 @@ class Interactor {
      * @property {Function} zoom=NOP
      * @property {Function} track=NOP
      */
-    this.handlers = mergeMatches(HANDLERS, handlers);
+    this.handlers = mergeMatches(Interactor.DEFAULT_HANDLERS, handlers);
 
     // Begin listening activities immediately.
     this.bindRegions(canvas);
@@ -11694,6 +11691,20 @@ class Interactor {
     this.handlers.zoom({ change, midpoint, phase });
   }
 }
+
+/**
+ * The default handlers used by the Interactor.
+ *
+ * @type {object}
+ */
+Interactor.DEFAULT_HANDLERS = Object.freeze({
+  pan:    NOP,
+  rotate: NOP,
+  swipe:  NOP,
+  tap:    NOP,
+  zoom:   NOP,
+  track:  NOP,
+});
 
 module.exports = Interactor;
 
@@ -12073,6 +12084,8 @@ const TYPES = {
   /** @const */ SCALE:      'wams-scale',
   /** @const */ SWIPE:      'wams-swipe',
   /** @const */ TRACK:      'wams-track',
+
+  // Multi-device gesture related
   /** @const */ POINTER:    'wams-pointer',
 
   // Page event related
