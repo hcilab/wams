@@ -48,7 +48,7 @@ function do_rotate(app, target, radians, px, py) {
 function view(app) {
   return function rotate_view(view, target, radians, px, py) {
     if (isView(target, view)) {
-      do_rotate(app, view, radians, px, py);
+      do_rotate(app, view, -radians, px, py);
     }
   };
 }
@@ -90,7 +90,7 @@ function items(app, itemTypes = []) {
 function itemsAndView(app, itemTypes = []) {
   return function rotate_itemAndView(view, target = {}, radians, px, py) {
     if (isView(target, view)) {
-      do_rotate(app, view, radians, px, py);
+      do_rotate(app, view, -radians, px, py);
     } else if (isIncludedIn(target, itemTypes)) {
       do_rotate(app, target, radians, px, py);
     }
