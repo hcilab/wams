@@ -86,7 +86,7 @@ class Pan extends Gesture {
 
     const progress = state.active[0].getProgressOfGesture(this.id);
     const point = state.centroid;
-    const change = point.minus(progress.lastEmitted);
+    const change = point.minus(state.previousCentroid);
     progress.lastEmitted = point;
 
     return { change, point };

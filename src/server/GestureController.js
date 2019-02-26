@@ -21,6 +21,8 @@ const Gestures = require('../gestures.js');
  */
 class GestureController {
   /**
+   * @param {module:server.ServerViewGroup} group - The view group associated
+   * with this GestureController.
    * @param {Object} handlers - Object with keys as the names gestures and
    *    values as the corresponding function for handling that gesture when it
    *    is recognized.
@@ -31,7 +33,7 @@ class GestureController {
    * @param {Function} [handlers.zoom=NOP]
    * @param {Function} [handlers.track=NOP]
    */
-  constructor(handlers = {}) {
+  constructor(group, handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
@@ -45,6 +47,14 @@ class GestureController {
      * @property {Function} track=NOP
      */
     this.handlers = mergeMatches(GestureController.DEFAULT_HANDLERS, handlers);
+
+    /**
+     * The GestureController needs to know which ServerViewGroup it is
+     * associated with, so that it can keep some of its state up to date.
+     *
+     * @type {module:server.ServerViewGroup}
+     */
+    this.group = null;
 
     /**
      * The "region" which takes care of gesture processing.
@@ -80,6 +90,20 @@ class GestureController {
   }
 
   /**
+   * Returns the current input centroid of this gesture controller.
+   *
+   * @type {module:gesture.Point2D}
+   */
+  get centroid() { return this.region.state.stagedCentroid; }
+
+  /**
+   * Returns the array of currently active inputs.
+   *
+   * @type {Map.<string, module:gesture.Input>}
+   */
+  get inputs() { return this.region.state[Symbol.for('inputs')]; }
+
+  /**
    * Generates a function that handles the appropriate gesture and data.
    *
    * @param {string} gesture - name of a gesture to handle.
@@ -100,6 +124,13 @@ class GestureController {
    * @param {PointerEvent} event - The event from the client.
    */
   process(event) {
+    const view = event.viewSource;
+    const physical = view.transformPhysicalPoint(event.clientX, event.clientY);
+    event.physX = physical.x;
+    event.physY = physical.y;
+    const logical = view.transformPoint(event.clientX, event.clientY);
+    event.clientX = logical.x;
+    event.clientY = logical.y;
     this.region.arbitrate(event);
   }
 }

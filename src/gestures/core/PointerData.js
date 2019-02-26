@@ -49,6 +49,13 @@ class PointerData {
      * @type {module:gestures.Point2D}
      */
     this.point = new Point2D(event.clientX, event.clientY);
+
+    /**
+     * The (x,y) physical coordinate of the event, wrapped in a Point2D.
+     *
+     * @type {module:gestures.Point2D}
+     */
+    this.physical = new Point2D(event.physX, event.physY);
   }
 
   /**

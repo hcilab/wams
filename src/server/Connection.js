@@ -99,7 +99,9 @@ class Connection {
       // User event related, handle immediately
       [Message.RESIZE]:  (data)     => this.resize(data),
       [Message.TRACK]:   ({ data }) => this.track(data),
-      [Message.POINTER]: (event)   => this.pointerEvent(event),
+
+      // Multi-device gesture related
+      [Message.POINTER]: (event) => this.pointerEvent(event),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -164,9 +166,7 @@ class Connection {
    */
   pointerEvent(event) {
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-    const { x, y } = this.view.transformPoint(event.clientX, event.clientY);
-    event.clientX = x;
-    event.clientY = y;
+    event.viewSource = this.view;
     this.workspace.pointerEvent(event);
   }
 

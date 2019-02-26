@@ -34,6 +34,16 @@ class Point2D {
   }
 
   /**
+   * Add the given point to this point.
+   *
+   * @param {module:gestures.Point2D} point - The point to add.
+   */
+  add({ x = 0, y = 0 }) {
+    this.x += x;
+    this.y += y;
+  }
+
+  /**
    * Calculates the angle between this point and the given point.
    *
    * @param {!module:gestures.Point2D} point - Projected point for calculating
@@ -83,6 +93,19 @@ class Point2D {
   }
 
   /**
+   * Divide the point's values by the given amount.
+   *
+   * @param {number} ds - divide x,y by this amount.
+   *
+   * @return {module:server.Point2D} this
+   */
+  divideBy(ds = 1) {
+    this.x /= ds;
+    this.y /= ds;
+    return this;
+  }
+
+  /**
    * Subtract the given point from this point.
    *
    * @param {!module:gestures.Point2D} point - Point to subtract from this
@@ -106,11 +129,26 @@ class Point2D {
    * @return {module:gestures.Point2D} A new Point2D, which is the addition of
    * the two points.
    */
-  plus(point) {
-    return new Point2D(
-      this.x + point.x,
-      this.y + point.y,
-    );
+  plus({ x = 0, y = 0 }) {
+    return new Point2D(this.x + x, this.y + y);
+  }
+
+  /**
+   * Rotate the point by theta radians.
+   *
+   * @param {number} theta - Amount of rotation to apply, in radians.
+   *
+   * @return {module:server.Point2D} this
+   */
+  rotate(theta = 0) {
+    const { x, y } = this;
+    const cos_theta = Math.cos(theta);
+    const sin_theta = Math.sin(theta);
+
+    this.x = x * cos_theta - y * sin_theta;
+    this.y = x * sin_theta + y * cos_theta;
+
+    return this;
   }
 
   /**

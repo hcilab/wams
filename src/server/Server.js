@@ -27,6 +27,7 @@ const Connection = require('./Connection.js');
 const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 const WorkSpace  = require('./WorkSpace.js');
 
 // Local constant data
@@ -309,6 +310,8 @@ class Server {
   update(object) {
     if (object instanceof ServerItem) {
       this.updateItem(object);
+    } else if (object instanceof ServerViewGroup) {
+      this.updateViewGroup(object);
     } else if (object instanceof ServerView) {
       this.updateView(object);
     }
@@ -337,6 +340,15 @@ class Server {
     } else {
       console.warn('Failed to locate connection');
     }
+  }
+
+  /**
+   * Update all the views in the group.
+   *
+   * @param {module:server.ServerViewGroup} group - Group that has been updated.
+   */
+  updateViewGroup(group) {
+    group.views.forEach(v => this.updateView(v));
   }
 }
 

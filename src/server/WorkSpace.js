@@ -21,6 +21,7 @@ const GestureController = require('./GestureController.js');
 const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
 const STAMPER = new IdStamper();
 
@@ -92,8 +93,8 @@ class WorkSpace {
 
     // Enable server-side gestures, if requested.
     if (settings.useServerGestures) {
-      this.gestureView = new ServerView();
-      this.gestureController = new GestureController({
+      this.gestureView = new ServerViewGroup();
+      this.gestureController = new GestureController(this.gestureView, {
         pan:    (data) => this.handle('drag',   this.gestureView, data),
         rotate: (data) => this.handle('rotate', this.gestureView, data),
         swipe:  (data) => this.handle('swipe',  this.gestureView, data),
@@ -101,6 +102,7 @@ class WorkSpace {
         zoom:   (data) => this.handle('scale',  this.gestureView, data),
         track:  (data) => this.track(data),
       });
+      this.gestureView.setGestureController(this.gestureController);
     }
 
     // Attach NOPs for the event listeners, so they are callable.
@@ -201,6 +203,7 @@ class WorkSpace {
    * otherwise.
    */
   removeView(view) {
+    if (this.gestureView) this.gestureView.removeView(view);
     return safeRemoveById(this.views, view, ServerView);
   }
 
@@ -240,6 +243,7 @@ class WorkSpace {
   spawnView(values = {}) {
     const v = new ServerView(values);
     this.views.push(v);
+    if (this.gestureView) this.gestureView.addView(v);
     return v;
   }
 
