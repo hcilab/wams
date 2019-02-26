@@ -11,7 +11,7 @@
 'use strict';
 
 const { removeById, View } = require('../shared.js');
-const { Lockable, Transformable2D } = require('../mixins.js');
+const { Locker, Lockable, Transformable2D } = require('../mixins.js');
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
@@ -19,6 +19,9 @@ const { Lockable, Transformable2D } = require('../mixins.js');
  *
  * @memberof module:server
  * @extends module:server.View
+ * @mixes module:mixins.Transformable2D
+ * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Locker
  */
 class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   constructor() {

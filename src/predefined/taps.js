@@ -83,7 +83,7 @@ function spawnOrRemoveItem(app, item_fn, type) {
     if (isIncludedIn(target, [type])) {
       app.removeItem(target);
       if (target === view.lockedItem) {
-        view.getLockOnItem(view);
+        view.obtainLockOnItem(view);
       }
     } else {
       app.spawnItem(item_fn(x, y, view));

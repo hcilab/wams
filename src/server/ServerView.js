@@ -23,6 +23,7 @@ const STAMPER = new IdStamper();
  * @extends module:shared.View
  * @mixes module:mixins.Transformable2D
  * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Locker
  */
 class ServerView extends Locker(Lockable(Transformable2D(View))) {
   /**
@@ -31,14 +32,6 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
    */
   constructor(values = {}) {
     super(mergeMatches(ServerView.DEFAULTS, values));
-
-    /**
-     * If a continuous gesture needs to lock down an item, a reference to that
-     * item will be saved here.
-     *
-     * @type {( module:server.ServerView | module:server.ServerItem )}
-     */
-    this.lockedItem = null;
 
     // Views must be uniquely identifiable.
     STAMPER.stampNewId(this);

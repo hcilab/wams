@@ -110,7 +110,7 @@ class WorkSpace {
   obtainLock(x, y, view) {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
-    view.getLockOnItem(item);
+    view.obtainLockOnItem(item);
   }
 
   /**
