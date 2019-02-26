@@ -11,6 +11,7 @@
 'use strict';
 
 const { FullStateReporter, Message, NOP } = require('../shared.js');
+const Device = require('./Device.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -32,8 +33,12 @@ class Connection {
    * @param {Socket} socket - A socket.io connection with a client.
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * messages from clients.
+   * @param {module:server.GestureController} gestureController - For
+   * server-side gestures.
    */
-  constructor(index, socket, workspace) {
+  constructor(index, socket, workspace, messageHandler, gestureController) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -58,11 +63,32 @@ class Connection {
     this.workspace = workspace;
 
     /**
+     * Responds to messages from clients.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this.messageHandler = messageHandler;
+
+    /**
+     * For server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = gestureController;
+
+    /**
      * The view corresponding to the client on the other end of this Connection.
      *
      * @type {module:server.ServerView}
      */
     this.view = this.workspace.spawnView();
+
+    /**
+     * The device corresponding to the client's device's physical orientation.
+     *
+     * @type {module:server.Device}
+     */
+    this.device = new Device();
 
     // Automatically begin operations by registering Message listeners and
     // Informing the client on the current state of the model.
@@ -99,7 +125,9 @@ class Connection {
       // User event related, handle immediately
       [Message.RESIZE]:  (data)     => this.resize(data),
       [Message.TRACK]:   ({ data }) => this.track(data),
-      [Message.POINTER]: (event)   => this.pointerEvent(event),
+
+      // Multi-device gesture related
+      [Message.POINTER]: (event) => this.pointerEvent(event),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -139,7 +167,7 @@ class Connection {
    * @param {Object} data - Argument to be passed to the message handler.
    */
   handle(message, data) {
-    this.workspace.handle(message, this.view, data);
+    this.messageHandler.handle(message, this.view, data);
   }
 
   /**
@@ -152,9 +180,10 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
-    this.workspace.handle('layout', this.view, this.index);
+    this.messageHandler.handle('layout', this.view, this.index);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
+    this.device.assign(this.view);
   }
 
   /**
@@ -164,10 +193,10 @@ class Connection {
    */
   pointerEvent(event) {
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-    const { x, y } = this.view.transformPoint(event.clientX, event.clientY);
+    const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
     event.clientX = x;
     event.clientY = y;
-    this.workspace.pointerEvent(event);
+    this.gestureController.process(event);
   }
 
   /**
@@ -195,9 +224,9 @@ class Connection {
    */
   track({ active, centroid, phase }) {
     if (phase === 'start' && active.length === 1) {
-      this.workspace.giveLock(centroid.x, centroid.y, this.view);
+      this.workspace.obtainLock(centroid.x, centroid.y, this.view);
     } else if (phase === 'end' && active.length === 0) {
-      this.workspace.removeLock(this.view);
+      this.view.releaseLockedItem();
     }
   }
 }

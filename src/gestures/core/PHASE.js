@@ -20,9 +20,10 @@ const PHASE = Object.freeze({
   touchmove:   'move',
   pointermove: 'move',
 
-  mouseup:   'end',
-  touchend:  'end',
-  pointerup: 'end',
+  mouseup:       'end',
+  touchend:      'end',
+  pointerup:     'end',
+  pointercancel: 'end',
 });
 
 module.exports = PHASE;

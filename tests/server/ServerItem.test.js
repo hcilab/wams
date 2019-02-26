@@ -10,21 +10,11 @@
 const ServerItem = require('../../src/server/ServerItem.js');
 
 describe('ServerItem', () => {
-  const DEFAULTS = Object.freeze({
-    x: 0,
-    y: 0,
-    width: 128,
-    height: 128,
-    type: 'item/foreground',
-    imgsrc: '',
-    blueprint: null,
-  });
-
   describe('constructor(settings)', () => {
     test('Uses defaults if no arguments provided', () => {
       let item;
       expect(() => item = new ServerItem()).not.toThrow();
-      expect(item).toMatchObject(DEFAULTS);
+      expect(item).toMatchObject(ServerItem.DEFAULTS);
     });
 
     test('Creates correct type of item', () => {
@@ -39,12 +29,10 @@ describe('ServerItem', () => {
           type: 'joker',
         });
       }).not.toThrow();
-      expect(item.x).toBe(DEFAULTS.x);
+      expect(item.x).toBe(ServerItem.DEFAULTS.x);
       expect(item.y).toBe(75);
-      expect(item.width).toBe(DEFAULTS.width);
-      expect(item.height).toBe(DEFAULTS.height);
       expect(item.type).toBe('joker');
-      expect(item.imgsrc).toBe('');
+      expect(item.imgsrc).toBe(ServerItem.DEFAULTS.imgsrc);
     });
 
     test('Stamps the item with an immutable Id', () => {
@@ -122,8 +110,10 @@ describe('ServerItem', () => {
     });
 
     test('Does not affect other values', () => {
-      expect(() => item.moveTo(DEFAULTS.x, DEFAULTS.y)).not.toThrow();
-      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+      expect(
+        () => item.moveTo(ServerItem.DEFAULTS.x, ServerItem.DEFAULTS.y)
+      ).not.toThrow();
+      Object.entries(ServerItem.DEFAULTS).forEach( ([p,v]) => {
         expect(item[p]).toEqual(v);
       });
     });
@@ -160,7 +150,7 @@ describe('ServerItem', () => {
 
     test('Has no effect on other values', () => {
       expect(() => item.moveBy(7,9)).not.toThrow();
-      Object.entries(DEFAULTS).forEach( ([p,v]) => {
+      Object.entries(ServerItem.DEFAULTS).forEach( ([p,v]) => {
         expect(item[p]).toEqual(v);
       });
     });

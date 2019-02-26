@@ -97,7 +97,6 @@ class ClientController {
     this[symbols.establishSocket]();
     this[symbols.startRender]();
 
-
     /*
      * As no automatic draw loop is used, (there are no animations), need to
      * know when to re-render in response to an image loading.
@@ -136,6 +135,8 @@ class ClientController {
       [Message.SCALE]:   NOP,
       [Message.SWIPE]:   NOP,
       [Message.TRACK]:   NOP,
+
+      // Multi-device gesture related
       [Message.POINTER]: NOP,
 
       // TODO: This could be more... elegant...

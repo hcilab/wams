@@ -12,16 +12,8 @@ const ClientItem = require('../../src/client/ClientItem.js');
 const ShadowView = require('../../src/client/ShadowView.js');
 
 describe('ClientView', () => {
-  let DEFAULTS, item, shadow, context;
+  let item, shadow, context;
   beforeEach(() => {
-    DEFAULTS = { 
-      x: 0, 
-      y: 0, 
-      rotation: 0, 
-      scale: 1, 
-      type: 'view/background',
-    };
-
     item = {
       x: 42, 
       y: 43, 
@@ -50,12 +42,12 @@ describe('ClientView', () => {
     });
 
     test('Uses defaults if no additional values provided', () => {
-      expect(new ClientView({ context })).toMatchObject(DEFAULTS);
+      expect(new ClientView({ context })).toMatchObject(ClientView.DEFAULTS);
     });
 
     test('Uses provided values', () => {
       const custom = Object.freeze({ context, x: 42, y: 43, });
-      const remain = { ...DEFAULTS, ...custom };
+      const remain = { ...ClientView.DEFAULTS, ...custom };
       const cv = new ClientView(custom);
       expect(cv).toMatchObject(custom);
       expect(cv).toMatchObject(remain);

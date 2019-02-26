@@ -14,18 +14,12 @@ const {
   findLast,
   mergeMatches,
   IdStamper,
-  NOP,
   safeRemoveById,
 } = require('../shared.js');
-const GestureController = require('./GestureController.js');
-const ListenerFactory = require('./ListenerFactory.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
-const DEFAULTS = Object.freeze({
-  color:             'gray',
-  useServerGestures: false,
-});
 const STAMPER = new IdStamper();
 
 /**
@@ -51,7 +45,7 @@ class WorkSpace {
      * @property {boolean} [settings.useServerGestures=false] - Whether to use
      * server-side gestures. Default is to use client-side gestures.
      */
-    this.settings = mergeMatches(DEFAULTS, settings);
+    this.settings = mergeMatches(WorkSpace.DEFAULTS, settings);
 
     /**
      * Track all active views.
@@ -68,54 +62,11 @@ class WorkSpace {
     this.items = [];
 
     /**
-     * Store event listeners in an object, for easy access by event type.
+     * Track the active group.
      *
-     * @type {object}
-     * @property {function} click - Handler for click events.
-     * @property {function} drag - Handler for drag events.
-     * @property {function} layout - Handler for layout events.
-     * @property {function} rotate - Handler for rotate events.
-     * @property {function} scale - Handler for scale events.
-     * @property {function} swipe - Handler for swipe events.
+     * @type {module:server.ServerViewGroup}
      */
-    this.handlers = {};
-
-    /**
-     * Processes server-side multi-device gestures.
-     *
-     * @type {module:server.GestureController}
-     */
-    this.gestureController = null;
-
-    /**
-     * A fake view for handling multi-device gestures.
-     *
-     * @type {module:server.ServerView}
-     */
-    this.gestureView = null;
-
-    // Enable server-side gestures, if requested.
-    if (settings.useServerGestures) {
-      this.gestureView = new ServerView();
-      this.gestureController = new GestureController({
-        // pan:    (data) => this.propagate('drag',   data),
-        // rotate: (data) => this.propagate('rotate', data),
-        // swipe:  (data) => this.propagate('swipe',  data),
-        // tap:    (data) => this.propagate('click',  data),
-        // zoom:   (data) => this.propagate('scale',  data),
-        pan:    (data) => this.handle('drag',   this.gestureView, data),
-        rotate: (data) => this.handle('rotate', this.gestureView, data),
-        swipe:  (data) => this.handle('swipe',  this.gestureView, data),
-        tap:    (data) => this.handle('click',  this.gestureView, data),
-        zoom:   (data) => this.handle('scale',  this.gestureView, data),
-        track:  (data) => this.track(data),
-      });
-    }
-
-    // Attach NOPs for the event listeners, so they are callable.
-    ListenerFactory.TYPES.forEach(ev => {
-      this.handlers[ev] = NOP;
-    });
+    this.group = new ServerViewGroup();
 
     // Workspaces should be uniquely identifiable.
     STAMPER.stampNewId(this);
@@ -156,68 +107,10 @@ class WorkSpace {
    * @param {module:server.ServerView} view - View that will receive a lock on
    * the item.
    */
-  giveLock(x, y, view) {
+  obtainLock(x, y, view) {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
-    view.getLockOnItem(item);
-  }
-
-  /**
-   * Releases the view's lock on its item.
-   *
-   * @param {module:server.ServerView} view - View that will release its lock.
-   */
-  removeLock(view) {
-    view.releaseLockedItem();
-  }
-
-  /**
-   * Call the registered handler for the given message type.
-   *
-   * @param {string} message - Type of message.
-   * @param {...mixed} ...args - Arguments to pass to the handler.
-   */
-  handle(message, ...args) {
-    this.handlers[message](...args);
-  }
-
-  /**
-   * Register a handler for the given event.
-   *
-   * @param {string} event - Event to respond to.
-   * @param {function} listener - Handler / listener to register.
-   */
-  on(event, listener) {
-    const type = event.toLowerCase();
-    this.handlers[type] = ListenerFactory.build(type, listener, this);
-  }
-
-  /**
-   * Forwards a PointerEvent to the GestureController.
-   *
-   * @param {PointerEvent} event - The event to forward.
-   */
-  pointerEvent(event) {
-    this.gestureController.process(event);
-  }
-
-  /**
-   * Propagates a gesture event through the first view.
-   */
-  propagate(message, args) {
-    this.handle(message, this.views[0], args);
-  }
-
-  /**
-   * Remove the given view from the workspace.
-   *
-   * @param {module:server.ServerView} view - View to remove.
-   *
-   * @return {boolean} true if the view was located and removed, false
-   * otherwise.
-   */
-  removeView(view) {
-    return safeRemoveById(this.views, view, ServerView);
+    view.obtainLockOnItem(item);
   }
 
   /**
@@ -233,10 +126,16 @@ class WorkSpace {
   }
 
   /**
-   * @return {module:shared.View[]} Reports of the currently active views.
+   * Remove the given view from the workspace.
+   *
+   * @param {module:server.ServerView} view - View to remove.
+   *
+   * @return {boolean} true if the view was located and removed, false
+   * otherwise.
    */
-  reportViews() {
-    return this.views.map(v => v.report());
+  removeView(view) {
+    this.group.removeView(view);
+    return safeRemoveById(this.views, view, ServerView);
   }
 
   /**
@@ -247,16 +146,10 @@ class WorkSpace {
   }
 
   /**
-   * Spawn a new view with the given values.
-   *
-   * @param {object} values - Values describing the view to spawn.
-   *
-   * @return {module:server.ServerView} The newly spawned view.
+   * @return {module:shared.View[]} Reports of the currently active views.
    */
-  spawnView(values = {}) {
-    const v = new ServerView(values);
-    this.views.push(v);
-    return v;
+  reportViews() {
+    return this.views.map(v => v.report());
   }
 
   /**
@@ -273,24 +166,30 @@ class WorkSpace {
   }
 
   /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
+   * Spawn a new view with the given values.
    *
-   * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
+   * @param {object} values - Values describing the view to spawn.
+   *
+   * @return {module:server.ServerView} The newly spawned view.
    */
-  track({ active, centroid, phase }) {
-    if (phase === 'start' && active.length === 1) {
-      this.giveLock(centroid.x, centroid.y, this.gestureView);
-    } else if (phase === 'end' && active.length === 0) {
-      this.removeLock(this.gestureView);
-    }
+  spawnView(values = {}) {
+    const v = new ServerView(values);
+    this.views.push(v);
+    this.group.addView(v);
+    v.assign(this.group);
+    return v;
   }
 }
+
+/**
+ * The default values for a WorkSpace.
+ *
+ * @type {object}
+ */
+WorkSpace.DEFAULTS = Object.freeze({
+  color:             'gray',
+  useServerGestures: false,
+});
 
 module.exports = WorkSpace;
 

@@ -27,11 +27,10 @@ const Connection = require('./Connection.js');
 const Router     = require('./Router.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
-const WorkSpace  = require('./WorkSpace.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
+const GestureController = require('./GestureController.js');
 
 // Local constant data
-const DEFAULTS = { clientLimit: 10 };
-const PORT = 9000;
 const SIXTY_FPS = 1000 / 60;
 
 // Symbol to mark this property for internal use.
@@ -109,20 +108,27 @@ class Server {
    * and workspace settings.
    * @param {module:server.Router} [router=Router()] - Route handler to use.
    */
-  constructor(settings = {}, router = Router()) {
+  constructor(workspace, messageHandler, settings = {}, router = Router()) {
     /**
      * The number of active clients that are allowed at any given time.
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || DEFAULTS.clientLimit;
+    this.clientLimit = settings.clientLimit || Server.DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings);
+    this.workspace = workspace;
+
+    /**
+     * The Message handler for responding to messages.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this.messageHandler = messageHandler;
 
     /**
      * HTTP server for sending and receiving data.
@@ -163,6 +169,13 @@ class Server {
     this.connections = [];
 
     /**
+     * Controls server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = new GestureController(messageHandler, workspace);
+
+    /**
      * Dictionary of objects to update, keyed by id.
      *
      * @type {object}
@@ -182,7 +195,13 @@ class Server {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const cn = new Connection(index, socket, this.workspace);
+    const cn = new Connection(
+      index,
+      socket,
+      this.workspace,
+      this.messageHandler,
+      this.gestureController,
+    );
 
     this.connections[index] = cn;
     socket.on('disconnect', () => this.disconnect(cn));
@@ -229,21 +248,11 @@ class Server {
    * listen.
    * @see module:server.Server~getLocalIP
    */
-  listen(port = PORT, host = getLocalIP()) {
+  listen(port = Server.DEFAULTS.port, host = getLocalIP()) {
     this.server.listen(port, host, () => {
       console.info('Listening on', this.server.address());
     });
     this.port = port;
-  }
-
-  /**
-   * Register a handler for the given event.
-   *
-   * @param {string} event - Event to respond to.
-   * @param {function} handler - Function for responding to the given event.
-   */
-  on(event, handler) {
-    this.workspace.on(event, handler);
   }
 
   /**
@@ -311,6 +320,8 @@ class Server {
   update(object) {
     if (object instanceof ServerItem) {
       this.updateItem(object);
+    } else if (object instanceof ServerViewGroup) {
+      this.updateViewGroup(object);
     } else if (object instanceof ServerView) {
       this.updateView(object);
     }
@@ -340,7 +351,26 @@ class Server {
       console.warn('Failed to locate connection');
     }
   }
+
+  /**
+   * Update all the views in the group.
+   *
+   * @param {module:server.ServerViewGroup} group - Group that has been updated.
+   */
+  updateViewGroup(group) {
+    group.views.forEach(v => this.updateView(v));
+  }
 }
+
+/**
+ * The default values for the Server.
+ *
+ * @type {object}
+ */
+Server.DEFAULTS = Object.freeze({
+  clientLimit: 10,
+  port:        9000,
+});
 
 module.exports = Server;
 

@@ -13,31 +13,6 @@ const symbols = Object.freeze({
 });
 
 /**
- * Set of helper functions for updating inputs based on type of input.
- * Must be called with a bound 'this', via bind(), or call(), or apply().
- *
- * @inner
- * @memberof module:gestures.State
- */
-// const update_fns = {
-//   TouchEvent: function TouchEvent(event) {
-//     Array.from(event.changedTouches).forEach(touch => {
-//       this.updateInput(event, touch.identifier);
-//     });
-//   },
-
-//   PointerEvent: function PointerEvent(event) {
-//     this.updateInput(event, event.pointerId);
-//   },
-
-//   MouseEvent: function MouseEvent(event) {
-//     if (event.button === 0) {
-//       this.updateInput(event, event.button);
-//     }
-//   },
-// };
-
-/**
  * Keeps track of currently active and ending input points on the interactive
  * surface.
  *
@@ -84,6 +59,21 @@ class State {
      * @type {module:gestures.Point2D}
      */
     this.centroid = {};
+
+    /**
+     * A "staged" centroid to which transformations can be safely applied midway
+     * through the evaluation of gestures.
+     *
+     * @type {module:gestures.Point2D}
+     */
+    this.stagedCentroid = {};
+
+    /**
+     * The previous centroid of the currently active points.
+     *
+     * @type {module:gestures.Point2D}
+     */
+    this.previousCentroid = {};
 
     /**
      * The latest event that the state processed.
@@ -147,12 +137,16 @@ class State {
    * @param {PointerEvent} event - The event being captured.
    */
   updateAllInputs(event) {
-    // update_fns[event.constructor.name].call(this, event);
     this.updateInput(event, event.pointerId);
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
-    this.centroid = Point2D.midpoint(this.activePoints);
+    this.previousCentroid = this.stagedCentroid;
+    this.centroid = Point2D.midpoint(this.activePoints) || {};
+    this.stagedCentroid = this.centroid;
+    this.physicalPoints = this.active.map(i => i.current.physical);
+    this.physicalCentroid = Point2D.midpoint(this.physicalPoints) || {};
+    // console.dir(this.physicalPoints);
     this.event = event;
   }
 }

@@ -14,15 +14,6 @@
 const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
-const HANDLERS = Object.freeze({
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-  track:  NOP,
-});
-
 /**
  * The Interactor class provides a layer of abstraction between the
  * ClientController and the code that processes user inputs.
@@ -69,7 +60,7 @@ class Interactor {
      * @property {Function} zoom=NOP
      * @property {Function} track=NOP
      */
-    this.handlers = mergeMatches(HANDLERS, handlers);
+    this.handlers = mergeMatches(Interactor.DEFAULT_HANDLERS, handlers);
 
     // Begin listening activities immediately.
     this.bindRegions(canvas);
@@ -140,6 +131,20 @@ class Interactor {
     this.handlers.zoom({ change, midpoint, phase });
   }
 }
+
+/**
+ * The default handlers used by the Interactor.
+ *
+ * @type {object}
+ */
+Interactor.DEFAULT_HANDLERS = Object.freeze({
+  pan:    NOP,
+  rotate: NOP,
+  swipe:  NOP,
+  tap:    NOP,
+  zoom:   NOP,
+  track:  NOP,
+});
 
 module.exports = Interactor;
 

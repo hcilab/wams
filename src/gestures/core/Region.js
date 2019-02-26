@@ -8,24 +8,6 @@ const Binding = require('./Binding.js');
 const State   = require('./State.js');
 const PHASE   = require('./PHASE.js');
 
-// const POINTER_EVENTS = [
-//   'pointerdown',
-//   'pointermove',
-//   'pointerup',
-// ];
-
-// const MOUSE_EVENTS = [
-//   'mousedown',
-//   'mousemove',
-//   'mouseup',
-// ];
-
-// const TOUCH_EVENTS = [
-//   'touchstart',
-//   'touchmove',
-//   'touchend',
-// ];
-
 /**
  * Allows the user to specify the control region which will listen for user
  * input events.
