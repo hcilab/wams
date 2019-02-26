@@ -11729,7 +11729,6 @@ module.exports = Interactor;
 
 const {
   colours,
-  constants,
   IdStamper,
   View,
 } = require('../shared.js');
@@ -11762,31 +11761,6 @@ class ShadowView extends View {
   }
 
   /**
-   * Override the default assign() function to take the reciprocal of the scale.
-   *
-   * @param {module:shared.View} data - values to assign to the view.
-   */
-  assign(data) {
-    super.assign(data);
-
-    /**
-     * Caches the effective width so it doesn't need to be recomputed on every
-     * render.
-     *
-     * @type {number}
-     */
-    this.effectiveWidth = this.width / this.scale;
-
-    /**
-     * Caches the effective height so it doesn't need to be recomputed on every
-     * render.
-     *
-     * @type {number}
-     */
-    this.effectiveHeight = this.height / this.scale;
-  }
-
-  /**
    * Render an outline of this view.
    *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
@@ -11812,7 +11786,8 @@ class ShadowView extends View {
    */
   [symbols.align](context) {
     context.translate(this.x, this.y);
-    context.rotate(constants.ROTATE_360 - this.rotation);
+    context.rotate(-this.rotation);
+    context.scale(1 / this.scale, 1 / this.scale);
   }
 
   /**
@@ -11831,7 +11806,7 @@ class ShadowView extends View {
    * Draws an outline of the view.
    */
   [symbols.outline](context) {
-    context.strokeRect(0, 0, this.effectiveWidth, this.effectiveHeight);
+    context.strokeRect(0, 0, this.width, this.height);
   }
 
   /**
