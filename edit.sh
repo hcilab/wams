@@ -17,6 +17,9 @@ vim \
   src/server/*.js \
   src/shared/*.js \
   src/predefined/*.js \
+  src/gestures/core/*.js \
+  src/gestures/gestures/*.js \
+  src/mixins/*.js \
   tests/*.js \
   tests/client/*.js \
   tests/server/*.js \
