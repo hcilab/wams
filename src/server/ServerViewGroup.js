@@ -26,10 +26,9 @@ const { Locker, Lockable, Transformable2D } = require('../mixins.js');
 class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   constructor() {
     /*
-     * Not supplying any values, as the default x, y, scale, and rotation values
-     * are the ones that we want.
+     * The default x, y, scale, and rotation values are the ones that we want.
      */
-    super();
+    super(ServerViewGroup.DEFAULTS);
 
     /**
      * The views belonging to this group.
@@ -57,17 +56,8 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {number} [ dy=0 ] - Movement along the y ayis.
    */
   moveBy(dx = 0, dy = 0) {
+    super.moveBy(dx, dy);
     this.views.forEach(v => v.moveBy(dx, dy));
-  }
-
-  /**
-   * Disallow 'moveTo'
-   *
-   * @override
-   * @throws ReferenceError
-   */
-  moveTo() {
-    throw new ReferenceError('Invalid operation for groups.');
   }
 
   /**
@@ -92,6 +82,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * to rotate.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
+    super.rotateBy(radians, px, py);
     this.views.forEach(v => v.rotateBy(radians, px, py));
   }
 
@@ -107,6 +98,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * to scale.
    */
   scaleBy(ds = 1, mx = this.x, my = this.y) {
+    super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach(v => v.scaleBy(ds, mx, my));
   }
 }

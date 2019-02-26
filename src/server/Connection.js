@@ -180,10 +180,10 @@ class Connection {
    */
   layout(data) {
     this.view.assign(data);
-    this.device.assign(data);
     this.messageHandler.handle('layout', this.view, this.index);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
+    this.device.assign(this.view);
   }
 
   /**

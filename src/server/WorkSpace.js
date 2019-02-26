@@ -176,6 +176,7 @@ class WorkSpace {
     const v = new ServerView(values);
     this.views.push(v);
     this.group.addView(v);
+    v.assign(this.group);
     return v;
   }
 }

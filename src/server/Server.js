@@ -199,7 +199,8 @@ class Server {
       index,
       socket,
       this.workspace,
-      this.messageHandler
+      this.messageHandler,
+      this.gestureController,
     );
 
     this.connections[index] = cn;
