@@ -22,6 +22,7 @@ const PHASE = Object.freeze({
 
   mouseup:       'end',
   touchend:      'end',
+  touchcancel:   'end',
   pointerup:     'end',
   pointercancel: 'end',
 });

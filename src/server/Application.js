@@ -10,13 +10,42 @@
 
 'use strict';
 
+// External modules
+const http = require('http');
+const os = require('os');
+const IO = require('socket.io');
+
+// Local classes, etc
+const { constants } = require('../shared.js');
+const Router = require('./Router.js');
 const Server = require('./Server.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 
+// Symbols to mark fields for local use.
 const server = Symbol('server');
 const workspace = Symbol('workspace');
 const messageHandler = Symbol('messageHandler');
+
+/**
+ * @inner
+ * @memberof module:server.Application
+ *
+ * @returns {string} The first valid local IPv4 address it finds.
+ */
+function getLocalIP() {
+  let ipaddr = null;
+  Object.values(os.networkInterfaces()).some(f => {
+    return f.some(a => {
+      if (a.family === 'IPv4' && a.internal === false) {
+        ipaddr = a.address;
+        return true;
+      }
+      return false;
+    });
+  });
+  return ipaddr;
+}
 
 /**
  * This module defines the API endpoint. In practice, this means it is a thin
@@ -30,16 +59,30 @@ class Application {
   /**
    * @param {object} [settings={}] - Settings data to be forwarded to the
    * server.
-   * @param {module:server.Router} [router=Router()] - Route handler to
-   * use.
+   * @param {module:server.Router} [router=Router()] - Route handler to use.
    */
-  constructor(settings = {}, router) {
+  constructor(settings = {}, router = Router()) {
+    /**
+     * HTTP server for sending and receiving data.
+     *
+     * @type {http.Server}
+     */
+    this.server = http.createServer(router);
+
+    /**
+     * Socket.io namespace in which to operate.
+     *
+     * @type {Namespace}
+     * @see {@link https://socket.io/docs/server-api/}
+     */
+    this.namespace = IO(this.server).of(constants.NS_WAMS);
+
     /**
      * The main model. The buck stops here.
      *
      * @type {module:server.WorkSpace}
      */
-    this[workspace] = new WorkSpace(settings);
+    this[workspace] = new WorkSpace(settings, this.namespace);
 
     /**
      * The MessageHandler responds to messages.
@@ -56,21 +99,23 @@ class Application {
     this[server] = new Server(
       this[workspace],
       this[messageHandler],
+      this.namespace,
       settings,
-      router
     );
   }
 
   /**
-   * Activate the server, listening on the given host and port.
+   * Start the server on the given hostname and port.
    *
    * @param {number} [port=9000] - Valid port number on which to listen.
    * @param {string} [host=getLocalIP()] - IP address or hostname on which to
    * listen.
-   * @see module:server.Server~getLocalIP
+   * @see module:server.Application~getLocalIP
    */
-  listen(port, host) {
-    this[server].listen(port, host);
+  listen(port = Server.DEFAULTS.port, host = getLocalIP()) {
+    this.server.listen(port, host, () => {
+      console.info('Listening on', this.server.address());
+    });
   }
 
   /**
@@ -89,7 +134,7 @@ class Application {
    * @param {module:server.ServerItem} item - Item to remove.
    */
   removeItem(item) {
-    this[server].removeItem(item);
+    this[workspace].removeItem(item);
   }
 
   /**
@@ -99,7 +144,7 @@ class Application {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values) {
-    this[server].spawnItem(values);
+    return this[workspace].spawnItem(values);
   }
 
   /**

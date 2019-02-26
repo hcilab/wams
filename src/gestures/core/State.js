@@ -61,21 +61,6 @@ class State {
     this.centroid = {};
 
     /**
-     * A "staged" centroid to which transformations can be safely applied midway
-     * through the evaluation of gestures.
-     *
-     * @type {module:gestures.Point2D}
-     */
-    this.stagedCentroid = {};
-
-    /**
-     * The previous centroid of the currently active points.
-     *
-     * @type {module:gestures.Point2D}
-     */
-    this.previousCentroid = {};
-
-    /**
      * The latest event that the state processed.
      *
      * @type {PointerEvent}
@@ -141,12 +126,7 @@ class State {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
-    this.previousCentroid = this.stagedCentroid;
     this.centroid = Point2D.midpoint(this.activePoints) || {};
-    this.stagedCentroid = this.centroid;
-    this.physicalPoints = this.active.map(i => i.current.physical);
-    this.physicalCentroid = Point2D.midpoint(this.physicalPoints) || {};
-    // console.dir(this.physicalPoints);
     this.event = event;
   }
 }

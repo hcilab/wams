@@ -10,24 +10,12 @@
 
 'use strict';
 
-// Node packages
-const http = require('http');
-const os = require('os');
-
-const IO = require('socket.io');
 
 // Local project packages, shared between client and server.
-const {
-  constants,
-  Message,
-} = require('../shared.js');
+const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const Connection = require('./Connection.js');
-const Router     = require('./Router.js');
-const ServerItem = require('./ServerItem.js');
-const ServerView = require('./ServerView.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 const GestureController = require('./GestureController.js');
 
 // Local constant data
@@ -59,26 +47,6 @@ function findEmptyIndex(array) {
 }
 
 /**
- * @inner
- * @memberof module:server.Server
- *
- * @returns {string} The first valid local IPv4 address it finds.
- */
-function getLocalIP() {
-  let ipaddr = null;
-  Object.values(os.networkInterfaces()).some(f => {
-    return f.some(a => {
-      if (a.family === 'IPv4' && a.internal === false) {
-        ipaddr = a.address;
-        return true;
-      }
-      return false;
-    });
-  });
-  return ipaddr;
-}
-
-/**
  * Report information about the given connection to the console.
  *
  * @inner
@@ -89,9 +57,9 @@ function getLocalIP() {
  * @param {boolean} status - True if this is a new connection, False if this is
  * a disconnection.
  */
-function logConnection(id, port, status) {
+function logConnection(id, status) {
   const event = status ? 'connected' : 'disconnected';
-  console.info('View', id, event, 'to workspace listening on port', port);
+  console.info('View', id, event, 'to workspace.');
 }
 
 /**
@@ -104,11 +72,15 @@ function logConnection(id, port, status) {
  */
 class Server {
   /**
+   * @param {module:server.WorkSpace} workspace - The workspace associated with
+   * this connection.
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * messages from clients.
+   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} settings - User-supplied options, specifying a client limit
    * and workspace settings.
-   * @param {module:server.Router} [router=Router()] - Route handler to use.
    */
-  constructor(workspace, messageHandler, settings = {}, router = Router()) {
+  constructor(workspace, messageHandler, namespace, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -131,33 +103,11 @@ class Server {
     this.messageHandler = messageHandler;
 
     /**
-     * HTTP server for sending and receiving data.
-     *
-     * @type {http.Server}
-     */
-    this.server = http.createServer(router);
-
-    /**
-     * Port on which to listen.
-     *
-     * @type {number}
-     */
-    this.port = null;
-
-    /**
-     * Socket.io instance for maintaining connections with clients.
-     *
-     * @type {Socket}
-     * @see {@link https://socket.io/docs/server-api/}
-     */
-    this.io = IO(this.server);
-
-    /**
      * Socket.io namespace in which to operate.
      *
      * @type {Namespace}
      */
-    this.namespace = this.io.of(constants.NS_WAMS);
+    this.namespace = namespace;
 
     /**
      * Tracks all active connections. Will pack new connections into the start
@@ -181,7 +131,7 @@ class Server {
      * @type {object}
      */
     this[updates] = {};
-    setInterval(this.postUpdates.bind(this), SIXTY_FPS);
+    setInterval(this.publishUpdates.bind(this), SIXTY_FPS);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
@@ -206,7 +156,7 @@ class Server {
     this.connections[index] = cn;
     socket.on('disconnect', () => this.disconnect(cn));
 
-    logConnection(cn.view.id, this.port, true);
+    logConnection(cn.view.id, true);
   }
 
   /**
@@ -234,33 +184,18 @@ class Server {
     if (cn.disconnect()) {
       this.connections[cn.index] = null;
       new Message(Message.RM_SHADOW, cn.view).emitWith(this.namespace);
-      logConnection(cn.view.id, this.port, false);
+      logConnection(cn.view.id, false);
     } else {
       console.error('Failed to disconnect:', this);
     }
   }
 
   /**
-   * Start the server on the given hostname and port.
-   *
-   * @param {number} [port=9000] - Valid port number on which to listen.
-   * @param {string} [host=getLocalIP()] - IP address or hostname on which to
-   * listen.
-   * @see module:server.Server~getLocalIP
+   * Publish scheduled updates.
    */
-  listen(port = Server.DEFAULTS.port, host = getLocalIP()) {
-    this.server.listen(port, host, () => {
-      console.info('Listening on', this.server.address());
-    });
-    this.port = port;
-  }
-
-  /**
-   * Post scheduled updates.
-   */
-  postUpdates() {
+  publishUpdates() {
     Object.values(this[updates]).forEach(o => {
-      this.update(o);
+      o.publish();
       delete this[updates][o.id];
     });
   }
@@ -278,17 +213,6 @@ class Server {
   }
 
   /**
-   * Remove the item from the model.
-   *
-   * @param {module:server.ServerItem} item - Item to remove.
-   */
-  removeItem(item) {
-    if (this.workspace.removeItem(item)) {
-      new Message(Message.RM_ITEM, item).emitWith(this.namespace);
-    }
-  }
-
-  /**
    * Schedules an update announcement at the next update interval.
    *
    * @param {( module:server.ServerItem | module:server.ServerView )} object -
@@ -296,69 +220,6 @@ class Server {
    */
   scheduleUpdate(object) {
     this[updates][object.id] = object;
-  }
-
-  /**
-   * Spawn a new item.
-   *
-   * @param {Object} itemdata - Data describing the item to spawn.
-   *
-   * @return {module:server.ServerItem} The newly spawned item.
-   */
-  spawnItem(itemdata) {
-    const item = this.workspace.spawnItem(itemdata);
-    new Message(Message.ADD_ITEM, item).emitWith(this.namespace);
-    return item;
-  }
-
-  /**
-   * Announce to all active clients that the given object has been updated.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
-   */
-  update(object) {
-    if (object instanceof ServerItem) {
-      this.updateItem(object);
-    } else if (object instanceof ServerViewGroup) {
-      this.updateViewGroup(object);
-    } else if (object instanceof ServerView) {
-      this.updateView(object);
-    }
-  }
-
-  /**
-   * Inform all clients that the given item has been updated.
-   *
-   * @param {module:server.ServerItem} item - ServerItem that has been updated.
-   */
-  updateItem(item) {
-    new Message(Message.UD_ITEM, item).emitWith(this.namespace);
-  }
-
-  /**
-   * Inform the client corresponding to the given view that it has been updated,
-   * and inform all other clients that a 'shadow' view has been updated.
-   *
-   * @param {module:server.ServerView} view - ServerView that has been updated.
-   */
-  updateView(view) {
-    const cn = this.connections.find(c => c && c.view.id === view.id);
-    if (cn) {
-      new Message(Message.UD_SHADOW, view).emitWith(cn.socket.broadcast);
-      new Message(Message.UD_VIEW,   view).emitWith(cn.socket);
-    } else {
-      console.warn('Failed to locate connection');
-    }
-  }
-
-  /**
-   * Update all the views in the group.
-   *
-   * @param {module:server.ServerViewGroup} group - Group that has been updated.
-   */
-  updateViewGroup(group) {
-    group.views.forEach(v => this.updateView(v));
   }
 }
 

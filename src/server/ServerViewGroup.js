@@ -61,6 +61,13 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   }
 
   /**
+   * Publish all the views, bringing subscribers up to date.
+   */
+  publish() {
+    this.views.forEach(v => v.publish());
+  }
+
+  /**
    * Remove a view from the group.
    *
    * @param {module:server.ServerView} view - View to remove from the group.

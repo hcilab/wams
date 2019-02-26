@@ -13,8 +13,9 @@
 const {
   findLast,
   mergeMatches,
-  IdStamper,
   safeRemoveById,
+  IdStamper,
+  Message,
 } = require('../shared.js');
 const ServerItem = require('./ServerItem.js');
 const ServerView = require('./ServerView.js');
@@ -35,8 +36,9 @@ class WorkSpace {
    * workspace.
    * @param {boolean} [settings.useServerGestures=false] - Whether to use
    * server-side gestures. Default is to use client-side gestures.
+   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    */
-  constructor(settings) {
+  constructor(settings, namespace) {
     /**
      * Configuration settings for the workspace.
      *
@@ -46,6 +48,13 @@ class WorkSpace {
      * server-side gestures. Default is to use client-side gestures.
      */
     this.settings = mergeMatches(WorkSpace.DEFAULTS, settings);
+
+    /**
+     * Socket.io namespace in which to operate.
+     *
+     * @type {Namespace}
+     */
+    this.namespace = namespace;
 
     /**
      * Track all active views.
@@ -122,7 +131,9 @@ class WorkSpace {
    * otherwise.
    */
   removeItem(item) {
-    return safeRemoveById(this.items, item, ServerItem);
+    if (safeRemoveById(this.items, item, ServerItem)) {
+      new Message(Message.RM_ITEM, item).emitWith(this.namespace);
+    }
   }
 
   /**
@@ -160,24 +171,25 @@ class WorkSpace {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
-    const o = new ServerItem(values);
-    this.items.push(o);
-    return o;
+    const item = new ServerItem(this.namespace, values);
+    this.items.push(item);
+    return item;
   }
 
   /**
    * Spawn a new view with the given values.
    *
+   * @param {Namespace} socket - Socket.io socket for publishing changes.
    * @param {object} values - Values describing the view to spawn.
    *
    * @return {module:server.ServerView} The newly spawned view.
    */
-  spawnView(values = {}) {
-    const v = new ServerView(values);
-    this.views.push(v);
-    this.group.addView(v);
-    v.assign(this.group);
-    return v;
+  spawnView(socket, values = {}) {
+    const view = new ServerView(socket, values);
+    this.views.push(view);
+    this.group.addView(view);
+    view.assign(this.group);
+    return view;
   }
 }
 

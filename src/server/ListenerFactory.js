@@ -117,8 +117,8 @@ function drag(listener) {
  * @return {function} Layout handler.
  */
 function layout(listener) {
-  return function handleLayout(view, index) {
-    listener(view, index);
+  return function handleLayout(view, index, device) {
+    listener(view, index, device);
   };
 }
 

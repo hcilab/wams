@@ -1,5 +1,5 @@
 {
-  "description": "API for Nodejs to make multi-surface applications",
+  "description": "Workspaces Across Multiple Surfaces",
   "dependencies": {
     "canvas-sequencer": "^2.0.4",
     "express": "^4.16.4",
@@ -21,7 +21,7 @@
     "testURL": "http://localhost/"
   },
   "main": "index.js",
-  "name": "WAMS_API",
+  "name": "WAMS",
   "private": true,
   "repository": {
     "type": "git",
