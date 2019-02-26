@@ -10,7 +10,6 @@
 
 'use strict';
 
-const { mergeMatches, NOP } = require('../shared.js');
 const Gestures = require('../gestures.js');
 
 /**
@@ -21,30 +20,33 @@ const Gestures = require('../gestures.js');
  */
 class GestureController {
   /**
-   * @param {Object} handlers - Object with keys as the names gestures and
-   *    values as the corresponding function for handling that gesture when it
-   *    is recognized.
-   * @param {Function} [handlers.pan=NOP]
-   * @param {Function} [handlers.rotate=NOP]
-   * @param {Function} [handlers.swipe=NOP]
-   * @param {Function} [handlers.tap=NOP]
-   * @param {Function} [handlers.zoom=NOP]
-   * @param {Function} [handlers.track=NOP]
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * gestures.
+   * @param {module:server.ServerViewGroup} group - The view group associated
+   * with this controller.
    */
-  constructor(handlers = {}) {
+  constructor(messageHandler, group, workspace) {
     /**
-     * Object holding the handlers, so they can be dynamically referenced by
-     * name.
+     * The view group associated with this controller.
      *
-     * @type {Object}
-     * @property {Function} pan=NOP
-     * @property {Function} rotate=NOP
-     * @property {Function} swipe=NOP
-     * @property {Function} top=NOP
-     * @property {Function} zoom=NOP
-     * @property {Function} track=NOP
+     * @type {module:server.ServerViewGroup}
      */
-    this.handlers = mergeMatches(GestureController.DEFAULT_HANDLERS, handlers);
+    this.group = group;
+
+    /**
+     * For responding to gestures.
+     *
+     * @type {module:server.MessageHandler}
+     */
+    this.messageHandler = messageHandler;
+
+    /**
+     * This is a shared reference to the single principle WorkSpace. Think of it
+     * like a 'parent' reference in a tree node.
+     *
+     * @type {module:server.WorkSpace}
+     */
+    this.workspace = workspace;
 
     /**
      * The "region" which takes care of gesture processing.
@@ -62,48 +64,32 @@ class GestureController {
    * care of those activities.
    */
   begin() {
-    const pan     = new Gestures.Pan({ muteKey: 'ctrlKey' });
+    const pan     = new Gestures.Pan();
     const rotate  = new Gestures.Rotate();
     const pinch   = new Gestures.Pinch();
     const swipe   = new Gestures.Swipe();
-    const swivel  = new Gestures.Swivel({ enableKey: 'ctrlKey' });
     const tap     = new Gestures.Tap();
     const track   = new Gestures.Track(['start', 'end']);
 
-    this.region.addGesture(pan,    this.handle('pan'));
-    this.region.addGesture(tap,    this.handle('tap'));
-    this.region.addGesture(pinch,  this.handle('zoom'));
+    this.region.addGesture(pan,    this.handle('drag'));
+    this.region.addGesture(tap,    this.handle('click'));
+    this.region.addGesture(pinch,  this.handle('scale'));
     this.region.addGesture(rotate, this.handle('rotate'));
     this.region.addGesture(swipe,  this.handle('swipe'));
-    this.region.addGesture(swivel, this.handle('rotate'));
     this.region.addGesture(track,  this.handle('track'));
   }
 
   /**
-   * Returns the current input centroid of this gesture controller.
-   *
-   * @type {module:gesture.Point2D}
-   */
-  get centroid() { return this.region.state.stagedCentroid; }
-
-  /**
-   * Returns the array of currently active inputs.
-   *
-   * @type {Map.<string, module:gesture.Input>}
-   */
-  get inputs() { return this.region.state[Symbol.for('inputs')]; }
-
-  /**
    * Generates a function that handles the appropriate gesture and data.
    *
-   * @param {string} gesture - name of a gesture to handle.
+   * @param {string} message - name of a gesture to handle.
    *
    * @return {Function} Handler for westures that receives a data object and
    * handles it according to the given gesture name.
    */
-  handle(gesture) {
+  handle(message) {
     function do_handle(data) {
-      this.handlers[gesture](data);
+      this.messageHandler.handle(message, this.group, data);
     }
     return do_handle.bind(this);
   }
@@ -114,30 +100,28 @@ class GestureController {
    * @param {PointerEvent} event - The event from the client.
    */
   process(event) {
-    const view = event.viewSource;
-    const physical = view.transformPhysicalPoint(event.clientX, event.clientY);
-    event.physX = physical.x;
-    event.physY = physical.y;
-    const logical = view.transformPoint(event.clientX, event.clientY);
-    event.clientX = logical.x;
-    event.clientY = logical.y;
     this.region.arbitrate(event);
   }
-}
 
-/**
- * The default handlers for the GestureController.
- *
- * @type {object}
- */
-GestureController.DEFAULT_HANDLERS = Object.freeze({
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-  track:  NOP,
-});
+  /**
+   * Performs locking and unlocking based on the phase and number of active
+   * points.
+   *
+   * @param {Object} data
+   * @param {module:server.Point2D[]} data.active - Currently active contact
+   * points.
+   * @param {module:server.Point2D} data.centroid - Centroid of active contact
+   * points.
+   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
+   */
+  track({ active, centroid, phase }) {
+    if (phase === 'start' && active.length === 1) {
+      this.workspace.obtainLock(centroid.x, centroid.y, this.group);
+    } else if (phase === 'end' && active.length === 0) {
+      this.group.releaseLockedItem();
+    }
+  }
+}
 
 module.exports = GestureController;
 
