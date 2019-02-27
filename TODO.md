@@ -21,11 +21,17 @@
 - [ ] Can the API endpoint be done better? Are there some even better
         abstractions available that will make this code even easier to reason
         about?
-- [ ] Implement multi-device gestures.
-  + [ ] Implement server-side gesture library.
+    + [ ] Isolate Items in WorkSpace
+    + [X] Extract MessageHandler
+    + [ ] Split Views from WorkSpace, associate only with Connections.
+    + [X] Allow items and views to self-publish.
+    + [ ] Allow items and views to schedule updates automatically when they are
+        updated.
+- [X] Implement multi-device gestures.
+  + [X] Implement server-side gesture library.
 - [ ] Provide installation instructions, simplify installation.
-    + [ ] Write an entry-point 'index.js' file and add to package.json
-    + [ ] Write installation instructions into README.md
+    + [X] Write an entry-point 'index.js' file and add to package.json
+    + [X] Write installation instructions into README.md
     + [ ] Merge DESIGN.md into README.md
 
 ---
