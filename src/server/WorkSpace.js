@@ -199,7 +199,7 @@ class WorkSpace {
  * @type {object}
  */
 WorkSpace.DEFAULTS = Object.freeze({
-  color:             'gray',
+  color:             '#dad1e3',
   useServerGestures: false,
 });
 
