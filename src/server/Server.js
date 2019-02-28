@@ -17,6 +17,7 @@ const { Message } = require('../shared.js');
 // Local project packages for the server.
 const Connection = require('./Connection.js');
 const GestureController = require('./GestureController.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
 // Local constant data
 const SIXTY_FPS = 1000 / 60;
@@ -119,11 +120,19 @@ class Server {
     this.connections = [];
 
     /**
+     * Track the active group.
+     *
+     * @type {module:server.ServerViewGroup}
+     */
+    this.group = new ServerViewGroup();
+
+    /**
      * Controls server-side gestures.
      *
      * @type {module:server.GestureController}
      */
-    this.gestureController = new GestureController(messageHandler, workspace);
+    this.gestureController = new GestureController(messageHandler, this.group);
+    this.group.setGestureController(this.gestureController);
 
     /**
      * Dictionary of objects to update, keyed by id.
@@ -150,7 +159,8 @@ class Server {
       socket,
       this.workspace,
       this.messageHandler,
-      this.gestureController,
+      this.group,
+      this,
     );
 
     this.connections[index] = cn;
@@ -210,6 +220,13 @@ class Server {
     socket.emit(Message.FULL);
     socket.disconnect(true);
     console.warn('Rejected incoming connection: client limit reached.');
+  }
+
+  /**
+   * @return {module:shared.View[]} Reports of the currently active views.
+   */
+  reportViews() {
+    return this.connections.filter(c => c).map(c => c.view.report());
   }
 
   /**

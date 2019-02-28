@@ -31,6 +31,13 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     super(ServerViewGroup.DEFAULTS);
 
     /**
+     * Controls server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = null;
+
+    /**
      * The views belonging to this group.
      *
      * @type {module:server.ServerView[]}
@@ -107,6 +114,16 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach(v => v.scaleBy(ds, mx, my));
+  }
+
+  /**
+   * Associates a gesture controller with this group.
+   *
+   * @param {module:server.GestureController} gestureController - The gesture
+   * controller to associate with this group.
+   */
+  setGestureController(gestureController) {
+    this.gestureController = gestureController;
   }
 }
 

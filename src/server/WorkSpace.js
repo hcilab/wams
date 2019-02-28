@@ -18,8 +18,6 @@ const {
   Message,
 } = require('../shared.js');
 const ServerItem = require('./ServerItem.js');
-const ServerView = require('./ServerView.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 
 const STAMPER = new IdStamper();
 
@@ -57,25 +55,11 @@ class WorkSpace {
     this.namespace = namespace;
 
     /**
-     * Track all active views.
-     *
-     * @type {module:server.ServerView[]}
-     */
-    this.views = [];
-
-    /**
      * Track all items in the workspace.
      *
      * @type {module:server.ServerItem[]}
      */
     this.items = [];
-
-    /**
-     * Track the active group.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = new ServerViewGroup();
 
     // Workspaces should be uniquely identifiable.
     STAMPER.stampNewId(this);
@@ -137,30 +121,10 @@ class WorkSpace {
   }
 
   /**
-   * Remove the given view from the workspace.
-   *
-   * @param {module:server.ServerView} view - View to remove.
-   *
-   * @return {boolean} true if the view was located and removed, false
-   * otherwise.
-   */
-  removeView(view) {
-    this.group.removeView(view);
-    return safeRemoveById(this.views, view, ServerView);
-  }
-
-  /**
    * @return {module:shared.Item[]} Reports of the currently active items.
    */
   reportItems() {
     return this.items.map(o => o.report());
-  }
-
-  /**
-   * @return {module:shared.View[]} Reports of the currently active views.
-   */
-  reportViews() {
-    return this.views.map(v => v.report());
   }
 
   /**
@@ -174,22 +138,6 @@ class WorkSpace {
     const item = new ServerItem(this.namespace, values);
     this.items.push(item);
     return item;
-  }
-
-  /**
-   * Spawn a new view with the given values.
-   *
-   * @param {Namespace} socket - Socket.io socket for publishing changes.
-   * @param {object} values - Values describing the view to spawn.
-   *
-   * @return {module:server.ServerView} The newly spawned view.
-   */
-  spawnView(socket, values = {}) {
-    const view = new ServerView(socket, values);
-    this.views.push(view);
-    this.group.addView(view);
-    view.assign(this.group);
-    return view;
   }
 }
 

@@ -12,6 +12,7 @@
 
 const { FullStateReporter, Message, NOP } = require('../shared.js');
 const Device = require('./Device.js');
+const ServerView = require('./ServerView.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -35,10 +36,10 @@ class Connection {
    * this connection.
    * @param {module:server.MessageHandler} messageHandler - For responding to
    * messages from clients.
-   * @param {module:server.GestureController} gestureController - For
-   * server-side gestures.
+   * @param {module:server.ServerViewGroup} group - The group to which this
+   * connection will belong.
    */
-  constructor(index, socket, workspace, messageHandler, gestureController) {
+  constructor(index, socket, workspace, messageHandler, group, server) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -70,18 +71,27 @@ class Connection {
     this.messageHandler = messageHandler;
 
     /**
-     * For server-side gestures.
+     * Track the group to which this connection belongs.
      *
-     * @type {module:server.GestureController}
+     * @type {module:server.ServerViewGroup}
      */
-    this.gestureController = gestureController;
+    this.group = group;
+
+    /**
+     * Link to the parent server.
+     *
+     * @type {module:server.Server}
+     */
+    this.server = server;
 
     /**
      * The view corresponding to the client on the other end of this Connection.
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.workspace.spawnView(this.socket);
+    this.view = new ServerView(this.socket);
+    this.group.addView(this.view);
+    this.view.assign(this.group);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -124,7 +134,9 @@ class Connection {
 
       // User event related, handle immediately
       [Message.RESIZE]:  (data)     => this.resize(data),
-      [Message.TRACK]:   ({ data }) => this.track(data),
+      [Message.TRACK]:   ({ data }) => {
+        this.messageHandler.track(data, this.view);
+      },
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
@@ -139,7 +151,7 @@ class Connection {
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
       ...this.workspace.settings,
-      views: this.workspace.reportViews(),
+      views: this.server.reportViews(),
       items: this.workspace.reportItems(),
       id:    this.view.id,
     });
@@ -152,12 +164,10 @@ class Connection {
    * @returns {boolean} true if disconnection was successful, false otherwise.
    */
   disconnect() {
-    if (this.workspace.removeView(this.view)) {
-      this.view.releaseLockedItem();
-      this.socket.disconnect(true);
-      return true;
-    }
-    return false;
+    this.group.removeView(this.view);
+    this.view.releaseLockedItem();
+    this.socket.disconnect(true);
+    return true;
   }
 
   /**
@@ -197,7 +207,7 @@ class Connection {
     const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
     event.clientX = x;
     event.clientY = y;
-    this.gestureController.process(event);
+    this.group.gestureController.process(event);
   }
 
   /**
@@ -210,25 +220,6 @@ class Connection {
   resize(data) {
     this.view.assign(data);
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
-  }
-
-  /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
-   *
-   * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
-   */
-  track({ active, centroid, phase }) {
-    if (phase === 'start' && active.length === 1) {
-      this.workspace.obtainLock(centroid.x, centroid.y, this.view);
-    } else if (phase === 'end' && active.length === 0) {
-      this.view.releaseLockedItem();
-    }
   }
 }
 
