@@ -33,18 +33,17 @@ class Track extends Gesture {
    * Constructor for the Track class.
    *
    * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or
-   *    all of 'start', 'move', and 'end'.
+   *    all of 'start', 'move', 'end', and 'cancel'.
    */
   constructor(phases = []) {
     super('track');
-    this.trackStart = phases.includes('start');
-    this.trackMove  = phases.includes('move');
-    this.trackEnd   = phases.includes('end');
+    this.trackStart  = phases.includes('start');
+    this.trackMove   = phases.includes('move');
+    this.trackEnd    = phases.includes('end');
+    this.trackCancel = phases.includes('cancel');
   }
 
   /**
-   * Unpacks the state and returns a slimmed down object for emitting.
-   *
    * @param {module:gestures.State} state - current input state.
    * @return {module:gestures.ReturnTypes.TrackData}
    */
@@ -83,6 +82,17 @@ class Track extends Gesture {
    */
   end(state) {
     return this.trackEnd ? this.data(state) : null;
+  }
+
+  /**
+   * Event hook for the cancel of a Track gesture.
+   *
+   * @param {module:gestures.State} state - current input state.
+   * @return {?module:gestures.ReturnTypes.TrackData} <tt>null</tt> if not
+   * recognized.
+   */
+  cancel(state) {
+    return this.trackCancel ? this.data(state) : null;
   }
 }
 

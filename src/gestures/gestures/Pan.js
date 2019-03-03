@@ -45,6 +45,13 @@ class Pan extends Gesture {
      * @type {string}
      */
     this.muteKey = options.muteKey;
+
+    /**
+     * The previous point location.
+     *
+     * @type {module:gestures.Point2D}
+     */
+    this.previous = null;
   }
 
   /**
@@ -53,9 +60,10 @@ class Pan extends Gesture {
    *
    * @param {module:gestures.State} state - The state object received by a hook.
    */
-  initialize(state) {
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.lastEmitted = state.centroid;
+  refresh(state) {
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.previous = state.centroid;
+    }
   }
 
   /**
@@ -65,9 +73,7 @@ class Pan extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -78,16 +84,18 @@ class Pan extends Gesture {
    * was muted or otherwise not recognized.
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    if (this.muteKey && state.event[this.muteKey]) {
-      this.initialize(state);
+    if (state.active.length < REQUIRED_INPUTS) {
       return null;
     }
 
-    const progress = state.active[0].getProgressOfGesture(this.id);
+    if (this.muteKey && state.event[this.muteKey]) {
+      this.refresh(state);
+      return null;
+    }
+
     const point = state.centroid;
-    const change = point.minus(progress.lastEmitted);
-    progress.lastEmitted = point;
+    const change = point.minus(this.previous);
+    this.previous = point;
 
     return { change, point };
   }
@@ -99,9 +107,17 @@ class Pan extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pan. Resets the current centroid of
+   * the inputs.
+   *
+   * @param {module:gestures.State} state - current input state.
+   */
+  cancel(state) {
+    this.refresh(state);
   }
 }
 

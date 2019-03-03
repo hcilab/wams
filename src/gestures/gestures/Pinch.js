@@ -48,6 +48,13 @@ class Pinch extends Gesture {
      * @type {number}
      */
     this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
+
+    /**
+     * The previous distance.
+     *
+     * @type {number}
+     */
+    this.previous = 0;
   }
 
   /**
@@ -56,10 +63,11 @@ class Pinch extends Gesture {
    *
    * @param {module:gestures.State} state - current input state.
    */
-  initializeProgress(state) {
-    const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = distance;
+  refresh(state) {
+    if (state.active.length >= this.minInputs) {
+      const distance = state.centroid.averageDistanceTo(state.activePoints);
+      this.previous = distance;
+    }
   }
 
   /**
@@ -68,9 +76,7 @@ class Pinch extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -83,16 +89,12 @@ class Pinch extends Gesture {
   move(state) {
     if (state.active.length < this.minInputs) return null;
 
-    const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    const change = distance / progress.previousDistance;
-    progress.previousDistance = distance;
+    const midpoint = state.centroid;
+    const distance = midpoint.averageDistanceTo(state.activePoints);
+    const change = distance / this.previous;
+    this.previous = distance;
 
-    return {
-      distance,
-      midpoint: state.centroid,
-      change,
-    };
+    return { distance, midpoint, change };
   }
 
   /**
@@ -101,9 +103,16 @@ class Pinch extends Gesture {
    * @param {module:gestures.State} input status object
    */
   end(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pinch.
+   *
+   * @param {module:gestures.State} input status object
+   */
+  cancel(state) {
+    this.refresh(state);
   }
 }
 
