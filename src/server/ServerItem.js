@@ -41,7 +41,15 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
      */
     this.namespace = namespace;
 
-    // Items need to be uniquely identifiable.
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerItem
+     */
     STAMPER.stampNewId(this);
 
     // Notify subscribers immediately.

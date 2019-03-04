@@ -14,12 +14,9 @@ const {
   findLast,
   mergeMatches,
   safeRemoveById,
-  IdStamper,
   Message,
 } = require('../shared.js');
 const ServerItem = require('./ServerItem.js');
-
-const STAMPER = new IdStamper();
 
 /**
  * The WorkSpace keeps track of views and items, and can handle events on
@@ -60,9 +57,6 @@ class WorkSpace {
      * @type {module:server.ServerItem[]}
      */
     this.items = [];
-
-    // Workspaces should be uniquely identifiable.
-    STAMPER.stampNewId(this);
   }
 
   /**

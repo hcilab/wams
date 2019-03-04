@@ -41,7 +41,15 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
      */
     this.socket = socket;
 
-    // Views must be uniquely identifiable.
+    /**
+     * Id to make the views uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerView
+     */
     STAMPER.stampNewId(this);
   }
 

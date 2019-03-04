@@ -64,6 +64,16 @@ class ClientItem extends Item {
    */
   constructor(data) {
     super(data);
+
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientItem
+     */
     STAMPER.cloneId(this, data.id);
   }
 
