@@ -21,6 +21,7 @@ const Router = require('./Router.js');
 const Server = require('./Server.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
+const Publisher = require('./Publisher.js');
 
 // Symbols to mark fields for local use.
 const server = Symbol('server');
@@ -76,6 +77,13 @@ class Application {
      * @see {@link https://socket.io/docs/server-api/}
      */
     this.namespace = IO(this.server).of(constants.NS_WAMS);
+
+    /**
+     * Handles operations related to publishing object updates.
+     *
+     * @type {module:server.Publisher}
+     */
+    this.publisher = new Publisher();
 
     /**
      * The main model. The buck stops here.
@@ -154,7 +162,8 @@ class Application {
    * Item or view that has been updated.
    */
   scheduleUpdate(object) {
-    this[server].scheduleUpdate(object);
+    // this[server].scheduleUpdate(object);
+    this.publisher.schedule(object);
   }
 }
 
