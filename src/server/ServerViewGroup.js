@@ -10,6 +10,7 @@
 
 'use strict';
 
+const GestureController = require('./GestureController.js');
 const ServerView = require('./ServerView.js');
 const { removeById, View } = require('../shared.js');
 const { Locker, Lockable, Transformable2D } = require('../mixins.js');
@@ -25,7 +26,11 @@ const { Locker, Lockable, Transformable2D } = require('../mixins.js');
  * @mixes module:mixins.Locker
  */
 class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
-  constructor() {
+  /**
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * messages from clients.
+   */
+  constructor(messageHandler) {
     /*
      * The default x, y, scale, and rotation values are the ones that we want.
      */
@@ -36,7 +41,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
      *
      * @type {module:server.GestureController}
      */
-    this.gestureController = null;
+    this.gestureController = new GestureController(messageHandler, this);
 
     /**
      * The views belonging to this group.
@@ -124,16 +129,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach(v => v.scaleBy(ds, mx, my));
-  }
-
-  /**
-   * Associates a gesture controller with this group.
-   *
-   * @param {module:server.GestureController} gestureController - The gesture
-   * controller to associate with this group.
-   */
-  setGestureController(gestureController) {
-    this.gestureController = gestureController;
   }
 }
 

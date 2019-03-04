@@ -15,7 +15,6 @@ const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const Connection = require('./Connection.js');
-const GestureController = require('./GestureController.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
@@ -117,15 +116,7 @@ class Switchboard {
      *
      * @type {module:server.ServerViewGroup}
      */
-    this.group = new ServerViewGroup();
-
-    /**
-     * Controls server-side gestures.
-     *
-     * @type {module:server.GestureController}
-     */
-    this.gestureController = new GestureController(messageHandler, this.group);
-    this.group.setGestureController(this.gestureController);
+    this.group = new ServerViewGroup(messageHandler);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
