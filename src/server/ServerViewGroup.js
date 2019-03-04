@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ServerView = require('./ServerView.js');
 const { removeById, View } = require('../shared.js');
 const { Locker, Lockable, Transformable2D } = require('../mixins.js');
 
@@ -46,12 +47,14 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   }
 
   /**
-   * Add a view into the group.
+   * Spawn a view into the group.
    *
-   * @param {module:server.ServerView} view - View to add to the group.
+   * @param {Namespace} socket - Socket.io socket for publishing changes.
    */
-  addView(view) {
+  spawnView(socket) {
+    const view = new ServerView(socket, this);
     this.views.push(view);
+    return view;
   }
 
   /**
@@ -81,6 +84,13 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   removeView(view) {
     removeById(this.views, view);
+  }
+
+  /**
+   * @return {module:shared.View[]} Reports of the views in this group.
+   */
+  reportViews() {
+    return this.views.map(v => v.report());
   }
 
   /**

@@ -145,7 +145,6 @@ class Switchboard {
       this.workspace,
       this.messageHandler,
       this.group,
-      this,
     );
 
     this.connections[index] = cn;
@@ -195,13 +194,6 @@ class Switchboard {
     socket.emit(Message.FULL);
     socket.disconnect(true);
     console.warn('Rejected incoming connection: client limit reached.');
-  }
-
-  /**
-   * @return {module:shared.View[]} Reports of the currently active views.
-   */
-  reportViews() {
-    return this.connections.filter(c => c).map(c => c.view.report());
   }
 }
 

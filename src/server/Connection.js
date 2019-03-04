@@ -12,7 +12,6 @@
 
 const { FullStateReporter, Message, NOP } = require('../shared.js');
 const Device = require('./Device.js');
-const ServerView = require('./ServerView.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
@@ -39,7 +38,7 @@ class Connection {
    * @param {module:server.ServerViewGroup} group - The group to which this
    * connection will belong.
    */
-  constructor(index, socket, workspace, messageHandler, group, switchboard) {
+  constructor(index, socket, workspace, messageHandler, group) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -78,20 +77,11 @@ class Connection {
     this.group = group;
 
     /**
-     * Link to the parent switchboard.
-     *
-     * @type {module:server.Switchboard}
-     */
-    this.switchboard = switchboard;
-
-    /**
      * The view corresponding to the client on the other end of this Connection.
      *
      * @type {module:server.ServerView}
      */
-    this.view = new ServerView(this.socket);
-    this.group.addView(this.view);
-    this.view.assign(this.group);
+    this.view = this.group.spawnView(this.socket);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -100,8 +90,10 @@ class Connection {
      */
     this.device = new Device();
 
-    // Automatically begin operations by registering Message listeners and
-    // Informing the client on the current state of the model.
+    /*
+     * Automatically begin operations by registering Message listeners and
+     * Informing the client on the current state of the model.
+     */
     this[symbols.attachListeners]();
     this[symbols.fullStateReport]();
   }
@@ -151,7 +143,7 @@ class Connection {
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
       ...this.workspace.settings,
-      views: this.switchboard.reportViews(),
+      views: this.group.reportViews(),
       items: this.workspace.reportItems(),
       id:    this.view.id,
     });
