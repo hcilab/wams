@@ -42,7 +42,7 @@ const Item = ReporterFactory([
    * The item's hitbox.
    *
    * @name hitbox
-   * @type {module:server.Polygon2D}
+   * @type {module:shared.Polygon2D}
    * @memberof module:shared.Item
    * @instance
    */

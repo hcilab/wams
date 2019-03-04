@@ -10,7 +10,7 @@
 /**
  * Defines a set of basic operations on a point in a two dimensional space.
  *
- * @memberof module:server
+ * @memberof module:shared
  */
 class Point2D {
   /**
@@ -36,7 +36,7 @@ class Point2D {
   /**
    * Clones this point.
    *
-   * @returns {module:server.Point2D} An exact clone of this point.
+   * @returns {module:shared.Point2D} An exact clone of this point.
    */
   clone() {
     return new Point2D(this.x, this.y);
@@ -47,7 +47,7 @@ class Point2D {
    *
    * @param {number} ds - divide x,y by this amount.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:shared.Point2D} this
    */
   divideBy(ds = 1) {
     this.x /= ds;
@@ -63,8 +63,8 @@ class Point2D {
    *
    * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
-   * @param {module:server.Point2D} p0 - first point of the line.
-   * @param {module:server.Point2D} p1 - second point of the line.
+   * @param {module:shared.Point2D} p0 - first point of the line.
+   * @param {module:shared.Point2D} p1 - second point of the line.
    *
    * @return {number} >0 if this point is left of the line through p0 and p1
    * @return {number} =0 if this point is on the line
@@ -79,9 +79,9 @@ class Point2D {
   /**
    * Subtracts the given point from this point to form a new point.
    *
-   * @param {module:server.Point2D} p - Point to subtract from this point.
+   * @param {module:shared.Point2D} p - Point to subtract from this point.
    *
-   * @return {module:server.Point2D} A new point which is the simple subraction
+   * @return {module:shared.Point2D} A new point which is the simple subraction
    * of the given point from this point.
    */
   minus({ x = 0, y = 0 }) {
@@ -91,9 +91,9 @@ class Point2D {
   /**
    * Add the given point to this point.
    *
-   * @param {module:server.Point2D} p - Point to add to this point.
+   * @param {module:shared.Point2D} p - Point to add to this point.
    *
-   * @return {module:server.Point2D} A new point which is the simple addition of
+   * @return {module:shared.Point2D} A new point which is the simple addition of
    * the given point from this point.
    */
   plus({ x = 0, y = 0 }) {
@@ -105,7 +105,7 @@ class Point2D {
    *
    * @param {number} theta - Amount of rotation to apply, in radians.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:shared.Point2D} this
    */
   rotate(theta = 0) {
     const { x, y } = this;
@@ -123,7 +123,7 @@ class Point2D {
    *
    * @param {number} ds - Divide x,y by this amount.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:shared.Point2D} this
    */
   scale(ds = 1) {
     this.x *= ds;
@@ -137,7 +137,7 @@ class Point2D {
    * @param {number} coefficient - Amount by which to multiply the values in
    * this point.
    *
-   * @return {module:server.Point2D} Return a new point, the multiplation of
+   * @return {module:shared.Point2D} Return a new point, the multiplation of
    * this point by the given amount.
    */
   times(coefficient = 1) {
@@ -150,7 +150,7 @@ class Point2D {
    * @param {number} dx - change in x axis position.
    * @param {number} dy - change in y axis position.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:shared.Point2D} this
    */
   translate(dx = 0, dy = 0) {
     this.x += dx;

@@ -22,6 +22,8 @@ const Publishable = (superclass) => class extends superclass {
     /**
      * Keep track of our publisher.
      *
+     * @memberof module:mixins.Publishable
+     *
      * @type {module:server.Publisher}
      */
     this[publisher] = values.publisher;
@@ -29,6 +31,8 @@ const Publishable = (superclass) => class extends superclass {
 
   /**
    * Publish this object.
+   *
+   * @memberof module:mixins.Publishable
    */
   publish() {
     throw 'Classes using Publishable mixin must implement publish()';
@@ -36,6 +40,8 @@ const Publishable = (superclass) => class extends superclass {
 
   /**
    * Schedule a publication of this object.
+   *
+   * @memberof module:mixins.Publishable
    */
   schedulePublication() {
     this[publisher].schedule(this);

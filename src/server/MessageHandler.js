@@ -73,9 +73,9 @@ class MessageHandler {
    * points.
    *
    * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
+   * @param {module:shared.Point2D[]} data.active - Currently active contact
    * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
+   * @param {module:shared.Point2D} data.centroid - Centroid of active contact
    * points.
    * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
    * @param {module:server.ServerView} view - Origin of track request.
