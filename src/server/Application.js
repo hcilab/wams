@@ -23,11 +23,6 @@ const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 const Publisher = require('./Publisher.js');
 
-// Symbols to mark fields for local use.
-const switchboard = Symbol('switchboard');
-const workspace = Symbol('workspace');
-const messageHandler = Symbol('messageHandler');
-
 /**
  * @inner
  * @memberof module:server.Application
@@ -90,23 +85,23 @@ class Application {
      *
      * @type {module:server.WorkSpace}
      */
-    this[workspace] = new WorkSpace(settings, this.namespace);
+    this.workspace = new WorkSpace(settings, this.namespace);
 
     /**
      * The MessageHandler responds to messages.
      *
      * @type {module:server.MessageHandler}
      */
-    this[messageHandler] = new MessageHandler(this[workspace]);
+    this.messageHandler = new MessageHandler(this.workspace);
 
     /**
      * The switchboard allows communication with clients
      *
      * @type {module:server.Switchboard}
      */
-    this[switchboard] = new Switchboard(
-      this[workspace],
-      this[messageHandler],
+    this.switchboard = new Switchboard(
+      this.workspace,
+      this.messageHandler,
       this.namespace,
       settings,
     );
@@ -133,7 +128,7 @@ class Application {
    * @param {function} handler - Function for responding to the given event.
    */
   on(event, handler) {
-    this[messageHandler].on(event, handler);
+    this.messageHandler.on(event, handler);
   }
 
   /**
@@ -142,7 +137,7 @@ class Application {
    * @param {module:server.ServerItem} item - Item to remove.
    */
   removeItem(item) {
-    this[workspace].removeItem(item);
+    this.workspace.removeItem(item);
   }
 
   /**
@@ -152,17 +147,15 @@ class Application {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values) {
-    return this[workspace].spawnItem(values);
+    return this.workspace.spawnItem(values);
   }
 
   /**
    * Schedules an update announcement at the next update interval.
    *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
+   * @param {module:mixins.Publishable} object - Item with updates to publish.
    */
   scheduleUpdate(object) {
-    // this[server].scheduleUpdate(object);
     this.publisher.schedule(object);
   }
 }

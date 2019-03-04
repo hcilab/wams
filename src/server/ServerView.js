@@ -37,7 +37,7 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
     /**
      * Socket.io socket for publishing changes.
      *
-     * @type {Namespace}
+     * @type {Socket}
      */
     this.socket = socket;
 
