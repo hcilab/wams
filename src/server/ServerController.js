@@ -20,16 +20,16 @@ const symbols = Object.freeze({
 });
 
 /**
- * A Connection maintains a socket.io connection between a client and the
+ * A ServerController maintains a socket.io connection between a client and the
  * server. It tracks a view associated with the client, as well as the
  * associated workspace.
  *
  * @memberof module:server
  */
-class Connection {
+class ServerController {
   /**
-   * @param {number} index - The index of this Connection in the workspace, can
-   * be used as a unique identifier.
+   * @param {number} index - The index of this ServerController in the
+   * workspace, can be used as a unique identifier.
    * @param {Socket} socket - A socket.io connection with a client.
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
@@ -40,8 +40,8 @@ class Connection {
    */
   constructor(index, socket, workspace, messageHandler, group) {
     /**
-     * The index is an integer identifying the Connection, which can also be
-     * used for locating the Connection in a collection.
+     * The index is an integer identifying the ServerController, which can also
+     * be used for locating the ServerController in a collection.
      *
      * @type {number}
      */
@@ -77,7 +77,8 @@ class Connection {
     this.group = group;
 
     /**
-     * The view corresponding to the client on the other end of this Connection.
+     * The view corresponding to the client on the other end of this
+     * ServerController.
      *
      * @type {module:server.ServerView}
      */
@@ -215,5 +216,5 @@ class Connection {
   }
 }
 
-module.exports = Connection;
+module.exports = ServerController;
 

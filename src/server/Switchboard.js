@@ -14,7 +14,7 @@
 const { Message } = require('../shared.js');
 
 // Local project packages for the server.
-const Connection = require('./Connection.js');
+const ServerController = require('./ServerController.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
@@ -107,7 +107,7 @@ class Switchboard {
      * of this array at all times. Old connections will not have their position
      * in the array changed.
      *
-     * @type {module:server.Connection[]}
+     * @type {module:server.ServerController[]}
      */
     this.connections = [];
 
@@ -130,7 +130,7 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const cn = new Connection(
+    const controller = new ServerController(
       index,
       socket,
       this.workspace,
@@ -138,10 +138,10 @@ class Switchboard {
       this.group,
     );
 
-    this.connections[index] = cn;
-    socket.on('disconnect', () => this.disconnect(cn));
+    this.connections[index] = controller;
+    socket.on('disconnect', () => this.disconnect(controller));
 
-    logConnection(cn.view.id, true);
+    logConnection(controller.view.id, true);
   }
 
   /**
@@ -163,13 +163,13 @@ class Switchboard {
   /**
    * Disconnect the given connection.
    *
-   * @param {Connection} cn - Connection to disconnect.
+   * @param {ServerController} connection - ServerController to disconnect.
    */
-  disconnect(cn) {
-    if (cn.disconnect()) {
-      this.connections[cn.index] = null;
-      new Message(Message.RM_SHADOW, cn.view).emitWith(this.namespace);
-      logConnection(cn.view.id, false);
+  disconnect(controller) {
+    if (controller.disconnect()) {
+      this.connections[controller.index] = null;
+      new Message(Message.RM_SHADOW, controller.view).emitWith(this.namespace);
+      logConnection(controller.view.id, false);
     } else {
       console.error('Failed to disconnect:', this);
     }
