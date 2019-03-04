@@ -8,7 +8,7 @@
     {
       "type": "Component",
       "patterns": ["src/**/*.js"],
-      "excludePatterns": ["**/__tests__/**", "**/*-test.js"]
+      "excludePatterns": ["**/__tests__/**", "**/*-test.js", "src/shared*"]
     }
   ],
   "output": {
@@ -20,11 +20,11 @@
         "patterns":  ["index.js", "src/client.js"]
       },
       {
-        "type": "client-side",
+        "type": "Client",
         "patterns": ["src/client/*.js", "src/client.js"]
 	  },
 	  {
-        "type": "server-side",
+        "type": "Server",
         "patterns": ["src/server/*.js", "src/server.js"]
 	  },
 	  {
