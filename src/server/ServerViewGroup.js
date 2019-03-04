@@ -10,6 +10,8 @@
 
 'use strict';
 
+const GestureController = require('./GestureController.js');
+const ServerView = require('./ServerView.js');
 const { removeById, View } = require('../shared.js');
 const { Locker, Lockable, Transformable2D } = require('../mixins.js');
 
@@ -24,11 +26,22 @@ const { Locker, Lockable, Transformable2D } = require('../mixins.js');
  * @mixes module:mixins.Locker
  */
 class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
-  constructor() {
+  /**
+   * @param {module:server.MessageHandler} messageHandler - For responding to
+   * messages from clients.
+   */
+  constructor(messageHandler) {
     /*
      * The default x, y, scale, and rotation values are the ones that we want.
      */
     super(ServerViewGroup.DEFAULTS);
+
+    /**
+     * Controls server-side gestures.
+     *
+     * @type {module:server.GestureController}
+     */
+    this.gestureController = new GestureController(messageHandler, this);
 
     /**
      * The views belonging to this group.
@@ -36,15 +49,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
      * @type {module:server.ServerView[]}
      */
     this.views = [];
-  }
-
-  /**
-   * Add a view into the group.
-   *
-   * @param {module:server.ServerView} view - View to add to the group.
-   */
-  addView(view) {
-    this.views.push(view);
   }
 
   /**
@@ -74,6 +78,13 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   removeView(view) {
     removeById(this.views, view);
+  }
+
+  /**
+   * @return {module:shared.View[]} Reports of the views in this group.
+   */
+  reportViews() {
+    return this.views.map(v => v.report());
   }
 
   /**
@@ -107,6 +118,17 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach(v => v.scaleBy(ds, mx, my));
+  }
+
+  /**
+   * Spawn a view into the group.
+   *
+   * @param {Namespace} socket - Socket.io socket for publishing changes.
+   */
+  spawnView(socket) {
+    const view = new ServerView(socket, this);
+    this.views.push(view);
+    return view;
   }
 }
 

@@ -8814,6 +8814,18 @@ class Gesture {
   end() {
     return null;
   }
+
+  /**
+   * Event hook for when an input is cancelled.
+   *
+   * @param {State} state - The input state object of the current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
+   */
+  cancel() {
+    return null;
+  }
 }
 
 module.exports = Gesture;
@@ -9021,9 +9033,12 @@ const PHASE = Object.freeze({
   touchmove:   'move',
   pointermove: 'move',
 
-  mouseup:   'end',
-  touchend:  'end',
-  pointerup: 'end',
+  mouseup:       'end',
+  touchend:      'end',
+  pointerup:     'end',
+
+  touchcancel:   'cancel',
+  pointercancel: 'cancel',
 });
 
 module.exports = PHASE;
@@ -9303,6 +9318,7 @@ const POINTER_EVENTS = [
   'pointerdown',
   'pointermove',
   'pointerup',
+  'pointercancel',
 ];
 
 const MOUSE_EVENTS = [
@@ -9315,6 +9331,7 @@ const TOUCH_EVENTS = [
   'touchstart',
   'touchmove',
   'touchend',
+  'touchcancel',
 ];
 
 /**
@@ -9439,6 +9456,19 @@ class Region {
         passive: false,
       });
     });
+
+    window.addEventListener('blur', () => {
+      this.state = new State();
+      this.resetActiveBindings();
+    });
+  }
+
+  /**
+   * Resets the active bindings.
+   */
+  resetActiveBindings() {
+    this.activeBindings = [];
+    this.isWaiting = true;
   }
 
   /**
@@ -9446,7 +9476,7 @@ class Region {
    *
    * @private
    */
-  updateBindings() {
+  updateActiveBindings() {
     if (this.isWaiting && this.state.inputs.length > 0) {
       const input = this.state.inputs[0];
       this.activeBindings = this.bindings.filter(b => {
@@ -9461,9 +9491,9 @@ class Region {
    *
    * @private
    */
-  pruneBindings() {
+  pruneActiveBindings() {
     if (this.state.hasNoActiveInputs()) {
-      this.isWaiting = true;
+      this.resetActiveBindings();
     }
   }
 
@@ -9477,8 +9507,8 @@ class Region {
    * @param {Event} event - The event emitted from the window object.
    */
   arbitrate(event) {
-    this.state.updateAllInputs(event, this.element);
-    this.updateBindings();
+    this.state.updateAllInputs(event);
+    this.updateActiveBindings();
 
     if (this.activeBindings.length > 0) {
       if (this.preventDefault) event.preventDefault();
@@ -9489,7 +9519,7 @@ class Region {
     }
 
     this.state.clearEndedInputs();
-    this.pruneBindings();
+    this.pruneActiveBindings();
   }
 
   /**
@@ -9694,11 +9724,18 @@ class State {
    */
   updateAllInputs(event) {
     update_fns[event.constructor.name].call(this, event);
+    this.updateFields(event);
+  }
+
+  /**
+   * Updates the convenience fields.
+   */
+  updateFields(event = null) {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
     this.centroid = Point2D.midpoint(this.activePoints);
-    this.event = event;
+    if (event) this.event = event;
   }
 }
 
@@ -9852,9 +9889,11 @@ class Pan extends Gesture {
    * @private
    * @param {State} state - The state object received by a hook.
    */
-  initialize(state) {
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.lastEmitted = state.centroid;
+  refresh(state) {
+    if (state.active.length >= REQUIRED_INPUTS) {
+      const progress = state.active[0].getProgressOfGesture(this.id);
+      progress.lastEmitted = state.centroid;
+    }
   }
 
   /**
@@ -9865,9 +9904,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -9879,8 +9916,9 @@ class Pan extends Gesture {
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
+
     if (this.muteKey && state.event[this.muteKey]) {
-      this.initialize(state);
+      this.refresh(state);
       return null;
     }
 
@@ -9900,9 +9938,18 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pan. Resets the current centroid of
+   * the inputs.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -9970,10 +10017,12 @@ class Pinch extends Gesture {
    * @private
    * @param {State} state - current input state.
    */
-  initializeProgress(state) {
-    const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = distance;
+  refresh(state) {
+    if (state.active.length >= this.minInputs) {
+      const distance = state.centroid.averageDistanceTo(state.activePoints);
+      const progress = state.active[0].getProgressOfGesture(this.id);
+      progress.previousDistance = distance;
+    }
   }
 
   /**
@@ -9983,9 +10032,7 @@ class Pinch extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -10016,9 +10063,17 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   end(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pinch.
+   *
+   * @private
+   * @param {State} input status object
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -10092,6 +10147,8 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   getAngle(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
+
     let angle = 0;
     state.active.forEach(i => {
       const progress = i.getProgressOfGesture(this.id);
@@ -10110,9 +10167,7 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
   }
 
   /**
@@ -10122,11 +10177,8 @@ class Rotate extends Gesture {
    * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    return {
-      pivot: state.centroid,
-      delta: this.getAngle(state),
-    };
+    const delta = this.getAngle(state);
+    return delta ? { pivot: state.centroid, delta } : null;
   }
 
   /**
@@ -10136,9 +10188,17 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
+  }
+
+  /**
+   * Event hook for the cancel of a gesture.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.getAngle(state);
   }
 }
 
@@ -10155,7 +10215,7 @@ module.exports = Rotate;
 const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
-const PROGRESS_STACK_SIZE = 5;
+const PROGRESS_STACK_SIZE = 10;
 
 /**
  * Data returned when a Swipe is recognized.
@@ -10228,11 +10288,12 @@ function velocity(start, end) {
  * @return {number} The velocity of the moves.
  */
 function calc_velocity(moves, vlim) {
-  let sum = 0;
+  let max = 0;
   for (let i = 0; i < vlim; ++i) {
-    sum += velocity(moves[i], moves[i + 1]);
+    const current = velocity(moves[i], moves[i + 1]);
+    if (current > max) max = current;
   }
-  return sum / vlim;
+  return max;
 }
 
 /**
@@ -10250,6 +10311,21 @@ class Swipe extends Gesture {
    */
   constructor() {
     super('swipe');
+
+    /**
+     * Moves list.
+     *
+     * @private
+     * @type {object[]}
+     */
+    this.moves = [];
+
+    /**
+     * Data to emit when all points have ended.
+     *
+     * @type {ReturnTypes.SwipeData}
+     */
+    this.emittable = null;
   }
 
   /**
@@ -10260,23 +10336,16 @@ class Swipe extends Gesture {
    * @param {State} state - current input state.
    */
   move(state) {
-    if (state.active.length !== REQUIRED_INPUTS) return null;
-
-    state.active.forEach(input => {
-      const progress = input.getProgressOfGesture(this.id);
-      if (!progress.moves) progress.moves = [];
-
-      progress.moves.push({
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.moves.push({
         time:  Date.now(),
-        point: input.current.point,
+        point: state.centroid,
       });
 
-      while (progress.moves.length > PROGRESS_STACK_SIZE) {
-        progress.moves.shift();
+      while (this.moves.length > PROGRESS_STACK_SIZE) {
+        this.moves.shift();
       }
-    });
-
-    return null;
+    }
   }
 
   /**
@@ -10287,26 +10356,39 @@ class Swipe extends Gesture {
    * recognized.
    */
   end(state) {
-    const ended = state.getInputsInPhase('end');
-
-    if (ended.length !== REQUIRED_INPUTS) return null;
-
-    const progress = ended[0].getProgressOfGesture(this.id);
-    const moves = progress.moves;
-    if (!moves || moves.length < PROGRESS_STACK_SIZE) {
-      return null;
+    if (this.moves.length < PROGRESS_STACK_SIZE) {
+      if (state.active.length > 0) {
+        return null;
+      }
+      const data = this.emittable;
+      this.emittable = null;
+      return data;
     }
 
     const vlim = PROGRESS_STACK_SIZE - 1;
-    const point = moves[vlim].point;
-    const velocity = calc_velocity(moves, vlim);
-    const direction = calc_angle(moves, vlim);
+    const point = this.moves[vlim].point;
+    const velocity = calc_velocity(this.moves, vlim);
+    const direction = calc_angle(this.moves, vlim);
+    this.moves = [];
 
-    return {
-      point,
-      velocity,
-      direction,
-    };
+    const result = { point, velocity, direction };
+    if (state.active.length > 0) {
+      this.emittable = result;
+      return null;
+    }
+
+    this.emittable = null;
+    return result;
+  }
+
+  /**
+   * Event hook for the cancel phase of a Swipe.
+   *
+   * @param {State} state - current input state.
+   */
+  cancel() {
+    this.moves = [];
+    this.emittable = null;
   }
 }
 
@@ -10408,21 +10490,33 @@ class Swivel extends Gesture {
    *
    * @private
    *
-   * @param {Object} progress - Progress object to restart.
    * @param {Input} input - Input object to use for restarting progress.
    */
-  restart(progress, input) {
+  restart(input) {
+    const progress = input.getProgressOfGesture(this.id);
     progress.active = true;
     if (this.pivotCenter) {
       const rect = this.pivotCenter.getBoundingClientRect();
       progress.pivot = new Point2D(
-        rect.x + (rect.width / 2),
-        rect.y + (rect.height / 2)
+        rect.left + (rect.width / 2),
+        rect.top + (rect.height / 2)
       );
       progress.previousAngle = progress.pivot.angleTo(input.current.point);
     } else {
       progress.pivot = input.current.point;
       progress.previousAngle = 0;
+    }
+  }
+
+  /**
+   * Refresh the gesture.
+   *
+   * @param {module:westures.Input[]} inputs - Input list to process.
+   * @param {Event} event - The event triggering this refresh.
+   */
+  refresh(inputs, event) {
+    if (inputs.length === REQUIRED_INPUTS && this.enabled(event)) {
+      this.restart(inputs[0]);
     }
   }
 
@@ -10433,10 +10527,7 @@ class Swivel extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    const started = state.getInputsInPhase('start');
-    if (started.length === REQUIRED_INPUTS && this.enabled(state.event)) {
-      this.restart(started[0].getProgressOfGesture(this.id), started[0]);
-    }
+    this.refresh(state.getInputsInPhase('start'), state.event);
   }
 
   /**
@@ -10480,7 +10571,7 @@ class Swivel extends Gesture {
         output = this.calculateOutput(progress, input);
       } else {
         // The enableKey was just pressed again.
-        this.restart(progress, input);
+        this.refresh(state.active, state.event);
       }
     } else {
       // The enableKey was released, therefore pivot point is now invalid.
@@ -10494,14 +10585,18 @@ class Swivel extends Gesture {
    * Event hook for the end of a Swivel.
    *
    * @param {State} state - current input state.
-   * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
-   * recognized.
    */
   end(state) {
-    const active = state.active;
-    if (active.length === REQUIRED_INPUTS && this.enabled(state.event)) {
-      this.restart(active[0].getProgressOfGesture(this.id), active[0]);
-    }
+    this.refresh(state.active, state.event);
+  }
+
+  /**
+   * Event hook for the cancel of a Swivel.
+   *
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -10620,19 +10715,17 @@ class Tap extends Gesture {
     const now = Date.now();
 
     this.ended = this.ended.concat(state.getInputsInPhase('end'))
-      .filter(i => {
-        const tdiff = now - i.startTime;
+      .filter(input => {
+        const tdiff = now - input.startTime;
         return tdiff <= this.maxDelay && tdiff >= this.minDelay;
       });
 
-    if (this.ended.length === 0 ||
-        this.ended.length !== this.numInputs ||
-        !this.ended.every(i => i.totalDistance() <= this.tolerance)) {
+    if (this.ended.length !== this.numInputs ||
+        this.ended.some(i => i.totalDistance() > this.tolerance)) {
       return null;
     }
 
-    const { x, y } = Point2D.midpoint(this.ended.map(i => i.current.point));
-    return { x, y };
+    return Point2D.midpoint(this.ended.map(i => i.current.point));
   }
 }
 
@@ -10674,13 +10767,14 @@ class Track extends Gesture {
    * Constructor for the Track class.
    *
    * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or
-   *    all of 'start', 'move', and 'end'.
+   *    all of 'start', 'move', 'end', and 'cancel'.
    */
   constructor(phases = []) {
     super('track');
-    this.trackStart = phases.includes('start');
-    this.trackMove  = phases.includes('move');
-    this.trackEnd   = phases.includes('end');
+    this.trackStart  = phases.includes('start');
+    this.trackMove   = phases.includes('move');
+    this.trackEnd    = phases.includes('end');
+    this.trackCancel = phases.includes('cancel');
   }
 
   /**
@@ -10720,6 +10814,16 @@ class Track extends Gesture {
    */
   end(state) {
     return this.trackEnd ? this.data(state) : null;
+  }
+
+  /**
+   * Event hook for the cancel of a Track gesture.
+   *
+   * @param {State} state - current input state.
+   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+   */
+  cancel(state) {
+    return this.trackCancel ? this.data(state) : null;
   }
 }
 
@@ -11852,6 +11956,8 @@ const IdStamper = require('./shared/IdStamper.js');
 const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
 const Utils     = require('./shared/utilities.js');
+const Polygon2D = require('./shared/Polygon2D.js');
+const Point2D   = require('./shared/Point2D.js');
 
 /**
  * This object stores a set of core constants for use by both the client and
@@ -11901,12 +12007,14 @@ module.exports = Object.freeze({
   constants,
   IdStamper,
   Message,
+  Point2D,
+  Polygon2D,
   ...Reporters,
   ...Utils,
 });
 
 
-},{"./shared/IdStamper.js":77,"./shared/Message.js":78,"./shared/Reporters.js":80,"./shared/utilities.js":81}],77:[function(require,module,exports){
+},{"./shared/IdStamper.js":77,"./shared/Message.js":78,"./shared/Point2D.js":79,"./shared/Polygon2D.js":80,"./shared/Reporters.js":82,"./shared/utilities.js":83}],77:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -12007,7 +12115,7 @@ class IdStamper {
 module.exports = IdStamper;
 
 
-},{"./utilities.js":81}],78:[function(require,module,exports){
+},{"./utilities.js":83}],78:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -12116,7 +12224,290 @@ Object.entries(TYPES).forEach(([p, v]) => {
 module.exports = Message;
 
 
-},{"./utilities.js":81}],79:[function(require,module,exports){
+},{"./utilities.js":83}],79:[function(require,module,exports){
+/*
+ * WAMS - An API for Multi-Surface Environments
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ */
+
+'use strict';
+
+/**
+ * Defines a set of basic operations on a point in a two dimensional space.
+ *
+ * @memberof module:shared
+ */
+class Point2D {
+  /**
+   * @param {number} x - x coordinate of the point.
+   * @param {number} y - y coordinate of the point.
+   */
+  constructor(x = 0, y = 0) {
+    /**
+     * X coordinate of the point.
+     *
+     * @type {number}
+     */
+    this.x = x;
+
+    /**
+     * X coordinate of the point.
+     *
+     * @type {number}
+     */
+    this.y = y;
+  }
+
+  /**
+   * Clones this point.
+   *
+   * @returns {module:shared.Point2D} An exact clone of this point.
+   */
+  clone() {
+    return new Point2D(this.x, this.y);
+  }
+
+  /**
+   * Divide the point's values by the given amount.
+   *
+   * @param {number} ds - divide x,y by this amount.
+   *
+   * @return {module:shared.Point2D} this
+   */
+  divideBy(ds = 1) {
+    this.x /= ds;
+    this.y /= ds;
+    return this;
+  }
+
+  /**
+   * Tests if a point is Left|On|Right of an infinite line. Assumes that the
+   * given points are such that one is above and one is below this point. Note
+   * that the semantics of left/right is based on the normal coordinate space,
+   * not the y-axis-inverted coordinate space of images and the canvas.
+   *
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+   *
+   * @param {module:shared.Point2D} p0 - first point of the line.
+   * @param {module:shared.Point2D} p1 - second point of the line.
+   *
+   * @return {number} >0 if this point is left of the line through p0 and p1
+   * @return {number} =0 if this point is on the line
+   * @return {number} <0 if this point is right of the line
+   */
+  isLeftOf(p0, p1) {
+    const dl = p1.minus(p0);
+    const dp = this.minus(p0);
+    return (dl.x * dp.y) - (dl.y * dp.x);
+  }
+
+  /**
+   * Subtracts the given point from this point to form a new point.
+   *
+   * @param {module:shared.Point2D} p - Point to subtract from this point.
+   *
+   * @return {module:shared.Point2D} A new point which is the simple subraction
+   * of the given point from this point.
+   */
+  minus({ x = 0, y = 0 }) {
+    return new Point2D(this.x - x, this.y - y);
+  }
+
+  /**
+   * Add the given point to this point.
+   *
+   * @param {module:shared.Point2D} p - Point to add to this point.
+   *
+   * @return {module:shared.Point2D} A new point which is the simple addition of
+   * the given point from this point.
+   */
+  plus({ x = 0, y = 0 }) {
+    return new Point2D(this.x + x, this.y + y);
+  }
+
+  /**
+   * Rotate the point by theta radians.
+   *
+   * @param {number} theta - Amount of rotation to apply, in radians.
+   *
+   * @return {module:shared.Point2D} this
+   */
+  rotate(theta = 0) {
+    const { x, y } = this;
+    const cos_theta = Math.cos(theta);
+    const sin_theta = Math.sin(theta);
+
+    this.x = x * cos_theta - y * sin_theta;
+    this.y = x * sin_theta + y * cos_theta;
+
+    return this;
+  }
+
+  /**
+   * Apply the given scale modifier to the point.
+   *
+   * @param {number} ds - Divide x,y by this amount.
+   *
+   * @return {module:shared.Point2D} this
+   */
+  scale(ds = 1) {
+    this.x *= ds;
+    this.y *= ds;
+    return this;
+  }
+
+  /**
+   * Multiply this point by the given point to form a new point.
+   *
+   * @param {number} coefficient - Amount by which to multiply the values in
+   * this point.
+   *
+   * @return {module:shared.Point2D} Return a new point, the multiplation of
+   * this point by the given amount.
+   */
+  times(coefficient = 1) {
+    return new Point2D(this.x * coefficient, this.y * coefficient);
+  }
+
+  /**
+   * Move the point by the given amounts.
+   *
+   * @param {number} dx - change in x axis position.
+   * @param {number} dy - change in y axis position.
+   *
+   * @return {module:shared.Point2D} this
+   */
+  translate(dx = 0, dy = 0) {
+    this.x += dx;
+    this.y += dy;
+
+    return this;
+  }
+}
+
+module.exports = Point2D;
+
+
+},{}],80:[function(require,module,exports){
+/*
+ * WAMS - An API for Multi-Surface Environments
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ */
+
+'use strict';
+
+const Point2D = require('./Point2D.js');
+
+/**
+ * A polygon in two dimensions. Can be complex.
+ *
+ * @memberof module:shared
+ */
+class Polygon2D {
+  /**
+   * @param {module:shared.Point2D[]} points - The points that make up the
+   * polygon, given in order (clockwise and counter-clockwise are both fine).
+   */
+  constructor(points) {
+    /**
+     * A closed list of the points making up this polygon. "Closed" here means
+     * that the first and last entries of the list are the same. Closing the
+     * polygon in this manner is handled by the constructor.
+     *
+     * @type {module:shared.Point2D[]}
+     */
+    this.points = points.map(({ x, y }) => new Point2D(x, y));
+    if (this.points.length > 0) {
+      this.points.push(this.points[0].clone());
+    }
+  }
+
+  /**
+   * Determines if a point is inside the polygon.
+   *
+   * Rules for deciding whether a point is inside the polygon:
+   *  1. If it is clearly outside, return false.
+   *  2. If it is clearly inside, return true.
+   *  3. If it is on a left or bottom edge, return true.
+   *  4. If it is on a right or top edge, return false.
+   *  5. If it is on a lower-left vertex, return true.
+   *  6. If it is on a lower-right, upper-left, or upper-right vertex, return
+   *      false.
+   *
+   * Uses the winding number method for robust and efficient point-in-polygon
+   * detection.
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+   *
+   * @param {module:shared.Point2D[]} p - Point to test.
+   *
+   * @return {boolean} true if the point is inside the polygon, false otherwise.
+   */
+  contains(p) {
+    return this.winding_number(p) !== 0;
+  }
+
+  /**
+   * Rotate the polygon by the given amount.
+   *
+   * @param {number} theta - The amount, in radians, that the polygon should be
+   * rotated.
+   */
+  rotate(theta) {
+    this.points.forEach(p => p.rotate(theta));
+  }
+
+  /**
+   * Scale the polygon by the given amount.
+   *
+   * @param {number} ds - The amount of scaling to apply to the polygon. Will be
+   * multiplicative, so should probably be in the range (0.8 - 1.2) most of the
+   * time.
+   */
+  scale(ds) {
+    this.points.forEach(p => p.scale(ds));
+  }
+
+  /**
+   * Winding number test for a point in a polygon
+   *
+   * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+   *
+   * @param {module:shared.Point2D[]} point - The point to test.
+   *
+   * @return {number} The winding number (=0 only when P is outside)
+   */
+  winding_number(point) {
+    let wn = 0;
+    const p = new Point2D(point.x, point.y);
+
+    for (let i = 0; i < this.points.length - 1; ++i) {
+      if (this.points[i].y <= p.y) {
+        if (this.points[i + 1].y > p.y) { // Upward crossing
+          if (p.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
+            ++wn;
+          }
+        }
+      } else {
+        if (this.points[i + 1].y <= p.y) { // Downward crossing
+          if (p.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
+            --wn;
+          }
+        }
+      }
+    }
+
+    return wn;
+  }
+}
+
+module.exports = Polygon2D;
+
+
+},{"./Point2D.js":79}],81:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -12210,7 +12601,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":77,"./utilities.js":81}],80:[function(require,module,exports){
+},{"./IdStamper.js":77,"./utilities.js":83}],82:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -12255,7 +12646,7 @@ const Item = ReporterFactory([
    * The item's hitbox.
    *
    * @name hitbox
-   * @type {module:server.Polygon2D}
+   * @type {module:shared.Polygon2D}
    * @memberof module:shared.Item
    * @instance
    */
@@ -12575,7 +12966,7 @@ module.exports = {
 };
 
 
-},{"./ReporterFactory.js":79}],81:[function(require,module,exports){
+},{"./ReporterFactory.js":81}],83:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *

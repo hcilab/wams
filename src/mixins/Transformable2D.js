@@ -6,7 +6,7 @@
 
 'use strict';
 
-const Point2D = require('../server/Point2D.js');
+const { Point2D } = require('../shared.js');
 
 /**
  * This mixin provides 2D transformation operations for classes with 'x', 'y',
@@ -93,7 +93,7 @@ const Transformable2D = (superclass) => class extends superclass {
    * @param {number} x - x coordinate to transform.
    * @param {number} y - y coordinate to transform.
    *
-   * @return {module:server.Point2D} The transformed point.
+   * @return {module:shared.Point2D} The transformed point.
    */
   transformPoint(x, y) {
     return new Point2D(x, y)
@@ -112,7 +112,7 @@ const Transformable2D = (superclass) => class extends superclass {
    * @param {number} dx - dx coordinate to transform.
    * @param {number} dy - dy coordinate to transform.
    *
-   * @return {module:server.Point2D} The transformed point.
+   * @return {module:shared.Point2D} The transformed point.
    */
   transformPointChange(dx, dy) {
     return new Point2D(dx, dy)

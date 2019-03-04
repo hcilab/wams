@@ -12,11 +12,11 @@ const Point2D = require('./Point2D.js');
 /**
  * A polygon in two dimensions. Can be complex.
  *
- * @memberof module:server
+ * @memberof module:shared
  */
 class Polygon2D {
   /**
-   * @param {module:server.Point2D[]} points - The points that make up the
+   * @param {module:shared.Point2D[]} points - The points that make up the
    * polygon, given in order (clockwise and counter-clockwise are both fine).
    */
   constructor(points) {
@@ -25,7 +25,7 @@ class Polygon2D {
      * that the first and last entries of the list are the same. Closing the
      * polygon in this manner is handled by the constructor.
      *
-     * @type {module:server.Point2D[]}
+     * @type {module:shared.Point2D[]}
      */
     this.points = points.map(({ x, y }) => new Point2D(x, y));
     if (this.points.length > 0) {
@@ -49,7 +49,7 @@ class Polygon2D {
    * detection.
    * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
-   * @param {module:server.Point2D[]} p - Point to test.
+   * @param {module:shared.Point2D[]} p - Point to test.
    *
    * @return {boolean} true if the point is inside the polygon, false otherwise.
    */
@@ -83,7 +83,7 @@ class Polygon2D {
    *
    * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
    *
-   * @param {module:server.Point2D[]} point - The point to test.
+   * @param {module:shared.Point2D[]} point - The point to test.
    *
    * @return {number} The winding number (=0 only when P is outside)
    */

@@ -32,7 +32,6 @@ const PI2 = 2 * Math.PI;
  *
  * @param {number} a - Angle in radians.
  * @param {number} b - Angle in radians.
- *
  * @return {number} c, given by: c = a - b such that || < PI
  */
 function angularMinus(a, b = 0) {
@@ -66,6 +65,8 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   getAngle(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
+
     let angle = 0;
     state.active.forEach(i => {
       const progress = i.getProgressOfGesture(this.id);
@@ -83,9 +84,7 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
   }
 
   /**
@@ -96,11 +95,8 @@ class Rotate extends Gesture {
    * event did not occur
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    return {
-      pivot: state.centroid,
-      delta: this.getAngle(state),
-    };
+    const delta = this.getAngle(state);
+    return delta ? { pivot: state.centroid, delta } : null;
   }
 
   /**
@@ -109,9 +105,16 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
+  }
+
+  /**
+   * Event hook for the cancel of a gesture.
+   *
+   * @param {module:gestures.State} state - current input state.
+   */
+  cancel(state) {
+    this.getAngle(state);
   }
 }
 

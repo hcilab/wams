@@ -20,28 +20,28 @@ const symbols = Object.freeze({
 });
 
 /**
- * A Connection maintains a socket.io connection between a client and the
+ * A ServerController maintains a socket.io connection between a client and the
  * server. It tracks a view associated with the client, as well as the
  * associated workspace.
  *
  * @memberof module:server
  */
-class Connection {
+class ServerController {
   /**
-   * @param {number} index - The index of this Connection in the workspace, can
-   * be used as a unique identifier.
+   * @param {number} index - The index of this ServerController in the
+   * workspace, can be used as a unique identifier.
    * @param {Socket} socket - A socket.io connection with a client.
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
    * @param {module:server.MessageHandler} messageHandler - For responding to
    * messages from clients.
-   * @param {module:server.GestureController} gestureController - For
-   * server-side gestures.
+   * @param {module:server.ServerViewGroup} group - The group to which this
+   * connection will belong.
    */
-  constructor(index, socket, workspace, messageHandler, gestureController) {
+  constructor(index, socket, workspace, messageHandler, group) {
     /**
-     * The index is an integer identifying the Connection, which can also be
-     * used for locating the Connection in a collection.
+     * The index is an integer identifying the ServerController, which can also
+     * be used for locating the ServerController in a collection.
      *
      * @type {number}
      */
@@ -70,18 +70,19 @@ class Connection {
     this.messageHandler = messageHandler;
 
     /**
-     * For server-side gestures.
+     * Track the group to which this connection belongs.
      *
-     * @type {module:server.GestureController}
+     * @type {module:server.ServerViewGroup}
      */
-    this.gestureController = gestureController;
+    this.group = group;
 
     /**
-     * The view corresponding to the client on the other end of this Connection.
+     * The view corresponding to the client on the other end of this
+     * ServerController.
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.workspace.spawnView(this.socket);
+    this.view = this.group.spawnView(this.socket);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -90,8 +91,10 @@ class Connection {
      */
     this.device = new Device();
 
-    // Automatically begin operations by registering Message listeners and
-    // Informing the client on the current state of the model.
+    /*
+     * Automatically begin operations by registering Message listeners and
+     * Informing the client on the current state of the model.
+     */
     this[symbols.attachListeners]();
     this[symbols.fullStateReport]();
   }
@@ -124,7 +127,9 @@ class Connection {
 
       // User event related, handle immediately
       [Message.RESIZE]:  (data)     => this.resize(data),
-      [Message.TRACK]:   ({ data }) => this.track(data),
+      [Message.TRACK]:   ({ data }) => {
+        this.messageHandler.track(data, this.view);
+      },
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
@@ -139,7 +144,7 @@ class Connection {
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
       ...this.workspace.settings,
-      views: this.workspace.reportViews(),
+      views: this.group.reportViews(),
       items: this.workspace.reportItems(),
       id:    this.view.id,
     });
@@ -152,12 +157,10 @@ class Connection {
    * @returns {boolean} true if disconnection was successful, false otherwise.
    */
   disconnect() {
-    if (this.workspace.removeView(this.view)) {
-      this.view.releaseLockedItem();
-      this.socket.disconnect(true);
-      return true;
-    }
-    return false;
+    this.group.removeView(this.view);
+    this.view.releaseLockedItem();
+    this.socket.disconnect(true);
+    return true;
   }
 
   /**
@@ -197,7 +200,7 @@ class Connection {
     const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
     event.clientX = x;
     event.clientY = y;
-    this.gestureController.process(event);
+    this.group.gestureController.process(event);
   }
 
   /**
@@ -211,26 +214,7 @@ class Connection {
     this.view.assign(data);
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
   }
-
-  /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
-   *
-   * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
-   */
-  track({ active, centroid, phase }) {
-    if (phase === 'start' && active.length === 1) {
-      this.workspace.obtainLock(centroid.x, centroid.y, this.view);
-    } else if (phase === 'end' && active.length === 0) {
-      this.view.releaseLockedItem();
-    }
-  }
 }
 
-module.exports = Connection;
+module.exports = ServerController;
 

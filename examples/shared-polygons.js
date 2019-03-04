@@ -51,20 +51,33 @@ const handleLayout = (function makeLayoutHandler() {
     table = view;
   };
 
+  function transform(point) {
+    return table.transformPointChange(point.x, point.y);
+  }
+
   function layoutLeft(view, device) {
-    const anchor = table.bottomLeft.minus({ x: 0, y: OVERLAP });
+    const anchor = table.bottomLeft.minus(transform({ 
+      x: 0,
+      y: OVERLAP 
+    }));
     view.moveTo( anchor.x, anchor.y );
     device.moveTo( 0, table.height - OVERLAP );
   };
 
   function layoutRight(view, device) {
-    const anchor = table.topRight.minus({ x: OVERLAP, y: 0 });
+    const anchor = table.topRight.minus(transform({ 
+      x: OVERLAP,
+      y: 0 
+    }));
     view.moveTo( anchor.x, anchor.y );
     device.moveTo( table.width - OVERLAP, 0 );
   };
 
   function layoutBottom(view, device) {
-    const anchor = table.bottomRight.minus({ x: OVERLAP, y: OVERLAP });
+    const anchor = table.bottomRight.minus(transform({ 
+      x: OVERLAP,
+      y: OVERLAP
+    }));
     view.moveTo( anchor.x, anchor.y );
     device.moveTo( table.width - OVERLAP, table.height - OVERLAP);
   };

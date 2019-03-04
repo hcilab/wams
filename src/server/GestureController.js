@@ -25,7 +25,8 @@ class GestureController {
    * @param {module:server.ServerViewGroup} group - The view group associated
    * with this controller.
    */
-  constructor(messageHandler, workspace) {
+  // constructor(messageHandler, workspace) {
+  constructor(messageHandler, group) {
     /**
      * For responding to gestures.
      *
@@ -34,12 +35,11 @@ class GestureController {
     this.messageHandler = messageHandler;
 
     /**
-     * This is a shared reference to the single principle WorkSpace. Think of it
-     * like a 'parent' reference in a tree node.
+     * Track the active group.
      *
-     * @type {module:server.WorkSpace}
+     * @type {module:server.ServerViewGroup}
      */
-    this.workspace = workspace;
+    this.group = group;
 
     /**
      * The "region" which takes care of gesture processing.
@@ -69,7 +69,9 @@ class GestureController {
     this.region.addGesture(pinch,  this.handle('scale'));
     this.region.addGesture(rotate, this.handle('rotate'));
     this.region.addGesture(swipe,  this.handle('swipe'));
-    this.region.addGesture(track,  (data) => this.track(data));
+    this.region.addGesture(track,  (data) => {
+      this.messageHandler.track(data, this.group);
+    });
   }
 
   /**
@@ -82,7 +84,7 @@ class GestureController {
    */
   handle(message) {
     function do_handle(data) {
-      this.messageHandler.handle(message, this.workspace.group, data);
+      this.messageHandler.handle(message, this.group, data);
     }
     return do_handle.bind(this);
   }
@@ -94,25 +96,6 @@ class GestureController {
    */
   process(event) {
     this.region.arbitrate(event);
-  }
-
-  /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
-   *
-   * @param {Object} data
-   * @param {module:server.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:server.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
-   */
-  track({ active, centroid, phase }) {
-    if (phase === 'start' && active.length === 1) {
-      this.workspace.obtainLock(centroid.x, centroid.y, this.workspace.group);
-    } else if (phase === 'end' && active.length === 0) {
-      this.workspace.group.releaseLockedItem();
-    }
   }
 }
 

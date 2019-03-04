@@ -10,7 +10,7 @@
 const { CanvasBlueprint } = require('canvas-sequencer');
 const sizeOfImage = require('image-size');
 
-const Polygon2D  = require('../server/Polygon2D.js');
+const { Polygon2D }  = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -26,7 +26,7 @@ const Polygon2D  = require('../server/Polygon2D.js');
  * @memberof module:predefined.items
  *
  * @param {Object} data
- * @param {module:server.Polygon2D} [data.hitbox]
+ * @param {module:shared.Polygon2D} [data.hitbox]
  * @param {number} [data.rotation]
  * @param {number} [data.scale]
  *
@@ -51,7 +51,7 @@ function transformed(data = {}) {
  * @param {number} width
  * @param {number} height
  *
- * @returns {module:server.Polygon2D} A 4-point polygon representing a rectangle
+ * @returns {module:shared.Polygon2D} A 4-point polygon representing a rectangle
  * anchored at (0,0) and with the given width and height.
  */
 function rectangularHitbox(x, y, width, height) {
@@ -134,7 +134,7 @@ function square(x, y, length, colour = 'red', itemOptions = {}) {
  *
  * @memberof module:predefined.items
  *
- * @param {module:server.Point2D[]} points - Not necessarily actual Point2D
+ * @param {module:shared.Point2D[]} points - Not necessarily actual Point2D
  * objects, can just be objects with x and y properties.
  * @param {string} [colour='green'] - Fill colour for the polygon.
  * @param {Object} itemOptions - Location and orientation options for the item.

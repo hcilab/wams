@@ -10,19 +10,12 @@
 
 'use strict';
 
-
 // Local project packages, shared between client and server.
 const { Message } = require('../shared.js');
 
 // Local project packages for the server.
-const Connection = require('./Connection.js');
-const GestureController = require('./GestureController.js');
-
-// Local constant data
-const SIXTY_FPS = 1000 / 60;
-
-// Symbol to mark this property for internal use.
-const updates = Symbol('updates');
+const ServerController = require('./ServerController.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
  * Finds the first null or undefined index in the given array, and returns that
@@ -31,7 +24,7 @@ const updates = Symbol('updates');
  * the length of the array _is_ the first empty index!
  *
  * @inner
- * @memberof module:server.Server
+ * @memberof module:server.Switchboard
  *
  * @param {Array} array - The array to search.
  *
@@ -50,7 +43,7 @@ function findEmptyIndex(array) {
  * Report information about the given connection to the console.
  *
  * @inner
- * @memberof module:server.Server
+ * @memberof module:server.Switchboard
  * @param {number} id - ID of the view corresponding to the connection.
  * @param {number} port - Port on which the workspace is listening for the
  * connection.
@@ -63,14 +56,14 @@ function logConnection(id, status) {
 }
 
 /**
- * A Server handles the core server operations of a Wams program, including
+ * A Switchboard handles the core server operations of a Wams program, including
  * server establishment, and establishing Connections when new clients connect
  * to the server, as well as tracking the workspace associated with the server
  * so that Connections can be linked to the workspace.
  *
  * @memberof module:server
  */
-class Server {
+class Switchboard {
   /**
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
@@ -86,7 +79,7 @@ class Server {
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || Server.DEFAULTS.clientLimit;
+    this.clientLimit = settings.clientLimit || Switchboard.DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
@@ -114,24 +107,16 @@ class Server {
      * of this array at all times. Old connections will not have their position
      * in the array changed.
      *
-     * @type {module:server.Connection[]}
+     * @type {module:server.ServerController[]}
      */
     this.connections = [];
 
     /**
-     * Controls server-side gestures.
+     * Track the active group.
      *
-     * @type {module:server.GestureController}
+     * @type {module:server.ServerViewGroup}
      */
-    this.gestureController = new GestureController(messageHandler, workspace);
-
-    /**
-     * Dictionary of objects to update, keyed by id.
-     *
-     * @type {object}
-     */
-    this[updates] = {};
-    setInterval(this.publishUpdates.bind(this), SIXTY_FPS);
+    this.group = new ServerViewGroup(messageHandler);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
@@ -145,18 +130,18 @@ class Server {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const cn = new Connection(
+    const controller = new ServerController(
       index,
       socket,
       this.workspace,
       this.messageHandler,
-      this.gestureController,
+      this.group,
     );
 
-    this.connections[index] = cn;
-    socket.on('disconnect', () => this.disconnect(cn));
+    this.connections[index] = controller;
+    socket.on('disconnect', () => this.disconnect(controller));
 
-    logConnection(cn.view.id, true);
+    logConnection(controller.view.id, true);
   }
 
   /**
@@ -178,26 +163,16 @@ class Server {
   /**
    * Disconnect the given connection.
    *
-   * @param {Connection} cn - Connection to disconnect.
+   * @param {ServerController} connection - ServerController to disconnect.
    */
-  disconnect(cn) {
-    if (cn.disconnect()) {
-      this.connections[cn.index] = null;
-      new Message(Message.RM_SHADOW, cn.view).emitWith(this.namespace);
-      logConnection(cn.view.id, false);
+  disconnect(controller) {
+    if (controller.disconnect()) {
+      this.connections[controller.index] = null;
+      new Message(Message.RM_SHADOW, controller.view).emitWith(this.namespace);
+      logConnection(controller.view.id, false);
     } else {
       console.error('Failed to disconnect:', this);
     }
-  }
-
-  /**
-   * Publish scheduled updates.
-   */
-  publishUpdates() {
-    Object.values(this[updates]).forEach(o => {
-      o.publish();
-      delete this[updates][o.id];
-    });
   }
 
   /**
@@ -211,27 +186,17 @@ class Server {
     socket.disconnect(true);
     console.warn('Rejected incoming connection: client limit reached.');
   }
-
-  /**
-   * Schedules an update announcement at the next update interval.
-   *
-   * @param {( module:server.ServerItem | module:server.ServerView )} object -
-   * Item or view that has been updated.
-   */
-  scheduleUpdate(object) {
-    this[updates][object.id] = object;
-  }
 }
 
 /**
- * The default values for the Server.
+ * The default values for the Switchboard.
  *
  * @type {object}
  */
-Server.DEFAULTS = Object.freeze({
+Switchboard.DEFAULTS = Object.freeze({
   clientLimit: 10,
   port:        9000,
 });
 
-module.exports = Server;
+module.exports = Switchboard;
 

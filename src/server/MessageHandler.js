@@ -67,6 +67,26 @@ class MessageHandler {
     const type = event.toLowerCase();
     this.handlers[type] = ListenerFactory.build(type, listener, this.workspace);
   }
+
+  /**
+   * Performs locking and unlocking based on the phase and number of active
+   * points.
+   *
+   * @param {Object} data
+   * @param {module:shared.Point2D[]} data.active - Currently active contact
+   * points.
+   * @param {module:shared.Point2D} data.centroid - Centroid of active contact
+   * points.
+   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
+   * @param {module:server.ServerView} view - Origin of track request.
+   */
+  track({ active, centroid, phase }, view) {
+    if (phase === 'start' && active.length === 1) {
+      this.workspace.obtainLock(centroid.x, centroid.y, view);
+    } else if (phase === 'end' && active.length === 0) {
+      view.releaseLockedItem();
+    }
+  }
 }
 
 module.exports = MessageHandler;

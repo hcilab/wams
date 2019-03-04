@@ -7,7 +7,8 @@
 const Gesture = require('../core/Gesture.js');
 
 const REQUIRED_INPUTS = 1;
-const PROGRESS_STACK_SIZE = 5;
+const PROGRESS_STACK_SIZE = 7;
+const MS_THRESHOLD = 300;
 
 /**
  * Data returned when a Swipe is recognized.
@@ -19,6 +20,7 @@ const PROGRESS_STACK_SIZE = 5;
  * @property {number} direction - In radians, the direction of the swipe.
  * @property {module:gestures.Point2D} point - The point at which the swipe
  * ended.
+ * @property {number} time - The epoch time, in ms, when the swipe ended.
  *
  * @memberof module:gestures.ReturnTypes
  */
@@ -30,8 +32,8 @@ const PROGRESS_STACK_SIZE = 5;
  * @memberof module:gestures.Swipe
  * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
  *
- * @param {{time: number, point: module:gestures.Point2D}} moves - The
- * moves list to process.
+ * @param {{time: number, point: module:gestures.Point2D}} moves - The moves
+ * list to process.
  * @param {number} vlim - The number of moves to process.
  *
  * @return {number} The angle of the movement.
@@ -78,18 +80,19 @@ function velocity(start, end) {
  * @inner
  * @memberof module:gestures.Swipe
  *
- * @param {{time: number, point: module:gestures.Point2D}} moves - The
- * moves list to process.
+ * @param {{time: number, point: module:gestures.Point2D}} moves - The moves
+ * list to process.
  * @param {number} vlim - The number of moves to process.
  *
  * @return {number} The velocity of the moves.
  */
 function calc_velocity(moves, vlim) {
-  let sum = 0;
+  let max = 0;
   for (let i = 0; i < vlim; ++i) {
-    sum += velocity(moves[i], moves[i + 1]);
+    const current = velocity(moves[i], moves[i + 1]);
+    if (current > max) max = current;
   }
-  return sum / vlim;
+  return max;
 }
 
 /**
@@ -107,6 +110,38 @@ class Swipe extends Gesture {
    */
   constructor() {
     super('swipe');
+
+    /**
+     * Moves list.
+     *
+     * @type {object[]}
+     */
+    this.moves = [];
+
+    /**
+     * Data to emit when all points have ended.
+     *
+     * @type {module:gestures.ReturnTypes.SwipeData}
+     */
+    this.saved = null;
+  }
+
+  /**
+   * Refresh the swipe state.
+   *
+   */
+  refresh() {
+    this.moves = [];
+    this.saved = null;
+  }
+
+  /**
+   * Event hook for the start of a gesture. Resets the swipe state.
+   *
+   * @param {module:gestures.State} state - current input state.
+   */
+  start() {
+    this.refresh();
   }
 
   /**
@@ -116,54 +151,70 @@ class Swipe extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   move(state) {
-    if (state.active.length !== REQUIRED_INPUTS) return null;
-
-    state.active.forEach(input => {
-      const progress = input.getProgressOfGesture(this.id);
-      if (!progress.moves) progress.moves = [];
-
-      progress.moves.push({
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.moves.push({
         time:  Date.now(),
-        point: input.current.point,
+        point: state.centroid,
       });
 
-      while (progress.moves.length > PROGRESS_STACK_SIZE) {
-        progress.moves.shift();
+      if (this.moves.length > PROGRESS_STACK_SIZE) {
+        this.moves.splice(0, this.moves.length - PROGRESS_STACK_SIZE);
       }
-    });
-
-    return null;
+    }
   }
 
   /**
    * Determines if the input's history validates a swipe motion.
    *
    * @param {module:gestures.State} state - current input state.
-   *
    * @return {?module:gestures.ReturnTypes.SwipeData} <tt>null</tt> if the
    * gesture is not recognized.
    */
   end(state) {
-    const ended = state.getInputsInPhase('end');
+    const result = this.getResult();
+    this.moves = [];
 
-    if (ended.length !== REQUIRED_INPUTS) return null;
-
-    const progress = ended[0].getProgressOfGesture(this.id);
-    const moves = progress.moves;
-    if (!moves || moves.length < PROGRESS_STACK_SIZE) {
+    if (state.active.length > 0) {
+      this.saved = result;
       return null;
     }
 
-    const vlim = PROGRESS_STACK_SIZE - 1;
-    const point = moves[vlim].point;
-    const velocity = calc_velocity(moves, vlim);
-    const direction = calc_angle(moves, vlim);
+    this.saved = null;
+    return this.validate(result);
+  }
 
-    return {
-      point,
-      velocity,
-      direction,
-    };
+  /**
+   * Event hook for the cancel phase of a Swipe.
+   *
+   * @param {module:gestures.State} state - current input state.
+   */
+  cancel() {
+    this.refresh();
+  }
+
+  /**
+   * Get the swipe result.
+   *
+   */
+  getResult() {
+    if (this.moves.length < PROGRESS_STACK_SIZE) {
+      return this.saved;
+    }
+    const vlim = PROGRESS_STACK_SIZE - 1;
+    const { point, time } = this.moves[vlim];
+    const velocity = calc_velocity(this.moves, vlim);
+    const direction = calc_angle(this.moves, vlim);
+    return { point, velocity, direction, time };
+  }
+
+  /**
+   * Validates that an emit should occur with the given data.
+   *
+   * @param {?module:gestures.ReturnTypes.SwipeData} data
+   */
+  validate(data) {
+    if (data == null) return null;
+    return (Date.now() - data.time > MS_THRESHOLD) ? null : data;
   }
 }
 

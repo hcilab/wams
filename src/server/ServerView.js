@@ -37,7 +37,7 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
     /**
      * Socket.io socket for publishing changes.
      *
-     * @type {Namespace}
+     * @type {Socket}
      */
     this.socket = socket;
 
@@ -48,28 +48,28 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
   /**
    * Get the position of the bottom left corner of this view.
    *
-   * @type {module:server.Point2D}
+   * @type {module:shared.Point2D}
    */
   get bottomLeft() { return this.transformPoint(0, this.height); }
 
   /**
    * Get the position of the bottom right corner of this view.
    *
-   * @type {module:server.Point2D}
+   * @type {module:shared.Point2D}
    */
   get bottomRight() { return this.transformPoint(this.width, this.height); }
 
   /**
    * Get the position of the top left corner of this view.
    *
-   * @type {module:server.Point2D}
+   * @type {module:shared.Point2D}
    */
   get topLeft() { return this.transformPoint(0, 0); }
 
   /**
    * Get the position of the top right corner of this view.
    *
-   * @type {module:server.Point2D}
+   * @type {module:shared.Point2D}
    */
   get topRight() { return this.transformPoint(this.width, 0); }
 

@@ -18,6 +18,8 @@ const IdStamper = require('./shared/IdStamper.js');
 const Message   = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
 const Utils     = require('./shared/utilities.js');
+const Polygon2D = require('./shared/Polygon2D.js');
+const Point2D   = require('./shared/Point2D.js');
 
 /**
  * This object stores a set of core constants for use by both the client and
@@ -67,6 +69,8 @@ module.exports = Object.freeze({
   constants,
   IdStamper,
   Message,
+  Point2D,
+  Polygon2D,
   ...Reporters,
   ...Utils,
 });

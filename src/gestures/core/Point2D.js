@@ -97,7 +97,7 @@ class Point2D {
    *
    * @param {number} ds - divide x,y by this amount.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:gestures.Point2D} this
    */
   divideBy(ds = 1) {
     this.x /= ds;
@@ -138,7 +138,7 @@ class Point2D {
    *
    * @param {number} theta - Amount of rotation to apply, in radians.
    *
-   * @return {module:server.Point2D} this
+   * @return {module:gestures.Point2D} this
    */
   rotate(theta = 0) {
     const { x, y } = this;
