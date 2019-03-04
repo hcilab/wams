@@ -12,6 +12,8 @@ const SIXTY_FPS = 1000 / 60;
 /**
  * The Publisher class controls a 60fps publish loop, announcing changes to the
  * scheduled objects.
+ *
+ * @memberof module:server
  */
 class Publisher {
   constructor() {
