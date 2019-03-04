@@ -64,182 +64,25 @@
         <article class="readme"><h1 id="wams-workspaces-across-multiple-surfaces">WAMS: Workspaces Across Multiple Surfaces</h1>
 <h2 id="contents">Contents</h2>
 <ul>
+<li><a href="#installation">Installation</a></li>
 <li><a href="#basic-usage">Basic Usage</a></li>
-<li><a href="#server-api">Server API</a></li>
-<li><a href="#handlers">Handlers</a></li>
 </ul>
-<h2 id="basic-usage">Basic Usage</h2>
-<pre class="prettyprint source lang-JavaScript"><code>const Wams = require('../src/server');
-const ws = new Wams();
-// When handlers are attached and beginning items are spawned:
-ws.listen(port);</code></pre><h2 id="server-api">Server API</h2>
-<ul>
-<li><a href="#listenport-host">listen([port[, host]])</a></li>
-<li><a href="#onevent-handler">on(event, handler)</a></li>
-<li><a href="#removeitemitem">removeItem(item)</a></li>
-<li><a href="#spawnitemvalues">spawnItem(values)</a></li>
-<li><a href="#updateobject">update(object)</a></li>
-</ul>
-<h3 id="listen-port-host-">listen([port[, host]])</h3>
-<p>Starts the internal server on the given port and hostname and reports the
-address on which it is listening.</p>
-<ul>
-<li><strong>DEFAULTS:</strong><ul>
-<li><strong>port:</strong> 9000</li>
-<li><strong>host:</strong> your local, non-loopback IPv4 address</li>
-</ul>
-</li>
-</ul>
-<h3 id="on-event-handler-">on(event, handler)</h3>
-<p>Registers the given handler for the given event. See Handlers below for more
-information.</p>
-<h3 id="removeitem-item-">removeItem(item)</h3>
-<p>Removes the given item from the workspace.</p>
-<h3 id="spawnitem-values-">spawnItem(values)</h3>
-<p>Spawns a new item using the given data and immediately informs all clients of
-the new item. <code>itemdata</code> is an object which you fill with some or all (or none)
-of the following properties:</p>
-<table>
-<thead>
-<tr>
-<th>Property</th>
-<th>Default Value</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>x</td>
-<td>0</td>
-<td>The position of the left side of the item.</td>
-</tr>
-<tr>
-<td>y</td>
-<td>0</td>
-<td>The position of the top side of the item.</td>
-</tr>
-<tr>
-<td>width</td>
-<td>128</td>
-<td>The width of the item.</td>
-</tr>
-<tr>
-<td>height</td>
-<td>128</td>
-<td>The height of the item.</td>
-</tr>
-<tr>
-<td>type</td>
-<td>'view/background'</td>
-<td>For use by end-user for distinguishing items.</td>
-</tr>
-<tr>
-<td>imgsrc</td>
-<td>''</td>
-<td>Define the image source of the item.</td>
-</tr>
-<tr>
-<td>blueprint</td>
-<td>null</td>
-<td>The Sequence blueprint for custom canvas rendering.</td>
-</tr>
-</tbody>
-</table>
-<p>Note that while you can assign both and imgsrc and a blueprint to an item, if an
-imgsrc is defined for the item, the blueprint will be ignored when the item is
-drawn.</p>
-<p>Blueprints are special objects capable of storing, packing, unpacking, and
-executing sequences of canvas instructions. WAMS uses blueprints instead of
-plain sequences for the end user API so that, if you wish, you can use special
-tags instead of normal arguments in the sequence, allowing WAMS to update the
-values in the item automatically. Note that only values that are in the above
-properties table will be updated automatically, and that you must use the same
-name as in the above table.</p>
-<p>For more information about Blueprints and Sequences, see 
-<a href="https://www.npmjs.com/package/canvas-sequencer">canvas-sequencer</a>.</p>
-<h3 id="update-object-">update(object)</h3>
-<p>Updates the object with the given data, then announces the changes to all
-clients. <code>object</code> can be either an item or a view.</p>
-<h2 id="handlers">Handlers</h2>
-<p>Each of these handlers can be attached using the name listed below as the event
-name when calling <code>ws.on(event, handler)</code>. The first argument passed to any
-handler will be an object describing the view who initiated the event.</p>
-<ul>
-<li><a href="#click">click</a></li>
-<li><a href="#drag">drag</a></li>
-<li><a href="#layout">layout</a></li>
-<li><a href="#scale">scale</a></li>
-<li><a href="#rotate">rotate</a></li>
-<li><a href="#swipe">swipe</a></li>
-</ul>
-<h3 id="click">click</h3>
-<p>This handler will be called whenever a user clicks in their view. </p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>x:</strong> The x coordinate at which the user clicked.</li>
-<li><strong>y:</strong> The y coordinate at which the user clicked.</li>
-</ul>
-</li>
-</ul>
-<h3 id="drag">drag</h3>
-<p>This handler will be called whenever the user drags somewhere in their view.</p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>x:</strong> The x coordinate at which the user clicked.</li>
-<li><strong>y:</strong> The y coordinate at which the user clicked.</li>
-<li><strong>dx:</strong> The distance between the current drag and the last drag along the x
-axis.</li>
-<li><strong>dy:</strong> The distance between the current drag and the last drag along the y
-axis.</li>
-</ul>
-</li>
-</ul>
-<h3 id="layout">layout</h3>
-<p>This handler will only be called once per view, when they initially connect.</p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>position:</strong> A non-zero integer identifying the 'position' of the view.
-If someone disconnects, their identifier will be reused.</li>
-</ul>
-</li>
-</ul>
-<h3 id="scale">scale</h3>
-<p>This handler will be called when a view zooms in or out.</p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>scale:</strong> The new zoom scale of the view. 1 is normal. 2 means 200% zoom.
-0.5 means 50% zoom.</li>
-</ul>
-</li>
-</ul>
-<h3 id="rotate">rotate</h3>
-<p>This handler will be called when a user tries to rotate the view.
-Currently only implemented for touch devices, via two-finger rotate.</p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>radians:</strong> The amount of the rotation, in radians.</li>
-<li><strong>px:</strong> The x coordinate of the pivot point.</li>
-<li><strong>py:</strong> The y coordinate of the pivot point.</li>
-</ul>
-</li>
-</ul>
-<h3 id="swipe">swipe</h3>
-<p>This handler will be called when a user quickly moves a pointer across the view.</p>
-<ul>
-<li>Arguments:<ul>
-<li><strong>view:</strong> The view which initiated the event.</li>
-<li><strong>velocity:</strong> The speed of the swipe.</li>
-<li><strong>x:</strong> The final x coordinate of the swipe.</li>
-<li><strong>y:</strong> The final y coordinate of the swipe.</li>
-<li><strong>direction:</strong> The angle, in radians, defining the direction of the swipe.</li>
-</ul>
-</li>
-</ul></article>
+<h2 id="installation">Installation</h2>
+<p>You will need to install <a href="https://nodejs.org/en/">node.js</a>. This should also
+install <code>npm</code>. Once they are installed, go to where you want to install <code>wams</code>
+and run the following commands:</p>
+<pre class="prettyprint source lang-bash"><code>git clone https://github.com/mvanderkamp/wams
+cd wams
+npm install</code></pre><h2 id="basic-usage">Basic Usage</h2>
+<p>See the examples in <code>examples/</code>, and check the
+<a href="https://mvanderkamp.github.io/wams/">docs</a>. The entry-point of a <code>wams</code> app is
+the <code>Application</code> class.</p>
+<p>To try out the examples (except the no-op &quot;scaffold&quot; example), run as follows:</p>
+<pre class="prettyprint source lang-bash"><code>node examples/[EXAMPLE_FILENAME]
+
+## For example:
+
+node examples/polygons.js</code></pre><p>The <code>shared-polygons.js</code> example demonstrates multi-device gestures.</p></article>
     </section>
 
 

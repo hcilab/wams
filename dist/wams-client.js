@@ -8814,6 +8814,18 @@ class Gesture {
   end() {
     return null;
   }
+
+  /**
+   * Event hook for when an input is cancelled.
+   *
+   * @param {State} state - The input state object of the current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
+   */
+  cancel() {
+    return null;
+  }
 }
 
 module.exports = Gesture;
@@ -9021,9 +9033,12 @@ const PHASE = Object.freeze({
   touchmove:   'move',
   pointermove: 'move',
 
-  mouseup:   'end',
-  touchend:  'end',
-  pointerup: 'end',
+  mouseup:       'end',
+  touchend:      'end',
+  pointerup:     'end',
+
+  touchcancel:   'cancel',
+  pointercancel: 'cancel',
 });
 
 module.exports = PHASE;
@@ -9303,6 +9318,7 @@ const POINTER_EVENTS = [
   'pointerdown',
   'pointermove',
   'pointerup',
+  'pointercancel',
 ];
 
 const MOUSE_EVENTS = [
@@ -9315,6 +9331,7 @@ const TOUCH_EVENTS = [
   'touchstart',
   'touchmove',
   'touchend',
+  'touchcancel',
 ];
 
 /**
@@ -9439,6 +9456,19 @@ class Region {
         passive: false,
       });
     });
+
+    window.addEventListener('blur', () => {
+      this.state = new State();
+      this.resetActiveBindings();
+    });
+  }
+
+  /**
+   * Resets the active bindings.
+   */
+  resetActiveBindings() {
+    this.activeBindings = [];
+    this.isWaiting = true;
   }
 
   /**
@@ -9446,7 +9476,7 @@ class Region {
    *
    * @private
    */
-  updateBindings() {
+  updateActiveBindings() {
     if (this.isWaiting && this.state.inputs.length > 0) {
       const input = this.state.inputs[0];
       this.activeBindings = this.bindings.filter(b => {
@@ -9461,9 +9491,9 @@ class Region {
    *
    * @private
    */
-  pruneBindings() {
+  pruneActiveBindings() {
     if (this.state.hasNoActiveInputs()) {
-      this.isWaiting = true;
+      this.resetActiveBindings();
     }
   }
 
@@ -9477,8 +9507,8 @@ class Region {
    * @param {Event} event - The event emitted from the window object.
    */
   arbitrate(event) {
-    this.state.updateAllInputs(event, this.element);
-    this.updateBindings();
+    this.state.updateAllInputs(event);
+    this.updateActiveBindings();
 
     if (this.activeBindings.length > 0) {
       if (this.preventDefault) event.preventDefault();
@@ -9489,7 +9519,7 @@ class Region {
     }
 
     this.state.clearEndedInputs();
-    this.pruneBindings();
+    this.pruneActiveBindings();
   }
 
   /**
@@ -9694,11 +9724,18 @@ class State {
    */
   updateAllInputs(event) {
     update_fns[event.constructor.name].call(this, event);
+    this.updateFields(event);
+  }
+
+  /**
+   * Updates the convenience fields.
+   */
+  updateFields(event = null) {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
     this.centroid = Point2D.midpoint(this.activePoints);
-    this.event = event;
+    if (event) this.event = event;
   }
 }
 
@@ -9852,9 +9889,11 @@ class Pan extends Gesture {
    * @private
    * @param {State} state - The state object received by a hook.
    */
-  initialize(state) {
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.lastEmitted = state.centroid;
+  refresh(state) {
+    if (state.active.length >= REQUIRED_INPUTS) {
+      const progress = state.active[0].getProgressOfGesture(this.id);
+      progress.lastEmitted = state.centroid;
+    }
   }
 
   /**
@@ -9865,9 +9904,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -9879,8 +9916,9 @@ class Pan extends Gesture {
    */
   move(state) {
     if (state.active.length < REQUIRED_INPUTS) return null;
+
     if (this.muteKey && state.event[this.muteKey]) {
-      this.initialize(state);
+      this.refresh(state);
       return null;
     }
 
@@ -9900,9 +9938,18 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.initialize(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pan. Resets the current centroid of
+   * the inputs.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -9970,10 +10017,12 @@ class Pinch extends Gesture {
    * @private
    * @param {State} state - current input state.
    */
-  initializeProgress(state) {
-    const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    progress.previousDistance = distance;
+  refresh(state) {
+    if (state.active.length >= this.minInputs) {
+      const distance = state.centroid.averageDistanceTo(state.activePoints);
+      const progress = state.active[0].getProgressOfGesture(this.id);
+      progress.previousDistance = distance;
+    }
   }
 
   /**
@@ -9983,9 +10032,7 @@ class Pinch extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
   }
 
   /**
@@ -10016,9 +10063,17 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   end(state) {
-    if (state.active.length >= this.minInputs) {
-      this.initializeProgress(state);
-    }
+    this.refresh(state);
+  }
+
+  /**
+   * Event hook for the cancel of a Pinch.
+   *
+   * @private
+   * @param {State} input status object
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -10092,6 +10147,8 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   getAngle(state) {
+    if (state.active.length < REQUIRED_INPUTS) return null;
+
     let angle = 0;
     state.active.forEach(i => {
       const progress = i.getProgressOfGesture(this.id);
@@ -10110,9 +10167,7 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
   }
 
   /**
@@ -10122,11 +10177,8 @@ class Rotate extends Gesture {
    * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
-    return {
-      pivot: state.centroid,
-      delta: this.getAngle(state),
-    };
+    const delta = this.getAngle(state);
+    return delta ? { pivot: state.centroid, delta } : null;
   }
 
   /**
@@ -10136,9 +10188,17 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    if (state.active.length >= REQUIRED_INPUTS) {
-      this.getAngle(state);
-    }
+    this.getAngle(state);
+  }
+
+  /**
+   * Event hook for the cancel of a gesture.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.getAngle(state);
   }
 }
 
@@ -10155,7 +10215,7 @@ module.exports = Rotate;
 const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
-const PROGRESS_STACK_SIZE = 5;
+const PROGRESS_STACK_SIZE = 10;
 
 /**
  * Data returned when a Swipe is recognized.
@@ -10228,11 +10288,12 @@ function velocity(start, end) {
  * @return {number} The velocity of the moves.
  */
 function calc_velocity(moves, vlim) {
-  let sum = 0;
+  let max = 0;
   for (let i = 0; i < vlim; ++i) {
-    sum += velocity(moves[i], moves[i + 1]);
+    const current = velocity(moves[i], moves[i + 1]);
+    if (current > max) max = current;
   }
-  return sum / vlim;
+  return max;
 }
 
 /**
@@ -10250,6 +10311,21 @@ class Swipe extends Gesture {
    */
   constructor() {
     super('swipe');
+
+    /**
+     * Moves list.
+     *
+     * @private
+     * @type {object[]}
+     */
+    this.moves = [];
+
+    /**
+     * Data to emit when all points have ended.
+     *
+     * @type {ReturnTypes.SwipeData}
+     */
+    this.emittable = null;
   }
 
   /**
@@ -10260,23 +10336,16 @@ class Swipe extends Gesture {
    * @param {State} state - current input state.
    */
   move(state) {
-    if (state.active.length !== REQUIRED_INPUTS) return null;
-
-    state.active.forEach(input => {
-      const progress = input.getProgressOfGesture(this.id);
-      if (!progress.moves) progress.moves = [];
-
-      progress.moves.push({
+    if (state.active.length >= REQUIRED_INPUTS) {
+      this.moves.push({
         time:  Date.now(),
-        point: input.current.point,
+        point: state.centroid,
       });
 
-      while (progress.moves.length > PROGRESS_STACK_SIZE) {
-        progress.moves.shift();
+      while (this.moves.length > PROGRESS_STACK_SIZE) {
+        this.moves.shift();
       }
-    });
-
-    return null;
+    }
   }
 
   /**
@@ -10287,26 +10356,39 @@ class Swipe extends Gesture {
    * recognized.
    */
   end(state) {
-    const ended = state.getInputsInPhase('end');
-
-    if (ended.length !== REQUIRED_INPUTS) return null;
-
-    const progress = ended[0].getProgressOfGesture(this.id);
-    const moves = progress.moves;
-    if (!moves || moves.length < PROGRESS_STACK_SIZE) {
-      return null;
+    if (this.moves.length < PROGRESS_STACK_SIZE) {
+      if (state.active.length > 0) {
+        return null;
+      }
+      const data = this.emittable;
+      this.emittable = null;
+      return data;
     }
 
     const vlim = PROGRESS_STACK_SIZE - 1;
-    const point = moves[vlim].point;
-    const velocity = calc_velocity(moves, vlim);
-    const direction = calc_angle(moves, vlim);
+    const point = this.moves[vlim].point;
+    const velocity = calc_velocity(this.moves, vlim);
+    const direction = calc_angle(this.moves, vlim);
+    this.moves = [];
 
-    return {
-      point,
-      velocity,
-      direction,
-    };
+    const result = { point, velocity, direction };
+    if (state.active.length > 0) {
+      this.emittable = result;
+      return null;
+    }
+
+    this.emittable = null;
+    return result;
+  }
+
+  /**
+   * Event hook for the cancel phase of a Swipe.
+   *
+   * @param {State} state - current input state.
+   */
+  cancel() {
+    this.moves = [];
+    this.emittable = null;
   }
 }
 
@@ -10408,21 +10490,33 @@ class Swivel extends Gesture {
    *
    * @private
    *
-   * @param {Object} progress - Progress object to restart.
    * @param {Input} input - Input object to use for restarting progress.
    */
-  restart(progress, input) {
+  restart(input) {
+    const progress = input.getProgressOfGesture(this.id);
     progress.active = true;
     if (this.pivotCenter) {
       const rect = this.pivotCenter.getBoundingClientRect();
       progress.pivot = new Point2D(
-        rect.x + (rect.width / 2),
-        rect.y + (rect.height / 2)
+        rect.left + (rect.width / 2),
+        rect.top + (rect.height / 2)
       );
       progress.previousAngle = progress.pivot.angleTo(input.current.point);
     } else {
       progress.pivot = input.current.point;
       progress.previousAngle = 0;
+    }
+  }
+
+  /**
+   * Refresh the gesture.
+   *
+   * @param {module:westures.Input[]} inputs - Input list to process.
+   * @param {Event} event - The event triggering this refresh.
+   */
+  refresh(inputs, event) {
+    if (inputs.length === REQUIRED_INPUTS && this.enabled(event)) {
+      this.restart(inputs[0]);
     }
   }
 
@@ -10433,10 +10527,7 @@ class Swivel extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    const started = state.getInputsInPhase('start');
-    if (started.length === REQUIRED_INPUTS && this.enabled(state.event)) {
-      this.restart(started[0].getProgressOfGesture(this.id), started[0]);
-    }
+    this.refresh(state.getInputsInPhase('start'), state.event);
   }
 
   /**
@@ -10480,7 +10571,7 @@ class Swivel extends Gesture {
         output = this.calculateOutput(progress, input);
       } else {
         // The enableKey was just pressed again.
-        this.restart(progress, input);
+        this.refresh(state.active, state.event);
       }
     } else {
       // The enableKey was released, therefore pivot point is now invalid.
@@ -10494,14 +10585,18 @@ class Swivel extends Gesture {
    * Event hook for the end of a Swivel.
    *
    * @param {State} state - current input state.
-   * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
-   * recognized.
    */
   end(state) {
-    const active = state.active;
-    if (active.length === REQUIRED_INPUTS && this.enabled(state.event)) {
-      this.restart(active[0].getProgressOfGesture(this.id), active[0]);
-    }
+    this.refresh(state.active, state.event);
+  }
+
+  /**
+   * Event hook for the cancel of a Swivel.
+   *
+   * @param {State} state - current input state.
+   */
+  cancel(state) {
+    this.end(state);
   }
 }
 
@@ -10620,19 +10715,17 @@ class Tap extends Gesture {
     const now = Date.now();
 
     this.ended = this.ended.concat(state.getInputsInPhase('end'))
-      .filter(i => {
-        const tdiff = now - i.startTime;
+      .filter(input => {
+        const tdiff = now - input.startTime;
         return tdiff <= this.maxDelay && tdiff >= this.minDelay;
       });
 
-    if (this.ended.length === 0 ||
-        this.ended.length !== this.numInputs ||
-        !this.ended.every(i => i.totalDistance() <= this.tolerance)) {
+    if (this.ended.length !== this.numInputs ||
+        this.ended.some(i => i.totalDistance() > this.tolerance)) {
       return null;
     }
 
-    const { x, y } = Point2D.midpoint(this.ended.map(i => i.current.point));
-    return { x, y };
+    return Point2D.midpoint(this.ended.map(i => i.current.point));
   }
 }
 
@@ -10674,13 +10767,14 @@ class Track extends Gesture {
    * Constructor for the Track class.
    *
    * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or
-   *    all of 'start', 'move', and 'end'.
+   *    all of 'start', 'move', 'end', and 'cancel'.
    */
   constructor(phases = []) {
     super('track');
-    this.trackStart = phases.includes('start');
-    this.trackMove  = phases.includes('move');
-    this.trackEnd   = phases.includes('end');
+    this.trackStart  = phases.includes('start');
+    this.trackMove   = phases.includes('move');
+    this.trackEnd    = phases.includes('end');
+    this.trackCancel = phases.includes('cancel');
   }
 
   /**
@@ -10720,6 +10814,16 @@ class Track extends Gesture {
    */
   end(state) {
     return this.trackEnd ? this.data(state) : null;
+  }
+
+  /**
+   * Event hook for the cancel of a Track gesture.
+   *
+   * @param {State} state - current input state.
+   * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+   */
+  cancel(state) {
+    return this.trackCancel ? this.data(state) : null;
   }
 }
 
