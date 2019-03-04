@@ -1,0 +1,51 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dyatko/arkit/master/schema.json",
+  "components": [
+    {
+      "type": "Entry",
+      "patterns": ["index.js", "src/client.js"]
+    },
+    {
+      "type": "Component",
+      "patterns": ["src/**/*.js"],
+      "excludePatterns": ["**/__tests__/**", "**/*-test.js"]
+    }
+  ],
+  "output": {
+    "path": "arkit.svg",
+    "groups": [
+      {
+        "first": true,
+        "components": ["Entry"],
+        "patterns":  ["index.js", "src/client.js"]
+      },
+      {
+        "type": "client-side",
+        "patterns": ["src/client/*.js", "src/client.js"]
+	  },
+	  {
+        "type": "server-side",
+        "patterns": ["src/server/*.js", "src/server.js"]
+	  },
+	  {
+        "type": "Predefined",
+        "patterns": ["src/predefined/**/*.js", "src/predefined.js"]
+	  },
+	  {
+        "type": "Mixins",
+        "patterns": ["src/mixins/*.js", "src/mixins.js"]
+	  },
+	  {
+        "type": "Shared",
+        "patterns": ["src/shared/*.js", "src/shared.js"]
+	  },
+	  {
+        "type": "Gestures",
+        "patterns": ["src/gestures/**/*.js", "src/gestures.js"]
+	  },
+      {
+        "components": ["Component", "Entry"]
+      }
+    ]
+  }
+}
