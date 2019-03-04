@@ -8,12 +8,6 @@
 - [ ] Allow subcanvas to be drawn on top:
   <https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers>
 - [ ] Switch to HTTPS
-- [ ] ~~Switch away from `socket.io`.~~ 
-    + [ ] ~~Is there a channel multiplexor for the web standard `WebSockets`?
-      Does `node.js` implement the `WebSocket` standard?~~
-    + [ ] ~~Is there a performance cost to using `socket.io`, and is there a
-      benefit to this cost in terms of usability across a wider range of
-      devices?~~
 - [ ] Improve the end-user API by making it so that users do not have to
   manually inform the wams app of any updates that have been made to the items
   or views.
@@ -141,6 +135,15 @@ _As of: Fri Aug 17 09:35:12 CST 2018_
   the one that appears on top on the canvas. (same for clicked...)
 
 # Nixed
+
+_As of: Mon Mar  4 09:52:37 CST 2019_
+
+- [ ] ~~Switch away from `socket.io`.~~ 
+    + [ ] ~~Is there a channel multiplexor for the web standard `WebSockets`?
+      Does `node.js` implement the `WebSocket` standard?~~
+    + [ ] ~~Is there a performance cost to using `socket.io`, and is there a
+      benefit to this cost in terms of usability across a wider range of
+      devices?~~
 
 _As of: Sun Jan 20 15:56:39 CST 2019_
 
