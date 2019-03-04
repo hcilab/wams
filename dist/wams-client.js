@@ -11313,6 +11313,16 @@ class ClientItem extends Item {
    */
   constructor(data) {
     super(data);
+
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientItem
+     */
     STAMPER.cloneId(this, data.id);
   }
 
@@ -11464,6 +11474,18 @@ class ClientView extends View {
      * @type {Map.<module:client.ShadowView>}
      */
     this.shadows = new Map();
+
+    /**
+     * Id to make the views uniquely identifiable. Will be assigned when setup
+     * message is received from server.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerView
+     */
+    this.id = null;
   }
 
   /**
