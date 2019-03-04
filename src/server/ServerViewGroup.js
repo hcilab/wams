@@ -52,17 +52,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   }
 
   /**
-   * Spawn a view into the group.
-   *
-   * @param {Namespace} socket - Socket.io socket for publishing changes.
-   */
-  spawnView(socket) {
-    const view = new ServerView(socket, this);
-    this.views.push(view);
-    return view;
-  }
-
-  /**
    * Move all the views by the given amounts.
    *
    * @override
@@ -129,6 +118,17 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach(v => v.scaleBy(ds, mx, my));
+  }
+
+  /**
+   * Spawn a view into the group.
+   *
+   * @param {Namespace} socket - Socket.io socket for publishing changes.
+   */
+  spawnView(socket) {
+    const view = new ServerView(socket, this);
+    this.views.push(view);
+    return view;
   }
 }
 
