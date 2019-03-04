@@ -18,13 +18,13 @@ const IO = require('socket.io');
 // Local classes, etc
 const { constants } = require('../shared.js');
 const Router = require('./Router.js');
-const Server = require('./Server.js');
+const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 const Publisher = require('./Publisher.js');
 
 // Symbols to mark fields for local use.
-const server = Symbol('server');
+const switchboard = Symbol('switchboard');
 const workspace = Symbol('workspace');
 const messageHandler = Symbol('messageHandler');
 
@@ -50,8 +50,8 @@ function getLocalIP() {
 
 /**
  * This module defines the API endpoint. In practice, this means it is a thin
- * wrapper around the Server class which exposes only that functionality of the
- * Server which should be available to the end user. But calling it the
+ * wrapper around the Switchboard class which exposes only that functionality of
+ * the Switchboard which should be available to the end user. But calling it the
  * "Application" makes it sound more important.
  *
  * @memberof module:server
@@ -100,11 +100,11 @@ class Application {
     this[messageHandler] = new MessageHandler(this[workspace]);
 
     /**
-     * The server allows communication with clients
+     * The switchboard allows communication with clients
      *
-     * @type {module:server.Server}
+     * @type {module:server.Switchboard}
      */
-    this[server] = new Server(
+    this[switchboard] = new Switchboard(
       this[workspace],
       this[messageHandler],
       this.namespace,
@@ -120,7 +120,7 @@ class Application {
    * listen.
    * @see module:server.Application~getLocalIP
    */
-  listen(port = Server.DEFAULTS.port, host = getLocalIP()) {
+  listen(port = Switchboard.DEFAULTS.port, host = getLocalIP()) {
     this.server.listen(port, host, () => {
       console.info('Listening on', this.server.address());
     });

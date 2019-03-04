@@ -25,7 +25,7 @@ const ServerViewGroup = require('./ServerViewGroup.js');
  * the length of the array _is_ the first empty index!
  *
  * @inner
- * @memberof module:server.Server
+ * @memberof module:server.Switchboard
  *
  * @param {Array} array - The array to search.
  *
@@ -44,7 +44,7 @@ function findEmptyIndex(array) {
  * Report information about the given connection to the console.
  *
  * @inner
- * @memberof module:server.Server
+ * @memberof module:server.Switchboard
  * @param {number} id - ID of the view corresponding to the connection.
  * @param {number} port - Port on which the workspace is listening for the
  * connection.
@@ -57,14 +57,14 @@ function logConnection(id, status) {
 }
 
 /**
- * A Server handles the core server operations of a Wams program, including
+ * A Switchboard handles the core server operations of a Wams program, including
  * server establishment, and establishing Connections when new clients connect
  * to the server, as well as tracking the workspace associated with the server
  * so that Connections can be linked to the workspace.
  *
  * @memberof module:server
  */
-class Server {
+class Switchboard {
   /**
    * @param {module:server.WorkSpace} workspace - The workspace associated with
    * this connection.
@@ -80,7 +80,7 @@ class Server {
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || Server.DEFAULTS.clientLimit;
+    this.clientLimit = settings.clientLimit || Switchboard.DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
@@ -206,14 +206,14 @@ class Server {
 }
 
 /**
- * The default values for the Server.
+ * The default values for the Switchboard.
  *
  * @type {object}
  */
-Server.DEFAULTS = Object.freeze({
+Switchboard.DEFAULTS = Object.freeze({
   clientLimit: 10,
   port:        9000,
 });
 
-module.exports = Server;
+module.exports = Switchboard;
 

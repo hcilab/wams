@@ -39,7 +39,7 @@ class Connection {
    * @param {module:server.ServerViewGroup} group - The group to which this
    * connection will belong.
    */
-  constructor(index, socket, workspace, messageHandler, group, server) {
+  constructor(index, socket, workspace, messageHandler, group, switchboard) {
     /**
      * The index is an integer identifying the Connection, which can also be
      * used for locating the Connection in a collection.
@@ -78,11 +78,11 @@ class Connection {
     this.group = group;
 
     /**
-     * Link to the parent server.
+     * Link to the parent switchboard.
      *
-     * @type {module:server.Server}
+     * @type {module:server.Switchboard}
      */
-    this.server = server;
+    this.switchboard = switchboard;
 
     /**
      * The view corresponding to the client on the other end of this Connection.
@@ -151,7 +151,7 @@ class Connection {
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({
       ...this.workspace.settings,
-      views: this.server.reportViews(),
+      views: this.switchboard.reportViews(),
       items: this.workspace.reportItems(),
       id:    this.view.id,
     });
