@@ -8,33 +8,36 @@
 - [ ] Allow subcanvas to be drawn on top:
   <https://stackoverflow.com/questions/3008635/html5-canvas-element-multiple-layers>
 - [ ] Switch to HTTPS
-- [ ] Improve the end-user API by making it so that users do not have to
-  manually inform the wams app of any updates that have been made to the items
-  or views.
 - [ ] Write a distributed video player example.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
-- [ ] Can the API endpoint be done better? Are there some even better
-  abstractions available that will make this code even easier to reason about?
-    + [X] Isolate Items in WorkSpace
-    + [X] Extract MessageHandler
-    + [X] Split Views from WorkSpace, associate only with Connections.
-    + [X] Allow items and views to self-publish.
-    + [ ] Allow items and views to schedule updates automatically when they are
-      updated.
-- [X] Implement multi-device gestures.
-    + [X] Implement server-side gesture library.
 - [ ] Make multi-device gesture state recoverable.
     + [ ] Wipe inputs from dropped connections.
     + [ ] Refresh all gesture states on drop.
     + [ ] Respond appropriately to window 'blur' events.
 - [ ] Provide installation instructions, simplify installation.
-    + [X] Write an entry-point 'index.js' file and add to package.json
-    + [X] Write installation instructions into README.md
     + [ ] Merge DESIGN.md into README.md
 
 ---
 
 # COMPLETED
+
+_As of: Tue Mar  5 16:55:46 CST 2019_
+
+- [X] Improve the end-user API by making it so that users do not have to
+  manually inform the wams app of any updates that have been made to the items
+  or views.
+- [X] Can the API endpoint be done better? Are there some even better
+  abstractions available that will make this code even easier to reason about?
+    + [X] Isolate Items in WorkSpace
+    + [X] Extract MessageHandler
+    + [X] Split Views from WorkSpace, associate only with Connections.
+    + [X] Allow items and views to self-publish.
+    + [X] Allow items and views to schedule updates automatically when they are
+      updated.
+- [X] Implement multi-device gestures.
+    + [X] Implement server-side gesture library.
+- [X] Write an entry-point 'index.js' file and add to package.json
+- [X] Write installation instructions into README.md
 
 _As of: Wed Feb 20 12:54:28 CST 2019_
 
