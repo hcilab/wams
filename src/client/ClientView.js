@@ -102,7 +102,7 @@ class ClientView extends View {
      * @type {number}
      * @constant
      * @instance
-     * @memberof module:server.ServerView
+     * @memberof module:client.ClientView
      */
     this.id = null;
   }
