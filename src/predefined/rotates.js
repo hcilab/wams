@@ -31,7 +31,6 @@ const { isView, isIncludedIn } = require('./utilities.js');
  */
 function do_rotate(app, target, radians, px, py) {
   target.rotateBy(radians, px, py);
-  app.scheduleUpdate(target);
 }
 
 /**

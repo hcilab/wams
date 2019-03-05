@@ -27,11 +27,11 @@ const { isView, isIncludedIn } = require('./utilities.js');
  * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
  * function which will allow users to scale their view.
  */
-function view(app) {
+// function view(app) {
+function view() {
   return function scale_view(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      app.scheduleUpdate(view);
     }
   };
 }
@@ -53,7 +53,6 @@ function items(app, itemTypes = []) {
   return function scale_item(view, target, scale, mx, my) {
     if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      app.scheduleUpdate(target);
     }
   };
 }
@@ -75,10 +74,8 @@ function itemsAndView(app, itemTypes = []) {
   return function scale_itemsAndView(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      app.scheduleUpdate(view);
     } else if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      app.scheduleUpdate(target);
     }
   };
 }

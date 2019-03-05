@@ -30,7 +30,6 @@ const { isView, isIncludedIn } = require('./utilities.js');
  */
 function do_move(app, target, dx, dy) {
   target.moveBy(dx, dy);
-  app.scheduleUpdate(target);
 }
 
 /**

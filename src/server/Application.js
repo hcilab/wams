@@ -85,7 +85,7 @@ class Application {
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings, this.namespace);
+    this.workspace = new WorkSpace(settings, this.namespace, this.publisher);
 
     /**
      * The MessageHandler responds to messages.
@@ -103,6 +103,7 @@ class Application {
       this.workspace,
       this.messageHandler,
       this.namespace,
+      this.publisher,
       settings,
     );
   }

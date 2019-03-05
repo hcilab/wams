@@ -11,7 +11,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, Item, Message } = require('../shared.js');
-const { Lockable, Transformable2D } = require('../mixins.js');
+const { Interactable } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
 
@@ -21,10 +21,9 @@ const STAMPER = new IdStamper();
  *
  * @memberof module:server
  * @extends module:shared.Item
- * @mixes module:mixins.Transformable2D
- * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Interactable
  */
-class ServerItem extends Lockable(Transformable2D(Item)) {
+class ServerItem extends Interactable(Item) {
   /**
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} values - User-supplied data detailing the item. Properties
@@ -86,7 +85,7 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
     return !this.isLocked() && this.containsPoint(x, y);
   }
 
-  /**
+  /*
    * Publish a general notification about the status of the item.
    */
   publish() {

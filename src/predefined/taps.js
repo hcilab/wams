@@ -110,7 +110,6 @@ function modifyItem(app, modify_fn, type) {
   return function tap_modifyItem(view, target) {
     if (isIncludedIn(target, [type])) {
       modify_fn(target, view);
-      app.scheduleUpdate(target);
     }
   };
 }

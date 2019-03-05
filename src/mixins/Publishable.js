@@ -9,25 +9,24 @@
 const publisher = Symbol('publisher');
 
 /**
- * This mixin provides a basis for types that can be published by a Publisher.
+ * This mixin provides a basis for types that can be published by a Publisher,
+ * where a Publisher is a class that routinely calls 'publish()' on items that
+ * it have been scheduled for publication.
  *
  * @memberof module:mixins
  *
  * @mixin
  */
 const Publishable = (superclass) => class extends superclass {
-  constructor(values = {}) {
-    super(values);
-
-    /**
-     * Keep track of our publisher.
-     *
-     * @memberof module:mixins.Publishable
-     *
-     * @type {module:server.Publisher}
-     */
-    this[publisher] = values.publisher;
-  }
+  /**
+   * The publisher associated with this Publishable.
+   *
+   * @memberof module:mixins.Publishable
+   *
+   * @type {module:server.Publisher}
+   */
+  get publisher() { return this[publisher]; }
+  set publisher(p) { this[publisher] = p; }
 
   /**
    * Publish this object.
