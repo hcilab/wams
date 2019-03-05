@@ -111,6 +111,27 @@ class ServerItem extends Interactable(Item) {
     super.scaleBy(ds, mx, my);
     this.hitbox && this.hitbox.scale(ds);
   }
+  
+  /**
+   * Set the image.
+   *
+   * @param {string} path - The path to the image for this item.
+   */
+  setImage(path) {
+    this.imgsrc = path;
+    this.schedulePublication();
+  }
+
+  /**
+   * Set the render sequence.
+   *
+   * @param {CanvasSequence} sequence - The sequence of rendering instructions
+   * for this item.
+   */
+  setSequence(sequence) {
+    this.blueprint = sequence;
+    this.schedulePublication();
+  }
 }
 
 /**
