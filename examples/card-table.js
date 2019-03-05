@@ -9,8 +9,8 @@ const path = require('path');
 const Wams = require('..');
 
 const router = new Wams.Router();
-const images = path.join(__dirname, '../img');
-router.use('/img', router.express.static(images));
+const images = path.join(__dirname, '../img/cards');
+router.use('/img/cards', router.express.static(images));
 
 const app = new Wams.Application({
   color: 'green',
@@ -37,7 +37,7 @@ app.spawnItem({
 const text = new Wams.Sequence();
 text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
-text.fillText( 'Click the joker!', 0, 0);
+text.fillText( 'Click the cards!', 0, 0);
 
 app.spawnItem({
   x: 2380,
@@ -46,12 +46,27 @@ app.spawnItem({
   blueprint: text,
 });
 
-app.spawnItem(Wams.predefined.items.image('img/joker.png', {
+const joker_path = 'img/cards/red_joker.png';
+const joker = app.spawnItem(Wams.predefined.items.image(joker_path, {
   x: 2600,
-  y: 2800,
-  type: 'joker',
-  scale: 1.5,
+  y: 2700,
+  type: 'card',
+  scale: 0.5,
 }));
+joker.face = joker_path;
+joker.isFaceUp = true;
+
+const ace_path = 'img/cards/ace_of_spades.png';
+const ace = app.spawnItem(Wams.predefined.items.image(ace_path, {
+  x: 2100,
+  y: 1900,
+  type: 'card',
+  scale: 0.5,
+}));
+ace.face = ace_path;
+ace.isFaceUp = true;
+
+const card_back_path = 'img/cards/back.png';
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
@@ -113,16 +128,15 @@ const handleLayout = (function makeLayoutHandler() {
   return handleLayout;
 })();
 
-let faceUp = true;
 function flipCard(card) {
-  const imgsrc = faceUp ? 'img/card-back.png' : 'img/joker.png';
-  card.assign({imgsrc});
-  faceUp = !faceUp;
+  const imgsrc = card.isFaceUp ? card_back_path : card.face;
+  card.assign({ imgsrc });
+  card.isFaceUp = !card.isFaceUp;
 }
  
-app.on('click',  Wams.predefined.taps.modifyItem(app, flipCard, 'joker'));
+app.on('click',  Wams.predefined.taps.modifyItem(app, flipCard, 'card'));
 app.on('scale',  Wams.predefined.scales.view(app));
-app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['joker']));
+app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['card']));
 app.on('layout', handleLayout);
 
 app.listen(9001);
