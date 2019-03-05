@@ -111,7 +111,7 @@ class ServerItem extends Interactable(Item) {
     super.scaleBy(ds, mx, my);
     this.hitbox && this.hitbox.scale(ds);
   }
-  
+
   /**
    * Set the image.
    *
