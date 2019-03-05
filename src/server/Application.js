@@ -44,10 +44,7 @@ function getLocalIP() {
 }
 
 /**
- * This module defines the API endpoint. In practice, this means it is a thin
- * wrapper around the Switchboard class which exposes only that functionality of
- * the Switchboard which should be available to the end user. But calling it the
- * "Application" makes it sound more important.
+ * This module defines the API endpoint.
  *
  * @memberof module:server
  */
@@ -149,15 +146,6 @@ class Application {
    */
   spawnItem(values) {
     return this.workspace.spawnItem(values);
-  }
-
-  /**
-   * Schedules an update announcement at the next update interval.
-   *
-   * @param {module:mixins.Publishable} object - Item with updates to publish.
-   */
-  scheduleUpdate(object) {
-    this.publisher.schedule(object);
   }
 }
 
