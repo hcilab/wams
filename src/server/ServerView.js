@@ -11,7 +11,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, Message, View } = require('../shared.js');
-const { Locker, Lockable, Transformable2D } = require('../mixins.js');
+const { Interactable, Locker } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
 
@@ -21,11 +21,10 @@ const STAMPER = new IdStamper();
  *
  * @memberof module:server
  * @extends module:shared.View
- * @mixes module:mixins.Transformable2D
- * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Interactable
  * @mixes module:mixins.Locker
  */
-class ServerView extends Locker(Lockable(Transformable2D(View))) {
+class ServerView extends Locker(Interactable(View)) {
   /**
    * @param {Namespace} socket - Socket.io socket for publishing changes.
    * @param {Object} [ values ] - Object with user supplied values describing
@@ -41,7 +40,15 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
      */
     this.socket = socket;
 
-    // Views must be uniquely identifiable.
+    /**
+     * Id to make the views uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerView
+     */
     STAMPER.stampNewId(this);
   }
 
@@ -73,8 +80,10 @@ class ServerView extends Locker(Lockable(Transformable2D(View))) {
    */
   get topRight() { return this.transformPoint(this.width, 0); }
 
-  /**
+  /*
    * Publish the view, bringing subscribers up to date.
+   *
+   * @override
    */
   publish() {
     new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
@@ -105,8 +114,6 @@ ServerView.DEFAULTS = Object.freeze({
   scale:    1,
   rotation: 0,
 });
-
-Object.assign(ServerView.prototype, Transformable2D);
 
 module.exports = ServerView;
 

@@ -70,10 +70,12 @@ class Switchboard {
    * @param {module:server.MessageHandler} messageHandler - For responding to
    * messages from clients.
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
+   * @param {module:server.Publisher} publisher - Handles publication of
+   * updates.
    * @param {Object} settings - User-supplied options, specifying a client limit
    * and workspace settings.
    */
-  constructor(workspace, messageHandler, namespace, settings = {}) {
+  constructor(workspace, messageHandler, namespace, publisher, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -117,6 +119,7 @@ class Switchboard {
      * @type {module:server.ServerViewGroup}
      */
     this.group = new ServerViewGroup(messageHandler);
+    this.group.publisher = publisher;
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));

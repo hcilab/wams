@@ -11,7 +11,7 @@
 'use strict';
 
 const { mergeMatches, IdStamper, Item, Message } = require('../shared.js');
-const { Lockable, Transformable2D } = require('../mixins.js');
+const { Interactable } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
 
@@ -21,10 +21,9 @@ const STAMPER = new IdStamper();
  *
  * @memberof module:server
  * @extends module:shared.Item
- * @mixes module:mixins.Transformable2D
- * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Interactable
  */
-class ServerItem extends Lockable(Transformable2D(Item)) {
+class ServerItem extends Interactable(Item) {
   /**
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} values - User-supplied data detailing the item. Properties
@@ -41,7 +40,15 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
      */
     this.namespace = namespace;
 
-    // Items need to be uniquely identifiable.
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerItem
+     */
     STAMPER.stampNewId(this);
 
     // Notify subscribers immediately.
@@ -78,7 +85,7 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
     return !this.isLocked() && this.containsPoint(x, y);
   }
 
-  /**
+  /*
    * Publish a general notification about the status of the item.
    */
   publish() {
@@ -103,6 +110,27 @@ class ServerItem extends Lockable(Transformable2D(Item)) {
   scaleBy(ds = 1, mx, my) {
     super.scaleBy(ds, mx, my);
     this.hitbox && this.hitbox.scale(ds);
+  }
+
+  /**
+   * Set the image.
+   *
+   * @param {string} path - The path to the image for this item.
+   */
+  setImage(path) {
+    this.imgsrc = path;
+    this.schedulePublication();
+  }
+
+  /**
+   * Set the render sequence.
+   *
+   * @param {CanvasSequence} sequence - The sequence of rendering instructions
+   * for this item.
+   */
+  setSequence(sequence) {
+    this.blueprint = sequence;
+    this.schedulePublication();
   }
 }
 

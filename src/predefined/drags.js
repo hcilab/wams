@@ -17,37 +17,17 @@ const { isView, isIncludedIn } = require('./utilities.js');
  */
 
 /**
- * Moves the target in the given app by the given amount.
- *
- * @inner
- * @memberof {module:predefined.drags}
- *
- * @param {module:server.Application} app - App to update.
- * @param {module:server.ServerView | module:server.ServerItem} target - Item or
- * view to update.
- * @param {number} dx - Change in X coordinate.
- * @param {number} dy - Change in Y coordinate.
- */
-function do_move(app, target, dx, dy) {
-  target.moveBy(dx, dy);
-  app.scheduleUpdate(target);
-}
-
-/**
  * Returns a WAMS drag handler function which will allow users to move their
  * view around the workspace, but not move items.
  *
  * @memberof module:predefined.drags
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
- *
  * @return {module:server.ListenerTypes.DragListener}
  */
-function view(app) {
+function view() {
   return function drag_view(view, target, x, y, dx, dy) {
     if (isView(target, view)) {
-      do_move(app, view, -dx, -dy);
+      view.moveBy(-dx, -dy);
     }
   };
 }
@@ -58,15 +38,12 @@ function view(app) {
  *
  * @memberof module:predefined.drags
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
- *
  * @return {module:server.ListenerTypes.DragListener}
  */
-function items(app, itemTypes = []) {
+function items(itemTypes = []) {
   return function drag_item(view, target, x, y, dx, dy) {
     if (isIncludedIn(target, itemTypes)) {
-      do_move(app, target, dx, dy);
+      target.moveBy(dx, dy);
     }
   };
 }
@@ -77,17 +54,14 @@ function items(app, itemTypes = []) {
  *
  * @memberof module:predefined.drags
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
- *
  * @return {module:server.ListenerTypes.DragListener}
  */
-function itemsAndView(app, itemTypes = []) {
+function itemsAndView(itemTypes = []) {
   return function drag_itemAndView(view, target, x, y, dx, dy) {
     if (isView(target, view)) {
-      do_move(app, view, -dx, -dy);
+      view.moveBy(-dx, -dy);
     } else if (isIncludedIn(target, itemTypes)) {
-      do_move(app, target, dx, dy);
+      target.moveBy(dx, dy);
     }
   };
 }

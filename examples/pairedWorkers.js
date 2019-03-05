@@ -15,17 +15,17 @@ router.use('/img', router.express.static(images));
 const app = new Wams.Application({ clientLimit: 2 }, router);
 
 app.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
-  x: 200, 
-  y: 200, 
-  type: 'Draggable',
-  scale: 0.2
+  x:     200,
+  y:     200,
+  type:  'Draggable',
+  scale: 0.2,
 }));
 
 app.spawnItem(Wams.predefined.items.image('img/scream.png', {
-  x: 400, 
-  y: 400,
-  type: 'Draggable',
-  scale: 0.25
+  x:     400,
+  y:     400,
+  type:  'Draggable',
+  scale: 0.25,
 }));
 
 const handleLayout = (function defineLayoutHandler() {
@@ -35,13 +35,13 @@ const handleLayout = (function defineLayoutHandler() {
       nx = view.topRight;
       nx.x -= 30;
     } else {
-      view.moveTo( nx.x, nx.y ); 
-    } 
+      view.moveTo(nx.x, nx.y);
+    }
   }
   return handleLayout;
-})();
+}());
 
-app.on('drag',   Wams.predefined.drags.items(app, ['Draggable']));
+app.on('drag',   Wams.predefined.drags.items(['Draggable']));
 app.on('layout', handleLayout);
 
 app.listen(9003);

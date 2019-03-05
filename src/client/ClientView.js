@@ -93,6 +93,18 @@ class ClientView extends View {
      * @type {Map.<module:client.ShadowView>}
      */
     this.shadows = new Map();
+
+    /**
+     * Id to make the views uniquely identifiable. Will be assigned when setup
+     * message is received from server.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientView
+     */
+    this.id = null;
   }
 
   /**

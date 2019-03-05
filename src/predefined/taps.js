@@ -97,8 +97,6 @@ function spawnOrRemoveItem(app, item_fn, type) {
  *
  * @memberof module:predefined.taps
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
  * @param {module:predefined.taps.TapItemModifier} modify_fn - Function which
  * will modify the target item.
  * @param {string} type - Type of item that can be modified.
@@ -106,11 +104,10 @@ function spawnOrRemoveItem(app, item_fn, type) {
  * @returns {module:server.ListenerTypes.ClickListener} A WAMS tap handler
  * function which will modify the targeted item if it has the given type.
  */
-function modifyItem(app, modify_fn, type) {
+function modifyItem(modify_fn, type) {
   return function tap_modifyItem(view, target) {
     if (isIncludedIn(target, [type])) {
       modify_fn(target, view);
-      app.scheduleUpdate(target);
     }
   };
 }

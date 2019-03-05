@@ -14,12 +14,9 @@ const {
   findLast,
   mergeMatches,
   safeRemoveById,
-  IdStamper,
   Message,
 } = require('../shared.js');
 const ServerItem = require('./ServerItem.js');
-
-const STAMPER = new IdStamper();
 
 /**
  * The WorkSpace keeps track of views and items, and can handle events on
@@ -35,8 +32,10 @@ class WorkSpace {
    * @param {boolean} [settings.useServerGestures=false] - Whether to use
    * server-side gestures. Default is to use client-side gestures.
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
+   * @param {module:server.Publisher} publisher - Handles publication of
+   * updates.
    */
-  constructor(settings, namespace) {
+  constructor(settings, namespace, publisher) {
     /**
      * Configuration settings for the workspace.
      *
@@ -55,14 +54,18 @@ class WorkSpace {
     this.namespace = namespace;
 
     /**
+     * Handles publication of updates.
+     *
+     * @type {module:server.Publisher}
+     */
+    this.publisher = publisher;
+
+    /**
      * Track all items in the workspace.
      *
      * @type {module:server.ServerItem[]}
      */
     this.items = [];
-
-    // Workspaces should be uniquely identifiable.
-    STAMPER.stampNewId(this);
   }
 
   /**
@@ -136,6 +139,7 @@ class WorkSpace {
    */
   spawnItem(values = {}) {
     const item = new ServerItem(this.namespace, values);
+    item.publisher = this.publisher;
     this.items.push(item);
     return item;
   }

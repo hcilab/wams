@@ -8,7 +8,7 @@
     "westures": "^0.5.4"
   },
   "devDependencies": {
-    "arkit": "^1.1.2",
+    "arkit": "^1.2.3",
     "browserify": "^16.2.3",
     "eslint": "^5.15.0",
     "jest": "^24.1.0",

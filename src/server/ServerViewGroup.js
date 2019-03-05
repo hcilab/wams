@@ -13,7 +13,7 @@
 const GestureController = require('./GestureController.js');
 const ServerView = require('./ServerView.js');
 const { removeById, View } = require('../shared.js');
-const { Locker, Lockable, Transformable2D } = require('../mixins.js');
+const { Interactable, Locker } = require('../mixins.js');
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
@@ -21,11 +21,10 @@ const { Locker, Lockable, Transformable2D } = require('../mixins.js');
  *
  * @memberof module:server
  * @extends module:server.View
- * @mixes module:mixins.Transformable2D
- * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Interactable
  * @mixes module:mixins.Locker
  */
-class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
+class ServerViewGroup extends Locker(Interactable(View)) {
   /**
    * @param {module:server.MessageHandler} messageHandler - For responding to
    * messages from clients.
@@ -64,7 +63,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     this.views.forEach(v => v.moveBy(dx, dy));
   }
 
-  /**
+  /*
    * Publish all the views, bringing subscribers up to date.
    */
   publish() {
@@ -127,6 +126,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   spawnView(socket) {
     const view = new ServerView(socket, this);
+    view.publisher = this.publisher;
     this.views.push(view);
     return view;
   }

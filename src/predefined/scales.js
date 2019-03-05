@@ -21,17 +21,13 @@ const { isView, isIncludedIn } = require('./utilities.js');
  *
  * @memberof module:predefined.scales
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
- *
  * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
  * function which will allow users to scale their view.
  */
-function view(app) {
+function view() {
   return function scale_view(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      app.scheduleUpdate(view);
     }
   };
 }
@@ -42,18 +38,15 @@ function view(app) {
  *
  * @memberof module:predefined.scales
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
  * @param {string[]} itemTypes - The item types for which to allow rotating.
  *
  * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
  * function which will allow users to scale items.
  */
-function items(app, itemTypes = []) {
+function items(itemTypes = []) {
   return function scale_item(view, target, scale, mx, my) {
     if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      app.scheduleUpdate(target);
     }
   };
 }
@@ -64,21 +57,17 @@ function items(app, itemTypes = []) {
  *
  * @memberof module:predefined.scales
  *
- * @param {module:server.Application} app - The Application instance for which
- * this function will be built.
  * @param {string[]} itemTypes - The item types for which to allow rotating.
  *
  * @returns {module:server.ListenerTypes.ScaleListener} A WAMS scale handler
  * function which will allow users to scale items and their view.
  */
-function itemsAndView(app, itemTypes = []) {
+function itemsAndView(itemTypes = []) {
   return function scale_itemsAndView(view, target, scale, mx, my) {
     if (isView(target, view)) {
       view.scaleBy(scale, mx, my);
-      app.scheduleUpdate(view);
     } else if (isIncludedIn(target, itemTypes)) {
       target.scaleBy(scale, mx, my);
-      app.scheduleUpdate(target);
     }
   };
 }
