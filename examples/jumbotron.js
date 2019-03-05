@@ -18,11 +18,11 @@ const app = new Wams.Application({
 
 app.spawnItem({
   imgsrc: 'img/monaLisa.jpg',
-  type: 'mona',
-  scale: 5
+  type:   'mona',
+  scale:  5,
 });
 
-// Example Layout function that takes in the newly added client and which 
+// Example Layout function that takes in the newly added client and which
 //  app they joined. Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
@@ -35,27 +35,27 @@ const handleLayout = (function makeLayoutHandler() {
 
   function layoutTable(view) {
     table = view;
-  };
+  }
 
   function layoutLeft(view) {
     const anchor = table.bottomLeft.minus({ x: 0, y: OVERLAP });
-    view.moveTo( anchor.x, anchor.y );
-  };
+    view.moveTo(anchor.x, anchor.y);
+  }
 
   function layoutRight(view) {
     const anchor = table.topRight.minus({ x: OVERLAP, y: 0 });
-    view.moveTo( anchor.x, anchor.y );
-  };
+    view.moveTo(anchor.x, anchor.y);
+  }
 
   function layoutBottom(view) {
     const anchor = table.bottomRight.minus({ x: OVERLAP, y: OVERLAP });
-    view.moveTo( anchor.x, anchor.y );
-  };
+    view.moveTo(anchor.x, anchor.y);
+  }
 
   function dependOnTable(fn) {
     return function layoutDepender(view) {
-      if (!table) {
-        setTimeout( () => layoutDepender(view), 0 ); 
+      if (table == null) {
+        setTimeout(() => layoutDepender(view), 0);
       } else {
         fn(view);
       }
@@ -64,16 +64,16 @@ const handleLayout = (function makeLayoutHandler() {
 
   const user_fns = [];
   user_fns[TABLE]   = layoutTable;
-  user_fns[RIGHT]   = dependOnTable( layoutRight );
-  user_fns[LEFT]    = dependOnTable( layoutLeft );
-  user_fns[BOTTOM]  = dependOnTable( layoutBottom );
+  user_fns[RIGHT]   = dependOnTable(layoutRight);
+  user_fns[LEFT]    = dependOnTable(layoutLeft);
+  user_fns[BOTTOM]  = dependOnTable(layoutBottom);
 
   function handleLayout(view, position) {
     user_fns[position](view);
   }
 
   return handleLayout;
-})();
+}());
 
 app.on('layout', handleLayout);
 app.on('drag',   Wams.predefined.drags.view(app));

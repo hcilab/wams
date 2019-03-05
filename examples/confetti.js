@@ -9,13 +9,14 @@ const Wams = require('..');
 const app = new Wams.Application();
 
 function square(x, y, view) {
-  return Wams.predefined.items.square(-64, -64, 128, 
-    Wams.colours[view.id % Wams.colours.length], 
+  return Wams.predefined.items.square(
+    -64, -64, 128,
+    Wams.colours[view.id % Wams.colours.length],
     {
       x,
       y,
-      type: 'colour',
-      scale: 1 / view.scale,
+      type:     'colour',
+      scale:    1 / view.scale,
       rotation: view.rotation,
     }
   );
