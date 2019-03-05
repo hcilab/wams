@@ -36,8 +36,8 @@ function polygon(x, y, view) {
   );
 }
 
-// Example Layout function that takes in the newly added client and which
-//  app they joined. Lays out views in a decending staircase pattern
+// Example Layout function that takes in the newly added client and which app
+//  they joined. Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
   const OVERLAP = 30;
@@ -107,9 +107,9 @@ const handleLayout = (function makeLayoutHandler() {
 
 // Attaches the different function handlers
 app.on('layout', handleLayout);
-app.on('scale',  Wams.predefined.scales.itemsAndView(app, ['colour']));
-app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['colour']));
-app.on('rotate', Wams.predefined.rotates.itemsAndView(app, ['colour']));
+app.on('scale',  Wams.predefined.scales.itemsAndView(['colour']));
+app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
+app.on('rotate', Wams.predefined.rotates.itemsAndView(['colour']));
 app.on(
   'click',
   Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')

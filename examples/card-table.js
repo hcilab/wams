@@ -130,13 +130,13 @@ const handleLayout = (function makeLayoutHandler() {
 
 function flipCard(card) {
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
-  card.assign({ imgsrc });
+  card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
 }
 
-app.on('click',  Wams.predefined.taps.modifyItem(app, flipCard, 'card'));
-app.on('scale',  Wams.predefined.scales.view(app));
-app.on('drag',   Wams.predefined.drags.itemsAndView(app, ['card']));
+app.on('click',  Wams.predefined.taps.modifyItem(flipCard, 'card'));
+app.on('scale',  Wams.predefined.scales.view());
+app.on('drag',   Wams.predefined.drags.itemsAndView(['card']));
 app.on('layout', handleLayout);
 
 app.listen(9001);

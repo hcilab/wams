@@ -12,9 +12,7 @@ const router = new Wams.Router();
 const images = path.join(__dirname, '../img');
 router.use('/img', router.express.static(images));
 
-const app = new Wams.Application({
-  clientLimit: 4,
-}, router);
+const app = new Wams.Application({ clientLimit: 4 }, router);
 
 app.spawnItem({
   imgsrc: 'img/monaLisa.jpg',
@@ -22,8 +20,10 @@ app.spawnItem({
   scale:  5,
 });
 
-// Example Layout function that takes in the newly added client and which
-//  app they joined. Lays out views in a decending staircase pattern
+/*
+ * Example Layout function that takes in the newly added client and which app
+ * they joined. Lays out views in a decending staircase pattern
+ */
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
   const OVERLAP = 30;
@@ -76,8 +76,8 @@ const handleLayout = (function makeLayoutHandler() {
 }());
 
 app.on('layout', handleLayout);
-app.on('drag',   Wams.predefined.drags.view(app));
-app.on('scale',  Wams.predefined.scales.view(app));
+app.on('drag',   Wams.predefined.drags.view());
+app.on('scale',  Wams.predefined.scales.view());
 
 app.listen(9000);
 

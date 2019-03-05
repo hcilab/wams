@@ -8,27 +8,23 @@
 const Wams = require('..');
 const app = new Wams.Application();
 
-// Executed every time a user taps or clicks a screen
-const handleSwipe = (function makeSwipeHandler(app) {
-  function handleSwipe(view, target, x, y, velocity, direction) {
-    const cidx = Math.ceil(velocity * 10) % Wams.colours.length;
-    app.spawnItem(Wams.predefined.items.rectangle(
-      0,
-      0,
-      velocity * 10,
-      32,
-      Wams.colours[cidx],
-      {
-        x,
-        y,
-        type:     'colour',
-        rotation: -direction,
-      },
-    ));
-  }
-
-  return handleSwipe;
-}(app));
+// Executed every time a user swipes the screen.
+function handleSwipe(view, target, x, y, velocity, direction) {
+  const cidx = Math.ceil(velocity * 10) % Wams.colours.length;
+  app.spawnItem(Wams.predefined.items.rectangle(
+    0,
+    0,
+    velocity * 10,
+    32,
+    Wams.colours[cidx],
+    {
+      x,
+      y,
+      type:     'colour',
+      rotation: -direction,
+    },
+  ));
+}
 
 // Attaches the defferent function handlers
 app.on('swipe',  handleSwipe);
