@@ -47,24 +47,24 @@ app.spawnItem({
 });
 
 const joker_path = 'img/cards/red_joker.png';
-const joker = app.spawnItem(Wams.predefined.items.image(joker_path, {
-  x:     2600,
-  y:     2700,
-  type:  'card',
-  scale: 0.5,
+app.spawnItem(Wams.predefined.items.image(joker_path, {
+  x:        2600,
+  y:        2700,
+  type:     'card',
+  scale:    0.5,
+  face:     joker_path,
+  isFaceUp: true,
 }));
-joker.face = joker_path;
-joker.isFaceUp = true;
 
 const ace_path = 'img/cards/ace_of_spades.png';
-const ace = app.spawnItem(Wams.predefined.items.image(ace_path, {
-  x:     2100,
-  y:     1900,
-  type:  'card',
-  scale: 0.5,
+app.spawnItem(Wams.predefined.items.image(ace_path, {
+  x:        2100,
+  y:        1900,
+  type:     'card',
+  scale:    0.5,
+  face:     ace_path,
+  isFaceUp: true,
 }));
-ace.face = ace_path;
-ace.isFaceUp = true;
 
 const card_back_path = 'img/cards/back.png';
 
