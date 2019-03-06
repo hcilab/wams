@@ -10,7 +10,6 @@
 const IdStamper = require('./IdStamper.js');
 const {
   defineOwnImmutableEnumerableProperty,
-  mergeMatches,
 } = require('./utilities.js');
 
 const STAMPER = new IdStamper();
@@ -52,7 +51,7 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
-      this.assign(mergeMatches(INITIALIZER, data));
+      Object.assign(this, INITIALIZER, data);
     }
 
     /**
@@ -63,7 +62,6 @@ function ReporterFactory(coreProperties) {
      */
     assign(data = {}) {
       KEYS.forEach(p => {
-        // if (data.hasOwnProperty(p)) this[p] = data[p];
         if (p in data) this[p] = data[p];
       });
     }

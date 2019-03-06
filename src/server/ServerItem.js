@@ -10,7 +10,11 @@
 
 'use strict';
 
-const { mergeMatches, IdStamper, Item, Message } = require('../shared.js');
+const {
+  IdStamper,
+  Item,
+  Message,
+} = require('../shared.js');
 const { Interactable } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
@@ -31,7 +35,7 @@ class ServerItem extends Interactable(Item) {
    * stored. Any other properties will be ignored.
    */
   constructor(namespace, values = {}) {
-    super(mergeMatches(ServerItem.DEFAULTS, values));
+    super({ ...ServerItem.DEFAULTS, ...values });
 
     /**
      * Socket.io namespace for publishing updates.

@@ -63,7 +63,8 @@ class ClientItem extends Item {
    *       ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
-    super(data);
+    super();
+    this.assign(data);
 
     /**
      * Id to make the items uniquely identifiable.
