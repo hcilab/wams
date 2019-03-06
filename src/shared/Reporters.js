@@ -10,8 +10,8 @@
 const ReporterFactory = require('./ReporterFactory.js');
 
 /**
- * This Item class provides a common interface between the client and
- * the server by which the Items can interact safely.
+ * This Item class provides a common interface between the client and the server
+ * by which the Items can interact safely.
  *
  * @class Item
  * @memberof module:shared
@@ -97,6 +97,96 @@ const Item = ReporterFactory([
    * @instance
    */
   'blueprint',
+]);
+
+/**
+ * This Image class provides a common interface between the client and the
+ * server by which the Items can interact safely.
+ *
+ * @class Image
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const Image = ReporterFactory([
+  /**
+   * X coordinate of the Image.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'x',
+
+  /**
+   * Y coordinate of the Image.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'y',
+
+  /**
+   * Width of the Image.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'width',
+
+  /**
+   * Height of the Image.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'height',
+
+  /**
+   * Rotation of the Image.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'rotation',
+
+  /**
+   * Scale of the Image.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'scale',
+
+  /**
+   * Type description of the Image.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'type',
+
+  /**
+   * Image source path of the Image.
+   *
+   * @name src
+   * @type {string}
+   * @memberof module:shared.Image
+   * @instance
+   */
+  'src',
 ]);
 
 /**
@@ -355,6 +445,7 @@ const PointerReporter = ReporterFactory([
 
 module.exports = {
   Item,
+  Image,
   View,
   DataReporter,
   FullStateReporter,
