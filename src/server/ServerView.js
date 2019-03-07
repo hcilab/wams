@@ -10,7 +10,11 @@
 
 'use strict';
 
-const { mergeMatches, IdStamper, Message, View } = require('../shared.js');
+const {
+  IdStamper,
+  Message,
+  View,
+} = require('../shared.js');
 const { Interactable, Locker } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
@@ -31,7 +35,7 @@ class ServerView extends Locker(Interactable(View)) {
    * the view.
    */
   constructor(socket, values = {}) {
-    super(mergeMatches(ServerView.DEFAULTS, values));
+    super({ ...ServerView.DEFAULTS, ...values });
 
     /**
      * Socket.io socket for publishing changes.

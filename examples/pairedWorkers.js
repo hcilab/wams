@@ -14,18 +14,22 @@ router.use('/img', router.express.static(images));
 
 const app = new Wams.Application({ clientLimit: 2 }, router);
 
-app.spawnItem(Wams.predefined.items.image('img/monaLisa.jpg', {
-  x:     200,
-  y:     200,
-  type:  'Draggable',
-  scale: 0.2,
+app.spawnImage(Wams.predefined.items.image('img/monaLisa.jpg', {
+  x:      200,
+  y:      200,
+  width:  1200,
+  height: 1815,
+  type:   'Draggable',
+  scale:  0.2,
 }));
 
-app.spawnItem(Wams.predefined.items.image('img/scream.png', {
-  x:     400,
-  y:     400,
-  type:  'Draggable',
-  scale: 0.25,
+app.spawnImage(Wams.predefined.items.image('img/scream.png', {
+  x:      400,
+  y:      400,
+  width:  800,
+  height: 1013,
+  type:   'Draggable',
+  scale:  0.25,
 }));
 
 const handleLayout = (function defineLayoutHandler() {

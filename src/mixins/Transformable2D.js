@@ -16,7 +16,7 @@ const { Point2D } = require('../shared.js');
  *
  * @mixin
  */
-const Transformable2D = (superclass) => class extends superclass {
+const Transformable2D = (sclass) => class Transformable2D extends sclass {
   /**
    * Move the transformable by the given amounts.
    *

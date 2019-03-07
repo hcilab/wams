@@ -10,8 +10,8 @@
 const ReporterFactory = require('./ReporterFactory.js');
 
 /**
- * This Item class provides a common interface between the client and
- * the server by which the Items can interact safely.
+ * This Item class provides a common interface between the client and the server
+ * by which the Items can interact safely.
  *
  * @class Item
  * @memberof module:shared
@@ -37,16 +37,6 @@ const Item = ReporterFactory([
    * @instance
    */
   'y',
-
-  /**
-   * The item's hitbox.
-   *
-   * @name hitbox
-   * @type {module:shared.Polygon2D}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'hitbox', // TODO: May not need to be reported
 
   /**
    * Rotation of the Item.
@@ -79,16 +69,6 @@ const Item = ReporterFactory([
   'type',
 
   /**
-   * Image source path of the Item.
-   *
-   * @name imgsrc
-   * @type {string}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'imgsrc',
-
-  /**
    * Canvas blueprint for the item.
    *
    * @name blueprint
@@ -97,6 +77,96 @@ const Item = ReporterFactory([
    * @instance
    */
   'blueprint',
+]);
+
+/**
+ * This WamsImage class provides a common interface between the client and the
+ * server by which the Items can interact safely.
+ *
+ * @class WamsImage
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const WamsImage = ReporterFactory([
+  /**
+   * X coordinate of the WamsImage.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'x',
+
+  /**
+   * Y coordinate of the WamsImage.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'y',
+
+  /**
+   * Width of the WamsImage.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'width',
+
+  /**
+   * Height of the WamsImage.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'height',
+
+  /**
+   * Rotation of the WamsImage.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'rotation',
+
+  /**
+   * Scale of the WamsImage.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'scale',
+
+  /**
+   * Type description of the WamsImage.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'type',
+
+  /**
+   * Image source path of the WamsImage.
+   *
+   * @name src
+   * @type {string}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'src',
 ]);
 
 /**
@@ -359,5 +429,6 @@ module.exports = {
   DataReporter,
   FullStateReporter,
   PointerReporter,
+  WamsImage,
 };
 

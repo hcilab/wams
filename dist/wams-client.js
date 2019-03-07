@@ -11246,21 +11246,16 @@ class ClientController {
 module.exports = ClientController;
 
 
-},{"../shared.js":76,"./ClientView.js":73,"./Interactor.js":74,"socket.io-client":39}],72:[function(require,module,exports){
+},{"../shared.js":77,"./ClientView.js":74,"./Interactor.js":75,"socket.io-client":39}],72:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
  */
 
 'use strict';
 
-const { IdStamper, Item, Message } = require('../shared.js');
-const { CanvasBlueprint } = require('canvas-sequencer');
+const { IdStamper, WamsImage, Message } = require('../shared.js');
 
 /*
  * I'm not defining a 'defaults' object here, because the data going into the
@@ -11275,7 +11270,7 @@ const STAMPER = new IdStamper();
  * so that it can be displayed.
  *
  * @inner
- * @memberof module:client.ClientItem
+ * @memberof module:client.ClientImage
  *
  * @param {string} src - Image source path.
  *
@@ -11296,8 +11291,103 @@ function createImage(src) {
     );
     return img;
   }
-  return null;
+  return {};
 }
+
+/**
+ * The ClientImage class exposes the draw() funcitonality of wams items.
+ *
+ * @extends module:shared.WamsImage
+ * @memberof module:client
+ */
+class ClientImage extends WamsImage {
+  /**
+   * @param {module:shared.Item} data - The data from the server describing this
+   *       item. Only properties explicity listed in the array passed to the
+   *       ReporterFactory when the Item class was defined will be accepted.
+   */
+  constructor(data) {
+    super(data);
+
+    /**
+     * The image to render.
+     *
+     * @type {Image}
+     */
+    this.image = createImage(this.src);
+
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientImage
+     */
+    STAMPER.cloneId(this, data.id);
+  }
+
+  /**
+   * Overrides the default Reporter assign() method, wrapping it in
+   * functionality for generating an image, or a canvas drawing blueprint and
+   * sequence.
+   *
+   * @param {module:shared.Item} data - The data from the server describing this
+   * item.
+   */
+  assign(data) {
+    if (data.src !== this.src) this.image = createImage(data.src);
+    super.assign(data);
+  }
+
+  /**
+   * Render the item onto the given context.  Prioritizes blueprints over
+   * images.
+   *
+   * @param {CanvasRenderingContext2D} context - context onto which to draw this
+   * item.
+   */
+  draw(context) {
+    context.save();
+    context.translate(this.x, this.y);
+    context.rotate(-this.rotation);
+    context.scale(this.scale, this.scale);
+    if (this.image.loaded) {
+      context.drawImage(this.image, 0, 0, this.width, this.height);
+    } else {
+      context.fillStyle = 'darkgrey';
+      context.fillRect(0, 0, this.width, this.height);
+    }
+    context.restore();
+  }
+}
+
+module.exports = ClientImage;
+
+
+},{"../shared.js":77}],73:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ */
+
+'use strict';
+
+const { IdStamper, Item } = require('../shared.js');
+const { CanvasBlueprint } = require('canvas-sequencer');
+
+/*
+ * I'm not defining a 'defaults' object here, because the data going into the
+ * creation of items should always come from the server, where it has already
+ * gone through an initialization against a defaults object.
+ */
+const STAMPER = new IdStamper();
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
@@ -11335,23 +11425,10 @@ class ClientItem extends Item {
    * item.
    */
   assign(data) {
-    const updateImage = data.imgsrc !== this.imgsrc;
-    // const updateBlueprint = Boolean(data.blueprint);
-    const updateBlueprint = this.sequence == null && data.blueprint;
-
     super.assign(data);
-    if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) {
+    if (this.sequence == null && data.blueprint) {
       this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
     }
-
-    // Rather than doing a bunch of checks, let's just always rebuild the
-    // Sequence when updating any data in the item. Doing the checks to see if
-    // This is necessary would probably take as much or more time as just
-    // Going ahead and rebuilding like this anyway.
-    // if (this.blueprint) {
-    //   this.sequence = this.blueprint.build(this.report());
-    // }
   }
 
   /**
@@ -11362,23 +11439,21 @@ class ClientItem extends Item {
    * item.
    */
   draw(context) {
-    context.save();
-    context.translate(this.x, this.y);
-    context.rotate(-this.rotation);
-    context.scale(this.scale, this.scale);
     if (this.sequence) {
+      context.save();
+      context.translate(this.x, this.y);
+      context.rotate(-this.rotation);
+      context.scale(this.scale, this.scale);
       this.sequence.execute(context);
-    } else if (this.img && this.img.loaded) {
-      context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
+      context.restore();
     }
-    context.restore();
   }
 }
 
 module.exports = ClientItem;
 
 
-},{"../shared.js":76,"canvas-sequencer":9}],73:[function(require,module,exports){
+},{"../shared.js":77,"canvas-sequencer":9}],74:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11391,11 +11466,11 @@ module.exports = ClientItem;
 
 'use strict';
 
+const ClientImage = require('./ClientImage.js');
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const {
   constants,
-  mergeMatches,
   removeById,
   IdStamper,
   View,
@@ -11441,7 +11516,7 @@ class ClientView extends View {
    * open yet at the time that this class is instantiated.
    */
   constructor(values = {}) {
-    super(mergeMatches(ClientView.DEFAULTS, values));
+    super({ ...ClientView.DEFAULTS, ...values });
 
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
@@ -11551,7 +11626,12 @@ class ClientView extends View {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    const item = new ClientItem(values);
+    let item = null;
+    if ('src' in values) {
+      item = new ClientImage(values);
+    } else {
+      item = new ClientItem(values);
+    }
     this.itemOrder.push(item);
     this.items.set(item.id, item);
   }
@@ -11683,7 +11763,7 @@ ClientView.DEFAULTS = Object.freeze({
 module.exports = ClientView;
 
 
-},{"../shared.js":76,"./ClientItem.js":72,"./ShadowView.js":75}],74:[function(require,module,exports){
+},{"../shared.js":77,"./ClientImage.js":72,"./ClientItem.js":73,"./ShadowView.js":76}],75:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11835,7 +11915,7 @@ Interactor.DEFAULT_HANDLERS = Object.freeze({
 module.exports = Interactor;
 
 
-},{"../shared.js":76,"westures":61}],75:[function(require,module,exports){
+},{"../shared.js":77,"westures":61}],76:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11957,7 +12037,7 @@ class ShadowView extends View {
 module.exports = ShadowView;
 
 
-},{"../shared.js":76}],76:[function(require,module,exports){
+},{"../shared.js":77}],77:[function(require,module,exports){
 /*
  * Utilities for the WAMS application.
  *
@@ -12012,12 +12092,12 @@ const colours = [
   'saddlebrown',
   'red',
   'blue',
-  'darkgreen',
+  'lime',
   'darkorange',
   'purple',
   'yellow',
   'aqua',
-  'lime',
+  'darkgreen',
   'fuchsia',
 ];
 
@@ -12036,7 +12116,7 @@ module.exports = Object.freeze({
 });
 
 
-},{"./shared/IdStamper.js":77,"./shared/Message.js":78,"./shared/Point2D.js":79,"./shared/Polygon2D.js":80,"./shared/Reporters.js":82,"./shared/utilities.js":83}],77:[function(require,module,exports){
+},{"./shared/IdStamper.js":78,"./shared/Message.js":79,"./shared/Point2D.js":80,"./shared/Polygon2D.js":81,"./shared/Reporters.js":83,"./shared/utilities.js":84}],78:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -12137,7 +12217,7 @@ class IdStamper {
 module.exports = IdStamper;
 
 
-},{"./utilities.js":83}],78:[function(require,module,exports){
+},{"./utilities.js":84}],79:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -12246,7 +12326,7 @@ Object.entries(TYPES).forEach(([p, v]) => {
 module.exports = Message;
 
 
-},{"./utilities.js":83}],79:[function(require,module,exports){
+},{"./utilities.js":84}],80:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -12412,7 +12492,7 @@ class Point2D {
 module.exports = Point2D;
 
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -12529,7 +12609,7 @@ class Polygon2D {
 module.exports = Polygon2D;
 
 
-},{"./Point2D.js":79}],81:[function(require,module,exports){
+},{"./Point2D.js":80}],82:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -12542,7 +12622,6 @@ module.exports = Polygon2D;
 const IdStamper = require('./IdStamper.js');
 const {
   defineOwnImmutableEnumerableProperty,
-  mergeMatches,
 } = require('./utilities.js');
 
 const STAMPER = new IdStamper();
@@ -12584,7 +12663,12 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
-      this.assign(mergeMatches(INITIALIZER, data));
+      // Grab all own enumerable properties of 'data'.
+      Object.assign(this, INITIALIZER, data);
+
+      // Special access for coreProperties existing anywhere up the prototype
+      // chain of 'data'.
+      this.assign(data);
     }
 
     /**
@@ -12595,7 +12679,6 @@ function ReporterFactory(coreProperties) {
      */
     assign(data = {}) {
       KEYS.forEach(p => {
-        // if (data.hasOwnProperty(p)) this[p] = data[p];
         if (p in data) this[p] = data[p];
       });
     }
@@ -12623,7 +12706,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":77,"./utilities.js":83}],82:[function(require,module,exports){
+},{"./IdStamper.js":78,"./utilities.js":84}],83:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -12636,8 +12719,8 @@ module.exports = ReporterFactory;
 const ReporterFactory = require('./ReporterFactory.js');
 
 /**
- * This Item class provides a common interface between the client and
- * the server by which the Items can interact safely.
+ * This Item class provides a common interface between the client and the server
+ * by which the Items can interact safely.
  *
  * @class Item
  * @memberof module:shared
@@ -12663,16 +12746,6 @@ const Item = ReporterFactory([
    * @instance
    */
   'y',
-
-  /**
-   * The item's hitbox.
-   *
-   * @name hitbox
-   * @type {module:shared.Polygon2D}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'hitbox', // TODO: May not need to be reported
 
   /**
    * Rotation of the Item.
@@ -12705,16 +12778,6 @@ const Item = ReporterFactory([
   'type',
 
   /**
-   * Image source path of the Item.
-   *
-   * @name imgsrc
-   * @type {string}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'imgsrc',
-
-  /**
    * Canvas blueprint for the item.
    *
    * @name blueprint
@@ -12723,6 +12786,96 @@ const Item = ReporterFactory([
    * @instance
    */
   'blueprint',
+]);
+
+/**
+ * This WamsImage class provides a common interface between the client and the
+ * server by which the Items can interact safely.
+ *
+ * @class WamsImage
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const WamsImage = ReporterFactory([
+  /**
+   * X coordinate of the WamsImage.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'x',
+
+  /**
+   * Y coordinate of the WamsImage.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'y',
+
+  /**
+   * Width of the WamsImage.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'width',
+
+  /**
+   * Height of the WamsImage.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'height',
+
+  /**
+   * Rotation of the WamsImage.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'rotation',
+
+  /**
+   * Scale of the WamsImage.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'scale',
+
+  /**
+   * Type description of the WamsImage.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'type',
+
+  /**
+   * Image source path of the WamsImage.
+   *
+   * @name src
+   * @type {string}
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  'src',
 ]);
 
 /**
@@ -12985,10 +13138,11 @@ module.exports = {
   DataReporter,
   FullStateReporter,
   PointerReporter,
+  WamsImage,
 };
 
 
-},{"./ReporterFactory.js":81}],83:[function(require,module,exports){
+},{"./ReporterFactory.js":82}],84:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *

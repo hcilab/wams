@@ -17,6 +17,7 @@
 
 'use strict';
 
+const Hittable = require('./mixins/Hittable.js');
 const Interactable = require('./mixins/Interactable.js');
 const Lockable = require('./mixins/Lockable.js');
 const Locker = require('./mixins/Locker.js');
@@ -24,6 +25,7 @@ const Publishable = require('./mixins/Publishable.js');
 const Transformable2D = require('./mixins/Transformable2D.js');
 
 module.exports = {
+  Hittable,
   Interactable,
   Locker,
   Lockable,

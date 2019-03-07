@@ -6,9 +6,9 @@
 
 'use strict';
 
-const Lockable = require('./Lockable.js');
-const Publishable = require('./Publishable.js');
-const Transformable2D = require('./Transformable2D.js');
+const Lock = require('./Lockable.js');
+const Publish = require('./Publishable.js');
+const Transform = require('./Transformable2D.js');
 
 /**
  * This mixin combines the Transformable2D, Lockable, and Publishable mixins to
@@ -22,7 +22,7 @@ const Transformable2D = require('./Transformable2D.js');
  * @mixes module:mixins.Transformable2D
  */
 const Interactable = (superclass) => {
-  return class extends Publishable(Lockable(Transformable2D(superclass))) {
+  return class Interactable extends Publish(Lock(Transform(superclass))) {
     /*
      * Move the transformable by the given amounts.
      *

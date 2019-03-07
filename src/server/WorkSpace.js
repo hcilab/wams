@@ -16,6 +16,7 @@ const {
   safeRemoveById,
   Message,
 } = require('../shared.js');
+const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
 
 /**
@@ -79,7 +80,7 @@ class WorkSpace {
    * or null if there is none.
    */
   findFreeItemByCoordinates(x, y) {
-    return findLast(this.items, i => i.isFreeItemAt(x, y));
+    return findLast(this.items, i => !i.isLocked() && i.containsPoint(x, y));
   }
 
   /**
@@ -128,6 +129,20 @@ class WorkSpace {
    */
   reportItems() {
     return this.items.map(o => o.report());
+  }
+
+  /**
+   * Spawn a new image with the given values.
+   *
+   * @param {object} values - Values describing the image to spawn.
+   *
+   * @return {module:server.ServerImage} The newly spawned image.
+   */
+  spawnImage(values = {}) {
+    const image = new ServerImage(this.namespace, values);
+    image.publisher = this.publisher;
+    this.items.push(image);
+    return image;
   }
 
   /**

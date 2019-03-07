@@ -181,8 +181,7 @@ class ServerController {
    * @param {module:shared.View} data - Data from the client describing the
    *       state of the window in which it is displayed.
    */
-  layout(data) {
-    const { width, height } = data;
+  layout({ width, height }) {
     this.view.assign({ width, height });
     this.device.assign({ width, height });
     this.messageHandler.handle('layout', this.view, this.index, this.device);
@@ -210,8 +209,8 @@ class ServerController {
    * @param {module:shared.View} data - Data from the client describing the
    *       state of the window in which it is displayed.
    */
-  resize(data) {
-    this.view.assign(data);
+  resize({ width, height }) {
+    this.view.assign({ width, height });
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
   }
 }

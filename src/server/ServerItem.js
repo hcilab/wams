@@ -10,10 +10,11 @@
 
 'use strict';
 
-const { mergeMatches, IdStamper, Item, Message } = require('../shared.js');
-const { Interactable } = require('../mixins.js');
-
-const STAMPER = new IdStamper();
+const {
+  Item,
+  Message,
+} = require('../shared.js');
+const { Hittable } = require('../mixins.js');
 
 /**
  * The ServerItem provides operations for the server to locate and move items
@@ -21,9 +22,9 @@ const STAMPER = new IdStamper();
  *
  * @memberof module:server
  * @extends module:shared.Item
- * @mixes module:mixins.Interactable
+ * @mixes module:mixins.Hittable
  */
-class ServerItem extends Interactable(Item) {
+class ServerItem extends Hittable(Item) {
   /**
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} values - User-supplied data detailing the item. Properties
@@ -31,7 +32,7 @@ class ServerItem extends Interactable(Item) {
    * stored. Any other properties will be ignored.
    */
   constructor(namespace, values = {}) {
-    super(mergeMatches(ServerItem.DEFAULTS, values));
+    super({ ...ServerItem.DEFAULTS, ...values });
 
     /**
      * Socket.io namespace for publishing updates.
@@ -40,49 +41,8 @@ class ServerItem extends Interactable(Item) {
      */
     this.namespace = namespace;
 
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:server.ServerItem
-     */
-    STAMPER.stampNewId(this);
-
     // Notify subscribers immediately.
     new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
-  }
-
-  /**
-   * Checks whether a point with the given x,y coordinates is contained by this
-   * item.
-   *
-   * @param {number} x - x coordinate of the point to check.
-   * @param {number} y - y coordinate of the point to check.
-   *
-   * @return {boolean} True if the (x,y) point is located inside this Item.
-   * False otherwise.
-   */
-  containsPoint(x, y) {
-    return this.hitbox && this.hitbox.contains({
-      x: x - this.x,
-      y: y - this.y,
-    });
-  }
-
-  /**
-   * Checks whether this item is free and located at the given coordinates.
-   *
-   * @param {number} x - x coordinate of the point to check.
-   * @param {number} y - y coordinate of the point to check.
-   *
-   * @return {boolean} True if the (x,y) point is located inside this Item, and
-   * this Item is not currently locked. False otherwise.
-   */
-  isFreeItemAt(x, y) {
-    return !this.isLocked() && this.containsPoint(x, y);
   }
 
   /*
@@ -90,36 +50,6 @@ class ServerItem extends Interactable(Item) {
    */
   publish() {
     new Message(Message.UD_ITEM, this).emitWith(this.namespace);
-  }
-
-  /*
-   * Rotate the item by the given amount (in radians).
-   *
-   * @override
-   */
-  rotateBy(radians, px, py) {
-    super.rotateBy(radians, px, py);
-    this.hitbox && this.hitbox.rotate(radians);
-  }
-
-  /*
-   * Scale the item by the given amount.
-   *
-   * @override
-   */
-  scaleBy(ds = 1, mx, my) {
-    super.scaleBy(ds, mx, my);
-    this.hitbox && this.hitbox.scale(ds);
-  }
-
-  /**
-   * Set the image.
-   *
-   * @param {string} path - The path to the image for this item.
-   */
-  setImage(path) {
-    this.imgsrc = path;
-    this.schedulePublication();
   }
 
   /**
@@ -145,8 +75,7 @@ ServerItem.DEFAULTS = Object.freeze({
   hitbox:    null,
   rotation:  0,
   scale:     1,
-  type:      'item/foreground',
-  imgsrc:    '',
+  type:      'item/polygonal',
   blueprint: null,
 });
 
