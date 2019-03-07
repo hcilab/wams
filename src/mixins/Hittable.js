@@ -9,7 +9,9 @@
 const Interactable = require('./Interactable.js');
 
 /**
- * This mixin extends the Interactable mixin by allow hit detection.
+ * This mixin extends the Interactable mixin by allow hit detection. To make a
+ * Hittable item hittable, add a 'hitbox' property to the class or instantiated
+ * object, which has a 'contains({ x, y })' method.
  *
  * @memberof module:mixins
  *
@@ -20,6 +22,8 @@ const Hittable = (superclass) => class extends Interactable(superclass) {
   /**
    * Checks whether a point with the given x,y coordinates is contained by this
    * item.
+   *
+   * @memberof module:mixins.Hittable
    *
    * @param {number} px - x coordinate of the point to check.
    * @param {number} py - y coordinate of the point to check.
