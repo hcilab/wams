@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Pinch | WAMS</title>
+    <title>Mixin: Hittable | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -52,10 +52,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-gestures.html">gestures</a>.</span>Pinch<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
-        
-            <div class="class-description">A Pinch is defined as two or more inputs moving either together or apart.</div>
+        <h2>
+            <span class="ancestors"><a href="module-mixins.html">mixins</a>.</span>Hittable</h2>
         
     
 </header>
@@ -65,184 +63,12 @@
         <div class="container-overview">
         
             
-
-<dt>
-    
-        <h4 class="name" id="Pinch">
-            
-                new <span class="type-signature"></span>Pinch<span class="signature">(options<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line33">line 33</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Constructor function for the Pinch class.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>options</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
+                <div class="description">This mixin extends the Interactable mixin by allow hit detection. To make a
+Hittable item hittable, add a 'hitbox' property to the class or instantiated
+object, which has a 'contains({ x, y })' method.</div>
             
 
             
-
-            <td class="description last">
-                <h6>Properties</h6>
-                
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>minInputs</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    2
-                
-                </td>
-            
-
-            <td class="description last">The minimum number of inputs that
-   must be active for a Pinch to be recognized.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
 
 
 <dl class="details">
@@ -260,7 +86,13 @@
     
 
     
+        <dt class="mixes">Mixes In:</dt>
 
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html">module:mixins.Interactable</a></li>
+        
+        </ul></dd>
     
 
     
@@ -274,36 +106,17 @@
     
 
     
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="module-gestures.ReturnTypes.html#.PinchData">module:gestures.ReturnTypes.PinchData</a></li>
-        </ul>
-    </dd>
+
     
 
     
 </dl>
 
 
-    
-
-</dd>
-
+            
         
         </div>
     
-
-    
-        <h3 class="subsection-title">Extends</h3>
-
-        
-
-
-    <ul>
-        <li><a href="module-gestures.Gesture.html">module:gestures.Gesture</a></li>
-    </ul>
-
 
     
 
@@ -324,12 +137,99 @@
             
 
 <dt>
+<h4 class="name" id=".publisher">
+    <span class="type-signature"><span class="icon green">static</span> </span>publisher<span class="type-signature"> :<a href="module-server.Publisher.html">module:server.Publisher</a></span>
+    
+    <div class="container-source members">
+        <code><a href="mixins_Publishable.js.html">mixins/Publishable.js</a></code>,
+        <code><a href="mixins_Publishable.js.html#line28">line 28</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The publisher associated with this Publishable.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="module-server.Publisher.html">module:server.Publisher</a></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.publisher">module:mixins.Interactable.publisher</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
 <h4 class="name" id="id">
-    <span class="type-signature"></span>id<span class="type-signature"> :string</span>
+    <span class="type-signature"><span class="icon green">constant</span> </span>id<span class="type-signature"> :number</span>
     
     <div class="container-source members">
-        <code><a href="gestures_core_Gesture.js.html">gestures/core/Gesture.js</a></code>,
-        <code><a href="gestures_core_Gesture.js.html#line39">line 39</a></code>
+        <code><a href="mixins_Hittable.js.html">mixins/Hittable.js</a></code>,
+        <code><a href="mixins_Hittable.js.html#line28">line 28</a></code>
     </div>
     
 </h4>
@@ -339,94 +239,7 @@
 <dd>
     
     <div class="description">
-        The unique identifier for each gesture. This allows for distinctions
-across instances of Gestures that are created on the fly (e.g.
-gesture-tap-1, gesture-tap-2).
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="module-gestures.Gesture.html#id">module:gestures.Gesture#id</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="minInputs">
-    <span class="type-signature"></span>minInputs<span class="type-signature"> :number</span>
-    
-    <div class="container-source members">
-        <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-        <code><a href="gestures_gestures_Pinch.js.html#line50">line 50</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        The minimum number of inputs that must be active for a Pinch to be
-recognized.
+        Id to make Hittables uniquely identifiable.
     </div>
     
 
@@ -453,169 +266,6 @@ recognized.
 
     
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="previous">
-    <span class="type-signature"></span>previous<span class="type-signature"> :number</span>
-    
-    <div class="container-source members">
-        <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-        <code><a href="gestures_gestures_Pinch.js.html#line57">line 57</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        The previous distance.
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">number</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="type">
-    <span class="type-signature"></span>type<span class="type-signature"> :string</span>
-    
-    <div class="container-source members">
-        <code><a href="gestures_core_Gesture.js.html">gestures/core/Gesture.js</a></code>,
-        <code><a href="gestures_core_Gesture.js.html#line30">line 30</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        The name of the gesture. (e.g. 'pan' or 'tap' or 'pinch').
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-    <dt class="inherited-from">Inherited From:</dt>
-    <dd class="inherited-from"><ul class="dummy"><li>
-        <a href="module-gestures.Gesture.html#type">module:gestures.Gesture#type</a>
-    </li></ul></dd>
     
 
     
@@ -660,14 +310,14 @@ recognized.
 
 <dt>
     
-        <h4 class="name" id="cancel">
+        <h4 class="name" id=".containsPoint">
             
-                <span class="type-signature"></span>cancel<span class="signature">(input)</span><span class="type-signature"></span>
+                <span class="type-signature"><span class="icon green">static</span> </span>containsPoint<span class="signature">(px, py)</span><span class="type-signature"> &rarr; {boolean}</span>
                 
             
             <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line114">line 114</a></code>
+                <code><a href="mixins_Hittable.js.html">mixins/Hittable.js</a></code>,
+                <code><a href="mixins_Hittable.js.html#line52">line 52</a></code>
             </div>
             
         </h4>
@@ -679,7 +329,8 @@ recognized.
 
     
     <div class="description">
-        Event hook for the cancel of a Pinch.
+        Checks whether a point with the given x,y coordinates is contained by
+this item.
     </div>
     
 
@@ -715,13 +366,13 @@ recognized.
 
         <tr>
             
-                <td class="name"><code>input</code></td>
+                <td class="name"><code>px</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-gestures.State.html">module:gestures.State</a></span>
+<span class="param-type">number</span>
 
 
             
@@ -731,136 +382,20 @@ recognized.
 
             
 
-            <td class="description last">status object</td>
+            <td class="description last">x coordinate of the point to check.</td>
         </tr>
 
     
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="end">
-            
-                <span class="type-signature"></span>end<span class="signature">(input)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line105">line 105</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Event hook for the end of a Pinch.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
 
         <tr>
             
-                <td class="name"><code>input</code></td>
+                <td class="name"><code>py</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-gestures.State.html">module:gestures.State</a></span>
+<span class="param-type">number</span>
 
 
             
@@ -870,151 +405,7 @@ recognized.
 
             
 
-            <td class="description last">status object</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="module-gestures.Gesture.html#end">module:gestures.Gesture#end</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="move">
-            
-                <span class="type-signature"></span>move<span class="signature">(state)</span><span class="type-signature"> &rarr; <span class="icon green">nullable</span> {<a href="module-gestures.ReturnTypes.html#.PinchData">module:gestures.ReturnTypes.PinchData</a>}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line89">line 89</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Event hook for the move of a Pinch.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-gestures.State.html">module:gestures.State</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">current input state.</td>
+            <td class="description last">y coordinate of the point to check.</td>
         </tr>
 
     
@@ -1042,165 +433,20 @@ recognized.
 
 
 
-<span class="param-type"><a href="module-gestures.ReturnTypes.html#.PinchData">module:gestures.ReturnTypes.PinchData</a></span>
+<span class="param-type">boolean</span>
 
 
 
 
 
-- <tt>null</tt> if not
-recognized.
+- True if the (x,y) point is located inside this Item.
+False otherwise.
 
 
 
 
             
     </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="module-gestures.Gesture.html#move">module:gestures.Gesture#move</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id="refresh">
-            
-                <span class="type-signature"></span>refresh<span class="signature">(state)</span><span class="type-signature"></span>
-                
-            
-            <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line66">line 66</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Initializes the gesture progress and stores it in the first input for
-reference events.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>state</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-gestures.State.html">module:gestures.State</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">current input state.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
     
 
     
@@ -1249,14 +495,14 @@ reference events.
 
 <dt>
     
-        <h4 class="name" id="start">
+        <h4 class="name" id=".isLocked">
             
-                <span class="type-signature"></span>start<span class="signature">(state)</span><span class="type-signature"></span>
+                <span class="type-signature"><span class="icon green">static</span> </span>isLocked<span class="signature">()</span><span class="type-signature"> &rarr; {boolean}</span>
                 
             
             <div class="container-source members">
-                <code><a href="gestures_gestures_Pinch.js.html">gestures/gestures/Pinch.js</a></code>,
-                <code><a href="gestures_gestures_Pinch.js.html#line78">line 78</a></code>
+                <code><a href="mixins_Lockable.js.html">mixins/Lockable.js</a></code>,
+                <code><a href="mixins_Lockable.js.html#line27">line 27</a></code>
             </div>
             
         </h4>
@@ -1268,7 +514,1367 @@ reference events.
 
     
     <div class="description">
-        Event hook for the start of a Pinch.
+        Checks whether this lockable is locked.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">boolean</span>
+
+
+
+
+
+- True if the item is locked, false otherwise.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.isLocked">module:mixins.Interactable.isLocked</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".lock">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>lock<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Lockable.js.html">mixins/Lockable.js</a></code>,
+                <code><a href="mixins_Lockable.js.html#line36">line 36</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Lock this item.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.lock">module:mixins.Interactable.lock</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".moveBy">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>moveBy<span class="signature">(dx<span class="signature-attributes">opt</span>, dy<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line28">line 28</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Move the transformable by the given amounts.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dx</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">Movement along the x axis.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">Movement along the y ayis.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.moveBy">module:mixins.Interactable.moveBy</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".moveTo">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>moveTo<span class="signature">(x<span class="signature-attributes">opt</span>, y<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line40">line 40</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Move the transformable to the given coordinates.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.x
+                
+                </td>
+            
+
+            <td class="description last">x coordinate to move to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.y
+                
+                </td>
+            
+
+            <td class="description last">y coordinate to move to.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.moveTo">module:mixins.Interactable.moveTo</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".publish">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>publish<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Publishable.js.html">mixins/Publishable.js</a></code>,
+                <code><a href="mixins_Publishable.js.html#line36">line 36</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Publish this object.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.publish">module:mixins.Interactable.publish</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".rotateBy">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>rotateBy<span class="signature">(radians<span class="signature-attributes">opt</span>, px<span class="signature-attributes">opt</span>, py<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line58">line 58</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Rotate the transformable by the given amount, in radians, around the given
+x,y point.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>radians</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">The amount of rotation to apply to the
+transformable, in radians.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>px</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.x
+                
+                </td>
+            
+
+            <td class="description last">The x coordinate of the point around which
+to rotate.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>py</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.y
+                
+                </td>
+            
+
+            <td class="description last">The y coordinate of the point around which
+to rotate.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.rotateBy">module:mixins.Interactable.rotateBy</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".scaleBy">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>scaleBy<span class="signature">(ds<span class="signature-attributes">opt</span>, mx<span class="signature-attributes">opt</span>, my<span class="signature-attributes">opt</span>, delta_fn<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line79">line 79</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Adjust the transformable by the given scale.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>ds</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+
+            <td class="description last">Change in desired scale.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>mx</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.x
+                
+                </td>
+            
+
+            <td class="description last">The x coordinate of the point around which
+to scale.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>my</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    this.y
+                
+                </td>
+            
+
+            <td class="description last">The y coordinate of the point around which
+to scale.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>delta_fn</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    'times'
+                
+                </td>
+            
+
+            <td class="description last">The Point2D operation to apply to
+the delta point to extract the corrext this.x and this.y values. Should be
+one of 'times' or 'divideBy' depending on the use case.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.scaleBy">module:mixins.Interactable.scaleBy</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".schedulePublication">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>schedulePublication<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Publishable.js.html">mixins/Publishable.js</a></code>,
+                <code><a href="mixins_Publishable.js.html#line45">line 45</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Schedule a publication of this object.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.schedulePublication">module:mixins.Interactable.schedulePublication</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".transformPoint">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>transformPoint<span class="signature">(x, y)</span><span class="type-signature"> &rarr; {<a href="module-shared.Point2D.html">module:shared.Point2D</a>}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line98">line 98</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Transforms a point from the transformable space to the default space. That
+is, it applies to the point the same transformations that apply to this
+Transformable2D, but in reverse.
     </div>
     
 
@@ -1304,13 +1910,13 @@ reference events.
 
         <tr>
             
-                <td class="name"><code>state</code></td>
+                <td class="name"><code>x</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-gestures.State.html">module:gestures.State</a></span>
+<span class="param-type">number</span>
 
 
             
@@ -1320,7 +1926,30 @@ reference events.
 
             
 
-            <td class="description last">current input state.</td>
+            <td class="description last">x coordinate to transform.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">y coordinate to transform.</td>
         </tr>
 
     
@@ -1328,6 +1957,317 @@ reference events.
 </table>
 
     </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type"><a href="module-shared.Point2D.html">module:shared.Point2D</a></span>
+
+
+
+
+
+- The transformed point.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.transformPoint">module:mixins.Interactable.transformPoint</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".transformPointChange">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>transformPointChange<span class="signature">(dx, dy)</span><span class="type-signature"> &rarr; {<a href="module-shared.Point2D.html">module:shared.Point2D</a>}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Transformable2D.js.html">mixins/Transformable2D.js</a></code>,
+                <code><a href="mixins_Transformable2D.js.html#line117">line 117</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Transforms a "change" point from the transformable space to the default
+space. Very much like the 'transformPoint' function, except that it does
+not apply translation.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dx</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">dx coordinate to transform.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dy</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">dy coordinate to transform.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type"><a href="module-shared.Point2D.html">module:shared.Point2D</a></span>
+
+
+
+
+
+- The transformed point.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.transformPointChange">module:mixins.Interactable.transformPointChange</a></li>
+        
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id=".unlock">
+            
+                <span class="type-signature"><span class="icon green">static</span> </span>unlock<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="mixins_Lockable.js.html">mixins/Lockable.js</a></code>,
+                <code><a href="mixins_Lockable.js.html#line45">line 45</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Unlock this item.
+    </div>
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -1354,16 +2294,19 @@ reference events.
     
 
     
-    <dt class="tag-overrides">Overrides:</dt>
-    <dd class="tag-overrides"><ul class="dummy"><li>
-        <a href="module-gestures.Gesture.html#start">module:gestures.Gesture#start</a>
-    </li></ul></dd>
-    
 
     
 
     
 
+    
+        <dt class="mixes">Mixes In:</dt>
+
+        <dd class="mixes"><ul>
+        
+            <li><a href="module-mixins.Interactable.html#.unlock">module:mixins.Interactable.unlock</a></li>
+        
+        </ul></dd>
     
 
     
@@ -1413,7 +2356,7 @@ reference events.
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:gestures.Pinch_sub'.replace(/"/g, '_');
+        var id = 'module:mixins.Hittable_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
