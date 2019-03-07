@@ -9,7 +9,7 @@ const path = require('path');
 const Wams = require('..');
 
 const router = new Wams.Router();
-const images = path.join(__dirname, '../img/cards');
+const images = path.join(__dirname, '../img/Cards');
 router.use('/cards', router.express.static(images));
 
 const app = new Wams.Application({
@@ -46,31 +46,31 @@ app.spawnItem({
   blueprint: text,
 });
 
-const joker_path = 'cards/red_joker.png';
+const joker_path = 'cards/Joker.png';
 app.spawnImage(Wams.predefined.items.image(joker_path, {
   x:        2600,
   y:        2700,
-  width:    500,
-  height:   726,
+  width:    140,
+  height:   190,
   type:     'card',
-  scale:    0.5,
+  scale:    1,
   face:     joker_path,
   isFaceUp: true,
 }));
 
-const ace_path = 'cards/ace_of_spades.png';
+const ace_path = 'cards/SpadesA.png';
 app.spawnImage(Wams.predefined.items.image(ace_path, {
   x:        2100,
   y:        1900,
-  width:    500,
-  height:   726,
+  width:    140,
+  height:   190,
   type:     'card',
-  scale:    0.5,
+  scale:    1,
   face:     ace_path,
   isFaceUp: true,
 }));
 
-const card_back_path = 'cards/back.png';
+const card_back_path = 'cards/Back_blue4.png';
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
