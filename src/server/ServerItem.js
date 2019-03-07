@@ -76,7 +76,6 @@ ServerItem.DEFAULTS = Object.freeze({
   rotation:  0,
   scale:     1,
   type:      'item/polygonal',
-  imgsrc:    '',
   blueprint: null,
 });
 

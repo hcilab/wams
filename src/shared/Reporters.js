@@ -69,16 +69,6 @@ const Item = ReporterFactory([
   'type',
 
   /**
-   * Image source path of the Item.
-   *
-   * @name imgsrc
-   * @type {string}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'imgsrc',
-
-  /**
    * Canvas blueprint for the item.
    *
    * @name blueprint

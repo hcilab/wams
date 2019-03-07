@@ -51,7 +51,12 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
+      // Grab all own enumerable properties of 'data'.
       Object.assign(this, INITIALIZER, data);
+
+      // Special access for coreProperties existing anywhere up the prototype
+      // chain of 'data'.
+      this.assign(data);
     }
 
     /**
