@@ -10,7 +10,7 @@ const Wams = require('..');
 
 const router = new Wams.Router();
 const images = path.join(__dirname, '../img/cards');
-router.use('/img/cards', router.express.static(images));
+router.use('/cards', router.express.static(images));
 
 const app = new Wams.Application({
   color:       'green',
@@ -46,8 +46,7 @@ app.spawnItem({
   blueprint: text,
 });
 
-const joker_path = 'img/cards/red_joker.png';
-// app.spawnItem(Wams.predefined.items.image(joker_path, {
+const joker_path = 'cards/red_joker.png';
 app.spawnImage(Wams.predefined.items.image(joker_path, {
   x:        2600,
   y:        2700,
@@ -59,8 +58,7 @@ app.spawnImage(Wams.predefined.items.image(joker_path, {
   isFaceUp: true,
 }));
 
-const ace_path = 'img/cards/ace_of_spades.png';
-// app.spawnItem(Wams.predefined.items.image(ace_path, {
+const ace_path = 'cards/ace_of_spades.png';
 app.spawnImage(Wams.predefined.items.image(ace_path, {
   x:        2100,
   y:        1900,
@@ -72,7 +70,7 @@ app.spawnImage(Wams.predefined.items.image(ace_path, {
   isFaceUp: true,
 }));
 
-const card_back_path = 'img/cards/back.png';
+const card_back_path = 'cards/back.png';
 
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
