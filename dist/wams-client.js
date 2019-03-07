@@ -12138,12 +12138,12 @@ const colours = [
   'saddlebrown',
   'red',
   'blue',
-  'darkgreen',
+  'lime',
   'darkorange',
   'purple',
   'yellow',
   'aqua',
-  'lime',
+  'darkgreen',
   'fuchsia',
 ];
 
