@@ -11379,7 +11379,7 @@ module.exports = ClientImage;
 
 'use strict';
 
-const { IdStamper, Item, Message } = require('../shared.js');
+const { IdStamper, Item } = require('../shared.js');
 const { CanvasBlueprint } = require('canvas-sequencer');
 
 /*
@@ -11388,36 +11388,6 @@ const { CanvasBlueprint } = require('canvas-sequencer');
  * gone through an initialization against a defaults object.
  */
 const STAMPER = new IdStamper();
-
-/**
- * Abstraction of the requisite logic for generating an image object which will
- * load the appropriate image and report when it has finished loading the image
- * so that it can be displayed.
- *
- * @inner
- * @memberof module:client.ClientItem
- *
- * @param {string} src - Image source path.
- *
- * @returns {?Image}
- */
-function createImage(src) {
-  if (src) {
-    const img = new Image();
-    img.src = src;
-    img.loaded = false;
-    img.addEventListener(
-      'load',
-      () => {
-        img.loaded = true;
-        document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
-      },
-      { once: true }
-    );
-    return img;
-  }
-  return null;
-}
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
@@ -11432,8 +11402,7 @@ class ClientItem extends Item {
    *       ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
-    super();
-    this.assign(data);
+    super(data);
 
     /**
      * Id to make the items uniquely identifiable.
@@ -11456,23 +11425,10 @@ class ClientItem extends Item {
    * item.
    */
   assign(data) {
-    const updateImage = data.imgsrc !== this.imgsrc;
-    // const updateBlueprint = Boolean(data.blueprint);
-    const updateBlueprint = this.sequence == null && data.blueprint;
-
     super.assign(data);
-    if (updateImage) this.img = createImage(this.imgsrc);
-    if (updateBlueprint) {
+    if (this.sequence == null && data.blueprint) {
       this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
     }
-
-    // Rather than doing a bunch of checks, let's just always rebuild the
-    // Sequence when updating any data in the item. Doing the checks to see if
-    // This is necessary would probably take as much or more time as just
-    // Going ahead and rebuilding like this anyway.
-    // if (this.blueprint) {
-    //   this.sequence = this.blueprint.build(this.report());
-    // }
   }
 
   /**
@@ -11483,16 +11439,14 @@ class ClientItem extends Item {
    * item.
    */
   draw(context) {
-    context.save();
-    context.translate(this.x, this.y);
-    context.rotate(-this.rotation);
-    context.scale(this.scale, this.scale);
     if (this.sequence) {
+      context.save();
+      context.translate(this.x, this.y);
+      context.rotate(-this.rotation);
+      context.scale(this.scale, this.scale);
       this.sequence.execute(context);
-    } else if (this.img && this.img.loaded) {
-      context.drawImage(this.img, 0, 0, this.img.width, this.img.height);
+      context.restore();
     }
-    context.restore();
   }
 }
 
@@ -12709,7 +12663,12 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
+      // Grab all own enumerable properties of 'data'.
       Object.assign(this, INITIALIZER, data);
+
+      // Special access for coreProperties existing anywhere up the prototype
+      // chain of 'data'.
+      this.assign(data);
     }
 
     /**
@@ -12817,16 +12776,6 @@ const Item = ReporterFactory([
    * @instance
    */
   'type',
-
-  /**
-   * Image source path of the Item.
-   *
-   * @name imgsrc
-   * @type {string}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'imgsrc',
 
   /**
    * Canvas blueprint for the item.
