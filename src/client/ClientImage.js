@@ -6,7 +6,7 @@
 
 'use strict';
 
-const { IdStamper, Image, Message } = require('../shared.js');
+const { IdStamper, WamsImage, Message } = require('../shared.js');
 
 /*
  * I'm not defining a 'defaults' object here, because the data going into the
@@ -48,10 +48,10 @@ function createImage(src) {
 /**
  * The ClientImage class exposes the draw() funcitonality of wams items.
  *
- * @extends module:shared.Image
+ * @extends module:shared.WamsImage
  * @memberof module:client
  */
-class ClientImage extends Image {
+class ClientImage extends WamsImage {
   /**
    * @param {module:shared.Item} data - The data from the server describing this
    *       item. Only properties explicity listed in the array passed to the
@@ -88,7 +88,7 @@ class ClientImage extends Image {
    * item.
    */
   assign(data) {
-    if (data.src !== this.src) this.image = createImage(this.src);
+    if (data.src !== this.src) this.image = createImage(data.src);
     super.assign(data);
   }
 

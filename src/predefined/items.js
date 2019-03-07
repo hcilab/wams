@@ -8,7 +8,7 @@
 'use strict';
 
 const { CanvasBlueprint } = require('canvas-sequencer');
-const sizeOfImage = require('image-size');
+// const sizeOfImage = require('image-size');
 
 const { Polygon2D }  = require('../shared.js');
 
@@ -72,17 +72,20 @@ function rectangularHitbox(x, y, width, height) {
  *
  * @memberof module:predefined.items
  *
- * @param {string} imgsrc - Route path to the image.
+ * @param {string} src - Route path to the image.
  * @param {Object} itemOptions - Location and orientation options for the image
  * item. See {@link module:shared.Item} members for available parameters.
  *
  * @returns {Object} An object with the parameters for an image item using the
  * given source.
  */
-function image(imgsrc, itemOptions = {}) {
-  const dims = sizeOfImage(imgsrc);
-  const hitbox = rectangularHitbox(0, 0, dims.width, dims.height);
-  return transformed({ ...itemOptions, imgsrc, hitbox });
+function image(src, itemOptions = {}) {
+  // const dims = sizeOfImage(imgsrc);
+  let hitbox = null;
+  if ('width' in itemOptions && 'height' in itemOptions) {
+    hitbox = rectangularHitbox(0, 0, itemOptions.width, itemOptions.height);
+  }
+  return transformed({ ...itemOptions, src, hitbox });
 }
 
 /**

@@ -16,7 +16,7 @@ const locked = Symbol.for('locked');
  *
  * @mixin
  */
-const Lockable = (superclass) => class extends superclass {
+const Lockable = (superclass) => class Lockable extends superclass {
   /**
    * Checks whether this lockable is locked.
    *

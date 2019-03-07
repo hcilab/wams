@@ -90,90 +90,90 @@ const Item = ReporterFactory([
 ]);
 
 /**
- * This Image class provides a common interface between the client and the
+ * This WamsImage class provides a common interface between the client and the
  * server by which the Items can interact safely.
  *
- * @class Image
+ * @class WamsImage
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const Image = ReporterFactory([
+const WamsImage = ReporterFactory([
   /**
-   * X coordinate of the Image.
+   * X coordinate of the WamsImage.
    *
    * @name x
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'x',
 
   /**
-   * Y coordinate of the Image.
+   * Y coordinate of the WamsImage.
    *
    * @name y
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'y',
 
   /**
-   * Width of the Image.
+   * Width of the WamsImage.
    *
    * @name width
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'width',
 
   /**
-   * Height of the Image.
+   * Height of the WamsImage.
    *
    * @name height
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'height',
 
   /**
-   * Rotation of the Image.
+   * Rotation of the WamsImage.
    *
    * @name rotation
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'rotation',
 
   /**
-   * Scale of the Image.
+   * Scale of the WamsImage.
    *
    * @name scale
    * @type {number}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'scale',
 
   /**
-   * Type description of the Image.
+   * Type description of the WamsImage.
    *
    * @name type
    * @type {string}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'type',
 
   /**
-   * Image source path of the Image.
+   * Image source path of the WamsImage.
    *
    * @name src
    * @type {string}
-   * @memberof module:shared.Image
+   * @memberof module:shared.WamsImage
    * @instance
    */
   'src',
@@ -435,10 +435,10 @@ const PointerReporter = ReporterFactory([
 
 module.exports = {
   Item,
-  Image,
   View,
   DataReporter,
   FullStateReporter,
   PointerReporter,
+  WamsImage,
 };
 

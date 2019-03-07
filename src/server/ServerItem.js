@@ -11,13 +11,10 @@
 'use strict';
 
 const {
-  IdStamper,
   Item,
   Message,
 } = require('../shared.js');
 const { Hittable } = require('../mixins.js');
-
-const STAMPER = new IdStamper();
 
 /**
  * The ServerItem provides operations for the server to locate and move items
@@ -44,17 +41,6 @@ class ServerItem extends Hittable(Item) {
      */
     this.namespace = namespace;
 
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:server.ServerItem
-     */
-    STAMPER.stampNewId(this);
-
     // Notify subscribers immediately.
     new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
   }
@@ -64,16 +50,6 @@ class ServerItem extends Hittable(Item) {
    */
   publish() {
     new Message(Message.UD_ITEM, this).emitWith(this.namespace);
-  }
-
-  /**
-   * Set the image.
-   *
-   * @param {string} path - The path to the image for this item.
-   */
-  setImage(path) {
-    this.imgsrc = path;
-    this.schedulePublication();
   }
 
   /**
@@ -99,7 +75,7 @@ ServerItem.DEFAULTS = Object.freeze({
   hitbox:    null,
   rotation:  0,
   scale:     1,
-  type:      'item/foreground',
+  type:      'item/polygonal',
   imgsrc:    '',
   blueprint: null,
 });

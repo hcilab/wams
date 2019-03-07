@@ -10,8 +10,6 @@
 
 'use strict';
 
-const ServerItem     = require('./ServerItem.js');
-
 /**
  * The user event listeners must conform to these specifications.
  *
@@ -49,7 +47,7 @@ const ServerItem     = require('./ServerItem.js');
 function click(listener, workspace) {
   return function handleClick(view, point) {
     const { x, y } = view.transformPoint(point.x, point.y);
-    if (view.lockedItem instanceof ServerItem &&
+    if (typeof view.lockedItem.containsPoint === 'function' &&
       view.lockedItem.containsPoint(x, y)) {
       listener(view, view.lockedItem, x, y);
     } else {

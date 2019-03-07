@@ -15,7 +15,7 @@ const lockedItem = Symbol('lockedItem');
  *
  * @mixin
  */
-const Locker = (superclass) => class extends superclass {
+const Locker = (superclass) => class Locker extends superclass {
   /**
    * The locked item.
    *

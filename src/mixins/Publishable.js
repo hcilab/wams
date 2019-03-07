@@ -17,7 +17,7 @@ const publisher = Symbol('publisher');
  *
  * @mixin
  */
-const Publishable = (superclass) => class extends superclass {
+const Publishable = (superclass) => class Publishable extends superclass {
   /**
    * The publisher associated with this Publishable.
    *

@@ -8,6 +8,9 @@
 
 const Interactable = require('./Interactable.js');
 
+const { IdStamper } = require('../shared.js');
+const STAMPER = new IdStamper();
+
 /**
  * This mixin extends the Interactable mixin by allow hit detection. To make a
  * Hittable item hittable, add a 'hitbox' property to the class or instantiated
@@ -18,10 +21,25 @@ const Interactable = require('./Interactable.js');
  * @mixin
  * @mixes module:mixins.Interactable
  */
-const Hittable = (superclass) => class extends Interactable(superclass) {
+const Hittable = (sclass) => class Hittable extends Interactable(sclass) {
+  constructor(...args) {
+    super(...args);
+
+    /**
+     * Id to make Hittables uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:mixins.Hittable
+     */
+    STAMPER.stampNewId(this);
+  }
+
   /**
-   * Checks whether a point with the given x,y coordinates is contained by this
-   * item.
+   * Checks whether a point with the given x,y coordinates is contained by
+   * this item.
    *
    * @memberof module:mixins.Hittable
    *

@@ -10,6 +10,7 @@
 
 'use strict';
 
+const ClientImage = require('./ClientImage.js');
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const {
@@ -169,7 +170,12 @@ class ClientView extends View {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    const item = new ClientItem(values);
+    let item = null;
+    if ('src' in values) {
+      item = new ClientImage(values);
+    } else {
+      item = new ClientItem(values);
+    }
     this.itemOrder.push(item);
     this.items.set(item.id, item);
   }
