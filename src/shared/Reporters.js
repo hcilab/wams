@@ -39,16 +39,6 @@ const Item = ReporterFactory([
   'y',
 
   /**
-   * The item's hitbox.
-   *
-   * @name hitbox
-   * @type {module:shared.Polygon2D}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  'hitbox', // TODO: May not need to be reported
-
-  /**
    * Rotation of the Item.
    *
    * @name rotation

@@ -79,7 +79,7 @@ class WorkSpace {
    * or null if there is none.
    */
   findFreeItemByCoordinates(x, y) {
-    return findLast(this.items, i => i.isFreeItemAt(x, y));
+    return findLast(this.items, i => !i.isLocked() && i.containsPoint(x, y));
   }
 
   /**
