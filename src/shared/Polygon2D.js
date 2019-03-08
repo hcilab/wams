@@ -20,6 +20,10 @@ class Polygon2D {
    * polygon, given in order (clockwise and counter-clockwise are both fine).
    */
   constructor(points) {
+    if (points.length < 1) {
+      throw new TypeError('A polygon requires at least one vertex.');
+    }
+
     /**
      * A closed list of the points making up this polygon. "Closed" here means
      * that the first and last entries of the list are the same. Closing the
@@ -31,15 +35,22 @@ class Polygon2D {
 
     /**
      * Store the centroid of the polygon for quick hit tests.
-     * TODO: Merge Point2D implementations then implement this.
      *
      * @type {module:shared.Point2D[]}
      */
-    // this.centroid = Point2D.midpoint(this.points);
+    this.centroid = Point2D.midpoint(this.points);
 
-    if (this.points.length > 0) {
-      this.points.push(this.points[0].clone());
-    }
+    /**
+     * Save the maximum radius of the polygon for quick hit tests.
+     *
+     * @type {number}
+     */
+    this.radius = this.points.reduce((max, curr) => {
+      return max > curr ? max : curr;
+    });
+
+    // Close the polygon.
+    this.points.push(this.points[0].clone());
   }
 
   /**
@@ -63,6 +74,9 @@ class Polygon2D {
    * @return {boolean} true if the point is inside the polygon, false otherwise.
    */
   contains(p) {
+    if (this.centroid.distanceTo(p) > this.radius) {
+      return false;
+    }
     return this.winding_number(p) !== 0;
   }
 
@@ -85,6 +99,7 @@ class Polygon2D {
    */
   scale(ds) {
     this.points.forEach(p => p.scale(ds));
+    this.radius *= ds;
   }
 
   /**
