@@ -40,6 +40,7 @@ class Point2D {
   add({ x = 0, y = 0 }) {
     this.x += x;
     this.y += y;
+    return this;
   }
 
   /**
@@ -94,13 +95,13 @@ class Point2D {
   /**
    * Divide the point's values by the given amount.
    *
-   * @param {number} ds - divide x,y by this amount.
+   * @param {number} coefficient - divide x,y by this amount.
    *
    * @return {module:shared.Point2D} this
    */
-  divideBy(ds = 1) {
-    this.x /= ds;
-    this.y /= ds;
+  divideBy(coefficient = 1) {
+    this.x /= coefficient;
+    this.y /= coefficient;
     return this;
   }
 
@@ -138,15 +139,18 @@ class Point2D {
   }
 
   /**
-   * Add the given point to this point.
+   * Multiply this point by the given point to form a new point.
    *
-   * @param {module:shared.Point2D} p - Point to add to this point.
+   * @param {number} coefficient - Amount by which to multiply the values in
+   * this point.
    *
-   * @return {module:shared.Point2D} A new point which is the simple addition of
-   * the given point from this point.
+   * @return {module:shared.Point2D} Return a new point, the multiplation of
+   * this point by the given amount.
    */
-  plus({ x = 0, y = 0 }) {
-    return new Point2D(this.x + x, this.y + y);
+  multiplyBy(coefficient = 1) {
+    this.x *= coefficient;
+    this.y *= coefficient;
+    return this;
   }
 
   /**
@@ -168,32 +172,6 @@ class Point2D {
   }
 
   /**
-   * Apply the given scale modifier to the point.
-   *
-   * @param {number} ds - Divide x,y by this amount.
-   *
-   * @return {module:shared.Point2D} this
-   */
-  scale(ds = 1) {
-    this.x *= ds;
-    this.y *= ds;
-    return this;
-  }
-
-  /**
-   * Multiply this point by the given point to form a new point.
-   *
-   * @param {number} coefficient - Amount by which to multiply the values in
-   * this point.
-   *
-   * @return {module:shared.Point2D} Return a new point, the multiplation of
-   * this point by the given amount.
-   */
-  times(coefficient = 1) {
-    return new Point2D(this.x * coefficient, this.y * coefficient);
-  }
-
-  /**
    * Calculates the total distance from this point to an array of points.
    *
    * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
@@ -203,21 +181,6 @@ class Point2D {
    */
   totalDistanceTo(points) {
     return points.reduce((d, p) => d + this.distanceTo(p), 0);
-  }
-
-  /**
-   * Move the point by the given amounts.
-   *
-   * @param {number} dx - change in x axis position.
-   * @param {number} dy - change in y axis position.
-   *
-   * @return {module:shared.Point2D} this
-   */
-  translate(dx = 0, dy = 0) {
-    this.x += dx;
-    this.y += dy;
-
-    return this;
   }
 
   /**
@@ -247,7 +210,7 @@ class Point2D {
    * given points.
    */
   static sum(points = []) {
-    return points.reduce((total, pt) => total.plus(pt), new Point2D(0, 0));
+    return points.reduce((total, pt) => total.add(pt), new Point2D(0, 0));
   }
 }
 

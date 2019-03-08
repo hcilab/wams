@@ -98,7 +98,7 @@ class Polygon2D {
    * time.
    */
   scale(ds) {
-    this.points.forEach(p => p.scale(ds));
+    this.points.forEach(p => p.multiplyBy(ds));
     this.radius *= ds;
   }
 

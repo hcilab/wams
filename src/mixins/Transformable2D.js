@@ -76,7 +76,7 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
    * the delta point to extract the corrext this.x and this.y values. Should be
    * one of 'times' or 'divideBy' depending on the use case.
    */
-  scaleBy(ds = 1, mx = this.x, my = this.y, delta_fn = 'times') {
+  scaleBy(ds = 1, mx = this.x, my = this.y, delta_fn = 'multiplyBy') {
     const delta = new Point2D(this.x - mx, this.y - my)[delta_fn](ds);
     this.x = mx + delta.x;
     this.y = my + delta.y;
@@ -99,7 +99,7 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
     return new Point2D(x, y)
       .rotate(-this.rotation)
       .divideBy(this.scale)
-      .plus(this);
+      .add(this);
   }
 
   /**
