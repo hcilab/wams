@@ -5,7 +5,7 @@
 'use strict';
 
 const Gesture = require('../core/Gesture.js');
-const Point2D = require('../core/Point2D.js');
+const { Point2D } = require('../../shared.js');
 
 const defaults = Object.freeze({
   MIN_DELAY_MS:      0,

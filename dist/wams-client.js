@@ -12331,7 +12331,6 @@ module.exports = Message;
  * WAMS - An API for Multi-Surface Environments
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
  */
 
 'use strict';
@@ -12363,6 +12362,44 @@ class Point2D {
   }
 
   /**
+   * Add the given point to this point.
+   *
+   * @param {module:gestures.Point2D} point - The point to add.
+   */
+  add({ x = 0, y = 0 }) {
+    this.x += x;
+    this.y += y;
+    return this;
+  }
+
+  /**
+   * Calculates the angle between this point and the given point.
+   *
+   * @param {!module:gestures.Point2D} point - Projected point for calculating
+   * the angle.
+   *
+   * @return {number} Radians along the unit circle where the projected
+   * point lies.
+   */
+  angleTo(point) {
+    return Math.atan2(point.y - this.y, point.x - this.x);
+  }
+
+  /**
+   * Determine the average distance from this point to the provided array of
+   * points.
+   *
+   * @param {!module:gestures.Point2D[]} points - the Point2D objects to
+   *    calculate the average distance to.
+   *
+   * @return {number} The average distance from this point to the provided
+   *    points.
+   */
+  averageDistanceTo(points) {
+    return this.totalDistanceTo(points) / points.length;
+  }
+
+  /**
    * Clones this point.
    *
    * @returns {module:shared.Point2D} An exact clone of this point.
@@ -12372,15 +12409,28 @@ class Point2D {
   }
 
   /**
+   * Calculates the distance between two points.
+   *
+   * @param {!module:gestures.Point2D} point - Point to which the distance is
+   * calculated.
+   *
+   * @return {number} The distance between the two points, a.k.a. the
+   *    hypoteneuse.
+   */
+  distanceTo(point) {
+    return Math.hypot(point.x - this.x, point.y - this.y);
+  }
+
+  /**
    * Divide the point's values by the given amount.
    *
-   * @param {number} ds - divide x,y by this amount.
+   * @param {number} coefficient - divide x,y by this amount.
    *
    * @return {module:shared.Point2D} this
    */
-  divideBy(ds = 1) {
-    this.x /= ds;
-    this.y /= ds;
+  divideBy(coefficient = 1) {
+    this.x /= coefficient;
+    this.y /= coefficient;
     return this;
   }
 
@@ -12418,15 +12468,18 @@ class Point2D {
   }
 
   /**
-   * Add the given point to this point.
+   * Multiply this point by the given point to form a new point.
    *
-   * @param {module:shared.Point2D} p - Point to add to this point.
+   * @param {number} coefficient - Amount by which to multiply the values in
+   * this point.
    *
-   * @return {module:shared.Point2D} A new point which is the simple addition of
-   * the given point from this point.
+   * @return {module:shared.Point2D} Return a new point, the multiplation of
+   * this point by the given amount.
    */
-  plus({ x = 0, y = 0 }) {
-    return new Point2D(this.x + x, this.y + y);
+  multiplyBy(coefficient = 1) {
+    this.x *= coefficient;
+    this.y *= coefficient;
+    return this;
   }
 
   /**
@@ -12448,44 +12501,45 @@ class Point2D {
   }
 
   /**
-   * Apply the given scale modifier to the point.
+   * Calculates the total distance from this point to an array of points.
    *
-   * @param {number} ds - Divide x,y by this amount.
+   * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
+   *    to calculate the total distance to.
    *
-   * @return {module:shared.Point2D} this
+   * @return {number} The total distance from this point to the provided points.
    */
-  scale(ds = 1) {
-    this.x *= ds;
-    this.y *= ds;
-    return this;
+  totalDistanceTo(points) {
+    return points.reduce((d, p) => d + this.distanceTo(p), 0);
   }
 
   /**
-   * Multiply this point by the given point to form a new point.
+   * Calculates the midpoint of a list of points.
    *
-   * @param {number} coefficient - Amount by which to multiply the values in
-   * this point.
+   * @param {module:gestures.Point2D[]} points - The array of Point2D objects
+   *    for which to calculate the midpoint
    *
-   * @return {module:shared.Point2D} Return a new point, the multiplation of
-   * this point by the given amount.
+   * @return {module:gestures.Point2D} The midpoint of the provided points.
    */
-  times(coefficient = 1) {
-    return new Point2D(this.x * coefficient, this.y * coefficient);
+  static midpoint(points = []) {
+    if (points.length === 0) return null;
+
+    const total = Point2D.sum(points);
+    return new Point2D(
+      total.x / points.length,
+      total.y / points.length,
+    );
   }
 
   /**
-   * Move the point by the given amounts.
+   * Calculates the sum of the given points.
    *
-   * @param {number} dx - change in x axis position.
-   * @param {number} dy - change in y axis position.
+   * @param {module:gestures.Point2D[]} points - The Point2D objects to sum up.
    *
-   * @return {module:shared.Point2D} this
+   * @return {module:gestures.Point2D} A new Point2D representing the sum of the
+   * given points.
    */
-  translate(dx = 0, dy = 0) {
-    this.x += dx;
-    this.y += dy;
-
-    return this;
+  static sum(points = []) {
+    return points.reduce((total, pt) => total.add(pt), new Point2D(0, 0));
   }
 }
 
@@ -12515,6 +12569,10 @@ class Polygon2D {
    * polygon, given in order (clockwise and counter-clockwise are both fine).
    */
   constructor(points) {
+    if (points.length < 1) {
+      throw new TypeError('A polygon requires at least one vertex.');
+    }
+
     /**
      * A closed list of the points making up this polygon. "Closed" here means
      * that the first and last entries of the list are the same. Closing the
@@ -12523,9 +12581,25 @@ class Polygon2D {
      * @type {module:shared.Point2D[]}
      */
     this.points = points.map(({ x, y }) => new Point2D(x, y));
-    if (this.points.length > 0) {
-      this.points.push(this.points[0].clone());
-    }
+
+    /**
+     * Store the centroid of the polygon for quick hit tests.
+     *
+     * @type {module:shared.Point2D[]}
+     */
+    this.centroid = Point2D.midpoint(this.points);
+
+    /**
+     * Save the maximum radius of the polygon for quick hit tests.
+     *
+     * @type {number}
+     */
+    this.radius = this.points.reduce((max, curr) => {
+      return max > curr ? max : curr;
+    });
+
+    // Close the polygon.
+    this.points.push(this.points[0].clone());
   }
 
   /**
@@ -12549,6 +12623,9 @@ class Polygon2D {
    * @return {boolean} true if the point is inside the polygon, false otherwise.
    */
   contains(p) {
+    if (this.centroid.distanceTo(p) > this.radius) {
+      return false;
+    }
     return this.winding_number(p) !== 0;
   }
 
@@ -12570,7 +12647,8 @@ class Polygon2D {
    * time.
    */
   scale(ds) {
-    this.points.forEach(p => p.scale(ds));
+    this.points.forEach(p => p.multiplyBy(ds));
+    this.radius *= ds;
   }
 
   /**
