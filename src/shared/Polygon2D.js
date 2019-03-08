@@ -28,6 +28,15 @@ class Polygon2D {
      * @type {module:shared.Point2D[]}
      */
     this.points = points.map(({ x, y }) => new Point2D(x, y));
+
+    /**
+     * Store the centroid of the polygon for quick hit tests.
+     * TODO: Merge Point2D implementations then implement this.
+     *
+     * @type {module:shared.Point2D[]}
+     */
+    // this.centroid = Point2D.midpoint(this.points);
+
     if (this.points.length > 0) {
       this.points.push(this.points[0].clone());
     }

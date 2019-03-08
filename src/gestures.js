@@ -13,8 +13,6 @@
  *
  * @module gestures
  */
-const Gesture = require('./gestures/core/Gesture.js');
-const Point2D = require('./gestures/core/Point2D.js');
 const Region  = require('./gestures/core/Region.js');
 const Pan     = require('./gestures/gestures/Pan.js');
 const Pinch   = require('./gestures/gestures/Pinch.js');
@@ -24,8 +22,6 @@ const Tap     = require('./gestures/gestures/Tap.js');
 const Track   = require('./gestures/gestures/Track.js');
 
 module.exports = {
-  Gesture,
-  Point2D,
   Region,
   Pan,
   Pinch,

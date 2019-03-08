@@ -6,7 +6,7 @@
 
 const Input   = require('./Input.js');
 const PHASE   = require('./PHASE.js');
-const Point2D = require('./Point2D.js');
+const { Point2D } = require('../../shared.js');
 
 const symbols = Object.freeze({
   inputs: Symbol.for('inputs'),

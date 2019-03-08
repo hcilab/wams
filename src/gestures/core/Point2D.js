@@ -1,5 +1,5 @@
 /*
- * Contains the {@link Point2D} class.
+ * Contains the Point2D class.
  */
 
 'use strict';
