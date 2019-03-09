@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Namespace: utilities | WAMS</title>
+    <title>Class: ClientModel | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -52,8 +52,11 @@
 
 <header>
     
-        <h2>
-            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>utilities</h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-client.html">client</a>.</span>ClientModel<span class="signature">()</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">The ClientModel is a client-side copy of those aspects of the model that are
+necessary for rendering the view for the user.</div>
         
     
 </header>
@@ -64,7 +67,48 @@
         
             
 
+<dt>
+    
+        <h4 class="name" id="ClientModel">
             
+                new <span class="type-signature"></span>ClientModel<span class="signature">()</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line29">line 29</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
 
 
 <dl class="details">
@@ -101,7 +145,10 @@
 </dl>
 
 
-            
+    
+
+</dd>
+
         
         </div>
     
@@ -119,6 +166,329 @@
     
 
     
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="itemOrder">
+    <span class="type-signature"></span>itemOrder<span class="type-signature"> :Array.&lt;<a href="module-client.ClientItem.html">module:client.ClientItem</a>></span>
+    
+    <div class="container-source members">
+        <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+        <code><a href="client_ClientModel.js.html#line45">line 45</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        An ordered list of the items, so that the render order can accurately
+match the order on the server, and be adjusted likewise.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Array.&lt;<a href="module-client.ClientItem.html">module:client.ClientItem</a>></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="items">
+    <span class="type-signature"></span>items<span class="type-signature"> :Map.&lt;<a href="module-client.ClientItem.html">module:client.ClientItem</a>></span>
+    
+    <div class="container-source members">
+        <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+        <code><a href="client_ClientModel.js.html#line37">line 37</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        All the items in the model, which may all need rendering at some point.
+Kept up to date via the ClientController.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Map.&lt;<a href="module-client.ClientItem.html">module:client.ClientItem</a>></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="shadows">
+    <span class="type-signature"></span>shadows<span class="type-signature"> :Map.&lt;<a href="module-client.ShadowView.html">module:client.ShadowView</a>></span>
+    
+    <div class="container-source members">
+        <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+        <code><a href="client_ClientModel.js.html#line53">line 53</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The shadows are all the other views that are currently active. They are
+tracked in full and an outline for each is rendered.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">Map.&lt;<a href="module-client.ShadowView.html">module:client.ShadowView</a>></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="view">
+    <span class="type-signature"></span>view<span class="type-signature"> :<a href="module-client.ClientView.html">module:client.ClientView</a></span>
+    
+    <div class="container-source members">
+        <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+        <code><a href="client_ClientModel.js.html#line60">line 60</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The view data for this user.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type"><a href="module-client.ClientView.html">module:client.ClientView</a></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -128,14 +498,14 @@
 
 <dt>
     
-        <h4 class="name" id=".defineOwnImmutableEnumerableProperty">
+        <h4 class="name" id="addItem">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>defineOwnImmutableEnumerableProperty<span class="signature">()</span><span class="type-signature"></span>
+                <span class="type-signature"></span>addItem<span class="signature">(values)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line25">line 25</a></code>
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line68">line 68</a></code>
             </div>
             
         </h4>
@@ -147,12 +517,7 @@
 
     
     <div class="description">
-        Defines the given property on the given object with the given value, and sets
-the property to unconfigurable, unwritable, but enumerable.
-
-param {object} obj - The object on which the property will be defined.
-param {string} prop - The property to define on obj.
-param {any} val - The value to assign to the property.
+        Generate and store an Item with the given values.
     </div>
     
 
@@ -162,6 +527,56 @@ param {any} val - The value to assign to the property.
 
     
 
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>values</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-shared.Item.html">module:shared.Item</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">State of the new Item.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
     
 
     
@@ -222,14 +637,14 @@ param {any} val - The value to assign to the property.
 
 <dt>
     
-        <h4 class="name" id=".findLast">
+        <h4 class="name" id="addShadow">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>findLast<span class="signature">(array, callback, fromIndex<span class="signature-attributes">opt</span>, thisArg<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; <span class="icon green">nullable</span> {mixed}</span>
+                <span class="type-signature"></span>addShadow<span class="signature">(values)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line56">line 56</a></code>
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line84">line 84</a></code>
             </div>
             
         </h4>
@@ -241,15 +656,7 @@ param {any} val - The value to assign to the property.
 
     
     <div class="description">
-        Find the last value in an Array for which the supplied callback function
- returns true. Operates on each index in the Array, starting at 'fromIndex'
- and going backwards to the start of the Array or until the desired value
- is found.
-
-Returns the value that passed the callback, if found, or null.
-
-Callback function should be of similar form to the Array.findIndex()
- standard library function.
+        Generate and store a 'shadow view' to track another active view.
     </div>
     
 
@@ -273,11 +680,7 @@ Callback function should be of similar form to the Array.findIndex()
         <th>Type</th>
 
         
-        <th>Attributes</th>
-        
 
-        
-        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -289,147 +692,162 @@ Callback function should be of similar form to the Array.findIndex()
 
         <tr>
             
-                <td class="name"><code>array</code></td>
+                <td class="name"><code>values</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;mixed></span>
+<span class="param-type"><a href="module-shared.View.html">module:shared.View</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">The array to search.</td>
+            <td class="description last">State of the new View.</td>
         </tr>
 
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="removeItem">
+            
+                <span class="type-signature"></span>removeItem<span class="signature">(item)</span><span class="type-signature"> &rarr; {boolean}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line96">line 96</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Removes the given item.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>callback</code></td>
+                <td class="name"><code>item</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">function</span>
+<span class="param-type"><a href="module-shared.Item.html">module:shared.Item</a></span>
 
 
             
             </td>
 
             
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
 
             
-                <td class="default">
-                
-                </td>
-            
 
-            <td class="description last">The condition function used for the search.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>fromIndex</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    (array.length-1)
-                
-                </td>
-            
-
-            <td class="description last">Index to begin search, goes
-backward from here.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>thisArg</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                </td>
-            
-
-            <td class="description last">'this' context for the callback function.</td>
+            <td class="description last">The Item to remove.</td>
         </tr>
 
     
@@ -457,14 +875,13 @@ backward from here.</td>
 
 
 
-<span class="param-type">mixed</span>
+<span class="param-type">boolean</span>
 
 
 
 
 
-- The last item in the array for which the callback returned
-true, or null if the callback never returned true;
+- true if removal was successful, false otherwise.
 
 
 
@@ -519,14 +936,14 @@ true, or null if the callback never returned true;
 
 <dt>
     
-        <h4 class="name" id=".makeOwnPropertyImmutable">
+        <h4 class="name" id="removeShadow">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>makeOwnPropertyImmutable<span class="signature">(obj, prop)</span><span class="type-signature"> &rarr; {Object}</span>
+                <span class="type-signature"></span>removeShadow<span class="signature">(shadow)</span><span class="type-signature"> &rarr; {boolean}</span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line113">line 113</a></code>
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line108">line 108</a></code>
             </div>
             
         </h4>
@@ -538,23 +955,7 @@ true, or null if the callback never returned true;
 
     
     <div class="description">
-        This method will set an already-existing property on an object to be
- immutable. In other words, it will configure it as such:
-
-   configurable: false
-   writable: false
-
-It will have no effect on non-configurable properties, and will turn an
- accessor descriptor  a data descriptor. (I.e. if the property is
- defined with getters and setters, they will be lost).
-
-It will have no effect on properties that do not exist directly on the
- Object (properties further up the prototype chain are not affected).
-
-It will affect both enumerable and non-enumerable properties.
-
-This method is intended for use when the only reason for a call to
- Object.defineProperty() was to make the property immutable.
+        Removes the given 'shadow' view.
     </div>
     
 
@@ -590,13 +991,13 @@ This method is intended for use when the only reason for a call to
 
         <tr>
             
-                <td class="name"><code>obj</code></td>
+                <td class="name"><code>shadow</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Object</span>
+<span class="param-type"><a href="module-shared.View.html">module:shared.View</a></span>
 
 
             
@@ -606,14 +1007,295 @@ This method is intended for use when the only reason for a call to
 
             
 
-            <td class="description last">The object to modify.</td>
+            <td class="description last">The 'shadow' view to remove.</td>
         </tr>
 
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">boolean</span>
+
+
+
+
+
+- true if removal was successful, false otherwise.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="setup">
+            
+                <span class="type-signature"></span>setup<span class="signature">(data)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line121">line 121</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Set up the internal copy of the model according to the data provided by the
+server.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>prop</code></td>
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-shared.FullStateReporter.html">module:shared.FullStateReporter</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The data from the server
+      detailing the current state of the model.  See REQUIRED_DATA. If any
+      is missing, something has gone terribly wrong, and an exception will
+      be thrown.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            
+                
+
+<dt>
+    
+        <h4 class="name" id="update">
+            
+                <span class="type-signature"></span>update<span class="signature">(container, data)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line140">line 140</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Intended for use as an internal helper function, so that this functionality
+does not need to be defined twice for both of the items and shadows arrays.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>container</code></td>
             
 
             <td class="type">
@@ -629,170 +1311,8 @@ This method is intended for use when the only reason for a call to
 
             
 
-            <td class="description last">The name of the property of obj to make immutable.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Object</span>
-
-
-
-
-
-- The modified object.
-
-
-
-
-            
-    </div>
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id=".mergeMatches">
-            
-                <span class="type-signature"><span class="icon green">static</span> </span>mergeMatches<span class="signature">(defaults, data)</span><span class="type-signature"> &rarr; {Object}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line78">line 78</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Create a new object, with all the own properties of 'defaults' having values
-from 'data', if found, otherwise with values from 'defaults'.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-    <div class="container-params">
-        <h5>Parameters:</h5>
-        
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>defaults</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Object with default properties and values. If data
-is not provided or all the property names of data are disjoint with the
-property names of defaults, then defaults will be returned.</td>
+            <td class="description last">Name of the ClientView property defining the
+   array which contains the object to update.</td>
         </tr>
 
     
@@ -804,14 +1324,23 @@ property names of defaults, then defaults will be returned.</td>
 
             <td class="type">
             
+                
+<span class="param-type"><a href="module-shared.Item.html">module:shared.Item</a></span>
+|
+
+<span class="param-type"><a href="module-shared.View.html">module:shared.View</a></span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last">Object with values to use for corresponding properties in
-defaults. Properties not found in defaults will be ignored.</td>
+            <td class="description last">Data with which
+an object in the container will be updated.  Note that the object is
+located using an 'id' field on this data object.</td>
         </tr>
 
     
@@ -832,27 +1361,6 @@ defaults. Properties not found in defaults will be ignored.</td>
     
 
     
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">Object</span>
-
-
-
-
-
-- The new object.
-
-
-
-
-            
-    </div>
-    
 
     
 
@@ -900,14 +1408,14 @@ defaults. Properties not found in defaults will be ignored.</td>
 
 <dt>
     
-        <h4 class="name" id=".NOP">
+        <h4 class="name" id="updateItem">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>NOP<span class="signature">()</span><span class="type-signature"></span>
+                <span class="type-signature"></span>updateItem<span class="signature">(data)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line129">line 129</a></code>
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line154">line 154</a></code>
             </div>
             
         </h4>
@@ -919,96 +1427,7 @@ defaults. Properties not found in defaults will be ignored.</td>
 
     
     <div class="description">
-        Plain, simple NOP definition. If there's a faster NOP, redefine it here.
-    </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-                
-
-<dt>
-    
-        <h4 class="name" id=".removeById">
-            
-                <span class="type-signature"><span class="icon green">static</span> </span>removeById<span class="signature">(array, item)</span><span class="type-signature"> &rarr; {boolean}</span>
-                
-            
-            <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line141">line 141</a></code>
-            </div>
-            
-        </h4>
-
-        
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Removes the given item from the given array, according to its Id.
+        Update an item.
     </div>
     
 
@@ -1044,13 +1463,13 @@ defaults. Properties not found in defaults will be ignored.</td>
 
         <tr>
             
-                <td class="name"><code>array</code></td>
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;Object></span>
+<span class="param-type"><a href="module-shared.Item.html">module:shared.Item</a></span>
 
 
             
@@ -1060,30 +1479,8 @@ defaults. Properties not found in defaults will be ignored.</td>
 
             
 
-            <td class="description last">The array to modify.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>item</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The item to remove from array according to its Id.</td>
+            <td class="description last">data from the server, has an 'id' field
+      with which the item will be located.</td>
         </tr>
 
     
@@ -1103,27 +1500,6 @@ defaults. Properties not found in defaults will be ignored.</td>
 
     
 
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
-                
-
-
-
-<span class="param-type">boolean</span>
-
-
-
-
-
-- True if the item was found and removed, false otherwise.
-
-
-
-
-            
-    </div>
     
 
     
@@ -1172,14 +1548,14 @@ defaults. Properties not found in defaults will be ignored.</td>
 
 <dt>
     
-        <h4 class="name" id=".safeRemoveById">
+        <h4 class="name" id="updateShadow">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>safeRemoveById<span class="signature">(array, item, class_fn)</span><span class="type-signature"> &rarr; {boolean}</span>
+                <span class="type-signature"></span>updateShadow<span class="signature">(data)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
-                <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line165">line 165</a></code>
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line164">line 164</a></code>
             </div>
             
         </h4>
@@ -1191,8 +1567,7 @@ defaults. Properties not found in defaults will be ignored.</td>
 
     
     <div class="description">
-        Removes the given item of the given class (enforced by throwing an
-exception if not an instance) from the given array.
+        Update a 'shadow' view.
     </div>
     
 
@@ -1228,13 +1603,13 @@ exception if not an instance) from the given array.
 
         <tr>
             
-                <td class="name"><code>array</code></td>
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Array.&lt;Object></span>
+<span class="param-type"><a href="module-shared.View.html">module:shared.View</a></span>
 
 
             
@@ -1244,55 +1619,8 @@ exception if not an instance) from the given array.
 
             
 
-            <td class="description last">The array to modify.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>item</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The item to remove from array according to its Id, if
-it is an instance of class_fn</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>class_fn</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Class</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Insist that item be an instance of this class
-function.</td>
+            <td class="description last">data from the server, has an 'id' field
+      with which the view will be located.</td>
         </tr>
 
     
@@ -1311,43 +1639,147 @@ function.</td>
     
 
     
-    <h5>Throws:</h5>
+
     
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
             
-
-    <div class="param-desc">
-    
-        
-<span class="param-type">string</span>
-
-
-    
-    </div>
-
-
-        
-
-    
-    <div class="container-returns">
-        <h5>Returns:</h5>
-        
                 
 
+<dt>
+    
+        <h4 class="name" id="updateView">
+            
+                <span class="type-signature"></span>updateView<span class="signature">(data)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="client_ClientModel.js.html">client/ClientModel.js</a></code>,
+                <code><a href="client_ClientModel.js.html#line174">line 174</a></code>
+            </div>
+            
+        </h4>
 
+        
+    
+</dt>
+<dd>
 
-<span class="param-type">boolean</span>
+    
+    <div class="description">
+        Update the view.
+    </div>
+    
 
+    
 
+    
 
+    
 
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-- True if the item was found and removed, false otherwise.
+        <th>Type</th>
 
+        
 
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-shared.View.html">module:shared.View</a></span>
 
 
             
+            </td>
+
+            
+
+            
+
+            <td class="description last">data from the server, specficially
+pertaining to this client's view.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
     </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
     
 
     
@@ -1416,7 +1848,7 @@ function.</td>
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:shared.utilities_sub'.replace(/"/g, '_');
+        var id = 'module:client.ClientModel_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
