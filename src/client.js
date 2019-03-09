@@ -17,12 +17,25 @@
 'use strict';
 
 const ClientController = require('./client/ClientController.js');
+const ClientModel = require('./client/ClientModel.js');
+const ClientView = require('./client/ClientView.js');
 
 window.addEventListener(
   'load',
   function run() {
     document.addEventListener('contextmenu', e => e.preventDefault());
-    new ClientController(document.querySelector('canvas'));
+
+    const canvas = document.querySelector('canvas');
+    const context = canvas.getContext('2d');
+
+    const model = new ClientModel();
+    const view = new ClientView(context);
+    const ctrl = new ClientController(canvas, view, model);
+
+    model.view = view;
+    view.model = model;
+
+    ctrl.connect();
   },
   {
     capture: false,

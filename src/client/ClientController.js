@@ -20,7 +20,6 @@ const {
   Message,
   NOP,
 } = require('../shared.js');
-const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
@@ -28,7 +27,6 @@ const STAMPER = new IdStamper();
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
-  establishSocket: Symbol('establishSocket'),
   render:          Symbol('render'),
   startRender:     Symbol('startRender'),
 });
@@ -42,10 +40,14 @@ const symbols = Object.freeze({
  */
 class ClientController {
   /**
-   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
    *    (not the context), which will fill the page.
+   * @param {module:client.ClientView} view - The view that will handle
+   * rendering duties.
+   * @param {module:client.ClientModel} model - The client-side copy of the
+   * server's model.
    */
-  constructor(canvas) {
+  constructor(canvas, view, model) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only
@@ -65,12 +67,20 @@ class ClientController {
     this.socket = null;
 
     /**
+     * The ClientModel is a client-side copy of the workspace model, kept up to
+     * date by the controller.
+     *
+     * @type {module:client.ClientModel}
+     */
+    this.model = model;
+
+    /**
      * The ClientView handles the final rendering of the model, as informed by
-     * the controller, and as such needs to konw the canvas rendering context.
+     * the controller.
      *
      * @type {module:client.ClientView}
      */
-    this.view = new ClientView({ context: this.canvas.getContext('2d') });
+    this.view = view;
 
     /**
      * Tracks whether a render has been scheduled for the next 1/60th of a
@@ -86,23 +96,6 @@ class ClientController {
      * is.
      */
     this.resizeCanvasToFillWindow();
-    window.addEventListener('resize', this.resize.bind(this), false);
-
-    /*
-     * Automatically establish a socket connection with the server. This may
-     * need to be changed to be non-automatic if it is discovered that it is
-     * useful for functionality to be inserted between ClientController
-     * instantiation and socket establishment.
-     */
-    this[symbols.establishSocket]();
-    this[symbols.startRender]();
-
-    /*
-     * As no automatic draw loop is used, (there are no animations), need to
-     * know when to re-render in response to an image loading.
-     */
-    const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -121,7 +114,7 @@ class ClientController {
       [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
       [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
       [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:    (...args) => this.handle('assign', ...args),
+      [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -146,6 +139,16 @@ class ClientController {
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+
+    // Keep the view size up to date.
+    window.addEventListener('resize', this.resize.bind(this), false);
+
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -157,12 +160,13 @@ class ClientController {
    * This internal routine should be called automatically upon ClientController
    * instantiation.
    */
-  [symbols.establishSocket]() {
+  connect() {
     this.socket = io.connect(constants.NS_WAMS, {
       autoConnect:  false,
       reconnection: false,
     });
     this[symbols.attachListeners]();
+    this[symbols.startRender]();
     this.socket.connect();
   }
 
@@ -212,7 +216,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.view[message](...args);
+    this.model[message](...args);
     this.scheduleRender();
   }
 
@@ -233,7 +237,7 @@ class ClientController {
   resizeCanvasToFillWindow() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.handle('resizeToFillWindow');
+    this.view.resizeToFillWindow();
   }
 
   /**
@@ -255,9 +259,10 @@ class ClientController {
    * model.
    */
   setup(data) {
-    STAMPER.cloneId(this, data.id);
+    STAMPER.cloneId(this.view, data.id);
+
     this.canvas.style.backgroundColor = data.color;
-    this.view.setup(data);
+    this.model.setup(data);
     this.setupInteractor(data.useServerGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
