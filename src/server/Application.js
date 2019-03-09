@@ -123,7 +123,8 @@ class Application {
    * Register a handler for the given event.
    *
    * @param {string} event - Event to respond to.
-   * @param {function} handler - Function for responding to the given event.
+   * @param {module:server.ListenerTypes} handler - Function for responding to
+   * the given event.
    */
   on(event, handler) {
     this.messageHandler.on(event, handler);
