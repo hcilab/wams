@@ -8,8 +8,6 @@
 'use strict';
 
 const { CanvasBlueprint } = require('canvas-sequencer');
-// const sizeOfImage = require('image-size');
-
 const { Polygon2D }  = require('../shared.js');
 
 /**
