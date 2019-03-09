@@ -25,8 +25,8 @@
  * @type {function}
  * @param {module:server.ServerView} view - View from which the click
  * originates.
- * @param {( server.ServerView|server.ServerItem )} target - View or Item which
- * the click targets.
+ * @param {module:mixins.Interactable} target - View or Item which the click
+ * targets.
  * @param {number} x - x coordinate of the click.
  * @param {number} y - y coordinate of the click.
  */
@@ -64,8 +64,8 @@ function click(listener, workspace) {
  * @memberof module:server.ListenerTypes
  * @type {function}
  * @param {module:server.ServerView} view - View from which the drag originates.
- * @param {( server.ServerView|server.ServerItem )} target - View or Item which
- *    the drag targets.
+ * @param {module:mixins.Interactable} target - View or Item which the drag
+ * targets.
  * @param {number} x - x coordinate of the drag.
  * @param {number} y - y coordinate of the drag.
  * @param {number} dx - change in the x direction since last drag.
@@ -128,8 +128,8 @@ function layout(listener) {
  * @type {function}
  * @param {module:server.ServerView} view - View from which the rotate
  * originates.
- * @param {( server.ServerView|server.ServerItem )} target - View or Item which
- *    the rotate targets.
+ * @param {module:mixins.Interactable} target - View or Item which the rotate
+ * targets.
  * @param {number} radians - Change in angle since last rotate, in radians.
  * @param {number} x - x coordinate of the rotate.
  * @param {number} y - y coordinate of the rotate.
@@ -162,8 +162,8 @@ function rotate(listener) {
  * @type {function}
  * @param {module:server.ServerView} view - View from which the scale
  * originates.
- * @param {( server.ServerView|server.ServerItem )} target - View or Item which
- *    the scale targets.
+ * @param {module:mixins.Interactable} target - View or Item which the scale
+ * targets.
  * @param {number} scale - Change in scale since last emit.
  * @param {number} x - x coordinate of the scale.
  * @param {number} y - y coordinate of the scale.
@@ -194,10 +194,10 @@ function scale(listener) {
  * @typedef SwipeListener
  * @memberof module:server.ListenerTypes
  * @type {function}
- * @param {module:server.ServerView} view - View from which the scale
+ * @param {module:server.ServerView} view - View from which the swipe
  * originates.
- * @param {( server.ServerView|server.ServerItem )} target - View or Item which
- *    the scale targets.
+ * @param {module:mixins.Interactable} target - View or Item which the swipe
+ * targets.
  * @param {number} x - x coordinate of the swipe.
  * @param {number} y - y coordinate of the swipe.
  * @param {number} velocity - velocity of the swipe.
