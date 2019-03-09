@@ -151,11 +151,13 @@ function polygon(points = [], colour = 'green', itemOptions = {}) {
 
   const blueprint = new CanvasBlueprint();
   blueprint.fillStyle = colour;
+  blueprint.strokeStyle = 'black';
   blueprint.beginPath();
   blueprint.moveTo(points[0].x, points[0].y);
   points.forEach(p => blueprint.lineTo(p.x, p.y));
   blueprint.closePath();
   blueprint.fill();
+  blueprint.stroke();
 
   return transformed({ ...itemOptions, hitbox, blueprint });
 }
