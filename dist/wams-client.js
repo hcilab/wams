@@ -9880,6 +9880,14 @@ class Pan extends Gesture {
      * @type {string}
      */
     this.muteKey = options.muteKey;
+
+    /**
+     * The previous point location.
+     *
+     * @private
+     * @type {module:westures.Point2D}
+     */
+    this.previous = null;
   }
 
   /**
@@ -9891,8 +9899,7 @@ class Pan extends Gesture {
    */
   refresh(state) {
     if (state.active.length >= REQUIRED_INPUTS) {
-      const progress = state.active[0].getProgressOfGesture(this.id);
-      progress.lastEmitted = state.centroid;
+      this.previous = state.centroid;
     }
   }
 
@@ -9915,17 +9922,18 @@ class Pan extends Gesture {
    * otherwise not recognized.
    */
   move(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
+    if (state.active.length < REQUIRED_INPUTS) {
+      return null;
+    }
 
     if (this.muteKey && state.event[this.muteKey]) {
       this.refresh(state);
       return null;
     }
 
-    const progress = state.active[0].getProgressOfGesture(this.id);
     const point = state.centroid;
-    const change = point.minus(progress.lastEmitted);
-    progress.lastEmitted = point;
+    const change = point.minus(this.previous);
+    this.previous = point;
 
     return { change, point };
   }
@@ -9949,7 +9957,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   cancel(state) {
-    this.end(state);
+    this.refresh(state);
   }
 }
 
@@ -10008,6 +10016,14 @@ class Pinch extends Gesture {
      * @type {number}
      */
     this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
+
+    /**
+     * The previous distance.
+     *
+     * @private
+     * @type {number}
+     */
+    this.previous = 0;
   }
 
   /**
@@ -10020,8 +10036,7 @@ class Pinch extends Gesture {
   refresh(state) {
     if (state.active.length >= this.minInputs) {
       const distance = state.centroid.averageDistanceTo(state.activePoints);
-      const progress = state.active[0].getProgressOfGesture(this.id);
-      progress.previousDistance = distance;
+      this.previous = distance;
     }
   }
 
@@ -10044,16 +10059,12 @@ class Pinch extends Gesture {
   move(state) {
     if (state.active.length < this.minInputs) return null;
 
-    const distance = state.centroid.averageDistanceTo(state.activePoints);
-    const progress = state.active[0].getProgressOfGesture(this.id);
-    const change = distance / progress.previousDistance;
-    progress.previousDistance = distance;
+    const midpoint = state.centroid;
+    const distance = midpoint.averageDistanceTo(state.activePoints);
+    const change = distance / this.previous;
+    this.previous = distance;
 
-    return {
-      distance,
-      midpoint: state.centroid,
-      change,
-    };
+    return { distance, midpoint, change };
   }
 
   /**
@@ -10073,7 +10084,7 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   cancel(state) {
-    this.end(state);
+    this.refresh(state);
   }
 }
 
@@ -10215,7 +10226,8 @@ module.exports = Rotate;
 const { Gesture } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
-const PROGRESS_STACK_SIZE = 10;
+const PROGRESS_STACK_SIZE = 7;
+const MS_THRESHOLD = 300;
 
 /**
  * Data returned when a Swipe is recognized.
@@ -10226,6 +10238,7 @@ const PROGRESS_STACK_SIZE = 10;
  * @property {number} velocity - The velocity of the swipe.
  * @property {number} direction - In radians, the direction of the swipe.
  * @property {westures.Point2D} point - The point at which the swipe ended.
+ * @property {number} time - The epoch time, in ms, when the swipe ended.
  *
  * @memberof ReturnTypes
  */
@@ -10234,6 +10247,8 @@ const PROGRESS_STACK_SIZE = 10;
  * Calculates the angle of movement along a series of moves.
  *
  * @private
+ * @inner
+ * @memberof module:westures.Swipe
  * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
  *
  * @param {{time: number, point: module:westures-core.Point2D}} moves - The
@@ -10261,6 +10276,8 @@ function calc_angle(moves, vlim) {
  * points.
  *
  * @private
+ * @inner
+ * @memberof module:westures.Swipe
  *
  * @param {object} start
  * @param {westures.Point2D} start.point
@@ -10281,6 +10298,9 @@ function velocity(start, end) {
  * Calculates the veloctiy of movement through a series of moves.
  *
  * @private
+ * @inner
+ * @memberof module:westures.Swipe
+ *
  * @param {{time: number, point: module:westures-core.Point2D}} moves - The
  * moves list to process.
  * @param {number} vlim - The number of moves to process.
@@ -10323,9 +10343,30 @@ class Swipe extends Gesture {
     /**
      * Data to emit when all points have ended.
      *
+     * @private
      * @type {ReturnTypes.SwipeData}
      */
-    this.emittable = null;
+    this.saved = null;
+  }
+
+  /**
+   * Refresh the swipe state.
+   *
+   * @private
+   */
+  refresh() {
+    this.moves = [];
+    this.saved = null;
+  }
+
+  /**
+   * Event hook for the start of a gesture. Resets the swipe state.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  start() {
+    this.refresh();
   }
 
   /**
@@ -10342,8 +10383,8 @@ class Swipe extends Gesture {
         point: state.centroid,
       });
 
-      while (this.moves.length > PROGRESS_STACK_SIZE) {
-        this.moves.shift();
+      if (this.moves.length > PROGRESS_STACK_SIZE) {
+        this.moves.splice(0, this.moves.length - PROGRESS_STACK_SIZE);
       }
     }
   }
@@ -10356,39 +10397,53 @@ class Swipe extends Gesture {
    * recognized.
    */
   end(state) {
-    if (this.moves.length < PROGRESS_STACK_SIZE) {
-      if (state.active.length > 0) {
-        return null;
-      }
-      const data = this.emittable;
-      this.emittable = null;
-      return data;
-    }
-
-    const vlim = PROGRESS_STACK_SIZE - 1;
-    const point = this.moves[vlim].point;
-    const velocity = calc_velocity(this.moves, vlim);
-    const direction = calc_angle(this.moves, vlim);
+    const result = this.getResult();
     this.moves = [];
 
-    const result = { point, velocity, direction };
     if (state.active.length > 0) {
-      this.emittable = result;
+      this.saved = result;
       return null;
     }
 
-    this.emittable = null;
-    return result;
+    this.saved = null;
+    return this.validate(result);
   }
 
   /**
    * Event hook for the cancel phase of a Swipe.
    *
+   * @private
    * @param {State} state - current input state.
    */
   cancel() {
-    this.moves = [];
-    this.emittable = null;
+    this.refresh();
+  }
+
+  /**
+   * Get the swipe result.
+   *
+   * @private
+   */
+  getResult() {
+    if (this.moves.length < PROGRESS_STACK_SIZE) {
+      return this.saved;
+    }
+    const vlim = PROGRESS_STACK_SIZE - 1;
+    const { point, time } = this.moves[vlim];
+    const velocity = calc_velocity(this.moves, vlim);
+    const direction = calc_angle(this.moves, vlim);
+    return { point, velocity, direction, time };
+  }
+
+  /**
+   * Validates that an emit should occur with the given data.
+   *
+   * @private
+   * @param {?ReturnTypes.SwipeData} data
+   */
+  validate(data) {
+    if (data == null) return null;
+    return (Date.now() - data.time > MS_THRESHOLD) ? null : data;
   }
 }
 
@@ -10406,7 +10461,7 @@ const { Gesture, Point2D } = require('westures-core');
 
 const REQUIRED_INPUTS = 1;
 const defaults = Object.freeze({
-  deadzoneRadius: 10,
+  deadzoneRadius: 15,
 });
 
 /**
@@ -10472,6 +10527,30 @@ class Swivel extends Gesture {
      * @type {Element}
      */
     this.pivotCenter = options.pivotCenter;
+
+    /**
+     * The pivot point of the swivel.
+     *
+     * @private
+     * @type {module:westures.Point2D}
+     */
+    this.pivot = null;
+
+    /**
+     * The previous angle.
+     *
+     * @private
+     * @type {number}
+     */
+    this.previous = 0;
+
+    /**
+     * Whether the swivel is active.
+     *
+     * @private
+     * @type {boolean}
+     */
+    this.isActive = false;
   }
 
   /**
@@ -10489,34 +10568,33 @@ class Swivel extends Gesture {
    * Restart the given progress object using the given input object.
    *
    * @private
-   *
-   * @param {Input} input - Input object to use for restarting progress.
+   * @param {State} state - current input state.
    */
-  restart(input) {
-    const progress = input.getProgressOfGesture(this.id);
-    progress.active = true;
+  restart(state) {
+    this.isActive = true;
     if (this.pivotCenter) {
       const rect = this.pivotCenter.getBoundingClientRect();
-      progress.pivot = new Point2D(
+      this.pivot = new Point2D(
         rect.left + (rect.width / 2),
         rect.top + (rect.height / 2)
       );
-      progress.previousAngle = progress.pivot.angleTo(input.current.point);
+      this.previous = this.pivot.angleTo(state.centroid);
     } else {
-      progress.pivot = input.current.point;
-      progress.previousAngle = 0;
+      this.pivot = state.centroid;
+      this.previous = 0;
     }
   }
 
   /**
    * Refresh the gesture.
    *
+   * @private
    * @param {module:westures.Input[]} inputs - Input list to process.
-   * @param {Event} event - The event triggering this refresh.
+   * @param {State} state - current input state.
    */
-  refresh(inputs, event) {
-    if (inputs.length === REQUIRED_INPUTS && this.enabled(event)) {
-      this.restart(inputs[0]);
+  refresh(inputs, state) {
+    if (inputs.length === REQUIRED_INPUTS && this.enabled(state.event)) {
+      this.restart(state);
     }
   }
 
@@ -10527,7 +10605,7 @@ class Swivel extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    this.refresh(state.getInputsInPhase('start'), state.event);
+    this.refresh(state.getInputsInPhase('start'), state);
   }
 
   /**
@@ -10535,16 +10613,20 @@ class Swivel extends Gesture {
    * been assured, except for deadzone.
    *
    * @private
-   *
-   * @param {Object} progress - Progress object to restart.
-   * @param {Input} input - Input object to use for restarting progress.
+   * @param {State} state - current input state.
+   * @return {?Returns.SwivelData} Data to emit.
    */
-  calculateOutput(progress, input) {
-    const point = input.current.point;
-    const pivot = progress.pivot;
+  calculateOutput(state) {
+    const point = state.centroid;
+    const pivot = this.pivot;
     const angle = pivot.angleTo(point);
-    const delta = angle - progress.previousAngle;
-    progress.previousAngle = angle;
+    const delta = angle - this.previous;
+
+    /*
+     * Updating the previous angle regardless of emit prevents sudden flips when
+     * the user exits the deadzone circle.
+     */
+    this.previous = angle;
 
     if (pivot.distanceTo(point) > this.deadzoneRadius) {
       return { delta, pivot, point };
@@ -10562,20 +10644,17 @@ class Swivel extends Gesture {
   move(state) {
     if (state.active.length !== REQUIRED_INPUTS) return null;
 
-    const input = state.active[0];
-    const progress = input.getProgressOfGesture(this.id);
     let output = null;
-
     if (this.enabled(state.event)) {
-      if (progress.active) {
-        output = this.calculateOutput(progress, input);
+      if (this.isActive) {
+        output = this.calculateOutput(state);
       } else {
         // The enableKey was just pressed again.
-        this.refresh(state.active, state.event);
+        this.refresh(state.active, state);
       }
     } else {
       // The enableKey was released, therefore pivot point is now invalid.
-      progress.active = false;
+      this.isActive = false;
     }
 
     return output;
@@ -10584,15 +10663,17 @@ class Swivel extends Gesture {
   /**
    * Event hook for the end of a Swivel.
    *
+   * @private
    * @param {State} state - current input state.
    */
   end(state) {
-    this.refresh(state.active, state.event);
+    this.refresh(state.active, state);
   }
 
   /**
    * Event hook for the cancel of a Swivel.
    *
+   * @private
    * @param {State} state - current input state.
    */
   cancel(state) {
@@ -10725,7 +10806,9 @@ class Tap extends Gesture {
       return null;
     }
 
-    return Point2D.midpoint(this.ended.map(i => i.current.point));
+    const result = Point2D.midpoint(this.ended.map(i => i.current.point));
+    this.ended = [];
+    return result;
   }
 }
 
@@ -10920,12 +11003,25 @@ module.exports = yeast;
 'use strict';
 
 const ClientController = require('./client/ClientController.js');
+const ClientModel = require('./client/ClientModel.js');
+const ClientView = require('./client/ClientView.js');
 
 window.addEventListener(
   'load',
   function run() {
     document.addEventListener('contextmenu', e => e.preventDefault());
-    new ClientController(document.querySelector('canvas'));
+
+    const canvas = document.querySelector('canvas');
+    const context = canvas.getContext('2d');
+
+    const model = new ClientModel();
+    const view = new ClientView(context);
+    const ctrl = new ClientController(canvas, view, model);
+
+    model.view = view;
+    view.model = model;
+
+    ctrl.connect();
   },
   {
     capture: false,
@@ -10935,7 +11031,7 @@ window.addEventListener(
 );
 
 
-},{"./client/ClientController.js":71}],71:[function(require,module,exports){
+},{"./client/ClientController.js":71,"./client/ClientModel.js":74,"./client/ClientView.js":75}],71:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -10958,7 +11054,6 @@ const {
   Message,
   NOP,
 } = require('../shared.js');
-const ClientView = require('./ClientView.js');
 const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
@@ -10966,7 +11061,6 @@ const STAMPER = new IdStamper();
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
-  establishSocket: Symbol('establishSocket'),
   render:          Symbol('render'),
   startRender:     Symbol('startRender'),
 });
@@ -10980,10 +11074,14 @@ const symbols = Object.freeze({
  */
 class ClientController {
   /**
-   * @param {HTMLCanvasElement} canvas  The underlying CanvasElement object,
+   * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
    *    (not the context), which will fill the page.
+   * @param {module:client.ClientView} view - The view that will handle
+   * rendering duties.
+   * @param {module:client.ClientModel} model - The client-side copy of the
+   * server's model.
    */
-  constructor(canvas) {
+  constructor(canvas, view, model) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only
@@ -11003,12 +11101,20 @@ class ClientController {
     this.socket = null;
 
     /**
+     * The ClientModel is a client-side copy of the workspace model, kept up to
+     * date by the controller.
+     *
+     * @type {module:client.ClientModel}
+     */
+    this.model = model;
+
+    /**
      * The ClientView handles the final rendering of the model, as informed by
-     * the controller, and as such needs to konw the canvas rendering context.
+     * the controller.
      *
      * @type {module:client.ClientView}
      */
-    this.view = new ClientView({ context: this.canvas.getContext('2d') });
+    this.view = view;
 
     /**
      * Tracks whether a render has been scheduled for the next 1/60th of a
@@ -11024,23 +11130,6 @@ class ClientController {
      * is.
      */
     this.resizeCanvasToFillWindow();
-    window.addEventListener('resize', this.resize.bind(this), false);
-
-    /*
-     * Automatically establish a socket connection with the server. This may
-     * need to be changed to be non-automatic if it is discovered that it is
-     * useful for functionality to be inserted between ClientController
-     * instantiation and socket establishment.
-     */
-    this[symbols.establishSocket]();
-    this[symbols.startRender]();
-
-    /*
-     * As no automatic draw loop is used, (there are no animations), need to
-     * know when to re-render in response to an image loading.
-     */
-    const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -11059,7 +11148,7 @@ class ClientController {
       [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
       [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
       [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:    (...args) => this.handle('assign', ...args),
+      [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -11084,6 +11173,16 @@ class ClientController {
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+
+    // Keep the view size up to date.
+    window.addEventListener('resize', this.resize.bind(this), false);
+
+    /*
+     * As no automatic draw loop is used, (there are no animations), need to
+     * know when to re-render in response to an image loading.
+     */
+    const schedule_fn = this.scheduleRender.bind(this);
+    document.addEventListener(Message.IMG_LOAD, schedule_fn);
   }
 
   /**
@@ -11095,12 +11194,13 @@ class ClientController {
    * This internal routine should be called automatically upon ClientController
    * instantiation.
    */
-  [symbols.establishSocket]() {
+  connect() {
     this.socket = io.connect(constants.NS_WAMS, {
       autoConnect:  false,
       reconnection: false,
     });
     this[symbols.attachListeners]();
+    this[symbols.startRender]();
     this.socket.connect();
   }
 
@@ -11150,7 +11250,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.view[message](...args);
+    this.model[message](...args);
     this.scheduleRender();
   }
 
@@ -11171,7 +11271,7 @@ class ClientController {
   resizeCanvasToFillWindow() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.handle('resizeToFillWindow');
+    this.view.resizeToFillWindow();
   }
 
   /**
@@ -11193,9 +11293,10 @@ class ClientController {
    * model.
    */
   setup(data) {
-    STAMPER.cloneId(this, data.id);
+    STAMPER.cloneId(this.view, data.id);
+
     this.canvas.style.backgroundColor = data.color;
-    this.view.setup(data);
+    this.model.setup(data);
     this.setupInteractor(data.useServerGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
@@ -11246,7 +11347,7 @@ class ClientController {
 module.exports = ClientController;
 
 
-},{"../shared.js":77,"./ClientView.js":74,"./Interactor.js":75,"socket.io-client":39}],72:[function(require,module,exports){
+},{"../shared.js":78,"./Interactor.js":76,"socket.io-client":39}],72:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11366,7 +11467,7 @@ class ClientImage extends WamsImage {
 module.exports = ClientImage;
 
 
-},{"../shared.js":77}],73:[function(require,module,exports){
+},{"../shared.js":78}],73:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11453,12 +11554,11 @@ class ClientItem extends Item {
 module.exports = ClientItem;
 
 
-},{"../shared.js":77,"canvas-sequencer":9}],74:[function(require,module,exports){
+},{"../shared.js":78,"canvas-sequencer":9}],74:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
  * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
  *
  * Original author: Jesse Rolheiser
  * Other revisions and supervision: Scott Bateman
@@ -11469,21 +11569,7 @@ module.exports = ClientItem;
 const ClientImage = require('./ClientImage.js');
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
-const {
-  constants,
-  removeById,
-  IdStamper,
-  View,
-} = require('../shared.js');
-
-const STATUS_KEYS = Object.freeze([
-  'x',
-  'y',
-  'width',
-  'height',
-  'rotation',
-  'scale',
-]);
+const { removeById } = require('../shared.js');
 
 const REQUIRED_DATA = Object.freeze([
   'id',
@@ -11491,41 +11577,14 @@ const REQUIRED_DATA = Object.freeze([
   'views',
 ]);
 
-const STAMPER = new IdStamper();
-
-const symbols = Object.freeze({
-  align:        Symbol('align'),
-  drawItems:    Symbol('drawItems'),
-  drawShadows:  Symbol('drawShadows'),
-  drawStatus:   Symbol('drawStatus'),
-  wipe:         Symbol('wipe'),
-});
-
 /**
- * The ClientView is responsible for rendering the view. To do this, it keeps
- * track of its own position, scale, and orientation, as well as those values
- * for all items and all other views (which will be represented with outlines).
+ * The ClientModel is a client-side copy of those aspects of the model that are
+ * necessary for rendering the view for the user.
  *
- * @extends module:shared.View
  * @memberof module:client
  */
-class ClientView extends View {
-  /**
-   * @param {module:shared.View} values Data for initializing this view. Likely
-   * does not come from the server, as communication lines probably won't be
-   * open yet at the time that this class is instantiated.
-   */
-  constructor(values = {}) {
-    super({ ...ClientView.DEFAULTS, ...values });
-
-    /**
-     * The CanvasRenderingContext2D is required for drawing (rendering) to take
-     * place.
-     *
-     * @type {CanvasRenderingContext2D}
-     */
-    this.context = values.context;
-
+class ClientModel {
+  constructor() {
     /**
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
@@ -11551,73 +11610,11 @@ class ClientView extends View {
     this.shadows = new Map();
 
     /**
-     * Id to make the views uniquely identifiable. Will be assigned when setup
-     * message is received from server.
+     * The view data for this user.
      *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientView
+     * @type {module:client.ClientView}
      */
-    this.id = null;
-  }
-
-  /**
-   * Positions the rendering context precisely, taking into account all
-   * transformations, so that rendering can proceed correctly.
-   */
-  [symbols.align]() {
-    /*
-     * WARNING: It is crucially important that the instructions below occur
-     * in *precisely* this order!
-     */
-    this.context.scale(this.scale, this.scale);
-    this.context.rotate(this.rotation);
-    this.context.translate(-this.x, -this.y);
-  }
-
-  /**
-   * Renders all the items.
-   */
-  [symbols.drawItems]() {
-    this.itemOrder.forEach(o => o.draw(this.context));
-  }
-
-  /**
-   * Renders outlines of all the other views.
-   */
-  [symbols.drawShadows]() {
-    this.shadows.forEach(v => v.draw(this.context));
-  }
-
-  /**
-   * Renders text describing the status of the view to the upper left corner of
-   * the view, to assist with debugging.
-   */
-  [symbols.drawStatus]() {
-    const messages = STATUS_KEYS
-      .map(k => `${k}: ${this[k].toFixed(2)}`)
-      .concat([`# of Shadows: ${this.shadows.size}`]);
-    let ty = 40;
-    const tx = 20;
-
-    this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.font = '18px Georgia';
-    messages.forEach(m => {
-      this.context.fillText(m, tx, ty);
-      ty += 20;
-    });
-    this.context.restore();
-  }
-
-  /**
-   * Clears all previous renders, to ensure a clean slate for the upcoming
-   * render.
-   */
-  [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.view = null;
   }
 
   /**
@@ -11647,19 +11644,6 @@ class ClientView extends View {
   }
 
   /**
-   * Fully render the current state of the system.
-   */
-  draw() {
-    this.context.save();
-    this[symbols.wipe]();
-    this[symbols.align]();
-    this[symbols.drawItems]();
-    this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
-    this.context.restore();
-  }
-
-  /**
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.
@@ -11683,14 +11667,6 @@ class ClientView extends View {
   }
 
   /**
-   * Fill all available space in the window.
-   */
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-  }
-
-  /**
    * Set up the internal copy of the model according to the data provided by the
    * server.
    *
@@ -11703,8 +11679,8 @@ class ClientView extends View {
     REQUIRED_DATA.forEach(d => {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
-    STAMPER.cloneId(this, data.id);
-    data.views.forEach(v => v.id !== this.id && this.addShadow(v));
+    // STAMPER.cloneId(this.view, data.id);
+    data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
     data.items.forEach(o => this.addItem(o));
   }
 
@@ -11745,6 +11721,177 @@ class ClientView extends View {
   updateShadow(data) {
     this.update('shadows', data);
   }
+
+  /**
+   * Update the view.
+   *
+   * @param {module:shared.View} data - data from the server, specficially
+   * pertaining to this client's view.
+   */
+  updateView(data) {
+    this.view.assign(data);
+  }
+}
+
+module.exports = ClientModel;
+
+
+},{"../shared.js":78,"./ClientImage.js":72,"./ClientItem.js":73,"./ShadowView.js":77}],75:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ *
+ * Original author: Jesse Rolheiser
+ * Other revisions and supervision: Scott Bateman
+ */
+
+'use strict';
+
+const { constants, View } = require('../shared.js');
+
+// Data fields to write for status indicator text.
+const STATUS_KEYS = Object.freeze([
+  'x',
+  'y',
+  'width',
+  'height',
+  'rotation',
+  'scale',
+]);
+
+// Mark these methods as intended only for internal use.
+const symbols = Object.freeze({
+  align:        Symbol('align'),
+  drawItems:    Symbol('drawItems'),
+  drawShadows:  Symbol('drawShadows'),
+  drawStatus:   Symbol('drawStatus'),
+  wipe:         Symbol('wipe'),
+});
+
+/**
+ * The ClientView is responsible for rendering the view. To do this, it keeps
+ * track of its own position, scale, and orientation, as well as those values
+ * for all items and all other views (which will be represented with outlines).
+ *
+ * @extends module:shared.View
+ * @memberof module:client
+ */
+class ClientView extends View {
+  /**
+   * @param {CanvasRenderingContext2D} context - The canvas context in which to
+   * render the model.
+   */
+  constructor(context) {
+    super(ClientView.DEFAULTS);
+
+    /**
+     * The CanvasRenderingContext2D is required for drawing (rendering) to take
+     * place.
+     *
+     * @type {CanvasRenderingContext2D}
+     */
+    this.context = context;
+
+    /**
+     * The model holds the information about items and shadows that need
+     * rendering.
+     *
+     * @type {module:client.ClientModel}
+     */
+    this.model = null;
+
+    /**
+     * Id to make the views uniquely identifiable. Will be assigned when setup
+     * message is received from server.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientView
+     */
+    this.id = null;
+  }
+
+  /**
+   * Positions the rendering context precisely, taking into account all
+   * transformations, so that rendering can proceed correctly.
+   */
+  [symbols.align]() {
+    /*
+     * WARNING: It is crucially important that the instructions below occur
+     * in *precisely* this order!
+     */
+    this.context.scale(this.scale, this.scale);
+    this.context.rotate(this.rotation);
+    this.context.translate(-this.x, -this.y);
+  }
+
+  /**
+   * Renders all the items.
+   */
+  [symbols.drawItems]() {
+    this.model.itemOrder.forEach(o => o.draw(this.context));
+  }
+
+  /**
+   * Renders outlines of all the other views.
+   */
+  [symbols.drawShadows]() {
+    this.model.shadows.forEach(v => v.draw(this.context));
+  }
+
+  /**
+   * Renders text describing the status of the view to the upper left corner of
+   * the view, to assist with debugging.
+   */
+  [symbols.drawStatus]() {
+    const messages = STATUS_KEYS
+      .map(k => `${k}: ${this[k].toFixed(2)}`)
+      .concat([`# of Shadows: ${this.model.shadows.size}`]);
+    let ty = 40;
+    const tx = 20;
+
+    this.context.save();
+    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.font = '18px Georgia';
+    messages.forEach(m => {
+      this.context.fillText(m, tx, ty);
+      ty += 20;
+    });
+    this.context.restore();
+  }
+
+  /**
+   * Clears all previous renders, to ensure a clean slate for the upcoming
+   * render.
+   */
+  [symbols.wipe]() {
+    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+  }
+
+  /**
+   * Fully render the current state of the system.
+   */
+  draw() {
+    this.context.save();
+    this[symbols.wipe]();
+    this[symbols.align]();
+    this[symbols.drawItems]();
+    this[symbols.drawShadows]();
+    this[symbols.drawStatus]();
+    this.context.restore();
+  }
+
+  /**
+   * Fill all available space in the window.
+   */
+  resizeToFillWindow() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+  }
 }
 
 /**
@@ -11755,6 +11902,8 @@ class ClientView extends View {
 ClientView.DEFAULTS = Object.freeze({
   x:        0,
   y:        0,
+  width:    1600,
+  height:   900,
   rotation: constants.ROTATE_0,
   scale:    1,
   type:     'view/background',
@@ -11763,7 +11912,7 @@ ClientView.DEFAULTS = Object.freeze({
 module.exports = ClientView;
 
 
-},{"../shared.js":77,"./ClientImage.js":72,"./ClientItem.js":73,"./ShadowView.js":76}],75:[function(require,module,exports){
+},{"../shared.js":78}],76:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11915,7 +12064,7 @@ Interactor.DEFAULT_HANDLERS = Object.freeze({
 module.exports = Interactor;
 
 
-},{"../shared.js":77,"westures":61}],76:[function(require,module,exports){
+},{"../shared.js":78,"westures":61}],77:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -12037,7 +12186,7 @@ class ShadowView extends View {
 module.exports = ShadowView;
 
 
-},{"../shared.js":77}],77:[function(require,module,exports){
+},{"../shared.js":78}],78:[function(require,module,exports){
 /*
  * Utilities for the WAMS application.
  *
@@ -12116,7 +12265,7 @@ module.exports = Object.freeze({
 });
 
 
-},{"./shared/IdStamper.js":78,"./shared/Message.js":79,"./shared/Point2D.js":80,"./shared/Polygon2D.js":81,"./shared/Reporters.js":83,"./shared/utilities.js":84}],78:[function(require,module,exports){
+},{"./shared/IdStamper.js":79,"./shared/Message.js":80,"./shared/Point2D.js":81,"./shared/Polygon2D.js":82,"./shared/Reporters.js":84,"./shared/utilities.js":85}],79:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -12217,7 +12366,7 @@ class IdStamper {
 module.exports = IdStamper;
 
 
-},{"./utilities.js":84}],79:[function(require,module,exports){
+},{"./utilities.js":85}],80:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -12326,7 +12475,7 @@ Object.entries(TYPES).forEach(([p, v]) => {
 module.exports = Message;
 
 
-},{"./utilities.js":84}],80:[function(require,module,exports){
+},{"./utilities.js":85}],81:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -12546,7 +12695,7 @@ class Point2D {
 module.exports = Point2D;
 
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -12687,7 +12836,7 @@ class Polygon2D {
 module.exports = Polygon2D;
 
 
-},{"./Point2D.js":80}],82:[function(require,module,exports){
+},{"./Point2D.js":81}],83:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -12784,7 +12933,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":78,"./utilities.js":84}],83:[function(require,module,exports){
+},{"./IdStamper.js":79,"./utilities.js":85}],84:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -13220,7 +13369,7 @@ module.exports = {
 };
 
 
-},{"./ReporterFactory.js":82}],84:[function(require,module,exports){
+},{"./ReporterFactory.js":83}],85:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *
