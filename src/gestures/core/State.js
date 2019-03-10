@@ -15,6 +15,9 @@ const symbols = Object.freeze({
 /**
  * Filter out elements of struct that satisfy the given predicate.
  *
+ * @inner
+ * @memberof module:gestures.State
+ *
  * @param {Map} struct - Actually any container object that has a 'forEach'
  * method using a callback that takes (value, key) as its first arguments, and
  * which as a delete(key) method.
