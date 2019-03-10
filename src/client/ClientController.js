@@ -299,7 +299,8 @@ class ClientController {
         );
       });
       ['pointercancel', 'blur'].forEach(eventname => {
-        window.addEventListener(eventname, () => {
+        window.addEventListener(eventname, (event) => {
+          event.preventDefault();
           const breport = new DataReporter();
           new Message(Message.BLUR, breport).emitWith(this.socket);
         });
