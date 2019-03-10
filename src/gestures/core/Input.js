@@ -62,6 +62,13 @@ class Input {
      * @type {Object}
      */
     this.progress = {};
+
+    /**
+     * The id of the source view for this input.
+     *
+     * @type {number}
+     */
+    this.source = event.source;
   }
 
   /**

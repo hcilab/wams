@@ -131,6 +131,7 @@ class ClientController {
 
       // Multi-device gesture related
       [Message.POINTER]: NOP,
+      [Message.BLUR]:    NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -282,9 +283,9 @@ class ClientController {
    */
   setupInteractor(useServerGestures = false) {
     if (useServerGestures) {
-      ['pointerdown', 'pointermove', 'pointerup'].forEach(type => {
+      ['pointerdown', 'pointermove', 'pointerup'].forEach(eventname => {
         window.addEventListener(
-          type,
+          eventname,
           (event) => {
             event.preventDefault();
             const preport = new PointerReporter(event);
@@ -296,6 +297,12 @@ class ClientController {
             passive: false,
           }
         );
+      });
+      ['pointercancel', 'blur'].forEach(eventname => {
+        window.addEventListener(eventname, () => {
+          const breport = new DataReporter();
+          new Message(Message.BLUR, breport).emitWith(this.socket);
+        });
       });
     } else {
       new Interactor(this.canvas, {

@@ -51,6 +51,16 @@ class ServerViewGroup extends Locker(Interactable(View)) {
   }
 
   /**
+   * Clear the inputs associated with the given view from the gesture
+   * controller.
+   *
+   * @param {number} id - Id of the view whose inputs should be cleared.
+   */
+  clearInputsFromView(id) {
+    this.gestureController.clearOutView(id);
+  }
+
+  /**
    * Move all the views by the given amounts.
    *
    * @override
@@ -77,6 +87,7 @@ class ServerViewGroup extends Locker(Interactable(View)) {
    */
   removeView(view) {
     removeById(this.views, view);
+    this.clearInputsFromView(view.id);
   }
 
   /**

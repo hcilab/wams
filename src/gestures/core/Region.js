@@ -79,6 +79,18 @@ class Region {
       }
     });
   }
+
+  /**
+   * Clears the view with the given id from the gesture state.
+   *
+   * @param {number} id - Id of source view to clear out.
+   */
+  clearInputsFromSource(id) {
+    this.state.clearInputsFromSource(id);
+    this.bindings.forEach(binding => {
+      binding.evaluateHook('cancel', this.state);
+    });
+  }
 }
 
 module.exports = Region;

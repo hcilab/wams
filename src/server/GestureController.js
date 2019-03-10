@@ -97,6 +97,15 @@ class GestureController {
   process(event) {
     this.region.arbitrate(event);
   }
+
+  /**
+   * Clear out inputs associated with the given view.
+   *
+   * @param {number} id - id of the view to clear our.
+   */
+  clearOutView(id) {
+    this.region.clearInputsFromSource(id);
+  }
 }
 
 module.exports = GestureController;

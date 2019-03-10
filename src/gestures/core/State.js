@@ -13,6 +13,21 @@ const symbols = Object.freeze({
 });
 
 /**
+ * Filter out elements of struct that satisfy the given predicate.
+ *
+ * @param {Map} struct - Actually any container object that has a 'forEach'
+ * method using a callback that takes (value, key) as its first arguments, and
+ * which as a delete(key) method.
+ * @param {function} predicate - Predicate function which accepts a single value
+ * and returns true or false.
+ */
+function filterout(struct, predicate) {
+  struct.forEach((v, k) => {
+    if (predicate(v)) struct.delete(k);
+  });
+}
+
+/**
  * Keeps track of currently active and ending input points on the interactive
  * surface.
  *
@@ -72,9 +87,16 @@ class State {
    * Deletes all inputs that are in the 'end' phase.
    */
   clearEndedInputs() {
-    this[symbols.inputs].forEach((v, k) => {
-      if (v.phase === 'end') this[symbols.inputs].delete(k);
-    });
+    filterout(this[symbols.inputs], v => v.phase === 'end');
+  }
+
+  /**
+   * Deletes all inputs originating from the view with the given id.
+   *
+   * @param {number} id - The id of the source view.
+   */
+  clearInputsFromSource(id) {
+    filterout(this[symbols.inputs], v => v.source === id);
   }
 
   /**

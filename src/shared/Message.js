@@ -52,6 +52,7 @@ const TYPES = {
 
   // Multi-device gesture related
   /** @const */ POINTER:    'wams-pointer',
+  /** @const */ BLUR:       'wams-blur',
 
   // Page event related
   /** @const */ IMG_LOAD:   'wams-image-loaded',

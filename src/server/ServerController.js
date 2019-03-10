@@ -133,6 +133,9 @@ class ServerController {
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
+      [Message.BLUR]:    () => {
+        this.group.clearInputsFromView(this.view.id);
+      },
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -195,6 +198,7 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
+    event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
     const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
     event.clientX = x;

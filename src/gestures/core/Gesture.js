@@ -77,6 +77,19 @@ class Gesture {
   end() {
     return null;
   }
+
+  /**
+   * Event hook for the cancel phase of a gesture.
+   *
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
+   */
+  cancel() {
+    return null;
+  }
 }
 
 module.exports = Gesture;
