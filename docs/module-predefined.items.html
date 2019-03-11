@@ -132,12 +132,12 @@
     
         <h4 class="name" id=".image">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>image<span class="signature">(src, itemOptions)</span><span class="type-signature"> &rarr; {Object}</span>
+                <span class="type-signature"><span class="icon green">static</span> </span>image<span class="signature">(src, properties)</span><span class="type-signature"> &rarr; {Object}</span>
                 
             
             <div class="container-source members">
                 <code><a href="predefined_items.js.html">predefined/items.js</a></code>,
-                <code><a href="predefined_items.js.html#line80">line 80</a></code>
+                <code><a href="predefined_items.js.html#line78">line 78</a></code>
             </div>
             
         </h4>
@@ -149,10 +149,9 @@
 
     
     <div class="description">
-        NOTE: This function should only be used for images that are intended to be
-interactable! If you want an image that shouldn't be interacted with, simply
-spawn an item directly with the itemOptions (including the imgsrc as a
-property) that you would have supplied here.
+        Provides an image description, complete with a hitbox only if both 'width'
+and 'height' properties are present. Note that the hitbox will be
+rectangular, with the top left corner at the 'x' and 'y' coordinates.
     </div>
     
 
@@ -211,7 +210,7 @@ property) that you would have supplied here.
 
         <tr>
             
-                <td class="name"><code>itemOptions</code></td>
+                <td class="name"><code>properties</code></td>
             
 
             <td class="type">
@@ -320,12 +319,12 @@ given source.
     
         <h4 class="name" id=".polygon">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>polygon<span class="signature">(points, colour<span class="signature-attributes">opt</span>, itemOptions)</span><span class="type-signature"> &rarr; {Object}</span>
+                <span class="type-signature"><span class="icon green">static</span> </span>polygon<span class="signature">(points, colour<span class="signature-attributes">opt</span>, properties)</span><span class="type-signature"> &rarr; {Object}</span>
                 
             
             <div class="container-source members">
                 <code><a href="predefined_items.js.html">predefined/items.js</a></code>,
-                <code><a href="predefined_items.js.html#line147">line 147</a></code>
+                <code><a href="predefined_items.js.html#line144">line 144</a></code>
             </div>
             
         </h4>
@@ -452,7 +451,7 @@ objects, can just be objects with x and y properties.</td>
 
         <tr>
             
-                <td class="name"><code>itemOptions</code></td>
+                <td class="name"><code>properties</code></td>
             
 
             <td class="type">
@@ -573,12 +572,12 @@ in with the given colour.
     
         <h4 class="name" id=".rectangle">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>rectangle<span class="signature">(x, y, width, height, colour<span class="signature-attributes">opt</span>, itemOptions)</span><span class="type-signature"> &rarr; {Object}</span>
+                <span class="type-signature"><span class="icon green">static</span> </span>rectangle<span class="signature">(x, y, width, height, colour<span class="signature-attributes">opt</span>, properties)</span><span class="type-signature"> &rarr; {Object}</span>
                 
             
             <div class="container-source members">
                 <code><a href="predefined_items.js.html">predefined/items.js</a></code>,
-                <code><a href="predefined_items.js.html#line105">line 105</a></code>
+                <code><a href="predefined_items.js.html#line102">line 102</a></code>
             </div>
             
         </h4>
@@ -809,7 +808,7 @@ in with the given colour.
 
         <tr>
             
-                <td class="name"><code>itemOptions</code></td>
+                <td class="name"><code>properties</code></td>
             
 
             <td class="type">
@@ -930,12 +929,12 @@ the given width and height, filled in with the given colour.
     
         <h4 class="name" id=".square">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>square<span class="signature">(x, y, length, colour<span class="signature-attributes">opt</span>, itemOptions)</span><span class="type-signature"> &rarr; {Object}</span>
+                <span class="type-signature"><span class="icon green">static</span> </span>square<span class="signature">(x, y, length, colour<span class="signature-attributes">opt</span>, properties)</span><span class="type-signature"> &rarr; {Object}</span>
                 
             
             <div class="container-source members">
                 <code><a href="predefined_items.js.html">predefined/items.js</a></code>,
-                <code><a href="predefined_items.js.html#line129">line 129</a></code>
+                <code><a href="predefined_items.js.html#line126">line 126</a></code>
             </div>
             
         </h4>
@@ -1131,7 +1130,7 @@ the given width and height, filled in with the given colour.
 
         <tr>
             
-                <td class="name"><code>itemOptions</code></td>
+                <td class="name"><code>properties</code></td>
             
 
             <td class="type">

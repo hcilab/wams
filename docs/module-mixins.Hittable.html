@@ -63,9 +63,13 @@
         <div class="container-overview">
         
             
-                <div class="description">This mixin extends the Interactable mixin by allow hit detection. To make a
-Hittable item hittable, add a 'hitbox' property to the class or instantiated
-object, which has a 'contains({ x, y })' method.</div>
+                <div class="description">This mixin extends the Interactable mixin by allow hit detection. A Hittable
+will not automatically be able to respond to hit detection. To make a
+Hittable item responsive, add a 'hitbox' property to the class or
+instantiated object, which has a 'contains({ x, y })' method.
+
+The purpose of the Hittable mixin is simply to provide functionality for
+interacting with the 'hitbox' property.</div>
             
 
             
@@ -229,7 +233,7 @@ object, which has a 'contains({ x, y })' method.</div>
     
     <div class="container-source members">
         <code><a href="mixins_Hittable.js.html">mixins/Hittable.js</a></code>,
-        <code><a href="mixins_Hittable.js.html#line28">line 28</a></code>
+        <code><a href="mixins_Hittable.js.html#line32">line 32</a></code>
     </div>
     
 </h4>
@@ -317,7 +321,7 @@ object, which has a 'contains({ x, y })' method.</div>
             
             <div class="container-source members">
                 <code><a href="mixins_Hittable.js.html">mixins/Hittable.js</a></code>,
-                <code><a href="mixins_Hittable.js.html#line52">line 52</a></code>
+                <code><a href="mixins_Hittable.js.html#line56">line 56</a></code>
             </div>
             
         </h4>

@@ -84,8 +84,7 @@ const Locker = (superclass) => class Locker extends superclass {
    *
    * @memberof module:mixins.Locker
    *
-   * @param {( module:server.ServerItem | module:server.ServerView )} item - The
-   * item to lock down.
+   * @param {module:mixins.Lockable} item - The item to lock down.
    */
   obtainLockOnItem(item) {
     if (!item.isLocked()) {

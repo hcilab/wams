@@ -66,9 +66,13 @@ const { IdStamper } = require('../shared.js');
 const STAMPER = new IdStamper();
 
 /**
- * This mixin extends the Interactable mixin by allow hit detection. To make a
- * Hittable item hittable, add a 'hitbox' property to the class or instantiated
- * object, which has a 'contains({ x, y })' method.
+ * This mixin extends the Interactable mixin by allow hit detection. A Hittable
+ * will not automatically be able to respond to hit detection. To make a
+ * Hittable item responsive, add a 'hitbox' property to the class or
+ * instantiated object, which has a 'contains({ x, y })' method.
+ *
+ * The purpose of the Hittable mixin is simply to provide functionality for
+ * interacting with the 'hitbox' property.
  *
  * @memberof module:mixins
  *
