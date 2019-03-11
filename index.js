@@ -13,13 +13,13 @@
 
 'use strict';
 
-const { CanvasBlueprint }     = require('canvas-sequencer');
+const { CanvasSequence }     = require('canvas-sequencer');
 const { colours }             = require('./src/shared.js');
 const { Router, Application } = require('./src/server.js');
 const predefined              = require('./src/predefined.js');
 
 module.exports = {
-  Sequence: CanvasBlueprint,
+  CanvasSequence,
   predefined,
   colours,
   Router,

@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { CanvasBlueprint } = require('canvas-sequencer');
+const { CanvasSequence } = require('canvas-sequencer');
 const { Polygon2D }  = require('../shared.js');
 
 /**
@@ -101,11 +101,11 @@ function image(src, properties = {}) {
  */
 function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
   const hitbox = rectangularHitbox(x, y, width, height);
-  const blueprint = new CanvasBlueprint();
-  blueprint.fillStyle = colour;
-  blueprint.fillRect(x, y, width, height);
+  const sequence = new CanvasSequence();
+  sequence.fillStyle = colour;
+  sequence.fillRect(x, y, width, height);
 
-  return transformed({ ...properties, hitbox, blueprint });
+  return transformed({ ...properties, hitbox, sequence });
 }
 
 /**
@@ -146,17 +146,17 @@ function polygon(points = [], colour = 'green', properties = {}) {
 
   const hitbox = new Polygon2D(points);
 
-  const blueprint = new CanvasBlueprint();
-  blueprint.fillStyle = colour;
-  blueprint.strokeStyle = 'black';
-  blueprint.beginPath();
-  blueprint.moveTo(points[0].x, points[0].y);
-  points.forEach(p => blueprint.lineTo(p.x, p.y));
-  blueprint.closePath();
-  blueprint.fill();
-  blueprint.stroke();
+  const sequence = new CanvasSequence();
+  sequence.fillStyle = colour;
+  sequence.strokeStyle = 'black';
+  sequence.beginPath();
+  sequence.moveTo(points[0].x, points[0].y);
+  points.forEach(p => sequence.lineTo(p.x, p.y));
+  sequence.closePath();
+  sequence.fill();
+  sequence.stroke();
 
-  return transformed({ ...properties, hitbox, blueprint });
+  return transformed({ ...properties, hitbox, sequence });
 }
 
 module.exports = {

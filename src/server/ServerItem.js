@@ -59,7 +59,7 @@ class ServerItem extends Hittable(Item) {
    * for this item.
    */
   setSequence(sequence) {
-    this.blueprint = sequence;
+    this.sequence = sequence;
     this.schedulePublication();
   }
 }
@@ -76,7 +76,7 @@ ServerItem.DEFAULTS = Object.freeze({
   rotation:  0,
   scale:     1,
   type:      'item/polygonal',
-  blueprint: null,
+  sequence: null,
 });
 
 module.exports = ServerItem;

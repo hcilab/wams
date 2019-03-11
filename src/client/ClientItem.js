@@ -11,7 +11,7 @@
 'use strict';
 
 const { IdStamper, Item } = require('../shared.js');
-const { CanvasBlueprint } = require('canvas-sequencer');
+const { CanvasSequence } = require('canvas-sequencer');
 
 /*
  * I'm not defining a 'defaults' object here, because the data going into the
@@ -49,7 +49,7 @@ class ClientItem extends Item {
 
   /**
    * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing blueprint and
+   * functionality for generating an image, or a canvas drawing sequence and
    * sequence.
    *
    * @param {module:shared.Item} data - The data from the server describing this
@@ -57,13 +57,11 @@ class ClientItem extends Item {
    */
   assign(data) {
     super.assign(data);
-    if (this.sequence == null && data.blueprint) {
-      this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
-    }
+    this.sequence = new CanvasSequence(data.sequence);
   }
 
   /**
-   * Render the item onto the given context.  Prioritizes blueprints over
+   * Render the item onto the given context.  Prioritizes sequences over
    * images.
    *
    * @param {CanvasRenderingContext2D} context - context onto which to draw this

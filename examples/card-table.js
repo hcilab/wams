@@ -39,7 +39,7 @@ const app = new Wams.Application({
 }, router);
 
 // Demonstrate a custom rendering sequence.
-const circle = new Wams.Sequence();
+const circle = new Wams.CanvasSequence();
 circle.beginPath();
 circle.arc(0, 0, 150, Math.PI, 0, false);
 circle.closePath();
@@ -53,11 +53,11 @@ app.spawnItem({
   x:         500,
   y:         250,
   type:      'circle',
-  blueprint: circle,
+  sequence: circle,
 });
 
 // Text is possible too!
-const text = new Wams.Sequence();
+const text = new Wams.CanvasSequence();
 text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
 text.fillText('Deal the cards!', 0, 0);
@@ -66,7 +66,7 @@ app.spawnItem({
   x:         380,
   y:         230,
   type:      'text',
-  blueprint: text,
+  sequence: text,
 });
 
 // Generate a deck of cards, consisting solely of image source paths.

@@ -8,7 +8,7 @@
 'use strict';
 
 const ClientItem = require('../../src/client/ClientItem.js');
-const { CanvasBlueprint, CanvasSequencer } = require('canvas-sequencer');
+const { CanvasSequence, CanvasSequencer } = require('canvas-sequencer');
 
 describe('ClientItem', () => {
   let item; 
@@ -56,33 +56,33 @@ describe('ClientItem', () => {
       expect(ci.img).toBeNull();
     });
 
-    test('Creates a blueprint if one is provided', () => {
-      const bp = new CanvasBlueprint();
+    test('Creates a sequence if one is provided', () => {
+      const bp = new CanvasSequence();
       bp.fillStyle = 'red';
       bp.fillRect(0,0,100,200);
-      item.blueprint = bp.toJSON();
+      item.sequence = bp.toJSON();
 
       let ci;
       expect(() => ci = new ClientItem(item)).not.toThrow();
-      expect(ci.blueprint).toBeInstanceOf(CanvasBlueprint);
+      expect(ci.sequence).toBeInstanceOf(CanvasSequence);
     });
 
-    test('Does not create a blueprint if none provided', () => {
+    test('Does not create a sequence if none provided', () => {
       const ci = new ClientItem(item);
-      expect(ci.blueprint).toBeFalsy();
+      expect(ci.sequence).toBeFalsy();
     });
 
-    test('Builds the sequence if a blueprint was provided', () => {
-      const bp = new CanvasBlueprint();
+    test('Builds the sequence if a sequence was provided', () => {
+      const bp = new CanvasSequence();
       bp.fillStyle = 'red';
       bp.fillRect(0,0,100,200);
-      item.blueprint = bp.toJSON();
+      item.sequence = bp.toJSON();
 
       const ci = new ClientItem(item);
       expect(ci.sequence).toBeInstanceOf(CanvasSequencer);
     });
 
-    test('Does not build a sequence if no blueprint provided', () => {
+    test('Does not build a sequence if no sequence provided', () => {
       const ci = new ClientItem(item);
       expect(ci.sequence).toBeFalsy();
     });
@@ -98,10 +98,10 @@ describe('ClientItem', () => {
     });
 
     test('If a sequence is available, renders the sequence', () => {
-      const bp = new CanvasBlueprint();
+      const bp = new CanvasSequence();
       bp.fillStyle = 'red';
       bp.fillRect(0,0,100,200);
-      item.blueprint = bp.toJSON();
+      item.sequence = bp.toJSON();
       const ci = new ClientItem(item);
       expect(() => ci.draw(ctx)).not.toThrow();
       expect(ctx.fillStyle).toBe('red');

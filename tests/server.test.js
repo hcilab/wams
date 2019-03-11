@@ -9,12 +9,12 @@
 
 const Api = require('../src/server.js');
 const Application = require('../src/server/Application.js');
-const { CanvasBlueprint } = require('canvas-sequencer');
+const { CanvasSequence } = require('canvas-sequencer');
 
 test('Expected values were correctly exported', () => {
   expect(Api).toBeInstanceOf(Function);
-  expect(Api.Sequence).toBeInstanceOf(Function);
-  expect(Api.Sequence.prototype).toBe(CanvasBlueprint.prototype);
+  expect(Api.CanvasSequence).toBeInstanceOf(Function);
+  expect(Api.CanvasSequence.prototype).toBe(CanvasSequence.prototype);
   expect(Api.prototype).toBe(Application.prototype);
 });
 

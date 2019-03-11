@@ -81,7 +81,7 @@ class ClientImage extends WamsImage {
 
   /**
    * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing blueprint and
+   * functionality for generating an image, or a canvas drawing sequence and
    * sequence.
    *
    * @param {module:shared.Item} data - The data from the server describing this
@@ -93,7 +93,7 @@ class ClientImage extends WamsImage {
   }
 
   /**
-   * Render the item onto the given context.  Prioritizes blueprints over
+   * Render the item onto the given context.  Prioritizes sequences over
    * images.
    *
    * @param {CanvasRenderingContext2D} context - context onto which to draw this

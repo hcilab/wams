@@ -85,7 +85,7 @@ describe('WorkSpace', () => {
       'y',
       'type',
       'imgsrc',
-      'blueprint',
+      'sequence',
       'hitbox',
       'rotation',
       'scale',

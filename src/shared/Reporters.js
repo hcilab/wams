@@ -69,14 +69,14 @@ const Item = ReporterFactory([
   'type',
 
   /**
-   * Canvas blueprint for the item.
+   * Canvas sequence for the item.
    *
-   * @name blueprint
-   * @type {CanvasBlueprint}
+   * @name sequence
+   * @type {CanvasSequence}
    * @memberof module:shared.Item
    * @instance
    */
-  'blueprint',
+  'sequence',
 ]);
 
 /**
