@@ -148,11 +148,18 @@ class State {
    */
   updateAllInputs(event) {
     this.updateInput(event, event.pointerId);
+    this.event = event;
+    this.updateFields();
+  }
+
+  /**
+   * Updates the convenience fields.
+   */
+  updateFields() {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
     this.centroid = Point2D.midpoint(this.activePoints) || {};
-    this.event = event;
   }
 }
 

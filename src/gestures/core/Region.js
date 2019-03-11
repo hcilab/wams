@@ -87,6 +87,7 @@ class Region {
    */
   clearInputsFromSource(id) {
     this.state.clearInputsFromSource(id);
+    this.state.updateFields();
     this.bindings.forEach(binding => {
       binding.evaluateHook('cancel', this.state);
     });
