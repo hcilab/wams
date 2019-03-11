@@ -36,7 +36,7 @@ const { isIncludedIn } = require('./utilities.js');
  * @callback TapItemModifier
  * @memberof module:predefined.taps
  *
- * @param {module:server.ServerItem} target : The item to modify.
+ * @param {module:server.Interactable} target : The item to modify.
  * @param {number} id : The id of the view from which the tap originated.
  */
 

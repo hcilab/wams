@@ -19,10 +19,8 @@
  *
  * @memberof module:predefined.utilities
  *
- * @param {( module:server.ServerItem | module:server.ServerView )} target -
- * Target to check.
- * @param {( module:server.ServerItem | module:server.ServerView )} view - View
- * to compare against.
+ * @param {module:server.Interactable} target - Target to check.
+ * @param {module:server.ServerView} view - View to compare against.
  *
  * @return {boolean} True if the target should be considered the view. False
  * otherwise. Be warned: the target may not actually BE the view! Use the view
@@ -38,8 +36,7 @@ function isView(target, view) {
  *
  * @memberof module:predefined.utilities
  *
- * @param {( module:server.ServerItem | module:server.ServerView )} target -
- * Target to check.
+ * @param {module:server.Interactable} target - Target to check.
  * @param {string[]} itemTypes - The item types to check against.
  *
  * @return {boolean} True if the target has one of the types included in the
