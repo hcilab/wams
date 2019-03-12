@@ -106,6 +106,7 @@ class ServerController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
+      [Message.ADD_IMAGE]:  NOP,
       [Message.ADD_ITEM]:   NOP,
       [Message.ADD_SHADOW]: NOP,
       [Message.RM_ITEM]:    NOP,

@@ -108,6 +108,7 @@ class ClientController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
+      [Message.ADD_IMAGE]:  (...args) => this.handle('addImage', ...args),
       [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
       [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
       [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
@@ -229,6 +230,7 @@ class ClientController {
   resize() {
     this.resizeCanvasToFillWindow();
     new Message(Message.RESIZE, this.view).emitWith(this.socket);
+    this.view.draw();
   }
 
   /**

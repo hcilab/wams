@@ -57,7 +57,15 @@ class ClientItem extends Item {
    */
   assign(data) {
     super.assign(data);
-    this.sequence = new CanvasSequence(data.sequence);
+
+    if (this.render == null) {
+      /**
+       * The actual render.
+       *
+       * @type {CanvasSequence}
+       */
+      this.render = new CanvasSequence(data.sequence);
+    }
   }
 
   /**
@@ -68,12 +76,12 @@ class ClientItem extends Item {
    * item.
    */
   draw(context) {
-    if (this.sequence) {
+    if (this.render) {
       context.save();
       context.translate(this.x, this.y);
       context.rotate(-this.rotation);
       context.scale(this.scale, this.scale);
-      this.sequence.execute(context);
+      this.render.execute(context);
       context.restore();
     }
   }

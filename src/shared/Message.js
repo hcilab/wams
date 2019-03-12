@@ -28,6 +28,7 @@ const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
  */
 const TYPES = {
   // For the server to inform about changes to the model
+  /** @const */ ADD_IMAGE:  'wams-add-image',
   /** @const */ ADD_ITEM:   'wams-add-item',
   /** @const */ ADD_SHADOW: 'wams-add-shadow',
   /** @const */ RM_ITEM:    'wams-remove-item',

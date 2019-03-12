@@ -61,17 +61,23 @@ class ClientModel {
   }
 
   /**
+   * Generate and store an Image with the given values.
+   *
+   * @param {module.shared.WamsImage} values - State of the new image.
+   */
+  addImage(values) {
+    const image = new ClientImage(values);
+    this.itemOrder.push(image);
+    this.items.set(image.id, image);
+  }
+
+  /**
    * Generate and store an Item with the given values.
    *
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    let item = null;
-    if ('src' in values) {
-      item = new ClientImage(values);
-    } else {
-      item = new ClientItem(values);
-    }
+    const item = new ClientItem(values);
     this.itemOrder.push(item);
     this.items.set(item.id, item);
   }
@@ -122,9 +128,14 @@ class ClientModel {
     REQUIRED_DATA.forEach(d => {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
-    // STAMPER.cloneId(this.view, data.id);
     data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
-    data.items.forEach(o => this.addItem(o));
+    data.items.forEach(o => {
+      if (o.hasOwnProperty('src')) { // TODO: Fix this awful duck typing.
+        this.addImage(o);
+      } else {
+        this.addItem(o);
+      }
+    });
   }
 
   /**

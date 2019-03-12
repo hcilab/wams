@@ -7,8 +7,8 @@
 'use strict';
 
 const {
-  WamsImage,
   Message,
+  WamsImage,
 } = require('../shared.js');
 const { Hittable } = require('../mixins.js');
 
@@ -38,7 +38,7 @@ class ServerImage extends Hittable(WamsImage) {
     this.namespace = namespace;
 
     // Notify subscribers immediately.
-    new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
+    new Message(Message.ADD_IMAGE, this).emitWith(this.namespace);
   }
 
   /*
