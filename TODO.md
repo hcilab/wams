@@ -10,16 +10,19 @@
 - [ ] Switch to HTTPS
 - [ ] Write a distributed video player example.
 - [ ] Allow ordering of items on z-axis. (i.e. their position in the item queue)
-- [ ] Make multi-device gesture state recoverable.
-    + [ ] Wipe inputs from dropped connections.
-    + [ ] Refresh all gesture states on drop.
-    + [ ] Respond appropriately to window 'blur' events.
-- [ ] Provide installation instructions, simplify installation.
-    + [ ] Merge DESIGN.md into README.md
 
 ---
 
 # COMPLETED
+
+_As of: Mon Mar 11 21:20:26 CST 2019_
+
+- [X] Make multi-device gesture state recoverable.
+    + [X] Wipe inputs from dropped connections.
+    + [X] Refresh all gesture states on drop.
+    + [X] Respond appropriately to window 'blur' events.
+    + [X] Respond appropriately to cancelled pointers.
+- [X] Provide installation instructions, simplify installation.
 
 _As of: Tue Mar  5 16:55:46 CST 2019_
 
