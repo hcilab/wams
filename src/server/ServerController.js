@@ -111,6 +111,8 @@ class ServerController {
       [Message.ADD_SHADOW]: NOP,
       [Message.RM_ITEM]:    NOP,
       [Message.RM_SHADOW]:  NOP,
+      [Message.SET_IMAGE]:  NOP,
+      [Message.SET_RENDER]: NOP,
       [Message.UD_ITEM]:    NOP,
       [Message.UD_SHADOW]:  NOP,
       [Message.UD_VIEW]:    NOP,

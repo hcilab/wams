@@ -36,6 +36,14 @@ class ClientItem extends Item {
     super(data);
 
     /**
+     * The actual render.
+     *
+     * @type {CanvasSequence}
+     */
+    this.render = null;
+    if (data.sequence) this.setRender(data.sequence);
+
+    /**
      * Id to make the items uniquely identifiable.
      *
      * @name id
@@ -55,18 +63,18 @@ class ClientItem extends Item {
    * @param {module:shared.Item} data - The data from the server describing this
    * item.
    */
-  assign(data) {
-    super.assign(data);
+  // assign(data) {
+  //   super.assign(data);
 
-    if (this.render == null) {
-      /**
-       * The actual render.
-       *
-       * @type {CanvasSequence}
-       */
-      this.render = new CanvasSequence(data.sequence);
-    }
-  }
+  //   if (this.render == null) {
+  /**
+   * The actual render.
+   *
+   * @type {CanvasSequence}
+   */
+  //     this.render = new CanvasSequence(data.sequence);
+  //   }
+  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -84,6 +92,15 @@ class ClientItem extends Item {
       this.render.execute(context);
       context.restore();
     }
+  }
+
+  /**
+   * Set the item's canvas rendering sequence.
+   *
+   * @param {CanvasSequence} sequence - Raw, unrevived CanvasSequence.
+   */
+  setRender(sequence) {
+    this.render = new CanvasSequence(sequence);
   }
 }
 

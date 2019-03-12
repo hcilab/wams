@@ -33,6 +33,8 @@ const TYPES = {
   /** @const */ ADD_SHADOW: 'wams-add-shadow',
   /** @const */ RM_ITEM:    'wams-remove-item',
   /** @const */ RM_SHADOW:  'wams-remove-shadow',
+  /** @const */ SET_IMAGE:  'wams-set-image',
+  /** @const */ SET_RENDER: 'wams-set-render',
   /** @const */ UD_ITEM:    'wams-update-item',
   /** @const */ UD_SHADOW:  'wams-update-shadow',
   /** @const */ UD_VIEW:    'wams-update-view',

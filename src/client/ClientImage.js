@@ -65,7 +65,9 @@ class ClientImage extends WamsImage {
      *
      * @type {Image}
      */
-    this.image = createImage(this.src);
+    this.image = null;
+    if (data.src) this.setImage(data.src);
+    // this.image = createImage(this.src);
 
     /**
      * Id to make the items uniquely identifiable.
@@ -87,10 +89,10 @@ class ClientImage extends WamsImage {
    * @param {module:shared.Item} data - The data from the server describing this
    * item.
    */
-  assign(data) {
-    if (data.src !== this.src) this.image = createImage(data.src);
-    super.assign(data);
-  }
+  // assign(data) {
+  //   if (data.src !== this.src) this.image = createImage(data.src);
+  //   super.assign(data);
+  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -111,6 +113,16 @@ class ClientImage extends WamsImage {
       context.fillRect(0, 0, this.width, this.height);
     }
     context.restore();
+  }
+
+  /**
+   * Sets the image path and loads the image.
+   *
+   * @param {string} path - The image's source path
+   */
+  setImage(path) {
+    this.src = path;
+    this.image = createImage(path);
   }
 }
 

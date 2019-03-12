@@ -7,6 +7,7 @@
 'use strict';
 
 const {
+  DataReporter,
   Message,
   WamsImage,
 } = require('../shared.js');
@@ -40,6 +41,9 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
 
     // Notify subscribers immediately.
     new Message(Message.ADD_IMAGE, this).emitWith(this.namespace);
+    if (values.src) {
+      this.setImage(values.src);
+    }
   }
 
   /*
@@ -56,7 +60,14 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    */
   setImage(path) {
     this.src = path;
-    this.publish();
+    const dreport = new DataReporter({
+      data: {
+        id:  this.id,
+        src: path,
+      },
+    });
+    new Message(Message.SET_IMAGE, dreport).emitWith(this.namespace);
+    // this.publish();
   }
 }
 

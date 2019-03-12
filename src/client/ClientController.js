@@ -113,6 +113,8 @@ class ClientController {
       [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
       [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
       [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
+      [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
       [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
       [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
       [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
@@ -272,6 +274,23 @@ class ClientController {
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
   }
 
+  /**
+   * Set the image for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setImage(data) {
+    this.model.setImage(data);
+  }
+
+  /**
+   * Set the canvas rendering sequence for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setRender(data) {
+    this.model.setRender(data);
+  }
 
   /**
    * The Interactor is a level of abstraction between the ClientController and

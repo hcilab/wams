@@ -76,7 +76,7 @@ const Item = ReporterFactory([
    * @memberof module:shared.Item
    * @instance
    */
-  'sequence',
+  // 'sequence',
 ]);
 
 /**
@@ -166,7 +166,7 @@ const WamsImage = ReporterFactory([
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'src',
+  // 'src',
 ]);
 
 /**

@@ -119,7 +119,15 @@ class WorkSpace {
    * @return {module:shared.Item[]} Reports of the currently active items.
    */
   reportItems() {
-    return this.items.map(o => o.report());
+    return this.items.map(o => {
+      const report = o.report();
+      if (o instanceof ServerImage) {
+        report.src = o.src;
+      } else {
+        report.sequence = o.sequence;
+      }
+      return report;
+    });
   }
 
   /**

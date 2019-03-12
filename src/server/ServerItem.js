@@ -11,6 +11,7 @@
 'use strict';
 
 const {
+  DataReporter,
   Item,
   Message,
 } = require('../shared.js');
@@ -44,6 +45,9 @@ class ServerItem extends Identifiable(Hittable(Item)) {
 
     // Notify subscribers immediately.
     new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
+    if (values.sequence) {
+      this.setSequence(values.sequence);
+    }
   }
 
   /*
@@ -61,7 +65,14 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    */
   setSequence(sequence) {
     this.sequence = sequence;
-    this.publish();
+    const dreport = new DataReporter({
+      data: {
+        id: this.id,
+        sequence,
+      },
+    });
+    new Message(Message.SET_RENDER, dreport).emitWith(this.namespace);
+    // this.publish();
   }
 }
 

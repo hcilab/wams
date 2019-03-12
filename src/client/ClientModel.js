@@ -139,6 +139,28 @@ class ClientModel {
   }
 
   /**
+   * Set the image for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setImage(data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id).setImage(data.src);
+    }
+  }
+
+  /**
+   * Set the canvas rendering sequence for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setRender(data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id).setRender(data.sequence);
+    }
+  }
+
+  /**
    * Intended for use as an internal helper function, so that this functionality
    * does not need to be defined twice for both of the items and shadows arrays.
    *
