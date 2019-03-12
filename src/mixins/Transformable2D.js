@@ -26,7 +26,8 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
    * @param {number} [ dy=0 ] - Movement along the y ayis.
    */
   moveBy(dx = 0, dy = 0) {
-    this.moveTo(this.x + dx, this.y + dy);
+    this.x += dx;
+    this.y += dy;
   }
 
   /**
