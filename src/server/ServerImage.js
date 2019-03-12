@@ -10,7 +10,7 @@ const {
   Message,
   WamsImage,
 } = require('../shared.js');
-const { Hittable } = require('../mixins.js');
+const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
  * The ServerImage provides operations for the server to locate and move images
@@ -19,8 +19,9 @@ const { Hittable } = require('../mixins.js');
  * @memberof module:server
  * @extends module:shared.WamsImage
  * @mixes module:mixins.Hittable
+ * @mixes module:mixins.Identifiable
  */
-class ServerImage extends Hittable(WamsImage) {
+class ServerImage extends Identifiable(Hittable(WamsImage)) {
   /**
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} values - User-supplied data detailing the image. Properties

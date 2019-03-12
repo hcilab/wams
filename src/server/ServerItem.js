@@ -14,7 +14,7 @@ const {
   Item,
   Message,
 } = require('../shared.js');
-const { Hittable } = require('../mixins.js');
+const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
  * The ServerItem provides operations for the server to locate and move items
@@ -23,8 +23,9 @@ const { Hittable } = require('../mixins.js');
  * @memberof module:server
  * @extends module:shared.Item
  * @mixes module:mixins.Hittable
+ * @mixes module:mixins.Identifiable
  */
-class ServerItem extends Hittable(Item) {
+class ServerItem extends Identifiable(Hittable(Item)) {
   /**
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
    * @param {Object} values - User-supplied data detailing the item. Properties
