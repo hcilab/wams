@@ -33,10 +33,8 @@ class WorkSpace {
    * @param {boolean} [settings.useServerGestures=false] - Whether to use
    * server-side gestures. Default is to use client-side gestures.
    * @param {Namespace} namespace - Socket.io namespace for publishing changes.
-   * @param {module:server.Publisher} publisher - Handles publication of
-   * updates.
    */
-  constructor(settings, namespace, publisher) {
+  constructor(settings, namespace) {
     /**
      * Configuration settings for the workspace.
      *
@@ -53,13 +51,6 @@ class WorkSpace {
      * @type {Namespace}
      */
     this.namespace = namespace;
-
-    /**
-     * Handles publication of updates.
-     *
-     * @type {module:server.Publisher}
-     */
-    this.publisher = publisher;
 
     /**
      * Track all items in the workspace.
@@ -140,7 +131,6 @@ class WorkSpace {
    */
   spawnImage(values = {}) {
     const image = new ServerImage(this.namespace, values);
-    image.publisher = this.publisher;
     this.items.push(image);
     return image;
   }
@@ -154,7 +144,6 @@ class WorkSpace {
    */
   spawnItem(values = {}) {
     const item = new ServerItem(this.namespace, values);
-    item.publisher = this.publisher;
     this.items.push(item);
     return item;
   }

@@ -61,7 +61,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    */
   setSequence(sequence) {
     this.sequence = sequence;
-    this.schedulePublication();
+    this.publish();
   }
 }
 

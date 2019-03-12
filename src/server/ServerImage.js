@@ -56,7 +56,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    */
   setImage(path) {
     this.src = path;
-    this.schedulePublication();
+    this.publish();
   }
 }
 

@@ -21,7 +21,6 @@ const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
-const Publisher = require('./Publisher.js');
 
 /**
  * @inner
@@ -71,18 +70,11 @@ class Application {
     this.namespace = IO(this.server).of(constants.NS_WAMS);
 
     /**
-     * Handles operations related to publishing object updates.
-     *
-     * @type {module:server.Publisher}
-     */
-    this.publisher = new Publisher();
-
-    /**
      * The main model. The buck stops here.
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings, this.namespace, this.publisher);
+    this.workspace = new WorkSpace(settings, this.namespace);
 
     /**
      * The MessageHandler responds to messages.
@@ -100,7 +92,6 @@ class Application {
       this.workspace,
       this.messageHandler,
       this.namespace,
-      this.publisher,
       settings,
     );
   }

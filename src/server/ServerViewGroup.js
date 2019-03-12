@@ -137,7 +137,6 @@ class ServerViewGroup extends Locker(Interactable(View)) {
    */
   spawnView(socket) {
     const view = new ServerView(socket, this);
-    view.publisher = this.publisher;
     this.views.push(view);
     return view;
   }

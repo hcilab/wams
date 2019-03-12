@@ -30,7 +30,7 @@ const Interactable = (superclass) => {
      */
     moveBy(dx, dy) {
       super.moveBy(dx, dy);
-      this.schedulePublication();
+      this.publish();
     }
 
     /*
@@ -40,7 +40,7 @@ const Interactable = (superclass) => {
      */
     moveTo(x, y) {
       super.moveTo(x, y);
-      this.schedulePublication();
+      this.publish();
     }
 
     /*
@@ -51,7 +51,7 @@ const Interactable = (superclass) => {
      */
     rotateBy(radians, px, py) {
       super.rotateBy(radians, px, py);
-      this.schedulePublication();
+      this.publish();
     }
 
     /*
@@ -61,7 +61,7 @@ const Interactable = (superclass) => {
      */
     scaleBy(ds, mx, my, delta_fn) {
       super.scaleBy(ds, mx, my, delta_fn);
-      this.schedulePublication();
+      this.publish();
     }
   };
 };

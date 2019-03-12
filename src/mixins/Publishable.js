@@ -6,12 +6,11 @@
 
 'use strict';
 
-const publisher = Symbol('publisher');
-
 /**
- * This mixin provides a basis for types that can be published by a Publisher,
- * where a Publisher is a class that routinely calls 'publish()' on items that
- * it have been scheduled for publication.
+ * This mixin provides a basis for types that can be published. In fact it is
+ * little more than an interface, as it does not actually implement the
+ * 'publish' method, as this is dependent on the specific nature of the
+ * Publishable.
  *
  * @memberof module:mixins
  *
@@ -19,31 +18,12 @@ const publisher = Symbol('publisher');
  */
 const Publishable = (superclass) => class Publishable extends superclass {
   /**
-   * The publisher associated with this Publishable.
-   *
-   * @memberof module:mixins.Publishable
-   *
-   * @type {module:server.Publisher}
-   */
-  get publisher() { return this[publisher]; }
-  set publisher(p) { this[publisher] = p; }
-
-  /**
    * Publish this object.
    *
    * @memberof module:mixins.Publishable
    */
   publish() {
     throw 'Classes using Publishable mixin must implement publish()';
-  }
-
-  /**
-   * Schedule a publication of this object.
-   *
-   * @memberof module:mixins.Publishable
-   */
-  schedulePublication() {
-    this[publisher].schedule(this);
   }
 };
 
