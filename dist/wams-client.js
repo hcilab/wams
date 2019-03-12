@@ -11204,6 +11204,7 @@ const {
 const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
+const FRAME_RATE = 1000 / 60;
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
@@ -11264,8 +11265,7 @@ class ClientController {
     this.view = view;
 
     /**
-     * Tracks whether a render has been scheduled for the next 1/60th of a
-     * second interval.
+     * Tracks whether a render has been scheduled for the next render frame.
      *
      * @type {boolean}
      */
@@ -11368,7 +11368,7 @@ class ClientController {
    */
   [symbols.startRender]() {
     const render_fn = this[symbols.render].bind(this);
-    window.setInterval(render_fn, 1000 / 60);
+    window.setInterval(render_fn, FRAME_RATE);
   }
 
   /**
@@ -11466,22 +11466,8 @@ class ClientController {
    */
   setupInteractor(useServerGestures = false) {
     if (useServerGestures) {
-      ['pointerdown', 'pointermove', 'pointerup'].forEach(eventname => {
-        window.addEventListener(
-          eventname,
-          (event) => {
-            event.preventDefault();
-            const preport = new PointerReporter(event);
-            new Message(Message.POINTER, preport).emitWith(this.socket);
-          },
-          {
-            capture: true,
-            once:    false,
-            passive: false,
-          }
-        );
-      });
-      ['pointercancel', 'blur'].forEach(eventname => {
+      this.setupInputForwarding();
+      ['touchcancel', 'pointercancel', 'blur'].forEach(eventname => {
         window.addEventListener(eventname, (event) => {
           event.preventDefault();
           const breport = new DataReporter();
@@ -11498,6 +11484,80 @@ class ClientController {
         track:  this.forward(Message.TRACK),
       });
     }
+  }
+
+  /**
+   * Set up input event forwarding.
+   */
+  setupInputForwarding() {
+    if (window.PointerEvent) {
+      this.forwardPointerEvents();
+    } else {
+      this.forwardMouseAndTouchEvents();
+    }
+  }
+
+  /**
+   * Forward pointer events.
+   */
+  forwardPointerEvents() {
+    ['pointerdown', 'pointermove', 'pointerup'].forEach(eventname => {
+      window.addEventListener(
+        eventname,
+        (event) => {
+          event.preventDefault();
+          const preport = new PointerReporter(event);
+          new Message(Message.POINTER, preport).emitWith(this.socket);
+        },
+        {
+          capture: true,
+          once:    false,
+          passive: false,
+        }
+      );
+    });
+  }
+
+  /**
+   * Forward mouse and touch events.
+   */
+  forwardMouseAndTouchEvents() {
+    ['mousedown', 'mousemove', 'mouseup'].forEach(eventname => {
+      window.addEventListener(
+        eventname,
+        (event) => {
+          event.preventDefault();
+          const preport = new PointerReporter(event);
+          preport.pointerId = event.button;
+          new Message(Message.POINTER, preport).emitWith(this.socket);
+        },
+        {
+          capture: true,
+          once:    false,
+          passive: false,
+        }
+      );
+    });
+
+    ['touchstart', 'touchmove', 'touchend'].forEach(eventname => {
+      window.addEventListener(
+        eventname,
+        (event) => {
+          event.preventDefault();
+          Array.from(event.changedTouches).forEach(touch => {
+            const preport = new PointerReporter(touch);
+            preport.type = event.type;
+            preport.pointerId = touch.identifier;
+            new Message(Message.POINTER, preport).emitWith(this.socket);
+          });
+        },
+        {
+          capture: true,
+          once:    false,
+          passive: false,
+        }
+      );
+    });
   }
 }
 
