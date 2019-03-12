@@ -11294,6 +11294,8 @@ class ClientController {
       [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
       [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
       [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
+      [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
       [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
       [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
       [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
@@ -11453,6 +11455,23 @@ class ClientController {
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
   }
 
+  /**
+   * Set the image for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setImage(data) {
+    this.model.setImage(data);
+  }
+
+  /**
+   * Set the canvas rendering sequence for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setRender(data) {
+    this.model.setRender(data);
+  }
 
   /**
    * The Interactor is a level of abstraction between the ClientController and
@@ -11632,7 +11651,9 @@ class ClientImage extends WamsImage {
      *
      * @type {Image}
      */
-    this.image = createImage(this.src);
+    this.image = null;
+    if (data.src) this.setImage(data.src);
+    // this.image = createImage(this.src);
 
     /**
      * Id to make the items uniquely identifiable.
@@ -11654,10 +11675,10 @@ class ClientImage extends WamsImage {
    * @param {module:shared.Item} data - The data from the server describing this
    * item.
    */
-  assign(data) {
-    if (data.src !== this.src) this.image = createImage(data.src);
-    super.assign(data);
-  }
+  // assign(data) {
+  //   if (data.src !== this.src) this.image = createImage(data.src);
+  //   super.assign(data);
+  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -11678,6 +11699,16 @@ class ClientImage extends WamsImage {
       context.fillRect(0, 0, this.width, this.height);
     }
     context.restore();
+  }
+
+  /**
+   * Sets the image path and loads the image.
+   *
+   * @param {string} path - The image's source path
+   */
+  setImage(path) {
+    this.src = path;
+    this.image = createImage(path);
   }
 }
 
@@ -11723,6 +11754,14 @@ class ClientItem extends Item {
     super(data);
 
     /**
+     * The actual render.
+     *
+     * @type {CanvasSequence}
+     */
+    this.render = null;
+    if (data.sequence) this.setRender(data.sequence);
+
+    /**
      * Id to make the items uniquely identifiable.
      *
      * @name id
@@ -11742,18 +11781,18 @@ class ClientItem extends Item {
    * @param {module:shared.Item} data - The data from the server describing this
    * item.
    */
-  assign(data) {
-    super.assign(data);
+  // assign(data) {
+  //   super.assign(data);
 
-    if (this.render == null) {
-      /**
-       * The actual render.
-       *
-       * @type {CanvasSequence}
-       */
-      this.render = new CanvasSequence(data.sequence);
-    }
-  }
+  //   if (this.render == null) {
+  /**
+   * The actual render.
+   *
+   * @type {CanvasSequence}
+   */
+  //     this.render = new CanvasSequence(data.sequence);
+  //   }
+  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -11771,6 +11810,15 @@ class ClientItem extends Item {
       this.render.execute(context);
       context.restore();
     }
+  }
+
+  /**
+   * Set the item's canvas rendering sequence.
+   *
+   * @param {CanvasSequence} sequence - Raw, unrevived CanvasSequence.
+   */
+  setRender(sequence) {
+    this.render = new CanvasSequence(sequence);
   }
 }
 
@@ -11916,6 +11964,28 @@ class ClientModel {
         this.addItem(o);
       }
     });
+  }
+
+  /**
+   * Set the image for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setImage(data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id).setImage(data.src);
+    }
+  }
+
+  /**
+   * Set the canvas rendering sequence for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setRender(data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id).setRender(data.sequence);
+    }
   }
 
   /**
@@ -12636,6 +12706,8 @@ const TYPES = {
   /** @const */ ADD_SHADOW: 'wams-add-shadow',
   /** @const */ RM_ITEM:    'wams-remove-item',
   /** @const */ RM_SHADOW:  'wams-remove-shadow',
+  /** @const */ SET_IMAGE:  'wams-set-image',
+  /** @const */ SET_RENDER: 'wams-set-render',
   /** @const */ UD_ITEM:    'wams-update-item',
   /** @const */ UD_SHADOW:  'wams-update-shadow',
   /** @const */ UD_VIEW:    'wams-update-view',
@@ -13248,7 +13320,7 @@ const Item = ReporterFactory([
    * @memberof module:shared.Item
    * @instance
    */
-  'sequence',
+  // 'sequence',
 ]);
 
 /**
@@ -13338,7 +13410,7 @@ const WamsImage = ReporterFactory([
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'src',
+  // 'src',
 ]);
 
 /**
