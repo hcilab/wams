@@ -49,7 +49,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
   /*
    * Publish a general notification about the status of the image.
    */
-  publish() {
+  emitPublication() {
     new Message(Message.UD_ITEM, this).emitWith(this.namespace);
   }
 
