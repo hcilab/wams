@@ -2256,18 +2256,18 @@ function numberIsNaN (obj) {
  * Access point for npm.
  */
 
-const CanvasSequencer = require('./src/CanvasSequencer.js');
+const CanvasSequence = require('./src/CanvasSequence.js');
 const CanvasBlueprint = require('./src/CanvasBlueprint.js');
 
-module.exports = { CanvasSequencer, CanvasBlueprint };
+module.exports = { CanvasSequence, CanvasBlueprint };
 
 
-},{"./src/CanvasBlueprint.js":11,"./src/CanvasSequencer.js":12}],10:[function(require,module,exports){
+},{"./src/CanvasBlueprint.js":11,"./src/CanvasSequence.js":12}],10:[function(require,module,exports){
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
  * 
- * This file defines the low level 'CanvasAtom' for use by a CanvasSequencer.
+ * This file defines the low level 'CanvasAtom' for use by a CanvasSequence.
  *
  * A CanvasAtom is a unit of execution in a CanvasSequence. It comes in two
  * flavours: one for describing a method call, one for describing a property
@@ -2276,42 +2276,93 @@ module.exports = { CanvasSequencer, CanvasBlueprint };
 
 'use strict';
 
-const TYPES = Object.freeze({
-  METHOD:   'method',
-  PROPERTY: 'property',
-});
+/**
+ * The types of CanvasAtoms that are available.
+ *
+ * @enum {string}
+ * @readonly
+ * @lends CanvasAtom
+ */
+const TYPES = {
+  /** @const */ METHOD:   'method',
+  /** @const */ PROPERTY: 'property',
+};
 
-/*
- * Internal common constructor definition.
+/**
+ * Internal common constructor definition for Canvas Atoms.
  */
 class Atom {
+  /**
+   * @param {string} inst - The canvas context instruction.
+   * @param {mixed[]} args - The arguments to the instruction.
+   */
   constructor(inst, args) {
+    /**
+     * The canvas context instruction.
+     *
+     * @private
+     * @type {string}
+     */
     this.inst = inst;
+
+    /**
+     * The arguments to the instruction.
+     *
+     * @private
+     * @type {mixed[]}
+     */
     this.args = args;
   }
 }
 
-/*
- * Each flavour needs its own execute() definition, and needs to specify its
- * type in its constructor.
+/**
+ * A MethodCanvasAtom is used for canvas context methods. The arguments will be
+ * treated as an actual array, all of which will be passed to the method when
+ * the atom is executed.
+ *
+ * @extends Atom
  */
 class MethodCanvasAtom extends Atom {
   constructor(inst, args) {
     super(inst, args);
+
+    /**
+     * The type of atom.
+     *
+     * @private
+     * @type {string}
+     */
     this.type = TYPES.METHOD;
   }
 
+  /**
+   * Execute the atom on the given context.
+   *
+   * @param {CanvasRenderingContext2D} context
+   */
   execute(context) {
     context[this.inst](...this.args);
   }
 }
 
+/**
+ * A PropertyCanvasAtom is used for canvas context properties (a.k.a. fields).
+ * Only the first argument will be used, and will be the value assigned to the
+ * field.
+ *
+ * @extends Atom
+ */
 class PropertyCanvasAtom extends Atom {
   constructor(inst, args) {
     super(inst, args);
     this.type = TYPES.PROPERTY;
   }
 
+  /**
+   * Execute the atom on the given context.
+   *
+   * @param {CanvasRenderingContext2D} context
+   */
   execute(context) {
     context[this.inst] = this.args[0];
   }
@@ -2328,13 +2379,16 @@ const atomOf = {
   [TYPES.PROPERTY]: PropertyCanvasAtom,
 };
 
-/*
- * The CanvasAtom is the class that will be exposed.
- * I'm not sure I like the way this is structured, but at least it's better
- * than 'switch'ing on the type every time execute() is called. This way, we
- * only have to 'switch' once.
+/**
+ * The exposed CanvasAtom class. Results in the instantiation of either a
+ * MethodCanvasAtom or a PropertyCanvasAtom, depending on the given type.
  */
 class CanvasAtom {
+  /**
+   * @param {string} type - Either CanvasAtom.METHOD or CanvasAtom.PROPERTY.
+   * @param {string} inst - The canvas context instruction.
+   * @param {mixed[]} args - The arguments to the instruction.
+   */
   constructor(type, inst, ...args) {
     return new atomOf[type](inst, args);
   }
@@ -2344,8 +2398,8 @@ class CanvasAtom {
  * Define the types once locally, but make them available externally as
  * immutable properties on the class.
  */
-Object.entries(TYPES).forEach( ([p,v]) => {
-  Object.defineProperty( CanvasAtom, p, {
+Object.entries(TYPES).forEach(([p,v]) => {
+  Object.defineProperty(CanvasAtom, p, {
     value: v,
     configurable: false,
     enumerable: true,
@@ -2363,22 +2417,40 @@ module.exports = CanvasAtom;
  * 
  * Thie file provides the definition of the CanvasBlueprint class.
  *
- * A CanvasBlueprint is similar to a plain CanvasSequencer, except that it
+ * A CanvasBlueprint is similar to a plain CanvasSequence, except that it
  * accepts tag strings as arguments, and before it can be executed it  needs to
  * be 'built' with an object defining which values should replace the tags.
  */
 
 'use strict';
 
-const CanvasSequencer = require('./CanvasSequencer.js');
+const CanvasSequence = require('./CanvasSequence.js');
 
+// Mark properties as intended for internal use.
 const symbols = Object.freeze({
   sequence: Symbol.for('sequence'),
   push: Symbol.for('push'),
 });
 
-/*
- * Local function for replacing tags with values.
+/**
+ * Replace tags in the given string with correlated value in values.
+ *
+ * Rules:
+ * - Strings not surrounded by curly braces {} will be returned.
+ * - Strings surrounded by curly braces but not corresponding to a property on
+ *   'values' will result in a string without the curly braces being returned.
+ * - Strings surrounded by curly braces, with the inner string corresponding to
+ *   a property on 'values' will result in the corresponding value being
+ *   returned.
+ *
+ * @inner
+ * @private
+ *
+ * @param {string} str
+ * @param {object} values
+ *
+ * @return {string|mixed} Either the original string if no replacement was
+ * performed, or the appropriate value.
  */
 function replaceTags(str, values) {
   const tag = str.replace(/^{|}$/g, '');
@@ -2388,9 +2460,30 @@ function replaceTags(str, values) {
   return str;
 }
 
-class CanvasBlueprint extends CanvasSequencer {
+/**
+ * A CanvasBlueprint is a rebuildable CanvasSequence. It accepts tagged
+ * arguments. When built, tags will be replaced using properties from a provided
+ * object.
+ *
+ * @extends CanvasSequence
+ */
+class CanvasBlueprint extends CanvasSequence {
+  /** Build the blueprint using the provided values.
+   *
+   * Rules: 
+   * - Strings not surrounded by curly braces {} will be returned.
+   * - Strings surrounded by curly braces but not corresponding to a property on
+   *   'values' will result in a string without the curly braces being returned.
+   * - Strings surrounded by curly braces, with the inner string corresponding
+   *   to a property on 'values' will result in the corresponding value being
+   *   returned.
+   *
+   * @param {object} values - The values with which to construct the sequence.
+   *
+   * @return {CanvasSequence} The constructed sequence.
+   */
   build(values = {}) {
-    const seq = new CanvasSequencer();
+    const seq = new CanvasSequence();
     this[symbols.sequence].forEach( ({ type, inst, args }) => {
       const realArgs = args.map( v => {
         return (typeof v === 'string') ? replaceTags(v, values) : v;
@@ -2400,23 +2493,25 @@ class CanvasBlueprint extends CanvasSequencer {
     return seq;
   }
 
+  /**
+   * CanvasBlueprints cannot be directly executed!
+   *
+   * @throws TypeError
+   */
   execute() {
-    throw 'Cannot execute a blueprint.';
+    throw new TypeError('Cannot execute a blueprint.');
   }
 }
 
 module.exports = CanvasBlueprint;
 
 
-},{"./CanvasSequencer.js":12}],12:[function(require,module,exports){
+},{"./CanvasSequence.js":12}],12:[function(require,module,exports){
 /*
  * Author: Michael van der Kamp
  * Date: July/August, 2018
  * 
- * This file provides the definition of the CanvasSequencer class.
- *
- * A CanvasSequencer is a linear collection of CanvasAtoms, capable of being
- * executed on a CanvasRenderingContext2D.
+ * This file provides the definition of the CanvasSequence class.
  */
 
 'use strict';
@@ -2479,41 +2574,82 @@ const locals = Object.freeze({
   ],
 });
 
+// Mark properties as intended for internal use.
 const symbols = Object.freeze({
   sequence: Symbol.for('sequence'),
   push: Symbol.for('push'),
   fromJSON: Symbol.for('fromJSON'),
 });
 
-class CanvasSequencer {
+/**
+ * A CanvasSequence is a linear collection of CanvasAtoms, capable of being
+ * executed on a CanvasRenderingContext2D.
+ */
+class CanvasSequence {
+  /**
+   * @param {CanvasSequence} [data=null] - An unrevived (i.e. freshly
+   * transmitted) CanvasSequence. If present, the constructor revives the
+   * sequence. Note that an already revived CanvasSequence cannot be used as the
+   * argument here.
+   */
   constructor(data = null) {
+    /**
+     * The CanvasAtoms that form the sequence.
+     *
+     * @private
+     * @type {CanvasAtom[]}
+     */
     this[symbols.sequence] = [];
+
+    // If data is present, assume it is a CanvasSequence that needs reviving.
     if (data) this[symbols.fromJSON](data);
   }
 
+  /**
+   * Revive the sequence from transmitted JSON data.
+   *
+   * @private
+   * @param {CanvasSequence} [data={}]
+   */
   [symbols.fromJSON](data = {}) {
     data.sequence.forEach( ({ type, inst, args }) => {
       this[symbols.push](type, inst, ...args);
     });
   }
 
+  /**
+   * Push a new CanvasAtom onto the end of the sequence.
+   *
+   * @private
+   * @param {...mixed} args - The arguments to the CanvasAtom constructor.
+   */
   [symbols.push](...args) {
     this[symbols.sequence].push(new CanvasAtom(...args));
   }
 
+  /**
+   * Execute the sequence on the given context.
+   *
+   * @param {CanvasRenderingContext2D} context
+   */
   execute(context) {
     context.save();
     this[symbols.sequence].forEach( a => a.execute(context) );
     context.restore();
   }
 
+  /**
+   * Export a JSON serialized version of the sequence, ready for transmission.
+   *
+   * @return {CanvasSequence} In JSON serialized form.
+   */
   toJSON() {
     return { sequence: this[symbols.sequence] };
   }
 }
 
 locals.METHODS.forEach( m => {
-  Object.defineProperty( CanvasSequencer.prototype, m, {
+  Object.defineProperty( CanvasSequence.prototype, m, {
     value: function pushMethodCall(...args) {
       this[symbols.push](CanvasAtom.METHOD, m, ...args);
     }, 
@@ -2524,7 +2660,7 @@ locals.METHODS.forEach( m => {
 });
 
 locals.PROPERTIES.forEach( p => {
-  Object.defineProperty( CanvasSequencer.prototype, p, {
+  Object.defineProperty( CanvasSequence.prototype, p, {
     get() { throw `Invalid canvas sequencer interaction, cannot get ${p}.` },
     set(v) { this[symbols.push](CanvasAtom.PROPERTY, p, v) },
     enumerable: true,
@@ -2532,7 +2668,7 @@ locals.PROPERTIES.forEach( p => {
   });
 });
 
-module.exports = CanvasSequencer;
+module.exports = CanvasSequence;
 
 
 },{"./CanvasAtom.js":10}],13:[function(require,module,exports){
@@ -11153,6 +11289,7 @@ class ClientController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
+      [Message.ADD_IMAGE]:  (...args) => this.handle('addImage', ...args),
       [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
       [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
       [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
@@ -11274,6 +11411,7 @@ class ClientController {
   resize() {
     this.resizeCanvasToFillWindow();
     new Message(Message.RESIZE, this.view).emitWith(this.socket);
+    this.view.draw();
   }
 
   /**
@@ -11450,7 +11588,7 @@ class ClientImage extends WamsImage {
 
   /**
    * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing blueprint and
+   * functionality for generating an image, or a canvas drawing sequence and
    * sequence.
    *
    * @param {module:shared.Item} data - The data from the server describing this
@@ -11462,7 +11600,7 @@ class ClientImage extends WamsImage {
   }
 
   /**
-   * Render the item onto the given context.  Prioritizes blueprints over
+   * Render the item onto the given context.  Prioritizes sequences over
    * images.
    *
    * @param {CanvasRenderingContext2D} context - context onto which to draw this
@@ -11500,7 +11638,7 @@ module.exports = ClientImage;
 'use strict';
 
 const { IdStamper, Item } = require('../shared.js');
-const { CanvasBlueprint } = require('canvas-sequencer');
+const { CanvasSequence } = require('canvas-sequencer');
 
 /*
  * I'm not defining a 'defaults' object here, because the data going into the
@@ -11538,7 +11676,7 @@ class ClientItem extends Item {
 
   /**
    * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing blueprint and
+   * functionality for generating an image, or a canvas drawing sequence and
    * sequence.
    *
    * @param {module:shared.Item} data - The data from the server describing this
@@ -11546,25 +11684,31 @@ class ClientItem extends Item {
    */
   assign(data) {
     super.assign(data);
-    if (this.sequence == null && data.blueprint) {
-      this.sequence = new CanvasBlueprint(data.blueprint).build(this.report());
+
+    if (this.render == null) {
+      /**
+       * The actual render.
+       *
+       * @type {CanvasSequence}
+       */
+      this.render = new CanvasSequence(data.sequence);
     }
   }
 
   /**
-   * Render the item onto the given context.  Prioritizes blueprints over
+   * Render the item onto the given context.  Prioritizes sequences over
    * images.
    *
    * @param {CanvasRenderingContext2D} context - context onto which to draw this
    * item.
    */
   draw(context) {
-    if (this.sequence) {
+    if (this.render) {
       context.save();
       context.translate(this.x, this.y);
       context.rotate(-this.rotation);
       context.scale(this.scale, this.scale);
-      this.sequence.execute(context);
+      this.render.execute(context);
       context.restore();
     }
   }
@@ -11637,17 +11781,23 @@ class ClientModel {
   }
 
   /**
+   * Generate and store an Image with the given values.
+   *
+   * @param {module.shared.WamsImage} values - State of the new image.
+   */
+  addImage(values) {
+    const image = new ClientImage(values);
+    this.itemOrder.push(image);
+    this.items.set(image.id, image);
+  }
+
+  /**
    * Generate and store an Item with the given values.
    *
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    let item = null;
-    if ('src' in values) {
-      item = new ClientImage(values);
-    } else {
-      item = new ClientItem(values);
-    }
+    const item = new ClientItem(values);
     this.itemOrder.push(item);
     this.items.set(item.id, item);
   }
@@ -11698,9 +11848,14 @@ class ClientModel {
     REQUIRED_DATA.forEach(d => {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
-    // STAMPER.cloneId(this.view, data.id);
     data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
-    data.items.forEach(o => this.addItem(o));
+    data.items.forEach(o => {
+      if (o.hasOwnProperty('src')) { // TODO: Fix this awful duck typing.
+        this.addImage(o);
+      } else {
+        this.addItem(o);
+      }
+    });
   }
 
   /**
@@ -12416,6 +12571,7 @@ const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
  */
 const TYPES = {
   // For the server to inform about changes to the model
+  /** @const */ ADD_IMAGE:  'wams-add-image',
   /** @const */ ADD_ITEM:   'wams-add-item',
   /** @const */ ADD_SHADOW: 'wams-add-shadow',
   /** @const */ RM_ITEM:    'wams-remove-item',
@@ -13025,14 +13181,14 @@ const Item = ReporterFactory([
   'type',
 
   /**
-   * Canvas blueprint for the item.
+   * Canvas sequence for the item.
    *
-   * @name blueprint
-   * @type {CanvasBlueprint}
+   * @name sequence
+   * @type {CanvasSequence}
    * @memberof module:shared.Item
    * @instance
    */
-  'blueprint',
+  'sequence',
 ]);
 
 /**
