@@ -328,10 +328,10 @@ class ClientController {
    * Set up input event forwarding.
    */
   setupInputForwarding() {
-    if (window.PointerEvent) {
-      this.forwardPointerEvents();
-    } else {
+    if (window.MouseEvent || window.TouchEvent) {
       this.forwardMouseAndTouchEvents();
+    } else {
+      this.forwardPointerEvents();
     }
   }
 
