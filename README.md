@@ -1,5 +1,8 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
+[![dependencies Status](https://david-dm.org/mvanderkamp/wams/status.svg)](
+https://david-dm.org/mvanderkamp/wams)
+
 ## Contents
 
 * [Installation](#installation)
