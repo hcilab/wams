@@ -1,7 +1,11 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
-[![dependencies Status](https://david-dm.org/mvanderkamp/wams/status.svg)](
+[![dependencies Status](
+https://david-dm.org/mvanderkamp/wams/status.svg)](
 https://david-dm.org/mvanderkamp/wams)
+[![devDependencies Status](
+https://david-dm.org/mvanderkamp/wams/dev-status.svg)](
+https://david-dm.org/mvanderkamp/wams?type=dev)
 
 ## Contents
 
