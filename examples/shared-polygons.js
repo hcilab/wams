@@ -40,7 +40,7 @@ function polygon(x, y, view) {
 //  they joined. Lays out views in a decending staircase pattern
 const handleLayout = (function makeLayoutHandler() {
   let table = null;
-  const OVERLAP = 30;
+  const OVERLAP = 5;
 
   const TABLE   = 0;
   const RIGHT   = 1;
