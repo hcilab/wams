@@ -32,6 +32,39 @@ class Region {
      * @type {module:gestures.State}
      */
     this.state = new State();
+
+    /**
+     * Whether an update to the state has occurred.
+     *
+     * @type {boolean}
+     */
+    this.hasUpdated = false;
+
+    /**
+     * The phase for the next update.
+     *
+     * @type {string}
+     */
+    this.nextUpdate = null;
+
+    setInterval(() => {
+      if (this.hasUpdated) {
+        this.evaluateBindings();
+      }
+    }, 1000 / 120);
+  }
+
+  /**
+   * Evaluate the active bindings for the current state and phase.
+   */
+  evaluateBindings() {
+    this.bindings.forEach(binding => {
+      binding.evaluateHook(this.nextUpdate, this.state);
+    });
+
+    this.state.clearEndedInputs();
+    this.hasUpdated = false;
+    this.nextUpdate = null;
   }
 
   /**
@@ -43,13 +76,14 @@ class Region {
    * @param {PointerEvent} event - The event received from a client.
    */
   arbitrate(event) {
+    const phase = PHASE[event.type];
+    if (this.nextUpdate && phase !== this.nextUpdate) {
+      this.evaluateBindings();
+    }
+
     this.state.updateAllInputs(event);
-
-    this.bindings.forEach(binding => {
-      binding.evaluateHook(PHASE[event.type], this.state);
-    });
-
-    this.state.clearEndedInputs();
+    this.nextUpdate = phase;
+    this.hasUpdated = true;
   }
 
   /**
@@ -88,9 +122,8 @@ class Region {
   clearInputsFromSource(id) {
     this.state.clearInputsFromSource(id);
     this.state.updateFields();
-    this.bindings.forEach(binding => {
-      binding.evaluateHook('cancel', this.state);
-    });
+    this.nextUpdate = 'cancel';
+    this.evaluateBindings();
   }
 }
 

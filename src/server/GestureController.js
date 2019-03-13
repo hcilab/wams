@@ -25,7 +25,6 @@ class GestureController {
    * @param {module:server.ServerViewGroup} group - The view group associated
    * with this controller.
    */
-  // constructor(messageHandler, workspace) {
   constructor(messageHandler, group) {
     /**
      * For responding to gestures.
