@@ -11546,9 +11546,11 @@ class ClientController {
         eventname,
         (event) => {
           event.preventDefault();
-          const preport = new PointerReporter(event);
-          preport.pointerId = event.button;
-          new Message(Message.POINTER, preport).emitWith(this.socket);
+          if (event.button === 0) {
+            const preport = new PointerReporter(event);
+            preport.pointerId = event.button;
+            new Message(Message.POINTER, preport).emitWith(this.socket);
+          }
         },
         {
           capture: true,
