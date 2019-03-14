@@ -19,7 +19,7 @@ app.spawnImage(Wams.predefined.items.image('img/monaLisa.jpg', {
   y:      200,
   width:  1200,
   height: 1815,
-  type:   'Draggable',
+  type:   'draggable',
   scale:  0.2,
 }));
 
@@ -28,25 +28,12 @@ app.spawnImage(Wams.predefined.items.image('img/scream.png', {
   y:      400,
   width:  800,
   height: 1013,
-  type:   'Draggable',
+  type:   'draggable',
   scale:  0.25,
 }));
 
-const handleLayout = (function defineLayoutHandler() {
-  let nx = 0;
-  function handleLayout(view, position) {
-    if (position === 0) {
-      nx = view.topRight;
-      nx.x -= 30;
-    } else {
-      view.moveTo(nx.x, nx.y);
-    }
-  }
-  return handleLayout;
-}());
-
-app.on('drag',   Wams.predefined.drags.items(['Draggable']));
-app.on('layout', handleLayout);
+app.on('drag',   Wams.predefined.drags.items(['draggable']));
+app.on('layout', Wams.predefined.layouts.line(30));
 
 app.listen(9003);
 

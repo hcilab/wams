@@ -36,77 +36,8 @@ function polygon(x, y, view) {
   );
 }
 
-// Example Layout function that takes in the newly added client and which app
-//  they joined. Lays out views in a decending staircase pattern
-const handleLayout = (function makeLayoutHandler() {
-  let table = null;
-  const OVERLAP = 5;
-
-  const TABLE   = 0;
-  const RIGHT   = 1;
-  const LEFT    = 2;
-  const BOTTOM  = 3;
-
-  function layoutTable(view) {
-    table = view;
-  }
-
-  function transform(point) {
-    return table.transformPointChange(point.x, point.y);
-  }
-
-  function layoutLeft(view, device) {
-    const anchor = table.bottomLeft.minus(transform({
-      x: 0,
-      y: OVERLAP,
-    }));
-    view.moveTo(anchor.x, anchor.y);
-    device.moveTo(0, table.height - OVERLAP);
-  }
-
-  function layoutRight(view, device) {
-    const anchor = table.topRight.minus(transform({
-      x: OVERLAP,
-      y: 0,
-    }));
-    view.moveTo(anchor.x, anchor.y);
-    device.moveTo(table.width - OVERLAP, 0);
-  }
-
-  function layoutBottom(view, device) {
-    const anchor = table.bottomRight.minus(transform({
-      x: OVERLAP,
-      y: OVERLAP,
-    }));
-    view.moveTo(anchor.x, anchor.y);
-    device.moveTo(table.width - OVERLAP, table.height - OVERLAP);
-  }
-
-  function dependOnTable(fn) {
-    return function layoutDepender(view, device) {
-      if (table == null) {
-        setTimeout(() => layoutDepender(view, device), 0);
-      } else {
-        fn(view, device);
-      }
-    };
-  }
-
-  const user_fns = [];
-  user_fns[TABLE]   = layoutTable;
-  user_fns[RIGHT]   = dependOnTable(layoutRight);
-  user_fns[LEFT]    = dependOnTable(layoutLeft);
-  user_fns[BOTTOM]  = dependOnTable(layoutBottom);
-
-  function handleLayout(view, position, device) {
-    user_fns[position](view, device);
-  }
-
-  return handleLayout;
-}());
-
 // Attaches the different function handlers
-app.on('layout', handleLayout);
+app.on('layout', Wams.predefined.layouts.line(5));
 app.on('scale',  Wams.predefined.scales.itemsAndView(['colour']));
 app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
 app.on('rotate', Wams.predefined.rotates.itemsAndView(['colour']));
