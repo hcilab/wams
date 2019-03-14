@@ -188,8 +188,7 @@ class ServerController {
    *       state of the window in which it is displayed.
    */
   layout({ width, height }) {
-    this.view.assign({ width, height });
-    this.device.assign({ width, height });
+    this.setSize(width, height);
     this.messageHandler.handle('layout', this.view, this.index, this.device);
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
@@ -217,8 +216,19 @@ class ServerController {
    *       state of the window in which it is displayed.
    */
   resize({ width, height }) {
-    this.view.assign({ width, height });
+    this.setSize(width, height);
     new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
+  }
+
+  /**
+   * Sets the size of the view and device.
+   *
+   * @param {number} width
+   * @param {number} height
+   */
+  setSize(width, height) {
+    this.view.assign({ width, height });
+    this.device.assign({ width, height });
   }
 }
 

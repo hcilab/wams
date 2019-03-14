@@ -47,7 +47,7 @@ function line(overlap) {
       }
     } else {
       rights[0] = device.width;
-      views[position] = view;
+      views[0] = view;
     }
   }
 
