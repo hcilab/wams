@@ -7,11 +7,8 @@
 
 'use strict';
 
-const Polygon2D = require('../../src/server/Polygon2D.js');
-const Point2D = require('../../src/server/Point2D.js');
-
-// to test:
-// Polygon2D#contains(p)
+const Polygon2D = require('../../src/shared/Polygon2D.js');
+const Point2D = require('../../src/shared/Point2D.js');
 
 describe('Polygon2D', () => {
   let triangle_points, rectangle_points;
@@ -34,7 +31,7 @@ describe('Polygon2D', () => {
     let triangle;
 
     test('Constructs an object of the correct type', () => {
-      expect(new Polygon2D([])).toBeInstanceOf(Polygon2D);
+      expect(new Polygon2D([rectangle_points[0]])).toBeInstanceOf(Polygon2D);
     });
 
     test('Accepts an array of Point2D objects', () => {
@@ -205,6 +202,5 @@ describe('Polygon2D', () => {
     });
 
   });
-
 });
 
