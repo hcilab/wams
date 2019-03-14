@@ -113,18 +113,17 @@ class Polygon2D {
    */
   winding_number(point) {
     let wn = 0;
-    const p = new Point2D(point.x, point.y);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
-      if (this.points[i].y <= p.y) {
-        if (this.points[i + 1].y > p.y) { // Upward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
+      if (this.points[i].y <= point.y) {
+        if (this.points[i + 1].y > point.y) { // Upward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
             ++wn;
           }
         }
       } else {
-        if (this.points[i + 1].y <= p.y) { // Downward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
+        if (this.points[i + 1].y <= point.y) { // Downward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
             --wn;
           }
         }
