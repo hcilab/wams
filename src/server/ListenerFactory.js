@@ -100,6 +100,9 @@ function drag(listener) {
  * @param {module:server.ServerView} view - View from which the layout
  * originates.
  * @param {number} index - internal index / id of the view.
+ * @param {module:server.Device} device - Representation of where the physical
+ * device should be located in relation to other devices (for server-side
+ * gestures).
  */
 
 /**
