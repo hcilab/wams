@@ -11343,7 +11343,7 @@ const io = require('socket.io-client');
 const {
   constants,
   DataReporter,
-  PointerReporter,
+  TouchReporter,
   IdStamper,
   Message,
   NOP,
@@ -11672,8 +11672,13 @@ class ClientController {
         eventname,
         (event) => {
           event.preventDefault();
-          const preport = new PointerReporter(event);
-          new Message(Message.POINTER, preport).emitWith(this.socket);
+          const treport = new TouchReporter(event);
+          treport.changedTouches = [{
+            identifier: event.pointerId,
+            clientX:    event.clientX,
+            clientY:    event.clientY,
+          }];
+          new Message(Message.POINTER, treport).emitWith(this.socket);
         },
         {
           capture: true,
@@ -11694,9 +11699,13 @@ class ClientController {
         (event) => {
           event.preventDefault();
           if (event.button === 0) {
-            const preport = new PointerReporter(event);
-            preport.pointerId = event.button;
-            new Message(Message.POINTER, preport).emitWith(this.socket);
+            const treport = new TouchReporter(event);
+            treport.changedTouches = [{
+              identifier: 0,
+              clientX:    event.clientX,
+              clientY:    event.clientY,
+            }];
+            new Message(Message.POINTER, treport).emitWith(this.socket);
           }
         },
         {
@@ -11712,12 +11721,16 @@ class ClientController {
         eventname,
         (event) => {
           event.preventDefault();
-          Array.from(event.changedTouches).forEach(touch => {
-            const preport = new PointerReporter(touch);
-            preport.type = event.type;
-            preport.pointerId = touch.identifier;
-            new Message(Message.POINTER, preport).emitWith(this.socket);
-          });
+          const treport = new TouchReporter(event);
+          treport.changedTouches = Array.from(event.changedTouches)
+            .map(touch => {
+              return {
+                identifier: touch.identifier,
+                clientX:    touch.clientX,
+                clientY:    touch.clientY,
+              };
+            });
+          new Message(Message.POINTER, treport).emitWith(this.socket);
         },
         {
           capture: true,
@@ -13201,9 +13214,8 @@ class Polygon2D {
      * @type {number}
      */
     this.radius = this.points.reduce((max, curr) => {
-      const dist = this.centroid.distanceTo(curr);
-      return max > dist ? max : dist;
-    }, 0);
+      return max > curr ? max : curr;
+    });
 
     // Close the polygon.
     this.points.push(this.points[0].clone());
@@ -13729,59 +13741,39 @@ const FullStateReporter = ReporterFactory([
 ]);
 
 /**
- * Enables forwarding of PointerEvents from the client to the server.
+ * Enables forwarding of TouchEvents from the client to the server.
  *
- * @class PointerReporter
+ * @class TouchReporter
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const PointerReporter = ReporterFactory([
+const TouchReporter = ReporterFactory([
   /**
    * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
    *
    * @name type
    * @type {string}
-   * @memberof module:shared.PointerReporter
+   * @memberof module:shared.TouchReporter
    * @instance
    */
   'type',
 
   /**
-   * The pointer identifier.
+   * Array of changed touches.
    *
-   * @name pointerId
-   * @type {number}
-   * @memberof module:shared.PointerReporter
+   * @name changedTouches
+   * @type {Touch[]}
+   * @memberof module:shared.TouchReporter
    * @instance
    */
-  'pointerId',
-
-  /**
-   * The clientX coordinate of the event.
-   *
-   * @name clientX
-   * @type {number}
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  'clientX',
-
-  /**
-   * The clientY coordinate of the event.
-   *
-   * @name clientY
-   * @type {number}
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  'clientY',
+  'changedTouches',
 
   /**
    * Whether the CTRL key was pressed at the time of the event.
    *
    * @name ctrlKey
    * @type {boolean}
-   * @memberof module:shared.PointerReporter
+   * @memberof module:shared.TouchReporter
    * @instance
    */
   'ctrlKey',
@@ -13791,7 +13783,7 @@ const PointerReporter = ReporterFactory([
    *
    * @name altKey
    * @type {boolean}
-   * @memberof module:shared.PointerReporter
+   * @memberof module:shared.TouchReporter
    * @instance
    */
   'altKey',
@@ -13801,7 +13793,7 @@ const PointerReporter = ReporterFactory([
    *
    * @name shiftKey
    * @type {boolean}
-   * @memberof module:shared.PointerReporter
+   * @memberof module:shared.TouchReporter
    * @instance
    */
   'shiftKey',
@@ -13811,7 +13803,7 @@ const PointerReporter = ReporterFactory([
    *
    * @name metaKey
    * @type {boolean}
-   * @memberof module:shared.PointerReporter
+   * @memberof module:shared.TouchReporter
    * @instance
    */
   'metaKey',
@@ -13822,7 +13814,7 @@ module.exports = {
   View,
   DataReporter,
   FullStateReporter,
-  PointerReporter,
+  TouchReporter,
   WamsImage,
 };
 
