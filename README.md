@@ -6,6 +6,9 @@ https://david-dm.org/mvanderkamp/wams)
 [![devDependencies Status](
 https://david-dm.org/mvanderkamp/wams/dev-status.svg)](
 https://david-dm.org/mvanderkamp/wams?type=dev)
+[![Maintainability](
+https://api.codeclimate.com/v1/badges/d751ac91ef2c243f5758/maintainability)](
+https://codeclimate.com/github/mvanderkamp/WAMS-API/maintainability)
 
 ## Contents
 

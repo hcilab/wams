@@ -46,8 +46,9 @@ class Polygon2D {
      * @type {number}
      */
     this.radius = this.points.reduce((max, curr) => {
-      return max > curr ? max : curr;
-    });
+      const dist = this.centroid.distanceTo(curr);
+      return max > dist ? max : dist;
+    }, 0);
 
     // Close the polygon.
     this.points.push(this.points[0].clone());
@@ -111,8 +112,9 @@ class Polygon2D {
    *
    * @return {number} The winding number (=0 only when P is outside)
    */
-  winding_number(point) {
+  winding_number(p) {
     let wn = 0;
+    const point = new Point2D(p.x, p.y);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
       if (this.points[i].y <= point.y) {

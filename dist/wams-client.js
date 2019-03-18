@@ -10035,6 +10035,14 @@ class Pan extends Gesture {
      * @type {module:westures.Point2D}
      */
     this.previous = null;
+
+    /**
+     * Stage the emitted data once.
+     *
+     * @private
+     * @type {ReturnTypes.RotateData}
+     */
+    this.stagedEmit = null;
   }
 
   /**
@@ -10044,10 +10052,11 @@ class Pan extends Gesture {
    * @private
    * @param {State} state - The state object received by a hook.
    */
-  refresh(state) {
+  restart(state) {
     if (state.active.length >= REQUIRED_INPUTS) {
       this.previous = state.centroid;
     }
+    this.stagedEmit = null;
   }
 
   /**
@@ -10058,7 +10067,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -10074,14 +10083,14 @@ class Pan extends Gesture {
     }
 
     if (this.muteKey && state.event[this.muteKey]) {
-      this.refresh(state);
+      this.restart(state);
       return null;
     }
 
     const point = state.centroid;
     const change = point.minus(this.previous);
-    this.previous = point;
 
+    this.previous = point;
     return { change, point };
   }
 
@@ -10093,7 +10102,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -10104,7 +10113,7 @@ class Pan extends Gesture {
    * @param {State} state - current input state.
    */
   cancel(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 }
 
@@ -10119,8 +10128,6 @@ module.exports = Pan;
 'use strict';
 
 const { Gesture } = require('westures-core');
-
-const DEFAULT_MIN_INPUTS = 2;
 
 /**
  * Data returned when a Pinch is recognized.
@@ -10146,14 +10153,15 @@ const DEFAULT_MIN_INPUTS = 2;
  */
 class Pinch extends Gesture {
   /**
-   * Constructor function for the Pinch class.
-   *
    * @param {Object} [options]
    * @param {number} [options.minInputs=2] The minimum number of inputs that
-   *    must be active for a Pinch to be recognized.
+   * must be active for a Pinch to be recognized.
+   * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+   * emitted data.
    */
   constructor(options = {}) {
     super('pinch');
+    const settings = { ...Pinch.DEFAULTS, ...options };
 
     /**
      * The minimum number of inputs that must be active for a Pinch to be
@@ -10162,7 +10170,20 @@ class Pinch extends Gesture {
      * @private
      * @type {number}
      */
-    this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
+    this.minInputs = settings.minInputs;
+
+    /**
+     * The function through which emits are passed.
+     *
+     * @private
+     * @type {function}
+     */
+    this.emit = null;
+    if (settings.smoothing) {
+      this.emit = this.smooth.bind(this);
+    } else {
+      this.emit = data => data;
+    }
 
     /**
      * The previous distance.
@@ -10171,6 +10192,14 @@ class Pinch extends Gesture {
      * @type {number}
      */
     this.previous = 0;
+
+    /**
+     * Stage the emitted data once.
+     *
+     * @private
+     * @type {ReturnTypes.RotateData}
+     */
+    this.stagedEmit = null;
   }
 
   /**
@@ -10180,11 +10209,12 @@ class Pinch extends Gesture {
    * @private
    * @param {State} state - current input state.
    */
-  refresh(state) {
+  restart(state) {
     if (state.active.length >= this.minInputs) {
       const distance = state.centroid.averageDistanceTo(state.activePoints);
       this.previous = distance;
     }
+    this.stagedEmit = null;
   }
 
   /**
@@ -10194,7 +10224,7 @@ class Pinch extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -10209,9 +10239,9 @@ class Pinch extends Gesture {
     const midpoint = state.centroid;
     const distance = midpoint.averageDistanceTo(state.activePoints);
     const change = distance / this.previous;
-    this.previous = distance;
 
-    return { distance, midpoint, change };
+    this.previous = distance;
+    return this.emit({ distance, midpoint, change });
   }
 
   /**
@@ -10221,7 +10251,7 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   end(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -10231,9 +10261,39 @@ class Pinch extends Gesture {
    * @param {State} input status object
    */
   cancel(state) {
-    this.refresh(state);
+    this.restart(state);
+  }
+
+  /**
+   * Smooth out the outgoing data.
+   *
+   * @private
+   * @param {ReturnTypes.PinchData} next
+   *
+   * @return {?ReturnTypes.PinchData}
+   */
+  smooth(next) {
+    let result = null;
+
+    if (this.stagedEmit) {
+      const odiff = this.stagedEmit.change - 1;
+      const ndiff = next.change - 1;
+      if (Math.sign(odiff) === Math.sign(ndiff)) {
+        result = this.stagedEmit;
+      } else {
+        next.change += odiff;
+      }
+    }
+
+    this.stagedEmit = next;
+    return result;
   }
 }
+
+Pinch.DEFAULTS = Object.freeze({
+  minInputs: 2,
+  smoothing: true,
+});
 
 module.exports = Pinch;
 
@@ -10246,8 +10306,6 @@ module.exports = Pinch;
 'use strict';
 
 const { Gesture } = require('westures-core');
-
-const REQUIRED_INPUTS = 2;
 
 /**
  * Data returned when a Rotate is recognized.
@@ -10292,10 +10350,53 @@ function angularMinus(a, b = 0) {
  */
 class Rotate extends Gesture {
   /**
-   * Constructor function for the Rotate class.
+   * @param {Object} [options]
+   * @param {number} [options.minInputs=2] The minimum number of inputs that
+   * must be active for a Rotate to be recognized.
+   * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+   * emitted data.
    */
-  constructor() {
+  constructor(options = {}) {
     super('rotate');
+    const settings = { ...Rotate.DEFAULTS, ...options };
+
+    /**
+     * The minimum number of inputs that must be active for a Pinch to be
+     * recognized.
+     *
+     * @private
+     * @type {number}
+     */
+    this.minInputs = settings.minInputs;
+
+    /**
+     * The function through which emits are passed.
+     *
+     * @private
+     * @type {function}
+     */
+    this.emit = null;
+    if (settings.smoothing) {
+      this.emit = this.smooth.bind(this);
+    } else {
+      this.emit = data => data;
+    }
+
+    /**
+     * Track the previously emitted rotation angle.
+     *
+     * @private
+     * @type {number[]}
+     */
+    this.previousAngles = [];
+
+    /**
+     * Stage the emitted data once.
+     *
+     * @private
+     * @type {ReturnTypes.RotateData}
+     */
+    this.stagedEmit = null;
   }
 
   /**
@@ -10305,17 +10406,32 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   getAngle(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
+    if (state.active.length < this.minInputs) return null;
 
     let angle = 0;
-    state.active.forEach(i => {
-      const progress = i.getProgressOfGesture(this.id);
-      const currentAngle = state.centroid.angleTo(i.current.point);
-      angle += angularMinus(currentAngle, progress.previousAngle);
-      progress.previousAngle = currentAngle;
+    const stagedAngles = [];
+
+    state.active.forEach((input, idx) => {
+      const currentAngle = state.centroid.angleTo(input.current.point);
+      angle += angularMinus(currentAngle, this.previousAngles[idx]);
+      stagedAngles[idx] = currentAngle;
     });
+
     angle /= (state.active.length);
+    this.previousAngles = stagedAngles;
     return angle;
+  }
+
+  /**
+   * Restart the gesture;
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+  restart(state) {
+    this.previousAngles = [];
+    this.stagedEmit = null;
+    this.getAngle(state);
   }
 
   /**
@@ -10325,7 +10441,7 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   start(state) {
-    this.getAngle(state);
+    this.restart(state);
   }
 
   /**
@@ -10336,7 +10452,10 @@ class Rotate extends Gesture {
    */
   move(state) {
     const delta = this.getAngle(state);
-    return delta ? { pivot: state.centroid, delta } : null;
+    if (delta) {
+      return this.emit({ pivot: state.centroid, delta });
+    }
+    return null;
   }
 
   /**
@@ -10346,7 +10465,7 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   end(state) {
-    this.getAngle(state);
+    this.restart(state);
   }
 
   /**
@@ -10356,9 +10475,37 @@ class Rotate extends Gesture {
    * @param {State} state - current input state.
    */
   cancel(state) {
-    this.getAngle(state);
+    this.restart(state);
+  }
+
+  /**
+   * Smooth out the outgoing data.
+   *
+   * @private
+   * @param {ReturnTypes.RotateData} next
+   *
+   * @return {?ReturnTypes.RotateData}
+   */
+  smooth(next) {
+    let result = null;
+
+    if (this.stagedEmit) {
+      if (Math.sign(this.stagedEmit.delta) === Math.sign(next.delta)) {
+        result = this.stagedEmit;
+      } else {
+        next.delta += this.stagedEmit.delta;
+      }
+    }
+
+    this.stagedEmit = next;
+    return result;
   }
 }
+
+Rotate.DEFAULTS = Object.freeze({
+  minInputs: 2,
+  smoothing: true,
+});
 
 module.exports = Rotate;
 
@@ -13054,8 +13201,9 @@ class Polygon2D {
      * @type {number}
      */
     this.radius = this.points.reduce((max, curr) => {
-      return max > curr ? max : curr;
-    });
+      const dist = this.centroid.distanceTo(curr);
+      return max > dist ? max : dist;
+    }, 0);
 
     // Close the polygon.
     this.points.push(this.points[0].clone());
@@ -13119,20 +13267,20 @@ class Polygon2D {
    *
    * @return {number} The winding number (=0 only when P is outside)
    */
-  winding_number(point) {
+  winding_number(p) {
     let wn = 0;
-    const p = new Point2D(point.x, point.y);
+    const point = new Point2D(p.x, p.y);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
-      if (this.points[i].y <= p.y) {
-        if (this.points[i + 1].y > p.y) { // Upward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
+      if (this.points[i].y <= point.y) {
+        if (this.points[i + 1].y > point.y) { // Upward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
             ++wn;
           }
         }
       } else {
-        if (this.points[i + 1].y <= p.y) { // Downward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
+        if (this.points[i + 1].y <= point.y) { // Downward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
             --wn;
           }
         }
