@@ -155,7 +155,8 @@ class Pinch extends Gesture {
     if (this.stagedEmit) {
       result = this.stagedEmit;
       const avg = (result.change + next.change) / 2;
-      result.change = next.change = avg;
+      result.change = avg;
+      next.change = avg;
     }
 
     this.stagedEmit = next;

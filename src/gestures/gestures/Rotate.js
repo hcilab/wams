@@ -184,7 +184,8 @@ class Rotate extends Gesture {
     if (this.stagedEmit) {
       result = this.stagedEmit;
       const avg = (result.delta + next.delta) / 2;
-      result.delta = next.delta = avg;
+      result.delta = avg;
+      next.delta = avg;
     }
 
     this.stagedEmit = next;
