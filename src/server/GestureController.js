@@ -91,7 +91,7 @@ class GestureController {
   /**
    * Processes a PointerEvent that has been forwarded from a client.
    *
-   * @param {PointerEvent} event - The event from the client.
+   * @param {TouchEvent} event - The event from the client.
    */
   process(event) {
     this.region.arbitrate(event);

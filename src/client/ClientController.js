@@ -15,7 +15,7 @@ const io = require('socket.io-client');
 const {
   constants,
   DataReporter,
-  PointerReporter,
+  TouchReporter,
   IdStamper,
   Message,
   NOP,
@@ -344,8 +344,13 @@ class ClientController {
         eventname,
         (event) => {
           event.preventDefault();
-          const preport = new PointerReporter(event);
-          new Message(Message.POINTER, preport).emitWith(this.socket);
+          const treport = new TouchReporter(event);
+          treport.changedTouches = [{
+            identifier: event.pointerId,
+            clientX:    event.clientX,
+            clientY:    event.clientY,
+          }];
+          new Message(Message.POINTER, treport).emitWith(this.socket);
         },
         {
           capture: true,
@@ -366,9 +371,13 @@ class ClientController {
         (event) => {
           event.preventDefault();
           if (event.button === 0) {
-            const preport = new PointerReporter(event);
-            preport.pointerId = event.button;
-            new Message(Message.POINTER, preport).emitWith(this.socket);
+            const treport = new TouchReporter(event);
+            treport.changedTouches = [{
+              identifier: 0,
+              clientX:    event.clientX,
+              clientY:    event.clientY,
+            }];
+            new Message(Message.POINTER, treport).emitWith(this.socket);
           }
         },
         {
@@ -384,12 +393,16 @@ class ClientController {
         eventname,
         (event) => {
           event.preventDefault();
-          Array.from(event.changedTouches).forEach(touch => {
-            const preport = new PointerReporter(touch);
-            preport.type = event.type;
-            preport.pointerId = touch.identifier;
-            new Message(Message.POINTER, preport).emitWith(this.socket);
-          });
+          const treport = new TouchReporter(event);
+          treport.changedTouches = Array.from(event.changedTouches)
+            .map(touch => {
+              return {
+                identifier: touch.identifier,
+                clientX:    touch.clientX,
+                clientY:    touch.clientY,
+              };
+            });
+          new Message(Message.POINTER, treport).emitWith(this.socket);
         },
         {
           capture: true,

@@ -17,13 +17,14 @@ class Input {
   /**
    * Constructor function for the Input class.
    *
-   * @param {PointerEvent} event - The input event which will initialize this
+   * @param {TouchEvent} event - The input event which will initialize this
    *    Input object.
+   * @param {Touch} touch - The touch point data.
    * @param {string} identifier - The identifier for this input, so that it can
    *    be located in subsequent Event objects.
    */
-  constructor(event, identifier) {
-    const currentData = new PointerData(event);
+  constructor(event, touch, identifier) {
+    const currentData = new PointerData(event, touch);
 
     /**
      * Holds the initial data from the mousedown / touchstart / pointerdown that
@@ -110,11 +111,12 @@ class Input {
    * input, pushing the old current data into the previous slot, and tossing
    * out the old previous data.
    *
-   * @param {PointerEvent} event - The event object to wrap with a PointerData.
+   * @param {TouchEvent} event - The event object to wrap with a PointerData.
+   * @param {Touch} touch - The touch point data.
    */
-  update(event) {
+  update(event, touch) {
     this.previous = this.current;
-    this.current = new PointerData(event, this.identifier);
+    this.current = new PointerData(event, touch);
   }
 }
 

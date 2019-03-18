@@ -6,8 +6,6 @@
 
 const Gesture = require('../core/Gesture.js');
 
-const REQUIRED_INPUTS = 2;
-
 /**
  * Data returned when a Rotate is recognized.
  *
@@ -53,10 +51,49 @@ function angularMinus(a, b = 0) {
  */
 class Rotate extends Gesture {
   /**
-   * Constructor function for the Rotate class.
+   * @param {Object} [options]
+   * @param {number} [options.minInputs=2] The minimum number of inputs that
+   * must be active for a Rotate to be recognized.
+   * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+   * emitted data.
    */
-  constructor() {
+  constructor(options = {}) {
     super('rotate');
+    const settings = { ...Rotate.DEFAULTS, ...options };
+
+    /**
+     * The minimum number of inputs that must be active for a Pinch to be
+     * recognized.
+     *
+     * @type {number}
+     */
+    this.minInputs = settings.minInputs;
+
+    /**
+     * The function through which emits are passed.
+     *
+     * @type {function}
+     */
+    this.emit = null;
+    if (settings.smoothing) {
+      this.emit = this.smooth.bind(this);
+    } else {
+      this.emit = data => data;
+    }
+
+    /**
+     * Track the previously emitted rotation angle.
+     *
+     * @type {number[]}
+     */
+    this.previousAngles = [];
+
+    /**
+     * Stage the emitted data once.
+     *
+     * @type {module:gestures.ReturnTypes.RotateData}
+     */
+    this.stagedEmit = null;
   }
 
   /**
@@ -65,17 +102,31 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   getAngle(state) {
-    if (state.active.length < REQUIRED_INPUTS) return null;
+    if (state.active.length < this.minInputs) return null;
 
     let angle = 0;
-    state.active.forEach(i => {
-      const progress = i.getProgressOfGesture(this.id);
-      const currentAngle = state.centroid.angleTo(i.current.point);
-      angle += angularMinus(currentAngle, progress.previousAngle);
-      progress.previousAngle = currentAngle;
+    const stagedAngles = [];
+
+    state.active.forEach((input, idx) => {
+      const currentAngle = state.centroid.angleTo(input.current.point);
+      angle += angularMinus(currentAngle, this.previousAngles[idx]);
+      stagedAngles[idx] = currentAngle;
     });
+
     angle /= (state.active.length);
+    this.previousAngles = stagedAngles;
     return angle;
+  }
+
+  /**
+   * Restart the gesture;
+   *
+   * @param {State} state - current input state.
+   */
+  restart(state) {
+    this.previousAngles = [];
+    this.stagedEmit = null;
+    this.getAngle(state);
   }
 
   /**
@@ -84,7 +135,7 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   start(state) {
-    this.getAngle(state);
+    this.restart(state);
   }
 
   /**
@@ -96,7 +147,10 @@ class Rotate extends Gesture {
    */
   move(state) {
     const delta = this.getAngle(state);
-    return delta ? { pivot: state.centroid, delta } : null;
+    if (delta) {
+      return this.emit({ pivot: state.centroid, delta });
+    }
+    return null;
   }
 
   /**
@@ -105,7 +159,7 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   end(state) {
-    this.getAngle(state);
+    this.restart(state);
   }
 
   /**
@@ -114,9 +168,34 @@ class Rotate extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   cancel(state) {
-    this.getAngle(state);
+    this.restart(state);
+  }
+
+  /**
+   * Smooth out the outgoing data.
+   *
+   * @param {module:gestures.ReturnTypes.RotateData} next
+   *
+   * @return {?module:gestures.ReturnTypes.RotateData}
+   */
+  smooth(next) {
+    let result = null;
+
+    if (this.stagedEmit) {
+      result = this.stagedEmit;
+      const avg = (result.delta + next.delta) / 2;
+      result.delta = next.delta = avg;
+    }
+
+    this.stagedEmit = next;
+    return result;
   }
 }
+
+Rotate.DEFAULTS = Object.freeze({
+  minInputs: 2,
+  smoothing: true,
+});
 
 module.exports = Rotate;
 

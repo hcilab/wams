@@ -17,16 +17,10 @@ class PointerData {
   /**
    * @constructor
    *
-   * @param {PointerEvent} event - The event object being wrapped.
+   * @param {TouchEvent} event - The event object being wrapped.
+   * @param {Touch} touch - The touch point data.
    */
-  constructor(event) {
-    /**
-     * The original event object.
-     *
-     * @type {PointerEvent}
-     */
-    this.originalEvent = event;
-
+  constructor(event, touch) {
     /**
      * The type or 'phase' of this batch of pointer data. 'start' or 'move' or
      * 'end'.
@@ -48,7 +42,7 @@ class PointerData {
      *
      * @type {module:gestures.Point2D}
      */
-    this.point = new Point2D(event.clientX, event.clientY);
+    this.point = new Point2D(touch.clientX, touch.clientY);
   }
 
   /**

@@ -13,7 +13,7 @@
 
 'use strict';
 
-const { CanvasSequence }     = require('canvas-sequencer');
+const { CanvasSequence }      = require('canvas-sequencer');
 const { colours }             = require('./src/shared.js');
 const { Router, Application } = require('./src/server.js');
 const predefined              = require('./src/predefined.js');

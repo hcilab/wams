@@ -423,12 +423,82 @@ const PointerReporter = ReporterFactory([
   'metaKey',
 ]);
 
+/**
+ * Enables forwarding of TouchEvents from the client to the server.
+ *
+ * @class TouchReporter
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const TouchReporter = ReporterFactory([
+  /**
+   * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'type',
+
+  /**
+   * Array of changed touches.
+   *
+   * @name changedTouches
+   * @type {Touch[]}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'changedTouches',
+
+  /**
+   * Whether the CTRL key was pressed at the time of the event.
+   *
+   * @name ctrlKey
+   * @type {boolean}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'ctrlKey',
+
+  /**
+   * Whether the ALT key was pressed at the time of the event.
+   *
+   * @name altKey
+   * @type {boolean}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'altKey',
+
+  /**
+   * Whether the SHIFT key was pressed at the time of the event.
+   *
+   * @name shiftKey
+   * @type {boolean}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'shiftKey',
+
+  /**
+   * Whether the META key was pressed at the time of the event.
+   *
+   * @name metaKey
+   * @type {boolean}
+   * @memberof module:shared.TouchReporter
+   * @instance
+   */
+  'metaKey',
+]);
+
 module.exports = {
   Item,
   View,
   DataReporter,
   FullStateReporter,
   PointerReporter,
+  TouchReporter,
   WamsImage,
 };
 

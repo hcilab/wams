@@ -81,7 +81,7 @@ class State {
     /**
      * The latest event that the state processed.
      *
-     * @type {PointerEvent}
+     * @type {TouchEvent}
      */
     this.event = null;
   }
@@ -130,24 +130,25 @@ class State {
   /**
    * Update the input with the given identifier using the given event.
    *
-   * @param {PointerEvent} event - The event being captured.
-   * @param {string} identifier - The identifier of the input to update.
+   * @param {TouchEvent} event - The event being captured.
+   * @param {Touch} touch - The touch point to update.
    */
-  updateInput(event, identifier) {
+  updateInput(event, touch) {
+    const id = touch.identifier;
     if (PHASE[event.type] === 'start') {
-      this[symbols.inputs].set(identifier, new Input(event, identifier));
-    } else if (this[symbols.inputs].has(identifier)) {
-      this[symbols.inputs].get(identifier).update(event);
+      this[symbols.inputs].set(id, new Input(event, touch, id));
+    } else if (this[symbols.inputs].has(id)) {
+      this[symbols.inputs].get(id).update(event, touch);
     }
   }
 
   /**
    * Updates the inputs with new information based upon a new event being fired.
    *
-   * @param {PointerEvent} event - The event being captured.
+   * @param {TouchEvent} event - The event being captured.
    */
   updateAllInputs(event) {
-    this.updateInput(event, event.pointerId);
+    event.changedTouches.forEach(touch => this.updateInput(event, touch));
     this.event = event;
     this.updateFields();
   }

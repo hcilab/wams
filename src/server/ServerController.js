@@ -197,14 +197,16 @@ class ServerController {
   /**
    * Forwards a PointerEvent to the gesture controller.
    *
-   * @param {PointerEvent} event - The event to forward.
+   * @param {TouchEvent} event - The event to forward.
    */
   pointerEvent(event) {
     event.source = this.view.id;
-    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-    const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
-    event.clientX = x;
-    event.clientY = y;
+    event.changedTouches.forEach(touch => {
+      touch.identifier = `${String(this.view.id)}-${touch.identifier}`;
+      const { x, y } = this.device.transformPoint(touch.clientX, touch.clientY);
+      touch.clientX = x;
+      touch.clientY = y;
+    });
     this.group.gestureController.process(event);
   }
 

@@ -46,9 +46,8 @@ class Polygon2D {
      * @type {number}
      */
     this.radius = this.points.reduce((max, curr) => {
-      const dist = this.centroid.distanceTo(curr);
-      return max > dist ? max : dist;
-    }, 0);
+      return max > curr ? max : curr;
+    });
 
     // Close the polygon.
     this.points.push(this.points[0].clone());

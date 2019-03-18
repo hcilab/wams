@@ -6,8 +6,6 @@
 
 const Gesture = require('../core/Gesture.js');
 
-const DEFAULT_MIN_INPUTS = 2;
-
 /**
  * Data returned when a Pinch is recognized.
  *
@@ -36,10 +34,13 @@ class Pinch extends Gesture {
    *
    * @param {Object} [options]
    * @param {number} [options.minInputs=2] The minimum number of inputs that
-   *    must be active for a Pinch to be recognized.
+   * must be active for a Pinch to be recognized.
+   * @param {boolean} [options.smoothing=true] Whether to apply
+   * smoothing to emitted data.
    */
   constructor(options = {}) {
     super('pinch');
+    const settings = { ...Pinch.DEFAULTS, ...options };
 
     /**
      * The minimum number of inputs that must be active for a Pinch to be
@@ -47,7 +48,20 @@ class Pinch extends Gesture {
      *
      * @type {number}
      */
-    this.minInputs = options.minInputs || DEFAULT_MIN_INPUTS;
+    this.minInputs = settings.minInputs;
+
+    /**
+     * The function through which emits are passed.
+     *
+     * @type {function}
+     */
+
+    this.emit = null;
+    if (settings.smoothing) {
+      this.emit = this.smooth.bind(this);
+    } else {
+      this.emit = data => data;
+    }
 
     /**
      * The previous distance.
@@ -55,6 +69,18 @@ class Pinch extends Gesture {
      * @type {number}
      */
     this.previous = 0;
+
+    /**
+     * Stage the emitted data once if applying smoothing. This smoothing
+     * technique delays the emitted data by one "move" event. The difference is
+     * imperceptible to the human eye, and the fractional change that gets
+     * tossed out at the end of the gesture is negligible. This allows for emits
+     * that are about to get cancelled to out to not be emitted in the first
+     * place, removing high-frequency jitter.
+     *
+     * @type {module:gestures.ReturnTypes.RotateData}
+     */
+    this.stagedEmit = null;
   }
 
   /**
@@ -63,11 +89,12 @@ class Pinch extends Gesture {
    *
    * @param {module:gestures.State} state - current input state.
    */
-  refresh(state) {
+  restart(state) {
     if (state.active.length >= this.minInputs) {
       const distance = state.centroid.averageDistanceTo(state.activePoints);
       this.previous = distance;
     }
+    this.stagedEmit = null;
   }
 
   /**
@@ -76,7 +103,7 @@ class Pinch extends Gesture {
    * @param {module:gestures.State} state - current input state.
    */
   start(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -92,9 +119,9 @@ class Pinch extends Gesture {
     const midpoint = state.centroid;
     const distance = midpoint.averageDistanceTo(state.activePoints);
     const change = distance / this.previous;
-    this.previous = distance;
 
-    return { distance, midpoint, change };
+    this.previous = distance;
+    return this.emit({ distance, midpoint, change });
   }
 
   /**
@@ -103,7 +130,7 @@ class Pinch extends Gesture {
    * @param {module:gestures.State} input status object
    */
   end(state) {
-    this.refresh(state);
+    this.restart(state);
   }
 
   /**
@@ -112,9 +139,34 @@ class Pinch extends Gesture {
    * @param {module:gestures.State} input status object
    */
   cancel(state) {
-    this.refresh(state);
+    this.restart(state);
+  }
+
+  /**
+   * Smooth out the outgoing data.
+   *
+   * @param {module:gestures.ReturnTypes.PinchData} next
+   *
+   * @return {?module:gestures.ReturnTypes.PinchData}
+   */
+  smooth(next) {
+    let result = null;
+
+    if (this.stagedEmit) {
+      result = this.stagedEmit;
+      const avg = (result.change + next.change) / 2;
+      result.change = next.change = avg;
+    }
+
+    this.stagedEmit = next;
+    return result;
   }
 }
+
+Pinch.DEFAULTS = Object.freeze({
+  minInputs: 2,
+  smoothing: true,
+});
 
 module.exports = Pinch;
 

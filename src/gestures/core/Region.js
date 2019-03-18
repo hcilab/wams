@@ -8,6 +8,8 @@ const Binding = require('./Binding.js');
 const State   = require('./State.js');
 const PHASE   = require('./PHASE.js');
 
+const EVALUATION_RATE = 1000 / 60;
+
 /**
  * Allows the user to specify the control region which will listen for user
  * input events.
@@ -51,7 +53,7 @@ class Region {
       if (this.hasUpdated) {
         this.evaluateBindings();
       }
-    }, 1000 / 120);
+    }, EVALUATION_RATE);
   }
 
   /**
@@ -73,7 +75,7 @@ class Region {
    * initial position of the inputs, calls the relevant gesture hooks, and
    * dispatches gesture data.
    *
-   * @param {PointerEvent} event - The event received from a client.
+   * @param {TouchEvent} event - The event received from a client.
    */
   arbitrate(event) {
     const phase = PHASE[event.type];
