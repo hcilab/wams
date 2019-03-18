@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Class: Item | WAMS</title>
+    <title>Class: TouchReporter | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,7 +53,7 @@
 <header>
     
         <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>Item<span class="signature">()</span><span class="type-signature"></span></h2>
+            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>TouchReporter<span class="signature">()</span><span class="type-signature"></span></h2>
         
     
 </header>
@@ -66,14 +66,14 @@
 
 <dt>
     
-        <h4 class="name" id="Item">
+        <h4 class="name" id="TouchReporter">
             
-                new <span class="type-signature"></span>Item<span class="signature">()</span><span class="type-signature"></span>
+                new <span class="type-signature"></span>TouchReporter<span class="signature">()</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
                 <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-                <code><a href="shared_Reporters.js.html#line12">line 12</a></code>
+                <code><a href="shared_Reporters.js.html#line337">line 337</a></code>
             </div>
             
         </h4>
@@ -85,8 +85,7 @@
 
     
     <div class="description">
-        This Item class provides a common interface between the client and the server
-by which the Items can interact safely.
+        Enables forwarding of TouchEvents from the client to the server.
     </div>
     
 
@@ -185,12 +184,12 @@ by which the Items can interact safely.
             
 
 <dt>
-<h4 class="name" id="rotation">
-    <span class="type-signature"></span>rotation<span class="type-signature"> :number</span>
+<h4 class="name" id="altKey">
+    <span class="type-signature"></span>altKey<span class="type-signature"> :boolean</span>
     
     <div class="container-source members">
         <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-        <code><a href="shared_Reporters.js.html#line41">line 41</a></code>
+        <code><a href="shared_Reporters.js.html#line375">line 375</a></code>
     </div>
     
 </h4>
@@ -200,7 +199,7 @@ by which the Items can interact safely.
 <dd>
     
     <div class="description">
-        Rotation of the Item.
+        Whether the ALT key was pressed at the time of the event.
     </div>
     
 
@@ -210,7 +209,7 @@ by which the Items can interact safely.
         <ul>
             <li>
                 
-<span class="param-type">number</span>
+<span class="param-type">boolean</span>
 
 
             </li>
@@ -264,12 +263,12 @@ by which the Items can interact safely.
             
 
 <dt>
-<h4 class="name" id="scale">
-    <span class="type-signature"></span>scale<span class="type-signature"> :number</span>
+<h4 class="name" id="changedTouches">
+    <span class="type-signature"></span>changedTouches<span class="type-signature"> :Array.&lt;Touch></span>
     
     <div class="container-source members">
         <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-        <code><a href="shared_Reporters.js.html#line51">line 51</a></code>
+        <code><a href="shared_Reporters.js.html#line355">line 355</a></code>
     </div>
     
 </h4>
@@ -279,7 +278,7 @@ by which the Items can interact safely.
 <dd>
     
     <div class="description">
-        Scale of the Item.
+        Array of changed touches.
     </div>
     
 
@@ -289,7 +288,244 @@ by which the Items can interact safely.
         <ul>
             <li>
                 
-<span class="param-type">number</span>
+<span class="param-type">Array.&lt;Touch></span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="ctrlKey">
+    <span class="type-signature"></span>ctrlKey<span class="type-signature"> :boolean</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
+        <code><a href="shared_Reporters.js.html#line365">line 365</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        Whether the CTRL key was pressed at the time of the event.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="metaKey">
+    <span class="type-signature"></span>metaKey<span class="type-signature"> :boolean</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
+        <code><a href="shared_Reporters.js.html#line395">line 395</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        Whether the META key was pressed at the time of the event.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="shiftKey">
+    <span class="type-signature"></span>shiftKey<span class="type-signature"> :boolean</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
+        <code><a href="shared_Reporters.js.html#line385">line 385</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        Whether the SHIFT key was pressed at the time of the event.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">boolean</span>
 
 
             </li>
@@ -348,7 +584,7 @@ by which the Items can interact safely.
     
     <div class="container-source members">
         <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-        <code><a href="shared_Reporters.js.html#line61">line 61</a></code>
+        <code><a href="shared_Reporters.js.html#line345">line 345</a></code>
     </div>
     
 </h4>
@@ -358,7 +594,7 @@ by which the Items can interact safely.
 <dd>
     
     <div class="description">
-        Type description of the Item.
+        The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
     </div>
     
 
@@ -369,164 +605,6 @@ by which the Items can interact safely.
             <li>
                 
 <span class="param-type">string</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="x">
-    <span class="type-signature"></span>x<span class="type-signature"> :number</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-        <code><a href="shared_Reporters.js.html#line21">line 21</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        X coordinate of the Item.
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">number</span>
-
-
-            </li>
-        </ul>
-    
-    -->
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-    
-</dd>
-
-        
-            
-
-<dt>
-<h4 class="name" id="y">
-    <span class="type-signature"></span>y<span class="type-signature"> :number</span>
-    
-    <div class="container-source members">
-        <code><a href="shared_Reporters.js.html">shared/Reporters.js</a></code>,
-        <code><a href="shared_Reporters.js.html#line31">line 31</a></code>
-    </div>
-    
-</h4>
-
-
-</dt>
-<dd>
-    
-    <div class="description">
-        Y coordinate of the Item.
-    </div>
-    
-
-    <!--
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">number</span>
 
 
             </li>
@@ -869,7 +947,7 @@ reported.
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:shared.Item_sub'.replace(/"/g, '_');
+        var id = 'module:shared.TouchReporter_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
