@@ -13054,8 +13054,9 @@ class Polygon2D {
      * @type {number}
      */
     this.radius = this.points.reduce((max, curr) => {
-      return max > curr ? max : curr;
-    });
+      const dist = this.centroid.distanceTo(curr);
+      return max > dist ? max : dist;
+    }, 0);
 
     // Close the polygon.
     this.points.push(this.points[0].clone());
@@ -13119,20 +13120,20 @@ class Polygon2D {
    *
    * @return {number} The winding number (=0 only when P is outside)
    */
-  winding_number(point) {
+  winding_number(p) {
     let wn = 0;
-    const p = new Point2D(point.x, point.y);
+    const point = new Point2D(p.x, p.y);
 
     for (let i = 0; i < this.points.length - 1; ++i) {
-      if (this.points[i].y <= p.y) {
-        if (this.points[i + 1].y > p.y) { // Upward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
+      if (this.points[i].y <= point.y) {
+        if (this.points[i + 1].y > point.y) { // Upward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
             ++wn;
           }
         }
       } else {
-        if (this.points[i + 1].y <= p.y) { // Downward crossing
-          if (p.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
+        if (this.points[i + 1].y <= point.y) { // Downward crossing
+          if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
             --wn;
           }
         }
