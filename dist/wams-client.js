@@ -10276,13 +10276,10 @@ class Pinch extends Gesture {
     let result = null;
 
     if (this.stagedEmit) {
-      const odiff = this.stagedEmit.change - 1;
-      const ndiff = next.change - 1;
-      if (Math.sign(odiff) === Math.sign(ndiff)) {
-        result = this.stagedEmit;
-      } else {
-        next.change += odiff;
-      }
+      result = this.stagedEmit;
+      const avg = (result.change + next.change) / 2;
+      result.change = avg;
+      next.change = avg;
     }
 
     this.stagedEmit = next;
@@ -10490,11 +10487,10 @@ class Rotate extends Gesture {
     let result = null;
 
     if (this.stagedEmit) {
-      if (Math.sign(this.stagedEmit.delta) === Math.sign(next.delta)) {
-        result = this.stagedEmit;
-      } else {
-        next.delta += this.stagedEmit.delta;
-      }
+      result = this.stagedEmit;
+      const avg = (result.delta + next.delta) / 2;
+      result.delta = avg;
+      next.delta = avg;
     }
 
     this.stagedEmit = next;
