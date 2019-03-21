@@ -180,11 +180,37 @@ function element(x, y, width, height, properties = {}) {
   return transformed({ ...properties, hitbox });
 }
 
+/**
+ * Generate an iframe that wraps the given html.
+ *
+ * @memberof module:predefined.items
+ *
+ * @param {number} width
+ * @param {number} height
+ * @param {Object} properties - Location and orientation options for the item,
+ * plus any appropriate attributes.
+ * See {@link module:shared.WamsElement} members for available parameters.
+ *
+ * @returns {Object} An object with the parameters for an iframe with the given
+ * HTML content.
+ */
+function wrappedElement(html, width, height, properties = {}) {
+  const hitbox = rectangularHitbox(0, 0, width, height);
+  const baseattrs = properties.attributes || {};
+  const attributes = {
+    ...baseattrs,
+    innerHTML: html,
+  };
+  const tagname = 'div';
+  return transformed({ ...properties, hitbox, attributes, tagname });
+}
+
 module.exports = {
   element,
   image,
   polygon,
   rectangle,
   square,
+  wrappedElement,
 };
 

@@ -38,6 +38,8 @@ class ClientElement extends WamsElement {
      */
     this.element = document.createElement(data.tagname);
     this.element.classList.add('wams-element');
+    this.element.width = this.width;
+    this.element.height = this.height;
     this.element.style.width = `${this.width}px`;
     this.element.style.height = `${this.height}px`;
     document.body.appendChild(this.element);

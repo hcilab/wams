@@ -10,8 +10,8 @@
 
 'use strict';
 
-// const Westures = require('../../../westures');
-const Westures = require('westures');
+const Westures = require('../../../westures');
+// const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
 
 /**
@@ -94,7 +94,7 @@ class Interactor {
     const tap     = new Westures.Tap();
     const track   = new Westures.Track(['start', 'end']);
 
-    const region = new Westures.Region(window);
+    const region = new Westures.Region(document.body);
     region.addGesture(document.body, pan,    this.forward('pan'));
     region.addGesture(document.body, tap,    this.forward('tap'));
     region.addGesture(document.body, pinch,  this.forward('zoom'));
