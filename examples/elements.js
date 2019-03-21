@@ -9,9 +9,8 @@ const Wams = require('..');
 const app = new Wams.Application();
 
 function element(x, y, view) {
-  return Wams.predefined.items.element(
-    0,
-    0,
+  return Wams.predefined.items.wrappedElement(
+    '<button onclick="alert(\'You panicked :\(\')">dont panic</button>',
     300,
     50,
     {
@@ -22,10 +21,6 @@ function element(x, y, view) {
       type:  'button',
       scale: 1 / view.scale,
       rotation: view.rotation,
-      tagname: 'button',
-      attributes: {
-        innerText: 'This is an HTMLButtonElement!',
-      },
     }
   );
 }
