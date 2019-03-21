@@ -130,7 +130,7 @@
     
         <h4 class="name" id=".defineOwnImmutableEnumerableProperty">
             
-                <span class="type-signature"><span class="icon green">static</span> </span>defineOwnImmutableEnumerableProperty<span class="signature">()</span><span class="type-signature"></span>
+                <span class="type-signature"><span class="icon green">static</span> </span>defineOwnImmutableEnumerableProperty<span class="signature">(obj, prop, val)</span><span class="type-signature"></span>
                 
             
             <div class="container-source members">
@@ -149,10 +149,6 @@
     <div class="description">
         Defines the given property on the given object with the given value, and sets
 the property to unconfigurable, unwritable, but enumerable.
-
-param {object} obj - The object on which the property will be defined.
-param {string} prop - The property to define on obj.
-param {any} val - The value to assign to the property.
     </div>
     
 
@@ -162,6 +158,102 @@ param {any} val - The value to assign to the property.
 
     
 
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>obj</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The object on which the property will be defined.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>prop</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The property to define on obj.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>val</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">any</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The value to assign to the property.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
     
 
     
@@ -526,7 +618,7 @@ true, or null if the callback never returned true;
             
             <div class="container-source members">
                 <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line113">line 113</a></code>
+                <code><a href="shared_utilities.js.html#line112">line 112</a></code>
             </div>
             
         </h4>
@@ -907,7 +999,7 @@ defaults. Properties not found in defaults will be ignored.</td>
             
             <div class="container-source members">
                 <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line129">line 129</a></code>
+                <code><a href="shared_utilities.js.html#line128">line 128</a></code>
             </div>
             
         </h4>
@@ -996,7 +1088,7 @@ defaults. Properties not found in defaults will be ignored.</td>
             
             <div class="container-source members">
                 <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line141">line 141</a></code>
+                <code><a href="shared_utilities.js.html#line140">line 140</a></code>
             </div>
             
         </h4>
@@ -1179,7 +1271,7 @@ defaults. Properties not found in defaults will be ignored.</td>
             
             <div class="container-source members">
                 <code><a href="shared_utilities.js.html">shared/utilities.js</a></code>,
-                <code><a href="shared_utilities.js.html#line165">line 165</a></code>
+                <code><a href="shared_utilities.js.html#line164">line 164</a></code>
             </div>
             
         </h4>

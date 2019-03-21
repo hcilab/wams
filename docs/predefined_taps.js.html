@@ -140,7 +140,6 @@ function spawnOrRemoveItem(app, item_fn, type, spawn_fn = 'spawnItem') {
         view.obtainLockOnItem(view);
       }
     } else {
-      // app.spawnItem(item_fn(x, y, view));
       app[spawn_fn](item_fn(x, y, view));
     }
   };

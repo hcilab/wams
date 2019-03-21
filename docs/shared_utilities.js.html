@@ -70,9 +70,9 @@
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  *
- * param {object} obj - The object on which the property will be defined.
- * param {string} prop - The property to define on obj.
- * param {any} val - The value to assign to the property.
+ * @param {object} obj - The object on which the property will be defined.
+ * @param {string} prop - The property to define on obj.
+ * @param {any} val - The value to assign to the property.
  *
  * @memberof module:shared.utilities
  */
@@ -132,7 +132,6 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
   Object.keys(defaults).forEach(k => {
-    // rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
     rv[k] = k in data ? data[k] : defaults[k];
   });
   return rv;

@@ -110,27 +110,6 @@ class ClientItem extends Item {
   }
 
   /**
-   * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing sequence and
-   * sequence.
-   *
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item.
-   */
-  // assign(data) {
-  //   super.assign(data);
-
-  //   if (this.render == null) {
-  /**
-   * The actual render.
-   *
-   * @type {CanvasSequence}
-   */
-  //     this.render = new CanvasSequence(data.sequence);
-  //   }
-  // }
-
-  /**
    * Render the item onto the given context.  Prioritizes sequences over
    * images.
    *
