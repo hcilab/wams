@@ -11488,7 +11488,6 @@ class ClientController {
    * Establishes a socket.io connection with the server, using the global WAMS
    * namespace. Connections should be non-persistent over disconnects, (i.e., no
    * reconnections), as this was the cause of many bugs.
-   *  - TODO: Revisit? Should reconnections be allowed?
    *
    * This internal routine should be called automatically upon ClientController
    * instantiation.
@@ -11927,7 +11926,6 @@ class ClientImage extends WamsImage {
      */
     this.image = null;
     if (data.src) this.setImage(data.src);
-    // this.image = createImage(this.src);
 
     /**
      * Id to make the items uniquely identifiable.
@@ -11940,19 +11938,6 @@ class ClientImage extends WamsImage {
      */
     STAMPER.cloneId(this, data.id);
   }
-
-  /**
-   * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing sequence and
-   * sequence.
-   *
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item.
-   */
-  // assign(data) {
-  //   if (data.src !== this.src) this.image = createImage(data.src);
-  //   super.assign(data);
-  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -12046,27 +12031,6 @@ class ClientItem extends Item {
      */
     STAMPER.cloneId(this, data.id);
   }
-
-  /**
-   * Overrides the default Reporter assign() method, wrapping it in
-   * functionality for generating an image, or a canvas drawing sequence and
-   * sequence.
-   *
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item.
-   */
-  // assign(data) {
-  //   super.assign(data);
-
-  //   if (this.render == null) {
-  /**
-   * The actual render.
-   *
-   * @type {CanvasSequence}
-   */
-  //     this.render = new CanvasSequence(data.sequence);
-  //   }
-  // }
 
   /**
    * Render the item onto the given context.  Prioritizes sequences over
@@ -12295,9 +12259,6 @@ class ClientModel {
    */
   setImage(data) {
     this.setItemValue('setImage', 'src', data);
-    // if (this.items.has(data.id)) {
-    //   this.items.get(data.id).setImage(data.src);
-    // }
   }
 
   /**
@@ -12307,9 +12268,6 @@ class ClientModel {
    */
   setRender(data) {
     this.setItemValue('setRender', 'sequence', data);
-    // if (this.items.has(data.id)) {
-    //   this.items.get(data.id).setRender(data.sequence);
-    // }
   }
 
   /**
@@ -13642,16 +13600,6 @@ const Item = ReporterFactory([
    * @instance
    */
   'type',
-
-  /**
-   * Canvas sequence for the item.
-   *
-   * @name sequence
-   * @type {CanvasSequence}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  // 'sequence',
 ]);
 
 /**
@@ -13822,16 +13770,6 @@ const WamsImage = ReporterFactory([
    * @instance
    */
   'type',
-
-  /**
-   * Image source path of the WamsImage.
-   *
-   * @name src
-   * @type {string}
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  // 'src',
 ]);
 
 /**
@@ -14098,9 +14036,9 @@ module.exports = {
  * Defines the given property on the given object with the given value, and sets
  * the property to unconfigurable, unwritable, but enumerable.
  *
- * param {object} obj - The object on which the property will be defined.
- * param {string} prop - The property to define on obj.
- * param {any} val - The value to assign to the property.
+ * @param {object} obj - The object on which the property will be defined.
+ * @param {string} prop - The property to define on obj.
+ * @param {any} val - The value to assign to the property.
  *
  * @memberof module:shared.utilities
  */
@@ -14160,7 +14098,6 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 function mergeMatches(defaults = {}, data = {}) {
   const rv = {};
   Object.keys(defaults).forEach(k => {
-    // rv[k] = data.hasOwnProperty(k) ? data[k] : defaults[k];
     rv[k] = k in data ? data[k] : defaults[k];
   });
   return rv;
