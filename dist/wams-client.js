@@ -11321,7 +11321,7 @@ window.addEventListener(
 );
 
 
-},{"./client/ClientController.js":71,"./client/ClientModel.js":74,"./client/ClientView.js":75}],71:[function(require,module,exports){
+},{"./client/ClientController.js":71,"./client/ClientModel.js":75,"./client/ClientView.js":76}],71:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11432,16 +11432,21 @@ class ClientController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_IMAGE]:  (...args) => this.handle('addImage', ...args),
-      [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
-      [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
-      [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
-      [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.ADD_ELEMENT]: (...args) => this.handle('addElement', ...args),
+      [Message.ADD_IMAGE]:   (...args) => this.handle('addImage', ...args),
+      [Message.ADD_ITEM]:    (...args) => this.handle('addItem', ...args),
+      [Message.ADD_SHADOW]:  (...args) => this.handle('addShadow', ...args),
+      [Message.RM_ITEM]:     (...args) => this.handle('removeItem', ...args),
+      [Message.RM_SHADOW]:   (...args) => this.handle('removeShadow', ...args),
+      [Message.UD_ITEM]:     (...args) => this.handle('updateItem', ...args),
+      [Message.UD_SHADOW]:   (...args) => this.handle('updateShadow', ...args),
+      [Message.UD_VIEW]:     (...args) => this.handle('updateView', ...args),
+
+      // For hopefully occasional extra adjustments to objects in the model.
+      [Message.RM_ATTRS]:   ({ data }) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]:  ({ data }) => this.handle('setAttributes', data),
       [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
       [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
-      [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
-      [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -11544,7 +11549,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.model[message](...args);
+    this.model[message](...args, this);
     this.scheduleRender();
   }
 
@@ -11596,6 +11601,15 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+
+  /**
+   * Set the element attributes for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setAttributes(data) {
+    this.model.setAttributes(data);
   }
 
   /**
@@ -11741,7 +11755,109 @@ class ClientController {
 module.exports = ClientController;
 
 
-},{"../shared.js":78,"./Interactor.js":76,"socket.io-client":39}],72:[function(require,module,exports){
+},{"../shared.js":79,"./Interactor.js":77,"socket.io-client":39}],72:[function(require,module,exports){
+/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ */
+
+'use strict';
+
+const { Point2D, IdStamper, WamsElement } = require('../shared.js');
+
+/*
+ * I'm not defining a 'defaults' object here, because the data going into the
+ * creation of items should always come from the server, where it has already
+ * gone through an initialization against a defaults object.
+ */
+const STAMPER = new IdStamper();
+
+/**
+ * The ClientElement class exposes the draw() funcitonality of wams elements.
+ *
+ * @extends module:shared.WamsElement
+ * @memberof module:client
+ */
+class ClientElement extends WamsElement {
+  /**
+   * @param {module:shared.WamsElement} data - The data from the server
+   * describing this item. Only properties explicity listed in the array passed
+   * to the ReporterFactory when the WamsElement class was defined will be
+   * accepted.
+   */
+  constructor(data) {
+    super(data);
+
+    /**
+     * The DOM element.
+     *
+     * @type {Element}
+     */
+    this.element = document.createElement(data.tagname);
+    this.element.classList.add('wams-element');
+    this.element.style.width = `${this.width}px`;
+    this.element.style.height = `${this.height}px`;
+    document.body.appendChild(this.element);
+    if (data.hasOwnProperty('attributes')) {
+      this.setAttributes(data.attributes);
+    }
+
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientElement
+     */
+    STAMPER.cloneId(this, data.id);
+  }
+
+  /**
+   * Render the element. Really just updates the rotation and transformation
+   * matrix.
+   */
+  draw(context, view) {
+    const tl = new Point2D(this.x - view.x, this.y - view.y)
+      .divideBy(this.scale)
+      .rotate(this.rotation);
+    const rotate = `rotate(${view.rotation - this.rotation}rad) `;
+    const scale = `scale(${this.scale * view.scale}) `;
+    const translate = `translate(${tl.x}px, ${tl.y}px) `;
+    this.element.style.transform = scale + rotate + translate;
+  }
+
+  /**
+   * Sets attributes for the element.
+   *
+   * @param {object} attributes
+   */
+  setAttributes(attributes) {
+    this.attributes = attributes;
+    Object.entries(attributes).forEach(([k, v]) => {
+      this.element[k] = v;
+    });
+  }
+
+  /**
+   * Removes attributes from the element.
+   *
+   * @param {string[]} attributes
+   */
+  removeAttributes(attributes) {
+    attributes.forEach(attr => {
+      delete this.attributes[attr];
+      this.element[attr] = null;
+    });
+  }
+}
+
+module.exports = ClientElement;
+
+
+},{"../shared.js":79}],73:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11873,7 +11989,7 @@ class ClientImage extends WamsImage {
 module.exports = ClientImage;
 
 
-},{"../shared.js":78}],73:[function(require,module,exports){
+},{"../shared.js":79}],74:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11983,7 +12099,7 @@ class ClientItem extends Item {
 module.exports = ClientItem;
 
 
-},{"../shared.js":78,"canvas-sequencer":9}],74:[function(require,module,exports){
+},{"../shared.js":79,"canvas-sequencer":9}],75:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -11995,6 +12111,7 @@ module.exports = ClientItem;
 
 'use strict';
 
+const ClientElement = require('./ClientElement.js');
 const ClientImage = require('./ClientImage.js');
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
@@ -12047,14 +12164,33 @@ class ClientModel {
   }
 
   /**
+   * Generate and store an item of the given type.
+   *
+   * @param {function} class_fn
+   * @param {object} values
+   */
+  addObject(class_fn, values) {
+    const object = new class_fn(values);
+    this.itemOrder.push(object);
+    this.items.set(object.id, object);
+  }
+
+  /**
+   * Generate and store an Element with the given values.
+   *
+   * @param {module:shared.WamsElement} values - State of the new Element
+   */
+  addElement(values) {
+    this.addObject(ClientElement, values);
+  }
+
+  /**
    * Generate and store an Image with the given values.
    *
-   * @param {module.shared.WamsImage} values - State of the new image.
+   * @param {module:shared.WamsImage} values - State of the new image.
    */
   addImage(values) {
-    const image = new ClientImage(values);
-    this.itemOrder.push(image);
-    this.items.set(image.id, image);
+    this.addObject(ClientImage, values);
   }
 
   /**
@@ -12063,9 +12199,7 @@ class ClientModel {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    const item = new ClientItem(values);
-    this.itemOrder.push(item);
-    this.items.set(item.id, item);
+    this.addObject(ClientItem, values);
   }
 
   /**
@@ -12086,6 +12220,11 @@ class ClientModel {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
+    const obj = this.items.get(item.id);
+    if (obj.hasOwnProperty('tagname')) {
+      document.body.removeChild(obj.element);
+    }
+
     this.items.delete(item.id);
     return removeById(this.itemOrder, item);
   }
@@ -12116,12 +12255,37 @@ class ClientModel {
     });
     data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
     data.items.forEach(o => {
-      if (o.hasOwnProperty('src')) { // TODO: Fix this awful duck typing.
+      if (o.hasOwnProperty('src')) {
         this.addImage(o);
+      } else if (o.hasOwnProperty('tagname')) {
+        this.addElement(o);
       } else {
         this.addItem(o);
       }
     });
+  }
+
+  /**
+   * Call the given method with the given property of 'data' on the item with id
+   * equal to data.id.
+   *
+   * @param {string} fn_name
+   * @param {string} property
+   * @param {object} data
+   */
+  setItemValue(fn_name, property, data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id)[fn_name](data[property]);
+    }
+  }
+
+  /**
+   * Set the attributes for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setAttributes(data) {
+    this.setItemValue('setAttributes', 'attributes', data);
   }
 
   /**
@@ -12130,9 +12294,10 @@ class ClientModel {
    * @param {object} data
    */
   setImage(data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id).setImage(data.src);
-    }
+    this.setItemValue('setImage', 'src', data);
+    // if (this.items.has(data.id)) {
+    //   this.items.get(data.id).setImage(data.src);
+    // }
   }
 
   /**
@@ -12141,9 +12306,10 @@ class ClientModel {
    * @param {object} data
    */
   setRender(data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id).setRender(data.sequence);
-    }
+    this.setItemValue('setRender', 'sequence', data);
+    // if (this.items.has(data.id)) {
+    //   this.items.get(data.id).setRender(data.sequence);
+    // }
   }
 
   /**
@@ -12198,7 +12364,7 @@ class ClientModel {
 module.exports = ClientModel;
 
 
-},{"../shared.js":78,"./ClientImage.js":72,"./ClientItem.js":73,"./ShadowView.js":77}],75:[function(require,module,exports){
+},{"../shared.js":79,"./ClientElement.js":72,"./ClientImage.js":73,"./ClientItem.js":74,"./ShadowView.js":78}],76:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -12295,7 +12461,7 @@ class ClientView extends View {
    * Renders all the items.
    */
   [symbols.drawItems]() {
-    this.model.itemOrder.forEach(o => o.draw(this.context));
+    this.model.itemOrder.forEach(o => o.draw(this.context, this));
   }
 
   /**
@@ -12374,7 +12540,7 @@ ClientView.DEFAULTS = Object.freeze({
 module.exports = ClientView;
 
 
-},{"../shared.js":78}],76:[function(require,module,exports){
+},{"../shared.js":79}],77:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -12421,9 +12587,9 @@ class Interactor {
    * @param {Function} [handlers.track=NOP]
    */
   constructor(canvas, handlers = {}) {
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      throw 'Invalid canvas recieved by Interactor!';
-    }
+    // if (!(canvas instanceof HTMLCanvasElement)) {
+    //   throw 'Invalid canvas recieved by Interactor!';
+    // }
 
     /**
      * Object holding the handlers, so they can be dynamically referenced by
@@ -12440,7 +12606,8 @@ class Interactor {
     this.handlers = mergeMatches(Interactor.DEFAULT_HANDLERS, handlers);
 
     // Begin listening activities immediately.
-    this.bindRegions(canvas);
+    // this.bindRegions(canvas);
+    this.bindRegions();
     this.attachListeners();
   }
 
@@ -12460,7 +12627,8 @@ class Interactor {
    * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
    * for gestures.
    */
-  bindRegions(canvas) {
+  // bindRegions(canvas) {
+  bindRegions() {
     const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
@@ -12470,13 +12638,13 @@ class Interactor {
     const track   = new Westures.Track(['start', 'end']);
 
     const region = new Westures.Region(window);
-    region.addGesture(canvas, pan,    this.forward('pan'));
-    region.addGesture(canvas, tap,    this.forward('tap'));
-    region.addGesture(canvas, pinch,  this.forward('zoom'));
-    region.addGesture(canvas, rotate, this.forward('rotate'));
-    region.addGesture(canvas, swipe,  this.forward('swipe'));
-    region.addGesture(canvas, swivel, this.forward('rotate'));
-    region.addGesture(canvas, track,  this.forward('track'));
+    region.addGesture(document.body, pan,    this.forward('pan'));
+    region.addGesture(document.body, tap,    this.forward('tap'));
+    region.addGesture(document.body, pinch,  this.forward('zoom'));
+    region.addGesture(document.body, rotate, this.forward('rotate'));
+    region.addGesture(document.body, swipe,  this.forward('swipe'));
+    region.addGesture(document.body, swivel, this.forward('rotate'));
+    region.addGesture(document.body, track,  this.forward('track'));
   }
 
   /**
@@ -12526,7 +12694,7 @@ Interactor.DEFAULT_HANDLERS = Object.freeze({
 module.exports = Interactor;
 
 
-},{"../shared.js":78,"westures":61}],77:[function(require,module,exports){
+},{"../shared.js":79,"westures":61}],78:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -12648,7 +12816,7 @@ class ShadowView extends View {
 module.exports = ShadowView;
 
 
-},{"../shared.js":78}],78:[function(require,module,exports){
+},{"../shared.js":79}],79:[function(require,module,exports){
 /*
  * Utilities for the WAMS application.
  *
@@ -12727,7 +12895,7 @@ module.exports = Object.freeze({
 });
 
 
-},{"./shared/IdStamper.js":79,"./shared/Message.js":80,"./shared/Point2D.js":81,"./shared/Polygon2D.js":82,"./shared/Reporters.js":84,"./shared/utilities.js":85}],79:[function(require,module,exports){
+},{"./shared/IdStamper.js":80,"./shared/Message.js":81,"./shared/Point2D.js":82,"./shared/Polygon2D.js":83,"./shared/Reporters.js":85,"./shared/utilities.js":86}],80:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -12828,7 +12996,7 @@ class IdStamper {
 module.exports = IdStamper;
 
 
-},{"./utilities.js":85}],80:[function(require,module,exports){
+},{"./utilities.js":86}],81:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -12859,16 +13027,21 @@ const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
  */
 const TYPES = {
   // For the server to inform about changes to the model
-  /** @const */ ADD_IMAGE:  'wams-add-image',
-  /** @const */ ADD_ITEM:   'wams-add-item',
-  /** @const */ ADD_SHADOW: 'wams-add-shadow',
-  /** @const */ RM_ITEM:    'wams-remove-item',
-  /** @const */ RM_SHADOW:  'wams-remove-shadow',
+  /** @const */ ADD_ELEMENT: 'wams-add-element',
+  /** @const */ ADD_IMAGE:   'wams-add-image',
+  /** @const */ ADD_ITEM:    'wams-add-item',
+  /** @const */ ADD_SHADOW:  'wams-add-shadow',
+  /** @const */ RM_ITEM:     'wams-remove-item',
+  /** @const */ RM_SHADOW:   'wams-remove-shadow',
+  /** @const */ UD_ITEM:     'wams-update-item',
+  /** @const */ UD_SHADOW:   'wams-update-shadow',
+  /** @const */ UD_VIEW:     'wams-update-view',
+
+  // For hopefully occasional extra adjustments to objects in the model.
+  /** @const */ RM_ATTRS:   'wams-remove-attributes',
+  /** @const */ SET_ATTRS:  'wams-set-attributes',
   /** @const */ SET_IMAGE:  'wams-set-image',
   /** @const */ SET_RENDER: 'wams-set-render',
-  /** @const */ UD_ITEM:    'wams-update-item',
-  /** @const */ UD_SHADOW:  'wams-update-shadow',
-  /** @const */ UD_VIEW:    'wams-update-view',
 
   // Connection establishment related (disconnect, initial setup)
   /** @const */ INITIALIZE: 'wams-initialize',
@@ -12941,7 +13114,7 @@ Object.entries(TYPES).forEach(([p, v]) => {
 module.exports = Message;
 
 
-},{"./utilities.js":85}],81:[function(require,module,exports){
+},{"./utilities.js":86}],82:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -13161,7 +13334,7 @@ class Point2D {
 module.exports = Point2D;
 
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -13302,7 +13475,7 @@ class Polygon2D {
 module.exports = Polygon2D;
 
 
-},{"./Point2D.js":81}],83:[function(require,module,exports){
+},{"./Point2D.js":82}],84:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -13399,7 +13572,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":79,"./utilities.js":85}],84:[function(require,module,exports){
+},{"./IdStamper.js":80,"./utilities.js":86}],85:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -13482,8 +13655,98 @@ const Item = ReporterFactory([
 ]);
 
 /**
+ * This WamsElement class provides a common interface between the client and the
+ * server by which the elements interact safely.
+ *
+ * @class WamsElement
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const WamsElement = ReporterFactory([
+  /**
+   * X coordinate of the WamsElement.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'x',
+
+  /**
+   * Y coordinate of the WamsElement.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'y',
+
+  /**
+   * Width of the WamsElement.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'width',
+
+  /**
+   * Height of the WamsElement.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'height',
+
+  /**
+   * Rotation of the WamsElement.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'rotation',
+
+  /**
+   * Scale of the WamsElement.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'scale',
+
+  /**
+   * Type description of the WamsElement.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'type',
+
+  /**
+   * Tag name of the WamsElement.
+   *
+   * @name tagname
+   * @type {string}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'tagname',
+]);
+
+/**
  * This WamsImage class provides a common interface between the client and the
- * server by which the Items can interact safely.
+ * server by which the images can interact safely.
  *
  * @class WamsImage
  * @memberof module:shared
@@ -13811,11 +14074,12 @@ module.exports = {
   DataReporter,
   FullStateReporter,
   TouchReporter,
+  WamsElement,
   WamsImage,
 };
 
 
-},{"./ReporterFactory.js":83}],85:[function(require,module,exports){
+},{"./ReporterFactory.js":84}],86:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *
