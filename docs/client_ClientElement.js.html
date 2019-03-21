@@ -1,8 +1,10 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Module: predefined | WAMS</title>
+    <title>Source: client/ClientElement.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -47,202 +49,112 @@
 
 
 
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/*
+ * WAMS code to be executed in the client browser.
+ *
+ * Author: Michael van der Kamp
+ */
 
-<section>
+'use strict';
 
-<header>
-    
-        <h2>predefined</h2>
-        
-            
-        
-    
-</header>
+const { Point2D, IdStamper, WamsElement } = require('../shared.js');
 
-<article>
-    
-        <div class="container-overview">
-        
-            
-                <div class="description">Bundles together the predefined callback factories.</div>
-            
+/*
+ * I'm not defining a 'defaults' object here, because the data going into the
+ * creation of items should always come from the server, where it has already
+ * gone through an initialization against a defaults object.
+ */
+const STAMPER = new IdStamper();
 
-            
-                
+/**
+ * The ClientElement class exposes the draw() funcitonality of wams elements.
+ *
+ * @extends module:shared.WamsElement
+ * @memberof module:client
+ */
+class ClientElement extends WamsElement {
+  /**
+   * @param {module:shared.WamsElement} data - The data from the server
+   * describing this item. Only properties explicity listed in the array passed
+   * to the ReporterFactory when the WamsElement class was defined will be
+   * accepted.
+   */
+  constructor(data) {
+    super(data);
 
-<dt>
-    
-</dt>
-<dd>
+    /**
+     * The DOM element.
+     *
+     * @type {Element}
+     */
+    this.element = document.createElement(data.tagname);
+    this.element.classList.add('wams-element');
+    this.element.style.width = `${this.width}px`;
+    this.element.style.height = `${this.height}px`;
+    document.body.appendChild(this.element);
+    if (data.hasOwnProperty('attributes')) {
+      this.setAttributes(data.attributes);
+    }
 
-    
+    /**
+     * Id to make the items uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:client.ClientElement
+     */
+    STAMPER.cloneId(this, data.id);
+  }
 
-    
+  /**
+   * Render the element. Really just updates the rotation and transformation
+   * matrix.
+   */
+  draw(context, view) {
+    const tl = new Point2D(this.x - view.x, this.y - view.y)
+      .divideBy(this.scale)
+      .rotate(this.rotation);
+    const rotate = `rotate(${view.rotation - this.rotation}rad) `;
+    const scale = `scale(${this.scale * view.scale}) `;
+    const translate = `translate(${tl.x}px, ${tl.y}px) `;
+    this.element.style.transform = scale + rotate + translate;
+  }
 
-    
+  /**
+   * Sets attributes for the element.
+   *
+   * @param {object} attributes
+   */
+  setAttributes(attributes) {
+    this.attributes = attributes;
+    Object.entries(attributes).forEach(([k, v]) => {
+      this.element[k] = v;
+    });
+  }
 
-    
+  /**
+   * Removes attributes from the element.
+   *
+   * @param {string[]} attributes
+   */
+  removeAttributes(attributes) {
+    attributes.forEach(attr => {
+      delete this.attributes[attr];
+      this.element[attr] = null;
+    });
+  }
+}
 
-    
+module.exports = ClientElement;
 
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-    
-
-</dd>
-
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Namespaces</h3>
-        
-
-<dl>
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.drags.html">drags</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.drags.html">module:predefined.drags</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.items.html">items</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.items.html">module:predefined.items</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.layouts.html">layouts</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.layouts.html">module:predefined.layouts</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.rotates.html">rotates</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.rotates.html">module:predefined.rotates</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.scales.html">scales</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.scales.html">module:predefined.scales</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.taps.html">taps</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.taps.html">module:predefined.taps</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-        <dt>
-            <h4 class="name">
-                <a href="module-predefined.utilities.html">utilities</a>
-                <div class="container-source members">
-                    <code><a href="module-predefined.utilities.html">module:predefined.utilities</a></code>
-                </div>
-            </h4>
-        </dt>
-        
-    
-</dl>
-
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+</code></pre>
+        </article>
+    </section>
 
 
 
@@ -259,7 +171,7 @@
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = 'module:predefined_sub'.replace(/"/g, '_');
+        var id = '_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 
