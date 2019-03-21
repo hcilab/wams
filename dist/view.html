@@ -34,10 +34,19 @@
     }
 
     .wams-element {
-      position: absolute;
+      align-content: stretch;
+      align-items: stretch;
+      background-color: grey;
+      display: flex;
       left: 0px;
+      overflow: hidden;
+      position: absolute;
       top: 0px;
       transform-origin: top left;
+    }
+
+    .wams-element > * {
+      flex-grow: 1;
     }
   </style>
 </head>
