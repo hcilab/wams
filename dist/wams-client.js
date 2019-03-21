@@ -13444,9 +13444,6 @@ module.exports = Polygon2D;
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const {
-  defineOwnImmutableEnumerableProperty,
-} = require('./utilities.js');
 
 const STAMPER = new IdStamper();
 
@@ -13455,24 +13452,13 @@ const STAMPER = new IdStamper();
  *  property values between the client and server.
  *
  * @memberof module:shared
- * @param {string[]} coreProperties - An array of property names. It is these
+ * @param {object} coreProperties - It is the properties defined on this object,
  * properties, and only these properties, which will be report()ed by the
- * reporter.
+ * reporter. The values provided will be used as the defaults.
  */
 function ReporterFactory(coreProperties) {
-  // Use scoping to permanently save the list of core property names. Make sure
-  // To create a local copy and freeze it to guarantee immutability as best
-  // JavaScript will allow. If a better method for ensuring immutability is
-  // Available, use it here instead.
-  const KEYS = Object.freeze(Array.from(coreProperties));
-
-  // Generate a default initial object containing all the core properties, each
-  // With a value of null.
-  const INITIALIZER = {};
-  coreProperties.forEach(p => {
-    defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
-  });
-  Object.freeze(INITIALIZER);
+  const INITIALIZER = Object.freeze({ ...coreProperties });
+  const KEYS = Object.freeze(Object.keys(INITIALIZER));
 
   /**
    * A Reporter regulates communication between client and server by enforcing a
@@ -13509,8 +13495,7 @@ function ReporterFactory(coreProperties) {
 
     /**
      * Provide a report of the data saved in this Reporter instance. Only those
-     * instance properties which correspond to properties named in KEYS will be
-     * reported.
+     * instance properties which correspond to core properties will be reported.
      *
      * @return {Object} Contains the core properties of this Reporter instance.
      */
@@ -13530,7 +13515,7 @@ function ReporterFactory(coreProperties) {
 module.exports = ReporterFactory;
 
 
-},{"./IdStamper.js":80,"./utilities.js":86}],85:[function(require,module,exports){
+},{"./IdStamper.js":80}],85:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -13550,57 +13535,62 @@ const ReporterFactory = require('./ReporterFactory.js');
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const Item = ReporterFactory([
+const Item = ReporterFactory({
   /**
    * X coordinate of the Item.
    *
    * @name x
    * @type {number}
+   * @default 0
    * @memberof module:shared.Item
    * @instance
    */
-  'x',
+  x: 0,
 
   /**
    * Y coordinate of the Item.
    *
    * @name y
    * @type {number}
+   * @default 0
    * @memberof module:shared.Item
    * @instance
    */
-  'y',
+  y: 0,
 
   /**
    * Rotation of the Item.
    *
    * @name rotation
    * @type {number}
+   * @default 0
    * @memberof module:shared.Item
    * @instance
    */
-  'rotation',
+  rotation: 0,
 
   /**
    * Scale of the Item.
    *
    * @name scale
    * @type {number}
+   * @default 1
    * @memberof module:shared.Item
    * @instance
    */
-  'scale',
+  scale: 1,
 
   /**
    * Type description of the Item.
    *
    * @name type
    * @type {string}
+   * @default 'item/polygonal'
    * @memberof module:shared.Item
    * @instance
    */
-  'type',
-]);
+  type: 'item/polygonal',
+});
 
 /**
  * This WamsElement class provides a common interface between the client and the
@@ -13610,87 +13600,95 @@ const Item = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const WamsElement = ReporterFactory([
+const WamsElement = ReporterFactory({
   /**
    * X coordinate of the WamsElement.
    *
    * @name x
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'x',
+  x: 0,
 
   /**
    * Y coordinate of the WamsElement.
    *
    * @name y
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'y',
+  y: 0,
 
   /**
    * Width of the WamsElement.
    *
    * @name width
    * @type {number}
+   * @default 400
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'width',
+  width: 400,
 
   /**
    * Height of the WamsElement.
    *
    * @name height
    * @type {number}
+   * @default 300
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'height',
+  height: 300,
 
   /**
    * Rotation of the WamsElement.
    *
    * @name rotation
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'rotation',
+  rotation: 0,
 
   /**
    * Scale of the WamsElement.
    *
    * @name scale
    * @type {number}
+   * @default 1
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'scale',
+  scale: 1,
 
   /**
    * Type description of the WamsElement.
    *
    * @name type
    * @type {string}
+   * @default 'item/element'
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'type',
+  type: 'item/element',
 
   /**
    * Tag name of the WamsElement.
    *
    * @name tagname
    * @type {string}
+   * @default 'div'
    * @memberof module:shared.WamsElement
    * @instance
    */
-  'tagname',
-]);
+  tagname: 'div',
+});
 
 /**
  * This WamsImage class provides a common interface between the client and the
@@ -13700,77 +13698,84 @@ const WamsElement = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const WamsImage = ReporterFactory([
+const WamsImage = ReporterFactory({
   /**
    * X coordinate of the WamsImage.
    *
    * @name x
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'x',
+  x: 0,
 
   /**
    * Y coordinate of the WamsImage.
    *
    * @name y
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'y',
+  y: 0,
 
   /**
    * Width of the WamsImage.
    *
    * @name width
    * @type {number}
+   * @default 400
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'width',
+  width: 400,
 
   /**
    * Height of the WamsImage.
    *
    * @name height
    * @type {number}
+   * @default 300
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'height',
+  height: 300,
 
   /**
    * Rotation of the WamsImage.
    *
    * @name rotation
    * @type {number}
+   * @default 0
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'rotation',
+  rotation: 0,
 
   /**
    * Scale of the WamsImage.
    *
    * @name scale
    * @type {number}
+   * @default 1
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'scale',
+  scale: 1,
 
   /**
    * Type description of the WamsImage.
    *
    * @name type
    * @type {string}
+   * @default 'item/image'
    * @memberof module:shared.WamsImage
    * @instance
    */
-  'type',
-]);
+  type: 'item/image',
+});
 
 /**
  * This View class provides a common interface between the client and
@@ -13780,46 +13785,50 @@ const WamsImage = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const View = ReporterFactory([
+const View = ReporterFactory({
   /**
    * X coordinate of the View.
    *
    * @name x
    * @type {number}
+   * @default 0
    * @memberof module:shared.View
    * @instance
    */
-  'x',
+  x: 0,
 
   /**
    * Y coordinate of the View.
    *
    * @name y
    * @type {number}
+   * @default 0
    * @memberof module:shared.View
    * @instance
    */
-  'y',
+  y: 0,
 
   /**
    * Width of the View.
    *
    * @name width
    * @type {number}
+   * @default 1600
    * @memberof module:shared.View
    * @instance
    */
-  'width',
+  width: 1600,
 
   /**
    * Height of the View.
    *
    * @name height
    * @type {number}
+   * @default 900
    * @memberof module:shared.View
    * @instance
    */
-  'height',
+  height: 900,
 
   /**
    * Type of object.
@@ -13830,28 +13839,30 @@ const View = ReporterFactory([
    * @memberof module:shared.View
    * @instance
    */
-  'type',
+  type: 'view/background',
 
   /**
    * Scale of the View.
    *
    * @name scale
    * @type {number}
+   * @default 1
    * @memberof module:shared.View
    * @instance
    */
-  'scale',
+  scale: 1,
 
   /**
    * Rotation of the View.
    *
    * @name rotation
    * @type {number}
+   * @default 0
    * @memberof module:shared.View
    * @instance
    */
-  'rotation',
-]);
+  rotation: 0,
+});
 
 /**
  * This class allows generic Input data reporting between client and server.
@@ -13864,17 +13875,18 @@ const View = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const DataReporter = ReporterFactory([
+const DataReporter = ReporterFactory({
   /**
    * Generic data pass-through.
    *
    * @name data
    * @type {Object}
+   * @default null
    * @memberof module:shared.DataReporter
    * @instance
    */
-  'data',
-]);
+  data: null,
+});
 
 /**
  * This class allows reporting of the full state of the model, for bringing
@@ -13885,57 +13897,62 @@ const DataReporter = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const FullStateReporter = ReporterFactory([
+const FullStateReporter = ReporterFactory({
   /**
    * All currently active views.
    *
    * @name views
    * @type {View[]}
+   * @default []
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  'views',
+  views: [],
 
   /**
    * All current items.
    *
    * @name items
    * @type {Item[]}
+   * @default []
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  'items',
+  items: [],
 
   /**
    * The background colour of the workspace.
    *
    * @name color
    * @type {string}
+   * @default '#dad1e3'
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  'color',
+  color: '#dad1e3',
 
   /**
    * The id assigned to this view.
    *
    * @name id
    * @type {number}
+   * @default null
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  'id',
+  id: null,
 
   /**
    * Whether to use server-side gestures.
    *
    * @name useServerGestures
    * @type {boolean}
+   * @default false
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  'useServerGestures',
-]);
+  useServerGestures: false,
+});
 
 /**
  * Enables forwarding of TouchEvents from the client to the server.
@@ -13944,67 +13961,73 @@ const FullStateReporter = ReporterFactory([
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const TouchReporter = ReporterFactory([
+const TouchReporter = ReporterFactory({
   /**
    * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
    *
    * @name type
    * @type {string}
+   * @default null
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'type',
+  type: null,
 
   /**
    * Array of changed touches.
    *
    * @name changedTouches
    * @type {Touch[]}
+   * @default []
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'changedTouches',
+  changedTouches: [],
 
   /**
    * Whether the CTRL key was pressed at the time of the event.
    *
    * @name ctrlKey
    * @type {boolean}
+   * @default false
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'ctrlKey',
+  ctrlKey: false,
 
   /**
    * Whether the ALT key was pressed at the time of the event.
    *
    * @name altKey
    * @type {boolean}
+   * @default false
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'altKey',
+  altKey: false,
 
   /**
    * Whether the SHIFT key was pressed at the time of the event.
    *
    * @name shiftKey
    * @type {boolean}
+   * @default false
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'shiftKey',
+  shiftKey: false,
 
   /**
    * Whether the META key was pressed at the time of the event.
    *
    * @name metaKey
    * @type {boolean}
+   * @default false
    * @memberof module:shared.TouchReporter
    * @instance
    */
-  'metaKey',
-]);
+  metaKey: false,
+});
 
 module.exports = {
   Item,
