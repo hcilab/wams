@@ -34,7 +34,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    * stored. Any other properties will be ignored.
    */
   constructor(namespace, values = {}) {
-    super({ ...ServerItem.DEFAULTS, ...values });
+    super(values);
 
     /**
      * Socket.io namespace for publishing updates.
@@ -74,21 +74,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
     new Message(Message.SET_RENDER, dreport).emitWith(this.namespace);
   }
 }
-
-/**
- * The default values for a ServerItem.
- *
- * @type {Object}
- */
-ServerItem.DEFAULTS = Object.freeze({
-  x:         0,
-  y:         0,
-  hitbox:    null,
-  rotation:  0,
-  scale:     1,
-  type:      'item/polygonal',
-  sequence: null,
-});
 
 module.exports = ServerItem;
 

@@ -30,10 +30,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * messages from clients.
    */
   constructor(messageHandler) {
-    /*
-     * The default x, y, scale, and rotation values are the ones that we want.
-     */
-    super(ServerViewGroup.DEFAULTS);
+    super();
 
     /**
      * Controls server-side gestures.
@@ -134,21 +131,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     return view;
   }
 }
-
-/**
- * The default values for a ServerViewGroup.
- *
- * @type {object}
- */
-ServerViewGroup.DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  width:    1600,
-  height:   900,
-  type:     'viewgroup',
-  scale:    1,
-  rotation: 0,
-});
 
 module.exports = ServerViewGroup;
 

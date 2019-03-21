@@ -8,9 +8,6 @@
 'use strict';
 
 const IdStamper = require('./IdStamper.js');
-const {
-  defineOwnImmutableEnumerableProperty,
-} = require('./utilities.js');
 
 const STAMPER = new IdStamper();
 
@@ -19,24 +16,13 @@ const STAMPER = new IdStamper();
  *  property values between the client and server.
  *
  * @memberof module:shared
- * @param {string[]} coreProperties - An array of property names. It is these
+ * @param {object} coreProperties - It is the properties defined on this object,
  * properties, and only these properties, which will be report()ed by the
- * reporter.
+ * reporter. The values provided will be used as the defaults.
  */
 function ReporterFactory(coreProperties) {
-  // Use scoping to permanently save the list of core property names. Make sure
-  // To create a local copy and freeze it to guarantee immutability as best
-  // JavaScript will allow. If a better method for ensuring immutability is
-  // Available, use it here instead.
-  const KEYS = Object.freeze(Array.from(coreProperties));
-
-  // Generate a default initial object containing all the core properties, each
-  // With a value of null.
-  const INITIALIZER = {};
-  coreProperties.forEach(p => {
-    defineOwnImmutableEnumerableProperty(INITIALIZER, p, null);
-  });
-  Object.freeze(INITIALIZER);
+  const INITIALIZER = Object.freeze({ ...coreProperties });
+  const KEYS = Object.freeze(Object.keys(INITIALIZER));
 
   /**
    * A Reporter regulates communication between client and server by enforcing a
@@ -73,8 +59,7 @@ function ReporterFactory(coreProperties) {
 
     /**
      * Provide a report of the data saved in this Reporter instance. Only those
-     * instance properties which correspond to properties named in KEYS will be
-     * reported.
+     * instance properties which correspond to core properties will be reported.
      *
      * @return {Object} Contains the core properties of this Reporter instance.
      */

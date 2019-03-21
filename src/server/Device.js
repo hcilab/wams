@@ -17,26 +17,7 @@ const { Transformable2D } = require('../mixins.js');
  * @extends module:shared.View
  * @mixes module:mixins.Transformable2D
  */
-class Device extends Transformable2D(View) {
-  constructor() {
-    super(Device.DEFAULTS);
-  }
-}
-
-/**
- * The default values for a Device.
- *
- * @type {object}
- */
-Device.DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  width:    1600,
-  height:   900,
-  scale:    1,
-  rotation: 0,
-  type:     'device',
-});
+class Device extends Transformable2D(View) {}
 
 module.exports = Device;
 

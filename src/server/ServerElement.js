@@ -30,7 +30,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
    * be stored. Any other properties will be ignored.
    */
   constructor(namespace, values = {}) {
-    super({ ...ServerElement.DEFAULTS, ...values });
+    super(values);
 
     /**
      * Socket.io namespace for publishing updates.
@@ -87,23 +87,6 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     new Message(Message.SET_ATTRS, dreport).emitWith(this.namespace);
   }
 }
-
-/**
- * The default values for a ServerElement.
- *
- * @type {Object}
- */
-ServerElement.DEFAULTS = Object.freeze({
-  x:         0,
-  y:         0,
-  width:     400,
-  height:    300,
-  hitbox:    null,
-  rotation:  0,
-  scale:     1,
-  type:      'item/image',
-  tagname:   'div',
-});
 
 module.exports = ServerElement;
 

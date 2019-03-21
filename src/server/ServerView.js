@@ -35,7 +35,7 @@ class ServerView extends Locker(Interactable(View)) {
    * the view.
    */
   constructor(socket, values = {}) {
-    super({ ...ServerView.DEFAULTS, ...values });
+    super(values);
 
     /**
      * Socket.io socket for publishing changes.
@@ -103,21 +103,6 @@ class ServerView extends Locker(Interactable(View)) {
     super.scaleBy(ds, mx, my, 'divideBy');
   }
 }
-
-/**
- * The default values for a ServerView.
- *
- * @type {Object}
- */
-ServerView.DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  width:    1600,
-  height:   900,
-  type:     'view/background',
-  scale:    1,
-  rotation: 0,
-});
 
 module.exports = ServerView;
 

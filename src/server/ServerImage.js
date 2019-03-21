@@ -30,7 +30,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    * be stored. Any other properties will be ignored.
    */
   constructor(namespace, values = {}) {
-    super({ ...ServerImage.DEFAULTS, ...values });
+    super(values);
 
     /**
      * Socket.io namespace for publishing updates.
@@ -69,23 +69,6 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
     new Message(Message.SET_IMAGE, dreport).emitWith(this.namespace);
   }
 }
-
-/**
- * The default values for a ServerImage.
- *
- * @type {Object}
- */
-ServerImage.DEFAULTS = Object.freeze({
-  x:         0,
-  y:         0,
-  width:     400,
-  height:    300,
-  hitbox:    null,
-  rotation:  0,
-  scale:     1,
-  type:      'item/image',
-  src:       '',
-});
 
 module.exports = ServerImage;
 
