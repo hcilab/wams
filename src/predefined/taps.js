@@ -78,7 +78,7 @@ function spawnItem(app, item_fn) {
  * function which will remove the targeted item if it has the given type.
  * Otherwise will spawn a new item at the tap location.
  */
-function spawnOrRemoveItem(app, item_fn, type) {
+function spawnOrRemoveItem(app, item_fn, type, spawn_fn = 'spawnItem') {
   return function tap_spawnOrRemoveItem(view, target, x, y) {
     if (isIncludedIn(target, [type])) {
       app.removeItem(target);
@@ -86,7 +86,8 @@ function spawnOrRemoveItem(app, item_fn, type) {
         view.obtainLockOnItem(view);
       }
     } else {
-      app.spawnItem(item_fn(x, y, view));
+      // app.spawnItem(item_fn(x, y, view));
+      app[spawn_fn](item_fn(x, y, view));
     }
   };
 }

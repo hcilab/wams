@@ -13,9 +13,11 @@
 const {
   findLast,
   mergeMatches,
-  safeRemoveById,
+  removeById,
+  // safeRemoveById,
   Message,
 } = require('../shared.js');
+const ServerElement = require('./ServerElement.js');
 const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
 
@@ -110,7 +112,8 @@ class WorkSpace {
    * otherwise.
    */
   removeItem(item) {
-    if (safeRemoveById(this.items, item, ServerItem)) {
+    // if (safeRemoveById(this.items, item, ServerItem)) {
+    if (removeById(this.items, item)) {
       new Message(Message.RM_ITEM, item).emitWith(this.namespace);
     }
   }
@@ -123,11 +126,38 @@ class WorkSpace {
       const report = o.report();
       if (o instanceof ServerImage) {
         report.src = o.src;
+      } else if (o instanceof ServerElement) {
+        report.attributes = o.attributes;
       } else {
         report.sequence = o.sequence;
       }
       return report;
     });
+  }
+
+  /**
+   * Spawn a new workspace object of the given type, with the given values.
+   *
+   * @param {function} class_fn
+   * @param {object} values
+   *
+   * @return {object} The newly spawned object.
+   */
+  spawnObject(class_fn, values) {
+    const object = new class_fn(this.namespace, values);
+    this.items.push(object);
+    return object;
+  }
+
+  /**
+   * Spawn a new element with the given values.
+   *
+   * @param {object} values - Values describing the element to spawn.
+   *
+   * @return {module:server.ServerElement} The newly spawned element.
+   */
+  spawnElement(values = {}) {
+    return this.spawnObject(ServerElement, values);
   }
 
   /**
@@ -138,9 +168,10 @@ class WorkSpace {
    * @return {module:server.ServerImage} The newly spawned image.
    */
   spawnImage(values = {}) {
-    const image = new ServerImage(this.namespace, values);
-    this.items.push(image);
-    return image;
+    return this.spawnObject(ServerImage, values);
+    // const image = new ServerImage(this.namespace, values);
+    // this.items.push(image);
+    // return image;
   }
 
   /**
@@ -151,9 +182,10 @@ class WorkSpace {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
-    const item = new ServerItem(this.namespace, values);
-    this.items.push(item);
-    return item;
+    return this.spawnObject(ServerItem, values);
+    // const item = new ServerItem(this.namespace, values);
+    // this.items.push(item);
+    // return item;
   }
 }
 

@@ -44,9 +44,9 @@ class Interactor {
    * @param {Function} [handlers.track=NOP]
    */
   constructor(canvas, handlers = {}) {
-    if (!(canvas instanceof HTMLCanvasElement)) {
-      throw 'Invalid canvas recieved by Interactor!';
-    }
+    // if (!(canvas instanceof HTMLCanvasElement)) {
+    //   throw 'Invalid canvas recieved by Interactor!';
+    // }
 
     /**
      * Object holding the handlers, so they can be dynamically referenced by
@@ -63,7 +63,8 @@ class Interactor {
     this.handlers = mergeMatches(Interactor.DEFAULT_HANDLERS, handlers);
 
     // Begin listening activities immediately.
-    this.bindRegions(canvas);
+    // this.bindRegions(canvas);
+    this.bindRegions();
     this.attachListeners();
   }
 
@@ -83,7 +84,8 @@ class Interactor {
    * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
    * for gestures.
    */
-  bindRegions(canvas) {
+  // bindRegions(canvas) {
+  bindRegions() {
     const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
     const rotate  = new Westures.Rotate();
     const pinch   = new Westures.Pinch();
@@ -93,13 +95,13 @@ class Interactor {
     const track   = new Westures.Track(['start', 'end']);
 
     const region = new Westures.Region(window);
-    region.addGesture(canvas, pan,    this.forward('pan'));
-    region.addGesture(canvas, tap,    this.forward('tap'));
-    region.addGesture(canvas, pinch,  this.forward('zoom'));
-    region.addGesture(canvas, rotate, this.forward('rotate'));
-    region.addGesture(canvas, swipe,  this.forward('swipe'));
-    region.addGesture(canvas, swivel, this.forward('rotate'));
-    region.addGesture(canvas, track,  this.forward('track'));
+    region.addGesture(document.body, pan,    this.forward('pan'));
+    region.addGesture(document.body, tap,    this.forward('tap'));
+    region.addGesture(document.body, pinch,  this.forward('zoom'));
+    region.addGesture(document.body, rotate, this.forward('rotate'));
+    region.addGesture(document.body, swipe,  this.forward('swipe'));
+    region.addGesture(document.body, swivel, this.forward('rotate'));
+    region.addGesture(document.body, track,  this.forward('track'));
   }
 
   /**

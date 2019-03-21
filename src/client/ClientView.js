@@ -94,7 +94,7 @@ class ClientView extends View {
    * Renders all the items.
    */
   [symbols.drawItems]() {
-    this.model.itemOrder.forEach(o => o.draw(this.context));
+    this.model.itemOrder.forEach(o => o.draw(this.context, this));
   }
 
   /**

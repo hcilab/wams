@@ -131,6 +131,16 @@ class Application {
   }
 
   /**
+   * Spawn a new element with the given values in the workspace.
+   *
+   * @param {Object} values - Data describing the element to spawn.
+   * @return {module:server.ServerElement} The newly spawned element.
+   */
+  spawnElement(values) {
+    return this.workspace.spawnElement(values);
+  }
+
+  /**
    * Spawn a new image with the given values in the workspace.
    *
    * @param {Object} values - Data describing the image to spawn.

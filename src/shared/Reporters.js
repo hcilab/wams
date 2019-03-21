@@ -80,8 +80,98 @@ const Item = ReporterFactory([
 ]);
 
 /**
+ * This WamsElement class provides a common interface between the client and the
+ * server by which the elements interact safely.
+ *
+ * @class WamsElement
+ * @memberof module:shared
+ * @extends module:shared.Reporter
+ */
+const WamsElement = ReporterFactory([
+  /**
+   * X coordinate of the WamsElement.
+   *
+   * @name x
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'x',
+
+  /**
+   * Y coordinate of the WamsElement.
+   *
+   * @name y
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'y',
+
+  /**
+   * Width of the WamsElement.
+   *
+   * @name width
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'width',
+
+  /**
+   * Height of the WamsElement.
+   *
+   * @name height
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'height',
+
+  /**
+   * Rotation of the WamsElement.
+   *
+   * @name rotation
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'rotation',
+
+  /**
+   * Scale of the WamsElement.
+   *
+   * @name scale
+   * @type {number}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'scale',
+
+  /**
+   * Type description of the WamsElement.
+   *
+   * @name type
+   * @type {string}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'type',
+
+  /**
+   * Tag name of the WamsElement.
+   *
+   * @name tagname
+   * @type {string}
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
+  'tagname',
+]);
+
+/**
  * This WamsImage class provides a common interface between the client and the
- * server by which the Items can interact safely.
+ * server by which the images can interact safely.
  *
  * @class WamsImage
  * @memberof module:shared
@@ -409,6 +499,7 @@ module.exports = {
   DataReporter,
   FullStateReporter,
   TouchReporter,
+  WamsElement,
   WamsImage,
 };
 

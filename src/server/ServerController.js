@@ -106,16 +106,21 @@ class ServerController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_IMAGE]:  NOP,
-      [Message.ADD_ITEM]:   NOP,
-      [Message.ADD_SHADOW]: NOP,
-      [Message.RM_ITEM]:    NOP,
-      [Message.RM_SHADOW]:  NOP,
+      [Message.ADD_ELEMENT]: NOP,
+      [Message.ADD_IMAGE]:   NOP,
+      [Message.ADD_ITEM]:    NOP,
+      [Message.ADD_SHADOW]:  NOP,
+      [Message.RM_ITEM]:     NOP,
+      [Message.RM_SHADOW]:   NOP,
+      [Message.UD_ITEM]:     NOP,
+      [Message.UD_SHADOW]:   NOP,
+      [Message.UD_VIEW]:     NOP,
+
+      // For hopefully occasional extra adjustments to objects in the model.
+      [Message.RM_ATTRS]:   NOP,
+      [Message.SET_ATTRS]:  NOP,
       [Message.SET_IMAGE]:  NOP,
       [Message.SET_RENDER]: NOP,
-      [Message.UD_ITEM]:    NOP,
-      [Message.UD_SHADOW]:  NOP,
-      [Message.UD_VIEW]:    NOP,
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: NOP,

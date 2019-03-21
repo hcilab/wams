@@ -159,7 +159,29 @@ function polygon(points = [], colour = 'green', properties = {}) {
   return transformed({ ...properties, hitbox, sequence });
 }
 
+/**
+ * Generate a rectangular element.
+ *
+ * @memberof module:predefined.items
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ * @param {Object} properties - Location and orientation options for the item,
+ * plus any appropriate attributes.
+ * See {@link module:shared.WamsElement} members for available parameters.
+ *
+ * @returns {Object} An object with the parameters for a rectangular item with
+ * the given width and height, filled in with the given colour.
+ */
+function element(x, y, width, height, properties = {}) {
+  const hitbox = rectangularHitbox(x, y, width, height);
+  return transformed({ ...properties, hitbox });
+}
+
 module.exports = {
+  element,
   image,
   polygon,
   rectangle,

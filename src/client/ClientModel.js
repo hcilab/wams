@@ -9,6 +9,7 @@
 
 'use strict';
 
+const ClientElement = require('./ClientElement.js');
 const ClientImage = require('./ClientImage.js');
 const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
@@ -61,14 +62,33 @@ class ClientModel {
   }
 
   /**
+   * Generate and store an item of the given type.
+   *
+   * @param {function} class_fn
+   * @param {object} values
+   */
+  addObject(class_fn, values) {
+    const object = new class_fn(values);
+    this.itemOrder.push(object);
+    this.items.set(object.id, object);
+  }
+
+  /**
+   * Generate and store an Element with the given values.
+   *
+   * @param {module:shared.WamsElement} values - State of the new Element
+   */
+  addElement(values) {
+    this.addObject(ClientElement, values);
+  }
+
+  /**
    * Generate and store an Image with the given values.
    *
-   * @param {module.shared.WamsImage} values - State of the new image.
+   * @param {module:shared.WamsImage} values - State of the new image.
    */
   addImage(values) {
-    const image = new ClientImage(values);
-    this.itemOrder.push(image);
-    this.items.set(image.id, image);
+    this.addObject(ClientImage, values);
   }
 
   /**
@@ -77,9 +97,7 @@ class ClientModel {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    const item = new ClientItem(values);
-    this.itemOrder.push(item);
-    this.items.set(item.id, item);
+    this.addObject(ClientItem, values);
   }
 
   /**
@@ -100,6 +118,11 @@ class ClientModel {
    * @return {boolean} true if removal was successful, false otherwise.
    */
   removeItem(item) {
+    const obj = this.items.get(item.id);
+    if (obj.hasOwnProperty('tagname')) {
+      document.body.removeChild(obj.element);
+    }
+
     this.items.delete(item.id);
     return removeById(this.itemOrder, item);
   }
@@ -130,12 +153,37 @@ class ClientModel {
     });
     data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
     data.items.forEach(o => {
-      if (o.hasOwnProperty('src')) { // TODO: Fix this awful duck typing.
+      if (o.hasOwnProperty('src')) {
         this.addImage(o);
+      } else if (o.hasOwnProperty('tagname')) {
+        this.addElement(o);
       } else {
         this.addItem(o);
       }
     });
+  }
+
+  /**
+   * Call the given method with the given property of 'data' on the item with id
+   * equal to data.id.
+   *
+   * @param {string} fn_name
+   * @param {string} property
+   * @param {object} data
+   */
+  setItemValue(fn_name, property, data) {
+    if (this.items.has(data.id)) {
+      this.items.get(data.id)[fn_name](data[property]);
+    }
+  }
+
+  /**
+   * Set the attributes for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setAttributes(data) {
+    this.setItemValue('setAttributes', 'attributes', data);
   }
 
   /**
@@ -144,9 +192,10 @@ class ClientModel {
    * @param {object} data
    */
   setImage(data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id).setImage(data.src);
-    }
+    this.setItemValue('setImage', 'src', data);
+    // if (this.items.has(data.id)) {
+    //   this.items.get(data.id).setImage(data.src);
+    // }
   }
 
   /**
@@ -155,9 +204,10 @@ class ClientModel {
    * @param {object} data
    */
   setRender(data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id).setRender(data.sequence);
-    }
+    this.setItemValue('setRender', 'sequence', data);
+    // if (this.items.has(data.id)) {
+    //   this.items.get(data.id).setRender(data.sequence);
+    // }
   }
 
   /**

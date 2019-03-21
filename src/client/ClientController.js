@@ -108,16 +108,21 @@ class ClientController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_IMAGE]:  (...args) => this.handle('addImage', ...args),
-      [Message.ADD_ITEM]:   (...args) => this.handle('addItem', ...args),
-      [Message.ADD_SHADOW]: (...args) => this.handle('addShadow', ...args),
-      [Message.RM_ITEM]:    (...args) => this.handle('removeItem', ...args),
-      [Message.RM_SHADOW]:  (...args) => this.handle('removeShadow', ...args),
+      [Message.ADD_ELEMENT]: (...args) => this.handle('addElement', ...args),
+      [Message.ADD_IMAGE]:   (...args) => this.handle('addImage', ...args),
+      [Message.ADD_ITEM]:    (...args) => this.handle('addItem', ...args),
+      [Message.ADD_SHADOW]:  (...args) => this.handle('addShadow', ...args),
+      [Message.RM_ITEM]:     (...args) => this.handle('removeItem', ...args),
+      [Message.RM_SHADOW]:   (...args) => this.handle('removeShadow', ...args),
+      [Message.UD_ITEM]:     (...args) => this.handle('updateItem', ...args),
+      [Message.UD_SHADOW]:   (...args) => this.handle('updateShadow', ...args),
+      [Message.UD_VIEW]:     (...args) => this.handle('updateView', ...args),
+
+      // For hopefully occasional extra adjustments to objects in the model.
+      [Message.RM_ATTRS]:   ({ data }) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]:  ({ data }) => this.handle('setAttributes', data),
       [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
       [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
-      [Message.UD_ITEM]:    (...args) => this.handle('updateItem', ...args),
-      [Message.UD_SHADOW]:  (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:    (...args) => this.handle('updateView', ...args),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (...args) => this.setup(...args),
@@ -159,7 +164,6 @@ class ClientController {
    * Establishes a socket.io connection with the server, using the global WAMS
    * namespace. Connections should be non-persistent over disconnects, (i.e., no
    * reconnections), as this was the cause of many bugs.
-   *  - TODO: Revisit? Should reconnections be allowed?
    *
    * This internal routine should be called automatically upon ClientController
    * instantiation.
@@ -220,7 +224,7 @@ class ClientController {
    * @param {...mixed} ...args - The arguments to pass to the ClientView method.
    */
   handle(message, ...args) {
-    this.model[message](...args);
+    this.model[message](...args, this);
     this.scheduleRender();
   }
 
@@ -272,6 +276,15 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
+
+  /**
+   * Set the element attributes for the appropriate item.
+   *
+   * @param {object} data
+   */
+  setAttributes(data) {
+    this.model.setAttributes(data);
   }
 
   /**

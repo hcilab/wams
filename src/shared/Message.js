@@ -28,16 +28,21 @@ const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
  */
 const TYPES = {
   // For the server to inform about changes to the model
-  /** @const */ ADD_IMAGE:  'wams-add-image',
-  /** @const */ ADD_ITEM:   'wams-add-item',
-  /** @const */ ADD_SHADOW: 'wams-add-shadow',
-  /** @const */ RM_ITEM:    'wams-remove-item',
-  /** @const */ RM_SHADOW:  'wams-remove-shadow',
+  /** @const */ ADD_ELEMENT: 'wams-add-element',
+  /** @const */ ADD_IMAGE:   'wams-add-image',
+  /** @const */ ADD_ITEM:    'wams-add-item',
+  /** @const */ ADD_SHADOW:  'wams-add-shadow',
+  /** @const */ RM_ITEM:     'wams-remove-item',
+  /** @const */ RM_SHADOW:   'wams-remove-shadow',
+  /** @const */ UD_ITEM:     'wams-update-item',
+  /** @const */ UD_SHADOW:   'wams-update-shadow',
+  /** @const */ UD_VIEW:     'wams-update-view',
+
+  // For hopefully occasional extra adjustments to objects in the model.
+  /** @const */ RM_ATTRS:   'wams-remove-attributes',
+  /** @const */ SET_ATTRS:  'wams-set-attributes',
   /** @const */ SET_IMAGE:  'wams-set-image',
   /** @const */ SET_RENDER: 'wams-set-render',
-  /** @const */ UD_ITEM:    'wams-update-item',
-  /** @const */ UD_SHADOW:  'wams-update-shadow',
-  /** @const */ UD_VIEW:    'wams-update-view',
 
   // Connection establishment related (disconnect, initial setup)
   /** @const */ INITIALIZE: 'wams-initialize',
