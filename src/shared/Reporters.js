@@ -67,16 +67,6 @@ const Item = ReporterFactory([
    * @instance
    */
   'type',
-
-  /**
-   * Canvas sequence for the item.
-   *
-   * @name sequence
-   * @type {CanvasSequence}
-   * @memberof module:shared.Item
-   * @instance
-   */
-  // 'sequence',
 ]);
 
 /**
@@ -247,16 +237,6 @@ const WamsImage = ReporterFactory([
    * @instance
    */
   'type',
-
-  /**
-   * Image source path of the WamsImage.
-   *
-   * @name src
-   * @type {string}
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  // 'src',
 ]);
 
 /**

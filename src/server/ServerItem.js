@@ -72,7 +72,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
       },
     });
     new Message(Message.SET_RENDER, dreport).emitWith(this.namespace);
-    // this.publish();
   }
 }
 

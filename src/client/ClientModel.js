@@ -193,9 +193,6 @@ class ClientModel {
    */
   setImage(data) {
     this.setItemValue('setImage', 'src', data);
-    // if (this.items.has(data.id)) {
-    //   this.items.get(data.id).setImage(data.src);
-    // }
   }
 
   /**
@@ -205,9 +202,6 @@ class ClientModel {
    */
   setRender(data) {
     this.setItemValue('setRender', 'sequence', data);
-    // if (this.items.has(data.id)) {
-    //   this.items.get(data.id).setRender(data.sequence);
-    // }
   }
 
   /**

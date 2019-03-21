@@ -67,7 +67,6 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
       },
     });
     new Message(Message.SET_IMAGE, dreport).emitWith(this.namespace);
-    // this.publish();
   }
 }
 

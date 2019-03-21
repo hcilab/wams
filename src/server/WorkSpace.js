@@ -112,7 +112,6 @@ class WorkSpace {
    * otherwise.
    */
   removeItem(item) {
-    // if (safeRemoveById(this.items, item, ServerItem)) {
     if (removeById(this.items, item)) {
       new Message(Message.RM_ITEM, item).emitWith(this.namespace);
     }
@@ -169,9 +168,6 @@ class WorkSpace {
    */
   spawnImage(values = {}) {
     return this.spawnObject(ServerImage, values);
-    // const image = new ServerImage(this.namespace, values);
-    // this.items.push(image);
-    // return image;
   }
 
   /**
@@ -183,9 +179,6 @@ class WorkSpace {
    */
   spawnItem(values = {}) {
     return this.spawnObject(ServerItem, values);
-    // const item = new ServerItem(this.namespace, values);
-    // this.items.push(item);
-    // return item;
   }
 }
 
