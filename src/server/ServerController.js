@@ -181,7 +181,12 @@ class ServerController {
   layout({ width, height }) {
     this.setSize(width, height);
     if (this.messageHandler.onlayout) {
-      this.messageHandler.onlayout(this.view, this.index, this.device);
+      this.messageHandler.onlayout(
+        this.view,
+        this.index,
+        this.device,
+        this.group,
+      );
     }
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);

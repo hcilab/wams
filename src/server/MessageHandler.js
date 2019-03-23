@@ -100,17 +100,15 @@ class MessageHandler {
     const { delta } = data;
 
     if (delta.hasOwnProperty('scale')) {
-      this.scale(event, { ...event, scale: delta.scale });
+      this.scale(event, delta);
     }
 
     if (delta.hasOwnProperty('rotation')) {
-      this.rotate(event, { ...event, rotation: delta.rotation });
+      this.rotate(event, delta);
     }
 
     if (delta.hasOwnProperty('translation')) {
-      const change = delta.translation;
-      const d = event.view.transformPointChange(change.x, change.y);
-      this.drag(event, { ...event, dx: d.x, dy: d.y });
+      this.drag(event, delta);
     }
   }
 
@@ -118,30 +116,35 @@ class MessageHandler {
    * Apply a scale event
    *
    * @param {object} event
-   * @param {object} data
+   * @param {object} scale
    */
-  scale(event, data) {
-    if (event.target.onscale) event.target.onscale(data);
+  scale(event, { scale }) {
+    if (event.target.onscale) event.target.onscale({ ...event, scale });
   }
 
   /**
    * Apply a rotate event
    *
    * @param {object} event
-   * @param {object} data
+   * @param {object} rotation
    */
-  rotate(event, data) {
-    if (event.target.onrotate) event.target.onrotate(data);
+  rotate(event, { rotation }) {
+    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
   }
 
   /**
    * Apply a swipe event
    *
    * @param {object} event
-   * @param {object} data
+   * @param {module:shared.Point2D} change
    */
-  drag(event, data) {
-    if (event.target.ondrag) event.target.ondrag(data);
+  drag(event, { translation }) {
+    const d = event.view.transformPointChange(translation.x, translation.y);
+    if (event.target.ondrag) event.target.ondrag({
+      ...event,
+      dx: d.x,
+      dy: d.y,
+    });
   }
 
   /**
