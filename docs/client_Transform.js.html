@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: mixins/Identifiable.js | WAMS</title>
+    <title>Source: client/Transform.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -56,39 +56,115 @@
  * WAMS - An API for Multi-Surface Environments
  *
  * Author: Michael van der Kamp
+ *  |-> Date: December 2018
  */
 
 'use strict';
 
-const { IdStamper } = require('../shared.js');
-const STAMPER = new IdStamper();
+const Westures = require('westures');
 
 /**
- * Labels each instantiated object with a unique, immutable ID. All classes that
- * use this mixin will share the same pool of IDs.
+ * The Transform class is a custom Westures gestures that combines Pan, Rotate,
+ * and Scale into one gesture so that the three gestures can be emitted
+ * together, reducing jitter.
  *
- * @memberof module:mixins
- *
- * @mixin
+ * @memberof module:client
  */
-const Identifiable = (superclass) => class Identifiable extends superclass {
-  constructor(...args) {
-    super(...args);
+class Transform extends Westures.Gesture {
+  constructor() {
+    super('transform');
 
     /**
-     * Id to make Identifiables uniquely identifiable.
+     * The Pinch gesture.
      *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:mixins.Identifiable
+     * @type {Pinch}
      */
-    STAMPER.stampNewId(this);
-  }
-};
+    this.pinch = new Westures.Pinch();
 
-module.exports = Identifiable;
+    /**
+     * The Rotate gesture.
+     *
+     * @type {Rotate}
+     */
+    this.rotate = new Westures.Rotate();
+
+    /**
+     * The Pan gesture.
+     *
+     * @type {Pan}
+     */
+    this.pan = new Westures.Pan({ muteKey: 'ctrlKey' });
+  }
+
+  /**
+   * Hook for the 'start' phase.
+   *
+   * @param {State} state
+   */
+  start(state) {
+    this.pinch.start(state);
+    this.rotate.start(state);
+    this.pan.start(state);
+  }
+
+  /**
+   * Hook for the 'move' phase.
+   *
+   * @param {State} state
+   */
+  move(state) {
+    const result = {
+      centroid: state.centroid,
+      delta:    {},
+    };
+
+    const pinch_data = this.pinch.move(state);
+    const rotate_data = this.rotate.move(state);
+    const pan_data = this.pan.move(state);
+    let emit = false;
+
+    if (pinch_data) {
+      result.delta.scale = pinch_data.change;
+      emit = true;
+    }
+
+    if (rotate_data) {
+      result.delta.rotation = rotate_data.delta;
+      emit = true;
+    }
+
+    if (pan_data) {
+      result.delta.translation = pan_data.change;
+      emit = true;
+    }
+
+    return emit ? result : null;
+  }
+
+  /**
+   * Hook for the 'end' phase.
+   *
+   * @param {State} state
+   */
+  end(state) {
+    this.pinch.end(state);
+    this.rotate.end(state);
+    this.pan.end(state);
+  }
+
+  /**
+   * Hook for the 'cancel' phase.
+   *
+   * @param {State} state
+   */
+  cancel(state) {
+    this.pinch.cancel(state);
+    this.rotate.cancel(state);
+    this.pan.cancel(state);
+  }
+}
+
+module.exports = Transform;
 
 </code></pre>
         </article>
