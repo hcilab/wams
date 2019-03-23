@@ -24,6 +24,7 @@ const Locker = (superclass) => class Locker extends superclass {
    * @type {module:mixins.Lockable}
    */
   get lockedItem() { return this[lockedItem]; }
+  set lockedItem(item) { this[lockedItem] = item; }
 
   /**
    * Obtain a lock on the given item for this view.
@@ -36,7 +37,7 @@ const Locker = (superclass) => class Locker extends superclass {
     if (!item.isLocked()) {
       if (this[lockedItem]) this[lockedItem].unlock();
       this[lockedItem] = item;
-      item.lock();
+      item.lock(this);
     }
   }
 

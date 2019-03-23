@@ -13,6 +13,7 @@
 const Westures = require('../../../westures');
 // const Westures = require('westures');
 const { mergeMatches, NOP } = require('../shared.js');
+const Transform = require('./Transform.js');
 
 /**
  * The Interactor class provides a layer of abstraction between the
@@ -42,6 +43,7 @@ class Interactor {
    * @param {Function} [handlers.tap=NOP]
    * @param {Function} [handlers.zoom=NOP]
    * @param {Function} [handlers.track=NOP]
+   * @param {Function} [handlers.transform=NOP]
    */
   constructor(canvas, handlers = {}) {
     // if (!(canvas instanceof HTMLCanvasElement)) {
@@ -86,22 +88,31 @@ class Interactor {
    */
   // bindRegions(canvas) {
   bindRegions() {
-    const pan     = new Westures.Pan({ muteKey: 'ctrlKey' });
-    const rotate  = new Westures.Rotate();
-    const pinch   = new Westures.Pinch();
-    const swipe   = new Westures.Swipe();
-    const swivel  = new Westures.Swivel({ enableKey: 'ctrlKey' });
-    const tap     = new Westures.Tap();
-    const track   = new Westures.Track(['start', 'end']);
+    const swipe     = new Westures.Swipe();
+    const swivel    = new Westures.Swivel({ enableKey: 'ctrlKey' });
+    const tap       = new Westures.Tap();
+    const track     = new Westures.Track(['start', 'end']);
+    const transform = new Transform();
 
     const region = new Westures.Region(document.body);
-    region.addGesture(document.body, pan,    this.forward('pan'));
-    region.addGesture(document.body, tap,    this.forward('tap'));
-    region.addGesture(document.body, pinch,  this.forward('zoom'));
-    region.addGesture(document.body, rotate, this.forward('rotate'));
-    region.addGesture(document.body, swipe,  this.forward('swipe'));
-    region.addGesture(document.body, swivel, this.forward('rotate'));
-    region.addGesture(document.body, track,  this.forward('track'));
+    region.addGesture(document.body, tap,       this.forward('tap'));
+    region.addGesture(document.body, swipe,     this.forward('swipe'));
+    region.addGesture(document.body, swivel,    this.swivel());
+    region.addGesture(document.body, transform, this.forward('transform'));
+    region.addGesture(document.body, track,     this.forward('track'));
+  }
+
+  /**
+   * Send a swivel event through as a transformation.
+   */
+  swivel() {
+    function do_swivel({ delta, pivot }) {
+      this.handlers.transform({
+        centroid: pivot,
+        delta:    { rotation: delta },
+      });
+    }
+    return do_swivel.bind(this);
   }
 
   /**
@@ -127,10 +138,9 @@ class Interactor {
   wheel(event) {
     event.preventDefault();
     const factor = event.ctrlKey ? 0.02 : 0.10;
-    const change = -(Math.sign(event.deltaY) * factor) + 1;
-    const midpoint = { x: event.clientX, y: event.clientY };
-    const phase = 'move';
-    this.handlers.zoom({ change, midpoint, phase });
+    const scale = -(Math.sign(event.deltaY) * factor) + 1;
+    const centroid = { x: event.clientX, y: event.clientY };
+    this.handlers.transform({ centroid, delta: { scale } });
   }
 }
 
@@ -140,12 +150,13 @@ class Interactor {
  * @type {object}
  */
 Interactor.DEFAULT_HANDLERS = Object.freeze({
-  pan:    NOP,
-  rotate: NOP,
-  swipe:  NOP,
-  tap:    NOP,
-  zoom:   NOP,
-  track:  NOP,
+  pan:       NOP,
+  rotate:    NOP,
+  swipe:     NOP,
+  tap:       NOP,
+  zoom:      NOP,
+  track:     NOP,
+  transform: NOP,
 });
 
 module.exports = Interactor;

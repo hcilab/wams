@@ -129,13 +129,11 @@ class ClientController {
       [Message.LAYOUT]:     NOP,
 
       // User event related
-      [Message.CLICK]:   NOP,
-      [Message.DRAG]:    NOP,
-      [Message.RESIZE]:  NOP,
-      [Message.ROTATE]:  NOP,
-      [Message.SCALE]:   NOP,
-      [Message.SWIPE]:   NOP,
-      [Message.TRACK]:   NOP,
+      [Message.CLICK]:     NOP,
+      [Message.RESIZE]:    NOP,
+      [Message.SWIPE]:     NOP,
+      [Message.TRACK]:     NOP,
+      [Message.TRANSFORM]: NOP,
 
       // Multi-device gesture related
       [Message.POINTER]: NOP,
@@ -327,12 +325,13 @@ class ClientController {
       });
     } else {
       new Interactor(this.canvas, {
-        pan:    this.forward(Message.DRAG),
-        rotate: this.forward(Message.ROTATE),
-        swipe:  this.forward(Message.SWIPE),
-        tap:    this.forward(Message.CLICK),
-        zoom:   this.forward(Message.SCALE),
-        track:  this.forward(Message.TRACK),
+        pan:       this.forward(Message.DRAG),
+        rotate:    this.forward(Message.ROTATE),
+        swipe:     this.forward(Message.SWIPE),
+        tap:       this.forward(Message.CLICK),
+        zoom:      this.forward(Message.SCALE),
+        track:     this.forward(Message.TRACK),
+        transform: this.forward(Message.TRANSFORM),
       });
     }
   }

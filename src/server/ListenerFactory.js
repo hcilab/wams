@@ -44,18 +44,18 @@
  *
  * @return {function} Click handler.
  */
-function click(listener, workspace) {
-  return function handleClick(view, point) {
-    const { x, y } = view.transformPoint(point.x, point.y);
-    if (typeof view.lockedItem.containsPoint === 'function' &&
-      view.lockedItem.containsPoint(x, y)) {
-      listener(view, view.lockedItem, x, y);
-    } else {
-      const target = workspace.findFreeItemByCoordinates(x, y) || view;
-      listener(view, target, x, y);
-    }
-  };
-}
+// function click(listener, workspace) {
+//   return function handleClick(view, point) {
+//     const { x, y } = view.transformPoint(point.x, point.y);
+//     if (typeof view.lockedItem.containsPoint === 'function' &&
+//       view.lockedItem.containsPoint(x, y)) {
+//       listener(view, view.lockedItem, x, y);
+//     } else {
+//       const target = workspace.findFreeItemByCoordinates(x, y) || view;
+//       listener(view, target, x, y);
+//     }
+//   };
+// }
 
 /**
  * User-supplied listener to respond to drag events.
@@ -83,13 +83,13 @@ function click(listener, workspace) {
  *
  * @return {function} Drag handler.
  */
-function drag(listener) {
-  return function handleDrag(view, { change, point }) {
-    const p = view.transformPoint(point.x, point.y);
-    const dp = view.transformPointChange(change.x, change.y);
-    listener(view, view.lockedItem, p.x, p.y, dp.x, dp.y);
-  };
-}
+// function drag(listener) {
+//   return function handleDrag(view, { change, point }) {
+//     const p = view.transformPoint(point.x, point.y);
+//     const dp = view.transformPointChange(change.x, change.y);
+//     listener(view, view.lockedItem, p.x, p.y, dp.x, dp.y);
+//   };
+// }
 
 /**
  * User-supplied listener to respond to layout events.
@@ -149,13 +149,13 @@ function layout(listener) {
  *
  * @return {function} Rotate handler.
  */
-function rotate(listener) {
-  return function handleRotate(view, { delta, pivot }) {
-    const radians = delta;
-    const { x, y } = view.transformPoint(pivot.x, pivot.y);
-    listener(view, view.lockedItem, radians, x, y);
-  };
-}
+// function rotate(listener) {
+//   return function handleRotate(view, { delta, pivot }) {
+//     const radians = delta;
+//     const { x, y } = view.transformPoint(pivot.x, pivot.y);
+//     listener(view, view.lockedItem, radians, x, y);
+//   };
+// }
 
 /**
  * User-supplied listener to respond to scale events.
@@ -183,13 +183,13 @@ function rotate(listener) {
  *
  * @return {function} Scale handler.
  */
-function scale(listener) {
-  return function handleScale(view, { change, midpoint }) {
-    const scale = change;
-    const { x, y } = view.transformPoint(midpoint.x, midpoint.y);
-    listener(view, view.lockedItem, scale, x, y);
-  };
-}
+// function scale(listener) {
+//   return function handleScale(view, { change, midpoint }) {
+//     const scale = change;
+//     const { x, y } = view.transformPoint(midpoint.x, midpoint.y);
+//     listener(view, view.lockedItem, scale, x, y);
+//   };
+// }
 
 /**
  * User-supplied listener to respond to swipe events.
@@ -218,12 +218,12 @@ function scale(listener) {
  *
  * @return {function} Swipe handler.
  */
-function swipe(listener) {
-  return function handleSwipe(view, { point, velocity, direction }) {
-    const { x, y } = view.transformPoint(point.x, point.y);
-    listener(view, view.lockedItem, x, y, velocity, direction);
-  };
-}
+// function swipe(listener) {
+//   return function handleSwipe(view, { point, velocity, direction }) {
+//     const { x, y } = view.transformPoint(point.x, point.y);
+//     listener(view, view.lockedItem, x, y, velocity, direction);
+//   };
+// }
 
 /**
  * Organize the blueprint functions into an Object for easy access.
@@ -232,12 +232,12 @@ function swipe(listener) {
  * @namespace BLUEPRINTS
  */
 const BLUEPRINTS = Object.freeze({
-  click,
-  drag,
+  // click,
+  // drag,
   layout,
-  rotate,
-  scale,
-  swipe,
+  // rotate,
+  // scale,
+  // swipe,
 });
 
 /**

@@ -111,14 +111,12 @@ class Application {
   }
 
   /**
-   * Register a handler for the given event.
+   * Register a layout handler.
    *
-   * @param {string} event - Event to respond to.
-   * @param {module:server.ListenerTypes} handler - Function for responding to
-   * the given event.
+   * @param {function} fn - Layout handler to trigger when a user connects.
    */
-  on(event, handler) {
-    this.messageHandler.on(event, handler);
+  onlayout(fn) {
+    this.messageHandler.onlayout = fn;
   }
 
   /**

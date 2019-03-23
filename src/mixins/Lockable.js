@@ -7,6 +7,7 @@
 'use strict';
 
 const locked = Symbol.for('locked');
+const holder = Symbol.for('holder');
 
 /**
  * The Lockable mixin allows a class to enable itself to be locked and unlocked,
@@ -32,9 +33,12 @@ const Lockable = (superclass) => class Lockable extends superclass {
    * Lock this item.
    *
    * @memberof module:mixins.Lockable
+   *
+   * @param {module:mixins.Locker} locker - The holder of the lock.
    */
-  lock() {
+  lock(locker) {
     this[locked] = true;
+    this[holder] = locker;
   }
 
   /**
@@ -44,6 +48,7 @@ const Lockable = (superclass) => class Lockable extends superclass {
    */
   unlock() {
     this[locked] = false;
+    if (this[holder]) this[holder].lockedItem = null;
   }
 };
 

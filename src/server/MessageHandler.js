@@ -6,9 +6,6 @@
 
 'use strict';
 
-const ListenerFactory = require('./ListenerFactory.js');
-const { NOP } = require('../shared.js');
-
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
  * messages from clients, which it then uses to call the appropriate listener.
@@ -29,43 +26,47 @@ class MessageHandler {
     this.workspace = workspace;
 
     /**
-     * Store event listeners in an object, for easy access by event type.
+     * Layout handler, for when clients connect to the application.
      *
-     * @type {object}
-     * @property {function} click - Handler for click events.
-     * @property {function} drag - Handler for drag events.
-     * @property {function} layout - Handler for layout events.
-     * @property {function} rotate - Handler for rotate events.
-     * @property {function} scale - Handler for scale events.
-     * @property {function} swipe - Handler for swipe events.
+     * @type {function}
      */
-    this.handlers = {};
-
-    // Attach NOPs for the event listeners, so they are callable.
-    ListenerFactory.TYPES.forEach(ev => {
-      this.handlers[ev] = NOP;
-    });
+    this.onlayout = null;
   }
 
   /**
-   * Call the registered handler for the given message type.
+   * Handle a message for the given gesture.
    *
-   * @param {string} message - Type of message.
-   * @param {...mixed} ...args - Arguments to pass to the handler.
+   * @param {string} gesture
    */
-  handle(message, ...args) {
-    this.handlers[message](...args);
+  handle(gesture, view) {
+    function do_gesture({ data }) {
+      const target = view.lockedItem;
+      if (target != null) {
+        const { centroid } = data;
+        const { x, y } = view.transformPoint(centroid.x, centroid.y);
+        const event = { view, target, x, y };
+        this[gesture](event, data);
+      }
+    }
+    return do_gesture.bind(this);
   }
 
   /**
-   * Register a handler for the given event.
+   * Apply a click event
    *
-   * @param {string} event - Event to respond to.
-   * @param {function} listener - Handler / listener to register.
+   * @param {object} event
    */
-  on(event, listener) {
-    const type = event.toLowerCase();
-    this.handlers[type] = ListenerFactory.build(type, listener, this.workspace);
+  click(event) {
+    const { target, x, y } = event;
+
+    if (typeof target.containsPoint === 'function' &&
+      target.containsPoint(x, y)) {
+      if (target.onclick) target.onclick(event);
+    } else {
+      const target = this.workspace.findFreeItemByCoordinates(x, y) ||
+        event.view;
+      if (target.onclick) target.onclick({ ...event, target });
+    }
   }
 
   /**
@@ -86,6 +87,73 @@ class MessageHandler {
     } else if (phase === 'end' && active.length === 0) {
       view.releaseLockedItem();
     }
+  }
+
+  /**
+   * Apply a transformation event, splitting it into rotate, scale, and
+   * move.
+   *
+   * @param {object} event
+   * @param {object} data
+   */
+  transform(event, data) {
+    const { delta } = data;
+
+    if (delta.hasOwnProperty('scale')) {
+      this.scale(event, { ...event, scale: delta.scale });
+    }
+
+    if (delta.hasOwnProperty('rotation')) {
+      this.rotate(event, { ...event, rotation: delta.rotation });
+    }
+
+    if (delta.hasOwnProperty('translation')) {
+      const change = delta.translation;
+      const d = event.view.transformPointChange(change.x, change.y);
+      this.drag(event, { ...event, dx: d.x, dy: d.y });
+    }
+  }
+
+  /**
+   * Apply a scale event
+   *
+   * @param {object} event
+   * @param {object} data
+   */
+  scale(event, data) {
+    if (event.target.onscale) event.target.onscale(data);
+  }
+
+  /**
+   * Apply a rotate event
+   *
+   * @param {object} event
+   * @param {object} data
+   */
+  rotate(event, data) {
+    if (event.target.onrotate) event.target.onrotate(data);
+  }
+
+  /**
+   * Apply a swipe event
+   *
+   * @param {object} event
+   * @param {object} data
+   */
+  drag(event, data) {
+    if (event.target.ondrag) event.target.ondrag(data);
+  }
+
+  /**
+   * Apply a swipe event
+   *
+   * @param {object} event
+   * @param {object} data
+   */
+  swipe(event, data) {
+    const { target } = event;
+    const { velocity, direction } = data;
+    if (target.onswipe) target.onswipe({ ...event, velocity, direction });
   }
 }
 

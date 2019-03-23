@@ -51,12 +51,10 @@ const TYPES = {
 
   // User event related
   /** @const */ CLICK:      'wams-click',
-  /** @const */ DRAG:       'wams-drag',
   /** @const */ RESIZE:     'wams-resize',
-  /** @const */ ROTATE:     'wams-rotate',
-  /** @const */ SCALE:      'wams-scale',
   /** @const */ SWIPE:      'wams-swipe',
   /** @const */ TRACK:      'wams-track',
+  /** @const */ TRANSFORM:  'wams-transform',
 
   // Multi-device gesture related
   /** @const */ POINTER:    'wams-pointer',

@@ -126,16 +126,12 @@ class ServerController {
       [Message.INITIALIZE]: NOP,
       [Message.LAYOUT]:     (...args) => this.layout(...args),
 
-      // User event related, pass off to WorkSpace to handle
-      [Message.CLICK]:  ({ data }) => this.handle('click',  data),
-      [Message.DRAG]:   ({ data }) => this.handle('drag',   data),
-      [Message.ROTATE]: ({ data }) => this.handle('rotate', data),
-      [Message.SCALE]:  ({ data }) => this.handle('scale',  data),
-      [Message.SWIPE]:  ({ data }) => this.handle('swipe',  data),
-
-      // User event related, handle immediately
-      [Message.RESIZE]:  (data)     => this.resize(data),
-      [Message.TRACK]:   ({ data }) => {
+      // User event related
+      [Message.CLICK]:     this.messageHandler.handle('click', this.view),
+      [Message.SWIPE]:     this.messageHandler.handle('swipe', this.view),
+      [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
+      [Message.RESIZE]:    (data)     => this.resize(data),
+      [Message.TRACK]:     ({ data }) => {
         this.messageHandler.track(data, this.view);
       },
 
@@ -175,16 +171,6 @@ class ServerController {
   }
 
   /**
-   * Forwards a message to the WorkSpace.
-   *
-   * @param {string} message - A string giving the type of message.
-   * @param {Object} data - Argument to be passed to the message handler.
-   */
-  handle(message, data) {
-    this.messageHandler.handle(message, this.view, data);
-  }
-
-  /**
    * Adjusts the model to accurately reflect the state of the client once it has
    * set itself up, and informs all other views of these changes. Also triggers
    * a 'layout handler' if one has been registered.
@@ -194,7 +180,9 @@ class ServerController {
    */
   layout({ width, height }) {
     this.setSize(width, height);
-    this.messageHandler.handle('layout', this.view, this.index, this.device);
+    if (this.messageHandler.onlayout) {
+      this.messageHandler.onlayout(this.view, this.index, this.device);
+    }
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
   }
