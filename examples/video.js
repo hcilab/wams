@@ -27,6 +27,9 @@ app.spawnElement(
       width: 560,
       height: 365,
       type:  'video',
+      onscale: Wams.predefined.scale,
+      onrotate: Wams.predefined.rotate,
+      ondrag: Wams.predefined.drag,
     }
   )
 );
@@ -42,14 +45,19 @@ app.spawnElement(
       width: 560,
       height: 365,
       type:  'video',
+      onscale: Wams.predefined.scale,
+      onrotate: Wams.predefined.rotate,
+      ondrag: Wams.predefined.drag,
     }
   )
 );
 
-// Attaches the different function handlers
-app.on('scale',  Wams.predefined.scales.itemsAndView(['video']));
-app.on('drag',   Wams.predefined.drags.itemsAndView(['video']));
-app.on('rotate', Wams.predefined.rotates.itemsAndView(['video']));
+function handleConnect(view) {
+  view.onscale = Wams.predefined.scale;
+  view.onrotate = Wams.predefined.rotate;
+  view.ondrag = Wams.predefined.drag;
+}
 
+app.onlayout(handleConnect);
 app.listen(9002);
 
