@@ -40,6 +40,7 @@ function line(overlap) {
         const change = prev.transformPointChange(overlap, 0);
         const anchor = prev.topRight.minus(change);
         view.moveTo(anchor.x, anchor.y);
+
         const side = rights[position - 1] - overlap;
         device.moveTo(side, 0);
         rights[position] = side + device.width;
@@ -54,25 +55,7 @@ function line(overlap) {
   return layout;
 }
 
-/**
- * Generates a handler that places all new users at the given coordinates.
- *
- * @memberof module:predefined.layouts
- *
- * @param {number} x
- * @param {number} y
- *
- * @returns {module:server.ListenerTypes.LayoutListener} A WAMS layout handler
- * function which will place all new users at the given (x,y) coordinates.
- */
-function placeAtXY(x, y) {
-  return function layout_placeAtXY(view) {
-    view.moveTo(x, y);
-  };
-}
-
 module.exports = {
   line,
-  placeAtXY,
 };
 
