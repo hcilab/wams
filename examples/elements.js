@@ -21,18 +21,29 @@ function element(x, y, view) {
       type:  'button',
       scale: 1 / view.scale,
       rotation: view.rotation,
+      onscale: Wams.predefined.scale,
+      ondrag: Wams.predefined.drag,
+      onrotate: Wams.predefined.rotate,
+      onclick: removeElement,
     }
   );
 }
 
-// Attaches the different function handlers
-app.on('scale',  Wams.predefined.scales.itemsAndView(['button']));
-app.on('drag',   Wams.predefined.drags.itemsAndView(['button']));
-app.on('rotate', Wams.predefined.rotates.itemsAndView(['button']));
-app.on(
-  'click',
-  Wams.predefined.taps.spawnOrRemoveItem(app, element, 'button', 'spawnElement')
-);
+function removeElement(event) {
+  app.removeItem(event.target);
+}
 
+function spawnElement(event) {
+  app.spawnElement(element(event.x, event.y, event.view));
+}
+
+function handleLayout(view) {
+  view.onscale = Wams.predefined.scale;
+  view.ondrag = Wams.predefined.drag;
+  view.onrotate = Wams.predefined.rotate;
+  view.onclick = spawnElement;
+}
+
+app.onlayout(handleLayout);
 app.listen(9002);
 

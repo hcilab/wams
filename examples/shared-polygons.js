@@ -11,40 +11,49 @@ const app = new Wams.Application({
   useServerGestures: true,
 });
 
-function randomPoints(x = 5, lim = 256) {
-  const points = [{ x: 0, y: 0 }];
-  const offset = lim / 2;
-  for (let i = 1; i < x; ++i) {
-    points.push({
-      x: Math.random() * lim - offset,
-      y: Math.random() * lim - offset,
-    });
-  }
-  return points;
-}
-
 function polygon(x, y, view) {
   return Wams.predefined.items.polygon(
-    randomPoints(7),
+    Wams.predefined.utilities.randomPoints(7),
     Wams.colours[Math.floor(Math.random() * Wams.colours.length)],
     {
       x,
       y,
       type:  'colour',
       scale: 1 / view.scale,
+      onclick: removeItem,
+      onscale: Wams.predefined.scale,
+      onrotate: Wams.predefined.rotate,
+      ondrag: Wams.predefined.drag,
     }
   );
 }
 
+function removeItem(event) {
+  app.removeItem(event.target);
+}
+
+function spawnItem(event) {
+  app.spawnItem(polygon(event.x, event.y, event.view));
+}
+
+const linelayout = Wams.predefined.layouts.line(5);
+function handleConnect(view, index, device) {
+  view.onclick = spawnItem;
+  view.onscale = Wams.predefined.scale;
+  view.onrotate = Wams.predefined.rotate;
+  view.ondrag = Wams.predefined.drag;
+  linelayout(view, index, device);
+}
+
 // Attaches the different function handlers
-app.on('layout', Wams.predefined.layouts.line(5));
-app.on('scale',  Wams.predefined.scales.itemsAndView(['colour']));
-app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
-app.on('rotate', Wams.predefined.rotates.itemsAndView(['colour']));
-app.on(
-  'click',
-  Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
-);
+// app.on('layout', Wams.predefined.layouts.line(5));
+// app.on('scale',  Wams.predefined.scales.itemsAndView(['colour']));
+// app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
+// app.on('rotate', Wams.predefined.rotates.itemsAndView(['colour']));
+// app.on(
+//   'click',
+//   Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
+// );
 
 app.listen(9002);
 

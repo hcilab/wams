@@ -18,16 +18,26 @@ function square(x, y, view) {
       type:     'colour',
       scale:    1 / view.scale,
       rotation: view.rotation,
+      onclick:  removeSquare,
     }
   );
 }
 
-// Attaches the different function handlers
-app.on('layout', Wams.predefined.layouts.placeAtXY(4000, 4000));
-app.on('click',  Wams.predefined.taps.spawnOrRemoveItem(app, square, 'colour'));
-app.on('scale',  Wams.predefined.scales.view());
-app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
-app.on('rotate', Wams.predefined.rotates.view());
+function spawnSquare(event) {
+  app.spawnItem(square(event.x, event.y, event.view));
+}
 
+function removeSquare(event) {
+  app.removeItem(event.target);
+}
+
+function handleLayout(view) {
+  view.onscale = Wams.predefined.scale;
+  view.ondrag = Wams.predefined.drag;
+  view.onrotate = Wams.predefined.rotate;
+  view.onclick = spawnSquare;
+}
+
+app.onlayout(handleLayout);
 app.listen(9002);
 

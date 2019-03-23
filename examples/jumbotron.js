@@ -22,9 +22,12 @@ app.spawnImage({
   scale:  5,
 });
 
-app.on('drag',   Wams.predefined.drags.view());
-app.on('scale',  Wams.predefined.scales.view());
-app.on('rotate', Wams.predefined.rotates.view());
+function handleLayout(view) {
+  view.onscale = Wams.predefined.scale;
+  view.ondrag = Wams.predefined.drag;
+  view.onrotate = Wams.predefined.rotate;
+}
 
+app.onlayout(handleLayout);
 app.listen(9000);
 

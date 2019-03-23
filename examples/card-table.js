@@ -96,6 +96,9 @@ shuffle(cards).forEach(card => {
     scale:    1,
     face:     card,
     isFaceUp: false,
+    onclick:  flipCard,
+    ondrag:   Wams.predefined.drag,
+    onrotate: Wams.predefined.rotate,
   }));
   offs += 0.2;
 });
@@ -166,16 +169,13 @@ const handleLayout = (function makeLayoutHandler() {
 /*
  * Allows cards to be flipped.
  */
-function flipCard(card) {
+function flipCard(event) {
+  const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
   card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
 }
 
-app.on('click',  Wams.predefined.taps.modifyItem(flipCard, 'card'));
-app.on('drag',   Wams.predefined.drags.items(['card']));
-app.on('rotate', Wams.predefined.rotates.items(['card']));
-app.on('layout', handleLayout);
-
+app.onlayout(handleLayout);
 app.listen(9001);
 
