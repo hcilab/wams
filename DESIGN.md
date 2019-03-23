@@ -5,8 +5,7 @@ level classes and code, up to the high level end-user API.
 
 ## Contents
 
-* [Installation](#installation)
-* [Packages](#packages)
+* [Dependencies](#dependencies)
 * [Build Tools](#build-tools)
 * [Testing](#testing)
 * [Shared Sources](#shared-sources)
@@ -15,30 +14,20 @@ level classes and code, up to the high level end-user API.
 * [Gesture Recognition](#gesture-recognition)
 * [Connection Establishment](#connection-establishment)
 
-## Installation
-
-This project is built for [node.js](https://nodejs.org/en/) and
-[npm](https://www.npmjs.com/). To install and run the project, you will need to
-install the latest stable version of both tools.
-
-With that done, clone the repo and install:
-
-```shell
-git clone 'https://github.com/mvanderkamp/wams'
-cd wams
-npm install
-```
-
-## Packages
+## Dependencies
 
 This project has four dependencies:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
     This package allows end users to define custom rendering sequences for the
-    canvas.
+    canvas. These sequences can be transmitted over the network and executed on
+    the client without having to use the `eval()` function and all its incumbent
+    issues. The downside to this approach is that the sequences must be
+    declarative- there is no way to retrieve the return value from a call to a
+    canvas context method or conditionally execute parts of the sequence.
 
-2. [zingtouch](https://github.com/zingchart/zingtouch)
+2. [westures](https://mvanderkamp.github.io/westures/)
   
     This package is a gesture library that provides a normalization of
     interaction across browsers and devices, and makes the following kinds of
@@ -46,18 +35,25 @@ This project has four dependencies:
 
     - __Tap__
     - __Pan__
-    - __Swipe__
     - __Pinch__
     - __Rotate__
+    - __Swipe__
 
-    I am working with the maintainers on developing and improving this library,
-    and may end up forking my own version if I find the maintainers too cumbersome
-    to deal with.
+    As well as providing tracking abilities (i.e. simple updates of input state
+    at every change) and gesture customization options, including the ability to
+    plug in entire custom gestures. I made use of this ability to package
+    together the Pan, Pinch, and Rotate gestures into a single Transform
+    gesture, so that all three updates can be transmitted over the network
+    simultaneously, reducing the volume of traffic and eliminating jitter in the
+    render which was caused by the updates to these three gestures being split
+    across render frames.
 
 3. [express](https://www.npmjs.com/package/express)
 
     The `express` package provides a simple way of establishing routes for the
-    node.js server.
+    node.js server. The `express` router used by a WAMS app can be exposed to
+    the end user, allowing them to define custom routes. Using a popular library
+    for this feature enhances the ease of use for end users.
 
 4. [socket.io](https://www.npmjs.com/package/socket.io)
 
@@ -69,28 +65,92 @@ This project has four dependencies:
     Therefore messages are emitted as follows:
     
     * __To a single client:__ on its socket.
-    * __To everyone but a single client:__ on its socket's broadcast channel.
+    * __To everyone except a single client:__ on its socket's broadcast channel.
     * __To everyone:__ on the namespace.
 
 ## Build Tools
 
-Currently, I am using Browserify to build the client side code. Why Browserify?
-Well, because I've found it easy to use. It might not produce the most optimal
-code, and it doesn't have much in the way of super fancy features built in, but
-I don't need any of that, and the basic functionality just simply works, and
-works well.
+The build tools are mostly listed under `devDependencies` in `package.json`. The
+key exception is `make`, which is used for running tasks.
+
+The tools used and their rationale are as follows:
+
+1. [arkit](https://arkit.js.org/)
+
+    The `arkit` package builds dependency graphs out of JavaScript source code.
+    These graphs are not full UML, but rather simply show which files are
+    connected via explicit `require()` statements. Although somewhat limited,
+    this is still very useful, and helps a great deal in terms of keeping the
+    code organized.
+
+2. [browserify](http://browserify.org/)
+
+    The `browserify` package bundles JavaScript code together for delivery to
+    clients. Why Browserify, instead of something like webpack or parcel?  Well,
+    because I've found it easy to use. It might not produce the most optimal
+    code, and it doesn't have much in the way of super fancy features built in,
+    but I don't need any of that, and the basic functionality just simply works,
+    and works well.
+
+3. [eslint](https://eslint.org/)
+
+    `eslint` is akin to an early-warning system. It parses the code and checks
+    for style and formatting errors, so that these can be fixed before trying to
+    run the code. It works very well and is fully customizable in terms of which
+    of its style and format rules to apply. It can also fix some simple style
+    errors on its own.
+
+4. [jest](https://jestjs.io/)
+
+    `jest` is a testing framework for JavaScript. The tests are all written to
+    be run by `jest`, although I will caution that currently the tests are also
+    utterly, hopelessly broken. Too much refactoring, too quickly.
+
+5. [jsdoc](http://usejsdoc.org/)
+
+    `jsdoc` generates documentation from internal comments, akin to javadocs.
+
+6. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
+
+    This package is a template for the HTML pages produced by `jsdoc`. I tried
+    out a number of templates after being unsatisfied with the default output,
+    and I found this one to be the best combination of style and functionality
+    of the ones I tried.
+
+7. [make](https://www.gnu.org/software/make/manual/make.html)
+
+    `make` is wonderfully flexible, so here I use it as a simple task runner, at
+    which it is quite adept. It also interfaces nicely with `vim`, even if the
+    JavaScript build tools don't. Simply running `make` from the main directory
+    of the project will run eslint, browserify, and jsdoc on the code, keeping
+    everything up to date at once. As I use `vim` for editing, the `make`
+    command will also update the tags.
+
+8. [exuberant-ctags](http://ctags.sourceforge.net/)
+
+    This package should be available from standard Linux repositories with the
+    common package managers (e.g. `apt`). Parses source code and generates a map
+    of important names in the code (for example, functions and classes) to their
+    definition location. Works excellently with `vim` and can really make
+    navigating the source code a lot easier.
+
+9. [ctags-patterns-for-javascript](
+https://github.com/romainl/ctags-patterns-for-javascript)
+
+    This packag` provides the necessary plugins to enable 'exuberant-ctags' for
+    JavaScript.
 
 To build the client side code:
 
-```shell
-npm run build
+```bash
+make
+
+# Or:
+
+make bundle
 ```
 
-The bundle will end up in `dist/wams-client.js`. An important design principle
-in this project is that end users should never need to touch the client side
-code.
-
-No server side tools are currently in use.
+The bundle will end up in `dist/wams-client.js`.
 
 ## Testing
 
