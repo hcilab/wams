@@ -15,7 +15,6 @@
 
 const items   = require('./predefined/items.js');
 const layouts = require('./predefined/layouts.js');
-const swipes  = require('./predefined/swipes.js');
 const utilities = require('./predefined/utilities.js');
 
 /**
@@ -57,7 +56,6 @@ module.exports = Object.freeze({
   scale,
   items,
   layouts,
-  swipes,
   utilities,
 });
 
