@@ -9,6 +9,7 @@
 
 const { CanvasSequence } = require('canvas-sequencer');
 const { Polygon2D }  = require('../shared.js');
+const { rectangularHitbox } = require('./utilities.js');
 
 /**
  * Factories for predefined items.
@@ -36,29 +37,6 @@ function transformed(data = {}) {
     if (data.scale)     data.hitbox.scale(data.scale);
   }
   return data;
-}
-
-/**
- * Generates a rectangular hitbox.
- *
- * @inner
- * @memberof module:predefined.items
- *
- * @param {number} x
- * @param {number} y
- * @param {number} width
- * @param {number} height
- *
- * @returns {module:shared.Polygon2D} A 4-point polygon representing a rectangle
- * anchored at (0,0) and with the given width and height.
- */
-function rectangularHitbox(x, y, width, height) {
-  return new Polygon2D([
-    { x: x,         y: y },
-    { x: x + width, y: y },
-    { x: x + width, y: y + height },
-    { x: x,         y: y + height },
-  ]);
 }
 
 /**

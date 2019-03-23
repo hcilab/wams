@@ -7,6 +7,8 @@
 
 'use strict';
 
+const { Polygon2D }  = require('../shared.js');
+
 /**
  * Utilities for the predefined module.
  *
@@ -38,7 +40,31 @@ function randomPoints(x = 5, lim = 256) {
   return points;
 }
 
+/**
+ * Generates a rectangular hitbox.
+ *
+ * @inner
+ * @memberof module:predefined.items
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} width
+ * @param {number} height
+ *
+ * @returns {module:shared.Polygon2D} A 4-point polygon representing a rectangle
+ * anchored at (0,0) and with the given width and height.
+ */
+function rectangularHitbox(x, y, width, height) {
+  return new Polygon2D([
+    { x: x,         y: y },
+    { x: x + width, y: y },
+    { x: x + width, y: y + height },
+    { x: x,         y: y + height },
+  ]);
+}
+
 module.exports = {
   randomPoints,
+  rectangularHitbox,
 };
 
