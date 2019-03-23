@@ -124,7 +124,7 @@ The tools used and their rationale are as follows:
     JavaScript build tools don't. Simply running `make` from the main directory
     of the project will run eslint, browserify, and jsdoc on the code, keeping
     everything up to date at once. As I use `vim` for editing, the `make`
-    command will also update the tags.
+    command will also update the tags. See the Makefile to see the targets.
 
 8. [exuberant-ctags](http://ctags.sourceforge.net/)
 
@@ -140,19 +140,9 @@ https://github.com/romainl/ctags-patterns-for-javascript)
     This packag` provides the necessary plugins to enable 'exuberant-ctags' for
     JavaScript.
 
-To build the client side code:
-
-```bash
-make
-
-# Or:
-
-make bundle
-```
-
-The bundle will end up in `dist/wams-client.js`.
-
 ## Testing
+
+*WARNING:* The tests are currently _very_ broken!
 
 Testing is done with the `Jest` framework for `npm`. The test suites can be
 found in `tests/`.
