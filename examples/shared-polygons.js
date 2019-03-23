@@ -59,5 +59,6 @@ function handleConnect(view, index, device, group) {
 //   Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
 // );
 
+app.onlayout(handleConnect);
 app.listen(9002);
 
