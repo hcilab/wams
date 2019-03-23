@@ -63,12 +63,13 @@ class GestureController {
     const tap     = new Gestures.Tap();
     const track   = new Gestures.Track(['start', 'end']);
 
-    this.region.addGesture(pan,    this.handle('drag'));
-    this.region.addGesture(tap,    this.handle('click'));
-    this.region.addGesture(pinch,  this.handle('scale'));
-    this.region.addGesture(rotate, this.handle('rotate'));
-    this.region.addGesture(swipe,  this.handle('swipe'));
-    this.region.addGesture(track,  (data) => {
+    const mh = this.messageHandler;
+    this.region.addGesture(pan,    mh.handle('drag', this.group));
+    this.region.addGesture(tap,    mh.handle('click', this.group));
+    this.region.addGesture(pinch,  mh.handle('scale', this.group));
+    this.region.addGesture(rotate, mh.handle('rotate', this.group));
+    this.region.addGesture(swipe,  mh.handle('swipe', this.group));
+    this.region.addGesture(track,  ({ data }) => {
       this.messageHandler.track(data, this.group);
     });
   }

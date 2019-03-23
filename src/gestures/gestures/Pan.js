@@ -14,8 +14,8 @@ const REQUIRED_INPUTS = 1;
  * @typedef {Object} PanData
  * @mixes module:gestures.ReturnTypes.BaseData
  *
- * @property {module:gestures.Point2D} change - The change vector from the last
- * emit.
+ * @property {module:gestures.Point2D} translation - The change vector from the
+ * last emit.
  * @property {module:gestures.Point2D} point - The centroid of the currently
  * active points.
  *
@@ -94,10 +94,10 @@ class Pan extends Gesture {
     }
 
     const point = state.centroid;
-    const change = point.minus(this.previous);
+    const translation = point.minus(this.previous);
     this.previous = point;
 
-    return { change, point };
+    return { translation, point };
   }
 
   /**

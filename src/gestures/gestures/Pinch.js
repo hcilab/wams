@@ -13,10 +13,11 @@ const Gesture = require('../core/Gesture.js');
  * @mixes module:gestures.ReturnTypes.BaseData
  *
  * @property {number} distance - The average distance from an active input to
- *    the centroid.
- * @property {number} change - The change in distance since last emit.
- * @property {module:gestures.Point2D} midpoint - The centroid of the currently
- * active points.
+ * the centroid.
+ * @property {number} scale - The proportional change in distance since last
+ * emit.
+ * @property {module:gestures.Point2D} midpoint - The centroid of the
+ * currently active points.
  *
  * @memberof module:gestures.ReturnTypes
  */
@@ -118,10 +119,10 @@ class Pinch extends Gesture {
 
     const midpoint = state.centroid;
     const distance = midpoint.averageDistanceTo(state.activePoints);
-    const change = distance / this.previous;
+    const scale = distance / this.previous;
 
     this.previous = distance;
-    return this.emit({ distance, midpoint, change });
+    return this.emit({ distance, midpoint, scale });
   }
 
   /**

@@ -204,7 +204,7 @@ class Swipe extends Gesture {
     const { point, time } = this.moves[vlim];
     const velocity = calc_velocity(this.moves, vlim);
     const direction = calc_angle(this.moves, vlim);
-    return { point, velocity, direction, time };
+    return { point, velocity, direction, time, centroid: point };
   }
 
   /**

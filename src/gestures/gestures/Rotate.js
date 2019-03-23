@@ -12,9 +12,10 @@ const Gesture = require('../core/Gesture.js');
  * @typedef {Object} RotateData
  * @mixes module:gestures.ReturnTypes.BaseData
  *
- * @property {number} delta - In radians, the change in angle since last emit.
- * @property {module:gestures.Point2D} pivot - The centroid of the currently
- * active points.
+ * @property {number} rotation - In radians, the change in angle since last
+ * emit.
+ * @property {module:gestures.Point2D} pivot - The centroid of the
+ * currently active points.
  *
  * @memberof module:gestures.ReturnTypes
  */
@@ -146,9 +147,9 @@ class Rotate extends Gesture {
    * event did not occur
    */
   move(state) {
-    const delta = this.getAngle(state);
-    if (delta) {
-      return this.emit({ pivot: state.centroid, delta });
+    const rotation = this.getAngle(state);
+    if (rotation) {
+      return this.emit({ pivot: state.centroid, rotation });
     }
     return null;
   }
