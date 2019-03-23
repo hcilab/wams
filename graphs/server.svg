@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="289px" preserveAspectRatio="none" style="width:760px;height:289px;" version="1.1" viewBox="0 0 760 289" width="760px" zoomAndPan="magnify"><defs/><g><!--cluster Server--><path d="M88,24 L132,24 A3,3 0 0 1 134,26 L141,44.4844 L746,44.4844 A2,2 0 0 1 748,46.4844 L748,275 A2,2 0 0 1 746,277 L88,277 A2,2 0 0 1 86,275 L86,26 A2,2 0 0 1 88,24 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="86" x2="141" y1="44.4844" y2="44.4844"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="42" x="90" y="38.0059">Server</text><ellipse cx="238.0477" cy="70.242" fill="#F8F8F8" rx="47.5477" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="63" x="206.5477" y="73.9842">Application</text><ellipse cx="164.0772" cy="245.742" fill="#F8F8F8" rx="30.5772" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="39" x="144.5772" y="249.4842">Device</text><ellipse cx="289.1408" cy="245.4282" fill="#F8F8F8" rx="65.1408" ry="15.4282" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="101" x="238.6408" y="249.1704">GestureController</text><ellipse cx="237.8315" cy="126.8663" fill="#F8F8F8" rx="62.3315" ry="14.8663" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="94" x="190.8315" y="130.6085">MessageHandler</text><ellipse cx="131.163" cy="127.242" fill="#F8F8F8" rx="29.163" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="37" x="112.663" y="130.9842">Router</text><ellipse cx="164.0426" cy="186.2085" fill="#F8F8F8" rx="61.5426" ry="14.7085" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="92" x="118.0426" y="189.9507">ServerController</text><ellipse cx="440.2013" cy="185.9403" fill="#F8F8F8" rx="57.7013" ry="13.9403" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="82" x="399.2013" y="189.6824">ServerElement</text><ellipse cx="566.9148" cy="185.783" fill="#F8F8F8" rx="54.4148" ry="13.283" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="73" x="530.4148" y="189.5251">ServerImage</text><ellipse cx="684.0477" cy="186.242" fill="#F8F8F8" rx="47.5477" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="63" x="652.5477" y="189.9842">ServerItem</text><ellipse cx="415.8406" cy="245.742" fill="#F8F8F8" rx="46.8406" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="62" x="384.8406" y="249.4842">ServerView</text><ellipse cx="304.0267" cy="186.1053" fill="#F8F8F8" rx="63.5267" ry="15.1053" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="97" x="255.5267" y="189.8475">ServerViewGroup</text><ellipse cx="369.2046" cy="127.242" fill="#F8F8F8" rx="53.2046" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="71" x="333.7046" y="130.9842">Switchboard</text><ellipse cx="525.9619" cy="127.242" fill="#F8F8F8" rx="48.9619" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="65" x="493.4619" y="130.9842">WorkSpace</text><ellipse cx="37.9914" cy="70.242" fill="#F8F8F8" rx="31.9914" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="41" x="17.4914" y="73.9842">server</text><!--link Application to MessageHandler--><path d="M238,83.206 C238,90.097 238,98.867 238,106.672 " fill="none" id="Application-MessageHandler" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="238,111.885,242,102.885,238,106.885,234,102.885,238,111.885" style="stroke: #000000; stroke-width: 0.55;"/><!--link Application to Router--><path d="M217.115,81.735 C198.838,91.13 172.347,104.747 153.582,114.392 " fill="none" id="Application-Router" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="148.988,116.754,158.8211,116.1974,153.435,114.4684,155.1641,109.0822,148.988,116.754" style="stroke: #000000; stroke-width: 0.55;"/><!--link Application to Switchboard--><path d="M262.333,81.216 C284.024,90.323 315.844,103.683 339.083,113.44 " fill="none" id="Application-Switchboard" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="343.905,115.464,337.1554,108.2916,339.2949,113.5283,334.0582,115.6677,343.905,115.464" style="stroke: #000000; stroke-width: 0.55;"/><!--link Application to WorkSpace--><path d="M275.356,78.134 C328.69,88.319 426.428,106.984 482.804,117.751 " fill="none" id="Application-WorkSpace" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="487.794,118.704,479.7048,113.0858,482.8829,117.7655,478.2032,120.9436,487.794,118.704" style="stroke: #000000; stroke-width: 0.55;"/><!--link <b>server</b> to Application--><path d="M70.0312,70 C108.44,70 146.849,70 185.257,70 " fill="none" id="&lt;b&gt;server&lt;/b&gt;-Application" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="190.431,70,181.431,66,185.431,70,181.431,74,190.431,70" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>server</b> to Router--><path d="M55.0576,81.088 C70.4916,90.215 93.2771,103.691 109.861,113.499 " fill="none" id="&lt;b&gt;server&lt;/b&gt;-Router" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="114.363,116.161,108.6539,108.1357,110.0597,113.615,104.5804,115.0209,114.363,116.161" style="stroke: #000000; stroke-width: 1.0;"/><!--link ServerController to Device--><path d="M164,200.6267 C164,208.5473 164,218.6087 164,227.0979 " fill="none" id="ServerController-Device" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="164,232.1472,168,223.1472,164,227.1472,160,223.1472,164,232.1472" style="stroke: #000000; stroke-width: 0.55;"/><!--link ServerViewGroup to GestureController--><path d="M300.292,201.2135 C298.459,208.239 296.217,216.836 294.214,224.5118 " fill="none" id="ServerViewGroup-GestureController" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="292.874,229.6479,299.0161,221.9489,294.136,224.8098,291.2752,219.9297,292.874,229.6479" style="stroke: #000000; stroke-width: 0.55;"/><!--link ServerViewGroup to ServerView--><path d="M329.135,199.9041 C347.447,209.3056 372.164,221.9948 390.549,231.4338 " fill="none" id="ServerViewGroup-ServerView" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="395.079,233.7595,388.9003,226.0899,390.6312,231.4754,385.2457,233.2063,395.079,233.7595" style="stroke: #000000; stroke-width: 0.55;"/><!--link Switchboard to ServerController--><path d="M335.607,137.285 C300.535,147.036 245.259,162.406 206.96,173.055 " fill="none" id="Switchboard-ServerController" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="201.907,174.46,211.6494,175.9044,206.7245,173.1213,209.5075,168.1964,201.907,174.46" style="stroke: #000000; stroke-width: 0.55;"/><!--link Switchboard to ServerViewGroup--><path d="M355.532,139.81 C346.34,147.871 334.012,158.681 323.719,167.708 " fill="none" id="Switchboard-ServerViewGroup" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="319.74,171.197,329.1435,168.2689,323.4987,167.8997,323.8679,162.2549,319.74,171.197" style="stroke: #000000; stroke-width: 0.55;"/><!--link WorkSpace to ServerElement--><path d="M509.009,139.261 C495.878,147.965 477.563,160.103 463.101,169.689 " fill="none" id="WorkSpace-ServerElement" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="458.747,172.575,468.4588,170.9378,462.9149,169.8131,464.0397,164.2691,458.747,172.575" style="stroke: #000000; stroke-width: 0.55;"/><!--link WorkSpace to ServerImage--><path d="M534.495,139.81 C540.381,147.993 548.305,159.01 554.856,168.117 " fill="none" id="WorkSpace-ServerImage" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="557.947,172.414,555.9378,162.7723,555.0269,168.3553,549.4439,167.4444,557.947,172.414" style="stroke: #000000; stroke-width: 0.55;"/><!--link WorkSpace to ServerItem--><path d="M553.521,137.929 C581.019,147.849 623.254,163.085 652.177,173.52 " fill="none" id="WorkSpace-ServerItem" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="657.058,175.28,649.9495,168.4632,652.3547,173.5832,647.2347,175.9884,657.058,175.28" style="stroke: #000000; stroke-width: 0.55;"/><script type="text/plantuml"><![CDATA[
+@startuml
+
+scale max 1920 width
+top to bottom direction
+
+skinparam nodesep 15
+skinparam ranksep 29
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Tahoma
+skinparam defaultFontSize 12
+skinparam roundCorner 4
+skinparam dpi 150
+skinparam arrowColor black
+skinparam arrowThickness 0.55
+skinparam packageTitleAlignment left
+
+skinparam usecase {
+  borderThickness 0.5
+}
+
+skinparam rectangle {
+  borderThickness 0.5
+}
+
+skinparam component {
+  borderThickness 1
+}
+
+
+(<b>server</b>)
+
+
+package "Server" {
+  (Application)
+  (Device)
+  (GestureController)
+  (MessageHandler)
+  (Router)
+  (ServerController)
+  (ServerElement)
+  (ServerImage)
+  (ServerItem)
+  (ServerView)
+  (ServerViewGroup)
+  (Switchboard)
+  (WorkSpace)
+}
+
+
+
+
+
+(Application) ~~> (MessageHandler)
+(Application) ~~> (Router)
+(Application) ~~> (Switchboard)
+(Application) ~~> (WorkSpace)
+(<b>server</b>) -[thickness=1]> (Application)
+(<b>server</b>) -[thickness=1]> (Router)
+(ServerController) ~~> (Device)
+(ServerViewGroup) ~~> (GestureController)
+(ServerViewGroup) ~~> (ServerView)
+(Switchboard) ~~> (ServerController)
+(Switchboard) ~~> (ServerViewGroup)
+(WorkSpace) ~~> (ServerElement)
+(WorkSpace) ~~> (ServerImage)
+(WorkSpace) ~~> (ServerItem)
+
+@enduml
+
+
+' View and edit on https://arkit.herokuapp.com
+]]></script></g></svg>

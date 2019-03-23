@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="278px" preserveAspectRatio="none" style="width:341px;height:278px;" version="1.1" viewBox="0 0 341 278" width="341px" zoomAndPan="magnify"><defs/><g><!--cluster Shared--><path d="M94,35 L142,35 A3,3 0 0 1 144,37 L151,55.4844 L327,55.4844 A2,2 0 0 1 329,57.4844 L329,264 A2,2 0 0 1 327,266 L94,266 A2,2 0 0 1 92,264 L92,37 A2,2 0 0 1 94,35 " fill="#FFFFFF" style="stroke: #000000; stroke-width: 1.5;"/><line style="stroke: #000000; stroke-width: 1.5;" x1="92" x2="151" y1="55.4844" y2="55.4844"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="46" x="96" y="49.0059">Shared</text><ellipse cx="244.9264" cy="186.242" fill="#F8F8F8" rx="45.4264" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="60" x="214.9264" y="189.9842">IdStamper</text><ellipse cx="147.0624" cy="186.242" fill="#F8F8F8" rx="39.0624" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="51" x="121.5624" y="189.9842">Message</text><ellipse cx="142.8198" cy="133.742" fill="#F8F8F8" rx="34.8198" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="45" x="120.3198" y="137.4842">Point2D</text><ellipse cx="154.8406" cy="81.242" fill="#F8F8F8" rx="46.8406" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="62" x="123.8406" y="84.9842">Polygon2D</text><ellipse cx="251.7601" cy="133.552" fill="#F8F8F8" rx="60.7601" ry="14.552" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="90" x="206.7601" y="137.2942">ReporterFactory</text><ellipse cx="256.8909" cy="81.242" fill="#F8F8F8" rx="41.8909" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="55" x="229.3909" y="84.9842">Reporters</text><ellipse cx="146.9914" cy="237.242" fill="#F8F8F8" rx="31.9914" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="41" x="126.4914" y="240.9842">utilities</text><ellipse cx="40.8198" cy="81.242" fill="#F8F8F8" rx="34.8198" ry="13.242" style="stroke: #383838; stroke-width: 0.5;"/><text fill="#000000" font-family="Tahoma, sans-serif" font-size="12" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="45" x="18.3198" y="84.9842">shared</text><!--link IdStamper to utilities--><path d="M223.735,197.6323 C208.226,205.3868 187.19,215.905 171.065,223.9674 " fill="none" id="IdStamper-utilities" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="166.23,226.3849,176.0687,225.9383,170.7023,224.1491,172.4915,218.7827,166.23,226.3849" style="stroke: #000000; stroke-width: 0.55;"/><!--link Message to utilities--><path d="M147,199.1124 C147,204.9576 147,212.0794 147,218.5008 " fill="none" id="Message-utilities" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="147,223.6866,151,214.6866,147,218.6866,143,214.6866,147,223.6866" style="stroke: #000000; stroke-width: 0.55;"/><!--link Polygon2D to Point2D--><path d="M152.095,94.225 C150.592,100.552 148.731,108.381 147.085,115.307 " fill="none" id="Polygon2D-Point2D" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="145.878,120.388,151.8501,112.5564,147.0338,115.5234,144.0667,110.7071,145.878,120.388" style="stroke: #000000; stroke-width: 0.55;"/><!--link ReporterFactory to IdStamper--><path d="M250.124,148.033 C249.289,154.059 248.295,161.229 247.406,167.643 " fill="none" id="ReporterFactory-IdStamper" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="246.689,172.812,251.8858,164.4458,247.3749,167.8593,243.9614,163.3484,246.689,172.812" style="stroke: #000000; stroke-width: 0.55;"/><!--link Reporters to ReporterFactory--><path d="M255.79,94.225 C255.212,100.063 254.507,107.18 253.863,113.687 " fill="none" id="Reporters-ReporterFactory" style="stroke: #000000; stroke-width: 0.55; stroke-dasharray: 1.0,3.0;"/><polygon fill="#000000" points="253.34,118.967,258.2077,110.4051,253.8329,113.9913,250.2466,109.6165,253.34,118.967" style="stroke: #000000; stroke-width: 0.55;"/><!--link <b>shared</b> to IdStamper--><path d="M52.5941,93.437 C59.7729,100.634 69.0973,110.196 77,119 C88.1758,131.45 86.8741,139.036 101,148 C105.5681,150.899 165.934,165.875 207.041,175.863 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-IdStamper" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="211.954,177.055,204.1523,171.0439,207.0952,175.875,202.2642,178.8179,211.954,177.055" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>shared</b> to Message--><path d="M45.3254,94.045 C50.9755,108.386 62.0621,132.358 78,148 C89.1457,158.939 104.1848,167.511 117.378,173.639 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-Message" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="122.144,175.785,115.5821,168.4405,117.5855,173.7307,112.2953,175.7341,122.144,175.785" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>shared</b> to Point2D--><path d="M61.1519,91.977 C77.6033,100.122 100.9145,111.664 118.454,120.347 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-Point2D" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="123.237,122.715,116.9469,115.1364,118.7563,120.4961,113.3967,122.3055,123.237,122.715" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>shared</b> to Polygon2D--><path d="M76.1797,81 C84.9338,81 93.6878,81 102.4419,81 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-Polygon2D" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="107.893,81,98.893,77,102.893,81,98.893,85,107.893,81" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>shared</b> to Reporters--><path d="M48.3412,68.271 C58.4167,52.232 78.1968,25.443 103.5,14.5 C123.488,5.855 181.775,5.27 201.5,14.5 C222.854,24.492 238.869,47.187 248.075,63.278 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-Reporters" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="250.712,68.039,249.8504,58.2279,248.2894,63.6651,242.8522,62.1041,250.712,68.039" style="stroke: #000000; stroke-width: 1.0;"/><!--link <b>shared</b> to utilities--><path d="M41.6783,94.066 C42.8648,107.796 46.1156,130.573 55,148 C71.5639,180.491 104.9946,207.6558 126.669,222.8631 " fill="none" id="&lt;b&gt;shared&lt;/b&gt;-utilities" style="stroke: #000000; stroke-width: 1.0;"/><polygon fill="#000000" points="130.838,225.7432,125.7058,217.3372,126.7239,222.9017,121.1594,223.9198,130.838,225.7432" style="stroke: #000000; stroke-width: 1.0;"/><script type="text/plantuml"><![CDATA[
+@startuml
+
+scale max 1920 width
+top to bottom direction
+
+skinparam nodesep 13
+skinparam ranksep 25
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Tahoma
+skinparam defaultFontSize 12
+skinparam roundCorner 4
+skinparam dpi 150
+skinparam arrowColor black
+skinparam arrowThickness 0.55
+skinparam packageTitleAlignment left
+
+skinparam usecase {
+  borderThickness 0.5
+}
+
+skinparam rectangle {
+  borderThickness 0.5
+}
+
+skinparam component {
+  borderThickness 1
+}
+
+
+(<b>shared</b>)
+
+
+
+
+
+package "Shared" {
+  (IdStamper)
+  (Message)
+  (Point2D)
+  (Polygon2D)
+  (ReporterFactory)
+  (Reporters)
+  (utilities)
+}
+
+
+(IdStamper) ~~> (utilities)
+(Message) ~~> (utilities)
+(Polygon2D) ~~> (Point2D)
+(ReporterFactory) ~~> (IdStamper)
+(Reporters) ~~> (ReporterFactory)
+(<b>shared</b>) -[thickness=1]> (IdStamper)
+(<b>shared</b>) -[thickness=1]> (Message)
+(<b>shared</b>) -[thickness=1]> (Point2D)
+(<b>shared</b>) -[thickness=1]> (Polygon2D)
+(<b>shared</b>) -[thickness=1]> (Reporters)
+(<b>shared</b>) -[thickness=1]> (utilities)
+
+@enduml
+
+
+' View and edit on https://arkit.herokuapp.com
+]]></script></g></svg>
