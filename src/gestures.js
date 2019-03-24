@@ -23,7 +23,7 @@ const {
 } = require('../../westures');
 // const Westures = require('westures');
 
-const Region  = require('./gestures/core/Region.js');
+const Region  = require('./gestures/Region.js');
 
 module.exports = {
   Region,

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { Point2D } = require('../../shared.js');
+const { Point2D } = require('../shared.js');
 const PHASE   = require('./PHASE.js');
 
 /**
