@@ -11,7 +11,9 @@ level classes and code, up to the high level end-user API.
 * [Shared Sources](#shared-sources)
 * [Client Sources](#client-sources)
 * [Server Sources](#server-sources)
+* [Mixins](#mixins)
 * [Gesture Recognition](#gesture-recognition)
+* [Predefined Routines](#predefined-routines)
 * [Connection Establishment](#connection-establishment)
 
 ## Dependencies
@@ -168,15 +170,32 @@ npm test WorkSpace
 Extra configuration can be found and placed in the `jest` field of
 `package.json`. 
 
+## Design overview
+
+![Graph of all modules except shared](
+https://github.com/mvanderkamp/wams/blob/master/graphs/full.svg?sanitize=true)
+
+Note that this graph (and all that follow) merely show explicit file
+associations via a `require()` statement (similar to an `import` or `#include`).
+Also note that the above graph does not show the `shared` module, as it provides
+base classes and routines that are used throughout the code and would simply
+clutter the graph without revealing any structure.
+
 ## Shared Sources
+
+![Graph of shared module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
 
 To coordinate activity between the client and server, I provide a shared set of
 resources that are exposed by `shared.js`.
 
 * [utilities](#utilities)
 * [IdStamper](#idstamper)
+* [Reporter Factory](#reporter-factory)
 * [Reporters](#reporters)
 * [Message](#message)
+* [Point2D](#point2d)
+* [Polygon2D](#polygon2d)
 
 ### utilities
 
@@ -254,11 +273,18 @@ Messages can be transmitted by any object with an `emit` function.
 
 ## Client Sources
 
+![Graph of client module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/client.svg?sanitize=true)
+
+* [ClientView](#clientview)
+* [ClientModel](#clientmodel)
 * [ShadowView](#shadowview)
 * [ClientItem](#clientitem)
-* [ClientView](#clientview)
-* [Interactor](#interactor)
+* [ClientImage](#clientimage)
+* [ClientElement](#clientelement)
 * [ClientController](#clientcontroller)
+* [Interactor](#interactor)
+* [Transform](#transform)
 
 ### ShadowView
 
@@ -323,6 +349,9 @@ server that it receieves from the Interactor about user interaction.
 
 ## Server Sources
 
+![Grpah of server module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
+
 * [ServerItem](#serveritem)
 * [ServerView](#serverview)
 * [ListenerFactory](#listenerfactory)
@@ -381,6 +410,16 @@ to send messages to the namespace.
 This module defines the API endpoint. In practice, this means it is a thin
 wrapper around the Server class which exposes only that functionality of the
 Server which should be available to the end user.
+
+## Mixins
+
+![Graph of mixins module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
+
+## Predefined Routines
+
+![Graph of predefined module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
 
 ## Gesture Recognition
 
