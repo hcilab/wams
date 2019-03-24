@@ -423,6 +423,9 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=t
 
 ## Gesture Recognition
 
+![Graph of gestures module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
+
 The process for gesture recognition, starting at the point when the gesture
 library issues a gesture event, to the point when the user-supplied handler is
 called, is as follows:
