@@ -54,9 +54,6 @@
       {
         "type": "Gestures",
         "patterns": ["src/gestures/**/*.js", "src/gestures.js"]
-      },
-      {
-        "components": ["Component", "Entry"]
       }
     ]
   }
