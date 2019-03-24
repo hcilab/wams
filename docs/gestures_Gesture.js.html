@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: gestures/core/Region.js | WAMS</title>
+    <title>Source: gestures/Gesture.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,137 +53,100 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * Contains the {@link Region} class
+ * Contains the {@link Gesture} class
  */
 
 'use strict';
 
-const Binding = require('./Binding.js');
-const State   = require('./State.js');
-const PHASE   = require('./PHASE.js');
-
-const EVALUATION_RATE = 1000 / 60;
+let nextGestureNum = 0;
 
 /**
- * Allows the user to specify the control region which will listen for user
- * input events.
+ * The Gesture class that all gestures inherit from.
  *
  * @memberof module:gestures
  */
-class Region {
+class Gesture {
   /**
-   * Constructor function for the Region class.
+   * Constructor function for the Gesture class.
+   *
+   * @param {string} type - The name of the gesture.
    */
-  constructor() {
-    /**
-     * The list of relations between elements, their gestures, and the handlers.
-     *
-     * @type {module:gestures.Binding[]}
-     */
-    this.bindings = [];
+  constructor(type) {
+    if (typeof type !== 'string') {
+      throw new TypeError('Gestures require a string type');
+    }
 
     /**
-     * The internal state object for a Region.  Keeps track of inputs.
-     *
-     * @type {module:gestures.State}
-     */
-    this.state = new State();
-
-    /**
-     * Whether an update to the state has occurred.
-     *
-     * @type {boolean}
-     */
-    this.hasUpdated = false;
-
-    /**
-     * The phase for the next update.
+     * The name of the gesture. (e.g. 'pan' or 'tap' or 'pinch').
      *
      * @type {string}
      */
-    this.nextUpdate = null;
+    this.type = type;
 
-    setInterval(() => {
-      if (this.hasUpdated) {
-        this.evaluateBindings();
-      }
-    }, EVALUATION_RATE);
+    /**
+     * The unique identifier for each gesture. This allows for distinctions
+     * across instances of Gestures that are created on the fly (e.g.
+     * gesture-tap-1, gesture-tap-2).
+     *
+     * @type {string}
+     */
+    this.id = `gesture-${this.type}-${nextGestureNum++}`;
   }
 
   /**
-   * Evaluate the active bindings for the current state and phase.
-   */
-  evaluateBindings() {
-    this.bindings.forEach(binding => {
-      binding.evaluateHook(this.nextUpdate, this.state);
-    });
-
-    this.state.clearEndedInputs();
-    this.hasUpdated = false;
-    this.nextUpdate = null;
-  }
-
-  /**
-   * All input events flow through this function. It makes sure that the input
-   * state is maintained, determines which bindings to analyze based on the
-   * initial position of the inputs, calls the relevant gesture hooks, and
-   * dispatches gesture data.
+   * Event hook for the start phase of a gesture.
    *
-   * @param {TouchEvent} event - The event received from a client.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
    */
-  arbitrate(event) {
-    const phase = PHASE[event.type];
-    if (this.nextUpdate &amp;&amp; phase !== this.nextUpdate) {
-      this.evaluateBindings();
-    }
-
-    this.state.updateAllInputs(event);
-    this.nextUpdate = phase;
-    this.hasUpdated = true;
+  start() {
+    return null;
   }
 
   /**
-   * Bind an element to a gesture with an associated handler.
+   * Event hook for the move phase of a gesture.
    *
-   * @param {Element} element - The element object.
-   * @param {module:gestures.Gesture} gesture - Gesture type with which to bind.
-   * @param {Function} handler - The function to execute when a gesture is
-   *    recognized.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
    */
-  addGesture(gesture, handler) {
-    this.bindings.push(new Binding(gesture, handler));
+  move() {
+    return null;
   }
 
   /**
-   * Unbinds an element from either the specified gesture or all if no gesture
-   * is specified.
+   * Event hook for the end phase of a gesture.
    *
-   * @param {Element} element - The element to unbind.
-   * @param {module:gestures.Gesture} [ gesture ] - The gesture to unbind. If
-   * undefined, will unbind all Bindings associated with the given element.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
    */
-  removeGestures(element, gesture) {
-    this.getBindingsByElement(element).forEach(b => {
-      if (gesture == null || b.gesture === gesture) {
-        this.bindings.splice(this.bindings.indexOf(b), 1);
-      }
-    });
+  end() {
+    return null;
   }
 
   /**
-   * Clears the view with the given id from the gesture state.
+   * Event hook for the cancel phase of a gesture.
    *
-   * @param {number} id - Id of source view to clear out.
+   * @param {module:gestures.State} state - The input state object of the
+   * current region.
+   *
+   * @return {?Object} Gesture is considered recognized if an Object is
+   *    returned.
    */
-  clearInputsFromSource(id) {
-    this.state.clearInputsFromSource(id);
-    this.state.updateFields();
-    this.nextUpdate = 'cancel';
-    this.evaluateBindings();
+  cancel() {
+    return null;
   }
 }
 
-module.exports = Region;
+module.exports = Gesture;
 
 </code></pre>
         </article>

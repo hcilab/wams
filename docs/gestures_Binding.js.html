@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: gestures/core/State.js | WAMS</title>
+    <title>Source: gestures/Binding.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,172 +53,66 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * Contains the {@link State} class
+ * Contains the Binding class.
  */
 
 'use strict';
 
-const Input   = require('./Input.js');
-const PHASE   = require('./PHASE.js');
-const { Point2D } = require('../../shared.js');
-
-const symbols = Object.freeze({
-  inputs: Symbol.for('inputs'),
-});
-
 /**
- * Filter out elements of struct that satisfy the given predicate.
- *
- * @inner
- * @memberof module:gestures.State
- *
- * @param {Map} struct - Actually any container object that has a 'forEach'
- * method using a callback that takes (value, key) as its first arguments, and
- * which as a delete(key) method.
- * @param {function} predicate - Predicate function which accepts a single value
- * and returns true or false.
- */
-function filterout(struct, predicate) {
-  struct.forEach((v, k) => {
-    if (predicate(v)) struct.delete(k);
-  });
-}
-
-/**
- * Keeps track of currently active and ending input points on the interactive
- * surface.
+ * A Binding associates a gesture with an element and a handler function that
+ * will be called when the gesture is recognized.
  *
  * @memberof module:gestures
  */
-class State {
+class Binding {
   /**
-   * Constructor for the State class.
-   */
-  constructor() {
-    /**
-     * Keeps track of the current Input objects.
-     *
-     * @type {Map}
-     */
-    this[symbols.inputs] = new Map();
-
-    /**
-     * All currently valid inputs, including those that have ended.
-     *
-     * @type {Input[]}
-     */
-    this.inputs = [];
-
-    /**
-     * The array of currently active inputs, sourced from the current Input
-     * objects. "Active" is defined as not being in the 'end' phase.
-     *
-     * @type {Input[]}
-     */
-    this.active = [];
-
-    /**
-     * The array of latest point data for the currently active inputs, sourced
-     * from this.active.
-     *
-     * @type {module:gestures.Point2D[]}
-     */
-    this.activePoints = [];
-
-    /**
-     * The centroid of the currently active points.
-     *
-     * @type {module:gestures.Point2D}
-     */
-    this.centroid = {};
-
-    /**
-     * The latest event that the state processed.
-     *
-     * @type {TouchEvent}
-     */
-    this.event = null;
-  }
-
-  /**
-   * Deletes all inputs that are in the 'end' phase.
-   */
-  clearEndedInputs() {
-    filterout(this[symbols.inputs], v => v.phase === 'end');
-  }
-
-  /**
-   * Deletes all inputs originating from the view with the given id.
+   * Constructor function for the Binding class.
    *
-   * @param {number} id - The id of the source view.
+   * @param {module:gestures.Gesture} gesture - A instance of the Gesture type.
+   * @param {Function} handler - The function handler to execute when a gesture
+   *    is recognized on the associated element.
    */
-  clearInputsFromSource(id) {
-    filterout(this[symbols.inputs], v => v.source === id);
+  constructor(gesture, handler) {
+    /**
+     * The gesture to associate with the given element.
+     *
+     * @type {module:gestures.Gesture}
+     */
+    this.gesture = gesture;
+
+    /**
+     * The function handler to execute when the gesture is recognized on the
+     * associated element.
+     *
+     * @type {Function}
+     */
+    this.handler = handler;
   }
 
   /**
-   * @param {string} phase - One of 'start', 'move', or 'end'.
+   * Evalutes the given gesture hook, and dispatches any data that is produced.
    *
-   * @return {module:gestures.Input[]} Inputs in the given phase.
+   * @param {string} hook - which gesture hook to call, must be one of 'start',
+   *    'move', or 'end'.
+   * @param {module:gestures.State} state - The current State instance.
    */
-  getInputsInPhase(phase) {
-    return this.inputs.filter(i => i.phase === phase);
-  }
-
-  /**
-   * @param {string} phase - One of 'start', 'move', or 'end'.
-   *
-   * @return {module:gestures.Input[]} Inputs &lt;b>not&lt;/b> in the given phase.
-   */
-  getInputsNotInPhase(phase) {
-    return this.inputs.filter(i => i.phase !== phase);
-  }
-
-  /**
-   * @return {boolean} True if there are no active inputs. False otherwise.
-   */
-  hasNoActiveInputs() {
-    return this[symbols.inputs].size === 0;
-  }
-
-  /**
-   * Update the input with the given identifier using the given event.
-   *
-   * @param {TouchEvent} event - The event being captured.
-   * @param {Touch} touch - The touch point to update.
-   */
-  updateInput(event, touch) {
-    const id = touch.identifier;
-    if (PHASE[event.type] === 'start') {
-      this[symbols.inputs].set(id, new Input(event, touch, id));
-    } else if (this[symbols.inputs].has(id)) {
-      this[symbols.inputs].get(id).update(event, touch);
+  evaluateHook(hook, state) {
+    const data = this.gesture[hook](state);
+    if (data) {
+      this.handler({
+        data: {
+          centroid: state.centroid,
+          event:    state.event,
+          phase:    hook,
+          type:     this.gesture.type,
+          ...data,
+        },
+      });
     }
-  }
-
-  /**
-   * Updates the inputs with new information based upon a new event being fired.
-   *
-   * @param {TouchEvent} event - The event being captured.
-   */
-  updateAllInputs(event) {
-    event.changedTouches.forEach(touch => this.updateInput(event, touch));
-    this.event = event;
-    this.updateFields();
-  }
-
-  /**
-   * Updates the convenience fields.
-   */
-  updateFields() {
-    this.inputs = Array.from(this[symbols.inputs].values());
-    this.active = this.getInputsNotInPhase('end');
-    this.activePoints = this.active.map(i => i.current.point);
-    this.centroid = Point2D.midpoint(this.activePoints) || {};
   }
 }
 
-module.exports = State;
+module.exports = Binding;
 
 </code></pre>
         </article>

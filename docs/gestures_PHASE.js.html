@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: gestures/core/Binding.js | WAMS</title>
+    <title>Source: gestures/PHASE.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,66 +53,35 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * Contains the Binding class.
+ * Contains the PHASE object, which translates event names to phases
+ * (a.k.a. hooks).
  */
 
 'use strict';
 
 /**
- * A Binding associates a gesture with an element and a handler function that
- * will be called when the gesture is recognized.
+ * Normalizes window events to be either of type start, move, or end.
  *
  * @memberof module:gestures
+ * @enum {string}
  */
-class Binding {
-  /**
-   * Constructor function for the Binding class.
-   *
-   * @param {module:gestures.Gesture} gesture - A instance of the Gesture type.
-   * @param {Function} handler - The function handler to execute when a gesture
-   *    is recognized on the associated element.
-   */
-  constructor(gesture, handler) {
-    /**
-     * The gesture to associate with the given element.
-     *
-     * @type {module:gestures.Gesture}
-     */
-    this.gesture = gesture;
+const PHASE = Object.freeze({
+  mousedown:   'start',
+  touchstart:  'start',
+  pointerdown: 'start',
 
-    /**
-     * The function handler to execute when the gesture is recognized on the
-     * associated element.
-     *
-     * @type {Function}
-     */
-    this.handler = handler;
-  }
+  mousemove:   'move',
+  touchmove:   'move',
+  pointermove: 'move',
 
-  /**
-   * Evalutes the given gesture hook, and dispatches any data that is produced.
-   *
-   * @param {string} hook - which gesture hook to call, must be one of 'start',
-   *    'move', or 'end'.
-   * @param {module:gestures.State} state - The current State instance.
-   */
-  evaluateHook(hook, state) {
-    const data = this.gesture[hook](state);
-    if (data) {
-      this.handler({
-        data: {
-          centroid: state.centroid,
-          event:    state.event,
-          phase:    hook,
-          type:     this.gesture.type,
-          ...data,
-        },
-      });
-    }
-  }
-}
+  mouseup:       'end',
+  touchend:      'end',
+  touchcancel:   'end',
+  pointerup:     'end',
+  pointercancel: 'end',
+});
 
-module.exports = Binding;
+module.exports = PHASE;
 
 </code></pre>
         </article>
