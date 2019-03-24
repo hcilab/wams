@@ -117,12 +117,11 @@ class Pinch extends Gesture {
   move(state) {
     if (state.active.length < this.minInputs) return null;
 
-    const midpoint = state.centroid;
-    const distance = midpoint.averageDistanceTo(state.activePoints);
+    const distance = state.centroid.averageDistanceTo(state.activePoints);
     const scale = distance / this.previous;
 
     this.previous = distance;
-    return this.emit({ distance, midpoint, scale });
+    return this.emit({ distance, scale });
   }
 
   /**
@@ -155,9 +154,9 @@ class Pinch extends Gesture {
 
     if (this.stagedEmit) {
       result = this.stagedEmit;
-      const avg = (result.change + next.change) / 2;
-      result.change = avg;
-      next.change = avg;
+      const avg = (result.scale + next.scale) / 2;
+      result.scale = avg;
+      next.scale = avg;
     }
 
     this.stagedEmit = next;

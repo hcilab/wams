@@ -93,11 +93,10 @@ class Pan extends Gesture {
       return null;
     }
 
-    const point = state.centroid;
-    const translation = point.minus(this.previous);
-    this.previous = point;
+    const translation = state.centroid.minus(this.previous);
+    this.previous = state.centroid;
 
-    return { translation, point };
+    return { translation };
   }
 
   /**
