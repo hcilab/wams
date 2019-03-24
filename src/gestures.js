@@ -13,13 +13,17 @@
  *
  * @module gestures
  */
+const {
+  Pan,
+  Pinch,
+  Rotate,
+  Swipe,
+  Tap,
+  Track,
+} = require('../../westures');
+// const Westures = require('westures');
+
 const Region  = require('./gestures/core/Region.js');
-const Pan     = require('./gestures/gestures/Pan.js');
-const Pinch   = require('./gestures/gestures/Pinch.js');
-const Rotate  = require('./gestures/gestures/Rotate.js');
-const Swipe   = require('./gestures/gestures/Swipe.js');
-const Tap     = require('./gestures/gestures/Tap.js');
-const Track   = require('./gestures/gestures/Track.js');
 
 module.exports = {
   Region,
