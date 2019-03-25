@@ -1,7 +1,10 @@
 # Design
 
-This document details the design of the WAMS project, beginning with the lowest
-level classes and code, up to the high level end-user API.
+This document details the design of the WAMS project. It covers fundamental
+architectural design decisions, the purpose of each of the modules, and brief
+discusses each of the classes. For more in-depth information about any
+particular class, method, or chunk of code, see the [documentation](
+https://mvanderkamp.github.io/wams/).
 
 ## Contents
 
