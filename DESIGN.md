@@ -5,18 +5,20 @@ level classes and code, up to the high level end-user API.
 
 ## Contents
 
-* [Dependencies](#dependencies)
+* [Runtime Dependencies](#runtime-dependencies)
 * [Build Tools](#build-tools)
 * [Testing](#testing)
-* [Shared Sources](#shared-sources)
-* [Client Sources](#client-sources)
-* [Server Sources](#server-sources)
-* [Mixins](#mixins)
-* [Gesture Recognition](#gesture-recognition)
-* [Predefined Routines](#predefined-routines)
+* [Overview](#overview)
+* [Modules](#modules)
+    - [Shared](#shared)
+    - [Client](#client)
+    - [Server](#server)
+    - [Mixins](#mixins)
+    - [Predefined](#predefined)
+    - [Gestures](#gesture)
 * [Connection Establishment](#connection-establishment)
 
-## Dependencies
+## Runtime Dependencies
 
 This project has four dependencies:
 
@@ -139,7 +141,7 @@ The tools used and their rationale are as follows:
 9. [ctags-patterns-for-javascript](
 https://github.com/romainl/ctags-patterns-for-javascript)
 
-    This packag` provides the necessary plugins to enable 'exuberant-ctags' for
+    This package provides the necessary plugins to enable 'exuberant-ctags' for
     JavaScript.
 
 ## Testing
@@ -152,25 +154,25 @@ found in `tests/`.
 To run all the tests:
 
 ```shell
-npm test
+npx test
 ```
 
 To test, for example, only the client-side code:
 
 ```shell
-npm test client
+npx test client
 ```
 
 To test, for example, only the WorkSpace class from the server-side code:
 
 ```shell
-npm test WorkSpace
+npx test WorkSpace
 ```
 
 Extra configuration can be found and placed in the `jest` field of
 `package.json`. 
 
-## Design overview
+## Overview
 
 ![Graph of all modules except shared](
 https://github.com/mvanderkamp/wams/blob/master/graphs/full.svg?sanitize=true)
@@ -181,7 +183,16 @@ Also note that the above graph does not show the `shared` module, as it provides
 base classes and routines that are used throughout the code and would simply
 clutter the graph without revealing any structure.
 
-## Shared Sources
+## Modules
+
+* [Shared](#shared)
+* [Client](#client)
+* [Server](#server)
+* [Mixins](#mixins)
+* [Predefined](#predefined)
+* [Gestures](#gesture)
+
+## Shared
 
 ![Graph of shared module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
@@ -271,7 +282,7 @@ JavaScript here).
 
 Messages can be transmitted by any object with an `emit` function.
 
-## Client Sources
+## Client
 
 ![Graph of client module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/client.svg?sanitize=true)
@@ -347,7 +358,7 @@ The ClientController maintains the `socket.io` connection to the server, and
 informs the ClientView of changes to the model. It also forwards messages to the
 server that it receieves from the Interactor about user interaction.
 
-## Server Sources
+## Server
 
 ![Grpah of server module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
@@ -416,12 +427,12 @@ Server which should be available to the end user.
 ![Graph of mixins module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
-## Predefined Routines
+## Predefined
 
 ![Graph of predefined module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
 
-## Gesture Recognition
+## Gestures
 
 ![Graph of gestures module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
