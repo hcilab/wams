@@ -65,7 +65,7 @@ class ClientImage extends WamsImage {
      *
      * @type {Image}
      */
-    this.image = null;
+    this.image = {};
     if (data.src) this.setImage(data.src);
 
     /**
