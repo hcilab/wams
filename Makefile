@@ -1,5 +1,5 @@
 
-.PHONY: wams lint fix bundle docs tags test
+.PHONY: wams lint fix bundle docs tags test graphs
 
 wams: lint bundle docs tags
 
@@ -29,4 +29,13 @@ tags:
 
 test:
 	npx jest --bail 1
+
+graphs:
+	npx arkit -c graphs/client.json
+	npx arkit -c graphs/full.json
+	npx arkit -c graphs/gestures.json
+	npx arkit -c graphs/mixins.json
+	npx arkit -c graphs/predefined.json
+	npx arkit -c graphs/server.json
+	npx arkit -c graphs/shared.json
 

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://arkit.js.org/schema.json",
+  "components": [
+    {
+      "type": "Entry",
+      "patterns": [
+        "src/predefined.js"
+      ]
+    },
+    {
+      "type": "Component",
+      "patterns": [
+        "src/predefined/*.js"
+      ]
+    }
+  ],
+  "output": {
+    "path": "graphs/predefined.svg",
+    "groups": [
+      {
+        "type": "Predefined",
+        "patterns": ["src/predefined/**/*.js"]
+      }
+    ]
+  }
+}

@@ -14,8 +14,6 @@
         "src/**/*.js"
       ],
       "excludePatterns": [
-        "**/__tests__/**",
-        "**/*-test.js",
         "src/shared*"
       ]
     }

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://arkit.js.org/schema.json",
+  "components": [
+    {
+      "type": "Entry",
+      "patterns": [
+        "src/client.js"
+      ]
+    },
+    {
+      "type": "Component",
+      "patterns": [
+        "src/client/*.js"
+      ]
+    }
+  ],
+  "output": {
+    "path": "graphs/client.svg",
+    "groups": [
+      {
+        "type": "Client",
+        "patterns": ["src/client/*.js"]
+      }
+    ]
+  }
+}
