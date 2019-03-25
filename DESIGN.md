@@ -9,7 +9,7 @@ level classes and code, up to the high level end-user API.
 * [Build Tools](#build-tools)
 * [Testing](#testing)
 * [Some Core Concepts](#some-core-concepts)
-* [Overview](#overview)
+* [Module Overview](#module-overview)
 * [Modules](#modules)
     - [Shared](#shared)
     - [Client](#client)
@@ -21,7 +21,7 @@ level classes and code, up to the high level end-user API.
 
 ## Runtime Dependencies
 
-This project has four dependencies:
+This project has four runtime dependencies:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
@@ -43,6 +43,7 @@ This project has four dependencies:
     - __Pinch__
     - __Rotate__
     - __Swipe__
+    - __Swivel__
 
     As well as providing tracking abilities (i.e. simple updates of input state
     at every change) and gesture customization options, including the ability to
@@ -277,22 +278,21 @@ an interface whose methods are already implemented.
 
 More precisely, a mixin "mixes" functionality into an already existing class to
 form a new subclass. This allows the programmer to bundle related pieces of
-functionality together, and then attach those bundles to classes as they see
-fit. 
+functionality together into a mixin, and then attach those bundles to classes as
+they see fit.
 
 This turned out to work perfectly for me, as this pattern fit neatly on top of
-the Message / Reporter protocol I was using. This protocol requires that Views
-and Items and their related classes needed be distinct, yet functionally these
-two distinct types of classes ultimately need to perform a lot of similar
-actions. Mixins solves this problem beautifully, making the whole system more
-succinct and easier to maintain in the process.
+the `Message` / `Reporter` protocol I was using. This protocol requires that
+`Views` and `Items` and their related classes needed be distinct, yet
+functionally these two distinct types of classes ultimately need to perform a
+lot of similar actions. Mixins solves this problem beautifully, making the whole
+system more succinct and easier to maintain in the process.
 
 A more in-depth discussion of mixins and the inspiration for the specific
-implementation approach that I used can be found
-[here](
+implementation approach that I used can be found [here](
 http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
 
-## Overview
+## Module Overview
 
 ![Graph of all modules except shared](
 https://github.com/mvanderkamp/wams/blob/master/graphs/full.svg?sanitize=true)
