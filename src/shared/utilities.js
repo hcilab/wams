@@ -62,43 +62,6 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 }
 
 /**
- * This method will set an already-existing property on an object to be
- *  immutable. In other words, it will configure it as such:
- *
- *    configurable: false
- *    writable: false
- *
- * It will have no effect on non-configurable properties, and will turn an
- *  accessor descriptor  a data descriptor. (I.e. if the property is
- *  defined with getters and setters, they will be lost).
- *
- * It will have no effect on properties that do not exist directly on the
- *  Object (properties further up the prototype chain are not affected).
- *
- * It will affect both enumerable and non-enumerable properties.
- *
- * This method is intended for use when the only reason for a call to
- *  Object.defineProperty() was to make the property immutable.
- *
- * @memberof module:shared.utilities
- *
- * @param {Object} obj - The object to modify.
- * @param {string} prop - The name of the property of obj to make immutable.
- *
- * @returns {Object} The modified object.
- */
-function makeOwnPropertyImmutable(obj, prop) {
-  const desc = Object.getOwnPropertyDescriptor(obj, prop);
-  if (desc && desc.configurable) {
-    Object.defineProperty(obj, prop, {
-      configurable: false,
-      writable:     false,
-    });
-  }
-  return obj;
-}
-
-/**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
  *
  * @memberof module:shared.utilities
@@ -127,7 +90,6 @@ function removeById(array, item) {
 module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
-  makeOwnPropertyImmutable,
   NOP,
   removeById,
 });
