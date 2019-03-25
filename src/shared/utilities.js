@@ -124,32 +124,11 @@ function removeById(array, item) {
   return false;
 }
 
-/**
- * Removes the given item of the given class (enforced by throwing an
- * exception if not an instance) from the given array.
- *
- * @memberof module:shared.utilities
- * @throws {string}
- *
- * @param {Object[]} array - The array to modify.
- * @param {Object} item - The item to remove from array according to its Id, if
- * it is an instance of class_fn
- * @param {Class} class_fn - Insist that item be an instance of this class
- * function.
- *
- * @return {boolean} True if the item was found and removed, false otherwise.
- */
-function safeRemoveById(array, item, class_fn) {
-  if (!(item instanceof class_fn)) throw `Invalid ${class_fn} received.`;
-  return removeById(array, item);
-}
-
 module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
   makeOwnPropertyImmutable,
   NOP,
   removeById,
-  safeRemoveById,
 });
 
