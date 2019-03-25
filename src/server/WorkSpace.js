@@ -11,7 +11,6 @@
 'use strict';
 
 const {
-  findLast,
   removeById,
   Message,
 } = require('../shared.js');
@@ -71,7 +70,7 @@ class WorkSpace {
    * or null if there is none.
    */
   findFreeItemByCoordinates(x, y) {
-    return findLast(this.items, i => !i.isLocked() && i.containsPoint(x, y));
+    return this.items.find(i => !i.isLocked() && i.containsPoint(x, y));
   }
 
   /**
@@ -84,7 +83,7 @@ class WorkSpace {
    * null if there is none.
    */
   findItemByCoordinates(x, y) {
-    return findLast(this.items, i => i.containsPoint(x, y));
+    return this.items.find(i => i.containsPoint(x, y));
   }
 
   /**
@@ -143,7 +142,7 @@ class WorkSpace {
    */
   spawnObject(class_fn, values) {
     const object = new class_fn(this.namespace, values);
-    this.items.push(object);
+    this.items.unshift(object);
     return object;
   }
 

@@ -69,7 +69,7 @@ class ClientModel {
    */
   addObject(class_fn, values) {
     const object = new class_fn(values);
-    this.itemOrder.push(object);
+    this.itemOrder.unshift(object);
     this.items.set(object.id, object);
   }
 
