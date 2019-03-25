@@ -69,102 +69,69 @@ app.spawnItem({
   sequence: text,
 });
 
+// Draw a card deck outline.
+app.spawnItem(Wams.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
+  x: 515,
+  y: 300,
+  onclick: dealCards,
+}));
+
+const deal = new Wams.CanvasSequence();
+deal.font = 'normal 30px sans-serif';
+deal.fillStyle = 'black';
+deal.fillText('Shuffle', 0, 0);
+
+app.spawnItem({
+  x: 525,
+  y: 400,
+  type: 'text',
+  sequence: deal,
+});
+
+
 // Generate a deck of cards, consisting solely of image source paths.
 const values = [
   '2', '3', '4', '5', '6', '7', '8', '9', '10', 'A', 'J', 'Q', 'K',
 ];
 const suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
+const cardDescriptors = [];
 const cards = [];
 values.forEach(value => {
   suits.forEach(suit => {
-    cards.push(`cards/${suit}${value}.png`);
+    cardDescriptors.push(`cards/${suit}${value}.png`);
   });
 });
 
 // Select the look for the back of the cards.
 const card_back_path = 'cards/Back_blue4.png';
 
-// Generate the cards in a random order.
-let offs = 0.0;
-shuffle(cards).forEach(card => {
-  app.spawnImage(Wams.predefined.items.image(card_back_path, {
-    x:        430 - offs,
-    y:        400 - offs,
-    width:    140,
-    height:   190,
-    type:     'card',
-    scale:    1,
-    face:     card,
-    isFaceUp: false,
-    onclick:  flipCard,
-    ondrag:   Wams.predefined.drag,
-    onrotate: Wams.predefined.rotate,
-  }));
-  offs += 0.2;
-});
+function dealCards() {
+  cards.forEach(card => {
+    app.removeItem(card);
+  });
+  cards.splice(0,cards.length);
 
-/*
- * Lays out four views around a central table view.
- */
-const handleLayout = (function makeLayoutHandler() {
-  let table = null;
-  const TABLE   = 0;
-  const BOTTOM  = 1;
-  const LEFT    = 2;
-  const TOP     = 3;
-  const RIGHT   = 4;
-  const OVERLAP = 30;
+  // Generate the cards in a random order.
+  let offs = 0.0;
+  shuffle(cardDescriptors).forEach(card => {
+    cards.push(app.spawnImage(Wams.predefined.items.image(card_back_path, {
+      x:        345 - offs,
+      y:        300 - offs,
+      width:    140,
+      height:   190,
+      type:     'card',
+      scale:    1,
+      face:     card,
+      isFaceUp: false,
+      onclick:  flipCard,
+      ondrag:   Wams.predefined.drag,
+      onrotate: Wams.predefined.rotate,
+    })));
+    offs += 0.2;
+  });
+}
 
-  function layoutTable(view) {
-    table = view;
-  }
-
-  function layoutBottom(view) {
-    const anchor = table.bottomLeft;
-    view.moveTo(anchor.x, anchor.y - OVERLAP);
-  }
-
-  function layoutLeft(view) {
-    const anchor = table.topLeft;
-    view.moveTo(anchor.x + OVERLAP, anchor.y);
-    view.rotateBy(Math.PI / 2);
-  }
-
-  function layoutTop(view) {
-    const anchor = table.topRight;
-    view.moveTo(anchor.x, anchor.y + OVERLAP);
-    view.rotateBy(Math.PI);
-  }
-
-  function layoutRight(view) {
-    const anchor = table.bottomRight;
-    view.moveTo(anchor.x - OVERLAP, anchor.y);
-    view.rotateBy(Math.PI * 3 / 2);
-  }
-
-  function dependOnTable(fn) {
-    return function layoutDepender(view) {
-      if (table == null) {
-        setTimeout(() => layoutDepender(view), 0);
-      } else {
-        fn(view);
-      }
-    };
-  }
-
-  const user_fns = [];
-  user_fns[TABLE]   = layoutTable;
-  user_fns[BOTTOM]  = dependOnTable(layoutBottom);
-  user_fns[LEFT]    = dependOnTable(layoutLeft);
-  user_fns[TOP]     = dependOnTable(layoutTop);
-  user_fns[RIGHT]   = dependOnTable(layoutRight);
-
-  function handleLayout(view, position) {
-    user_fns[position](view);
-  }
-
-  return handleLayout;
-}());
+dealCards();
 
 /*
  * Allows cards to be flipped.
@@ -174,6 +141,16 @@ function flipCard(event) {
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
   card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
+}
+
+const tableLayout = Wams.predefined.layouts.table(30);
+function handleLayout(view, position) {
+  if (position === 0) {
+    // User is the "table". Allow them to move around and scale.
+    view.ondrag = Wams.predefined.drag;
+    view.onscale = Wams.predefined.scale;
+  }
+  tableLayout(view, position);
 }
 
 app.onlayout(handleLayout);
