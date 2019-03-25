@@ -14300,20 +14300,13 @@ class Binding {
     if (data) {
       this.handler({
         centroid: state.centroid,
-        event: state.event,
-        phase: hook,
-        radius: state.radius,
-        type: this.gesture.type,
-        target: this.element,
+        event:    state.event,
+        phase:    hook,
+        radius:   state.radius,
+        type:     this.gesture.type,
+        target:   this.element,
         ...data,
       });
-      // data.centroid = state.centroid;
-      // data.event = state.event;
-      // data.phase = hook;
-      // data.radius = state.radius;
-      // data.type = this.gesture.type;
-      // data.target = this.element;
-      // this.handler(data);
     }
   }
 }
