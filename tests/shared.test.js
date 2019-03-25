@@ -20,12 +20,8 @@ const expected = [
   'DataReporter',
   'FullStateReporter',
   'defineOwnImmutableEnumerableProperty',
-  'findLast',
-  'mergeMatches',
-  'makeOwnPropertyImmutable',
   'NOP',
   'removeById',
-  'safeRemoveById',
 ];
 
 test('Exports all the proper shared utilities', () => {
