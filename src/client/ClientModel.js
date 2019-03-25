@@ -69,7 +69,7 @@ class ClientModel {
    */
   addObject(class_fn, values) {
     const object = new class_fn(values);
-    this.itemOrder.unshift(object);
+    this.itemOrder.push(object);
     this.items.set(object.id, object);
   }
 
@@ -152,7 +152,7 @@ class ClientModel {
       if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
     });
     data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
-    data.items.forEach(o => {
+    data.items.reverse().forEach(o => {
       if (o.hasOwnProperty('src')) {
         this.addImage(o);
       } else if (o.hasOwnProperty('tagname')) {
