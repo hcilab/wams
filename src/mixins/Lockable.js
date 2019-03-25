@@ -48,7 +48,10 @@ const Lockable = (superclass) => class Lockable extends superclass {
    */
   unlock() {
     this[locked] = false;
-    if (this[holder]) this[holder].lockedItem = null;
+    if (this[holder]) {
+      this[holder].lockedItem = null;
+      this[holder] = null;
+    }
   }
 };
 
