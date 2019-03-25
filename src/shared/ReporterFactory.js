@@ -37,7 +37,8 @@ function ReporterFactory(coreProperties) {
      * will be accepted.
      */
     constructor(data) {
-      // Grab all own enumerable properties of 'data'.
+      // Merge the defaults with all the own enumerable properties of 'data'
+      // onto the new instance.
       Object.assign(this, INITIALIZER, data);
 
       // Special access for coreProperties existing anywhere up the prototype
