@@ -12,9 +12,7 @@
 
 const {
   findLast,
-  mergeMatches,
   removeById,
-  // safeRemoveById,
   Message,
 } = require('../shared.js');
 const ServerElement = require('./ServerElement.js');
@@ -45,7 +43,7 @@ class WorkSpace {
      * @property {boolean} [settings.useServerGestures=false] - Whether to use
      * server-side gestures. Default is to use client-side gestures.
      */
-    this.settings = mergeMatches(WorkSpace.DEFAULTS, settings);
+    this.settings = { ...WorkSpace.DEFAULTS, ...settings };
 
     /**
      * Socket.io namespace in which to operate.

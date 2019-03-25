@@ -12,7 +12,7 @@
 
 const Westures = require('../../../westures');
 // const Westures = require('westures');
-const { mergeMatches, NOP } = require('../shared.js');
+const { NOP } = require('../shared.js');
 const Transform = require('./Transform.js');
 
 /**
@@ -62,7 +62,7 @@ class Interactor {
      * @property {Function} zoom=NOP
      * @property {Function} track=NOP
      */
-    this.handlers = mergeMatches(Interactor.DEFAULT_HANDLERS, handlers);
+    this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
 
     // Begin listening activities immediately.
     // this.bindRegions(canvas);

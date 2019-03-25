@@ -62,28 +62,6 @@ function findLast(array, callback, fromIndex = array.length - 1, thisArg) {
 }
 
 /**
- * Create a new object, with all the own properties of 'defaults' having values
- * from 'data', if found, otherwise with values from 'defaults'.
- *
- * @memberof module:shared.utilities
- *
- * @param {Object} defaults - Object with default properties and values. If data
- * is not provided or all the property names of data are disjoint with the
- * property names of defaults, then defaults will be returned.
- * @param {} data - Object with values to use for corresponding properties in
- * defaults. Properties not found in defaults will be ignored.
- *
- * @returns {Object} The new object.
- */
-function mergeMatches(defaults = {}, data = {}) {
-  const rv = {};
-  Object.keys(defaults).forEach(k => {
-    rv[k] = k in data ? data[k] : defaults[k];
-  });
-  return rv;
-}
-
-/**
  * This method will set an already-existing property on an object to be
  *  immutable. In other words, it will configure it as such:
  *
@@ -169,7 +147,6 @@ function safeRemoveById(array, item, class_fn) {
 module.exports = Object.freeze({
   defineOwnImmutableEnumerableProperty,
   findLast,
-  mergeMatches,
   makeOwnPropertyImmutable,
   NOP,
   removeById,
