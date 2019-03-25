@@ -15,7 +15,7 @@ level classes and code, up to the high level end-user API.
     - [Server](#server)
     - [Mixins](#mixins)
     - [Predefined](#predefined)
-    - [Gestures](#gesture)
+    - [Gestures](#gestures)
 * [Connection Establishment](#connection-establishment)
 
 ## Runtime Dependencies
@@ -172,6 +172,120 @@ npx test WorkSpace
 Extra configuration can be found and placed in the `jest` field of
 `package.json`. 
 
+## Some Core Concepts
+
+### Message / Reporter protocol
+
+One of the early challenges I encountered was to ensure that only the correct
+data was getting transferred over the network, and that when I received a
+message over the socket, it would have the data that I expected. To solve this
+issue, I designed a Message / Reporter protocol through which I would funnel all
+data.
+
+The first step was to create a class factory for "Reporters", which are the way
+in which I ensure that only the correct data gets transmitted. By calling this
+factory with an object consisting of key-value pairs describing a set of core
+properties and their default values, the factory will return a class which
+extends the `Reporter` class. An instance object of this class has a method,
+`report()`, which returns an object consisting _only_ of the core properties and
+their current values. This ensures that even though arbitrary additional
+properties may exist on the object (either through further class extensions or
+direct additions by a user) only the core properties will be sent if whatever
+routine sends the data calls this `report()` method.
+
+The second step was to create a `Message` class with an explicit list of
+acceptable message types. A `Message` is constructed with one of these message
+types and an instance of a `Reporter`. It can then emit a `report()` of the
+instance.
+
+If this protocol is follow strictly (which requires discipline- it is obviously
+still possible to directly `emit` messages over socket connections) then only
+the critical pieces of data will get transmitted, and they will be associated
+with one of the expected `Message` types when they get there. Of course,
+programmer discipline is also required to make sure that the `Message` type
+selected is appropriate for the occasion and associated `Reporter` instance,
+though it would be possible to enforce this restriction if this proves
+difficult.
+
+There is a work-around for cases where lots of different types of little pieces
+of data need to be transmitted. See the `DataReporter` class in the
+documentation.
+
+### Unique Identification
+
+In a large system like this, where it is important to keep track of and uniquely
+identify lots of different kinds of objects correctly on both the client and the
+server, I decided it would be helpful to centralize the identification technique
+somehow. This is where the `IdStamper` class comes in. It provides a common
+structure by which unique IDs can be assigned and copied.
+
+Note that uniqueness is generally on a per-class level. There is a mixin,
+`Identifiable`, which uses an `IdStamper` to provide unique IDs to any class
+which mixes it in.
+
+### Model-View-Controller
+
+Originally the MVC technique I was using was... crude. Over the course of
+studying the MVC pattern and applying it in CMPT 381 I decided to refactor the
+overarching design of the system to more appropriately match an MVC approach.
+Specifically, my approach was to implement an MVC pattern on both the client
+and server.
+
+The client side version is the most straightforward, and looks a lot like simple
+classical MVC. The catch of course is that the 'ClientController' sends user
+events to the server, and only interacts with the model or view when it receives
+instructions from the server. The other catch is that, as the only thing objects
+in the model need to do is draw themselves, they each implement a `draw()`
+method for the `ClientView` to use.
+
+The server side is more complicated. The most obvious reason for this is that,
+this being an API, the users of the API need to be able to attach their own
+controller code. The one big simplification is that there's no view, as nothing
+needs to be rendered.
+
+The approach I settled on was to actually split the model in two. One of these
+is the WorkSpace, which holds all the actual objects in the model that will need
+to be rendered. Specifically, these are the objects which are explicitly spawned
+into the model by the programmer. The other is the `ServerViewGroup`, which
+holds the server's representations of the client's views (that is, what the
+clients can see). An alternative way of looking at is to think of these as the
+objects of the model that are generated in response to users connecting to the
+system, and which the programmer cannot spawn directly.
+
+The `ServerController` instances are spawned and maintained by the
+`Switchboard`, and these controllers maintain a link to their associated view
+and its physical device.
+
+One other wrinkle is that, in order to support multi-device gestures, the
+`ServerViewGroup` has a single `GestureController` which is responsible only for
+maintaining the state of active pointers and calculating whether gestures have
+occurred.
+
+### Mixins
+
+Aside from a thorough brushing up on the MVC pattern, I incidentally wound up
+learning about a fascinating and delightful design pattern which is only
+possible in some programming languages: the mixin! The short and simple version
+for those more accustomed to software engineering with Java is that a mixin is
+an interface whose methods are already implemented.
+
+More precisely, a mixin "mixes" functionality into an already existing class to
+form a new subclass. This allows the programmer to bundle related pieces of
+functionality together, and then attach those bundles to classes as they see
+fit. 
+
+This turned out to work perfectly for me, as this pattern fit neatly on top of
+the Message / Reporter protocol I was using. This protocol requires that Views
+and Items and their related classes needed be distinct, yet functionally these
+two distinct types of classes ultimately need to perform a lot of similar
+actions. Mixins solves this problem beautifully, making the whole system more
+succinct and easier to maintain in the process.
+
+A more in-depth discussion of mixins and the inspiration for the specific
+implementation approach that I used can be found
+[here](
+http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
+
 ## Overview
 
 ![Graph of all modules except shared](
@@ -190,7 +304,7 @@ clutter the graph without revealing any structure.
 * [Server](#server)
 * [Mixins](#mixins)
 * [Predefined](#predefined)
-* [Gestures](#gesture)
+* [Gestures](#gestures)
 
 ## Shared
 
@@ -202,7 +316,7 @@ resources that are exposed by `shared.js`.
 
 * [utilities](#utilities)
 * [IdStamper](#idstamper)
-* [Reporter Factory](#reporter-factory)
+* [ReporterFactory](#reporterfactory)
 * [Reporters](#reporters)
 * [Message](#message)
 * [Point2D](#point2d)
@@ -210,44 +324,20 @@ resources that are exposed by `shared.js`.
 
 ### utilities
 
-Exported by this module are a number of quality-of-life functions intended to be
-used in disparate places throughout the codebase. They are there to make writing
-other code easier, and to reduce repetition.
+Exported by this module are a few quality-of-life functions intended to be used
+in throughout the codebase. They are there to make writing other code easier,
+and to reduce repetition.
 
 ### IdStamper
 
 This class controls ID generation so that I don't have to think about it ever
 again. The class has access to a private generator function for IDs and exposes
 a pair of methods for stamping new IDs onto objects and cloning previously
-existing Ids onto objects:
+existing Ids onto objects.
 
-1. stampNewId(object):
+### ReporterFactory
 
-    * object:   The object to stamp with an id.
 
-  All IDs produced by this method are guaranteed to be unique, on a per-stamper
-  basis. (Two uniquely constructed stampers can and will generate identical Ids).
-
-2. cloneId(object, id):
-
-    * object:   Will receive a cloned id.
-    * id:       The id to clone onto the object.
-
-Example:
-
-```javascript
-const stamper = new IdStamper();
-const obj = {};
-stamper.stampNewId(obj);
-console.log(obj.id);  // Logs an integer unique to Ids stamped by stamper
-obj.id = 2;           // Assignment has no effect.
-delete obj.id;        // Is false and has no effect. 
-                      //  (throws an error in strict mode).
-
-const danger = {};
-stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
-                                 // now both using the same ID.
-```
 
 ### Reporters
 
