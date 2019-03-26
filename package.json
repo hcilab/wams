@@ -5,7 +5,7 @@
     "canvas-sequencer": "^3.0.0",
     "express": "^4.16.4",
     "socket.io": "^2.2.0",
-    "westures": "^0.6.3"
+    "westures": "^0.7.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
