@@ -8,11 +8,6 @@
 
 const { Point2D, IdStamper, WamsElement } = require('../shared.js');
 
-/*
- * I'm not defining a 'defaults' object here, because the data going into the
- * creation of items should always come from the server, where it has already
- * gone through an initialization against a defaults object.
- */
 const STAMPER = new IdStamper();
 
 /**
@@ -62,6 +57,9 @@ class ClientElement extends WamsElement {
   /**
    * Render the element. Really just updates the rotation and transformation
    * matrix.
+   *
+   * @param {CanvasRenderingContext2D} context
+   * @param {module:client.ClientView} view
    */
   draw(context, view) {
     const tl = new Point2D(this.x - view.x, this.y - view.y)

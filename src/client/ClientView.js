@@ -10,7 +10,7 @@
 
 'use strict';
 
-const { constants, View } = require('../shared.js');
+const { View } = require('../shared.js');
 
 // Data fields to write for status indicator text.
 const STATUS_KEYS = Object.freeze([
@@ -154,21 +154,6 @@ class ClientView extends View {
     this.height = window.innerHeight;
   }
 }
-
-/**
- * The default values for a ClientView.
- *
- * @type {object}
- */
-ClientView.DEFAULTS = Object.freeze({
-  x:        0,
-  y:        0,
-  width:    1600,
-  height:   900,
-  rotation: constants.ROTATE_0,
-  scale:    1,
-  type:     'view/background',
-});
 
 module.exports = ClientView;
 

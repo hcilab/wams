@@ -13,11 +13,6 @@
 const { IdStamper, Item } = require('../shared.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
-/*
- * I'm not defining a 'defaults' object here, because the data going into the
- * creation of items should always come from the server, where it has already
- * gone through an initialization against a defaults object.
- */
 const STAMPER = new IdStamper();
 
 /**
@@ -29,8 +24,8 @@ const STAMPER = new IdStamper();
 class ClientItem extends Item {
   /**
    * @param {module:shared.Item} data - The data from the server describing this
-   *       item. Only properties explicity listed in the array passed to the
-   *       ReporterFactory when the Item class was defined will be accepted.
+   * item. Only properties explicity listed in the array passed to the
+   * ReporterFactory when the Item class was defined will be accepted.
    */
   constructor(data) {
     super(data);
@@ -56,11 +51,9 @@ class ClientItem extends Item {
   }
 
   /**
-   * Render the item onto the given context.  Prioritizes sequences over
-   * images.
+   * Render the item onto the given context.
    *
-   * @param {CanvasRenderingContext2D} context - context onto which to draw this
-   * item.
+   * @param {CanvasRenderingContext2D} context
    */
   draw(context) {
     if (this.render) {

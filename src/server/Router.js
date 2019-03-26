@@ -27,9 +27,10 @@ function Router() {
 
   // Establish main routes.
   const view   = path.join(__dirname, '../../dist/view.html');
+  app.get('/', (req, res) => res.sendFile(view));
+
   const source = path.join(__dirname, '../../dist/wams-client.js');
-  app.get('/',               (req, res) => res.sendFile(view));
-  app.get('/wams-client.es5.js', (req, res) => res.sendFile(source));
+  app.get('/wams-client.js', (req, res) => res.sendFile(source));
 
   // Make the express object accessible (e.g. for express.static())
   app.express = express;

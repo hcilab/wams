@@ -7,12 +7,6 @@
 
 'use strict';
 
-/**
- * The API endpoint for the WAMS API. Exposes functionality to end-user.
- */
-
-'use strict';
-
 const { CanvasSequence }      = require('canvas-sequencer');
 const { colours }             = require('./src/shared.js');
 const { Router, Application } = require('./src/server.js');

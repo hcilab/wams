@@ -209,7 +209,7 @@ class ClientModel {
    * does not need to be defined twice for both of the items and shadows arrays.
    *
    * @param {string} container - Name of the ClientView property defining the
-   *    array which contains the object to update.
+   * array which contains the object to update.
    * @param {( module:shared.Item | module:shared.View )} data - Data with which
    * an object in the container will be updated.  Note that the object is
    * located using an 'id' field on this data object.
@@ -226,7 +226,7 @@ class ClientModel {
    * Update an item.
    *
    * @param {module:shared.Item} data - data from the server, has an 'id' field
-   *       with which the item will be located.
+   * with which the item will be located.
    */
   updateItem(data) {
     this.update('items', data);
@@ -236,7 +236,7 @@ class ClientModel {
    * Update a 'shadow' view.
    *
    * @param {module:shared.View} data - data from the server, has an 'id' field
-   *       with which the view will be located.
+   * with which the view will be located.
    */
   updateShadow(data) {
     this.update('shadows', data);

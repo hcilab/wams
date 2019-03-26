@@ -27,7 +27,7 @@ const Transform = require('./Transform.js');
  *
  * @memberof module:client
  *
- * @see {@link https://mvanderkamp.github.io/westures-core/}
+ * @see {@link https://mvanderkamp.github.io/westures/}
  */
 class Interactor {
   /**
