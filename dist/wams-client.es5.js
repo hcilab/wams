@@ -16700,8 +16700,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           Gesture = _require21.Gesture,
           Point2D = _require21.Point2D,
           Smoothable = _require21.Smoothable;
-
-      var REQUIRED_INPUTS = 1;
       /**
        * Data returned when a Pan is recognized.
        *
@@ -16724,6 +16722,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof westures
        */
 
+
       var Pan =
       /*#__PURE__*/
       function (_Smoothable) {
@@ -16743,6 +16742,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           _classCallCheck(this, Pan);
 
           _this47 = _possibleConstructorReturn(this, _getPrototypeOf(Pan).call(this, 'pan', options));
+
+          var settings = _objectSpread({}, Pan.DEFAULTS, options);
           /**
            * Don't emit any data if this key is pressed.
            *
@@ -16750,7 +16751,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {string}
            */
 
-          _this47.muteKey = options.muteKey;
+
+          _this47.muteKey = settings.muteKey;
+          /**
+           * The minimum number of inputs that must be active for a Pinch to be
+           * recognized.
+           *
+           * @private
+           * @type {number}
+           */
+
+          _this47.minInputs = settings.minInputs;
           /**
            * The previous point location.
            *
@@ -16773,7 +16784,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(Pan, [{
           key: "restart",
           value: function restart(state) {
-            if (state.active.length >= REQUIRED_INPUTS) {
+            if (state.active.length >= this.minInputs) {
               this.previous = state.centroid;
             }
 
@@ -16803,7 +16814,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "move",
           value: function move(state) {
-            if (state.active.length < REQUIRED_INPUTS) {
+            if (state.active.length < this.minInputs) {
               return null;
             }
 
@@ -16860,6 +16871,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         return Pan;
       }(Smoothable(Gesture));
 
+      Pan.DEFAULTS = Object.freeze({
+        minInputs: 1,
+        smoothing: false
+      });
       module.exports = Pan;
     }, {
       "../../westures-core": 88
@@ -17036,40 +17051,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           Smoothable = _require23.Smoothable;
 
       var angularMinus = require('./angularMinus.js');
-      /**
-       * Data returned when a Rotate is recognized.
-       *
-       * @typedef {Object} RotateData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {number} rotation - In radians, the change in angle since last
-       * emit.
-       * @property {westures.Point2D} pivot - The centroid of the currently
-       * active points.
-       *
-       * @memberof ReturnTypes
-       */
-      // const PI2 = 2 * Math.PI;
-
-      /**
-       * Helper function to regulate angular differences, so they don't jump from 0 to
-       * 2*PI or vice versa.
-       *
-       * @private
-       * @param {number} a - Angle in radians.
-       * @param {number} b - Angle in radians.
-       * @return {number} c, given by: c = a - b such that || < PI
-       */
-      // function angularMinus(a, b = 0) {
-      //   let diff = a - b;
-      //   if (diff < -Math.PI) {
-      //     diff += PI2;
-      //   } else if (diff > Math.PI) {
-      //     diff -= PI2;
-      //   }
-      //   return diff;
-      // }
-
       /**
        * A Rotate is defined as two inputs moving with a changing angle between them.
        *
