@@ -12292,7 +12292,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       function () {
         /**
          * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
-         *    (not the context), which will fill the page.
+         * (not the context), which will fill the page.
          * @param {module:client.ClientView} view - The view that will handle
          * rendering duties.
          * @param {module:client.ClientModel} model - The client-side copy of the
@@ -12354,7 +12354,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * received messages at this layer should be those conforming to the Message /
          * Reporter protocol.
          *
-         * This internal routine will be called as part of socket establishment.
+         * This internal routine should be called as part of socket establishment.
          */
 
 
@@ -12364,60 +12364,24 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             var _this21 = this,
                 _listeners;
 
-            var listeners = (_listeners = {}, _defineProperty(_listeners, Message.ADD_ELEMENT, function () {
-              for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-                args[_key4] = arguments[_key4];
-              }
-
-              return _this21.handle.apply(_this21, ['addElement'].concat(args));
-            }), _defineProperty(_listeners, Message.ADD_IMAGE, function () {
-              for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-                args[_key5] = arguments[_key5];
-              }
-
-              return _this21.handle.apply(_this21, ['addImage'].concat(args));
-            }), _defineProperty(_listeners, Message.ADD_ITEM, function () {
-              for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
-                args[_key6] = arguments[_key6];
-              }
-
-              return _this21.handle.apply(_this21, ['addItem'].concat(args));
-            }), _defineProperty(_listeners, Message.ADD_SHADOW, function () {
-              for (var _len7 = arguments.length, args = new Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
-                args[_key7] = arguments[_key7];
-              }
-
-              return _this21.handle.apply(_this21, ['addShadow'].concat(args));
-            }), _defineProperty(_listeners, Message.RM_ITEM, function () {
-              for (var _len8 = arguments.length, args = new Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
-                args[_key8] = arguments[_key8];
-              }
-
-              return _this21.handle.apply(_this21, ['removeItem'].concat(args));
-            }), _defineProperty(_listeners, Message.RM_SHADOW, function () {
-              for (var _len9 = arguments.length, args = new Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
-                args[_key9] = arguments[_key9];
-              }
-
-              return _this21.handle.apply(_this21, ['removeShadow'].concat(args));
-            }), _defineProperty(_listeners, Message.UD_ITEM, function () {
-              for (var _len10 = arguments.length, args = new Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
-                args[_key10] = arguments[_key10];
-              }
-
-              return _this21.handle.apply(_this21, ['updateItem'].concat(args));
-            }), _defineProperty(_listeners, Message.UD_SHADOW, function () {
-              for (var _len11 = arguments.length, args = new Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
-                args[_key11] = arguments[_key11];
-              }
-
-              return _this21.handle.apply(_this21, ['updateShadow'].concat(args));
-            }), _defineProperty(_listeners, Message.UD_VIEW, function () {
-              for (var _len12 = arguments.length, args = new Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
-                args[_key12] = arguments[_key12];
-              }
-
-              return _this21.handle.apply(_this21, ['updateView'].concat(args));
+            var listeners = (_listeners = {}, _defineProperty(_listeners, Message.ADD_ELEMENT, function (data) {
+              return _this21.handle('addElement', data);
+            }), _defineProperty(_listeners, Message.ADD_IMAGE, function (data) {
+              return _this21.handle('addImage', data);
+            }), _defineProperty(_listeners, Message.ADD_ITEM, function (data) {
+              return _this21.handle('addItem', data);
+            }), _defineProperty(_listeners, Message.ADD_SHADOW, function (data) {
+              return _this21.handle('addShadow', data);
+            }), _defineProperty(_listeners, Message.RM_ITEM, function (data) {
+              return _this21.handle('removeItem', data);
+            }), _defineProperty(_listeners, Message.RM_SHADOW, function (data) {
+              return _this21.handle('removeShadow', data);
+            }), _defineProperty(_listeners, Message.UD_ITEM, function (data) {
+              return _this21.handle('updateItem', data);
+            }), _defineProperty(_listeners, Message.UD_SHADOW, function (data) {
+              return _this21.handle('updateShadow', data);
+            }), _defineProperty(_listeners, Message.UD_VIEW, function (data) {
+              return _this21.handle('updateView', data);
             }), _defineProperty(_listeners, Message.RM_ATTRS, function (_ref6) {
               var data = _ref6.data;
               return _this21.handle('removeAttributes', data);
@@ -12430,8 +12394,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             }), _defineProperty(_listeners, Message.SET_RENDER, function (_ref9) {
               var data = _ref9.data;
               return _this21.handle('setRender', data);
-            }), _defineProperty(_listeners, Message.INITIALIZE, function () {
-              return _this21.setup.apply(_this21, arguments);
+            }), _defineProperty(_listeners, Message.INITIALIZE, function (data) {
+              return _this21.setup(data);
             }), _defineProperty(_listeners, Message.LAYOUT, NOP), _defineProperty(_listeners, Message.CLICK, NOP), _defineProperty(_listeners, Message.RESIZE, NOP), _defineProperty(_listeners, Message.SWIPE, NOP), _defineProperty(_listeners, Message.TRACK, NOP), _defineProperty(_listeners, Message.TRANSFORM, NOP), _defineProperty(_listeners, Message.POINTER, NOP), _defineProperty(_listeners, Message.BLUR, NOP), _defineProperty(_listeners, Message.FULL, function () {
               document.body.innerHTML = 'WAMS is full! :(';
             }), _listeners);
@@ -12524,20 +12488,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @see {@link module:shared.Message}
            *
            * @param {string} message - The name of a ClientView method to run.
-           * @param {...mixed} ...args - The arguments to pass to the ClientView method.
+           * @param {...*} data - The argument to pass to the ClientView method.
            */
 
         }, {
           key: "handle",
-          value: function handle(message) {
-            var _this$model;
-
-            for (var _len13 = arguments.length, args = new Array(_len13 > 1 ? _len13 - 1 : 0), _key13 = 1; _key13 < _len13; _key13++) {
-              args[_key13 - 1] = arguments[_key13];
-            }
-
-            (_this$model = this.model)[message].apply(_this$model, args.concat([this]));
-
+          value: function handle(message, data) {
+            this.model[message](data, this);
             this.scheduleRender();
           }
           /**
@@ -12597,39 +12554,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             new Message(Message.LAYOUT, this.view).emitWith(this.socket);
           }
           /**
-           * Set the element attributes for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setAttributes",
-          value: function setAttributes(data) {
-            this.model.setAttributes(data);
-          }
-          /**
-           * Set the image for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setImage",
-          value: function setImage(data) {
-            this.model.setImage(data);
-          }
-          /**
-           * Set the canvas rendering sequence for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setRender",
-          value: function setRender(data) {
-            this.model.setRender(data);
-          }
-          /**
            * The Interactor is a level of abstraction between the ClientController and
            * the gesture recognition library such that libraries can be swapped out
            * more easily, if need be. At least in theory. All the ClientController
@@ -12643,19 +12567,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setupInteractor",
           value: function setupInteractor() {
-            var _this22 = this;
-
             var useServerGestures = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
             if (useServerGestures) {
               this.setupInputForwarding();
-              ['touchcancel', 'pointercancel', 'blur'].forEach(function (eventname) {
-                window.addEventListener(eventname, function (event) {
-                  event.preventDefault();
-                  var breport = new DataReporter();
-                  new Message(Message.BLUR, breport).emitWith(_this22.socket);
-                });
-              });
             } else {
               new Interactor({
                 swipe: this.forward(Message.SWIPE),
@@ -12673,10 +12588,46 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           key: "setupInputForwarding",
           value: function setupInputForwarding() {
             if (window.MouseEvent || window.TouchEvent) {
-              this.forwardMouseAndTouchEvents();
+              this.forwardTouchEvents();
+              this.forwardMouseEvents();
             } else {
               this.forwardPointerEvents();
             }
+
+            this.forwardBlurEvents();
+          }
+          /**
+           * Forward the given events, by using the given callback.
+           *
+           * @param {string[]} eventnames
+           * @param {function} callback
+           */
+
+        }, {
+          key: "forwardEvents",
+          value: function forwardEvents(eventnames, callback) {
+            eventnames.forEach(function (eventname) {
+              window.addEventListener(eventname, callback, {
+                capture: true,
+                once: false,
+                passive: false
+              });
+            });
+          }
+          /**
+           * Forward blur and cancel events.
+           */
+
+        }, {
+          key: "forwardBlurEvents",
+          value: function forwardBlurEvents() {
+            var _this22 = this;
+
+            this.forwardEvents(['touchcancel', 'pointercancel', 'blur'], function (event) {
+              event.preventDefault();
+              var breport = new DataReporter();
+              new Message(Message.BLUR, breport).emitWith(_this22.socket);
+            });
           }
           /**
            * Forward pointer events.
@@ -12687,68 +12638,60 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           value: function forwardPointerEvents() {
             var _this23 = this;
 
-            ['pointerdown', 'pointermove', 'pointerup'].forEach(function (eventname) {
-              window.addEventListener(eventname, function (event) {
-                event.preventDefault();
-                var treport = new TouchReporter(event);
-                treport.changedTouches = [{
-                  identifier: event.pointerId,
-                  clientX: event.clientX,
-                  clientY: event.clientY
-                }];
-                new Message(Message.POINTER, treport).emitWith(_this23.socket);
-              }, {
-                capture: true,
-                once: false,
-                passive: false
-              });
+            this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], function (event) {
+              event.preventDefault();
+              var treport = new TouchReporter(event);
+              treport.changedTouches = [{
+                identifier: event.pointerId,
+                clientX: event.clientX,
+                clientY: event.clientY
+              }];
+              new Message(Message.POINTER, treport).emitWith(_this23.socket);
             });
           }
           /**
-           * Forward mouse and touch events.
+           * Forward mouse events.
            */
 
         }, {
-          key: "forwardMouseAndTouchEvents",
-          value: function forwardMouseAndTouchEvents() {
+          key: "forwardMouseEvents",
+          value: function forwardMouseEvents() {
             var _this24 = this;
 
-            ['mousedown', 'mousemove', 'mouseup'].forEach(function (eventname) {
-              window.addEventListener(eventname, function (event) {
-                event.preventDefault();
+            this.forwardEvents(['mousedown', 'mousemove', 'mouseup'], function (event) {
+              event.preventDefault();
 
-                if (event.button === 0) {
-                  var treport = new TouchReporter(event);
-                  treport.changedTouches = [{
-                    identifier: 0,
-                    clientX: event.clientX,
-                    clientY: event.clientY
-                  }];
-                  new Message(Message.POINTER, treport).emitWith(_this24.socket);
-                }
-              }, {
-                capture: true,
-                once: false,
-                passive: false
-              });
-            });
-            ['touchstart', 'touchmove', 'touchend'].forEach(function (eventname) {
-              window.addEventListener(eventname, function (event) {
-                event.preventDefault();
+              if (event.button === 0) {
                 var treport = new TouchReporter(event);
-                treport.changedTouches = Array.from(event.changedTouches).map(function (touch) {
-                  return {
-                    identifier: touch.identifier,
-                    clientX: touch.clientX,
-                    clientY: touch.clientY
-                  };
-                });
+                treport.changedTouches = [{
+                  identifier: 0,
+                  clientX: event.clientX,
+                  clientY: event.clientY
+                }];
                 new Message(Message.POINTER, treport).emitWith(_this24.socket);
-              }, {
-                capture: true,
-                once: false,
-                passive: false
+              }
+            });
+          }
+          /**
+           * Forward touch events.
+           */
+
+        }, {
+          key: "forwardTouchEvents",
+          value: function forwardTouchEvents() {
+            var _this25 = this;
+
+            this.forwardEvents(['touchstart', 'touchmove', 'touchend'], function (event) {
+              event.preventDefault();
+              var treport = new TouchReporter(event);
+              treport.changedTouches = Array.from(event.changedTouches).map(function (touch) {
+                return {
+                  identifier: touch.identifier,
+                  clientX: touch.clientX,
+                  clientY: touch.clientY
+                };
               });
+              new Message(Message.POINTER, treport).emitWith(_this25.socket);
             });
           }
         }]);
@@ -12774,12 +12717,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           Point2D = _require10.Point2D,
           IdStamper = _require10.IdStamper,
           WamsElement = _require10.WamsElement;
-      /*
-       * I'm not defining a 'defaults' object here, because the data going into the
-       * creation of items should always come from the server, where it has already
-       * gone through an initialization against a defaults object.
-       */
-
 
       var STAMPER = new IdStamper();
       /**
@@ -12801,29 +12738,29 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * accepted.
          */
         function ClientElement(data) {
-          var _this25;
+          var _this26;
 
           _classCallCheck(this, ClientElement);
 
-          _this25 = _possibleConstructorReturn(this, _getPrototypeOf(ClientElement).call(this, data));
+          _this26 = _possibleConstructorReturn(this, _getPrototypeOf(ClientElement).call(this, data));
           /**
            * The DOM element.
            *
            * @type {Element}
            */
 
-          _this25.element = document.createElement(data.tagname);
+          _this26.element = document.createElement(data.tagname);
 
-          _this25.element.classList.add('wams-element');
+          _this26.element.classList.add('wams-element');
 
-          _this25.element.width = _this25.width;
-          _this25.element.height = _this25.height;
-          _this25.element.style.width = "".concat(_this25.width, "px");
-          _this25.element.style.height = "".concat(_this25.height, "px");
-          document.body.appendChild(_this25.element);
+          _this26.element.width = _this26.width;
+          _this26.element.height = _this26.height;
+          _this26.element.style.width = "".concat(_this26.width, "px");
+          _this26.element.style.height = "".concat(_this26.height, "px");
+          document.body.appendChild(_this26.element);
 
           if (data.hasOwnProperty('attributes')) {
-            _this25.setAttributes(data.attributes);
+            _this26.setAttributes(data.attributes);
           }
           /**
            * Id to make the items uniquely identifiable.
@@ -12836,12 +12773,15 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          STAMPER.cloneId(_assertThisInitialized(_this25), data.id);
-          return _this25;
+          STAMPER.cloneId(_assertThisInitialized(_this26), data.id);
+          return _this26;
         }
         /**
          * Render the element. Really just updates the rotation and transformation
          * matrix.
+         *
+         * @param {CanvasRenderingContext2D} context
+         * @param {module:client.ClientView} view
          */
 
 
@@ -12863,7 +12803,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setAttributes",
           value: function setAttributes(attributes) {
-            var _this26 = this;
+            var _this27 = this;
 
             this.attributes = attributes;
             Object.entries(attributes).forEach(function (_ref12) {
@@ -12871,7 +12811,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                   k = _ref13[0],
                   v = _ref13[1];
 
-              _this26.element[k] = v;
+              _this27.element[k] = v;
             });
           }
           /**
@@ -12883,11 +12823,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "removeAttributes",
           value: function removeAttributes(attributes) {
-            var _this27 = this;
+            var _this28 = this;
 
             attributes.forEach(function (attr) {
-              delete _this27.attributes[attr];
-              _this27.element[attr] = null;
+              delete _this28.attributes[attr];
+              _this28.element[attr] = null;
             });
           }
         }]);
@@ -12911,12 +12851,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           IdStamper = _require11.IdStamper,
           WamsImage = _require11.WamsImage,
           Message = _require11.Message;
-      /*
-       * I'm not defining a 'defaults' object here, because the data going into the
-       * creation of items should always come from the server, where it has already
-       * gone through an initialization against a defaults object.
-       */
-
 
       var STAMPER = new IdStamper();
       /**
@@ -12963,23 +12897,23 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         /**
          * @param {module:shared.Item} data - The data from the server describing this
-         *       item. Only properties explicity listed in the array passed to the
-         *       ReporterFactory when the Item class was defined will be accepted.
+         * item. Only properties explicity listed in the array passed to the
+         * ReporterFactory when the Item class was defined will be accepted.
          */
         function ClientImage(data) {
-          var _this28;
+          var _this29;
 
           _classCallCheck(this, ClientImage);
 
-          _this28 = _possibleConstructorReturn(this, _getPrototypeOf(ClientImage).call(this, data));
+          _this29 = _possibleConstructorReturn(this, _getPrototypeOf(ClientImage).call(this, data));
           /**
            * The image to render.
            *
            * @type {Image}
            */
 
-          _this28.image = {};
-          if (data.src) _this28.setImage(data.src);
+          _this29.image = {};
+          if (data.src) _this29.setImage(data.src);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -12990,15 +12924,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientImage
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this28), data.id);
-          return _this28;
+          STAMPER.cloneId(_assertThisInitialized(_this29), data.id);
+          return _this29;
         }
         /**
-         * Render the item onto the given context.  Prioritizes sequences over
-         * images.
+         * Render the image onto the given context.
          *
-         * @param {CanvasRenderingContext2D} context - context onto which to draw this
-         * item.
+         * @param {CanvasRenderingContext2D} context
          */
 
 
@@ -13058,12 +12990,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var _require13 = require('canvas-sequencer'),
           CanvasSequence = _require13.CanvasSequence;
-      /*
-       * I'm not defining a 'defaults' object here, because the data going into the
-       * creation of items should always come from the server, where it has already
-       * gone through an initialization against a defaults object.
-       */
-
 
       var STAMPER = new IdStamper();
       /**
@@ -13080,23 +13006,23 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         /**
          * @param {module:shared.Item} data - The data from the server describing this
-         *       item. Only properties explicity listed in the array passed to the
-         *       ReporterFactory when the Item class was defined will be accepted.
+         * item. Only properties explicity listed in the array passed to the
+         * ReporterFactory when the Item class was defined will be accepted.
          */
         function ClientItem(data) {
-          var _this29;
+          var _this30;
 
           _classCallCheck(this, ClientItem);
 
-          _this29 = _possibleConstructorReturn(this, _getPrototypeOf(ClientItem).call(this, data));
+          _this30 = _possibleConstructorReturn(this, _getPrototypeOf(ClientItem).call(this, data));
           /**
            * The actual render.
            *
            * @type {CanvasSequence}
            */
 
-          _this29.render = null;
-          if (data.sequence) _this29.setRender(data.sequence);
+          _this30.render = null;
+          if (data.sequence) _this30.setRender(data.sequence);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -13107,15 +13033,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientItem
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this29), data.id);
-          return _this29;
+          STAMPER.cloneId(_assertThisInitialized(_this30), data.id);
+          return _this30;
         }
         /**
-         * Render the item onto the given context.  Prioritizes sequences over
-         * images.
+         * Render the item onto the given context.
          *
-         * @param {CanvasRenderingContext2D} context - context onto which to draw this
-         * item.
+         * @param {CanvasRenderingContext2D} context
          */
 
 
@@ -13325,21 +13249,21 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setup",
           value: function setup(data) {
-            var _this30 = this;
+            var _this31 = this;
 
             REQUIRED_DATA.forEach(function (d) {
               if (!data.hasOwnProperty(d)) throw "setup requires: ".concat(d);
             });
             data.views.forEach(function (v) {
-              return v.id !== _this30.view.id && _this30.addShadow(v);
+              return v.id !== _this31.view.id && _this31.addShadow(v);
             });
             data.items.reverse().forEach(function (o) {
               if (o.hasOwnProperty('src')) {
-                _this30.addImage(o);
+                _this31.addImage(o);
               } else if (o.hasOwnProperty('tagname')) {
-                _this30.addElement(o);
+                _this31.addElement(o);
               } else {
-                _this30.addItem(o);
+                _this31.addItem(o);
               }
             });
           }
@@ -13397,7 +13321,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * does not need to be defined twice for both of the items and shadows arrays.
            *
            * @param {string} container - Name of the ClientView property defining the
-           *    array which contains the object to update.
+           * array which contains the object to update.
            * @param {( module:shared.Item | module:shared.View )} data - Data with which
            * an object in the container will be updated.  Note that the object is
            * located using an 'id' field on this data object.
@@ -13416,7 +13340,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * Update an item.
            *
            * @param {module:shared.Item} data - data from the server, has an 'id' field
-           *       with which the item will be located.
+           * with which the item will be located.
            */
 
         }, {
@@ -13428,7 +13352,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * Update a 'shadow' view.
            *
            * @param {module:shared.View} data - data from the server, has an 'id' field
-           *       with which the view will be located.
+           * with which the view will be located.
            */
 
         }, {
@@ -13474,7 +13398,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       'use strict';
 
       var _require15 = require('../shared.js'),
-          constants = _require15.constants,
           View = _require15.View; // Data fields to write for status indicator text.
 
 
@@ -13506,11 +13429,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * render the model.
          */
         function ClientView(context) {
-          var _this31;
+          var _this32;
 
           _classCallCheck(this, ClientView);
 
-          _this31 = _possibleConstructorReturn(this, _getPrototypeOf(ClientView).call(this, ClientView.DEFAULTS));
+          _this32 = _possibleConstructorReturn(this, _getPrototypeOf(ClientView).call(this, ClientView.DEFAULTS));
           /**
            * The CanvasRenderingContext2D is required for drawing (rendering) to take
            * place.
@@ -13518,7 +13441,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {CanvasRenderingContext2D}
            */
 
-          _this31.context = context;
+          _this32.context = context;
           /**
            * The model holds the information about items and shadows that need
            * rendering.
@@ -13526,7 +13449,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:client.ClientModel}
            */
 
-          _this31.model = null;
+          _this32.model = null;
           /**
            * Id to make the views uniquely identifiable. Will be assigned when setup
            * message is received from server.
@@ -13538,8 +13461,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientView
            */
 
-          _this31.id = null;
-          return _this31;
+          _this32.id = null;
+          return _this32;
         }
         /**
          * Positions the rendering context precisely, taking into account all
@@ -13565,10 +13488,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawItems,
           value: function value() {
-            var _this32 = this;
+            var _this33 = this;
 
             this.model.itemOrder.forEach(function (o) {
-              return o.draw(_this32.context, _this32);
+              return o.draw(_this33.context, _this33);
             });
           }
           /**
@@ -13578,10 +13501,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawShadows,
           value: function value() {
-            var _this33 = this;
+            var _this34 = this;
 
             this.model.shadows.forEach(function (v) {
-              return v.draw(_this33.context);
+              return v.draw(_this34.context);
             });
           }
           /**
@@ -13592,10 +13515,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawStatus,
           value: function value() {
-            var _this34 = this;
+            var _this35 = this;
 
             var messages = STATUS_KEYS.map(function (k) {
-              return "".concat(k, ": ").concat(_this34[k].toFixed(2));
+              return "".concat(k, ": ").concat(_this35[k].toFixed(2));
             }).concat(["# of Shadows: ".concat(this.model.shadows.size)]);
             var ty = 40;
             var tx = 20;
@@ -13603,7 +13526,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             this.context.setTransform(1, 0, 0, 1, 0, 0);
             this.context.font = '18px Georgia';
             messages.forEach(function (m) {
-              _this34.context.fillText(m, tx, ty);
+              _this35.context.fillText(m, tx, ty);
 
               ty += 20;
             });
@@ -13648,22 +13571,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         return ClientView;
       }(View);
-      /**
-       * The default values for a ClientView.
-       *
-       * @type {object}
-       */
 
-
-      ClientView.DEFAULTS = Object.freeze({
-        x: 0,
-        y: 0,
-        width: 1600,
-        height: 900,
-        rotation: constants.ROTATE_0,
-        scale: 1,
-        type: 'view/background'
-      });
       module.exports = ClientView;
     }, {
       "../shared.js": 82
@@ -13697,7 +13605,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        *
        * @memberof module:client
        *
-       * @see {@link https://mvanderkamp.github.io/westures-core/}
+       * @see {@link https://mvanderkamp.github.io/westures/}
        */
 
 
@@ -13731,26 +13639,16 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           this.handlers = _objectSpread({}, Interactor.DEFAULT_HANDLERS, handlers); // Begin listening activities immediately.
 
           this.bindRegions();
-          this.attachListeners();
+          window.addEventListener('wheel', this.wheel.bind(this), false);
         }
         /**
-         * Attaches extra event listeners to provide functionality on top of what is
-         * available in Westures by default.
+         * Westures uses Gesture objects, and expects those objects to be bound to an
+         * element, along with a handler for responding to that gesture. This method
+         * takes care of those activities.
          */
 
 
         _createClass(Interactor, [{
-          key: "attachListeners",
-          value: function attachListeners() {
-            window.addEventListener('wheel', this.wheel.bind(this), false);
-          }
-          /**
-           * Westures uses Gesture objects, and expects those objects to be bound to an
-           * element, along with a handler for responding to that gesture. This method
-           * takes care of those activities.
-           */
-
-        }, {
           key: "bindRegions",
           value: function bindRegions() {
             var swipe = new Westures.Swipe();
@@ -13840,11 +13738,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 
       Interactor.DEFAULT_HANDLERS = Object.freeze({
-        pan: NOP,
-        rotate: NOP,
         swipe: NOP,
         tap: NOP,
-        zoom: NOP,
         track: NOP,
         transform: NOP
       });
@@ -13902,13 +13797,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * view.
          */
         function ShadowView(values) {
-          var _this35;
+          var _this36;
 
           _classCallCheck(this, ShadowView);
 
-          _this35 = _possibleConstructorReturn(this, _getPrototypeOf(ShadowView).call(this, values));
-          STAMPER.cloneId(_assertThisInitialized(_this35), values.id);
-          return _this35;
+          _this36 = _possibleConstructorReturn(this, _getPrototypeOf(ShadowView).call(this, values));
+          STAMPER.cloneId(_assertThisInitialized(_this36), values.id);
+          return _this36;
         }
         /**
          * Render an outline of this view.
@@ -14021,35 +13916,35 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _inherits(Transform, _Westures$Gesture);
 
         function Transform() {
-          var _this36;
+          var _this37;
 
           _classCallCheck(this, Transform);
 
-          _this36 = _possibleConstructorReturn(this, _getPrototypeOf(Transform).call(this, 'transform'));
+          _this37 = _possibleConstructorReturn(this, _getPrototypeOf(Transform).call(this, 'transform'));
           /**
            * The Pinch gesture.
            *
            * @type {Pinch}
            */
 
-          _this36.pinch = new Westures.Pinch();
+          _this37.pinch = new Westures.Pinch();
           /**
            * The Rotate gesture.
            *
            * @type {Rotate}
            */
 
-          _this36.rotate = new Westures.Rotate();
+          _this37.rotate = new Westures.Rotate();
           /**
            * The Pan gesture.
            *
            * @type {Pan}
            */
 
-          _this36.pan = new Westures.Pan({
+          _this37.pan = new Westures.Pan({
             muteKey: 'ctrlKey'
           });
-          return _this36;
+          return _this37;
         }
         /**
          * Hook for the 'start' phase.
@@ -14747,10 +14642,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "totalDistanceTo",
           value: function totalDistanceTo(points) {
-            var _this37 = this;
+            var _this38 = this;
 
             return points.reduce(function (d, p) {
-              return d + _this37.distanceTo(p);
+              return d + _this38.distanceTo(p);
             }, 0);
           }
           /**
@@ -14819,7 +14714,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * polygon, given in order (clockwise and counter-clockwise are both fine).
          */
         function Polygon2D(points) {
-          var _this38 = this;
+          var _this39 = this;
 
           _classCallCheck(this, Polygon2D);
 
@@ -14854,7 +14749,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
           this.radius = this.points.reduce(function (max, point) {
-            var curr = _this38.centroid.distanceTo(point);
+            var curr = _this39.centroid.distanceTo(point);
 
             return max > curr ? max : curr;
           }); // Close the polygon.
@@ -15030,11 +14925,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           _createClass(Reporter, [{
             key: "assign",
             value: function assign() {
-              var _this39 = this;
+              var _this40 = this;
 
               var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
               KEYS.forEach(function (p) {
-                if (p in data) _this39[p] = data[p];
+                if (p in data) _this40[p] = data[p];
               });
             }
             /**
@@ -15047,11 +14942,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }, {
             key: "report",
             value: function report() {
-              var _this40 = this;
+              var _this41 = this;
 
               var data = {};
               KEYS.forEach(function (p) {
-                data[p] = _this40[p];
+                data[p] = _this41[p];
               });
               STAMPER.cloneId(data, this.id);
               return data;
