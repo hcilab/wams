@@ -89,6 +89,7 @@ class Polygon2D {
    */
   rotate(theta) {
     this.points.forEach(p => p.rotate(theta));
+    this.centroid.rotate(theta);
   }
 
   /**
@@ -100,6 +101,7 @@ class Polygon2D {
    */
   scale(ds) {
     this.points.forEach(p => p.multiplyBy(ds));
+    this.centroid.multiplyBy(ds);
     this.radius *= ds;
   }
 
