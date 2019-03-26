@@ -71,11 +71,9 @@ const Transform = require('./Transform.js');
 
 /**
  * The Interactor class provides a layer of abstraction between the
- * ClientController and the code that processes user inputs.
- *
- * Data from recognized gestures is reported directly through to the handlers.
- *
- * The handlers are initialized to NOPs so that the functions which call the
+ * ClientController and the code that processes user inputs.  Data from
+ * recognized gestures is reported directly through to the handlers. The
+ * handlers are initialized to NOPs so that the functions which call the
  * handlers don't need to check whether the handler exists.
  *
  * Currently, the Interactor makes use of the Westures library.
@@ -86,40 +84,28 @@ const Transform = require('./Transform.js');
  */
 class Interactor {
   /**
-   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
-   *    for interaction events.
    * @param {Object} handlers - Object with keys as the names gestures and
    *    values as the corresponding function for handling that gesture when it
    *    is recognized.
-   * @param {Function} [handlers.pan=NOP]
-   * @param {Function} [handlers.rotate=NOP]
    * @param {Function} [handlers.swipe=NOP]
    * @param {Function} [handlers.tap=NOP]
-   * @param {Function} [handlers.zoom=NOP]
    * @param {Function} [handlers.track=NOP]
    * @param {Function} [handlers.transform=NOP]
    */
-  constructor(canvas, handlers = {}) {
-    // if (!(canvas instanceof HTMLCanvasElement)) {
-    //   throw 'Invalid canvas recieved by Interactor!';
-    // }
-
+  constructor(handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
      *
      * @type {Object}
-     * @property {Function} pan=NOP
-     * @property {Function} rotate=NOP
-     * @property {Function} swipe=NOP
-     * @property {Function} top=NOP
-     * @property {Function} zoom=NOP
-     * @property {Function} track=NOP
+     * @property {Function} [swipe=NOP]
+     * @property {Function} [top=NOP]
+     * @property {Function} [track=NOP]
+     * @property {Function} [transform=NOP]
      */
     this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
 
     // Begin listening activities immediately.
-    // this.bindRegions(canvas);
     this.bindRegions();
     this.attachListeners();
   }
@@ -136,11 +122,7 @@ class Interactor {
    * Westures uses Gesture objects, and expects those objects to be bound to an
    * element, along with a handler for responding to that gesture. This method
    * takes care of those activities.
-   *
-   * @param {HTMLCanvasElement} canvas - The canvas element on which to listen
-   * for gestures.
    */
-  // bindRegions(canvas) {
   bindRegions() {
     const swipe     = new Westures.Swipe();
     const swivel    = new Westures.Swivel({ enableKey: 'ctrlKey' });
@@ -160,10 +142,10 @@ class Interactor {
    * Send a swivel event through as a transformation.
    */
   swivel() {
-    function do_swivel({ delta, pivot }) {
+    function do_swivel({ rotation, pivot }) {
       this.handlers.transform({
         centroid: pivot,
-        delta:    { rotation: delta },
+        delta:    { rotation },
       });
     }
     return do_swivel.bind(this);
