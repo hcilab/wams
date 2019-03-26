@@ -54,14 +54,6 @@ class Interactor {
 
     // Begin listening activities immediately.
     this.bindRegions();
-    this.attachListeners();
-  }
-
-  /**
-   * Attaches extra event listeners to provide functionality on top of what is
-   * available in Westures by default.
-   */
-  attachListeners() {
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
 
@@ -133,11 +125,8 @@ class Interactor {
  * @type {object}
  */
 Interactor.DEFAULT_HANDLERS = Object.freeze({
-  pan:       NOP,
-  rotate:    NOP,
   swipe:     NOP,
   tap:       NOP,
-  zoom:      NOP,
   track:     NOP,
   transform: NOP,
 });
