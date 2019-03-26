@@ -70,17 +70,17 @@ class Transform extends Westures.Gesture {
     let emit = false;
 
     if (pinch_data) {
-      result.delta.scale = pinch_data.change;
+      result.delta.scale = pinch_data.scale;
       emit = true;
     }
 
     if (rotate_data) {
-      result.delta.rotation = rotate_data.delta;
+      result.delta.rotation = rotate_data.rotation;
       emit = true;
     }
 
     if (pan_data) {
-      result.delta.translation = pan_data.change;
+      result.delta.translation = pan_data.translation;
       emit = true;
     }
 

@@ -20,8 +20,7 @@ const {
   Swipe,
   Tap,
   Track,
-} = require('../../westures');
-// const Westures = require('westures');
+} = require('westures');
 
 const Region  = require('./gestures/Region.js');
 

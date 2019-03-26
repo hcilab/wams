@@ -10,8 +10,9 @@
 
 'use strict';
 
-const Westures = require('../../../westures');
-// const Westures = require('westures');
+// const Westures = require('../../../westures');
+const Westures = require('westures');
+
 const { NOP } = require('../shared.js');
 const Transform = require('./Transform.js');
 
