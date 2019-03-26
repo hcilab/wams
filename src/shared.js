@@ -6,8 +6,8 @@
  */
 
 /**
- * Intended for use by both the client and the server, in order to provide a
- * common interface.
+ * This module contains classes and functions intended for use by both the
+ * client and the server, in order to provide a common interface.
  *
  * @module shared
  */

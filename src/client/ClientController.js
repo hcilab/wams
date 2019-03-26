@@ -324,12 +324,9 @@ class ClientController {
         });
       });
     } else {
-      new Interactor(this.canvas, {
-        pan:       this.forward(Message.DRAG),
-        rotate:    this.forward(Message.ROTATE),
+      new Interactor({
         swipe:     this.forward(Message.SWIPE),
         tap:       this.forward(Message.CLICK),
-        zoom:      this.forward(Message.SCALE),
         track:     this.forward(Message.TRACK),
         transform: this.forward(Message.TRANSFORM),
       });

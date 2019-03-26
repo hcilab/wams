@@ -48,12 +48,13 @@ module.exports = {
  *
  * @typedef {Object} BaseData
  *
+ * @property {module:shared.Point2D} centroid - The current centroid of the
+ * inputs.
  * @property {Event} event - The input event which caused the gesture to be
- *    recognized.
+ * recognized.
  * @property {string} phase - 'start', 'move', or 'end'.
  * @property {string} type - The name of the gesture as specified by its
- *    designer.
- * @property {Element} target - The bound target of the gesture.
+ * designer.
  *
  * @memberof module:gestures.ReturnTypes
  */
