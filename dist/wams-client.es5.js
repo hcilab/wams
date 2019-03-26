@@ -4979,7 +4979,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       "engine.io-parser": 27,
       "parseqs": 36,
       "xmlhttprequest-ssl": 24,
-      "yeast": 69
+      "yeast": 71
     }],
     23: [function (require, module, exports) {
       (function (Buffer) {
@@ -5283,7 +5283,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       "engine.io-parser": 27,
       "parseqs": 36,
       "ws": 7,
-      "yeast": 69
+      "yeast": 71
     }],
     24: [function (require, module, exports) {
       // browser shim for xmlhttprequest module
@@ -9148,21 +9148,25 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Region = require('./src/Region.js');
+      var Gesture = require('./src/Gesture.js');
 
       var Point2D = require('./src/Point2D.js');
 
-      var Gesture = require('./src/Gesture.js');
+      var Region = require('./src/Region.js');
+
+      var Smoothable = require('./src/Smoothable.js');
 
       module.exports = {
         Gesture: Gesture,
         Point2D: Point2D,
-        Region: Region
+        Region: Region,
+        Smoothable: Smoothable
       };
     }, {
       "./src/Gesture.js": 54,
       "./src/Point2D.js": 57,
-      "./src/Region.js": 59
+      "./src/Region.js": 59,
+      "./src/Smoothable.js": 60
     }],
     53: [function (require, module, exports) {
       /*
@@ -9232,11 +9236,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             var data = this.gesture[hook](state);
 
             if (data) {
-              data.phase = hook;
-              data.event = state.event;
-              data.type = this.gesture.type;
-              data.target = this.element;
-              this.handler(data);
+              this.handler(_objectSpread({
+                centroid: state.centroid,
+                event: state.event,
+                phase: hook,
+                radius: state.radius,
+                type: this.gesture.type,
+                target: this.element
+              }, data));
             }
           }
         }]);
@@ -9737,17 +9744,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             }, 0);
           }
           /**
-           * Calculates the midpoint of a list of points.
+           * Calculates the centroid of a list of points.
            *
            * @param {westures-core.Point2D[]} points - The array of Point2D objects for
-           *    which to calculate the midpoint
+           * which to calculate the centroid.
            *
-           * @return {westures-core.Point2D} The midpoint of the provided points.
+           * @return {westures-core.Point2D} The centroid of the provided points.
            */
 
         }], [{
-          key: "midpoint",
-          value: function midpoint() {
+          key: "centroid",
+          value: function centroid() {
             var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
             if (points.length === 0) return null;
             var total = Point2D.sum(points);
@@ -9989,7 +9996,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {State}
            */
 
-          this.state = new State(); // Begin operating immediately.
+          this.state = new State(this.element); // Begin operating immediately.
 
           this.activate();
         }
@@ -10046,7 +10053,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             ['blur'].concat(CANCEL_EVENTS).forEach(function (eventname) {
               window.addEventListener(eventname, function (e) {
                 e.preventDefault();
-                _this5.state = new State();
+                _this5.state = new State(_this5.element);
 
                 _this5.resetActiveBindings();
               });
@@ -10182,9 +10189,147 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }, {
       "./Binding.js": 53,
       "./PHASE.js": 56,
-      "./State.js": 60
+      "./State.js": 61
     }],
     60: [function (require, module, exports) {
+      /*
+       * Contains the abstract Pinch class.
+       */
+      'use strict';
+
+      var stagedEmit = Symbol('stagedEmit');
+      var smooth = Symbol('smooth');
+      /**
+       * A Smoothable gesture is one that emits on 'move' events. It provides a
+       * 'smoothing' option through its constructor, and will apply smoothing before
+       * emitting. There will be a tiny, ~1/60th of a second delay to emits, as well
+       * as a slight amount of drift over gestures sustained for a long period of
+       * time.
+       *
+       * For a gesture to make use of smoothing, it must return `this.emit(data,
+       * field)` from the `move` phase, instead of returning the data directly. If the
+       * data being smoothed is not a simple number, it must also override the
+       * `smoothingAverage(a, b)` method. Also you will probably want to call
+       * `super.restart()` at some point in the `start`, `end`, and `cancel` phases.
+       *
+       * @memberof westures-core
+       * @mixin
+       */
+
+      var Smoothable = function Smoothable(superclass) {
+        return (
+          /*#__PURE__*/
+          function (_superclass) {
+            _inherits(Smoothable, _superclass);
+
+            /**
+             * @param {string} name - The name of the gesture.
+             * @param {Object} [options]
+             * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+             * emitted data.
+             */
+            function Smoothable(name) {
+              var _this8;
+
+              var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+              _classCallCheck(this, Smoothable);
+
+              _this8 = _possibleConstructorReturn(this, _getPrototypeOf(Smoothable).call(this, name, options));
+              /**
+               * The function through which emits are passed.
+               *
+               * @private
+               * @type {function}
+               */
+
+              _this8.emit = null;
+
+              if (options.hasOwnProperty('smoothing') && !options.smoothing) {
+                _this8.emit = function (data) {
+                  return data;
+                };
+              } else {
+                _this8.emit = _this8[smooth].bind(_assertThisInitialized(_this8));
+              }
+              /**
+               * Stage the emitted data once.
+               *
+               * @private
+               * @type {object}
+               */
+
+
+              _this8[stagedEmit] = null;
+              return _this8;
+            }
+            /**
+             * Restart the Smoothable gesture.
+             *
+             * @private
+             * @memberof module:westures-core.Smoothable
+             */
+
+
+            _createClass(Smoothable, [{
+              key: "restart",
+              value: function restart() {
+                this[stagedEmit] = null;
+              }
+              /**
+               * Smooth out the outgoing data.
+               *
+               * @private
+               * @memberof module:westures-core.Smoothable
+               *
+               * @param {object} next - The next batch of data to emit.
+               * @param {string] field - The field to which smoothing should be applied.
+               *
+               * @return {?object}
+               */
+
+            }, {
+              key: smooth,
+              value: function value(next, field) {
+                var result = null;
+
+                if (this[stagedEmit]) {
+                  result = this[stagedEmit];
+                  var avg = this.smoothingAverage(result[field], next[field]);
+                  result[field] = avg;
+                  next[field] = avg;
+                }
+
+                this[stagedEmit] = next;
+                return result;
+              }
+              /**
+               * Average out two values, as part of the smoothing algorithm.
+               *
+               * @private
+               * @memberof module:westures-core.Smoothable
+               *
+               * @param {number} a
+               * @param {number} b
+               *
+               * @return {number} The average of 'a' and 'b'
+               */
+
+            }, {
+              key: "smoothingAverage",
+              value: function smoothingAverage(a, b) {
+                return (a + b) / 2;
+              }
+            }]);
+
+            return Smoothable;
+          }(superclass)
+        );
+      };
+
+      module.exports = Smoothable;
+    }, {}],
+    61: [function (require, module, exports) {
       /*
        * Contains the {@link State} class
        */
@@ -10208,10 +10353,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var update_fns = {
         TouchEvent: function TouchEvent(event) {
-          var _this8 = this;
+          var _this9 = this;
 
           Array.from(event.changedTouches).forEach(function (touch) {
-            _this8.updateInput(event, touch.identifier);
+            _this9.updateInput(event, touch.identifier);
           });
         },
         PointerEvent: function PointerEvent(event) {
@@ -10236,15 +10381,23 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         /**
          * Constructor for the State class.
          */
-        function State() {
+        function State(element) {
           _classCallCheck(this, State);
 
+          /**
+           * Keep a reference to the element for the associated region.
+           *
+           * @private
+           * @type {Element}
+           */
+          this.element = element;
           /**
            * Keeps track of the current Input objects.
            *
            * @private
            * @type {Map}
            */
+
           this[symbols.inputs] = new Map();
           /**
            * All currently valid inputs, including those that have ended.
@@ -10294,10 +10447,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(State, [{
           key: "clearEndedInputs",
           value: function clearEndedInputs() {
-            var _this9 = this;
+            var _this10 = this;
 
             this[symbols.inputs].forEach(function (v, k) {
-              if (v.phase === 'end') _this9[symbols.inputs].delete(k);
+              if (v.phase === 'end') _this10[symbols.inputs].delete(k);
             });
           }
           /**
@@ -10348,10 +10501,35 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "updateInput",
           value: function updateInput(event, identifier) {
-            if (PHASE[event.type] === 'start') {
-              this[symbols.inputs].set(identifier, new Input(event, identifier));
-            } else if (this[symbols.inputs].has(identifier)) {
-              this[symbols.inputs].get(identifier).update(event);
+            switch (PHASE[event.type]) {
+              case 'start':
+                this[symbols.inputs].set(identifier, new Input(event, identifier));
+
+                try {
+                  this.element.setPointerCapture(identifier);
+                } catch (e) {
+                  null;
+                }
+
+                break;
+
+              case 'end':
+                try {
+                  this.element.releasePointerCapture(identifier);
+                } catch (e) {
+                  null;
+                }
+
+              case 'move':
+              case 'cancel':
+                if (this[symbols.inputs].has(identifier)) {
+                  this[symbols.inputs].get(identifier).update(event);
+                }
+
+                break;
+
+              default:
+                console.warn("Unrecognized event type: ".concat(event.type));
             }
           }
           /**
@@ -10377,13 +10555,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "updateFields",
           value: function updateFields() {
+            var _this11 = this;
+
             var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
             this.inputs = Array.from(this[symbols.inputs].values());
             this.active = this.getInputsNotInPhase('end');
             this.activePoints = this.active.map(function (i) {
               return i.current.point;
             });
-            this.centroid = Point2D.midpoint(this.activePoints);
+            this.centroid = Point2D.centroid(this.activePoints);
+            this.radius = this.activePoints.reduce(function (acc, cur) {
+              var dist = cur.distanceTo(_this11.centroid);
+              return dist > acc ? dist : acc;
+            }, 0);
             if (event) this.event = event;
           }
         }]);
@@ -10397,7 +10581,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       "./PHASE.js": 56,
       "./Point2D.js": 57
     }],
-    61: [function (require, module, exports) {
+    62: [function (require, module, exports) {
       /**
        * The API interface for Westures. Defines a number of gestures on top of the
        * engine provided by {@link
@@ -10410,7 +10594,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       var _require = require('westures-core'),
           Gesture = _require.Gesture,
           Point2D = _require.Point2D,
-          Region = _require.Region;
+          Region = _require.Region,
+          Smoothable = _require.Smoothable;
 
       var Pan = require('./src/Pan.js');
 
@@ -10430,6 +10615,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         Gesture: Gesture,
         Point2D: Point2D,
         Region: Region,
+        Smoothable: Smoothable,
         Pan: Pan,
         Pinch: Pinch,
         Rotate: Rotate,
@@ -10480,48 +10666,62 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       /**
+       * Allows the enabling of smoothing on Gestures that use this mixin.
+       *
+       * @see {@link
+       * https://mvanderkamp.github.io/westures-core/westures-core.Smoothable.html|
+       * westures-core.Smoothable}
+       *
+       * @mixin Smoothable
+       * @memberof westures
+       */
+
+      /**
        * The base data that is included for all emitted gestures.
        *
        * @typedef {Object} BaseData
        *
+       * @property {westures-core.Point2D} centroid - The centroid of the input
+       * points.
        * @property {Event} event - The input event which caused the gesture to be
-       *    recognized.
+       * recognized.
        * @property {string} phase - 'start', 'move', or 'end'.
+       * @property {number} radius - The distance of the furthest input to the
+       * centroid.
        * @property {string} type - The name of the gesture as specified by its
-       *    designer.
+       * designer.
        * @property {Element} target - The bound target of the gesture.
        *
        * @memberof ReturnTypes
        */
     }, {
-      "./src/Pan.js": 62,
-      "./src/Pinch.js": 63,
-      "./src/Rotate.js": 64,
-      "./src/Swipe.js": 65,
-      "./src/Swivel.js": 66,
-      "./src/Tap.js": 67,
-      "./src/Track.js": 68,
+      "./src/Pan.js": 63,
+      "./src/Pinch.js": 64,
+      "./src/Rotate.js": 65,
+      "./src/Swipe.js": 66,
+      "./src/Swivel.js": 67,
+      "./src/Tap.js": 68,
+      "./src/Track.js": 69,
       "westures-core": 52
     }],
-    62: [function (require, module, exports) {
+    63: [function (require, module, exports) {
       /*
        * Contains the Pan class.
        */
       'use strict';
 
       var _require2 = require('westures-core'),
-          Gesture = _require2.Gesture;
-
-      var REQUIRED_INPUTS = 1;
+          Gesture = _require2.Gesture,
+          Point2D = _require2.Point2D,
+          Smoothable = _require2.Smoothable;
       /**
        * Data returned when a Pan is recognized.
        *
        * @typedef {Object} PanData
        * @mixes ReturnTypes.BaseData
        *
-       * @property {westures.Point2D} change - The change vector from the last emit.
-       * @property {westures.Point2D} point - The centroid of the currently active
-       *    points.
+       * @property {westures.Point2D} translation - The change vector from the last
+       * emit.
        *
        * @memberof ReturnTypes
        */
@@ -10530,14 +10730,16 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * A Pan is defined as a normal movement in any direction.
        *
        * @extends westures.Gesture
+       * @mixes westures.Smoothable
        * @see ReturnTypes.PanData
        * @memberof westures
        */
 
+
       var Pan =
       /*#__PURE__*/
-      function (_Gesture) {
-        _inherits(Pan, _Gesture);
+      function (_Smoothable) {
+        _inherits(Pan, _Smoothable);
 
         /**
          * @param {Object} [options]
@@ -10546,13 +10748,15 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *    'shiftKey', or 'metaKey'.
          */
         function Pan() {
-          var _this10;
+          var _this12;
 
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           _classCallCheck(this, Pan);
 
-          _this10 = _possibleConstructorReturn(this, _getPrototypeOf(Pan).call(this, 'pan'));
+          _this12 = _possibleConstructorReturn(this, _getPrototypeOf(Pan).call(this, 'pan', options));
+
+          var settings = _objectSpread({}, Pan.DEFAULTS, options);
           /**
            * Don't emit any data if this key is pressed.
            *
@@ -10560,7 +10764,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {string}
            */
 
-          _this10.muteKey = options.muteKey;
+
+          _this12.muteKey = settings.muteKey;
+          /**
+           * The minimum number of inputs that must be active for a Pinch to be
+           * recognized.
+           *
+           * @private
+           * @type {number}
+           */
+
+          _this12.minInputs = settings.minInputs;
           /**
            * The previous point location.
            *
@@ -10568,16 +10782,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:westures.Point2D}
            */
 
-          _this10.previous = null;
-          /**
-           * Stage the emitted data once.
-           *
-           * @private
-           * @type {ReturnTypes.RotateData}
-           */
-
-          _this10.stagedEmit = null;
-          return _this10;
+          _this12.previous = null;
+          return _this12;
         }
         /**
          * Resets the gesture's progress by saving the current centroid of the active
@@ -10591,11 +10797,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(Pan, [{
           key: "restart",
           value: function restart(state) {
-            if (state.active.length >= REQUIRED_INPUTS) {
+            if (state.active.length >= this.minInputs) {
               this.previous = state.centroid;
             }
 
-            this.stagedEmit = null;
+            _get(_getPrototypeOf(Pan.prototype), "restart", this).call(this);
           }
           /**
            * Event hook for the start of a Pan. Records the current centroid of
@@ -10621,7 +10827,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "move",
           value: function move(state) {
-            if (state.active.length < REQUIRED_INPUTS) {
+            if (state.active.length < this.minInputs) {
               return null;
             }
 
@@ -10630,13 +10836,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               return null;
             }
 
-            var point = state.centroid;
-            var change = point.minus(this.previous);
-            this.previous = point;
-            return {
-              change: change,
-              point: point
-            };
+            var translation = state.centroid.minus(this.previous);
+            this.previous = state.centroid;
+            return this.emit({
+              translation: translation
+            }, 'translation');
           }
           /**
            * Event hook for the end of a Pan. Records the current centroid of
@@ -10664,23 +10868,39 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           value: function cancel(state) {
             this.restart(state);
           }
+          /*
+           * Averages out two points.
+           *
+           * @override
+           */
+
+        }, {
+          key: "smoothingAverage",
+          value: function smoothingAverage(a, b) {
+            return new Point2D((a.x + b.x) / 2, (a.y + b.y) / 2);
+          }
         }]);
 
         return Pan;
-      }(Gesture);
+      }(Smoothable(Gesture));
 
+      Pan.DEFAULTS = Object.freeze({
+        minInputs: 1,
+        smoothing: false
+      });
       module.exports = Pan;
     }, {
       "westures-core": 52
     }],
-    63: [function (require, module, exports) {
+    64: [function (require, module, exports) {
       /*
        * Contains the abstract Pinch class.
        */
       'use strict';
 
       var _require3 = require('westures-core'),
-          Gesture = _require3.Gesture;
+          Gesture = _require3.Gesture,
+          Smoothable = _require3.Smoothable;
       /**
        * Data returned when a Pinch is recognized.
        *
@@ -10689,9 +10909,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        *
        * @property {number} distance - The average distance from an active input to
        *    the centroid.
-       * @property {number} change - The change in distance since last emit.
-       * @property {westures.Point2D} midpoint - The centroid of the currently active
-       *    points.
+       * @property {number} scale - The proportional change in distance since last
+       * emit.
        *
        * @memberof ReturnTypes
        */
@@ -10700,6 +10919,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * A Pinch is defined as two or more inputs moving either together or apart.
        *
        * @extends westures.Gesture
+       * @mixes westures.Smoothable
        * @see ReturnTypes.PinchData
        * @memberof westures
        */
@@ -10707,24 +10927,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var Pinch =
       /*#__PURE__*/
-      function (_Gesture2) {
-        _inherits(Pinch, _Gesture2);
+      function (_Smoothable2) {
+        _inherits(Pinch, _Smoothable2);
 
         /**
          * @param {Object} [options]
          * @param {number} [options.minInputs=2] The minimum number of inputs that
          * must be active for a Pinch to be recognized.
-         * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-         * emitted data.
          */
         function Pinch() {
-          var _this11;
+          var _this13;
 
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           _classCallCheck(this, Pinch);
 
-          _this11 = _possibleConstructorReturn(this, _getPrototypeOf(Pinch).call(this, 'pinch'));
+          _this13 = _possibleConstructorReturn(this, _getPrototypeOf(Pinch).call(this, 'pinch', options));
 
           var settings = _objectSpread({}, Pinch.DEFAULTS, options);
           /**
@@ -10736,23 +10954,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this11.minInputs = settings.minInputs;
-          /**
-           * The function through which emits are passed.
-           *
-           * @private
-           * @type {function}
-           */
-
-          _this11.emit = null;
-
-          if (settings.smoothing) {
-            _this11.emit = _this11.smooth.bind(_assertThisInitialized(_this11));
-          } else {
-            _this11.emit = function (data) {
-              return data;
-            };
-          }
+          _this13.minInputs = settings.minInputs;
           /**
            * The previous distance.
            *
@@ -10760,17 +10962,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-
-          _this11.previous = 0;
-          /**
-           * Stage the emitted data once.
-           *
-           * @private
-           * @type {ReturnTypes.RotateData}
-           */
-
-          _this11.stagedEmit = null;
-          return _this11;
+          _this13.previous = 0;
+          return _this13;
         }
         /**
          * Initializes the gesture progress and stores it in the first input for
@@ -10789,7 +10982,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               this.previous = distance;
             }
 
-            this.stagedEmit = null;
+            _get(_getPrototypeOf(Pinch.prototype), "restart", this).call(this);
           }
           /**
            * Event hook for the start of a Pinch.
@@ -10814,15 +11007,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           key: "move",
           value: function move(state) {
             if (state.active.length < this.minInputs) return null;
-            var midpoint = state.centroid;
-            var distance = midpoint.averageDistanceTo(state.activePoints);
-            var change = distance / this.previous;
+            var distance = state.centroid.averageDistanceTo(state.activePoints);
+            var scale = distance / this.previous;
             this.previous = distance;
             return this.emit({
               distance: distance,
-              midpoint: midpoint,
-              change: change
-            });
+              scale: scale
+            }, 'scale');
           }
           /**
            * Event hook for the end of a Pinch.
@@ -10848,34 +11039,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           value: function cancel(state) {
             this.restart(state);
           }
-          /**
-           * Smooth out the outgoing data.
-           *
-           * @private
-           * @param {ReturnTypes.PinchData} next
-           *
-           * @return {?ReturnTypes.PinchData}
-           */
-
-        }, {
-          key: "smooth",
-          value: function smooth(next) {
-            var result = null;
-
-            if (this.stagedEmit) {
-              result = this.stagedEmit;
-              var avg = (result.change + next.change) / 2;
-              result.change = avg;
-              next.change = avg;
-            }
-
-            this.stagedEmit = next;
-            return result;
-          }
         }]);
 
         return Pinch;
-      }(Gesture);
+      }(Smoothable(Gesture));
 
       Pinch.DEFAULTS = Object.freeze({
         minInputs: 2,
@@ -10885,55 +11052,34 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }, {
       "westures-core": 52
     }],
-    64: [function (require, module, exports) {
+    65: [function (require, module, exports) {
       /*
        * Contains the Rotate class.
        */
       'use strict';
 
       var _require4 = require('westures-core'),
-          Gesture = _require4.Gesture;
+          Gesture = _require4.Gesture,
+          Smoothable = _require4.Smoothable;
+
+      var angularMinus = require('./angularMinus.js');
       /**
        * Data returned when a Rotate is recognized.
        *
        * @typedef {Object} RotateData
        * @mixes ReturnTypes.BaseData
        *
-       * @property {number} delta - In radians, the change in angle since last emit.
-       * @property {westures.Point2D} pivot - The centroid of the currently active
-       *    points.
+       * @property {number} rotation - In radians, the change in angle since last
+       * emit.
        *
        * @memberof ReturnTypes
        */
 
-
-      var PI2 = 2 * Math.PI;
-      /**
-       * Helper function to regulate angular differences, so they don't jump from 0 to
-       * 2*PI or vice versa.
-       *
-       * @private
-       * @param {number} a - Angle in radians.
-       * @param {number} b - Angle in radians.
-       * @return {number} c, given by: c = a - b such that || < PI
-       */
-
-      function angularMinus(a) {
-        var b = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var diff = a - b;
-
-        if (diff < -Math.PI) {
-          diff += PI2;
-        } else if (diff > Math.PI) {
-          diff -= PI2;
-        }
-
-        return diff;
-      }
       /**
        * A Rotate is defined as two inputs moving with a changing angle between them.
        *
        * @extends westures.Gesture
+       * @mixes westures.Smoothable
        * @see ReturnTypes.RotateData
        * @memberof westures
        */
@@ -10941,8 +11087,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var Rotate =
       /*#__PURE__*/
-      function (_Gesture3) {
-        _inherits(Rotate, _Gesture3);
+      function (_Smoothable3) {
+        _inherits(Rotate, _Smoothable3);
 
         /**
          * @param {Object} [options]
@@ -10952,13 +11098,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * emitted data.
          */
         function Rotate() {
-          var _this12;
+          var _this14;
 
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           _classCallCheck(this, Rotate);
 
-          _this12 = _possibleConstructorReturn(this, _getPrototypeOf(Rotate).call(this, 'rotate'));
+          _this14 = _possibleConstructorReturn(this, _getPrototypeOf(Rotate).call(this, 'rotate', options));
 
           var settings = _objectSpread({}, Rotate.DEFAULTS, options);
           /**
@@ -10970,23 +11116,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this12.minInputs = settings.minInputs;
-          /**
-           * The function through which emits are passed.
-           *
-           * @private
-           * @type {function}
-           */
-
-          _this12.emit = null;
-
-          if (settings.smoothing) {
-            _this12.emit = _this12.smooth.bind(_assertThisInitialized(_this12));
-          } else {
-            _this12.emit = function (data) {
-              return data;
-            };
-          }
+          _this14.minInputs = settings.minInputs;
           /**
            * Track the previously emitted rotation angle.
            *
@@ -10994,17 +11124,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number[]}
            */
 
-
-          _this12.previousAngles = [];
-          /**
-           * Stage the emitted data once.
-           *
-           * @private
-           * @type {ReturnTypes.RotateData}
-           */
-
-          _this12.stagedEmit = null;
-          return _this12;
+          _this14.previousAngles = [];
+          return _this14;
         }
         /**
          * Store individual angle progress on each input, return average angle change.
@@ -11017,14 +11138,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(Rotate, [{
           key: "getAngle",
           value: function getAngle(state) {
-            var _this13 = this;
+            var _this15 = this;
 
             if (state.active.length < this.minInputs) return null;
             var angle = 0;
             var stagedAngles = [];
             state.active.forEach(function (input, idx) {
               var currentAngle = state.centroid.angleTo(input.current.point);
-              angle += angularMinus(currentAngle, _this13.previousAngles[idx]);
+              angle += angularMinus(currentAngle, _this15.previousAngles[idx]);
               stagedAngles[idx] = currentAngle;
             });
             angle /= state.active.length;
@@ -11042,8 +11163,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           key: "restart",
           value: function restart(state) {
             this.previousAngles = [];
-            this.stagedEmit = null;
             this.getAngle(state);
+
+            _get(_getPrototypeOf(Rotate.prototype), "restart", this).call(this);
           }
           /**
            * Event hook for the start of a gesture.
@@ -11067,13 +11189,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "move",
           value: function move(state) {
-            var delta = this.getAngle(state);
+            var rotation = this.getAngle(state);
 
-            if (delta) {
+            if (rotation) {
               return this.emit({
-                pivot: state.centroid,
-                delta: delta
-              });
+                rotation: rotation
+              }, 'rotation');
             }
 
             return null;
@@ -11102,34 +11223,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           value: function cancel(state) {
             this.restart(state);
           }
-          /**
-           * Smooth out the outgoing data.
-           *
-           * @private
-           * @param {ReturnTypes.RotateData} next
-           *
-           * @return {?ReturnTypes.RotateData}
-           */
-
-        }, {
-          key: "smooth",
-          value: function smooth(next) {
-            var result = null;
-
-            if (this.stagedEmit) {
-              result = this.stagedEmit;
-              var avg = (result.delta + next.delta) / 2;
-              result.delta = avg;
-              next.delta = avg;
-            }
-
-            this.stagedEmit = next;
-            return result;
-          }
         }]);
 
         return Rotate;
-      }(Gesture);
+      }(Smoothable(Gesture));
 
       Rotate.DEFAULTS = Object.freeze({
         minInputs: 2,
@@ -11137,9 +11234,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       });
       module.exports = Rotate;
     }, {
+      "./angularMinus.js": 70,
       "westures-core": 52
     }],
-    65: [function (require, module, exports) {
+    66: [function (require, module, exports) {
       /*
        * Contains the Swipe class.
        */
@@ -11257,18 +11355,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var Swipe =
       /*#__PURE__*/
-      function (_Gesture4) {
-        _inherits(Swipe, _Gesture4);
+      function (_Gesture) {
+        _inherits(Swipe, _Gesture);
 
         /**
          * Constructor function for the Swipe class.
          */
         function Swipe() {
-          var _this14;
+          var _this16;
 
           _classCallCheck(this, Swipe);
 
-          _this14 = _possibleConstructorReturn(this, _getPrototypeOf(Swipe).call(this, 'swipe'));
+          _this16 = _possibleConstructorReturn(this, _getPrototypeOf(Swipe).call(this, 'swipe'));
           /**
            * Moves list.
            *
@@ -11276,7 +11374,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {object[]}
            */
 
-          _this14.moves = [];
+          _this16.moves = [];
           /**
            * Data to emit when all points have ended.
            *
@@ -11284,8 +11382,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {ReturnTypes.SwipeData}
            */
 
-          _this14.saved = null;
-          return _this14;
+          _this16.saved = null;
+          return _this16;
         }
         /**
          * Refresh the swipe state.
@@ -11387,11 +11485,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 time = _this$moves$vlim.time;
             var velocity = calc_velocity(this.moves, vlim);
             var direction = calc_angle(this.moves, vlim);
+            var centroid = point;
             return {
               point: point,
               velocity: velocity,
               direction: direction,
-              time: time
+              time: time,
+              centroid: centroid
             };
           }
           /**
@@ -11416,7 +11516,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }, {
       "westures-core": 52
     }],
-    66: [function (require, module, exports) {
+    67: [function (require, module, exports) {
       /*
        * Contains the Rotate class.
        */
@@ -11424,21 +11524,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var _require6 = require('westures-core'),
           Gesture = _require6.Gesture,
-          Point2D = _require6.Point2D;
+          Point2D = _require6.Point2D,
+          Smoothable = _require6.Smoothable;
 
-      var REQUIRED_INPUTS = 1;
-      var defaults = Object.freeze({
-        deadzoneRadius: 15
-      });
+      var angularMinus = require('./angularMinus.js');
       /**
        * Data returned when a Swivel is recognized.
        *
        * @typedef {Object} SwivelData
        * @mixes ReturnTypes.BaseData
        *
-       * @property {number} delta - In radians, the change in angle since last emit.
+       * @property {number} rotation - In radians, the change in angle since last
+       * emit.
        * @property {westures.Point2D} pivot - The pivot point.
-       * @property {westures.Point2D} point - The current location of the input point.
        *
        * @memberof ReturnTypes
        */
@@ -11448,36 +11546,42 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * determined by the input's location at its 'start' phase.
        *
        * @extends westures.Gesture
+       * @mixes westures.Smoothable
        * @see ReturnTypes.SwivelData
        * @memberof westures
        */
 
+
       var Swivel =
       /*#__PURE__*/
-      function (_Gesture5) {
-        _inherits(Swivel, _Gesture5);
+      function (_Smoothable4) {
+        _inherits(Swivel, _Smoothable4);
 
         /**
          * Constructor for the Swivel class.
          *
          * @param {Object} [options]
          * @param {number} [options.deadzoneRadius=10] - The radius in pixels around
-         *    the start point in which to do nothing.
-         * @param {string} [options.enableKey=undefined] - One of 'altKey', 'ctrlKey',
-         *    'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
-         *    this key is down.
+         * the start point in which to do nothing.
+         * @param {string} [options.enableKey=null] - One of 'altKey', 'ctrlKey',
+         * 'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
+         * this key is down.
+         * @param {number} [options.minInputs=1] - The minimum number of inputs that
+         * must be active for a Swivel to be recognized.
          * @param {Element} [options.pivotCenter] - If set, the swivel's pivot point
-         *    will be set to the center of the given pivotCenter element. Otherwise,
-         *    the pivot will be the location of the first contact point.
+         * will be set to the center of the given pivotCenter element. Otherwise, the
+         * pivot will be the location of the first contact point.
          */
         function Swivel() {
-          var _this15;
+          var _this17;
 
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           _classCallCheck(this, Swivel);
 
-          _this15 = _possibleConstructorReturn(this, _getPrototypeOf(Swivel).call(this, 'swivel'));
+          _this17 = _possibleConstructorReturn(this, _getPrototypeOf(Swivel).call(this, 'swivel', options));
+
+          var settings = _objectSpread({}, Swivel.DEFAULTS, options);
           /**
            * The radius around the start point in which to do nothing.
            *
@@ -11485,7 +11589,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this15.deadzoneRadius = options.deadzoneRadius || defaults.deadzoneRadius;
+
+          _this17.deadzoneRadius = settings.deadzoneRadius;
           /**
            * If this is set, gesture will only respond to events where this property
            * is truthy. Should be one of 'ctrlKey', 'altKey', or 'shiftKey'.
@@ -11494,7 +11599,16 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {string}
            */
 
-          _this15.enableKey = options.enableKey;
+          _this17.enableKey = settings.enableKey;
+          /**
+           * The minimum number of inputs that must be active for a Swivel to be
+           * recognized.
+           *
+           * @private
+           * @type {number}
+           */
+
+          _this17.minInputs = settings.minInputs;
           /**
            * If this is set, the swivel will use the center of the element as its
            * pivot point. Unreliable if the element is moved during a swivel gesture.
@@ -11503,7 +11617,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {Element}
            */
 
-          _this15.pivotCenter = options.pivotCenter;
+          _this17.pivotCenter = settings.pivotCenter;
           /**
            * The pivot point of the swivel.
            *
@@ -11511,7 +11625,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:westures.Point2D}
            */
 
-          _this15.pivot = null;
+          _this17.pivot = null;
           /**
            * The previous angle.
            *
@@ -11519,7 +11633,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this15.previous = 0;
+          _this17.previous = 0;
           /**
            * Whether the swivel is active.
            *
@@ -11527,8 +11641,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {boolean}
            */
 
-          _this15.isActive = false;
-          return _this15;
+          _this17.isActive = false;
+          return _this17;
         }
         /**
          * Returns whether this gesture is currently enabled.
@@ -11564,6 +11678,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
               this.pivot = state.centroid;
               this.previous = 0;
             }
+
+            _get(_getPrototypeOf(Swivel.prototype), "restart", this).call(this);
           }
           /**
            * Refresh the gesture.
@@ -11576,7 +11692,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "refresh",
           value: function refresh(inputs, state) {
-            if (inputs.length === REQUIRED_INPUTS && this.enabled(state.event)) {
+            if (inputs.length >= this.minInputs && this.enabled(state.event)) {
               this.restart(state);
             }
           }
@@ -11604,10 +11720,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "calculateOutput",
           value: function calculateOutput(state) {
-            var point = state.centroid;
             var pivot = this.pivot;
-            var angle = pivot.angleTo(point);
-            var delta = angle - this.previous;
+            var angle = pivot.angleTo(state.centroid);
+            var rotation = angularMinus(angle, this.previous);
             /*
              * Updating the previous angle regardless of emit prevents sudden flips when
              * the user exits the deadzone circle.
@@ -11615,11 +11730,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             this.previous = angle;
 
-            if (pivot.distanceTo(point) > this.deadzoneRadius) {
+            if (pivot.distanceTo(state.centroid) > this.deadzoneRadius) {
               return {
-                delta: delta,
-                pivot: pivot,
-                point: point
+                rotation: rotation,
+                pivot: pivot
               };
             }
 
@@ -11636,22 +11750,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "move",
           value: function move(state) {
-            if (state.active.length !== REQUIRED_INPUTS) return null;
-            var output = null;
+            if (state.active.length < this.minInputs) return null;
 
             if (this.enabled(state.event)) {
               if (this.isActive) {
-                output = this.calculateOutput(state);
-              } else {
-                // The enableKey was just pressed again.
-                this.refresh(state.active, state);
-              }
+                var output = this.calculateOutput(state);
+                return output ? this.emit(output, 'rotation') : null;
+              } // The enableKey was just pressed again.
+
+
+              this.refresh(state.active, state);
             } else {
               // The enableKey was released, therefore pivot point is now invalid.
               this.isActive = false;
             }
 
-            return output;
+            return null;
           }
           /**
            * Event hook for the end of a Swivel.
@@ -11680,13 +11794,24 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }]);
 
         return Swivel;
-      }(Gesture);
+      }(Smoothable(Gesture));
+      /**
+       * The default options for a Swivel gesture.
+       */
 
+
+      Swivel.DEFAULTS = Object.freeze({
+        deadzoneRadius: 15,
+        enableKey: null,
+        minInputs: 1,
+        pivotCenter: false
+      });
       module.exports = Swivel;
     }, {
+      "./angularMinus.js": 70,
       "westures-core": 52
     }],
-    67: [function (require, module, exports) {
+    68: [function (require, module, exports) {
       /*
        * Contains the Tap class.
        */
@@ -11724,8 +11849,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var Tap =
       /*#__PURE__*/
-      function (_Gesture6) {
-        _inherits(Tap, _Gesture6);
+      function (_Gesture2) {
+        _inherits(Tap, _Gesture2);
 
         /**
          * Constructor function for the Tap class.
@@ -11740,13 +11865,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *    move.
          */
         function Tap() {
-          var _this16;
+          var _this18;
 
           var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           _classCallCheck(this, Tap);
 
-          _this16 = _possibleConstructorReturn(this, _getPrototypeOf(Tap).call(this, 'tap'));
+          _this18 = _possibleConstructorReturn(this, _getPrototypeOf(Tap).call(this, 'tap'));
           /**
            * The minimum amount between a touchstart and a touchend can be configured
            * in milliseconds. The minimum delay starts to count down when the expected
@@ -11757,7 +11882,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this16.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
+          _this18.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
           /**
            * The maximum delay between a touchstart and touchend can be configured in
            * milliseconds. The maximum delay starts to count down when the expected
@@ -11768,7 +11893,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this16.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
+          _this18.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
           /**
            * The number of inputs to trigger a Tap can be variable, and the maximum
            * number being a factor of the browser.
@@ -11777,7 +11902,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this16.numInputs = options.numInputs || defaults.NUM_INPUTS;
+          _this18.numInputs = options.numInputs || defaults.NUM_INPUTS;
           /**
            * A move tolerance in pixels allows some slop between a user's start to end
            * events. This allows the Tap gesture to be triggered more easily.
@@ -11786,7 +11911,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this16.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
+          _this18.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
           /**
            * An array of inputs that have ended recently.
            *
@@ -11794,8 +11919,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {Input[]}
            */
 
-          _this16.ended = [];
-          return _this16;
+          _this18.ended = [];
+          return _this18;
         }
         /**
          * Event hook for the end of a gesture.  Determines if this the tap event can
@@ -11810,25 +11935,27 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(Tap, [{
           key: "end",
           value: function end(state) {
-            var _this17 = this;
+            var _this19 = this;
 
             var now = Date.now();
             this.ended = this.ended.concat(state.getInputsInPhase('end')).filter(function (input) {
               var tdiff = now - input.startTime;
-              return tdiff <= _this17.maxDelay && tdiff >= _this17.minDelay;
+              return tdiff <= _this19.maxDelay && tdiff >= _this19.minDelay;
             });
 
             if (this.ended.length !== this.numInputs || this.ended.some(function (i) {
-              return i.totalDistance() > _this17.tolerance;
+              return i.totalDistance() > _this19.tolerance;
             })) {
               return null;
             }
 
-            var result = Point2D.midpoint(this.ended.map(function (i) {
+            var centroid = Point2D.centroid(this.ended.map(function (i) {
               return i.current.point;
             }));
             this.ended = [];
-            return result;
+            return _objectSpread({
+              centroid: centroid
+            }, centroid);
           }
         }]);
 
@@ -11839,7 +11966,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }, {
       "westures-core": 52
     }],
-    68: [function (require, module, exports) {
+    69: [function (require, module, exports) {
       /*
        * Contains the Track class.
        */
@@ -11872,8 +11999,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var Track =
       /*#__PURE__*/
-      function (_Gesture7) {
-        _inherits(Track, _Gesture7);
+      function (_Gesture3) {
+        _inherits(Track, _Gesture3);
 
         /**
          * Constructor for the Track class.
@@ -11882,18 +12009,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *    all of 'start', 'move', 'end', and 'cancel'.
          */
         function Track() {
-          var _this18;
+          var _this20;
 
           var phases = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
           _classCallCheck(this, Track);
 
-          _this18 = _possibleConstructorReturn(this, _getPrototypeOf(Track).call(this, 'track'));
-          _this18.trackStart = phases.includes('start');
-          _this18.trackMove = phases.includes('move');
-          _this18.trackEnd = phases.includes('end');
-          _this18.trackCancel = phases.includes('cancel');
-          return _this18;
+          _this20 = _possibleConstructorReturn(this, _getPrototypeOf(Track).call(this, 'track'));
+          _this20.trackStart = phases.includes('start');
+          _this20.trackMove = phases.includes('move');
+          _this20.trackEnd = phases.includes('end');
+          _this20.trackCancel = phases.includes('cancel');
+          return _this20;
         }
         /**
          * @private
@@ -11969,7 +12096,39 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }, {
       "westures-core": 52
     }],
-    69: [function (require, module, exports) {
+    70: [function (require, module, exports) {
+      /*
+       * Constains the angularMinus() function
+       */
+      'use strict';
+
+      var PI2 = 2 * Math.PI;
+      /**
+       * Helper function to regulate angular differences, so they don't jump from 0 to
+       * 2*PI or vice versa.
+       *
+       * @private
+       * @param {number} a - Angle in radians.
+       * @param {number} b - Angle in radians.
+       * @return {number} c, given by: c = a - b such that || < PI
+       */
+
+      function angularMinus(a) {
+        var b = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        var diff = a - b;
+
+        if (diff < -Math.PI) {
+          diff += PI2;
+        } else if (diff > Math.PI) {
+          diff -= PI2;
+        }
+
+        return diff;
+      }
+
+      module.exports = angularMinus;
+    }, {}],
+    71: [function (require, module, exports) {
       'use strict';
 
       var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split(''),
@@ -12042,7 +12201,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       yeast.decode = decode;
       module.exports = yeast;
     }, {}],
-    70: [function (require, module, exports) {
+    72: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -12084,11 +12243,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         passive: true
       });
     }, {
-      "./client/ClientController.js": 71,
-      "./client/ClientModel.js": 75,
-      "./client/ClientView.js": 76
+      "./client/ClientController.js": 73,
+      "./client/ClientModel.js": 77,
+      "./client/ClientView.js": 78
     }],
-    71: [function (require, module, exports) {
+    73: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -12202,7 +12361,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(ClientController, [{
           key: symbols.attachListeners,
           value: function value() {
-            var _this19 = this,
+            var _this21 = this,
                 _listeners;
 
             var listeners = (_listeners = {}, _defineProperty(_listeners, Message.ADD_ELEMENT, function () {
@@ -12210,69 +12369,69 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 args[_key4] = arguments[_key4];
               }
 
-              return _this19.handle.apply(_this19, ['addElement'].concat(args));
+              return _this21.handle.apply(_this21, ['addElement'].concat(args));
             }), _defineProperty(_listeners, Message.ADD_IMAGE, function () {
               for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
                 args[_key5] = arguments[_key5];
               }
 
-              return _this19.handle.apply(_this19, ['addImage'].concat(args));
+              return _this21.handle.apply(_this21, ['addImage'].concat(args));
             }), _defineProperty(_listeners, Message.ADD_ITEM, function () {
               for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
                 args[_key6] = arguments[_key6];
               }
 
-              return _this19.handle.apply(_this19, ['addItem'].concat(args));
+              return _this21.handle.apply(_this21, ['addItem'].concat(args));
             }), _defineProperty(_listeners, Message.ADD_SHADOW, function () {
               for (var _len7 = arguments.length, args = new Array(_len7), _key7 = 0; _key7 < _len7; _key7++) {
                 args[_key7] = arguments[_key7];
               }
 
-              return _this19.handle.apply(_this19, ['addShadow'].concat(args));
+              return _this21.handle.apply(_this21, ['addShadow'].concat(args));
             }), _defineProperty(_listeners, Message.RM_ITEM, function () {
               for (var _len8 = arguments.length, args = new Array(_len8), _key8 = 0; _key8 < _len8; _key8++) {
                 args[_key8] = arguments[_key8];
               }
 
-              return _this19.handle.apply(_this19, ['removeItem'].concat(args));
+              return _this21.handle.apply(_this21, ['removeItem'].concat(args));
             }), _defineProperty(_listeners, Message.RM_SHADOW, function () {
               for (var _len9 = arguments.length, args = new Array(_len9), _key9 = 0; _key9 < _len9; _key9++) {
                 args[_key9] = arguments[_key9];
               }
 
-              return _this19.handle.apply(_this19, ['removeShadow'].concat(args));
+              return _this21.handle.apply(_this21, ['removeShadow'].concat(args));
             }), _defineProperty(_listeners, Message.UD_ITEM, function () {
               for (var _len10 = arguments.length, args = new Array(_len10), _key10 = 0; _key10 < _len10; _key10++) {
                 args[_key10] = arguments[_key10];
               }
 
-              return _this19.handle.apply(_this19, ['updateItem'].concat(args));
+              return _this21.handle.apply(_this21, ['updateItem'].concat(args));
             }), _defineProperty(_listeners, Message.UD_SHADOW, function () {
               for (var _len11 = arguments.length, args = new Array(_len11), _key11 = 0; _key11 < _len11; _key11++) {
                 args[_key11] = arguments[_key11];
               }
 
-              return _this19.handle.apply(_this19, ['updateShadow'].concat(args));
+              return _this21.handle.apply(_this21, ['updateShadow'].concat(args));
             }), _defineProperty(_listeners, Message.UD_VIEW, function () {
               for (var _len12 = arguments.length, args = new Array(_len12), _key12 = 0; _key12 < _len12; _key12++) {
                 args[_key12] = arguments[_key12];
               }
 
-              return _this19.handle.apply(_this19, ['updateView'].concat(args));
+              return _this21.handle.apply(_this21, ['updateView'].concat(args));
             }), _defineProperty(_listeners, Message.RM_ATTRS, function (_ref6) {
               var data = _ref6.data;
-              return _this19.handle('removeAttributes', data);
+              return _this21.handle('removeAttributes', data);
             }), _defineProperty(_listeners, Message.SET_ATTRS, function (_ref7) {
               var data = _ref7.data;
-              return _this19.handle('setAttributes', data);
+              return _this21.handle('setAttributes', data);
             }), _defineProperty(_listeners, Message.SET_IMAGE, function (_ref8) {
               var data = _ref8.data;
-              return _this19.handle('setImage', data);
+              return _this21.handle('setImage', data);
             }), _defineProperty(_listeners, Message.SET_RENDER, function (_ref9) {
               var data = _ref9.data;
-              return _this19.handle('setRender', data);
+              return _this21.handle('setRender', data);
             }), _defineProperty(_listeners, Message.INITIALIZE, function () {
-              return _this19.setup.apply(_this19, arguments);
+              return _this21.setup.apply(_this21, arguments);
             }), _defineProperty(_listeners, Message.LAYOUT, NOP), _defineProperty(_listeners, Message.CLICK, NOP), _defineProperty(_listeners, Message.RESIZE, NOP), _defineProperty(_listeners, Message.SWIPE, NOP), _defineProperty(_listeners, Message.TRACK, NOP), _defineProperty(_listeners, Message.TRANSFORM, NOP), _defineProperty(_listeners, Message.POINTER, NOP), _defineProperty(_listeners, Message.BLUR, NOP), _defineProperty(_listeners, Message.FULL, function () {
               document.body.innerHTML = 'WAMS is full! :(';
             }), _listeners);
@@ -12281,7 +12440,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                   p = _ref11[0],
                   v = _ref11[1];
 
-              return _this19.socket.on(p, v);
+              return _this21.socket.on(p, v);
             }); // Keep the view size up to date.
 
             window.addEventListener('resize', this.resize.bind(this), false);
@@ -12484,7 +12643,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setupInteractor",
           value: function setupInteractor() {
-            var _this20 = this;
+            var _this22 = this;
 
             var useServerGestures = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
@@ -12494,7 +12653,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                 window.addEventListener(eventname, function (event) {
                   event.preventDefault();
                   var breport = new DataReporter();
-                  new Message(Message.BLUR, breport).emitWith(_this20.socket);
+                  new Message(Message.BLUR, breport).emitWith(_this22.socket);
                 });
               });
             } else {
@@ -12526,7 +12685,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "forwardPointerEvents",
           value: function forwardPointerEvents() {
-            var _this21 = this;
+            var _this23 = this;
 
             ['pointerdown', 'pointermove', 'pointerup'].forEach(function (eventname) {
               window.addEventListener(eventname, function (event) {
@@ -12537,7 +12696,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                   clientX: event.clientX,
                   clientY: event.clientY
                 }];
-                new Message(Message.POINTER, treport).emitWith(_this21.socket);
+                new Message(Message.POINTER, treport).emitWith(_this23.socket);
               }, {
                 capture: true,
                 once: false,
@@ -12552,7 +12711,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "forwardMouseAndTouchEvents",
           value: function forwardMouseAndTouchEvents() {
-            var _this22 = this;
+            var _this24 = this;
 
             ['mousedown', 'mousemove', 'mouseup'].forEach(function (eventname) {
               window.addEventListener(eventname, function (event) {
@@ -12565,7 +12724,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                     clientX: event.clientX,
                     clientY: event.clientY
                   }];
-                  new Message(Message.POINTER, treport).emitWith(_this22.socket);
+                  new Message(Message.POINTER, treport).emitWith(_this24.socket);
                 }
               }, {
                 capture: true,
@@ -12584,7 +12743,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                     clientY: touch.clientY
                   };
                 });
-                new Message(Message.POINTER, treport).emitWith(_this22.socket);
+                new Message(Message.POINTER, treport).emitWith(_this24.socket);
               }, {
                 capture: true,
                 once: false,
@@ -12599,11 +12758,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ClientController;
     }, {
-      "../shared.js": 80,
-      "./Interactor.js": 77,
+      "../shared.js": 82,
+      "./Interactor.js": 79,
       "socket.io-client": 39
     }],
-    72: [function (require, module, exports) {
+    74: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -12642,29 +12801,29 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * accepted.
          */
         function ClientElement(data) {
-          var _this23;
+          var _this25;
 
           _classCallCheck(this, ClientElement);
 
-          _this23 = _possibleConstructorReturn(this, _getPrototypeOf(ClientElement).call(this, data));
+          _this25 = _possibleConstructorReturn(this, _getPrototypeOf(ClientElement).call(this, data));
           /**
            * The DOM element.
            *
            * @type {Element}
            */
 
-          _this23.element = document.createElement(data.tagname);
+          _this25.element = document.createElement(data.tagname);
 
-          _this23.element.classList.add('wams-element');
+          _this25.element.classList.add('wams-element');
 
-          _this23.element.width = _this23.width;
-          _this23.element.height = _this23.height;
-          _this23.element.style.width = "".concat(_this23.width, "px");
-          _this23.element.style.height = "".concat(_this23.height, "px");
-          document.body.appendChild(_this23.element);
+          _this25.element.width = _this25.width;
+          _this25.element.height = _this25.height;
+          _this25.element.style.width = "".concat(_this25.width, "px");
+          _this25.element.style.height = "".concat(_this25.height, "px");
+          document.body.appendChild(_this25.element);
 
           if (data.hasOwnProperty('attributes')) {
-            _this23.setAttributes(data.attributes);
+            _this25.setAttributes(data.attributes);
           }
           /**
            * Id to make the items uniquely identifiable.
@@ -12677,8 +12836,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          STAMPER.cloneId(_assertThisInitialized(_this23), data.id);
-          return _this23;
+          STAMPER.cloneId(_assertThisInitialized(_this25), data.id);
+          return _this25;
         }
         /**
          * Render the element. Really just updates the rotation and transformation
@@ -12704,7 +12863,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setAttributes",
           value: function setAttributes(attributes) {
-            var _this24 = this;
+            var _this26 = this;
 
             this.attributes = attributes;
             Object.entries(attributes).forEach(function (_ref12) {
@@ -12712,7 +12871,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
                   k = _ref13[0],
                   v = _ref13[1];
 
-              _this24.element[k] = v;
+              _this26.element[k] = v;
             });
           }
           /**
@@ -12724,11 +12883,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "removeAttributes",
           value: function removeAttributes(attributes) {
-            var _this25 = this;
+            var _this27 = this;
 
             attributes.forEach(function (attr) {
-              delete _this25.attributes[attr];
-              _this25.element[attr] = null;
+              delete _this27.attributes[attr];
+              _this27.element[attr] = null;
             });
           }
         }]);
@@ -12738,9 +12897,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ClientElement;
     }, {
-      "../shared.js": 80
+      "../shared.js": 82
     }],
-    73: [function (require, module, exports) {
+    75: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -12808,19 +12967,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *       ReporterFactory when the Item class was defined will be accepted.
          */
         function ClientImage(data) {
-          var _this26;
+          var _this28;
 
           _classCallCheck(this, ClientImage);
 
-          _this26 = _possibleConstructorReturn(this, _getPrototypeOf(ClientImage).call(this, data));
+          _this28 = _possibleConstructorReturn(this, _getPrototypeOf(ClientImage).call(this, data));
           /**
            * The image to render.
            *
            * @type {Image}
            */
 
-          _this26.image = {};
-          if (data.src) _this26.setImage(data.src);
+          _this28.image = {};
+          if (data.src) _this28.setImage(data.src);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -12831,8 +12990,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientImage
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this26), data.id);
-          return _this26;
+          STAMPER.cloneId(_assertThisInitialized(_this28), data.id);
+          return _this28;
         }
         /**
          * Render the item onto the given context.  Prioritizes sequences over
@@ -12879,9 +13038,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ClientImage;
     }, {
-      "../shared.js": 80
+      "../shared.js": 82
     }],
-    74: [function (require, module, exports) {
+    76: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -12925,19 +13084,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *       ReporterFactory when the Item class was defined will be accepted.
          */
         function ClientItem(data) {
-          var _this27;
+          var _this29;
 
           _classCallCheck(this, ClientItem);
 
-          _this27 = _possibleConstructorReturn(this, _getPrototypeOf(ClientItem).call(this, data));
+          _this29 = _possibleConstructorReturn(this, _getPrototypeOf(ClientItem).call(this, data));
           /**
            * The actual render.
            *
            * @type {CanvasSequence}
            */
 
-          _this27.render = null;
-          if (data.sequence) _this27.setRender(data.sequence);
+          _this29.render = null;
+          if (data.sequence) _this29.setRender(data.sequence);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -12948,8 +13107,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientItem
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this27), data.id);
-          return _this27;
+          STAMPER.cloneId(_assertThisInitialized(_this29), data.id);
+          return _this29;
         }
         /**
          * Render the item onto the given context.  Prioritizes sequences over
@@ -12990,10 +13149,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ClientItem;
     }, {
-      "../shared.js": 80,
+      "../shared.js": 82,
       "canvas-sequencer": 9
     }],
-    75: [function (require, module, exports) {
+    77: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -13166,21 +13325,21 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "setup",
           value: function setup(data) {
-            var _this28 = this;
+            var _this30 = this;
 
             REQUIRED_DATA.forEach(function (d) {
               if (!data.hasOwnProperty(d)) throw "setup requires: ".concat(d);
             });
             data.views.forEach(function (v) {
-              return v.id !== _this28.view.id && _this28.addShadow(v);
+              return v.id !== _this30.view.id && _this30.addShadow(v);
             });
             data.items.reverse().forEach(function (o) {
               if (o.hasOwnProperty('src')) {
-                _this28.addImage(o);
+                _this30.addImage(o);
               } else if (o.hasOwnProperty('tagname')) {
-                _this28.addElement(o);
+                _this30.addElement(o);
               } else {
-                _this28.addItem(o);
+                _this30.addItem(o);
               }
             });
           }
@@ -13296,13 +13455,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ClientModel;
     }, {
-      "../shared.js": 80,
-      "./ClientElement.js": 72,
-      "./ClientImage.js": 73,
-      "./ClientItem.js": 74,
-      "./ShadowView.js": 78
+      "../shared.js": 82,
+      "./ClientElement.js": 74,
+      "./ClientImage.js": 75,
+      "./ClientItem.js": 76,
+      "./ShadowView.js": 80
     }],
-    76: [function (require, module, exports) {
+    78: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -13347,11 +13506,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * render the model.
          */
         function ClientView(context) {
-          var _this29;
+          var _this31;
 
           _classCallCheck(this, ClientView);
 
-          _this29 = _possibleConstructorReturn(this, _getPrototypeOf(ClientView).call(this, ClientView.DEFAULTS));
+          _this31 = _possibleConstructorReturn(this, _getPrototypeOf(ClientView).call(this, ClientView.DEFAULTS));
           /**
            * The CanvasRenderingContext2D is required for drawing (rendering) to take
            * place.
@@ -13359,7 +13518,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {CanvasRenderingContext2D}
            */
 
-          _this29.context = context;
+          _this31.context = context;
           /**
            * The model holds the information about items and shadows that need
            * rendering.
@@ -13367,7 +13526,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:client.ClientModel}
            */
 
-          _this29.model = null;
+          _this31.model = null;
           /**
            * Id to make the views uniquely identifiable. Will be assigned when setup
            * message is received from server.
@@ -13379,8 +13538,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientView
            */
 
-          _this29.id = null;
-          return _this29;
+          _this31.id = null;
+          return _this31;
         }
         /**
          * Positions the rendering context precisely, taking into account all
@@ -13406,10 +13565,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawItems,
           value: function value() {
-            var _this30 = this;
+            var _this32 = this;
 
             this.model.itemOrder.forEach(function (o) {
-              return o.draw(_this30.context, _this30);
+              return o.draw(_this32.context, _this32);
             });
           }
           /**
@@ -13419,10 +13578,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawShadows,
           value: function value() {
-            var _this31 = this;
+            var _this33 = this;
 
             this.model.shadows.forEach(function (v) {
-              return v.draw(_this31.context);
+              return v.draw(_this33.context);
             });
           }
           /**
@@ -13433,10 +13592,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: symbols.drawStatus,
           value: function value() {
-            var _this32 = this;
+            var _this34 = this;
 
             var messages = STATUS_KEYS.map(function (k) {
-              return "".concat(k, ": ").concat(_this32[k].toFixed(2));
+              return "".concat(k, ": ").concat(_this34[k].toFixed(2));
             }).concat(["# of Shadows: ".concat(this.model.shadows.size)]);
             var ty = 40;
             var tx = 20;
@@ -13444,7 +13603,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             this.context.setTransform(1, 0, 0, 1, 0, 0);
             this.context.font = '18px Georgia';
             messages.forEach(function (m) {
-              _this32.context.fillText(m, tx, ty);
+              _this34.context.fillText(m, tx, ty);
 
               ty += 20;
             });
@@ -13507,9 +13666,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       });
       module.exports = ClientView;
     }, {
-      "../shared.js": 80
+      "../shared.js": 82
     }],
-    77: [function (require, module, exports) {
+    79: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -13519,10 +13678,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * Original author: Jesse Rolheiser
        * Other revisions and supervision: Scott Bateman
        */
-      'use strict';
+      'use strict'; // const Westures = require('../../../westures');
 
-      var Westures = require('../../../westures'); // const Westures = require('westures');
-
+      var Westures = require('westures');
 
       var _require16 = require('../shared.js'),
           NOP = _require16.NOP;
@@ -13692,11 +13850,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       });
       module.exports = Interactor;
     }, {
-      "../../../westures": 98,
-      "../shared.js": 80,
-      "./Transform.js": 79
+      "../shared.js": 82,
+      "./Transform.js": 81,
+      "westures": 62
     }],
-    78: [function (require, module, exports) {
+    80: [function (require, module, exports) {
       /*
        * WAMS code to be executed in the client browser.
        *
@@ -13744,13 +13902,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * view.
          */
         function ShadowView(values) {
-          var _this33;
+          var _this35;
 
           _classCallCheck(this, ShadowView);
 
-          _this33 = _possibleConstructorReturn(this, _getPrototypeOf(ShadowView).call(this, values));
-          STAMPER.cloneId(_assertThisInitialized(_this33), values.id);
-          return _this33;
+          _this35 = _possibleConstructorReturn(this, _getPrototypeOf(ShadowView).call(this, values));
+          STAMPER.cloneId(_assertThisInitialized(_this35), values.id);
+          return _this35;
         }
         /**
          * Render an outline of this view.
@@ -13836,9 +13994,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ShadowView;
     }, {
-      "../shared.js": 80
+      "../shared.js": 82
     }],
-    79: [function (require, module, exports) {
+    81: [function (require, module, exports) {
       /*
        * WAMS - An API for Multi-Surface Environments
        *
@@ -13863,35 +14021,35 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _inherits(Transform, _Westures$Gesture);
 
         function Transform() {
-          var _this34;
+          var _this36;
 
           _classCallCheck(this, Transform);
 
-          _this34 = _possibleConstructorReturn(this, _getPrototypeOf(Transform).call(this, 'transform'));
+          _this36 = _possibleConstructorReturn(this, _getPrototypeOf(Transform).call(this, 'transform'));
           /**
            * The Pinch gesture.
            *
            * @type {Pinch}
            */
 
-          _this34.pinch = new Westures.Pinch();
+          _this36.pinch = new Westures.Pinch();
           /**
            * The Rotate gesture.
            *
            * @type {Rotate}
            */
 
-          _this34.rotate = new Westures.Rotate();
+          _this36.rotate = new Westures.Rotate();
           /**
            * The Pan gesture.
            *
            * @type {Pan}
            */
 
-          _this34.pan = new Westures.Pan({
+          _this36.pan = new Westures.Pan({
             muteKey: 'ctrlKey'
           });
-          return _this34;
+          return _this36;
         }
         /**
          * Hook for the 'start' phase.
@@ -13926,17 +14084,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             var emit = false;
 
             if (pinch_data) {
-              result.delta.scale = pinch_data.change;
+              result.delta.scale = pinch_data.scale;
               emit = true;
             }
 
             if (rotate_data) {
-              result.delta.rotation = rotate_data.delta;
+              result.delta.rotation = rotate_data.rotation;
               emit = true;
             }
 
             if (pan_data) {
-              result.delta.translation = pan_data.change;
+              result.delta.translation = pan_data.translation;
               emit = true;
             }
 
@@ -13975,9 +14133,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = Transform;
     }, {
-      "westures": 61
+      "westures": 62
     }],
-    80: [function (require, module, exports) {
+    82: [function (require, module, exports) {
       /*
        * Utilities for the WAMS application.
        *
@@ -14047,14 +14205,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         Polygon2D: Polygon2D
       }, Reporters, Utils));
     }, {
-      "./shared/IdStamper.js": 81,
-      "./shared/Message.js": 82,
-      "./shared/Point2D.js": 83,
-      "./shared/Polygon2D.js": 84,
-      "./shared/Reporters.js": 86,
-      "./shared/utilities.js": 87
+      "./shared/IdStamper.js": 83,
+      "./shared/Message.js": 84,
+      "./shared/Point2D.js": 85,
+      "./shared/Polygon2D.js": 86,
+      "./shared/Reporters.js": 88,
+      "./shared/utilities.js": 89
     }],
-    81: [function (require, module, exports) {
+    83: [function (require, module, exports) {
       /*
        * IdStamper utility for the WAMS application.
        *
@@ -14192,9 +14350,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = IdStamper;
     }, {
-      "./utilities.js": 87
+      "./utilities.js": 89
     }],
-    82: [function (require, module, exports) {
+    84: [function (require, module, exports) {
       /*
        * Shared Message class for the WAMS application.
        *
@@ -14365,9 +14523,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       });
       module.exports = Message;
     }, {
-      "./utilities.js": 87
+      "./utilities.js": 89
     }],
-    83: [function (require, module, exports) {
+    85: [function (require, module, exports) {
       /*
        * WAMS - An API for Multi-Surface Environments
        *
@@ -14589,10 +14747,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }, {
           key: "totalDistanceTo",
           value: function totalDistanceTo(points) {
-            var _this35 = this;
+            var _this37 = this;
 
             return points.reduce(function (d, p) {
-              return d + _this35.distanceTo(p);
+              return d + _this37.distanceTo(p);
             }, 0);
           }
           /**
@@ -14636,7 +14794,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = Point2D;
     }, {}],
-    84: [function (require, module, exports) {
+    86: [function (require, module, exports) {
       /*
        * WAMS - An API for Multi-Surface Environments
        *
@@ -14661,7 +14819,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * polygon, given in order (clockwise and counter-clockwise are both fine).
          */
         function Polygon2D(points) {
-          var _this36 = this;
+          var _this38 = this;
 
           _classCallCheck(this, Polygon2D);
 
@@ -14696,7 +14854,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
           this.radius = this.points.reduce(function (max, point) {
-            var curr = _this36.centroid.distanceTo(point);
+            var curr = _this38.centroid.distanceTo(point);
 
             return max > curr ? max : curr;
           }); // Close the polygon.
@@ -14809,9 +14967,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = Polygon2D;
     }, {
-      "./Point2D.js": 83
+      "./Point2D.js": 85
     }],
-    85: [function (require, module, exports) {
+    87: [function (require, module, exports) {
       /*
        * Builds Reporter classes for the WAMS application.
        *
@@ -14872,11 +15030,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           _createClass(Reporter, [{
             key: "assign",
             value: function assign() {
-              var _this37 = this;
+              var _this39 = this;
 
               var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
               KEYS.forEach(function (p) {
-                if (p in data) _this37[p] = data[p];
+                if (p in data) _this39[p] = data[p];
               });
             }
             /**
@@ -14889,11 +15047,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }, {
             key: "report",
             value: function report() {
-              var _this38 = this;
+              var _this40 = this;
 
               var data = {};
               KEYS.forEach(function (p) {
-                data[p] = _this38[p];
+                data[p] = _this40[p];
               });
               STAMPER.cloneId(data, this.id);
               return data;
@@ -14908,9 +15066,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = ReporterFactory;
     }, {
-      "./IdStamper.js": 81
+      "./IdStamper.js": 83
     }],
-    86: [function (require, module, exports) {
+    88: [function (require, module, exports) {
       /*
        * Reporters for the WAMS application.
        *
@@ -15433,9 +15591,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         WamsImage: WamsImage
       };
     }, {
-      "./ReporterFactory.js": 85
+      "./ReporterFactory.js": 87
     }],
-    87: [function (require, module, exports) {
+    89: [function (require, module, exports) {
       /*
        * Defines a set of general utilities for use across the project.
        *
@@ -15505,2482 +15663,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         NOP: NOP,
         removeById: removeById
       });
-    }, {}],
-    88: [function (require, module, exports) {
-      /**
-       * The global API interface for Westures. Exposes a constructor for the
-       * {@link Region} and the generic {@link Gesture} class for user gestures to
-       * implement, as well as the {@link Point2D} class, which may be useful.
-       *
-       * @namespace westures-core
-       */
-      'use strict';
-
-      var Gesture = require('./src/Gesture.js');
-
-      var Point2D = require('./src/Point2D.js');
-
-      var Region = require('./src/Region.js');
-
-      var Smoothable = require('./src/Smoothable.js');
-
-      module.exports = {
-        Gesture: Gesture,
-        Point2D: Point2D,
-        Region: Region,
-        Smoothable: Smoothable
-      };
-    }, {
-      "./src/Gesture.js": 90,
-      "./src/Point2D.js": 93,
-      "./src/Region.js": 95,
-      "./src/Smoothable.js": 96
-    }],
-    89: [function (require, module, exports) {
-      /*
-       * Contains the Binding class.
-       */
-      'use strict';
-      /**
-       * A Binding associates a gesture with an element and a handler function that
-       * will be called when the gesture is recognized.
-       *
-       * @private
-       */
-
-      var Binding =
-      /*#__PURE__*/
-      function () {
-        /**
-         * Constructor function for the Binding class.
-         *
-         * @param {Element} element - The element to which to associate the gesture.
-         * @param {westures-core.Gesture} gesture - A instance of the Gesture type.
-         * @param {Function} handler - The function handler to execute when a gesture
-         *    is recognized on the associated element.
-         */
-        function Binding(element, gesture, handler) {
-          _classCallCheck(this, Binding);
-
-          /**
-           * The element to which to associate the gesture.
-           *
-           * @private
-           * @type {Element}
-           */
-          this.element = element;
-          /**
-           * The gesture to associate with the given element.
-           *
-           * @private
-           * @type {Gesture}
-           */
-
-          this.gesture = gesture;
-          /**
-           * The function handler to execute when the gesture is recognized on the
-           * associated element.
-           *
-           * @private
-           * @type {Function}
-           */
-
-          this.handler = handler;
-        }
-        /**
-         * Evalutes the given gesture hook, and dispatches any data that is produced.
-         *
-         * @private
-         *
-         * @param {string} hook - which gesture hook to call, must be one of 'start',
-         *    'move', or 'end'.
-         * @param {State} state - The current State instance.
-         */
-
-
-        _createClass(Binding, [{
-          key: "evaluateHook",
-          value: function evaluateHook(hook, state) {
-            var data = this.gesture[hook](state);
-
-            if (data) {
-              this.handler(_objectSpread({
-                centroid: state.centroid,
-                event: state.event,
-                phase: hook,
-                radius: state.radius,
-                type: this.gesture.type,
-                target: this.element
-              }, data));
-            }
-          }
-        }]);
-
-        return Binding;
-      }();
-
-      module.exports = Binding;
-    }, {}],
-    90: [function (require, module, exports) {
-      arguments[4][54][0].apply(exports, arguments);
-    }, {
-      "dup": 54
-    }],
-    91: [function (require, module, exports) {
-      arguments[4][55][0].apply(exports, arguments);
-    }, {
-      "./PointerData.js": 94,
-      "dup": 55
-    }],
-    92: [function (require, module, exports) {
-      arguments[4][56][0].apply(exports, arguments);
-    }, {
-      "dup": 56
-    }],
-    93: [function (require, module, exports) {
-      /*
-       * Contains the {@link Point2D} class.
-       */
-      'use strict';
-      /**
-       * The Point2D class stores and operates on 2-dimensional points, represented as
-       * x and y coordinates.
-       *
-       * @memberof westures-core
-       */
-
-      var Point2D =
-      /*#__PURE__*/
-      function () {
-        /**
-         * Constructor function for the Point2D class.
-         *
-         * @param {number} [ x=0 ] - The x coordinate of the point.
-         * @param {number} [ y=0 ] - The y coordinate of the point.
-         */
-        function Point2D() {
-          var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-          var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-          _classCallCheck(this, Point2D);
-
-          /**
-           * The x coordinate of the point.
-           *
-           * @type {number}
-           */
-          this.x = x;
-          /**
-           * The y coordinate of the point.
-           *
-           * @type {number}
-           */
-
-          this.y = y;
-        }
-        /**
-         * Calculates the angle between this point and the given point.
-         *
-         * @param {!westures-core.Point2D} point - Projected point for calculating the
-         * angle.
-         *
-         * @return {number} Radians along the unit circle where the projected
-         * point lies.
-         */
-
-
-        _createClass(Point2D, [{
-          key: "angleTo",
-          value: function angleTo(point) {
-            return Math.atan2(point.y - this.y, point.x - this.x);
-          }
-          /**
-           * Determine the average distance from this point to the provided array of
-           * points.
-           *
-           * @param {!westures-core.Point2D[]} points - the Point2D objects to calculate
-           *    the average distance to.
-           *
-           * @return {number} The average distance from this point to the provided
-           *    points.
-           */
-
-        }, {
-          key: "averageDistanceTo",
-          value: function averageDistanceTo(points) {
-            return this.totalDistanceTo(points) / points.length;
-          }
-          /**
-           * Clone this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, identical to this point.
-           */
-
-        }, {
-          key: "clone",
-          value: function clone() {
-            return new Point2D(this.x, this.y);
-          }
-          /**
-           * Calculates the distance between two points.
-           *
-           * @param {!westures-core.Point2D} point - Point to which the distance is
-           * calculated.
-           *
-           * @return {number} The distance between the two points, a.k.a. the
-           *    hypoteneuse.
-           */
-
-        }, {
-          key: "distanceTo",
-          value: function distanceTo(point) {
-            return Math.hypot(point.x - this.x, point.y - this.y);
-          }
-          /**
-           * Subtract the given point from this point.
-           *
-           * @param {!westures-core.Point2D} point - Point to subtract from this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, which is the result of (this
-           * - point).
-           */
-
-        }, {
-          key: "minus",
-          value: function minus(point) {
-            return new Point2D(this.x - point.x, this.y - point.y);
-          }
-          /**
-           * Return the summation of this point to the given point.
-           *
-           * @param {!westures-core.Point2D} point - Point to add to this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, which is the addition of the
-           * two points.
-           */
-
-        }, {
-          key: "plus",
-          value: function plus(point) {
-            return new Point2D(this.x + point.x, this.y + point.y);
-          }
-          /**
-           * Calculates the total distance from this point to an array of points.
-           *
-           * @param {!westures-core.Point2D[]} points - The array of Point2D objects to
-           *    calculate the total distance to.
-           *
-           * @return {number} The total distance from this point to the provided points.
-           */
-
-        }, {
-          key: "totalDistanceTo",
-          value: function totalDistanceTo(points) {
-            var _this39 = this;
-
-            return points.reduce(function (d, p) {
-              return d + _this39.distanceTo(p);
-            }, 0);
-          }
-          /**
-           * Calculates the centroid of a list of points.
-           *
-           * @param {westures-core.Point2D[]} points - The array of Point2D objects for
-           * which to calculate the centroid.
-           *
-           * @return {westures-core.Point2D} The centroid of the provided points.
-           */
-
-        }], [{
-          key: "centroid",
-          value: function centroid() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            if (points.length === 0) return null;
-            var total = Point2D.sum(points);
-            return new Point2D(total.x / points.length, total.y / points.length);
-          }
-          /**
-           * Calculates the sum of the given points.
-           *
-           * @param {westures-core.Point2D[]} points - The Point2D objects to sum up.
-           *
-           * @return {westures-core.Point2D} A new Point2D representing the sum of the
-           * given points.
-           */
-
-        }, {
-          key: "sum",
-          value: function sum() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            return points.reduce(function (total, pt) {
-              return total.plus(pt);
-            }, new Point2D(0, 0));
-          }
-        }]);
-
-        return Point2D;
-      }();
-
-      module.exports = Point2D;
-    }, {}],
-    94: [function (require, module, exports) {
-      arguments[4][58][0].apply(exports, arguments);
-    }, {
-      "./PHASE.js": 92,
-      "./Point2D.js": 93,
-      "dup": 58
-    }],
-    95: [function (require, module, exports) {
-      /*
-       * Contains the {@link Region} class
-       */
-      'use strict';
-
-      var Binding = require('./Binding.js');
-
-      var State = require('./State.js');
-
-      var PHASE = require('./PHASE.js');
-
-      var POINTER_EVENTS = ['pointerdown', 'pointermove', 'pointerup'];
-      var MOUSE_EVENTS = ['mousedown', 'mousemove', 'mouseup'];
-      var TOUCH_EVENTS = ['touchstart', 'touchmove', 'touchend'];
-      var CANCEL_EVENTS = ['pointercancel', 'touchcancel'];
-      /**
-       * Allows the user to specify the control region which will listen for user
-       * input events.
-       *
-       * @memberof westures-core
-       */
-
-      var Region =
-      /*#__PURE__*/
-      function () {
-        /**
-         * Constructor function for the Region class.
-         *
-         * @param {Element} element - The element which should listen to input events.
-         * @param {boolean} capture - Whether the region uses the capture phase of
-         *    input events. If false, uses the bubbling phase.
-         * @param {boolean} preventDefault - Whether the default browser functionality
-         *    should be disabled. This option should most likely be ignored. Here
-         *    there by dragons if set to false.
-         */
-        function Region(element) {
-          var capture = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-          var preventDefault = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-          _classCallCheck(this, Region);
-
-          /**
-           * The list of relations between elements, their gestures, and the handlers.
-           *
-           * @private
-           * @type {Binding[]}
-           */
-          this.bindings = [];
-          /**
-           * The list of active bindings for the current input session.
-           *
-           * @private
-           * @type {Binding[]}
-           */
-
-          this.activeBindings = [];
-          /**
-           * Whether an input session is currently active.
-           *
-           * @private
-           * @type {boolean}
-           */
-
-          this.isWaiting = true;
-          /**
-           * The element being bound to.
-           *
-           * @private
-           * @type {Element}
-           */
-
-          this.element = element;
-          /**
-           * Whether the region listens for captures or bubbles.
-           *
-           * @private
-           * @type {boolean}
-           */
-
-          this.capture = capture;
-          /**
-           * Whether the default browser functionality should be disabled. This option
-           * should most likely be ignored. Here there by dragons if set to false.
-           *
-           * @private
-           * @type {boolean}
-           */
-
-          this.preventDefault = preventDefault;
-          /**
-           * The internal state object for a Region.  Keeps track of inputs.
-           *
-           * @private
-           * @type {State}
-           */
-
-          this.state = new State(this.element); // Begin operating immediately.
-
-          this.activate();
-        }
-        /**
-         * Activates the region by adding event listeners for all appropriate input
-         * events to the region's element.
-         *
-         * @private
-         */
-
-
-        _createClass(Region, [{
-          key: "activate",
-          value: function activate() {
-            var _this40 = this;
-
-            /*
-             * Having to listen to both mouse and touch events is annoying, but
-             * necessary due to conflicting standards and browser implementations.
-             * Pointer is a fallback for now instead of the primary, until I figure out
-             * all the details to do with pointer-events and touch-action and their
-             * cross browser compatibility.
-             *
-             * Listening to both mouse and touch comes with the difficulty that
-             * preventDefault() must be called to prevent both events from iterating
-             * through the system. However I have left it as an option to the end user,
-             * which defaults to calling preventDefault(), in case there's a use-case I
-             * haven't considered or am not aware of.
-             *
-             * It is also a good idea to keep regions small in large pages.
-             *
-             * See:
-             *  https://www.html5rocks.com/en/mobile/touchandmouse/
-             *  https://developer.mozilla.org/en-US/docs/Web/API/Touch_events
-             *  https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
-             */
-            var eventNames = [];
-
-            if (window.TouchEvent || window.MouseEvent) {
-              eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
-            } else {
-              eventNames = POINTER_EVENTS;
-            } // Bind detected browser events to the region element.
-
-
-            var arbiter = this.arbitrate.bind(this);
-            eventNames.forEach(function (eventName) {
-              _this40.element.addEventListener(eventName, arbiter, {
-                capture: _this40.capture,
-                once: false,
-                passive: false
-              });
-            });
-            ['blur'].concat(CANCEL_EVENTS).forEach(function (eventname) {
-              window.addEventListener(eventname, function (e) {
-                e.preventDefault();
-                _this40.state = new State(_this40.element);
-
-                _this40.resetActiveBindings();
-              });
-            });
-          }
-          /**
-           * Resets the active bindings.
-           *
-           * @private
-           */
-
-        }, {
-          key: "resetActiveBindings",
-          value: function resetActiveBindings() {
-            this.activeBindings = [];
-            this.isWaiting = true;
-          }
-          /**
-           * Selects the bindings that are active for the current input sequence.
-           *
-           * @private
-           */
-
-        }, {
-          key: "updateActiveBindings",
-          value: function updateActiveBindings() {
-            if (this.isWaiting && this.state.inputs.length > 0) {
-              var input = this.state.inputs[0];
-              this.activeBindings = this.bindings.filter(function (b) {
-                return input.wasInitiallyInside(b.element);
-              });
-              this.isWaiting = false;
-            }
-          }
-          /**
-           * Evaluates whether the current input session has completed.
-           *
-           * @private
-           */
-
-        }, {
-          key: "pruneActiveBindings",
-          value: function pruneActiveBindings() {
-            if (this.state.hasNoActiveInputs()) {
-              this.resetActiveBindings();
-            }
-          }
-          /**
-           * All input events flow through this function. It makes sure that the input
-           * state is maintained, determines which bindings to analyze based on the
-           * initial position of the inputs, calls the relevant gesture hooks, and
-           * dispatches gesture data.
-           *
-           * @private
-           * @param {Event} event - The event emitted from the window object.
-           */
-
-        }, {
-          key: "arbitrate",
-          value: function arbitrate(event) {
-            var _this41 = this;
-
-            this.state.updateAllInputs(event);
-            this.updateActiveBindings();
-
-            if (this.activeBindings.length > 0) {
-              if (this.preventDefault) event.preventDefault();
-              this.activeBindings.forEach(function (binding) {
-                binding.evaluateHook(PHASE[event.type], _this41.state);
-              });
-            }
-
-            this.state.clearEndedInputs();
-            this.pruneActiveBindings();
-          }
-          /**
-           * Bind an element to a gesture with an associated handler.
-           *
-           * @param {Element} element - The element object.
-           * @param {westures-core.Gesture} gesture - Gesture type with which to bind.
-           * @param {Function} handler - The function to execute when a gesture is
-           *    recognized.
-           */
-
-        }, {
-          key: "addGesture",
-          value: function addGesture(element, gesture, handler) {
-            this.bindings.push(new Binding(element, gesture, handler));
-          }
-          /**
-           * Retrieves Bindings by their associated element.
-           *
-           * @private
-           *
-           * @param {Element} element - The element for which to find bindings.
-           *
-           * @return {Binding[]} Bindings to which the element is bound.
-           */
-
-        }, {
-          key: "getBindingsByElement",
-          value: function getBindingsByElement(element) {
-            return this.bindings.filter(function (b) {
-              return b.element === element;
-            });
-          }
-          /**
-           * Unbinds an element from either the specified gesture or all if no gesture
-           * is specified.
-           *
-           * @param {Element} element - The element to unbind.
-           * @param {westures-core.Gesture} [ gesture ] - The gesture to unbind. If
-           * undefined, will unbind all Bindings associated with the given element.
-           */
-
-        }, {
-          key: "removeGestures",
-          value: function removeGestures(element, gesture) {
-            var _this42 = this;
-
-            this.getBindingsByElement(element).forEach(function (b) {
-              if (gesture == null || b.gesture === gesture) {
-                _this42.bindings.splice(_this42.bindings.indexOf(b), 1);
-              }
-            });
-          }
-        }]);
-
-        return Region;
-      }();
-
-      module.exports = Region;
-    }, {
-      "./Binding.js": 89,
-      "./PHASE.js": 92,
-      "./State.js": 97
-    }],
-    96: [function (require, module, exports) {
-      /*
-       * Contains the abstract Pinch class.
-       */
-      'use strict';
-
-      var stagedEmit = Symbol('stagedEmit');
-      var smooth = Symbol('smooth');
-      /**
-       * A Smoothable gesture is one that emits on 'move' events. It provides a
-       * 'smoothing' option through its constructor, and will apply smoothing before
-       * emitting. There will be a tiny, ~1/60th of a second delay to emits, as well
-       * as a slight amount of drift over gestures sustained for a long period of
-       * time.
-       *
-       * For a gesture to make use of smoothing, it must return `this.emit(data,
-       * field)` from the `move` phase, instead of returning the data directly. If the
-       * data being smoothed is not a simple number, it must also override the
-       * `smoothingAverage(a, b)` method. Also you will probably want to call
-       * `super.restart()` at some point in the `start`, `end`, and `cancel` phases.
-       *
-       * @memberof westures-core
-       * @mixin
-       */
-
-      var Smoothable = function Smoothable(superclass) {
-        return (
-          /*#__PURE__*/
-          function (_superclass) {
-            _inherits(Smoothable, _superclass);
-
-            /**
-             * @param {string} name - The name of the gesture.
-             * @param {Object} [options]
-             * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-             * emitted data.
-             */
-            function Smoothable(name) {
-              var _this43;
-
-              var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-              _classCallCheck(this, Smoothable);
-
-              _this43 = _possibleConstructorReturn(this, _getPrototypeOf(Smoothable).call(this, name, options));
-              /**
-               * The function through which emits are passed.
-               *
-               * @private
-               * @type {function}
-               */
-
-              _this43.emit = null;
-
-              if (options.hasOwnProperty('smoothing') && !options.smoothing) {
-                _this43.emit = function (data) {
-                  return data;
-                };
-              } else {
-                _this43.emit = _this43[smooth].bind(_assertThisInitialized(_this43));
-              }
-              /**
-               * Stage the emitted data once.
-               *
-               * @private
-               * @type {object}
-               */
-
-
-              _this43[stagedEmit] = null;
-              return _this43;
-            }
-            /**
-             * Restart the Smoothable gesture.
-             *
-             * @private
-             * @memberof module:westures-core.Smoothable
-             */
-
-
-            _createClass(Smoothable, [{
-              key: "restart",
-              value: function restart() {
-                this[stagedEmit] = null;
-              }
-              /**
-               * Smooth out the outgoing data.
-               *
-               * @private
-               * @memberof module:westures-core.Smoothable
-               *
-               * @param {object} next - The next batch of data to emit.
-               * @param {string] field - The field to which smoothing should be applied.
-               *
-               * @return {?object}
-               */
-
-            }, {
-              key: smooth,
-              value: function value(next, field) {
-                var result = null;
-
-                if (this[stagedEmit]) {
-                  result = this[stagedEmit];
-                  var avg = this.smoothingAverage(result[field], next[field]);
-                  result[field] = avg;
-                  next[field] = avg;
-                }
-
-                this[stagedEmit] = next;
-                return result;
-              }
-              /**
-               * Average out two values, as part of the smoothing algorithm.
-               *
-               * @private
-               * @memberof module:westures-core.Smoothable
-               *
-               * @param {number} a
-               * @param {number} b
-               *
-               * @return {number} The average of 'a' and 'b'
-               */
-
-            }, {
-              key: "smoothingAverage",
-              value: function smoothingAverage(a, b) {
-                return (a + b) / 2;
-              }
-            }]);
-
-            return Smoothable;
-          }(superclass)
-        );
-      };
-
-      module.exports = Smoothable;
-    }, {}],
-    97: [function (require, module, exports) {
-      /*
-       * Contains the {@link State} class
-       */
-      'use strict';
-
-      var Input = require('./Input.js');
-
-      var PHASE = require('./PHASE.js');
-
-      var Point2D = require('./Point2D.js');
-
-      var symbols = Object.freeze({
-        inputs: Symbol.for('inputs')
-      });
-      /*
-       * Set of helper functions for updating inputs based on type of input.
-       * Must be called with a bound 'this', via bind(), or call(), or apply().
-       *
-       * @private
-       */
-
-      var update_fns = {
-        TouchEvent: function TouchEvent(event) {
-          var _this44 = this;
-
-          Array.from(event.changedTouches).forEach(function (touch) {
-            _this44.updateInput(event, touch.identifier);
-          });
-        },
-        PointerEvent: function PointerEvent(event) {
-          this.updateInput(event, event.pointerId);
-        },
-        MouseEvent: function MouseEvent(event) {
-          if (event.button === 0) {
-            this.updateInput(event, event.button);
-          }
-        }
-      };
-      /**
-       * Keeps track of currently active and ending input points on the interactive
-       * surface.
-       *
-       * @hideconstructor
-       */
-
-      var State =
-      /*#__PURE__*/
-      function () {
-        /**
-         * Constructor for the State class.
-         */
-        function State(element) {
-          _classCallCheck(this, State);
-
-          /**
-           * Keep a reference to the element for the associated region.
-           *
-           * @private
-           * @type {Element}
-           */
-          this.element = element;
-          /**
-           * Keeps track of the current Input objects.
-           *
-           * @private
-           * @type {Map}
-           */
-
-          this[symbols.inputs] = new Map();
-          /**
-           * All currently valid inputs, including those that have ended.
-           *
-           * @type {Input[]}
-           */
-
-          this.inputs = [];
-          /**
-           * The array of currently active inputs, sourced from the current Input
-           * objects. "Active" is defined as not being in the 'end' phase.
-           *
-           * @type {Input[]}
-           */
-
-          this.active = [];
-          /**
-           * The array of latest point data for the currently active inputs, sourced
-           * from this.active.
-           *
-           * @type {westures-core.Point2D[]}
-           */
-
-          this.activePoints = [];
-          /**
-           * The centroid of the currently active points.
-           *
-           * @type {westures-core.Point2D}
-           */
-
-          this.centroid = {};
-          /**
-           * The latest event that the state processed.
-           *
-           * @type {Event}
-           */
-
-          this.event = null;
-        }
-        /**
-         * Deletes all inputs that are in the 'end' phase.
-         *
-         * @private
-         */
-
-
-        _createClass(State, [{
-          key: "clearEndedInputs",
-          value: function clearEndedInputs() {
-            var _this45 = this;
-
-            this[symbols.inputs].forEach(function (v, k) {
-              if (v.phase === 'end') _this45[symbols.inputs].delete(k);
-            });
-          }
-          /**
-           * @param {string} phase - One of 'start', 'move', or 'end'.
-           *
-           * @return {Input[]} Inputs in the given phase.
-           */
-
-        }, {
-          key: "getInputsInPhase",
-          value: function getInputsInPhase(phase) {
-            return this.inputs.filter(function (i) {
-              return i.phase === phase;
-            });
-          }
-          /**
-           * @param {string} phase - One of 'start', 'move', or 'end'.
-           *
-           * @return {Input[]} Inputs <b>not</b> in the given phase.
-           */
-
-        }, {
-          key: "getInputsNotInPhase",
-          value: function getInputsNotInPhase(phase) {
-            return this.inputs.filter(function (i) {
-              return i.phase !== phase;
-            });
-          }
-          /**
-           * @private
-           * @return {boolean} True if there are no active inputs. False otherwise.
-           */
-
-        }, {
-          key: "hasNoActiveInputs",
-          value: function hasNoActiveInputs() {
-            return this[symbols.inputs].size === 0;
-          }
-          /**
-           * Update the input with the given identifier using the given event.
-           *
-           * @private
-           *
-           * @param {Event} event - The event being captured.
-           * @param {number} identifier - The identifier of the input to update.
-           */
-
-        }, {
-          key: "updateInput",
-          value: function updateInput(event, identifier) {
-            switch (PHASE[event.type]) {
-              case 'start':
-                this[symbols.inputs].set(identifier, new Input(event, identifier));
-
-                try {
-                  this.element.setPointerCapture(identifier);
-                } catch (e) {
-                  null;
-                }
-
-                break;
-
-              case 'end':
-                try {
-                  this.element.releasePointerCapture(identifier);
-                } catch (e) {
-                  null;
-                }
-
-              case 'move':
-              case 'cancel':
-                if (this[symbols.inputs].has(identifier)) {
-                  this[symbols.inputs].get(identifier).update(event);
-                }
-
-                break;
-
-              default:
-                console.warn("Unrecognized event type: ".concat(event.type));
-            }
-          }
-          /**
-           * Updates the inputs with new information based upon a new event being fired.
-           *
-           * @private
-           * @param {Event} event - The event being captured.
-           */
-
-        }, {
-          key: "updateAllInputs",
-          value: function updateAllInputs(event) {
-            update_fns[event.constructor.name].call(this, event);
-            this.updateFields(event);
-          }
-          /**
-           * Updates the convenience fields.
-           *
-           * @private
-           * @param {Event} event - Event with which to update the convenience fields.
-           */
-
-        }, {
-          key: "updateFields",
-          value: function updateFields() {
-            var _this46 = this;
-
-            var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-            this.inputs = Array.from(this[symbols.inputs].values());
-            this.active = this.getInputsNotInPhase('end');
-            this.activePoints = this.active.map(function (i) {
-              return i.current.point;
-            });
-            this.centroid = Point2D.centroid(this.activePoints);
-            this.radius = this.activePoints.reduce(function (acc, cur) {
-              var dist = cur.distanceTo(_this46.centroid);
-              return dist > acc ? dist : acc;
-            }, 0);
-            if (event) this.event = event;
-          }
-        }]);
-
-        return State;
-      }();
-
-      module.exports = State;
-    }, {
-      "./Input.js": 91,
-      "./PHASE.js": 92,
-      "./Point2D.js": 93
-    }],
-    98: [function (require, module, exports) {
-      /**
-       * The API interface for Westures. Defines a number of gestures on top of the
-       * engine provided by {@link
-       * https://mvanderkamp.github.io/westures-core/index.html|westures-core}.
-       *
-       * @namespace westures 
-       */
-      'use strict'; // const { Gesture, Point2D, Region } = require('westures-core');
-
-      var _require20 = require('../westures-core'),
-          Gesture = _require20.Gesture,
-          Point2D = _require20.Point2D,
-          Region = _require20.Region,
-          Smoothable = _require20.Smoothable;
-
-      var Pan = require('./src/Pan.js');
-
-      var Pinch = require('./src/Pinch.js');
-
-      var Rotate = require('./src/Rotate.js');
-
-      var Swipe = require('./src/Swipe.js');
-
-      var Swivel = require('./src/Swivel.js');
-
-      var Tap = require('./src/Tap.js');
-
-      var Track = require('./src/Track.js');
-
-      module.exports = {
-        Gesture: Gesture,
-        Point2D: Point2D,
-        Region: Region,
-        Smoothable: Smoothable,
-        Pan: Pan,
-        Pinch: Pinch,
-        Rotate: Rotate,
-        Swipe: Swipe,
-        Swivel: Swivel,
-        Tap: Tap,
-        Track: Track
-      };
-      /**
-       * Here are the return "types" of the gestures that are included in this
-       * package.
-       *
-       * @namespace ReturnTypes
-       */
-
-      /**
-       * The base Gesture class which all other classes extend.
-       *
-       * @see {@link
-       * https://mvanderkamp.github.io/westures-core/westures-core.Gesture.html|
-       * westures-core.Gesture}
-       *
-       * @class Gesture
-       * @memberof westures
-       */
-
-      /**
-       * The Region class, which is the entry point for the Westures system, through
-       * which you bind handlers with gestures and elements.
-       *
-       * @see {@link
-       * https://mvanderkamp.github.io/westures-core/westures-core.Region.html|
-       * westures-core.Region}
-       *
-       * @class Region
-       * @memberof westures
-       */
-
-      /**
-       * Provides some basic operations on two-dimensional points.
-       *
-       * @see {@link
-       * https://mvanderkamp.github.io/westures-core/westures-core.Point2D.html|
-       * westures-core.Point2D}
-       *
-       * @class Point2D
-       * @memberof westures
-       */
-
-      /**
-       * Allows the enabling of smoothing on Gestures that use this mixin.
-       *
-       * @see {@link
-       * https://mvanderkamp.github.io/westures-core/westures-core.Smoothable.html|
-       * westures-core.Smoothable}
-       *
-       * @mixin Smoothable
-       * @memberof westures
-       */
-
-      /**
-       * The base data that is included for all emitted gestures.
-       *
-       * @typedef {Object} BaseData
-       *
-       * @property {westures-core.Point2D} centroid - The centroid of the input
-       * points.
-       * @property {Event} event - The input event which caused the gesture to be
-       * recognized.
-       * @property {string} phase - 'start', 'move', or 'end'.
-       * @property {number} radius - The distance of the furthest input to the
-       * centroid.
-       * @property {string} type - The name of the gesture as specified by its
-       * designer.
-       * @property {Element} target - The bound target of the gesture.
-       *
-       * @memberof ReturnTypes
-       */
-    }, {
-      "../westures-core": 88,
-      "./src/Pan.js": 108,
-      "./src/Pinch.js": 109,
-      "./src/Rotate.js": 110,
-      "./src/Swipe.js": 111,
-      "./src/Swivel.js": 112,
-      "./src/Tap.js": 113,
-      "./src/Track.js": 114
-    }],
-    99: [function (require, module, exports) {
-      arguments[4][52][0].apply(exports, arguments);
-    }, {
-      "./src/Gesture.js": 101,
-      "./src/Point2D.js": 104,
-      "./src/Region.js": 106,
-      "dup": 52
-    }],
-    100: [function (require, module, exports) {
-      arguments[4][53][0].apply(exports, arguments);
-    }, {
-      "dup": 53
-    }],
-    101: [function (require, module, exports) {
-      arguments[4][54][0].apply(exports, arguments);
-    }, {
-      "dup": 54
-    }],
-    102: [function (require, module, exports) {
-      arguments[4][55][0].apply(exports, arguments);
-    }, {
-      "./PointerData.js": 105,
-      "dup": 55
-    }],
-    103: [function (require, module, exports) {
-      arguments[4][56][0].apply(exports, arguments);
-    }, {
-      "dup": 56
-    }],
-    104: [function (require, module, exports) {
-      arguments[4][57][0].apply(exports, arguments);
-    }, {
-      "dup": 57
-    }],
-    105: [function (require, module, exports) {
-      arguments[4][58][0].apply(exports, arguments);
-    }, {
-      "./PHASE.js": 103,
-      "./Point2D.js": 104,
-      "dup": 58
-    }],
-    106: [function (require, module, exports) {
-      arguments[4][59][0].apply(exports, arguments);
-    }, {
-      "./Binding.js": 100,
-      "./PHASE.js": 103,
-      "./State.js": 107,
-      "dup": 59
-    }],
-    107: [function (require, module, exports) {
-      arguments[4][60][0].apply(exports, arguments);
-    }, {
-      "./Input.js": 102,
-      "./PHASE.js": 103,
-      "./Point2D.js": 104,
-      "dup": 60
-    }],
-    108: [function (require, module, exports) {
-      /*
-       * Contains the Pan class.
-       */
-      'use strict';
-
-      var _require21 = require('../../westures-core'),
-          Gesture = _require21.Gesture,
-          Point2D = _require21.Point2D,
-          Smoothable = _require21.Smoothable;
-      /**
-       * Data returned when a Pan is recognized.
-       *
-       * @typedef {Object} PanData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {westures.Point2D} change - The change vector from the last emit.
-       * @property {westures.Point2D} point - The centroid of the currently active
-       *    points.
-       *
-       * @memberof ReturnTypes
-       */
-
-      /**
-       * A Pan is defined as a normal movement in any direction.
-       *
-       * @extends westures.Gesture
-       * @mixes westures.Smoothable
-       * @see ReturnTypes.PanData
-       * @memberof westures
-       */
-
-
-      var Pan =
-      /*#__PURE__*/
-      function (_Smoothable) {
-        _inherits(Pan, _Smoothable);
-
-        /**
-         * @param {Object} [options]
-         * @param {string} [options.muteKey=undefined] - If this key is pressed, this
-         *    gesture will be muted (i.e. not recognized). One of 'altKey', 'ctrlKey',
-         *    'shiftKey', or 'metaKey'.
-         */
-        function Pan() {
-          var _this47;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Pan);
-
-          _this47 = _possibleConstructorReturn(this, _getPrototypeOf(Pan).call(this, 'pan', options));
-
-          var settings = _objectSpread({}, Pan.DEFAULTS, options);
-          /**
-           * Don't emit any data if this key is pressed.
-           *
-           * @private
-           * @type {string}
-           */
-
-
-          _this47.muteKey = settings.muteKey;
-          /**
-           * The minimum number of inputs that must be active for a Pinch to be
-           * recognized.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this47.minInputs = settings.minInputs;
-          /**
-           * The previous point location.
-           *
-           * @private
-           * @type {module:westures.Point2D}
-           */
-
-          _this47.previous = null;
-          return _this47;
-        }
-        /**
-         * Resets the gesture's progress by saving the current centroid of the active
-         * inputs. To be called whenever the number of inputs changes.
-         *
-         * @private
-         * @param {State} state - The state object received by a hook.
-         */
-
-
-        _createClass(Pan, [{
-          key: "restart",
-          value: function restart(state) {
-            if (state.active.length >= this.minInputs) {
-              this.previous = state.centroid;
-            }
-
-            _get(_getPrototypeOf(Pan.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a Pan. Records the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Pan.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
-           * otherwise not recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) {
-              return null;
-            }
-
-            if (this.muteKey && state.event[this.muteKey]) {
-              this.restart(state);
-              return null;
-            }
-
-            var translation = state.centroid.minus(this.previous);
-            this.previous = state.centroid;
-            return this.emit({
-              translation: translation
-            }, 'translation');
-          }
-          /**
-           * Event hook for the end of a Pan. Records the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the cancel of a Pan. Resets the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-          /*
-           * Averages out two points.
-           *
-           * @override
-           */
-
-        }, {
-          key: "smoothingAverage",
-          value: function smoothingAverage(a, b) {
-            return new Point2D((a.x + b.x) / 2, (a.y + b.y) / 2);
-          }
-        }]);
-
-        return Pan;
-      }(Smoothable(Gesture));
-
-      Pan.DEFAULTS = Object.freeze({
-        minInputs: 1,
-        smoothing: false
-      });
-      module.exports = Pan;
-    }, {
-      "../../westures-core": 88
-    }],
-    109: [function (require, module, exports) {
-      /*
-       * Contains the abstract Pinch class.
-       */
-      'use strict';
-
-      var _require22 = require('../../westures-core'),
-          Gesture = _require22.Gesture,
-          Smoothable = _require22.Smoothable;
-      /**
-       * Data returned when a Pinch is recognized.
-       *
-       * @typedef {Object} PinchData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {number} distance - The average distance from an active input to
-       *    the centroid.
-       * @property {number} change - The change in distance since last emit.
-       * @property {westures.Point2D} midpoint - The centroid of the currently active
-       *    points.
-       *
-       * @memberof ReturnTypes
-       */
-
-      /**
-       * A Pinch is defined as two or more inputs moving either together or apart.
-       *
-       * @extends westures.Gesture
-       * @mixes westures.Smoothable
-       * @see ReturnTypes.PinchData
-       * @memberof westures
-       */
-
-
-      var Pinch =
-      /*#__PURE__*/
-      function (_Smoothable2) {
-        _inherits(Pinch, _Smoothable2);
-
-        /**
-         * @param {Object} [options]
-         * @param {number} [options.minInputs=2] The minimum number of inputs that
-         * must be active for a Pinch to be recognized.
-         */
-        function Pinch() {
-          var _this48;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Pinch);
-
-          _this48 = _possibleConstructorReturn(this, _getPrototypeOf(Pinch).call(this, 'pinch', options));
-
-          var settings = _objectSpread({}, Pinch.DEFAULTS, options);
-          /**
-           * The minimum number of inputs that must be active for a Pinch to be
-           * recognized.
-           *
-           * @private
-           * @type {number}
-           */
-
-
-          _this48.minInputs = settings.minInputs;
-          /**
-           * The previous distance.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this48.previous = 0;
-          return _this48;
-        }
-        /**
-         * Initializes the gesture progress and stores it in the first input for
-         * reference events.
-         *
-         * @private
-         * @param {State} state - current input state.
-         */
-
-
-        _createClass(Pinch, [{
-          key: "restart",
-          value: function restart(state) {
-            if (state.active.length >= this.minInputs) {
-              var distance = state.centroid.averageDistanceTo(state.activePoints);
-              this.previous = distance;
-            }
-
-            _get(_getPrototypeOf(Pinch.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a Pinch.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Pinch.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.PinchData} <tt>null</tt> if not recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) return null;
-            var distance = state.centroid.averageDistanceTo(state.activePoints);
-            var scale = distance / this.previous;
-            this.previous = distance;
-            return this.emit({
-              distance: distance,
-              scale: scale
-            }, 'scale');
-          }
-          /**
-           * Event hook for the end of a Pinch.
-           *
-           * @private
-           * @param {State} input status object
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the cancel of a Pinch.
-           *
-           * @private
-           * @param {State} input status object
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-        }]);
-
-        return Pinch;
-      }(Smoothable(Gesture));
-
-      Pinch.DEFAULTS = Object.freeze({
-        minInputs: 2,
-        smoothing: true
-      });
-      module.exports = Pinch;
-    }, {
-      "../../westures-core": 88
-    }],
-    110: [function (require, module, exports) {
-      /*
-       * Contains the Rotate class.
-       */
-      'use strict';
-
-      var _require23 = require('../../westures-core'),
-          Gesture = _require23.Gesture,
-          Smoothable = _require23.Smoothable;
-
-      var angularMinus = require('./angularMinus.js');
-      /**
-       * A Rotate is defined as two inputs moving with a changing angle between them.
-       *
-       * @extends westures.Gesture
-       * @mixes westures.Smoothable
-       * @see ReturnTypes.RotateData
-       * @memberof westures
-       */
-
-
-      var Rotate =
-      /*#__PURE__*/
-      function (_Smoothable3) {
-        _inherits(Rotate, _Smoothable3);
-
-        /**
-         * @param {Object} [options]
-         * @param {number} [options.minInputs=2] The minimum number of inputs that
-         * must be active for a Rotate to be recognized.
-         * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-         * emitted data.
-         */
-        function Rotate() {
-          var _this49;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Rotate);
-
-          _this49 = _possibleConstructorReturn(this, _getPrototypeOf(Rotate).call(this, 'rotate', options));
-
-          var settings = _objectSpread({}, Rotate.DEFAULTS, options);
-          /**
-           * The minimum number of inputs that must be active for a Pinch to be
-           * recognized.
-           *
-           * @private
-           * @type {number}
-           */
-
-
-          _this49.minInputs = settings.minInputs;
-          /**
-           * Track the previously emitted rotation angle.
-           *
-           * @private
-           * @type {number[]}
-           */
-
-          _this49.previousAngles = [];
-          return _this49;
-        }
-        /**
-         * Store individual angle progress on each input, return average angle change.
-         *
-         * @private
-         * @param {State} state - current input state.
-         */
-
-
-        _createClass(Rotate, [{
-          key: "getAngle",
-          value: function getAngle(state) {
-            var _this50 = this;
-
-            if (state.active.length < this.minInputs) return null;
-            var angle = 0;
-            var stagedAngles = [];
-            state.active.forEach(function (input, idx) {
-              var currentAngle = state.centroid.angleTo(input.current.point);
-              angle += angularMinus(currentAngle, _this50.previousAngles[idx]);
-              stagedAngles[idx] = currentAngle;
-            });
-            angle /= state.active.length;
-            this.previousAngles = stagedAngles;
-            return angle;
-          }
-          /**
-           * Restart the gesture;
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "restart",
-          value: function restart(state) {
-            this.previousAngles = [];
-            this.getAngle(state);
-
-            _get(_getPrototypeOf(Rotate.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Rotate gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            var rotation = this.getAngle(state);
-
-            if (rotation) {
-              return this.emit({
-                rotation: rotation
-              }, 'rotation');
-            }
-
-            return null;
-          }
-          /**
-           * Event hook for the end of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the cancel of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-        }]);
-
-        return Rotate;
-      }(Smoothable(Gesture));
-
-      Rotate.DEFAULTS = Object.freeze({
-        minInputs: 2,
-        smoothing: true
-      });
-      module.exports = Rotate;
-    }, {
-      "../../westures-core": 88,
-      "./angularMinus.js": 115
-    }],
-    111: [function (require, module, exports) {
-      /*
-       * Contains the Swipe class.
-       */
-      'use strict';
-
-      var _require24 = require('westures-core'),
-          Gesture = _require24.Gesture;
-
-      var REQUIRED_INPUTS = 1;
-      var PROGRESS_STACK_SIZE = 7;
-      var MS_THRESHOLD = 300;
-      /**
-       * Data returned when a Swipe is recognized.
-       *
-       * @typedef {Object} SwipeData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {number} velocity - The velocity of the swipe.
-       * @property {number} direction - In radians, the direction of the swipe.
-       * @property {westures.Point2D} point - The point at which the swipe ended.
-       * @property {number} time - The epoch time, in ms, when the swipe ended.
-       *
-       * @memberof ReturnTypes
-       */
-
-      /**
-       * Calculates the angle of movement along a series of moves.
-       *
-       * @private
-       * @inner
-       * @memberof module:westures.Swipe
-       * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
-       *
-       * @param {{time: number, point: module:westures-core.Point2D}} moves - The
-       * moves list to process.
-       * @param {number} vlim - The number of moves to process.
-       *
-       * @return {number} The angle of the movement.
-       */
-
-      function calc_angle(moves, vlim) {
-        var point = moves[vlim].point;
-        var sin = 0;
-        var cos = 0;
-
-        for (var i = 0; i < vlim; ++i) {
-          var angle = moves[i].point.angleTo(point);
-          sin += Math.sin(angle);
-          cos += Math.cos(angle);
-        }
-
-        sin /= vlim;
-        cos /= vlim;
-        return Math.atan2(sin, cos);
-      }
-      /**
-       * Local helper function for calculating the velocity between two timestamped
-       * points.
-       *
-       * @private
-       * @inner
-       * @memberof module:westures.Swipe
-       *
-       * @param {object} start
-       * @param {westures.Point2D} start.point
-       * @param {number} start.time
-       * @param {object} end
-       * @param {westures.Point2D} end.point
-       * @param {number} end.time
-       *
-       * @return {number} velocity from start to end point.
-       */
-
-
-      function velocity(start, end) {
-        var distance = end.point.distanceTo(start.point);
-        var time = end.time - start.time + 1;
-        return distance / time;
-      }
-      /**
-       * Calculates the veloctiy of movement through a series of moves.
-       *
-       * @private
-       * @inner
-       * @memberof module:westures.Swipe
-       *
-       * @param {{time: number, point: module:westures-core.Point2D}} moves - The
-       * moves list to process.
-       * @param {number} vlim - The number of moves to process.
-       *
-       * @return {number} The velocity of the moves.
-       */
-
-
-      function calc_velocity(moves, vlim) {
-        var max = 0;
-
-        for (var i = 0; i < vlim; ++i) {
-          var current = velocity(moves[i], moves[i + 1]);
-          if (current > max) max = current;
-        }
-
-        return max;
-      }
-      /**
-       * A swipe is defined as input(s) moving in the same direction in an relatively
-       * increasing velocity and leaving the screen at some point before it drops
-       * below it's escape velocity.
-       *
-       * @extends westures.Gesture
-       * @see ReturnTypes.SwipeData
-       * @memberof westures
-       */
-
-
-      var Swipe =
-      /*#__PURE__*/
-      function (_Gesture8) {
-        _inherits(Swipe, _Gesture8);
-
-        /**
-         * Constructor function for the Swipe class.
-         */
-        function Swipe() {
-          var _this51;
-
-          _classCallCheck(this, Swipe);
-
-          _this51 = _possibleConstructorReturn(this, _getPrototypeOf(Swipe).call(this, 'swipe'));
-          /**
-           * Moves list.
-           *
-           * @private
-           * @type {object[]}
-           */
-
-          _this51.moves = [];
-          /**
-           * Data to emit when all points have ended.
-           *
-           * @private
-           * @type {ReturnTypes.SwipeData}
-           */
-
-          _this51.saved = null;
-          return _this51;
-        }
-        /**
-         * Refresh the swipe state.
-         *
-         * @private
-         */
-
-
-        _createClass(Swipe, [{
-          key: "refresh",
-          value: function refresh() {
-            this.moves = [];
-            this.saved = null;
-          }
-          /**
-           * Event hook for the start of a gesture. Resets the swipe state.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start() {
-            this.refresh();
-          }
-          /**
-           * Event hook for the move of a gesture. Captures an input's x/y coordinates
-           * and the time of it's event on a stack.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length >= REQUIRED_INPUTS) {
-              this.moves.push({
-                time: Date.now(),
-                point: state.centroid
-              });
-
-              if (this.moves.length > PROGRESS_STACK_SIZE) {
-                this.moves.splice(0, this.moves.length - PROGRESS_STACK_SIZE);
-              }
-            }
-          }
-          /**
-           * Determines if the input's history validates a swipe motion.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
-           * recognized.
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            var result = this.getResult();
-            this.moves = [];
-
-            if (state.active.length > 0) {
-              this.saved = result;
-              return null;
-            }
-
-            this.saved = null;
-            return this.validate(result);
-          }
-          /**
-           * Event hook for the cancel phase of a Swipe.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel() {
-            this.refresh();
-          }
-          /**
-           * Get the swipe result.
-           *
-           * @private
-           */
-
-        }, {
-          key: "getResult",
-          value: function getResult() {
-            if (this.moves.length < PROGRESS_STACK_SIZE) {
-              return this.saved;
-            }
-
-            var vlim = PROGRESS_STACK_SIZE - 1;
-            var _this$moves$vlim2 = this.moves[vlim],
-                point = _this$moves$vlim2.point,
-                time = _this$moves$vlim2.time;
-            var velocity = calc_velocity(this.moves, vlim);
-            var direction = calc_angle(this.moves, vlim);
-            var centroid = point;
-            return {
-              point: point,
-              velocity: velocity,
-              direction: direction,
-              time: time,
-              centroid: centroid
-            };
-          }
-          /**
-           * Validates that an emit should occur with the given data.
-           *
-           * @private
-           * @param {?ReturnTypes.SwipeData} data
-           */
-
-        }, {
-          key: "validate",
-          value: function validate(data) {
-            if (data == null) return null;
-            return Date.now() - data.time > MS_THRESHOLD ? null : data;
-          }
-        }]);
-
-        return Swipe;
-      }(Gesture);
-
-      module.exports = Swipe;
-    }, {
-      "westures-core": 99
-    }],
-    112: [function (require, module, exports) {
-      /*
-       * Contains the Rotate class.
-       */
-      'use strict';
-
-      var _require25 = require('../../westures-core'),
-          Gesture = _require25.Gesture,
-          Point2D = _require25.Point2D,
-          Smoothable = _require25.Smoothable;
-
-      var angularMinus = require('./angularMinus.js');
-      /**
-       * Data returned when a Swivel is recognized.
-       *
-       * @typedef {Object} SwivelData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {number} rotation - In radians, the change in angle since last
-       * emit.
-       * @property {westures.Point2D} pivot - The pivot point.
-       *
-       * @memberof ReturnTypes
-       */
-
-      /**
-       * A Swivel is a single input rotating around a fixed point. The fixed point is
-       * determined by the input's location at its 'start' phase.
-       *
-       * @extends westures.Gesture
-       * @mixes westures.Smoothable
-       * @see ReturnTypes.SwivelData
-       * @memberof westures
-       */
-
-
-      var Swivel =
-      /*#__PURE__*/
-      function (_Smoothable4) {
-        _inherits(Swivel, _Smoothable4);
-
-        /**
-         * Constructor for the Swivel class.
-         *
-         * @param {Object} [options]
-         * @param {number} [options.deadzoneRadius=10] - The radius in pixels around
-         * the start point in which to do nothing.
-         * @param {string} [options.enableKey=null] - One of 'altKey', 'ctrlKey',
-         * 'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
-         * this key is down.
-         * @param {number} [options.minInputs=1] - The minimum number of inputs that
-         * must be active for a Swivel to be recognized.
-         * @param {Element} [options.pivotCenter] - If set, the swivel's pivot point
-         * will be set to the center of the given pivotCenter element. Otherwise, the
-         * pivot will be the location of the first contact point.
-         */
-        function Swivel() {
-          var _this52;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Swivel);
-
-          _this52 = _possibleConstructorReturn(this, _getPrototypeOf(Swivel).call(this, 'swivel', options));
-
-          var settings = _objectSpread({}, Swivel.DEFAULTS, options);
-          /**
-           * The radius around the start point in which to do nothing.
-           *
-           * @private
-           * @type {number}
-           */
-
-
-          _this52.deadzoneRadius = settings.deadzoneRadius;
-          /**
-           * If this is set, gesture will only respond to events where this property
-           * is truthy. Should be one of 'ctrlKey', 'altKey', or 'shiftKey'.
-           *
-           * @private
-           * @type {string}
-           */
-
-          _this52.enableKey = settings.enableKey;
-          /**
-           * The minimum number of inputs that must be active for a Swivel to be
-           * recognized.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this52.minInputs = settings.minInputs;
-          /**
-           * If this is set, the swivel will use the center of the element as its
-           * pivot point. Unreliable if the element is moved during a swivel gesture.
-           *
-           * @private
-           * @type {Element}
-           */
-
-          _this52.pivotCenter = settings.pivotCenter;
-          /**
-           * The pivot point of the swivel.
-           *
-           * @private
-           * @type {module:westures.Point2D}
-           */
-
-          _this52.pivot = null;
-          /**
-           * The previous angle.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this52.previous = 0;
-          /**
-           * Whether the swivel is active.
-           *
-           * @private
-           * @type {boolean}
-           */
-
-          _this52.isActive = false;
-          return _this52;
-        }
-        /**
-         * Returns whether this gesture is currently enabled.
-         *
-         * @private
-         * @param {Event} event - The state's current input event.
-         * @return {boolean} true if the gesture is enabled, false otherwise.
-         */
-
-
-        _createClass(Swivel, [{
-          key: "enabled",
-          value: function enabled(event) {
-            return !this.enableKey || event[this.enableKey];
-          }
-          /**
-           * Restart the given progress object using the given input object.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "restart",
-          value: function restart(state) {
-            this.isActive = true;
-
-            if (this.pivotCenter) {
-              var rect = this.pivotCenter.getBoundingClientRect();
-              this.pivot = new Point2D(rect.left + rect.width / 2, rect.top + rect.height / 2);
-              this.previous = this.pivot.angleTo(state.centroid);
-            } else {
-              this.pivot = state.centroid;
-              this.previous = 0;
-            }
-
-            _get(_getPrototypeOf(Swivel.prototype), "restart", this).call(this);
-          }
-          /**
-           * Refresh the gesture.
-           *
-           * @private
-           * @param {module:westures.Input[]} inputs - Input list to process.
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "refresh",
-          value: function refresh(inputs, state) {
-            if (inputs.length >= this.minInputs && this.enabled(state.event)) {
-              this.restart(state);
-            }
-          }
-          /**
-           * Event hook for the start of a Swivel gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.refresh(state.getInputsInPhase('start'), state);
-          }
-          /**
-           * Determine the data to emit. To be called once valid state for a swivel has
-           * been assured, except for deadzone.
-           *
-           * @private
-           * @param {State} state - current input state.
-           * @return {?Returns.SwivelData} Data to emit.
-           */
-
-        }, {
-          key: "calculateOutput",
-          value: function calculateOutput(state) {
-            var pivot = this.pivot;
-            var angle = pivot.angleTo(state.centroid);
-            var rotation = angularMinus(angle, this.previous);
-            /*
-             * Updating the previous angle regardless of emit prevents sudden flips when
-             * the user exits the deadzone circle.
-             */
-
-            this.previous = angle;
-
-            if (pivot.distanceTo(state.centroid) > this.deadzoneRadius) {
-              return {
-                rotation: rotation,
-                pivot: pivot
-              };
-            }
-
-            return null;
-          }
-          /**
-           * Event hook for the move of a Swivel gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
-           * recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) return null;
-
-            if (this.enabled(state.event)) {
-              if (this.isActive) {
-                var output = this.calculateOutput(state);
-                return output ? this.emit(output, 'rotation') : null;
-              } // The enableKey was just pressed again.
-
-
-              this.refresh(state.active, state);
-            } else {
-              // The enableKey was released, therefore pivot point is now invalid.
-              this.isActive = false;
-            }
-
-            return null;
-          }
-          /**
-           * Event hook for the end of a Swivel.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.refresh(state.active, state);
-          }
-          /**
-           * Event hook for the cancel of a Swivel.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.end(state);
-          }
-        }]);
-
-        return Swivel;
-      }(Smoothable(Gesture));
-      /**
-       * The default options for a Swivel gesture.
-       */
-
-
-      Swivel.DEFAULTS = Object.freeze({
-        deadzoneRadius: 15,
-        enableKey: null,
-        minInputs: 1,
-        pivotCenter: false
-      });
-      module.exports = Swivel;
-    }, {
-      "../../westures-core": 88,
-      "./angularMinus.js": 115
-    }],
-    113: [function (require, module, exports) {
-      /*
-       * Contains the Tap class.
-       */
-      'use strict';
-
-      var _require26 = require('westures-core'),
-          Gesture = _require26.Gesture,
-          Point2D = _require26.Point2D;
-
-      var defaults = Object.freeze({
-        MIN_DELAY_MS: 0,
-        MAX_DELAY_MS: 300,
-        NUM_INPUTS: 1,
-        MOVE_PX_TOLERANCE: 10
-      });
-      /**
-       * Data returned when a Tap is recognized.
-       *
-       * @typedef {Object} TapData
-       * @mixes ReturnTypes.BaseData
-       *
-       * @property {number} x - x coordinate of tap point.
-       * @property {number} y - y coordinate of tap point.
-       *
-       * @memberof ReturnTypes
-       */
-
-      /**
-       * A Tap is defined as a touchstart to touchend event in quick succession.
-       *
-       * @extends westures.Gesture
-       * @see ReturnTypes.TapData
-       * @memberof westures
-       */
-
-      var Tap =
-      /*#__PURE__*/
-      function (_Gesture9) {
-        _inherits(Tap, _Gesture9);
-
-        /**
-         * Constructor function for the Tap class.
-         *
-         * @param {Object} [options] - The options object.
-         * @param {number} [options.minDelay=0] - The minimum delay between a
-         *    touchstart and touchend can be configured in milliseconds.
-         * @param {number} [options.maxDelay=300] - The maximum delay between a
-         *    touchstart and touchend can be configured in milliseconds.
-         * @param {number} [options.numInputs=1] - Number of inputs for Tap gesture.
-         * @param {number} [options.tolerance=10] - The tolerance in pixels a user can
-         *    move.
-         */
-        function Tap() {
-          var _this53;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Tap);
-
-          _this53 = _possibleConstructorReturn(this, _getPrototypeOf(Tap).call(this, 'tap'));
-          /**
-           * The minimum amount between a touchstart and a touchend can be configured
-           * in milliseconds. The minimum delay starts to count down when the expected
-           * number of inputs are on the screen, and ends when ALL inputs are off the
-           * screen.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this53.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
-          /**
-           * The maximum delay between a touchstart and touchend can be configured in
-           * milliseconds. The maximum delay starts to count down when the expected
-           * number of inputs are on the screen, and ends when ALL inputs are off the
-           * screen.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this53.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
-          /**
-           * The number of inputs to trigger a Tap can be variable, and the maximum
-           * number being a factor of the browser.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this53.numInputs = options.numInputs || defaults.NUM_INPUTS;
-          /**
-           * A move tolerance in pixels allows some slop between a user's start to end
-           * events. This allows the Tap gesture to be triggered more easily.
-           *
-           * @private
-           * @type {number}
-           */
-
-          _this53.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
-          /**
-           * An array of inputs that have ended recently.
-           *
-           * @private
-           * @type {Input[]}
-           */
-
-          _this53.ended = [];
-          return _this53;
-        }
-        /**
-         * Event hook for the end of a gesture.  Determines if this the tap event can
-         * be fired if the delay and tolerance constraints are met.
-         *
-         * @param {State} state - current input state.
-         * @return {?ReturnTypes.TapData} <tt>null</tt> if the gesture is not to be
-         * emitted, Object with information otherwise.
-         */
-
-
-        _createClass(Tap, [{
-          key: "end",
-          value: function end(state) {
-            var _this54 = this;
-
-            var now = Date.now();
-            this.ended = this.ended.concat(state.getInputsInPhase('end')).filter(function (input) {
-              var tdiff = now - input.startTime;
-              return tdiff <= _this54.maxDelay && tdiff >= _this54.minDelay;
-            });
-
-            if (this.ended.length !== this.numInputs || this.ended.some(function (i) {
-              return i.totalDistance() > _this54.tolerance;
-            })) {
-              return null;
-            }
-
-            var centroid = Point2D.midpoint(this.ended.map(function (i) {
-              return i.current.point;
-            }));
-            this.ended = [];
-            return _objectSpread({
-              centroid: centroid
-            }, centroid);
-          }
-        }]);
-
-        return Tap;
-      }(Gesture);
-
-      module.exports = Tap;
-    }, {
-      "westures-core": 99
-    }],
-    114: [function (require, module, exports) {
-      arguments[4][68][0].apply(exports, arguments);
-    }, {
-      "dup": 68,
-      "westures-core": 99
-    }],
-    115: [function (require, module, exports) {
-      /*
-       * Constains the angularMinus() function
-       */
-      'use strict';
-
-      var PI2 = 2 * Math.PI;
-      /**
-       * Helper function to regulate angular differences, so they don't jump from 0 to
-       * 2*PI or vice versa.
-       *
-       * @private
-       * @param {number} a - Angle in radians.
-       * @param {number} b - Angle in radians.
-       * @return {number} c, given by: c = a - b such that || < PI
-       */
-
-      function angularMinus(a) {
-        var b = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var diff = a - b;
-
-        if (diff < -Math.PI) {
-          diff += PI2;
-        } else if (diff > Math.PI) {
-          diff -= PI2;
-        }
-
-        return diff;
-      }
-
-      module.exports = angularMinus;
     }, {}]
-  }, {}, [70])(70);
+  }, {}, [72])(72);
 });
