@@ -14747,6 +14747,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             this.points.forEach(function (p) {
               return p.rotate(theta);
             });
+            this.centroid.rotate(theta);
           }
           /**
            * Scale the polygon by the given amount.
@@ -14762,6 +14763,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             this.points.forEach(function (p) {
               return p.multiplyBy(ds);
             });
+            this.centroid.multiplyBy(ds);
             this.radius *= ds;
           }
           /**
