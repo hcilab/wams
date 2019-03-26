@@ -42,7 +42,7 @@ const symbols = Object.freeze({
 class ClientController {
   /**
    * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
-   *    (not the context), which will fill the page.
+   * (not the context), which will fill the page.
    * @param {module:client.ClientView} view - The view that will handle
    * rendering duties.
    * @param {module:client.ClientModel} model - The client-side copy of the
@@ -103,20 +103,20 @@ class ClientController {
    * received messages at this layer should be those conforming to the Message /
    * Reporter protocol.
    *
-   * This internal routine will be called as part of socket establishment.
+   * This internal routine should be called as part of socket establishment.
    */
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_ELEMENT]: (...args) => this.handle('addElement', ...args),
-      [Message.ADD_IMAGE]:   (...args) => this.handle('addImage', ...args),
-      [Message.ADD_ITEM]:    (...args) => this.handle('addItem', ...args),
-      [Message.ADD_SHADOW]:  (...args) => this.handle('addShadow', ...args),
-      [Message.RM_ITEM]:     (...args) => this.handle('removeItem', ...args),
-      [Message.RM_SHADOW]:   (...args) => this.handle('removeShadow', ...args),
-      [Message.UD_ITEM]:     (...args) => this.handle('updateItem', ...args),
-      [Message.UD_SHADOW]:   (...args) => this.handle('updateShadow', ...args),
-      [Message.UD_VIEW]:     (...args) => this.handle('updateView', ...args),
+      [Message.ADD_ELEMENT]: (data) => this.handle('addElement',   data),
+      [Message.ADD_IMAGE]:   (data) => this.handle('addImage',     data),
+      [Message.ADD_ITEM]:    (data) => this.handle('addItem',      data),
+      [Message.ADD_SHADOW]:  (data) => this.handle('addShadow',    data),
+      [Message.RM_ITEM]:     (data) => this.handle('removeItem',   data),
+      [Message.RM_SHADOW]:   (data) => this.handle('removeShadow', data),
+      [Message.UD_ITEM]:     (data) => this.handle('updateItem',   data),
+      [Message.UD_SHADOW]:   (data) => this.handle('updateShadow', data),
+      [Message.UD_VIEW]:     (data) => this.handle('updateView',   data),
 
       // For hopefully occasional extra adjustments to objects in the model.
       [Message.RM_ATTRS]:   ({ data }) => this.handle('removeAttributes', data),
@@ -125,7 +125,7 @@ class ClientController {
       [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
 
       // Connection establishment related (disconnect, initial setup)
-      [Message.INITIALIZE]: (...args) => this.setup(...args),
+      [Message.INITIALIZE]: (data) => this.setup(data),
       [Message.LAYOUT]:     NOP,
 
       // User event related
@@ -219,10 +219,10 @@ class ClientController {
    * @see {@link module:shared.Message}
    *
    * @param {string} message - The name of a ClientView method to run.
-   * @param {...mixed} ...args - The arguments to pass to the ClientView method.
+   * @param {...*} data - The argument to pass to the ClientView method.
    */
-  handle(message, ...args) {
-    this.model[message](...args, this);
+  handle(message, data) {
+    this.model[message](data, this);
     this.scheduleRender();
   }
 
@@ -277,33 +277,6 @@ class ClientController {
   }
 
   /**
-   * Set the element attributes for the appropriate item.
-   *
-   * @param {object} data
-   */
-  setAttributes(data) {
-    this.model.setAttributes(data);
-  }
-
-  /**
-   * Set the image for the appropriate item.
-   *
-   * @param {object} data
-   */
-  setImage(data) {
-    this.model.setImage(data);
-  }
-
-  /**
-   * Set the canvas rendering sequence for the appropriate item.
-   *
-   * @param {object} data
-   */
-  setRender(data) {
-    this.model.setRender(data);
-  }
-
-  /**
    * The Interactor is a level of abstraction between the ClientController and
    * the gesture recognition library such that libraries can be swapped out
    * more easily, if need be. At least in theory. All the ClientController
@@ -316,13 +289,6 @@ class ClientController {
   setupInteractor(useServerGestures = false) {
     if (useServerGestures) {
       this.setupInputForwarding();
-      ['touchcancel', 'pointercancel', 'blur'].forEach(eventname => {
-        window.addEventListener(eventname, (event) => {
-          event.preventDefault();
-          const breport = new DataReporter();
-          new Message(Message.BLUR, breport).emitWith(this.socket);
-        });
-      });
     } else {
       new Interactor({
         swipe:     this.forward(Message.SWIPE),
@@ -338,87 +304,91 @@ class ClientController {
    */
   setupInputForwarding() {
     if (window.MouseEvent || window.TouchEvent) {
-      this.forwardMouseAndTouchEvents();
+      this.forwardTouchEvents();
+      this.forwardMouseEvents();
     } else {
       this.forwardPointerEvents();
     }
+    this.forwardBlurEvents();
+  }
+
+  /**
+   * Forward the given events, by using the given callback.
+   *
+   * @param {string[]} eventnames
+   * @param {function} callback
+   */
+  forwardEvents(eventnames, callback) {
+    eventnames.forEach(eventname => {
+      window.addEventListener(eventname, callback, {
+        capture: true,
+        once:    false,
+        passive: false,
+      });
+    });
+  }
+
+  /**
+   * Forward blur and cancel events.
+   */
+  forwardBlurEvents() {
+    this.forwardEvents(['touchcancel', 'pointercancel', 'blur'], (event) => {
+      event.preventDefault();
+      const breport = new DataReporter();
+      new Message(Message.BLUR, breport).emitWith(this.socket);
+    });
   }
 
   /**
    * Forward pointer events.
    */
   forwardPointerEvents() {
-    ['pointerdown', 'pointermove', 'pointerup'].forEach(eventname => {
-      window.addEventListener(
-        eventname,
-        (event) => {
-          event.preventDefault();
-          const treport = new TouchReporter(event);
-          treport.changedTouches = [{
-            identifier: event.pointerId,
-            clientX:    event.clientX,
-            clientY:    event.clientY,
-          }];
-          new Message(Message.POINTER, treport).emitWith(this.socket);
-        },
-        {
-          capture: true,
-          once:    false,
-          passive: false,
-        }
-      );
+    this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
+      event.preventDefault();
+      const treport = new TouchReporter(event);
+      treport.changedTouches = [{
+        identifier: event.pointerId,
+        clientX:    event.clientX,
+        clientY:    event.clientY,
+      }];
+      new Message(Message.POINTER, treport).emitWith(this.socket);
     });
   }
 
   /**
-   * Forward mouse and touch events.
+   * Forward mouse events.
    */
-  forwardMouseAndTouchEvents() {
-    ['mousedown', 'mousemove', 'mouseup'].forEach(eventname => {
-      window.addEventListener(
-        eventname,
-        (event) => {
-          event.preventDefault();
-          if (event.button === 0) {
-            const treport = new TouchReporter(event);
-            treport.changedTouches = [{
-              identifier: 0,
-              clientX:    event.clientX,
-              clientY:    event.clientY,
-            }];
-            new Message(Message.POINTER, treport).emitWith(this.socket);
-          }
-        },
-        {
-          capture: true,
-          once:    false,
-          passive: false,
-        }
-      );
+  forwardMouseEvents() {
+    this.forwardEvents(['mousedown', 'mousemove', 'mouseup'], (event) => {
+      event.preventDefault();
+      if (event.button === 0) {
+        const treport = new TouchReporter(event);
+        treport.changedTouches = [{
+          identifier: 0,
+          clientX:    event.clientX,
+          clientY:    event.clientY,
+        }];
+        new Message(Message.POINTER, treport).emitWith(this.socket);
+      }
     });
+  }
 
-    ['touchstart', 'touchmove', 'touchend'].forEach(eventname => {
-      window.addEventListener(
-        eventname,
-        (event) => {
-          event.preventDefault();
-          const treport = new TouchReporter(event);
-          treport.changedTouches = Array.from(event.changedTouches)
-            .map(touch => {
-              return {
-                identifier: touch.identifier,
-                clientX:    touch.clientX,
-                clientY:    touch.clientY,
-              };
-            });
-          new Message(Message.POINTER, treport).emitWith(this.socket);
-        },
-        {
-          capture: true,
-          once:    false,
-          passive: false,
-        }
-      );
+  /**
+   * Forward touch events.
+   */
+  forwardTouchEvents() {
+    this.forwardEvents(['touchstart', 'touchmove', 'touchend'], (event) => {
+      event.preventDefault();
+      const treport = new TouchReporter(event);
+      treport.changedTouches = Array.from(event.changedTouches)
+        .map(touch => {
+          return {
+            identifier: touch.identifier,
+            clientX:    touch.clientX,
+            clientY:    touch.clientY,
+          };
+        });
+      new Message(Message.POINTER, treport).emitWith(this.socket);
     });
   }
 }
