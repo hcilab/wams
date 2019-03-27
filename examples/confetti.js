@@ -9,26 +9,21 @@ const Wams = require('..');
 const app = new Wams.Application();
 
 function square(x, y, view) {
-  return Wams.predefined.items.square(
-    -64, -64, 128,
-    Wams.colours[view.id % Wams.colours.length],
-    {
-      x,
-      y,
-      type:     'colour',
-      scale:    1 / view.scale,
-      rotation: view.rotation,
-      onclick:  removeSquare,
-    }
-  );
+  const sequence = new Wams.CanvasSequence();
+  sequence.fillStyle = Wams.colours[view.id % Wams.colours.length];
+  sequence.fillRect(-64, -64, 128, 128);
+
+  return {
+    x, y,
+    sequence,
+    type:     'colour',
+    scale:    1 / view.scale,
+    rotation: view.rotation,
+  };
 }
 
 function spawnSquare(event) {
   app.spawnItem(square(event.x, event.y, event.view));
-}
-
-function removeSquare(event) {
-  app.removeItem(event.target);
 }
 
 function handleLayout(view) {

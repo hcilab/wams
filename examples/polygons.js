@@ -15,12 +15,12 @@ function polygon(x, y, view) {
     {
       x,
       y,
-      type:  'colour',
-      scale: 1 / view.scale,
-      onclick: removeItem,
-      onscale: Wams.predefined.scale,
+      type:     'colour',
+      scale:    1 / view.scale,
+      onclick:  removeItem,
+      onscale:  Wams.predefined.scale,
       onrotate: Wams.predefined.rotate,
-      ondrag: Wams.predefined.drag,
+      ondrag:   Wams.predefined.drag,
     }
   );
 }
@@ -41,5 +41,5 @@ function handleConnect(view) {
 }
 
 app.onlayout(handleConnect);
-app.listen(9002);
+app.listen(9010);
 

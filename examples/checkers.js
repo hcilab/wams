@@ -38,7 +38,7 @@ for (let i = 0; i < 10; i += 1) {
 
     app.spawnItem({
       x, y,
-      type: 'square',
+      type:     'square',
       sequence: squareSequence(x, y, colour),
     });
   }
@@ -54,21 +54,21 @@ for (let i = 0; i < 10; i += 1) {
       if (i < 4) {
         app.spawnImage(Wams.predefined.items.image('chips/Green_border.png', {
           x, y,
-          width: WIDTH,
+          width:  WIDTH,
           height: HEIGHT,
-          type: 'green-token',
+          type:   'green-token',
           ondrag: Wams.predefined.drag,
         }));
       } else if (i > 5) {
         app.spawnImage(Wams.predefined.items.image('chips/Blue_border.png', {
           x, y,
-          width: WIDTH,
+          width:  WIDTH,
           height: HEIGHT,
-          type: 'white-token',
+          type:   'white-token',
           ondrag: Wams.predefined.drag,
         }));
       }
-    } 
+    }
   }
 }
 
@@ -79,5 +79,5 @@ function handleLayout(view, position) {
 }
 
 app.onlayout(handleLayout);
-app.listen(9004);
+app.listen(9011);
 

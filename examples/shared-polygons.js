@@ -18,12 +18,12 @@ function polygon(x, y, view) {
     {
       x,
       y,
-      type:  'colour',
-      scale: 1 / view.scale,
-      onclick: removeItem,
-      onscale: Wams.predefined.scale,
+      type:     'colour',
+      scale:    1 / view.scale,
+      onclick:  removeItem,
+      onscale:  Wams.predefined.scale,
       onrotate: Wams.predefined.rotate,
-      ondrag: Wams.predefined.drag,
+      ondrag:   Wams.predefined.drag,
     }
   );
 }
@@ -49,16 +49,6 @@ function handleConnect(view, index, device, group) {
   linelayout(view, index, device);
 }
 
-// Attaches the different function handlers
-// app.on('layout', Wams.predefined.layouts.line(5));
-// app.on('scale',  Wams.predefined.scales.itemsAndView(['colour']));
-// app.on('drag',   Wams.predefined.drags.itemsAndView(['colour']));
-// app.on('rotate', Wams.predefined.rotates.itemsAndView(['colour']));
-// app.on(
-//   'click',
-//   Wams.predefined.taps.spawnOrRemoveItem(app, polygon, 'colour')
-// );
-
 app.onlayout(handleConnect);
-app.listen(9002);
+app.listen(9050);
 

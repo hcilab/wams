@@ -16,15 +16,15 @@ function element(x, y, view) {
     {
       x,
       y,
-      width: 300,
-      height: 50,
-      type:  'button',
-      scale: 1 / view.scale,
+      width:    300,
+      height:   50,
+      type:     'button',
+      scale:    1 / view.scale,
       rotation: view.rotation,
-      onscale: Wams.predefined.scale,
-      ondrag: Wams.predefined.drag,
+      onscale:  Wams.predefined.scale,
+      ondrag:   Wams.predefined.drag,
       onrotate: Wams.predefined.rotate,
-      onclick: removeElement,
+      onclick:  removeElement,
     }
   );
 }

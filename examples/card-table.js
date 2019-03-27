@@ -71,8 +71,8 @@ app.spawnItem({
 
 // Draw a card deck outline.
 app.spawnItem(Wams.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
-  x: 515,
-  y: 300,
+  x:       515,
+  y:       300,
   onclick: dealCards,
 }));
 
@@ -82,9 +82,9 @@ deal.fillStyle = 'black';
 deal.fillText('Shuffle', 0, 0);
 
 app.spawnItem({
-  x: 525,
-  y: 400,
-  type: 'text',
+  x:        525,
+  y:        400,
+  type:     'text',
   sequence: deal,
 });
 
@@ -109,7 +109,7 @@ function dealCards() {
   cards.forEach(card => {
     app.removeItem(card);
   });
-  cards.splice(0,cards.length);
+  cards.splice(0, cards.length);
 
   // Generate the cards in a random order.
   let offs = 0.0;
@@ -154,5 +154,5 @@ function handleLayout(view, position) {
 }
 
 app.onlayout(handleLayout);
-app.listen(9001);
+app.listen(9012);
 
