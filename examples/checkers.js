@@ -29,7 +29,6 @@ function squareSequence(x, y, colour) {
 }
 
 const BASE = 256;
-const SIZE = 10;
 for (let i = 0; i < 10; i += 1) {
   for (let j = 0; j < 10; j += 1) {
     const colour = (i + j) % 2 === 0 ? 'white' : 'black';
@@ -72,7 +71,7 @@ for (let i = 0; i < 10; i += 1) {
   }
 }
 
-function handleLayout(view, position) {
+function handleLayout(view) {
   view.ondrag = Wams.predefined.drag;
   view.onscale = Wams.predefined.scale;
   view.onrotate = Wams.predefined.rotate;

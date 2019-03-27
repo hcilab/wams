@@ -10,7 +10,7 @@ const app = new Wams.Application();
 
 function element(x, y, view) {
   return Wams.predefined.items.wrappedElement(
-    '<button onclick="alert(\'You panicked :\(\')">dont panic</button>',
+    '<button onclick="alert(\'You panicked :(\')">dont panic</button>',
     300,
     50,
     {
