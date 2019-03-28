@@ -142,7 +142,7 @@ class ClientView extends View {
     this[symbols.align]();
     this[symbols.drawItems]();
     this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
+    // this[symbols.drawStatus]();
     this.context.restore();
   }
 

@@ -50,5 +50,5 @@ function handleConnect(view, index, device, group) {
 }
 
 app.onlayout(handleConnect);
-app.listen(9050);
+app.listen(9500);
 
