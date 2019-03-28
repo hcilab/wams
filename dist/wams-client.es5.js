@@ -1,86 +1,26 @@
 "use strict";
 
-require("core-js/modules/es6.reflect.get");
-
-require("core-js/modules/es6.reflect.construct");
-
-require("core-js/modules/es6.object.set-prototype-of");
-
-require("core-js/modules/es6.array.find-index");
-
-require("core-js/modules/es6.object.assign");
-
-require("core-js/modules/es7.object.values");
-
-require("core-js/modules/es6.number.is-safe-integer");
-
-require("core-js/modules/es6.math.sign");
-
-require("core-js/modules/es6.map");
-
-require("core-js/modules/es6.array.from");
-
-require("core-js/modules/es6.array.find");
-
-require("core-js/modules/es6.math.hypot");
-
-require("core-js/modules/es6.string.iterator");
-
-require("core-js/modules/es6.weak-set");
-
 require("core-js/modules/es6.regexp.flags");
 
 require("core-js/modules/es6.regexp.constructor");
 
 require("core-js/modules/es6.regexp.match");
 
-require("core-js/modules/es6.object.keys");
-
-require("core-js/modules/es6.object.freeze");
-
 require("core-js/modules/web.dom.iterable");
 
-require("core-js/modules/es6.array.iterator");
-
-require("core-js/modules/es7.object.entries");
-
-require("core-js/modules/es6.function.name");
-
 require("core-js/modules/es6.regexp.split");
-
-require("core-js/modules/es6.array.copy-within");
-
-require("core-js/modules/es6.date.to-json");
-
-require("core-js/modules/es6.number.constructor");
-
-require("core-js/modules/es7.array.includes");
-
-require("core-js/modules/es6.string.includes");
 
 require("core-js/modules/es6.regexp.replace");
 
 require("core-js/modules/es6.regexp.to-string");
 
-require("core-js/modules/es6.object.to-string");
-
-require("core-js/modules/es6.array.fill");
-
 require("core-js/modules/es7.symbol.async-iterator");
 
 require("core-js/modules/es6.symbol");
 
-require("core-js/modules/es6.typed.uint8-array");
-
-function _get(target, property, receiver) { if (typeof Reflect !== "undefined" && Reflect.get) { _get = Reflect.get; } else { _get = function _get(target, property, receiver) { var base = _superPropBase(target, property); if (!base) return; var desc = Object.getOwnPropertyDescriptor(base, property); if (desc.get) { return desc.get.call(receiver); } return desc.value; }; } return _get(target, property, receiver || target); }
-
-function _superPropBase(object, property) { while (!Object.prototype.hasOwnProperty.call(object, property)) { object = _getPrototypeOf(object); if (object === null) break; } return object; }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
-function isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-function _construct(Parent, args, Class) { if (isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
@@ -90,36 +30,8 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
-
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
-
-function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
-
-function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 (function (f) {
-  if ((typeof exports === "undefined" ? "undefined" : _typeof(exports)) === "object" && typeof module !== "undefined") {
+  if (typeof exports === "object" && typeof module !== "undefined") {
     module.exports = f();
   } else if (typeof define === "function" && define.amd) {
     define([], f);
@@ -164,9 +76,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         return n[i].exports;
       }
 
-      for (var u = "function" == typeof require && require, i = 0; i < t.length; i++) {
-        o(t[i]);
-      }
+      for (var u = "function" == typeof require && require, i = 0; i < t.length; i++) o(t[i]);
 
       return o;
     }
@@ -748,7 +658,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }
 
         if (value == null) {
-          throw TypeError('The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' + 'or Array-like Object. Received type ' + _typeof(value));
+          throw TypeError('The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' + 'or Array-like Object. Received type ' + typeof value);
         }
 
         if (isInstance(value, ArrayBuffer) || value && isInstance(value.buffer, ArrayBuffer)) {
@@ -772,7 +682,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           return Buffer.from(value[Symbol.toPrimitive]('string'), encodingOrOffset, length);
         }
 
-        throw new TypeError('The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' + 'or Array-like Object. Received type ' + _typeof(value));
+        throw new TypeError('The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' + 'or Array-like Object. Received type ' + typeof value);
       }
       /**
        * Functionally equivalent to Buffer(arg, encoding) but throws a TypeError
@@ -1050,7 +960,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }
 
         if (typeof string !== 'string') {
-          throw new TypeError('The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' + 'Received type ' + _typeof(string));
+          throw new TypeError('The "string" argument must be one of type string, Buffer, or ArrayBuffer. ' + 'Received type ' + typeof string);
         }
 
         var len = string.length;
@@ -1253,7 +1163,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         }
 
         if (!Buffer.isBuffer(target)) {
-          throw new TypeError('The "target" argument must be one of type Buffer or Uint8Array. ' + 'Received type ' + _typeof(target));
+          throw new TypeError('The "target" argument must be one of type Buffer or Uint8Array. ' + 'Received type ' + typeof target);
         }
 
         if (start === undefined) {
@@ -2428,13 +2338,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       /*
        * Access point for npm.
        */
-      var CanvasSequence = require('./src/CanvasSequence.js');
+      const CanvasSequence = require('./src/CanvasSequence.js');
 
-      var CanvasBlueprint = require('./src/CanvasBlueprint.js');
+      const CanvasBlueprint = require('./src/CanvasBlueprint.js');
 
       module.exports = {
-        CanvasSequence: CanvasSequence,
-        CanvasBlueprint: CanvasBlueprint
+        CanvasSequence,
+        CanvasBlueprint
       };
     }, {
       "./src/CanvasBlueprint.js": 11,
@@ -2460,9 +2370,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @lends CanvasAtom
        */
 
-      var _atomOf;
-
-      var TYPES = {
+      const TYPES = {
         /** @const */
         METHOD: 'method',
 
@@ -2473,30 +2381,30 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * Internal common constructor definition for Canvas Atoms.
        */
 
-      var Atom =
-      /**
-       * @param {string} inst - The canvas context instruction.
-       * @param {mixed[]} args - The arguments to the instruction.
-       */
-      function Atom(inst, args) {
-        _classCallCheck(this, Atom);
-
+      class Atom {
         /**
-         * The canvas context instruction.
-         *
-         * @private
-         * @type {string}
+         * @param {string} inst - The canvas context instruction.
+         * @param {mixed[]} args - The arguments to the instruction.
          */
-        this.inst = inst;
-        /**
-         * The arguments to the instruction.
-         *
-         * @private
-         * @type {mixed[]}
-         */
+        constructor(inst, args) {
+          /**
+           * The canvas context instruction.
+           *
+           * @private
+           * @type {string}
+           */
+          this.inst = inst;
+          /**
+           * The arguments to the instruction.
+           *
+           * @private
+           * @type {mixed[]}
+           */
 
-        this.args = args;
-      };
+          this.args = args;
+        }
+
+      }
       /**
        * A MethodCanvasAtom is used for canvas context methods. The arguments will be
        * treated as an actual array, all of which will be passed to the method when
@@ -2506,17 +2414,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var MethodCanvasAtom =
-      /*#__PURE__*/
-      function (_Atom) {
-        _inherits(MethodCanvasAtom, _Atom);
-
-        function MethodCanvasAtom(inst, args) {
-          var _this;
-
-          _classCallCheck(this, MethodCanvasAtom);
-
-          _this = _possibleConstructorReturn(this, _getPrototypeOf(MethodCanvasAtom).call(this, inst, args));
+      class MethodCanvasAtom extends Atom {
+        constructor(inst, args) {
+          super(inst, args);
           /**
            * The type of atom.
            *
@@ -2524,8 +2424,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {string}
            */
 
-          _this.type = TYPES.METHOD;
-          return _this;
+          this.type = TYPES.METHOD;
         }
         /**
          * Execute the atom on the given context.
@@ -2534,15 +2433,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(MethodCanvasAtom, [{
-          key: "execute",
-          value: function execute(context) {
-            context[this.inst].apply(context, _toConsumableArray(this.args));
-          }
-        }]);
+        execute(context) {
+          context[this.inst](...this.args);
+        }
 
-        return MethodCanvasAtom;
-      }(Atom);
+      }
       /**
        * A PropertyCanvasAtom is used for canvas context properties (a.k.a. fields).
        * Only the first argument will be used, and will be the value assigned to the
@@ -2552,19 +2447,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var PropertyCanvasAtom =
-      /*#__PURE__*/
-      function (_Atom2) {
-        _inherits(PropertyCanvasAtom, _Atom2);
-
-        function PropertyCanvasAtom(inst, args) {
-          var _this2;
-
-          _classCallCheck(this, PropertyCanvasAtom);
-
-          _this2 = _possibleConstructorReturn(this, _getPrototypeOf(PropertyCanvasAtom).call(this, inst, args));
-          _this2.type = TYPES.PROPERTY;
-          return _this2;
+      class PropertyCanvasAtom extends Atom {
+        constructor(inst, args) {
+          super(inst, args);
+          this.type = TYPES.PROPERTY;
         }
         /**
          * Execute the atom on the given context.
@@ -2573,15 +2459,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(PropertyCanvasAtom, [{
-          key: "execute",
-          value: function execute(context) {
-            context[this.inst] = this.args[0];
-          }
-        }]);
+        execute(context) {
+          context[this.inst] = this.args[0];
+        }
 
-        return PropertyCanvasAtom;
-      }(Atom);
+      }
       /*
        * This object is for demultiplexing types in the CanvasAtom constructor.
        * Defined outside the constructor so it doesn't need to be redefined every
@@ -2590,35 +2472,38 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var atomOf = (_atomOf = {}, _defineProperty(_atomOf, TYPES.METHOD, MethodCanvasAtom), _defineProperty(_atomOf, TYPES.PROPERTY, PropertyCanvasAtom), _atomOf);
+      const atomOf = {
+        [TYPES.METHOD]: MethodCanvasAtom,
+        [TYPES.PROPERTY]: PropertyCanvasAtom
+      };
       /**
        * The exposed CanvasAtom class. Results in the instantiation of either a
        * MethodCanvasAtom or a PropertyCanvasAtom, depending on the given type.
        */
 
-      var CanvasAtom =
-      /**
-       * @param {string} type - Either CanvasAtom.METHOD or CanvasAtom.PROPERTY.
-       * @param {string} inst - The canvas context instruction.
-       * @param {mixed[]} args - The arguments to the instruction.
-       */
-      function CanvasAtom(type, inst) {
-        _classCallCheck(this, CanvasAtom);
+      class CanvasAtom {
+        /**
+         * @param {string} type - Either CanvasAtom.METHOD or CanvasAtom.PROPERTY.
+         * @param {string} inst - The canvas context instruction.
+         * @param {mixed[]} args - The arguments to the instruction.
+         */
+        constructor(type, inst) {
+          for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+            args[_key - 2] = arguments[_key];
+          }
 
-        for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
-          args[_key - 2] = arguments[_key];
+          return new atomOf[type](inst, args);
         }
 
-        return new atomOf[type](inst, args);
-      };
+      }
       /*
        * Define the types once locally, but make them available externally as
        * immutable properties on the class.
        */
 
 
-      Object.entries(TYPES).forEach(function (_ref) {
-        var _ref2 = _slicedToArray(_ref, 2),
+      Object.entries(TYPES).forEach((_ref) => {
+        let _ref2 = _slicedToArray(_ref, 2),
             p = _ref2[0],
             v = _ref2[1];
 
@@ -2644,10 +2529,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var CanvasSequence = require('./CanvasSequence.js'); // Mark properties as intended for internal use.
+      const CanvasSequence = require('./CanvasSequence.js'); // Mark properties as intended for internal use.
 
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         sequence: Symbol.for('sequence'),
         push: Symbol.for('push')
       });
@@ -2673,7 +2558,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       function replaceTags(str, values) {
-        var tag = str.replace(/^{|}$/g, '');
+        const tag = str.replace(/^{|}$/g, '');
 
         if (tag !== str) {
           return values.hasOwnProperty(tag) ? values[tag] : tag;
@@ -2690,63 +2575,47 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var CanvasBlueprint =
-      /*#__PURE__*/
-      function (_CanvasSequence) {
-        _inherits(CanvasBlueprint, _CanvasSequence);
+      class CanvasBlueprint extends CanvasSequence {
+        /** Build the blueprint using the provided values.
+         *
+         * Rules: 
+         * - Strings not surrounded by curly braces {} will be returned.
+         * - Strings surrounded by curly braces but not corresponding to a property on
+         *   'values' will result in a string without the curly braces being returned.
+         * - Strings surrounded by curly braces, with the inner string corresponding
+         *   to a property on 'values' will result in the corresponding value being
+         *   returned.
+         *
+         * @param {object} values - The values with which to construct the sequence.
+         *
+         * @return {CanvasSequence} The constructed sequence.
+         */
+        build() {
+          let values = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          const seq = new CanvasSequence();
+          this[symbols.sequence].forEach((_ref3) => {
+            let type = _ref3.type,
+                inst = _ref3.inst,
+                args = _ref3.args;
+            const realArgs = args.map(v => {
+              return typeof v === 'string' ? replaceTags(v, values) : v;
+            });
+            seq[symbols.push](type, inst, ...realArgs);
+          });
+          return seq;
+        }
+        /**
+         * CanvasBlueprints cannot be directly executed!
+         *
+         * @throws TypeError
+         */
 
-        function CanvasBlueprint() {
-          _classCallCheck(this, CanvasBlueprint);
 
-          return _possibleConstructorReturn(this, _getPrototypeOf(CanvasBlueprint).apply(this, arguments));
+        execute() {
+          throw new TypeError('Cannot execute a blueprint.');
         }
 
-        _createClass(CanvasBlueprint, [{
-          key: "build",
-
-          /** Build the blueprint using the provided values.
-           *
-           * Rules: 
-           * - Strings not surrounded by curly braces {} will be returned.
-           * - Strings surrounded by curly braces but not corresponding to a property on
-           *   'values' will result in a string without the curly braces being returned.
-           * - Strings surrounded by curly braces, with the inner string corresponding
-           *   to a property on 'values' will result in the corresponding value being
-           *   returned.
-           *
-           * @param {object} values - The values with which to construct the sequence.
-           *
-           * @return {CanvasSequence} The constructed sequence.
-           */
-          value: function build() {
-            var values = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            var seq = new CanvasSequence();
-            this[symbols.sequence].forEach(function (_ref3) {
-              var type = _ref3.type,
-                  inst = _ref3.inst,
-                  args = _ref3.args;
-              var realArgs = args.map(function (v) {
-                return typeof v === 'string' ? replaceTags(v, values) : v;
-              });
-              seq[symbols.push].apply(seq, [type, inst].concat(_toConsumableArray(realArgs)));
-            });
-            return seq;
-          }
-          /**
-           * CanvasBlueprints cannot be directly executed!
-           *
-           * @throws TypeError
-           */
-
-        }, {
-          key: "execute",
-          value: function execute() {
-            throw new TypeError('Cannot execute a blueprint.');
-          }
-        }]);
-
-        return CanvasBlueprint;
-      }(CanvasSequence);
+      }
 
       module.exports = CanvasBlueprint;
     }, {
@@ -2761,14 +2630,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var CanvasAtom = require('./CanvasAtom.js');
+      const CanvasAtom = require('./CanvasAtom.js');
 
-      var locals = Object.freeze({
+      const locals = Object.freeze({
         METHODS: ['arc', 'arcTo', 'beginPath', 'bezierCurveTo', 'clearRect', 'clip', 'closePath', 'drawFocusIfNeeded', 'drawImage', 'ellipse', 'fill', 'fillRect', 'fillText', 'lineTo', 'moveTo', 'putImageData', 'quadraticCurveTo', 'rect', 'resetTransform', 'restore', 'rotate', 'save', 'scale', 'setLineDash', 'setTransform', 'stroke', 'strokeRect', 'strokeText', 'transform', 'translate'],
         PROPERTIES: ['fillStyle', 'filter', 'font', 'globalAlpha', 'globalCompositeOperation', 'imageSmoothingEnabled', 'lineCap', 'lineDashOffset', 'lineJoin', 'lineWidth', 'miterLimit', 'shadowBlur', 'shadowColor', 'shadowOffsetX', 'shadowOffsetY', 'strokeStyle', 'textAlign', 'textBaseline']
       }); // Mark properties as intended for internal use.
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         sequence: Symbol.for('sequence'),
         push: Symbol.for('push'),
         fromJSON: Symbol.for('fromJSON')
@@ -2778,19 +2647,15 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * executed on a CanvasRenderingContext2D.
        */
 
-      var CanvasSequence =
-      /*#__PURE__*/
-      function () {
+      class CanvasSequence {
         /**
          * @param {CanvasSequence} [data=null] - An unrevived (i.e. freshly
          * transmitted) CanvasSequence. If present, the constructor revives the
          * sequence. Note that an already revived CanvasSequence cannot be used as the
          * argument here.
          */
-        function CanvasSequence() {
-          var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
-          _classCallCheck(this, CanvasSequence);
+        constructor() {
+          let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
 
           /**
            * The CanvasAtoms that form the sequence.
@@ -2810,91 +2675,81 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(CanvasSequence, [{
-          key: symbols.fromJSON,
-          value: function value() {
-            var _this3 = this;
+        [symbols.fromJSON]() {
+          let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          data.sequence.forEach((_ref4) => {
+            let type = _ref4.type,
+                inst = _ref4.inst,
+                args = _ref4.args;
+            this[symbols.push](type, inst, ...args);
+          });
+        }
+        /**
+         * Push a new CanvasAtom onto the end of the sequence.
+         *
+         * @private
+         * @param {...mixed} args - The arguments to the CanvasAtom constructor.
+         */
 
-            var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-            data.sequence.forEach(function (_ref4) {
-              var type = _ref4.type,
-                  inst = _ref4.inst,
-                  args = _ref4.args;
 
-              _this3[symbols.push].apply(_this3, [type, inst].concat(_toConsumableArray(args)));
-            });
+        [symbols.push]() {
+          for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+            args[_key2] = arguments[_key2];
           }
-          /**
-           * Push a new CanvasAtom onto the end of the sequence.
-           *
-           * @private
-           * @param {...mixed} args - The arguments to the CanvasAtom constructor.
-           */
 
-        }, {
-          key: symbols.push,
-          value: function value() {
-            for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-              args[_key2] = arguments[_key2];
-            }
+          this[symbols.sequence].push(new CanvasAtom(...args));
+        }
+        /**
+         * Execute the sequence on the given context.
+         *
+         * @param {CanvasRenderingContext2D} context
+         */
 
-            this[symbols.sequence].push(_construct(CanvasAtom, args));
-          }
-          /**
-           * Execute the sequence on the given context.
-           *
-           * @param {CanvasRenderingContext2D} context
-           */
 
-        }, {
-          key: "execute",
-          value: function execute(context) {
-            context.save();
-            this[symbols.sequence].forEach(function (a) {
-              return a.execute(context);
-            });
-            context.restore();
-          }
-          /**
-           * Export a JSON serialized version of the sequence, ready for transmission.
-           *
-           * @return {CanvasSequence} In JSON serialized form.
-           */
+        execute(context) {
+          context.save();
+          this[symbols.sequence].forEach(a => a.execute(context));
+          context.restore();
+        }
+        /**
+         * Export a JSON serialized version of the sequence, ready for transmission.
+         *
+         * @return {CanvasSequence} In JSON serialized form.
+         */
 
-        }, {
-          key: "toJSON",
-          value: function toJSON() {
-            return {
-              sequence: this[symbols.sequence]
-            };
-          }
-        }]);
 
-        return CanvasSequence;
-      }();
+        toJSON() {
+          return {
+            sequence: this[symbols.sequence]
+          };
+        }
 
-      locals.METHODS.forEach(function (m) {
+      }
+
+      locals.METHODS.forEach(m => {
         Object.defineProperty(CanvasSequence.prototype, m, {
           value: function pushMethodCall() {
             for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
               args[_key3] = arguments[_key3];
             }
 
-            this[symbols.push].apply(this, [CanvasAtom.METHOD, m].concat(args));
+            this[symbols.push](CanvasAtom.METHOD, m, ...args);
           },
           writable: false,
           enumerable: true,
           configurable: false
         });
       });
-      locals.PROPERTIES.forEach(function (p) {
+      locals.PROPERTIES.forEach(p => {
         Object.defineProperty(CanvasSequence.prototype, p, {
-          get: function get() {
+          get() {
             throw "Invalid canvas sequencer interaction, cannot get ".concat(p, ".");
           },
-          set: function set(v) {
+
+          set(v) {
             this[symbols.push](CanvasAtom.PROPERTY, p, v);
           },
+
           enumerable: true,
           configurable: false
         });
@@ -3146,7 +3001,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         if (!(this instanceof Socket)) return new Socket(uri, opts);
         opts = opts || {};
 
-        if (uri && 'object' === _typeof(uri)) {
+        if (uri && 'object' === typeof uri) {
           opts = uri;
           uri = null;
         }
@@ -5421,7 +5276,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         function log() {
           // this hackery is required for IE8/9, where
           // the `console.log` function doesn't have 'apply'
-          return 'object' === (typeof console === "undefined" ? "undefined" : _typeof(console)) && console.log && Function.prototype.apply.call(console.log, console, arguments);
+          return 'object' === typeof console && console.log && Function.prototype.apply.call(console.log, console, arguments);
         }
         /**
          * Save `namespaces`.
@@ -6653,7 +6508,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
         function hasBinary(obj) {
-          if (!obj || _typeof(obj) !== 'object') {
+          if (!obj || typeof obj !== 'object') {
             return false;
           }
 
@@ -6840,8 +6695,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       module.exports = function (val, options) {
         options = options || {};
-
-        var type = _typeof(val);
+        var type = typeof val;
 
         if (type === 'string' && val.length > 0) {
           return parse(val);
@@ -7301,7 +7155,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       function lookup(uri, opts) {
-        if (_typeof(uri) === 'object') {
+        if (typeof uri === 'object') {
           opts = uri;
           uri = undefined;
         }
@@ -7407,7 +7261,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       function Manager(uri, opts) {
         if (!(this instanceof Manager)) return new Manager(uri, opts);
 
-        if (uri && 'object' === _typeof(uri)) {
+        if (uri && 'object' === typeof uri) {
           opts = uri;
           uri = undefined;
         }
@@ -8151,7 +8005,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
         if ('/' !== this.nsp) {
           if (this.query) {
-            var query = _typeof(this.query) === 'object' ? parseqs.encode(this.query) : this.query;
+            var query = typeof this.query === 'object' ? parseqs.encode(this.query) : this.query;
             debug('sending connect packet with query %s', query);
             this.packet({
               type: parser.CONNECT,
@@ -8558,7 +8412,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           return newData;
-        } else if (_typeof(data) === 'object' && !(data instanceof Date)) {
+        } else if (typeof data === 'object' && !(data instanceof Date)) {
           var newData = {};
 
           for (var key in data) {
@@ -8596,7 +8450,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           for (var i = 0; i < data.length; i++) {
             data[i] = _reconstructPacket(data[i], buffers);
           }
-        } else if (_typeof(data) === 'object') {
+        } else if (typeof data === 'object') {
           for (var key in data) {
             data[key] = _reconstructPacket(data[key], buffers);
           }
@@ -8644,7 +8498,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
             for (var i = 0; i < obj.length; i++) {
               _removeBlobs(obj[i], i, obj);
             }
-          } else if (_typeof(obj) === 'object' && !isBuf(obj)) {
+          } else if (typeof obj === 'object' && !isBuf(obj)) {
             // and object
             for (var key in obj) {
               _removeBlobs(obj[key], key, obj);
@@ -9146,19 +9000,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Gesture = require('./src/Gesture.js');
+      const Gesture = require('./src/Gesture.js');
 
-      var Point2D = require('./src/Point2D.js');
+      const Point2D = require('./src/Point2D.js');
 
-      var Region = require('./src/Region.js');
+      const Region = require('./src/Region.js');
 
-      var Smoothable = require('./src/Smoothable.js');
+      const Smoothable = require('./src/Smoothable.js');
 
       module.exports = {
-        Gesture: Gesture,
-        Point2D: Point2D,
-        Region: Region,
-        Smoothable: Smoothable
+        Gesture,
+        Point2D,
+        Region,
+        Smoothable
       };
     }, {
       "./src/Gesture.js": 54,
@@ -9178,9 +9032,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @private
        */
 
-      var Binding =
-      /*#__PURE__*/
-      function () {
+      class Binding {
         /**
          * Constructor function for the Binding class.
          *
@@ -9189,9 +9041,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {Function} handler - The function handler to execute when a gesture
          *    is recognized on the associated element.
          */
-        function Binding(element, gesture, handler) {
-          _classCallCheck(this, Binding);
-
+        constructor(element, gesture, handler) {
           /**
            * The element to which to associate the gesture.
            *
@@ -9228,26 +9078,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Binding, [{
-          key: "evaluateHook",
-          value: function evaluateHook(hook, state) {
-            var data = this.gesture[hook](state);
+        evaluateHook(hook, state) {
+          const data = this.gesture[hook](state);
 
-            if (data) {
-              this.handler(_objectSpread({
-                centroid: state.centroid,
-                event: state.event,
-                phase: hook,
-                radius: state.radius,
-                type: this.gesture.type,
-                target: this.element
-              }, data));
-            }
+          if (data) {
+            this.handler(_objectSpread({
+              centroid: state.centroid,
+              event: state.event,
+              phase: hook,
+              radius: state.radius,
+              type: this.gesture.type,
+              target: this.element
+            }, data));
           }
-        }]);
+        }
 
-        return Binding;
-      }();
+      }
 
       module.exports = Binding;
     }, {}],
@@ -9257,24 +9103,20 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var nextGestureNum = 0;
+      let nextGestureNum = 0;
       /**
        * The Gesture class that all gestures inherit from.
        *
        * @memberof westures-core
        */
 
-      var Gesture =
-      /*#__PURE__*/
-      function () {
+      class Gesture {
         /**
          * Constructor function for the Gesture class.
          *
          * @param {string} type - The name of the gesture.
          */
-        function Gesture(type) {
-          _classCallCheck(this, Gesture);
-
+        constructor(type) {
           if (typeof type !== 'string') {
             throw new TypeError('Gestures require a string type');
           }
@@ -9306,57 +9148,50 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Gesture, [{
-          key: "start",
-          value: function start() {
-            return null;
-          }
-          /**
-           * Event hook for the move phase of a gesture.
-           *
-           * @param {State} state - The input state object of the current region.
-           *
-           * @return {?Object} Gesture is considered recognized if an Object is
-           *    returned.
-           */
+        start() {
+          return null;
+        }
+        /**
+         * Event hook for the move phase of a gesture.
+         *
+         * @param {State} state - The input state object of the current region.
+         *
+         * @return {?Object} Gesture is considered recognized if an Object is
+         *    returned.
+         */
 
-        }, {
-          key: "move",
-          value: function move() {
-            return null;
-          }
-          /**
-           * Event hook for the end phase of a gesture.
-           *
-           * @param {State} state - The input state object of the current region.
-           *
-           * @return {?Object} Gesture is considered recognized if an Object is
-           *    returned.
-           */
 
-        }, {
-          key: "end",
-          value: function end() {
-            return null;
-          }
-          /**
-           * Event hook for when an input is cancelled.
-           *
-           * @param {State} state - The input state object of the current region.
-           *
-           * @return {?Object} Gesture is considered recognized if an Object is
-           *    returned.
-           */
+        move() {
+          return null;
+        }
+        /**
+         * Event hook for the end phase of a gesture.
+         *
+         * @param {State} state - The input state object of the current region.
+         *
+         * @return {?Object} Gesture is considered recognized if an Object is
+         *    returned.
+         */
 
-        }, {
-          key: "cancel",
-          value: function cancel() {
-            return null;
-          }
-        }]);
 
-        return Gesture;
-      }();
+        end() {
+          return null;
+        }
+        /**
+         * Event hook for when an input is cancelled.
+         *
+         * @param {State} state - The input state object of the current region.
+         *
+         * @return {?Object} Gesture is considered recognized if an Object is
+         *    returned.
+         */
+
+
+        cancel() {
+          return null;
+        }
+
+      }
 
       module.exports = Gesture;
     }, {}],
@@ -9366,7 +9201,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var PointerData = require('./PointerData.js');
+      const PointerData = require('./PointerData.js');
       /**
        * In case event.composedPath() is not available.
        *
@@ -9383,9 +9218,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           return event.composedPath();
         }
 
-        var path = [];
+        const path = [];
 
-        for (var node = event.target; node !== document; node = node.parentNode) {
+        for (let node = event.target; node !== document; node = node.parentNode) {
           path.push(node);
         }
 
@@ -9414,9 +9249,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Input =
-      /*#__PURE__*/
-      function () {
+      class Input {
         /**
          * Constructor function for the Input class.
          *
@@ -9425,10 +9258,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {number} identifier - The identifier for this input, so that it can
          *    be located in subsequent Event objects.
          */
-        function Input(event, identifier) {
-          _classCallCheck(this, Input);
-
-          var currentData = new PointerData(event, identifier);
+        constructor(event, identifier) {
+          const currentData = new PointerData(event, identifier);
           /**
            * The set of elements along the original event's propagation path at the
            * time it was dispatched.
@@ -9485,84 +9316,75 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Input, [{
-          key: "getProgressOfGesture",
+        get phase() {
+          return this.current.type;
+        }
+        /**
+         * The timestamp of the initiating event for this input.
+         *
+         * @type {number}
+         */
 
-          /**
-           * @param {string} id - The ID of the gesture whose progress is sought.
-           *
-           * @return {Object} The progress of the gesture.
-           */
-          value: function getProgressOfGesture(id) {
-            if (!this.progress[id]) {
-              this.progress[id] = {};
-            }
 
-            return this.progress[id];
+        get startTime() {
+          return this.initial.time;
+        }
+        /**
+         * @param {string} id - The ID of the gesture whose progress is sought.
+         *
+         * @return {Object} The progress of the gesture.
+         */
+
+
+        getProgressOfGesture(id) {
+          if (!this.progress[id]) {
+            this.progress[id] = {};
           }
-          /**
-           * @return {number} The distance between the initiating event for this input
-           *    and its current event.
-           */
 
-        }, {
-          key: "totalDistance",
-          value: function totalDistance() {
-            return this.initial.distanceTo(this.current);
-          }
-          /**
-           * Saves the given raw event in PointerData form as the current data for this
-           * input, pushing the old current data into the previous slot, and tossing
-           * out the old previous data.
-           *
-           * @private
-           *
-           * @param {Event} event - The event object to wrap with a PointerData.
-           */
+          return this.progress[id];
+        }
+        /**
+         * @return {number} The distance between the initiating event for this input
+         *    and its current event.
+         */
 
-        }, {
-          key: "update",
-          value: function update(event) {
-            this.previous = this.current;
-            this.current = new PointerData(event, this.identifier);
-          }
-          /**
-           * Determines if this PointerData was inside the given element at the time it
-           * was dispatched.
-           *
-           * @private
-           *
-           * @param {Element} element
-           *
-           * @return {boolean} true if the Input began inside the element, false
-           *    otherwise.
-           */
 
-        }, {
-          key: "wasInitiallyInside",
-          value: function wasInitiallyInside(element) {
-            return this.initialElements.has(element);
-          }
-        }, {
-          key: "phase",
-          get: function get() {
-            return this.current.type;
-          }
-          /**
-           * The timestamp of the initiating event for this input.
-           *
-           * @type {number}
-           */
+        totalDistance() {
+          return this.initial.distanceTo(this.current);
+        }
+        /**
+         * Saves the given raw event in PointerData form as the current data for this
+         * input, pushing the old current data into the previous slot, and tossing
+         * out the old previous data.
+         *
+         * @private
+         *
+         * @param {Event} event - The event object to wrap with a PointerData.
+         */
 
-        }, {
-          key: "startTime",
-          get: function get() {
-            return this.initial.time;
-          }
-        }]);
 
-        return Input;
-      }();
+        update(event) {
+          this.previous = this.current;
+          this.current = new PointerData(event, this.identifier);
+        }
+        /**
+         * Determines if this PointerData was inside the given element at the time it
+         * was dispatched.
+         *
+         * @private
+         *
+         * @param {Element} element
+         *
+         * @return {boolean} true if the Input began inside the element, false
+         *    otherwise.
+         */
+
+
+        wasInitiallyInside(element) {
+          return this.initialElements.has(element);
+        }
+
+      }
 
       module.exports = Input;
     }, {
@@ -9581,7 +9403,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @enum {string}
        */
 
-      var PHASE = Object.freeze({
+      const PHASE = Object.freeze({
         mousedown: 'start',
         touchstart: 'start',
         pointerdown: 'start',
@@ -9608,20 +9430,16 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof westures-core
        */
 
-      var Point2D =
-      /*#__PURE__*/
-      function () {
+      class Point2D {
         /**
          * Constructor function for the Point2D class.
          *
          * @param {number} [ x=0 ] - The x coordinate of the point.
          * @param {number} [ y=0 ] - The y coordinate of the point.
          */
-        function Point2D() {
-          var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-          var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-          _classCallCheck(this, Point2D);
+        constructor() {
+          let x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
           /**
            * The x coordinate of the point.
@@ -9648,137 +9466,119 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Point2D, [{
-          key: "angleTo",
-          value: function angleTo(point) {
-            return Math.atan2(point.y - this.y, point.x - this.x);
-          }
-          /**
-           * Determine the average distance from this point to the provided array of
-           * points.
-           *
-           * @param {!westures-core.Point2D[]} points - the Point2D objects to calculate
-           *    the average distance to.
-           *
-           * @return {number} The average distance from this point to the provided
-           *    points.
-           */
+        angleTo(point) {
+          return Math.atan2(point.y - this.y, point.x - this.x);
+        }
+        /**
+         * Determine the average distance from this point to the provided array of
+         * points.
+         *
+         * @param {!westures-core.Point2D[]} points - the Point2D objects to calculate
+         *    the average distance to.
+         *
+         * @return {number} The average distance from this point to the provided
+         *    points.
+         */
 
-        }, {
-          key: "averageDistanceTo",
-          value: function averageDistanceTo(points) {
-            return this.totalDistanceTo(points) / points.length;
-          }
-          /**
-           * Clone this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, identical to this point.
-           */
 
-        }, {
-          key: "clone",
-          value: function clone() {
-            return new Point2D(this.x, this.y);
-          }
-          /**
-           * Calculates the distance between two points.
-           *
-           * @param {!westures-core.Point2D} point - Point to which the distance is
-           * calculated.
-           *
-           * @return {number} The distance between the two points, a.k.a. the
-           *    hypoteneuse.
-           */
+        averageDistanceTo(points) {
+          return this.totalDistanceTo(points) / points.length;
+        }
+        /**
+         * Clone this point.
+         *
+         * @return {westures-core.Point2D} A new Point2D, identical to this point.
+         */
 
-        }, {
-          key: "distanceTo",
-          value: function distanceTo(point) {
-            return Math.hypot(point.x - this.x, point.y - this.y);
-          }
-          /**
-           * Subtract the given point from this point.
-           *
-           * @param {!westures-core.Point2D} point - Point to subtract from this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, which is the result of (this
-           * - point).
-           */
 
-        }, {
-          key: "minus",
-          value: function minus(point) {
-            return new Point2D(this.x - point.x, this.y - point.y);
-          }
-          /**
-           * Return the summation of this point to the given point.
-           *
-           * @param {!westures-core.Point2D} point - Point to add to this point.
-           *
-           * @return {westures-core.Point2D} A new Point2D, which is the addition of the
-           * two points.
-           */
+        clone() {
+          return new Point2D(this.x, this.y);
+        }
+        /**
+         * Calculates the distance between two points.
+         *
+         * @param {!westures-core.Point2D} point - Point to which the distance is
+         * calculated.
+         *
+         * @return {number} The distance between the two points, a.k.a. the
+         *    hypoteneuse.
+         */
 
-        }, {
-          key: "plus",
-          value: function plus(point) {
-            return new Point2D(this.x + point.x, this.y + point.y);
-          }
-          /**
-           * Calculates the total distance from this point to an array of points.
-           *
-           * @param {!westures-core.Point2D[]} points - The array of Point2D objects to
-           *    calculate the total distance to.
-           *
-           * @return {number} The total distance from this point to the provided points.
-           */
 
-        }, {
-          key: "totalDistanceTo",
-          value: function totalDistanceTo(points) {
-            var _this4 = this;
+        distanceTo(point) {
+          return Math.hypot(point.x - this.x, point.y - this.y);
+        }
+        /**
+         * Subtract the given point from this point.
+         *
+         * @param {!westures-core.Point2D} point - Point to subtract from this point.
+         *
+         * @return {westures-core.Point2D} A new Point2D, which is the result of (this
+         * - point).
+         */
 
-            return points.reduce(function (d, p) {
-              return d + _this4.distanceTo(p);
-            }, 0);
-          }
-          /**
-           * Calculates the centroid of a list of points.
-           *
-           * @param {westures-core.Point2D[]} points - The array of Point2D objects for
-           * which to calculate the centroid.
-           *
-           * @return {westures-core.Point2D} The centroid of the provided points.
-           */
 
-        }], [{
-          key: "centroid",
-          value: function centroid() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            if (points.length === 0) return null;
-            var total = Point2D.sum(points);
-            return new Point2D(total.x / points.length, total.y / points.length);
-          }
-          /**
-           * Calculates the sum of the given points.
-           *
-           * @param {westures-core.Point2D[]} points - The Point2D objects to sum up.
-           *
-           * @return {westures-core.Point2D} A new Point2D representing the sum of the
-           * given points.
-           */
+        minus(point) {
+          return new Point2D(this.x - point.x, this.y - point.y);
+        }
+        /**
+         * Return the summation of this point to the given point.
+         *
+         * @param {!westures-core.Point2D} point - Point to add to this point.
+         *
+         * @return {westures-core.Point2D} A new Point2D, which is the addition of the
+         * two points.
+         */
 
-        }, {
-          key: "sum",
-          value: function sum() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            return points.reduce(function (total, pt) {
-              return total.plus(pt);
-            }, new Point2D(0, 0));
-          }
-        }]);
 
-        return Point2D;
-      }();
+        plus(point) {
+          return new Point2D(this.x + point.x, this.y + point.y);
+        }
+        /**
+         * Calculates the total distance from this point to an array of points.
+         *
+         * @param {!westures-core.Point2D[]} points - The array of Point2D objects to
+         *    calculate the total distance to.
+         *
+         * @return {number} The total distance from this point to the provided points.
+         */
+
+
+        totalDistanceTo(points) {
+          return points.reduce((d, p) => d + this.distanceTo(p), 0);
+        }
+        /**
+         * Calculates the centroid of a list of points.
+         *
+         * @param {westures-core.Point2D[]} points - The array of Point2D objects for
+         * which to calculate the centroid.
+         *
+         * @return {westures-core.Point2D} The centroid of the provided points.
+         */
+
+
+        static centroid() {
+          let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          if (points.length === 0) return null;
+          const total = Point2D.sum(points);
+          return new Point2D(total.x / points.length, total.y / points.length);
+        }
+        /**
+         * Calculates the sum of the given points.
+         *
+         * @param {westures-core.Point2D[]} points - The Point2D objects to sum up.
+         *
+         * @return {westures-core.Point2D} A new Point2D representing the sum of the
+         * given points.
+         */
+
+
+        static sum() {
+          let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          return points.reduce((total, pt) => total.plus(pt), new Point2D(0, 0));
+        }
+
+      }
 
       module.exports = Point2D;
     }, {}],
@@ -9788,9 +9588,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Point2D = require('./Point2D.js');
+      const Point2D = require('./Point2D.js');
 
-      var PHASE = require('./PHASE.js');
+      const PHASE = require('./PHASE.js');
       /**
        * @private
        * @return {Event} The Event object which corresponds to the given identifier.
@@ -9800,7 +9600,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       function getEventObject(event, identifier) {
         if (event.changedTouches) {
-          return Array.from(event.changedTouches).find(function (t) {
+          return Array.from(event.changedTouches).find(t => {
             return t.identifier === identifier;
           });
         }
@@ -9815,18 +9615,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var PointerData =
-      /*#__PURE__*/
-      function () {
+      class PointerData {
         /**
          * @constructor
          *
          * @param {Event} event - The event object being wrapped.
          * @param {number} identifier - The index of touch if applicable
          */
-        function PointerData(event, identifier) {
-          _classCallCheck(this, PointerData);
-
+        constructor(event, identifier) {
           /**
            * The original event object.
            *
@@ -9849,7 +9645,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
           this.time = Date.now();
-          var eventObj = getEventObject(event, identifier);
+          const eventObj = getEventObject(event, identifier);
           /**
            * The (x,y) coordinate of the event, wrapped in a Point2D.
            *
@@ -9868,29 +9664,24 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(PointerData, [{
-          key: "angleTo",
-          value: function angleTo(pdata) {
-            return this.point.angleTo(pdata.point);
-          }
-          /**
-           * Calculates the distance between two PointerDatas.
-           *
-           * @param {PointerData} pdata
-           *
-           * @return {number} The distance between the two points, a.k.a. the
-           *    hypoteneuse.
-           */
+        angleTo(pdata) {
+          return this.point.angleTo(pdata.point);
+        }
+        /**
+         * Calculates the distance between two PointerDatas.
+         *
+         * @param {PointerData} pdata
+         *
+         * @return {number} The distance between the two points, a.k.a. the
+         *    hypoteneuse.
+         */
 
-        }, {
-          key: "distanceTo",
-          value: function distanceTo(pdata) {
-            return this.point.distanceTo(pdata.point);
-          }
-        }]);
 
-        return PointerData;
-      }();
+        distanceTo(pdata) {
+          return this.point.distanceTo(pdata.point);
+        }
+
+      }
 
       module.exports = PointerData;
     }, {
@@ -9903,16 +9694,16 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Binding = require('./Binding.js');
+      const Binding = require('./Binding.js');
 
-      var State = require('./State.js');
+      const State = require('./State.js');
 
-      var PHASE = require('./PHASE.js');
+      const PHASE = require('./PHASE.js');
 
-      var POINTER_EVENTS = ['pointerdown', 'pointermove', 'pointerup'];
-      var MOUSE_EVENTS = ['mousedown', 'mousemove', 'mouseup'];
-      var TOUCH_EVENTS = ['touchstart', 'touchmove', 'touchend'];
-      var CANCEL_EVENTS = ['pointercancel', 'touchcancel'];
+      const POINTER_EVENTS = ['pointerdown', 'pointermove', 'pointerup'];
+      const MOUSE_EVENTS = ['mousedown', 'mousemove', 'mouseup'];
+      const TOUCH_EVENTS = ['touchstart', 'touchmove', 'touchend'];
+      const CANCEL_EVENTS = ['pointercancel', 'touchcancel'];
       /**
        * Allows the user to specify the control region which will listen for user
        * input events.
@@ -9920,9 +9711,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof westures-core
        */
 
-      var Region =
-      /*#__PURE__*/
-      function () {
+      class Region {
         /**
          * Constructor function for the Region class.
          *
@@ -9933,11 +9722,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          *    should be disabled. This option should most likely be ignored. Here
          *    there by dragons if set to false.
          */
-        function Region(element) {
-          var capture = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-          var preventDefault = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-
-          _classCallCheck(this, Region);
+        constructor(element) {
+          let capture = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+          let preventDefault = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
 
           /**
            * The list of relations between elements, their gestures, and the handlers.
@@ -10006,182 +9793,162 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Region, [{
-          key: "activate",
-          value: function activate() {
-            var _this5 = this;
+        activate() {
+          /*
+           * Having to listen to both mouse and touch events is annoying, but
+           * necessary due to conflicting standards and browser implementations.
+           * Pointer is a fallback for now instead of the primary, until I figure out
+           * all the details to do with pointer-events and touch-action and their
+           * cross browser compatibility.
+           *
+           * Listening to both mouse and touch comes with the difficulty that
+           * preventDefault() must be called to prevent both events from iterating
+           * through the system. However I have left it as an option to the end user,
+           * which defaults to calling preventDefault(), in case there's a use-case I
+           * haven't considered or am not aware of.
+           *
+           * It is also a good idea to keep regions small in large pages.
+           *
+           * See:
+           *  https://www.html5rocks.com/en/mobile/touchandmouse/
+           *  https://developer.mozilla.org/en-US/docs/Web/API/Touch_events
+           *  https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
+           */
+          let eventNames = [];
 
-            /*
-             * Having to listen to both mouse and touch events is annoying, but
-             * necessary due to conflicting standards and browser implementations.
-             * Pointer is a fallback for now instead of the primary, until I figure out
-             * all the details to do with pointer-events and touch-action and their
-             * cross browser compatibility.
-             *
-             * Listening to both mouse and touch comes with the difficulty that
-             * preventDefault() must be called to prevent both events from iterating
-             * through the system. However I have left it as an option to the end user,
-             * which defaults to calling preventDefault(), in case there's a use-case I
-             * haven't considered or am not aware of.
-             *
-             * It is also a good idea to keep regions small in large pages.
-             *
-             * See:
-             *  https://www.html5rocks.com/en/mobile/touchandmouse/
-             *  https://developer.mozilla.org/en-US/docs/Web/API/Touch_events
-             *  https://developer.mozilla.org/en-US/docs/Web/API/Pointer_events
-             */
-            var eventNames = [];
-
-            if (window.TouchEvent || window.MouseEvent) {
-              eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
-            } else {
-              eventNames = POINTER_EVENTS;
-            } // Bind detected browser events to the region element.
+          if (window.TouchEvent || window.MouseEvent) {
+            eventNames = MOUSE_EVENTS.concat(TOUCH_EVENTS);
+          } else {
+            eventNames = POINTER_EVENTS;
+          } // Bind detected browser events to the region element.
 
 
-            var arbiter = this.arbitrate.bind(this);
-            eventNames.forEach(function (eventName) {
-              _this5.element.addEventListener(eventName, arbiter, {
-                capture: _this5.capture,
-                once: false,
-                passive: false
-              });
+          const arbiter = this.arbitrate.bind(this);
+          eventNames.forEach(eventName => {
+            this.element.addEventListener(eventName, arbiter, {
+              capture: this.capture,
+              once: false,
+              passive: false
             });
-            ['blur'].concat(CANCEL_EVENTS).forEach(function (eventname) {
-              window.addEventListener(eventname, function (e) {
-                e.preventDefault();
-                _this5.state = new State(_this5.element);
-
-                _this5.resetActiveBindings();
-              });
-            });
-          }
-          /**
-           * Resets the active bindings.
-           *
-           * @private
-           */
-
-        }, {
-          key: "resetActiveBindings",
-          value: function resetActiveBindings() {
-            this.activeBindings = [];
-            this.isWaiting = true;
-          }
-          /**
-           * Selects the bindings that are active for the current input sequence.
-           *
-           * @private
-           */
-
-        }, {
-          key: "updateActiveBindings",
-          value: function updateActiveBindings() {
-            if (this.isWaiting && this.state.inputs.length > 0) {
-              var input = this.state.inputs[0];
-              this.activeBindings = this.bindings.filter(function (b) {
-                return input.wasInitiallyInside(b.element);
-              });
-              this.isWaiting = false;
-            }
-          }
-          /**
-           * Evaluates whether the current input session has completed.
-           *
-           * @private
-           */
-
-        }, {
-          key: "pruneActiveBindings",
-          value: function pruneActiveBindings() {
-            if (this.state.hasNoActiveInputs()) {
+          });
+          ['blur'].concat(CANCEL_EVENTS).forEach(eventname => {
+            window.addEventListener(eventname, e => {
+              e.preventDefault();
+              this.state = new State(this.element);
               this.resetActiveBindings();
-            }
+            });
+          });
+        }
+        /**
+         * Resets the active bindings.
+         *
+         * @private
+         */
+
+
+        resetActiveBindings() {
+          this.activeBindings = [];
+          this.isWaiting = true;
+        }
+        /**
+         * Selects the bindings that are active for the current input sequence.
+         *
+         * @private
+         */
+
+
+        updateActiveBindings() {
+          if (this.isWaiting && this.state.inputs.length > 0) {
+            const input = this.state.inputs[0];
+            this.activeBindings = this.bindings.filter(b => {
+              return input.wasInitiallyInside(b.element);
+            });
+            this.isWaiting = false;
           }
-          /**
-           * All input events flow through this function. It makes sure that the input
-           * state is maintained, determines which bindings to analyze based on the
-           * initial position of the inputs, calls the relevant gesture hooks, and
-           * dispatches gesture data.
-           *
-           * @private
-           * @param {Event} event - The event emitted from the window object.
-           */
+        }
+        /**
+         * Evaluates whether the current input session has completed.
+         *
+         * @private
+         */
 
-        }, {
-          key: "arbitrate",
-          value: function arbitrate(event) {
-            var _this6 = this;
 
-            this.state.updateAllInputs(event);
-            this.updateActiveBindings();
-
-            if (this.activeBindings.length > 0) {
-              if (this.preventDefault) event.preventDefault();
-              this.activeBindings.forEach(function (binding) {
-                binding.evaluateHook(PHASE[event.type], _this6.state);
-              });
-            }
-
-            this.state.clearEndedInputs();
-            this.pruneActiveBindings();
+        pruneActiveBindings() {
+          if (this.state.hasNoActiveInputs()) {
+            this.resetActiveBindings();
           }
-          /**
-           * Bind an element to a gesture with an associated handler.
-           *
-           * @param {Element} element - The element object.
-           * @param {westures-core.Gesture} gesture - Gesture type with which to bind.
-           * @param {Function} handler - The function to execute when a gesture is
-           *    recognized.
-           */
+        }
+        /**
+         * All input events flow through this function. It makes sure that the input
+         * state is maintained, determines which bindings to analyze based on the
+         * initial position of the inputs, calls the relevant gesture hooks, and
+         * dispatches gesture data.
+         *
+         * @private
+         * @param {Event} event - The event emitted from the window object.
+         */
 
-        }, {
-          key: "addGesture",
-          value: function addGesture(element, gesture, handler) {
-            this.bindings.push(new Binding(element, gesture, handler));
-          }
-          /**
-           * Retrieves Bindings by their associated element.
-           *
-           * @private
-           *
-           * @param {Element} element - The element for which to find bindings.
-           *
-           * @return {Binding[]} Bindings to which the element is bound.
-           */
 
-        }, {
-          key: "getBindingsByElement",
-          value: function getBindingsByElement(element) {
-            return this.bindings.filter(function (b) {
-              return b.element === element;
+        arbitrate(event) {
+          this.state.updateAllInputs(event);
+          this.updateActiveBindings();
+
+          if (this.activeBindings.length > 0) {
+            if (this.preventDefault) event.preventDefault();
+            this.activeBindings.forEach(binding => {
+              binding.evaluateHook(PHASE[event.type], this.state);
             });
           }
-          /**
-           * Unbinds an element from either the specified gesture or all if no gesture
-           * is specified.
-           *
-           * @param {Element} element - The element to unbind.
-           * @param {westures-core.Gesture} [ gesture ] - The gesture to unbind. If
-           * undefined, will unbind all Bindings associated with the given element.
-           */
 
-        }, {
-          key: "removeGestures",
-          value: function removeGestures(element, gesture) {
-            var _this7 = this;
+          this.state.clearEndedInputs();
+          this.pruneActiveBindings();
+        }
+        /**
+         * Bind an element to a gesture with an associated handler.
+         *
+         * @param {Element} element - The element object.
+         * @param {westures-core.Gesture} gesture - Gesture type with which to bind.
+         * @param {Function} handler - The function to execute when a gesture is
+         *    recognized.
+         */
 
-            this.getBindingsByElement(element).forEach(function (b) {
-              if (gesture == null || b.gesture === gesture) {
-                _this7.bindings.splice(_this7.bindings.indexOf(b), 1);
-              }
-            });
-          }
-        }]);
 
-        return Region;
-      }();
+        addGesture(element, gesture, handler) {
+          this.bindings.push(new Binding(element, gesture, handler));
+        }
+        /**
+         * Retrieves Bindings by their associated element.
+         *
+         * @private
+         *
+         * @param {Element} element - The element for which to find bindings.
+         *
+         * @return {Binding[]} Bindings to which the element is bound.
+         */
+
+
+        getBindingsByElement(element) {
+          return this.bindings.filter(b => b.element === element);
+        }
+        /**
+         * Unbinds an element from either the specified gesture or all if no gesture
+         * is specified.
+         *
+         * @param {Element} element - The element to unbind.
+         * @param {westures-core.Gesture} [ gesture ] - The gesture to unbind. If
+         * undefined, will unbind all Bindings associated with the given element.
+         */
+
+
+        removeGestures(element, gesture) {
+          this.getBindingsByElement(element).forEach(b => {
+            if (gesture == null || b.gesture === gesture) {
+              this.bindings.splice(this.bindings.indexOf(b), 1);
+            }
+          });
+        }
+
+      }
 
       module.exports = Region;
     }, {
@@ -10195,8 +9962,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var stagedEmit = Symbol('stagedEmit');
-      var smooth = Symbol('smooth');
+      const stagedEmit = Symbol('stagedEmit');
+      const smooth = Symbol('smooth');
       /**
        * A Smoothable gesture is one that emits on 'move' events. It provides a
        * 'smoothing' option through its constructor, and will apply smoothing before
@@ -10214,115 +9981,94 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @mixin
        */
 
-      var Smoothable = function Smoothable(superclass) {
-        return (
-          /*#__PURE__*/
-          function (_superclass) {
-            _inherits(Smoothable, _superclass);
+      const Smoothable = superclass => class Smoothable extends superclass {
+        /**
+         * @param {string} name - The name of the gesture.
+         * @param {Object} [options]
+         * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+         * emitted data.
+         */
+        constructor(name) {
+          let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+          super(name, options);
+          /**
+           * The function through which emits are passed.
+           *
+           * @private
+           * @type {function}
+           */
 
-            /**
-             * @param {string} name - The name of the gesture.
-             * @param {Object} [options]
-             * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-             * emitted data.
-             */
-            function Smoothable(name) {
-              var _this8;
+          this.emit = null;
 
-              var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-              _classCallCheck(this, Smoothable);
-
-              _this8 = _possibleConstructorReturn(this, _getPrototypeOf(Smoothable).call(this, name, options));
-              /**
-               * The function through which emits are passed.
-               *
-               * @private
-               * @type {function}
-               */
-
-              _this8.emit = null;
-
-              if (options.hasOwnProperty('smoothing') && !options.smoothing) {
-                _this8.emit = function (data) {
-                  return data;
-                };
-              } else {
-                _this8.emit = _this8[smooth].bind(_assertThisInitialized(_this8));
-              }
-              /**
-               * Stage the emitted data once.
-               *
-               * @private
-               * @type {object}
-               */
+          if (options.hasOwnProperty('smoothing') && !options.smoothing) {
+            this.emit = data => data;
+          } else {
+            this.emit = this[smooth].bind(this);
+          }
+          /**
+           * Stage the emitted data once.
+           *
+           * @private
+           * @type {object}
+           */
 
 
-              _this8[stagedEmit] = null;
-              return _this8;
-            }
-            /**
-             * Restart the Smoothable gesture.
-             *
-             * @private
-             * @memberof module:westures-core.Smoothable
-             */
+          this[stagedEmit] = null;
+        }
+        /**
+         * Restart the Smoothable gesture.
+         *
+         * @private
+         * @memberof module:westures-core.Smoothable
+         */
 
 
-            _createClass(Smoothable, [{
-              key: "restart",
-              value: function restart() {
-                this[stagedEmit] = null;
-              }
-              /**
-               * Smooth out the outgoing data.
-               *
-               * @private
-               * @memberof module:westures-core.Smoothable
-               *
-               * @param {object} next - The next batch of data to emit.
-               * @param {string] field - The field to which smoothing should be applied.
-               *
-               * @return {?object}
-               */
+        restart() {
+          this[stagedEmit] = null;
+        }
+        /**
+         * Smooth out the outgoing data.
+         *
+         * @private
+         * @memberof module:westures-core.Smoothable
+         *
+         * @param {object} next - The next batch of data to emit.
+         * @param {string] field - The field to which smoothing should be applied.
+         *
+         * @return {?object}
+         */
 
-            }, {
-              key: smooth,
-              value: function value(next, field) {
-                var result = null;
 
-                if (this[stagedEmit]) {
-                  result = this[stagedEmit];
-                  var avg = this.smoothingAverage(result[field], next[field]);
-                  result[field] = avg;
-                  next[field] = avg;
-                }
+        [smooth](next, field) {
+          let result = null;
 
-                this[stagedEmit] = next;
-                return result;
-              }
-              /**
-               * Average out two values, as part of the smoothing algorithm.
-               *
-               * @private
-               * @memberof module:westures-core.Smoothable
-               *
-               * @param {number} a
-               * @param {number} b
-               *
-               * @return {number} The average of 'a' and 'b'
-               */
+          if (this[stagedEmit]) {
+            result = this[stagedEmit];
+            const avg = this.smoothingAverage(result[field], next[field]);
+            result[field] = avg;
+            next[field] = avg;
+          }
 
-            }, {
-              key: "smoothingAverage",
-              value: function smoothingAverage(a, b) {
-                return (a + b) / 2;
-              }
-            }]);
+          this[stagedEmit] = next;
+          return result;
+        }
+        /**
+         * Average out two values, as part of the smoothing algorithm.
+         *
+         * @private
+         * @memberof module:westures-core.Smoothable
+         *
+         * @param {number} a
+         * @param {number} b
+         *
+         * @return {number} The average of 'a' and 'b'
+         */
 
-            return Smoothable;
-          }(superclass)
-        );
+
+        smoothingAverage(a, b) {
+          return (a + b) / 2;
+        }
+
       };
 
       module.exports = Smoothable;
@@ -10333,13 +10079,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Input = require('./Input.js');
+      const Input = require('./Input.js');
 
-      var PHASE = require('./PHASE.js');
+      const PHASE = require('./PHASE.js');
 
-      var Point2D = require('./Point2D.js');
+      const Point2D = require('./Point2D.js');
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         inputs: Symbol.for('inputs')
       });
       /*
@@ -10349,12 +10095,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @private
        */
 
-      var update_fns = {
+      const update_fns = {
         TouchEvent: function TouchEvent(event) {
-          var _this9 = this;
-
-          Array.from(event.changedTouches).forEach(function (touch) {
-            _this9.updateInput(event, touch.identifier);
+          Array.from(event.changedTouches).forEach(touch => {
+            this.updateInput(event, touch.identifier);
           });
         },
         PointerEvent: function PointerEvent(event) {
@@ -10373,15 +10117,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @hideconstructor
        */
 
-      var State =
-      /*#__PURE__*/
-      function () {
+      class State {
         /**
          * Constructor for the State class.
          */
-        function State(element) {
-          _classCallCheck(this, State);
-
+        constructor(element) {
           /**
            * Keep a reference to the element for the associated region.
            *
@@ -10442,136 +10182,116 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(State, [{
-          key: "clearEndedInputs",
-          value: function clearEndedInputs() {
-            var _this10 = this;
+        clearEndedInputs() {
+          this[symbols.inputs].forEach((v, k) => {
+            if (v.phase === 'end') this[symbols.inputs].delete(k);
+          });
+        }
+        /**
+         * @param {string} phase - One of 'start', 'move', or 'end'.
+         *
+         * @return {Input[]} Inputs in the given phase.
+         */
 
-            this[symbols.inputs].forEach(function (v, k) {
-              if (v.phase === 'end') _this10[symbols.inputs].delete(k);
-            });
+
+        getInputsInPhase(phase) {
+          return this.inputs.filter(i => i.phase === phase);
+        }
+        /**
+         * @param {string} phase - One of 'start', 'move', or 'end'.
+         *
+         * @return {Input[]} Inputs <b>not</b> in the given phase.
+         */
+
+
+        getInputsNotInPhase(phase) {
+          return this.inputs.filter(i => i.phase !== phase);
+        }
+        /**
+         * @private
+         * @return {boolean} True if there are no active inputs. False otherwise.
+         */
+
+
+        hasNoActiveInputs() {
+          return this[symbols.inputs].size === 0;
+        }
+        /**
+         * Update the input with the given identifier using the given event.
+         *
+         * @private
+         *
+         * @param {Event} event - The event being captured.
+         * @param {number} identifier - The identifier of the input to update.
+         */
+
+
+        updateInput(event, identifier) {
+          switch (PHASE[event.type]) {
+            case 'start':
+              this[symbols.inputs].set(identifier, new Input(event, identifier));
+
+              try {
+                this.element.setPointerCapture(identifier);
+              } catch (e) {
+                null;
+              }
+
+              break;
+
+            case 'end':
+              try {
+                this.element.releasePointerCapture(identifier);
+              } catch (e) {
+                null;
+              }
+
+            case 'move':
+            case 'cancel':
+              if (this[symbols.inputs].has(identifier)) {
+                this[symbols.inputs].get(identifier).update(event);
+              }
+
+              break;
+
+            default:
+              console.warn("Unrecognized event type: ".concat(event.type));
           }
-          /**
-           * @param {string} phase - One of 'start', 'move', or 'end'.
-           *
-           * @return {Input[]} Inputs in the given phase.
-           */
+        }
+        /**
+         * Updates the inputs with new information based upon a new event being fired.
+         *
+         * @private
+         * @param {Event} event - The event being captured.
+         */
 
-        }, {
-          key: "getInputsInPhase",
-          value: function getInputsInPhase(phase) {
-            return this.inputs.filter(function (i) {
-              return i.phase === phase;
-            });
-          }
-          /**
-           * @param {string} phase - One of 'start', 'move', or 'end'.
-           *
-           * @return {Input[]} Inputs <b>not</b> in the given phase.
-           */
 
-        }, {
-          key: "getInputsNotInPhase",
-          value: function getInputsNotInPhase(phase) {
-            return this.inputs.filter(function (i) {
-              return i.phase !== phase;
-            });
-          }
-          /**
-           * @private
-           * @return {boolean} True if there are no active inputs. False otherwise.
-           */
+        updateAllInputs(event) {
+          update_fns[event.constructor.name].call(this, event);
+          this.updateFields(event);
+        }
+        /**
+         * Updates the convenience fields.
+         *
+         * @private
+         * @param {Event} event - Event with which to update the convenience fields.
+         */
 
-        }, {
-          key: "hasNoActiveInputs",
-          value: function hasNoActiveInputs() {
-            return this[symbols.inputs].size === 0;
-          }
-          /**
-           * Update the input with the given identifier using the given event.
-           *
-           * @private
-           *
-           * @param {Event} event - The event being captured.
-           * @param {number} identifier - The identifier of the input to update.
-           */
 
-        }, {
-          key: "updateInput",
-          value: function updateInput(event, identifier) {
-            switch (PHASE[event.type]) {
-              case 'start':
-                this[symbols.inputs].set(identifier, new Input(event, identifier));
+        updateFields() {
+          let event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+          this.inputs = Array.from(this[symbols.inputs].values());
+          this.active = this.getInputsNotInPhase('end');
+          this.activePoints = this.active.map(i => i.current.point);
+          this.centroid = Point2D.centroid(this.activePoints);
+          this.radius = this.activePoints.reduce((acc, cur) => {
+            const dist = cur.distanceTo(this.centroid);
+            return dist > acc ? dist : acc;
+          }, 0);
+          if (event) this.event = event;
+        }
 
-                try {
-                  this.element.setPointerCapture(identifier);
-                } catch (e) {
-                  null;
-                }
-
-                break;
-
-              case 'end':
-                try {
-                  this.element.releasePointerCapture(identifier);
-                } catch (e) {
-                  null;
-                }
-
-              case 'move':
-              case 'cancel':
-                if (this[symbols.inputs].has(identifier)) {
-                  this[symbols.inputs].get(identifier).update(event);
-                }
-
-                break;
-
-              default:
-                console.warn("Unrecognized event type: ".concat(event.type));
-            }
-          }
-          /**
-           * Updates the inputs with new information based upon a new event being fired.
-           *
-           * @private
-           * @param {Event} event - The event being captured.
-           */
-
-        }, {
-          key: "updateAllInputs",
-          value: function updateAllInputs(event) {
-            update_fns[event.constructor.name].call(this, event);
-            this.updateFields(event);
-          }
-          /**
-           * Updates the convenience fields.
-           *
-           * @private
-           * @param {Event} event - Event with which to update the convenience fields.
-           */
-
-        }, {
-          key: "updateFields",
-          value: function updateFields() {
-            var _this11 = this;
-
-            var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-            this.inputs = Array.from(this[symbols.inputs].values());
-            this.active = this.getInputsNotInPhase('end');
-            this.activePoints = this.active.map(function (i) {
-              return i.current.point;
-            });
-            this.centroid = Point2D.centroid(this.activePoints);
-            this.radius = this.activePoints.reduce(function (acc, cur) {
-              var dist = cur.distanceTo(_this11.centroid);
-              return dist > acc ? dist : acc;
-            }, 0);
-            if (event) this.event = event;
-          }
-        }]);
-
-        return State;
-      }();
+      }
 
       module.exports = State;
     }, {
@@ -10589,38 +10309,38 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require = require('westures-core'),
-          Gesture = _require.Gesture,
-          Point2D = _require.Point2D,
-          Region = _require.Region,
-          Smoothable = _require.Smoothable;
+      const _require = require('westures-core'),
+            Gesture = _require.Gesture,
+            Point2D = _require.Point2D,
+            Region = _require.Region,
+            Smoothable = _require.Smoothable;
 
-      var Pan = require('./src/Pan.js');
+      const Pan = require('./src/Pan.js');
 
-      var Pinch = require('./src/Pinch.js');
+      const Pinch = require('./src/Pinch.js');
 
-      var Rotate = require('./src/Rotate.js');
+      const Rotate = require('./src/Rotate.js');
 
-      var Swipe = require('./src/Swipe.js');
+      const Swipe = require('./src/Swipe.js');
 
-      var Swivel = require('./src/Swivel.js');
+      const Swivel = require('./src/Swivel.js');
 
-      var Tap = require('./src/Tap.js');
+      const Tap = require('./src/Tap.js');
 
-      var Track = require('./src/Track.js');
+      const Track = require('./src/Track.js');
 
       module.exports = {
-        Gesture: Gesture,
-        Point2D: Point2D,
-        Region: Region,
-        Smoothable: Smoothable,
-        Pan: Pan,
-        Pinch: Pinch,
-        Rotate: Rotate,
-        Swipe: Swipe,
-        Swivel: Swivel,
-        Tap: Tap,
-        Track: Track
+        Gesture,
+        Point2D,
+        Region,
+        Smoothable,
+        Pan,
+        Pinch,
+        Rotate,
+        Swipe,
+        Swivel,
+        Tap,
+        Track
       };
       /**
        * Here are the return "types" of the gestures that are included in this
@@ -10708,10 +10428,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require2 = require('westures-core'),
-          Gesture = _require2.Gesture,
-          Point2D = _require2.Point2D,
-          Smoothable = _require2.Smoothable;
+      const _require2 = require('westures-core'),
+            Gesture = _require2.Gesture,
+            Point2D = _require2.Point2D,
+            Smoothable = _require2.Smoothable;
       /**
        * Data returned when a Pan is recognized.
        *
@@ -10734,27 +10454,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Pan =
-      /*#__PURE__*/
-      function (_Smoothable) {
-        _inherits(Pan, _Smoothable);
-
+      class Pan extends Smoothable(Gesture) {
         /**
          * @param {Object} [options]
          * @param {string} [options.muteKey=undefined] - If this key is pressed, this
          *    gesture will be muted (i.e. not recognized). One of 'altKey', 'ctrlKey',
          *    'shiftKey', or 'metaKey'.
          */
-        function Pan() {
-          var _this12;
+        constructor() {
+          let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          super('pan', options);
 
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Pan);
-
-          _this12 = _possibleConstructorReturn(this, _getPrototypeOf(Pan).call(this, 'pan', options));
-
-          var settings = _objectSpread({}, Pan.DEFAULTS, options);
+          const settings = _objectSpread({}, Pan.DEFAULTS, options);
           /**
            * Don't emit any data if this key is pressed.
            *
@@ -10763,7 +10474,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this12.muteKey = settings.muteKey;
+          this.muteKey = settings.muteKey;
           /**
            * The minimum number of inputs that must be active for a Pinch to be
            * recognized.
@@ -10772,7 +10483,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this12.minInputs = settings.minInputs;
+          this.minInputs = settings.minInputs;
           /**
            * The previous point location.
            *
@@ -10780,8 +10491,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:westures.Point2D}
            */
 
-          _this12.previous = null;
-          return _this12;
+          this.previous = null;
         }
         /**
          * Resets the gesture's progress by saving the current centroid of the active
@@ -10792,95 +10502,86 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Pan, [{
-          key: "restart",
-          value: function restart(state) {
-            if (state.active.length >= this.minInputs) {
-              this.previous = state.centroid;
-            }
-
-            _get(_getPrototypeOf(Pan.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a Pan. Records the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Pan.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
-           * otherwise not recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) {
-              return null;
-            }
-
-            if (this.muteKey && state.event[this.muteKey]) {
-              this.restart(state);
-              return null;
-            }
-
-            var translation = state.centroid.minus(this.previous);
+        restart(state) {
+          if (state.active.length >= this.minInputs) {
             this.previous = state.centroid;
-            return this.emit({
-              translation: translation
-            }, 'translation');
           }
-          /**
-           * Event hook for the end of a Pan. Records the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "end",
-          value: function end(state) {
+          super.restart();
+        }
+        /**
+         * Event hook for the start of a Pan. Records the current centroid of
+         * the inputs.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        start(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the move of a Pan.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
+         * otherwise not recognized.
+         */
+
+
+        move(state) {
+          if (state.active.length < this.minInputs) {
+            return null;
+          }
+
+          if (this.muteKey && state.event[this.muteKey]) {
             this.restart(state);
+            return null;
           }
-          /**
-           * Event hook for the cancel of a Pan. Resets the current centroid of
-           * the inputs.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-          /*
-           * Averages out two points.
-           *
-           * @override
-           */
+          const translation = state.centroid.minus(this.previous);
+          this.previous = state.centroid;
+          return this.emit({
+            translation
+          }, 'translation');
+        }
+        /**
+         * Event hook for the end of a Pan. Records the current centroid of
+         * the inputs.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-        }, {
-          key: "smoothingAverage",
-          value: function smoothingAverage(a, b) {
-            return new Point2D((a.x + b.x) / 2, (a.y + b.y) / 2);
-          }
-        }]);
 
-        return Pan;
-      }(Smoothable(Gesture));
+        end(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the cancel of a Pan. Resets the current centroid of
+         * the inputs.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        cancel(state) {
+          this.restart(state);
+        }
+        /*
+         * Averages out two points.
+         *
+         * @override
+         */
+
+
+        smoothingAverage(a, b) {
+          return new Point2D((a.x + b.x) / 2, (a.y + b.y) / 2);
+        }
+
+      }
 
       Pan.DEFAULTS = Object.freeze({
         minInputs: 1,
@@ -10896,9 +10597,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require3 = require('westures-core'),
-          Gesture = _require3.Gesture,
-          Smoothable = _require3.Smoothable;
+      const _require3 = require('westures-core'),
+            Gesture = _require3.Gesture,
+            Smoothable = _require3.Smoothable;
       /**
        * Data returned when a Pinch is recognized.
        *
@@ -10923,26 +10624,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Pinch =
-      /*#__PURE__*/
-      function (_Smoothable2) {
-        _inherits(Pinch, _Smoothable2);
-
+      class Pinch extends Smoothable(Gesture) {
         /**
          * @param {Object} [options]
          * @param {number} [options.minInputs=2] The minimum number of inputs that
          * must be active for a Pinch to be recognized.
          */
-        function Pinch() {
-          var _this13;
+        constructor() {
+          let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          super('pinch', options);
 
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Pinch);
-
-          _this13 = _possibleConstructorReturn(this, _getPrototypeOf(Pinch).call(this, 'pinch', options));
-
-          var settings = _objectSpread({}, Pinch.DEFAULTS, options);
+          const settings = _objectSpread({}, Pinch.DEFAULTS, options);
           /**
            * The minimum number of inputs that must be active for a Pinch to be
            * recognized.
@@ -10952,7 +10644,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this13.minInputs = settings.minInputs;
+          this.minInputs = settings.minInputs;
           /**
            * The previous distance.
            *
@@ -10960,8 +10652,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this13.previous = 0;
-          return _this13;
+          this.previous = 0;
         }
         /**
          * Initializes the gesture progress and stores it in the first input for
@@ -10972,75 +10663,67 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Pinch, [{
-          key: "restart",
-          value: function restart(state) {
-            if (state.active.length >= this.minInputs) {
-              var distance = state.centroid.averageDistanceTo(state.activePoints);
-              this.previous = distance;
-            }
-
-            _get(_getPrototypeOf(Pinch.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a Pinch.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Pinch.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.PinchData} <tt>null</tt> if not recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) return null;
-            var distance = state.centroid.averageDistanceTo(state.activePoints);
-            var scale = distance / this.previous;
+        restart(state) {
+          if (state.active.length >= this.minInputs) {
+            const distance = state.centroid.averageDistanceTo(state.activePoints);
             this.previous = distance;
-            return this.emit({
-              distance: distance,
-              scale: scale
-            }, 'scale');
           }
-          /**
-           * Event hook for the end of a Pinch.
-           *
-           * @private
-           * @param {State} input status object
-           */
 
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the cancel of a Pinch.
-           *
-           * @private
-           * @param {State} input status object
-           */
+          super.restart();
+        }
+        /**
+         * Event hook for the start of a Pinch.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-        }]);
 
-        return Pinch;
-      }(Smoothable(Gesture));
+        start(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the move of a Pinch.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.PinchData} <tt>null</tt> if not recognized.
+         */
+
+
+        move(state) {
+          if (state.active.length < this.minInputs) return null;
+          const distance = state.centroid.averageDistanceTo(state.activePoints);
+          const scale = distance / this.previous;
+          this.previous = distance;
+          return this.emit({
+            distance,
+            scale
+          }, 'scale');
+        }
+        /**
+         * Event hook for the end of a Pinch.
+         *
+         * @private
+         * @param {State} input status object
+         */
+
+
+        end(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the cancel of a Pinch.
+         *
+         * @private
+         * @param {State} input status object
+         */
+
+
+        cancel(state) {
+          this.restart(state);
+        }
+
+      }
 
       Pinch.DEFAULTS = Object.freeze({
         minInputs: 2,
@@ -11056,11 +10739,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require4 = require('westures-core'),
-          Gesture = _require4.Gesture,
-          Smoothable = _require4.Smoothable;
+      const _require4 = require('westures-core'),
+            Gesture = _require4.Gesture,
+            Smoothable = _require4.Smoothable;
 
-      var angularMinus = require('./angularMinus.js');
+      const angularMinus = require('./angularMinus.js');
       /**
        * Data returned when a Rotate is recognized.
        *
@@ -11083,11 +10766,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Rotate =
-      /*#__PURE__*/
-      function (_Smoothable3) {
-        _inherits(Rotate, _Smoothable3);
-
+      class Rotate extends Smoothable(Gesture) {
         /**
          * @param {Object} [options]
          * @param {number} [options.minInputs=2] The minimum number of inputs that
@@ -11095,16 +10774,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
          * emitted data.
          */
-        function Rotate() {
-          var _this14;
+        constructor() {
+          let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          super('rotate', options);
 
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Rotate);
-
-          _this14 = _possibleConstructorReturn(this, _getPrototypeOf(Rotate).call(this, 'rotate', options));
-
-          var settings = _objectSpread({}, Rotate.DEFAULTS, options);
+          const settings = _objectSpread({}, Rotate.DEFAULTS, options);
           /**
            * The minimum number of inputs that must be active for a Pinch to be
            * recognized.
@@ -11114,7 +10788,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this14.minInputs = settings.minInputs;
+          this.minInputs = settings.minInputs;
           /**
            * Track the previously emitted rotation angle.
            *
@@ -11122,8 +10796,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number[]}
            */
 
-          _this14.previousAngles = [];
-          return _this14;
+          this.previousAngles = [];
         }
         /**
          * Store individual angle progress on each input, return average angle change.
@@ -11133,98 +10806,86 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Rotate, [{
-          key: "getAngle",
-          value: function getAngle(state) {
-            var _this15 = this;
+        getAngle(state) {
+          if (state.active.length < this.minInputs) return null;
+          let angle = 0;
+          const stagedAngles = [];
+          state.active.forEach((input, idx) => {
+            const currentAngle = state.centroid.angleTo(input.current.point);
+            angle += angularMinus(currentAngle, this.previousAngles[idx]);
+            stagedAngles[idx] = currentAngle;
+          });
+          angle /= state.active.length;
+          this.previousAngles = stagedAngles;
+          return angle;
+        }
+        /**
+         * Restart the gesture;
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-            if (state.active.length < this.minInputs) return null;
-            var angle = 0;
-            var stagedAngles = [];
-            state.active.forEach(function (input, idx) {
-              var currentAngle = state.centroid.angleTo(input.current.point);
-              angle += angularMinus(currentAngle, _this15.previousAngles[idx]);
-              stagedAngles[idx] = currentAngle;
-            });
-            angle /= state.active.length;
-            this.previousAngles = stagedAngles;
-            return angle;
+
+        restart(state) {
+          this.previousAngles = [];
+          this.getAngle(state);
+          super.restart();
+        }
+        /**
+         * Event hook for the start of a gesture.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        start(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the move of a Rotate gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
+         */
+
+
+        move(state) {
+          const rotation = this.getAngle(state);
+
+          if (rotation) {
+            return this.emit({
+              rotation
+            }, 'rotation');
           }
-          /**
-           * Restart the gesture;
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "restart",
-          value: function restart(state) {
-            this.previousAngles = [];
-            this.getAngle(state);
+          return null;
+        }
+        /**
+         * Event hook for the end of a gesture.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-            _get(_getPrototypeOf(Rotate.prototype), "restart", this).call(this);
-          }
-          /**
-           * Event hook for the start of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the move of a Rotate gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
-           */
+        end(state) {
+          this.restart(state);
+        }
+        /**
+         * Event hook for the cancel of a gesture.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-        }, {
-          key: "move",
-          value: function move(state) {
-            var rotation = this.getAngle(state);
 
-            if (rotation) {
-              return this.emit({
-                rotation: rotation
-              }, 'rotation');
-            }
+        cancel(state) {
+          this.restart(state);
+        }
 
-            return null;
-          }
-          /**
-           * Event hook for the end of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.restart(state);
-          }
-          /**
-           * Event hook for the cancel of a gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.restart(state);
-          }
-        }]);
-
-        return Rotate;
-      }(Smoothable(Gesture));
+      }
 
       Rotate.DEFAULTS = Object.freeze({
         minInputs: 2,
@@ -11241,12 +10902,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require5 = require('westures-core'),
-          Gesture = _require5.Gesture;
+      const _require5 = require('westures-core'),
+            Gesture = _require5.Gesture;
 
-      var REQUIRED_INPUTS = 1;
-      var PROGRESS_STACK_SIZE = 7;
-      var MS_THRESHOLD = 300;
+      const REQUIRED_INPUTS = 1;
+      const PROGRESS_STACK_SIZE = 7;
+      const MS_THRESHOLD = 300;
       /**
        * Data returned when a Swipe is recognized.
        *
@@ -11277,12 +10938,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       function calc_angle(moves, vlim) {
-        var point = moves[vlim].point;
-        var sin = 0;
-        var cos = 0;
+        const point = moves[vlim].point;
+        let sin = 0;
+        let cos = 0;
 
-        for (var i = 0; i < vlim; ++i) {
-          var angle = moves[i].point.angleTo(point);
+        for (let i = 0; i < vlim; ++i) {
+          const angle = moves[i].point.angleTo(point);
           sin += Math.sin(angle);
           cos += Math.cos(angle);
         }
@@ -11311,8 +10972,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 
       function velocity(start, end) {
-        var distance = end.point.distanceTo(start.point);
-        var time = end.time - start.time + 1;
+        const distance = end.point.distanceTo(start.point);
+        const time = end.time - start.time + 1;
         return distance / time;
       }
       /**
@@ -11331,10 +10992,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 
       function calc_velocity(moves, vlim) {
-        var max = 0;
+        let max = 0;
 
-        for (var i = 0; i < vlim; ++i) {
-          var current = velocity(moves[i], moves[i + 1]);
+        for (let i = 0; i < vlim; ++i) {
+          const current = velocity(moves[i], moves[i + 1]);
           if (current > max) max = current;
         }
 
@@ -11351,20 +11012,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Swipe =
-      /*#__PURE__*/
-      function (_Gesture) {
-        _inherits(Swipe, _Gesture);
-
+      class Swipe extends Gesture {
         /**
          * Constructor function for the Swipe class.
          */
-        function Swipe() {
-          var _this16;
-
-          _classCallCheck(this, Swipe);
-
-          _this16 = _possibleConstructorReturn(this, _getPrototypeOf(Swipe).call(this, 'swipe'));
+        constructor() {
+          super('swipe');
           /**
            * Moves list.
            *
@@ -11372,7 +11025,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {object[]}
            */
 
-          _this16.moves = [];
+          this.moves = [];
           /**
            * Data to emit when all points have ended.
            *
@@ -11380,8 +11033,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {ReturnTypes.SwipeData}
            */
 
-          _this16.saved = null;
-          return _this16;
+          this.saved = null;
         }
         /**
          * Refresh the swipe state.
@@ -11390,125 +11042,115 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Swipe, [{
-          key: "refresh",
-          value: function refresh() {
-            this.moves = [];
-            this.saved = null;
-          }
-          /**
-           * Event hook for the start of a gesture. Resets the swipe state.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
+        refresh() {
+          this.moves = [];
+          this.saved = null;
+        }
+        /**
+         * Event hook for the start of a gesture. Resets the swipe state.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-        }, {
-          key: "start",
-          value: function start() {
-            this.refresh();
-          }
-          /**
-           * Event hook for the move of a gesture. Captures an input's x/y coordinates
-           * and the time of it's event on a stack.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length >= REQUIRED_INPUTS) {
-              this.moves.push({
-                time: Date.now(),
-                point: state.centroid
-              });
+        start() {
+          this.refresh();
+        }
+        /**
+         * Event hook for the move of a gesture. Captures an input's x/y coordinates
+         * and the time of it's event on a stack.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-              if (this.moves.length > PROGRESS_STACK_SIZE) {
-                this.moves.splice(0, this.moves.length - PROGRESS_STACK_SIZE);
-              }
+
+        move(state) {
+          if (state.active.length >= REQUIRED_INPUTS) {
+            this.moves.push({
+              time: Date.now(),
+              point: state.centroid
+            });
+
+            if (this.moves.length > PROGRESS_STACK_SIZE) {
+              this.moves.splice(0, this.moves.length - PROGRESS_STACK_SIZE);
             }
           }
-          /**
-           * Determines if the input's history validates a swipe motion.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
-           * recognized.
-           */
+        }
+        /**
+         * Determines if the input's history validates a swipe motion.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
+         * recognized.
+         */
 
-        }, {
-          key: "end",
-          value: function end(state) {
-            var result = this.getResult();
-            this.moves = [];
 
-            if (state.active.length > 0) {
-              this.saved = result;
-              return null;
-            }
+        end(state) {
+          const result = this.getResult();
+          this.moves = [];
 
-            this.saved = null;
-            return this.validate(result);
+          if (state.active.length > 0) {
+            this.saved = result;
+            return null;
           }
-          /**
-           * Event hook for the cancel phase of a Swipe.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "cancel",
-          value: function cancel() {
-            this.refresh();
+          this.saved = null;
+          return this.validate(result);
+        }
+        /**
+         * Event hook for the cancel phase of a Swipe.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        cancel() {
+          this.refresh();
+        }
+        /**
+         * Get the swipe result.
+         *
+         * @private
+         */
+
+
+        getResult() {
+          if (this.moves.length < PROGRESS_STACK_SIZE) {
+            return this.saved;
           }
-          /**
-           * Get the swipe result.
-           *
-           * @private
-           */
 
-        }, {
-          key: "getResult",
-          value: function getResult() {
-            if (this.moves.length < PROGRESS_STACK_SIZE) {
-              return this.saved;
-            }
-
-            var vlim = PROGRESS_STACK_SIZE - 1;
-            var _this$moves$vlim = this.moves[vlim],
+          const vlim = PROGRESS_STACK_SIZE - 1;
+          const _this$moves$vlim = this.moves[vlim],
                 point = _this$moves$vlim.point,
                 time = _this$moves$vlim.time;
-            var velocity = calc_velocity(this.moves, vlim);
-            var direction = calc_angle(this.moves, vlim);
-            var centroid = point;
-            return {
-              point: point,
-              velocity: velocity,
-              direction: direction,
-              time: time,
-              centroid: centroid
-            };
-          }
-          /**
-           * Validates that an emit should occur with the given data.
-           *
-           * @private
-           * @param {?ReturnTypes.SwipeData} data
-           */
+          const velocity = calc_velocity(this.moves, vlim);
+          const direction = calc_angle(this.moves, vlim);
+          const centroid = point;
+          return {
+            point,
+            velocity,
+            direction,
+            time,
+            centroid
+          };
+        }
+        /**
+         * Validates that an emit should occur with the given data.
+         *
+         * @private
+         * @param {?ReturnTypes.SwipeData} data
+         */
 
-        }, {
-          key: "validate",
-          value: function validate(data) {
-            if (data == null) return null;
-            return Date.now() - data.time > MS_THRESHOLD ? null : data;
-          }
-        }]);
 
-        return Swipe;
-      }(Gesture);
+        validate(data) {
+          if (data == null) return null;
+          return Date.now() - data.time > MS_THRESHOLD ? null : data;
+        }
+
+      }
 
       module.exports = Swipe;
     }, {
@@ -11520,12 +11162,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require6 = require('westures-core'),
-          Gesture = _require6.Gesture,
-          Point2D = _require6.Point2D,
-          Smoothable = _require6.Smoothable;
+      const _require6 = require('westures-core'),
+            Gesture = _require6.Gesture,
+            Point2D = _require6.Point2D,
+            Smoothable = _require6.Smoothable;
 
-      var angularMinus = require('./angularMinus.js');
+      const angularMinus = require('./angularMinus.js');
       /**
        * Data returned when a Swivel is recognized.
        *
@@ -11550,11 +11192,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Swivel =
-      /*#__PURE__*/
-      function (_Smoothable4) {
-        _inherits(Swivel, _Smoothable4);
-
+      class Swivel extends Smoothable(Gesture) {
         /**
          * Constructor for the Swivel class.
          *
@@ -11570,16 +11208,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * will be set to the center of the given pivotCenter element. Otherwise, the
          * pivot will be the location of the first contact point.
          */
-        function Swivel() {
-          var _this17;
+        constructor() {
+          let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          super('swivel', options);
 
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Swivel);
-
-          _this17 = _possibleConstructorReturn(this, _getPrototypeOf(Swivel).call(this, 'swivel', options));
-
-          var settings = _objectSpread({}, Swivel.DEFAULTS, options);
+          const settings = _objectSpread({}, Swivel.DEFAULTS, options);
           /**
            * The radius around the start point in which to do nothing.
            *
@@ -11588,7 +11221,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _this17.deadzoneRadius = settings.deadzoneRadius;
+          this.deadzoneRadius = settings.deadzoneRadius;
           /**
            * If this is set, gesture will only respond to events where this property
            * is truthy. Should be one of 'ctrlKey', 'altKey', or 'shiftKey'.
@@ -11597,7 +11230,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {string}
            */
 
-          _this17.enableKey = settings.enableKey;
+          this.enableKey = settings.enableKey;
           /**
            * The minimum number of inputs that must be active for a Swivel to be
            * recognized.
@@ -11606,7 +11239,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this17.minInputs = settings.minInputs;
+          this.minInputs = settings.minInputs;
           /**
            * If this is set, the swivel will use the center of the element as its
            * pivot point. Unreliable if the element is moved during a swivel gesture.
@@ -11615,7 +11248,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {Element}
            */
 
-          _this17.pivotCenter = settings.pivotCenter;
+          this.pivotCenter = settings.pivotCenter;
           /**
            * The pivot point of the swivel.
            *
@@ -11623,7 +11256,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:westures.Point2D}
            */
 
-          _this17.pivot = null;
+          this.pivot = null;
           /**
            * The previous angle.
            *
@@ -11631,7 +11264,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this17.previous = 0;
+          this.previous = 0;
           /**
            * Whether the swivel is active.
            *
@@ -11639,8 +11272,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {boolean}
            */
 
-          _this17.isActive = false;
-          return _this17;
+          this.isActive = false;
         }
         /**
          * Returns whether this gesture is currently enabled.
@@ -11651,148 +11283,137 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Swivel, [{
-          key: "enabled",
-          value: function enabled(event) {
-            return !this.enableKey || event[this.enableKey];
+        enabled(event) {
+          return !this.enableKey || event[this.enableKey];
+        }
+        /**
+         * Restart the given progress object using the given input object.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        restart(state) {
+          this.isActive = true;
+
+          if (this.pivotCenter) {
+            const rect = this.pivotCenter.getBoundingClientRect();
+            this.pivot = new Point2D(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            this.previous = this.pivot.angleTo(state.centroid);
+          } else {
+            this.pivot = state.centroid;
+            this.previous = 0;
           }
-          /**
-           * Restart the given progress object using the given input object.
-           *
-           * @private
-           * @param {State} state - current input state.
+
+          super.restart();
+        }
+        /**
+         * Refresh the gesture.
+         *
+         * @private
+         * @param {module:westures.Input[]} inputs - Input list to process.
+         * @param {State} state - current input state.
+         */
+
+
+        refresh(inputs, state) {
+          if (inputs.length >= this.minInputs && this.enabled(state.event)) {
+            this.restart(state);
+          }
+        }
+        /**
+         * Event hook for the start of a Swivel gesture.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        start(state) {
+          this.refresh(state.getInputsInPhase('start'), state);
+        }
+        /**
+         * Determine the data to emit. To be called once valid state for a swivel has
+         * been assured, except for deadzone.
+         *
+         * @private
+         * @param {State} state - current input state.
+         * @return {?Returns.SwivelData} Data to emit.
+         */
+
+
+        calculateOutput(state) {
+          const pivot = this.pivot;
+          const angle = pivot.angleTo(state.centroid);
+          const rotation = angularMinus(angle, this.previous);
+          /*
+           * Updating the previous angle regardless of emit prevents sudden flips when
+           * the user exits the deadzone circle.
            */
 
-        }, {
-          key: "restart",
-          value: function restart(state) {
-            this.isActive = true;
+          this.previous = angle;
 
-            if (this.pivotCenter) {
-              var rect = this.pivotCenter.getBoundingClientRect();
-              this.pivot = new Point2D(rect.left + rect.width / 2, rect.top + rect.height / 2);
-              this.previous = this.pivot.angleTo(state.centroid);
-            } else {
-              this.pivot = state.centroid;
-              this.previous = 0;
-            }
-
-            _get(_getPrototypeOf(Swivel.prototype), "restart", this).call(this);
+          if (pivot.distanceTo(state.centroid) > this.deadzoneRadius) {
+            return {
+              rotation,
+              pivot
+            };
           }
-          /**
-           * Refresh the gesture.
-           *
-           * @private
-           * @param {module:westures.Input[]} inputs - Input list to process.
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "refresh",
-          value: function refresh(inputs, state) {
-            if (inputs.length >= this.minInputs && this.enabled(state.event)) {
-              this.restart(state);
-            }
-          }
-          /**
-           * Event hook for the start of a Swivel gesture.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
-
-        }, {
-          key: "start",
-          value: function start(state) {
-            this.refresh(state.getInputsInPhase('start'), state);
-          }
-          /**
-           * Determine the data to emit. To be called once valid state for a swivel has
-           * been assured, except for deadzone.
-           *
-           * @private
-           * @param {State} state - current input state.
-           * @return {?Returns.SwivelData} Data to emit.
-           */
-
-        }, {
-          key: "calculateOutput",
-          value: function calculateOutput(state) {
-            var pivot = this.pivot;
-            var angle = pivot.angleTo(state.centroid);
-            var rotation = angularMinus(angle, this.previous);
-            /*
-             * Updating the previous angle regardless of emit prevents sudden flips when
-             * the user exits the deadzone circle.
-             */
-
-            this.previous = angle;
-
-            if (pivot.distanceTo(state.centroid) > this.deadzoneRadius) {
-              return {
-                rotation: rotation,
-                pivot: pivot
-              };
-            }
-
-            return null;
-          }
-          /**
-           * Event hook for the move of a Swivel gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
-           * recognized.
-           */
-
-        }, {
-          key: "move",
-          value: function move(state) {
-            if (state.active.length < this.minInputs) return null;
-
-            if (this.enabled(state.event)) {
-              if (this.isActive) {
-                var output = this.calculateOutput(state);
-                return output ? this.emit(output, 'rotation') : null;
-              } // The enableKey was just pressed again.
+          return null;
+        }
+        /**
+         * Event hook for the move of a Swivel gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
+         * recognized.
+         */
 
 
-              this.refresh(state.active, state);
-            } else {
-              // The enableKey was released, therefore pivot point is now invalid.
-              this.isActive = false;
-            }
+        move(state) {
+          if (state.active.length < this.minInputs) return null;
 
-            return null;
-          }
-          /**
-           * Event hook for the end of a Swivel.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
+          if (this.enabled(state.event)) {
+            if (this.isActive) {
+              const output = this.calculateOutput(state);
+              return output ? this.emit(output, 'rotation') : null;
+            } // The enableKey was just pressed again.
 
-        }, {
-          key: "end",
-          value: function end(state) {
+
             this.refresh(state.active, state);
+          } else {
+            // The enableKey was released, therefore pivot point is now invalid.
+            this.isActive = false;
           }
-          /**
-           * Event hook for the cancel of a Swivel.
-           *
-           * @private
-           * @param {State} state - current input state.
-           */
 
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.end(state);
-          }
-        }]);
+          return null;
+        }
+        /**
+         * Event hook for the end of a Swivel.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
 
-        return Swivel;
-      }(Smoothable(Gesture));
+
+        end(state) {
+          this.refresh(state.active, state);
+        }
+        /**
+         * Event hook for the cancel of a Swivel.
+         *
+         * @private
+         * @param {State} state - current input state.
+         */
+
+
+        cancel(state) {
+          this.end(state);
+        }
+
+      }
       /**
        * The default options for a Swivel gesture.
        */
@@ -11815,11 +11436,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require7 = require('westures-core'),
-          Gesture = _require7.Gesture,
-          Point2D = _require7.Point2D;
+      const _require7 = require('westures-core'),
+            Gesture = _require7.Gesture,
+            Point2D = _require7.Point2D;
 
-      var defaults = Object.freeze({
+      const defaults = Object.freeze({
         MIN_DELAY_MS: 0,
         MAX_DELAY_MS: 300,
         NUM_INPUTS: 1,
@@ -11845,11 +11466,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof westures
        */
 
-      var Tap =
-      /*#__PURE__*/
-      function (_Gesture2) {
-        _inherits(Tap, _Gesture2);
-
+      class Tap extends Gesture {
         /**
          * Constructor function for the Tap class.
          *
@@ -11862,14 +11479,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {number} [options.tolerance=10] - The tolerance in pixels a user can
          *    move.
          */
-        function Tap() {
-          var _this18;
-
-          var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Tap);
-
-          _this18 = _possibleConstructorReturn(this, _getPrototypeOf(Tap).call(this, 'tap'));
+        constructor() {
+          let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+          super('tap');
           /**
            * The minimum amount between a touchstart and a touchend can be configured
            * in milliseconds. The minimum delay starts to count down when the expected
@@ -11880,7 +11492,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this18.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
+          this.minDelay = options.minDelay || defaults.MIN_DELAY_MS;
           /**
            * The maximum delay between a touchstart and touchend can be configured in
            * milliseconds. The maximum delay starts to count down when the expected
@@ -11891,7 +11503,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this18.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
+          this.maxDelay = options.maxDelay || defaults.MAX_DELAY_MS;
           /**
            * The number of inputs to trigger a Tap can be variable, and the maximum
            * number being a factor of the browser.
@@ -11900,7 +11512,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this18.numInputs = options.numInputs || defaults.NUM_INPUTS;
+          this.numInputs = options.numInputs || defaults.NUM_INPUTS;
           /**
            * A move tolerance in pixels allows some slop between a user's start to end
            * events. This allows the Tap gesture to be triggered more easily.
@@ -11909,7 +11521,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          _this18.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
+          this.tolerance = options.tolerance || defaults.MOVE_PX_TOLERANCE;
           /**
            * An array of inputs that have ended recently.
            *
@@ -11917,8 +11529,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {Input[]}
            */
 
-          _this18.ended = [];
-          return _this18;
+          this.ended = [];
         }
         /**
          * Event hook for the end of a gesture.  Determines if this the tap event can
@@ -11930,35 +11541,25 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Tap, [{
-          key: "end",
-          value: function end(state) {
-            var _this19 = this;
+        end(state) {
+          const now = Date.now();
+          this.ended = this.ended.concat(state.getInputsInPhase('end')).filter(input => {
+            const tdiff = now - input.startTime;
+            return tdiff <= this.maxDelay && tdiff >= this.minDelay;
+          });
 
-            var now = Date.now();
-            this.ended = this.ended.concat(state.getInputsInPhase('end')).filter(function (input) {
-              var tdiff = now - input.startTime;
-              return tdiff <= _this19.maxDelay && tdiff >= _this19.minDelay;
-            });
-
-            if (this.ended.length !== this.numInputs || this.ended.some(function (i) {
-              return i.totalDistance() > _this19.tolerance;
-            })) {
-              return null;
-            }
-
-            var centroid = Point2D.centroid(this.ended.map(function (i) {
-              return i.current.point;
-            }));
-            this.ended = [];
-            return _objectSpread({
-              centroid: centroid
-            }, centroid);
+          if (this.ended.length !== this.numInputs || this.ended.some(i => i.totalDistance() > this.tolerance)) {
+            return null;
           }
-        }]);
 
-        return Tap;
-      }(Gesture);
+          const centroid = Point2D.centroid(this.ended.map(i => i.current.point));
+          this.ended = [];
+          return _objectSpread({
+            centroid
+          }, centroid);
+        }
+
+      }
 
       module.exports = Tap;
     }, {
@@ -11970,8 +11571,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require8 = require('westures-core'),
-          Gesture = _require8.Gesture;
+      const _require8 = require('westures-core'),
+            Gesture = _require8.Gesture;
       /**
        * Data returned when a Track is recognized.
        *
@@ -11995,30 +11596,20 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Track =
-      /*#__PURE__*/
-      function (_Gesture3) {
-        _inherits(Track, _Gesture3);
-
+      class Track extends Gesture {
         /**
          * Constructor for the Track class.
          *
          * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or
          *    all of 'start', 'move', 'end', and 'cancel'.
          */
-        function Track() {
-          var _this20;
-
-          var phases = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-
-          _classCallCheck(this, Track);
-
-          _this20 = _possibleConstructorReturn(this, _getPrototypeOf(Track).call(this, 'track'));
-          _this20.trackStart = phases.includes('start');
-          _this20.trackMove = phases.includes('move');
-          _this20.trackEnd = phases.includes('end');
-          _this20.trackCancel = phases.includes('cancel');
-          return _this20;
+        constructor() {
+          let phases = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          super('track');
+          this.trackStart = phases.includes('start');
+          this.trackMove = phases.includes('move');
+          this.trackEnd = phases.includes('end');
+          this.trackCancel = phases.includes('cancel');
         }
         /**
          * @private
@@ -12027,68 +11618,60 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Track, [{
-          key: "data",
-          value: function data(_ref5) {
-            var activePoints = _ref5.activePoints,
-                centroid = _ref5.centroid;
-            return {
-              active: activePoints,
-              centroid: centroid
-            };
-          }
-          /**
-           * Event hook for the start of a Track gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
-           */
+        data(_ref5) {
+          let activePoints = _ref5.activePoints,
+              centroid = _ref5.centroid;
+          return {
+            active: activePoints,
+            centroid
+          };
+        }
+        /**
+         * Event hook for the start of a Track gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+         */
 
-        }, {
-          key: "start",
-          value: function start(state) {
-            return this.trackStart ? this.data(state) : null;
-          }
-          /**
-           * Event hook for the move of a Track gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
-           */
 
-        }, {
-          key: "move",
-          value: function move(state) {
-            return this.trackMove ? this.data(state) : null;
-          }
-          /**
-           * Event hook for the end of a Track gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
-           */
+        start(state) {
+          return this.trackStart ? this.data(state) : null;
+        }
+        /**
+         * Event hook for the move of a Track gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+         */
 
-        }, {
-          key: "end",
-          value: function end(state) {
-            return this.trackEnd ? this.data(state) : null;
-          }
-          /**
-           * Event hook for the cancel of a Track gesture.
-           *
-           * @param {State} state - current input state.
-           * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
-           */
 
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            return this.trackCancel ? this.data(state) : null;
-          }
-        }]);
+        move(state) {
+          return this.trackMove ? this.data(state) : null;
+        }
+        /**
+         * Event hook for the end of a Track gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+         */
 
-        return Track;
-      }(Gesture);
+
+        end(state) {
+          return this.trackEnd ? this.data(state) : null;
+        }
+        /**
+         * Event hook for the cancel of a Track gesture.
+         *
+         * @param {State} state - current input state.
+         * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
+         */
+
+
+        cancel(state) {
+          return this.trackCancel ? this.data(state) : null;
+        }
+
+      }
 
       module.exports = Track;
     }, {
@@ -12100,7 +11683,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var PI2 = 2 * Math.PI;
+      const PI2 = 2 * Math.PI;
       /**
        * Helper function to regulate angular differences, so they don't jump from 0 to
        * 2*PI or vice versa.
@@ -12112,8 +11695,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       function angularMinus(a) {
-        var b = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-        var diff = a - b;
+        let b = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        let diff = a - b;
 
         if (diff < -Math.PI) {
           diff += PI2;
@@ -12188,9 +11771,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       //
 
 
-      for (; i < length; i++) {
-        map[alphabet[i]] = i;
-      } //
+      for (; i < length; i++) map[alphabet[i]] = i; //
       // Expose the `yeast`, `encode` and `decode` functions.
       //
 
@@ -12217,21 +11798,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var ClientController = require('./client/ClientController.js');
+      const ClientController = require('./client/ClientController.js');
 
-      var ClientModel = require('./client/ClientModel.js');
+      const ClientModel = require('./client/ClientModel.js');
 
-      var ClientView = require('./client/ClientView.js');
+      const ClientView = require('./client/ClientView.js');
 
       window.addEventListener('load', function run() {
-        document.addEventListener('contextmenu', function (e) {
-          return e.preventDefault();
-        });
-        var canvas = document.querySelector('canvas');
-        var context = canvas.getContext('2d');
-        var model = new ClientModel();
-        var view = new ClientView(context);
-        var ctrl = new ClientController(canvas, view, model);
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        const canvas = document.querySelector('canvas');
+        const context = canvas.getContext('2d');
+        const model = new ClientModel();
+        const view = new ClientView(context);
+        const ctrl = new ClientController(canvas, view, model);
         model.view = view;
         view.model = model;
         ctrl.connect();
@@ -12257,22 +11836,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var io = require('socket.io-client');
+      const io = require('socket.io-client');
 
-      var _require9 = require('../shared.js'),
-          constants = _require9.constants,
-          DataReporter = _require9.DataReporter,
-          TouchReporter = _require9.TouchReporter,
-          IdStamper = _require9.IdStamper,
-          Message = _require9.Message,
-          NOP = _require9.NOP;
+      const _require9 = require('../shared.js'),
+            constants = _require9.constants,
+            DataReporter = _require9.DataReporter,
+            TouchReporter = _require9.TouchReporter,
+            IdStamper = _require9.IdStamper,
+            Message = _require9.Message,
+            NOP = _require9.NOP;
 
-      var Interactor = require('./Interactor.js');
+      const Interactor = require('./Interactor.js');
 
-      var STAMPER = new IdStamper();
-      var FRAME_RATE = 1000 / 60; // Symbols to identify these methods as intended only for internal use
+      const STAMPER = new IdStamper();
+      const FRAME_RATE = 1000 / 60; // Symbols to identify these methods as intended only for internal use
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         attachListeners: Symbol('attachListeners'),
         render: Symbol('render'),
         startRender: Symbol('startRender')
@@ -12285,9 +11864,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ClientController =
-      /*#__PURE__*/
-      function () {
+      class ClientController {
         /**
          * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
          * (not the context), which will fill the page.
@@ -12296,9 +11873,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {module:client.ClientModel} model - The client-side copy of the
          * server's model.
          */
-        function ClientController(canvas, view, model) {
-          _classCallCheck(this, ClientController);
-
+        constructor(canvas, view, model) {
           /**
            * The HTMLCanvasElement object is stored by the ClientController so that it
            * is able to respond to user events triggered on the canvas. The view only
@@ -12356,346 +11931,325 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientController, [{
-          key: symbols.attachListeners,
-          value: function value() {
-            var _this21 = this,
-                _listeners;
-
-            var listeners = (_listeners = {}, _defineProperty(_listeners, Message.ADD_ELEMENT, function (data) {
-              return _this21.handle('addElement', data);
-            }), _defineProperty(_listeners, Message.ADD_IMAGE, function (data) {
-              return _this21.handle('addImage', data);
-            }), _defineProperty(_listeners, Message.ADD_ITEM, function (data) {
-              return _this21.handle('addItem', data);
-            }), _defineProperty(_listeners, Message.ADD_SHADOW, function (data) {
-              return _this21.handle('addShadow', data);
-            }), _defineProperty(_listeners, Message.RM_ITEM, function (data) {
-              return _this21.handle('removeItem', data);
-            }), _defineProperty(_listeners, Message.RM_SHADOW, function (data) {
-              return _this21.handle('removeShadow', data);
-            }), _defineProperty(_listeners, Message.UD_ITEM, function (data) {
-              return _this21.handle('updateItem', data);
-            }), _defineProperty(_listeners, Message.UD_SHADOW, function (data) {
-              return _this21.handle('updateShadow', data);
-            }), _defineProperty(_listeners, Message.UD_VIEW, function (data) {
-              return _this21.handle('updateView', data);
-            }), _defineProperty(_listeners, Message.RM_ATTRS, function (_ref6) {
-              var data = _ref6.data;
-              return _this21.handle('removeAttributes', data);
-            }), _defineProperty(_listeners, Message.SET_ATTRS, function (_ref7) {
-              var data = _ref7.data;
-              return _this21.handle('setAttributes', data);
-            }), _defineProperty(_listeners, Message.SET_IMAGE, function (_ref8) {
-              var data = _ref8.data;
-              return _this21.handle('setImage', data);
-            }), _defineProperty(_listeners, Message.SET_RENDER, function (_ref9) {
-              var data = _ref9.data;
-              return _this21.handle('setRender', data);
-            }), _defineProperty(_listeners, Message.INITIALIZE, function (data) {
-              return _this21.setup(data);
-            }), _defineProperty(_listeners, Message.LAYOUT, NOP), _defineProperty(_listeners, Message.CLICK, NOP), _defineProperty(_listeners, Message.RESIZE, NOP), _defineProperty(_listeners, Message.SWIPE, NOP), _defineProperty(_listeners, Message.TRACK, NOP), _defineProperty(_listeners, Message.TRANSFORM, NOP), _defineProperty(_listeners, Message.POINTER, NOP), _defineProperty(_listeners, Message.BLUR, NOP), _defineProperty(_listeners, Message.FULL, function () {
+        [symbols.attachListeners]() {
+          const listeners = {
+            // For the server to inform about changes to the model
+            [Message.ADD_ELEMENT]: data => this.handle('addElement', data),
+            [Message.ADD_IMAGE]: data => this.handle('addImage', data),
+            [Message.ADD_ITEM]: data => this.handle('addItem', data),
+            [Message.ADD_SHADOW]: data => this.handle('addShadow', data),
+            [Message.RM_ITEM]: data => this.handle('removeItem', data),
+            [Message.RM_SHADOW]: data => this.handle('removeShadow', data),
+            [Message.UD_ITEM]: data => this.handle('updateItem', data),
+            [Message.UD_SHADOW]: data => this.handle('updateShadow', data),
+            [Message.UD_VIEW]: data => this.handle('updateView', data),
+            // For hopefully occasional extra adjustments to objects in the model.
+            [Message.RM_ATTRS]: (_ref6) => {
+              let data = _ref6.data;
+              return this.handle('removeAttributes', data);
+            },
+            [Message.SET_ATTRS]: (_ref7) => {
+              let data = _ref7.data;
+              return this.handle('setAttributes', data);
+            },
+            [Message.SET_IMAGE]: (_ref8) => {
+              let data = _ref8.data;
+              return this.handle('setImage', data);
+            },
+            [Message.SET_RENDER]: (_ref9) => {
+              let data = _ref9.data;
+              return this.handle('setRender', data);
+            },
+            // Connection establishment related (disconnect, initial setup)
+            [Message.INITIALIZE]: data => this.setup(data),
+            [Message.LAYOUT]: NOP,
+            // User event related
+            [Message.CLICK]: NOP,
+            [Message.RESIZE]: NOP,
+            [Message.SWIPE]: NOP,
+            [Message.TRACK]: NOP,
+            [Message.TRANSFORM]: NOP,
+            // Multi-device gesture related
+            [Message.POINTER]: NOP,
+            [Message.BLUR]: NOP,
+            // TODO: This could be more... elegant...
+            [Message.FULL]: () => {
               document.body.innerHTML = 'WAMS is full! :(';
-            }), _listeners);
-            Object.entries(listeners).forEach(function (_ref10) {
-              var _ref11 = _slicedToArray(_ref10, 2),
-                  p = _ref11[0],
-                  v = _ref11[1];
-
-              return _this21.socket.on(p, v);
-            }); // Keep the view size up to date.
-
-            window.addEventListener('resize', this.resize.bind(this), false);
-            /*
-             * As no automatic draw loop is used, (there are no animations), need to
-             * know when to re-render in response to an image loading.
-             */
-
-            var schedule_fn = this.scheduleRender.bind(this);
-            document.addEventListener(Message.IMG_LOAD, schedule_fn);
-          }
-          /**
-           * Establishes a socket.io connection with the server, using the global WAMS
-           * namespace. Connections should be non-persistent over disconnects, (i.e., no
-           * reconnections), as this was the cause of many bugs.
-           *
-           * This internal routine should be called automatically upon ClientController
-           * instantiation.
-           */
-
-        }, {
-          key: "connect",
-          value: function connect() {
-            this.socket = io.connect(constants.NS_WAMS, {
-              autoConnect: false,
-              reconnection: false
-            });
-            this[symbols.attachListeners]();
-            this[symbols.startRender]();
-            this.socket.connect();
-          }
-          /**
-           * Renders a frame.
-           */
-
-        }, {
-          key: symbols.render,
-          value: function value() {
-            if (this.renderScheduled) {
-              this.view.draw();
-              this.renderScheduled = false;
             }
-          }
-          /**
-           * Initializes the render loop.
+          };
+          Object.entries(listeners).forEach((_ref10) => {
+            let _ref11 = _slicedToArray(_ref10, 2),
+                p = _ref11[0],
+                v = _ref11[1];
+
+            return this.socket.on(p, v);
+          }); // Keep the view size up to date.
+
+          window.addEventListener('resize', this.resize.bind(this), false);
+          /*
+           * As no automatic draw loop is used, (there are no animations), need to
+           * know when to re-render in response to an image loading.
            */
 
-        }, {
-          key: symbols.startRender,
-          value: function value() {
-            var render_fn = this[symbols.render].bind(this);
-            window.setInterval(render_fn, FRAME_RATE);
-          }
-          /**
-           * Generates a function for forwarding the given message to the server.
-           *
-           * @see {@link module:shared.Message}
-           *
-           * @param {string} message - The type of message to forward. One of the static
-           * members of the Message class.
-           *
-           * @return {Function} A function bound to this instance for forwarding data to
-           * the server with the given message type label.
-           */
+          const schedule_fn = this.scheduleRender.bind(this);
+          document.addEventListener(Message.IMG_LOAD, schedule_fn);
+        }
+        /**
+         * Establishes a socket.io connection with the server, using the global WAMS
+         * namespace. Connections should be non-persistent over disconnects, (i.e., no
+         * reconnections), as this was the cause of many bugs.
+         *
+         * This internal routine should be called automatically upon ClientController
+         * instantiation.
+         */
 
-        }, {
-          key: "forward",
-          value: function forward(message) {
-            function do_forward(data) {
-              var dreport = new DataReporter({
-                data: data
-              });
-              new Message(message, dreport).emitWith(this.socket);
-            }
 
-            return do_forward.bind(this);
-          }
-          /**
-           * Passes messages to the View, and schedules a render.
-           *
-           * @see {@link module:shared.Message}
-           *
-           * @param {string} message - The name of a ClientView method to run.
-           * @param {...*} data - The argument to pass to the ClientView method.
-           */
+        connect() {
+          this.socket = io.connect(constants.NS_WAMS, {
+            autoConnect: false,
+            reconnection: false
+          });
+          this[symbols.attachListeners]();
+          this[symbols.startRender]();
+          this.socket.connect();
+        }
+        /**
+         * Renders a frame.
+         */
 
-        }, {
-          key: "handle",
-          value: function handle(message, data) {
-            this.model[message](data, this);
-            this.scheduleRender();
-          }
-          /**
-           * For responding to window resizing by the user. Resizes the canvas to fit
-           * the new window size, and reports the change to the server so it can be
-           * reflected in the model.
-           */
 
-        }, {
-          key: "resize",
-          value: function resize() {
-            this.resizeCanvasToFillWindow();
-            new Message(Message.RESIZE, this.view).emitWith(this.socket);
+        [symbols.render]() {
+          if (this.renderScheduled) {
             this.view.draw();
+            this.renderScheduled = false;
           }
-          /**
-           * Stretches the canvas to fit the available window space, and updates the
-           * view accordingly.
-           */
+        }
+        /**
+         * Initializes the render loop.
+         */
 
-        }, {
-          key: "resizeCanvasToFillWindow",
-          value: function resizeCanvasToFillWindow() {
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-            this.view.resizeToFillWindow();
+
+        [symbols.startRender]() {
+          const render_fn = this[symbols.render].bind(this);
+          window.setInterval(render_fn, FRAME_RATE);
+        }
+        /**
+         * Generates a function for forwarding the given message to the server.
+         *
+         * @see {@link module:shared.Message}
+         *
+         * @param {string} message - The type of message to forward. One of the static
+         * members of the Message class.
+         *
+         * @return {Function} A function bound to this instance for forwarding data to
+         * the server with the given message type label.
+         */
+
+
+        forward(message) {
+          function do_forward(data) {
+            const dreport = new DataReporter({
+              data
+            });
+            new Message(message, dreport).emitWith(this.socket);
           }
-          /**
-           * Schedules a render for the next frame interval.
-           */
 
-        }, {
-          key: "scheduleRender",
-          value: function scheduleRender() {
-            this.renderScheduled = true;
-          }
-          /**
-           * As this object will be instantiated on page load, and will generate a view
-           * before communication lines with the server have been opened, the view will
-           * not reflect the model automatically. This function responds to a message
-           * from the server which contains the current state of the model, and forwards
-           * this data to the view so that it can correctly render the model.
-           *
-           * @param {module:shared.FullStateReporter} data - All the information
-           * necessary to initially synchronize this client's model with the server's
-           * model.
-           */
+          return do_forward.bind(this);
+        }
+        /**
+         * Passes messages to the View, and schedules a render.
+         *
+         * @see {@link module:shared.Message}
+         *
+         * @param {string} message - The name of a ClientView method to run.
+         * @param {...*} data - The argument to pass to the ClientView method.
+         */
 
-        }, {
-          key: "setup",
-          value: function setup(data) {
-            STAMPER.cloneId(this.view, data.id);
-            this.canvas.style.backgroundColor = data.color;
-            this.model.setup(data);
-            this.setupInteractor(data.useServerGestures); // Need to tell the model what the view looks like once setup is complete.
 
-            new Message(Message.LAYOUT, this.view).emitWith(this.socket);
-          }
-          /**
-           * The Interactor is a level of abstraction between the ClientController and
-           * the gesture recognition library such that libraries can be swapped out
-           * more easily, if need be. At least in theory. All the ClientController
-           * needs to provide is handler functions for responding to the recognized
-           * gestures.
-           *
-           * @param {boolean} [useServerGestures=false] Whether to use server-side
-           * gestures. Default is to use client-side gestures.
-           */
+        handle(message, data) {
+          this.model[message](data, this);
+          this.scheduleRender();
+        }
+        /**
+         * For responding to window resizing by the user. Resizes the canvas to fit
+         * the new window size, and reports the change to the server so it can be
+         * reflected in the model.
+         */
 
-        }, {
-          key: "setupInteractor",
-          value: function setupInteractor() {
-            var useServerGestures = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
 
-            if (useServerGestures) {
-              this.setupInputForwarding();
-            } else {
-              new Interactor({
-                swipe: this.forward(Message.SWIPE),
-                tap: this.forward(Message.CLICK),
-                track: this.forward(Message.TRACK),
-                transform: this.forward(Message.TRANSFORM)
-              });
-            }
-          }
-          /**
-           * Set up input event forwarding.
-           */
+        resize() {
+          this.resizeCanvasToFillWindow();
+          new Message(Message.RESIZE, this.view).emitWith(this.socket);
+          this.view.draw();
+        }
+        /**
+         * Stretches the canvas to fit the available window space, and updates the
+         * view accordingly.
+         */
 
-        }, {
-          key: "setupInputForwarding",
-          value: function setupInputForwarding() {
-            if (window.MouseEvent || window.TouchEvent) {
-              this.forwardTouchEvents();
-              this.forwardMouseEvents();
-            } else {
-              this.forwardPointerEvents();
-            }
 
-            this.forwardBlurEvents();
-          }
-          /**
-           * Forward the given events, by using the given callback.
-           *
-           * @param {string[]} eventnames
-           * @param {function} callback
-           */
+        resizeCanvasToFillWindow() {
+          this.canvas.width = window.innerWidth;
+          this.canvas.height = window.innerHeight;
+          this.view.resizeToFillWindow();
+        }
+        /**
+         * Schedules a render for the next frame interval.
+         */
 
-        }, {
-          key: "forwardEvents",
-          value: function forwardEvents(eventnames, callback) {
-            eventnames.forEach(function (eventname) {
-              window.addEventListener(eventname, callback, {
-                capture: true,
-                once: false,
-                passive: false
-              });
+
+        scheduleRender() {
+          this.renderScheduled = true;
+        }
+        /**
+         * As this object will be instantiated on page load, and will generate a view
+         * before communication lines with the server have been opened, the view will
+         * not reflect the model automatically. This function responds to a message
+         * from the server which contains the current state of the model, and forwards
+         * this data to the view so that it can correctly render the model.
+         *
+         * @param {module:shared.FullStateReporter} data - All the information
+         * necessary to initially synchronize this client's model with the server's
+         * model.
+         */
+
+
+        setup(data) {
+          STAMPER.cloneId(this.view, data.id);
+          this.canvas.style.backgroundColor = data.color;
+          this.model.setup(data);
+          this.setupInteractor(data.useServerGestures); // Need to tell the model what the view looks like once setup is complete.
+
+          new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+        }
+        /**
+         * The Interactor is a level of abstraction between the ClientController and
+         * the gesture recognition library such that libraries can be swapped out
+         * more easily, if need be. At least in theory. All the ClientController
+         * needs to provide is handler functions for responding to the recognized
+         * gestures.
+         *
+         * @param {boolean} [useServerGestures=false] Whether to use server-side
+         * gestures. Default is to use client-side gestures.
+         */
+
+
+        setupInteractor() {
+          let useServerGestures = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+
+          if (useServerGestures) {
+            this.setupInputForwarding();
+          } else {
+            new Interactor({
+              swipe: this.forward(Message.SWIPE),
+              tap: this.forward(Message.CLICK),
+              track: this.forward(Message.TRACK),
+              transform: this.forward(Message.TRANSFORM)
             });
           }
-          /**
-           * Forward blur and cancel events.
-           */
+        }
+        /**
+         * Set up input event forwarding.
+         */
 
-        }, {
-          key: "forwardBlurEvents",
-          value: function forwardBlurEvents() {
-            var _this22 = this;
 
-            this.forwardEvents(['touchcancel', 'pointercancel', 'blur'], function (event) {
-              event.preventDefault();
-              var breport = new DataReporter();
-              new Message(Message.BLUR, breport).emitWith(_this22.socket);
-            });
+        setupInputForwarding() {
+          if (window.MouseEvent || window.TouchEvent) {
+            this.forwardTouchEvents();
+            this.forwardMouseEvents();
+          } else {
+            this.forwardPointerEvents();
           }
-          /**
-           * Forward pointer events.
-           */
 
-        }, {
-          key: "forwardPointerEvents",
-          value: function forwardPointerEvents() {
-            var _this23 = this;
+          this.forwardBlurEvents();
+        }
+        /**
+         * Forward the given events, by using the given callback.
+         *
+         * @param {string[]} eventnames
+         * @param {function} callback
+         */
 
-            this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], function (event) {
-              event.preventDefault();
-              var treport = new TouchReporter(event);
+
+        forwardEvents(eventnames, callback) {
+          eventnames.forEach(eventname => {
+            window.addEventListener(eventname, callback, {
+              capture: true,
+              once: false,
+              passive: false
+            });
+          });
+        }
+        /**
+         * Forward blur and cancel events.
+         */
+
+
+        forwardBlurEvents() {
+          this.forwardEvents(['touchcancel', 'pointercancel', 'blur'], event => {
+            event.preventDefault();
+            const breport = new DataReporter();
+            new Message(Message.BLUR, breport).emitWith(this.socket);
+          });
+        }
+        /**
+         * Forward pointer events.
+         */
+
+
+        forwardPointerEvents() {
+          this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], event => {
+            event.preventDefault();
+            const treport = new TouchReporter(event);
+            treport.changedTouches = [{
+              identifier: event.pointerId,
+              clientX: event.clientX,
+              clientY: event.clientY
+            }];
+            new Message(Message.POINTER, treport).emitWith(this.socket);
+          });
+        }
+        /**
+         * Forward mouse events.
+         */
+
+
+        forwardMouseEvents() {
+          this.forwardEvents(['mousedown', 'mousemove', 'mouseup'], event => {
+            event.preventDefault();
+
+            if (event.button === 0) {
+              const treport = new TouchReporter(event);
               treport.changedTouches = [{
-                identifier: event.pointerId,
+                identifier: 0,
                 clientX: event.clientX,
                 clientY: event.clientY
               }];
-              new Message(Message.POINTER, treport).emitWith(_this23.socket);
+              new Message(Message.POINTER, treport).emitWith(this.socket);
+            }
+          });
+        }
+        /**
+         * Forward touch events.
+         */
+
+
+        forwardTouchEvents() {
+          this.forwardEvents(['touchstart', 'touchmove', 'touchend'], event => {
+            event.preventDefault();
+            const treport = new TouchReporter(event);
+            treport.changedTouches = Array.from(event.changedTouches).map(touch => {
+              return {
+                identifier: touch.identifier,
+                clientX: touch.clientX,
+                clientY: touch.clientY
+              };
             });
-          }
-          /**
-           * Forward mouse events.
-           */
+            new Message(Message.POINTER, treport).emitWith(this.socket);
+          });
+        }
 
-        }, {
-          key: "forwardMouseEvents",
-          value: function forwardMouseEvents() {
-            var _this24 = this;
-
-            this.forwardEvents(['mousedown', 'mousemove', 'mouseup'], function (event) {
-              event.preventDefault();
-
-              if (event.button === 0) {
-                var treport = new TouchReporter(event);
-                treport.changedTouches = [{
-                  identifier: 0,
-                  clientX: event.clientX,
-                  clientY: event.clientY
-                }];
-                new Message(Message.POINTER, treport).emitWith(_this24.socket);
-              }
-            });
-          }
-          /**
-           * Forward touch events.
-           */
-
-        }, {
-          key: "forwardTouchEvents",
-          value: function forwardTouchEvents() {
-            var _this25 = this;
-
-            this.forwardEvents(['touchstart', 'touchmove', 'touchend'], function (event) {
-              event.preventDefault();
-              var treport = new TouchReporter(event);
-              treport.changedTouches = Array.from(event.changedTouches).map(function (touch) {
-                return {
-                  identifier: touch.identifier,
-                  clientX: touch.clientX,
-                  clientY: touch.clientY
-                };
-              });
-              new Message(Message.POINTER, treport).emitWith(_this25.socket);
-            });
-          }
-        }]);
-
-        return ClientController;
-      }();
+      }
 
       module.exports = ClientController;
     }, {
@@ -12711,12 +12265,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require10 = require('../shared.js'),
-          Point2D = _require10.Point2D,
-          IdStamper = _require10.IdStamper,
-          WamsElement = _require10.WamsElement;
+      const _require10 = require('../shared.js'),
+            Point2D = _require10.Point2D,
+            IdStamper = _require10.IdStamper,
+            WamsElement = _require10.WamsElement;
 
-      var STAMPER = new IdStamper();
+      const STAMPER = new IdStamper();
       /**
        * The ClientElement class exposes the draw() funcitonality of wams elements.
        *
@@ -12724,41 +12278,31 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ClientElement =
-      /*#__PURE__*/
-      function (_WamsElement) {
-        _inherits(ClientElement, _WamsElement);
-
+      class ClientElement extends WamsElement {
         /**
          * @param {module:shared.WamsElement} data - The data from the server
          * describing this item. Only properties explicity listed in the array passed
          * to the ReporterFactory when the WamsElement class was defined will be
          * accepted.
          */
-        function ClientElement(data) {
-          var _this26;
-
-          _classCallCheck(this, ClientElement);
-
-          _this26 = _possibleConstructorReturn(this, _getPrototypeOf(ClientElement).call(this, data));
+        constructor(data) {
+          super(data);
           /**
            * The DOM element.
            *
            * @type {Element}
            */
 
-          _this26.element = document.createElement(data.tagname);
-
-          _this26.element.classList.add('wams-element');
-
-          _this26.element.width = _this26.width;
-          _this26.element.height = _this26.height;
-          _this26.element.style.width = "".concat(_this26.width, "px");
-          _this26.element.style.height = "".concat(_this26.height, "px");
-          document.body.appendChild(_this26.element);
+          this.element = document.createElement(data.tagname);
+          this.element.classList.add('wams-element');
+          this.element.width = this.width;
+          this.element.height = this.height;
+          this.element.style.width = "".concat(this.width, "px");
+          this.element.style.height = "".concat(this.height, "px");
+          document.body.appendChild(this.element);
 
           if (data.hasOwnProperty('attributes')) {
-            _this26.setAttributes(data.attributes);
+            this.setAttributes(data.attributes);
           }
           /**
            * Id to make the items uniquely identifiable.
@@ -12771,8 +12315,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          STAMPER.cloneId(_assertThisInitialized(_this26), data.id);
-          return _this26;
+          STAMPER.cloneId(this, data.id);
         }
         /**
          * Render the element. Really just updates the rotation and transformation
@@ -12783,55 +12326,45 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientElement, [{
-          key: "draw",
-          value: function draw(context, view) {
-            var tl = new Point2D(this.x - view.x, this.y - view.y).divideBy(this.scale).rotate(this.rotation);
-            var rotate = "rotate(".concat(view.rotation - this.rotation, "rad) ");
-            var scale = "scale(".concat(this.scale * view.scale, ") ");
-            var translate = "translate(".concat(tl.x, "px, ").concat(tl.y, "px) ");
-            this.element.style.transform = scale + rotate + translate;
-          }
-          /**
-           * Sets attributes for the element.
-           *
-           * @param {object} attributes
-           */
+        draw(context, view) {
+          const tl = new Point2D(this.x - view.x, this.y - view.y).divideBy(this.scale).rotate(this.rotation);
+          const rotate = "rotate(".concat(view.rotation - this.rotation, "rad) ");
+          const scale = "scale(".concat(this.scale * view.scale, ") ");
+          const translate = "translate(".concat(tl.x, "px, ").concat(tl.y, "px) ");
+          this.element.style.transform = scale + rotate + translate;
+        }
+        /**
+         * Sets attributes for the element.
+         *
+         * @param {object} attributes
+         */
 
-        }, {
-          key: "setAttributes",
-          value: function setAttributes(attributes) {
-            var _this27 = this;
 
-            this.attributes = attributes;
-            Object.entries(attributes).forEach(function (_ref12) {
-              var _ref13 = _slicedToArray(_ref12, 2),
-                  k = _ref13[0],
-                  v = _ref13[1];
+        setAttributes(attributes) {
+          this.attributes = attributes;
+          Object.entries(attributes).forEach((_ref12) => {
+            let _ref13 = _slicedToArray(_ref12, 2),
+                k = _ref13[0],
+                v = _ref13[1];
 
-              _this27.element[k] = v;
-            });
-          }
-          /**
-           * Removes attributes from the element.
-           *
-           * @param {string[]} attributes
-           */
+            this.element[k] = v;
+          });
+        }
+        /**
+         * Removes attributes from the element.
+         *
+         * @param {string[]} attributes
+         */
 
-        }, {
-          key: "removeAttributes",
-          value: function removeAttributes(attributes) {
-            var _this28 = this;
 
-            attributes.forEach(function (attr) {
-              delete _this28.attributes[attr];
-              _this28.element[attr] = null;
-            });
-          }
-        }]);
+        removeAttributes(attributes) {
+          attributes.forEach(attr => {
+            delete this.attributes[attr];
+            this.element[attr] = null;
+          });
+        }
 
-        return ClientElement;
-      }(WamsElement);
+      }
 
       module.exports = ClientElement;
     }, {
@@ -12845,12 +12378,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require11 = require('../shared.js'),
-          IdStamper = _require11.IdStamper,
-          WamsImage = _require11.WamsImage,
-          Message = _require11.Message;
+      const _require11 = require('../shared.js'),
+            IdStamper = _require11.IdStamper,
+            WamsImage = _require11.WamsImage,
+            Message = _require11.Message;
 
-      var STAMPER = new IdStamper();
+      const STAMPER = new IdStamper();
       /**
        * Abstraction of the requisite logic for generating an image object which will
        * load the appropriate image and report when it has finished loading the image
@@ -12866,10 +12399,10 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       function createImage(src) {
         if (src) {
-          var img = new Image();
+          const img = new Image();
           img.src = src;
           img.loaded = false;
-          img.addEventListener('load', function () {
+          img.addEventListener('load', () => {
             img.loaded = true;
             document.dispatchEvent(new CustomEvent(Message.IMG_LOAD));
           }, {
@@ -12888,30 +12421,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var ClientImage =
-      /*#__PURE__*/
-      function (_WamsImage) {
-        _inherits(ClientImage, _WamsImage);
-
+      class ClientImage extends WamsImage {
         /**
          * @param {module:shared.Item} data - The data from the server describing this
          * item. Only properties explicity listed in the array passed to the
          * ReporterFactory when the Item class was defined will be accepted.
          */
-        function ClientImage(data) {
-          var _this29;
-
-          _classCallCheck(this, ClientImage);
-
-          _this29 = _possibleConstructorReturn(this, _getPrototypeOf(ClientImage).call(this, data));
+        constructor(data) {
+          super(data);
           /**
            * The image to render.
            *
            * @type {Image}
            */
 
-          _this29.image = {};
-          if (data.src) _this29.setImage(data.src);
+          this.image = {};
+          if (data.src) this.setImage(data.src);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -12922,8 +12447,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientImage
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this29), data.id);
-          return _this29;
+          STAMPER.cloneId(this, data.id);
         }
         /**
          * Render the image onto the given context.
@@ -12932,39 +12456,34 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientImage, [{
-          key: "draw",
-          value: function draw(context) {
-            context.save();
-            context.translate(this.x, this.y);
-            context.rotate(-this.rotation);
-            context.scale(this.scale, this.scale);
+        draw(context) {
+          context.save();
+          context.translate(this.x, this.y);
+          context.rotate(-this.rotation);
+          context.scale(this.scale, this.scale);
 
-            if (this.image.loaded) {
-              context.drawImage(this.image, 0, 0, this.width, this.height);
-            } else {
-              context.fillStyle = 'darkgrey';
-              context.fillRect(0, 0, this.width, this.height);
-            }
-
-            context.restore();
+          if (this.image.loaded) {
+            context.drawImage(this.image, 0, 0, this.width, this.height);
+          } else {
+            context.fillStyle = 'darkgrey';
+            context.fillRect(0, 0, this.width, this.height);
           }
-          /**
-           * Sets the image path and loads the image.
-           *
-           * @param {string} path - The image's source path
-           */
 
-        }, {
-          key: "setImage",
-          value: function setImage(path) {
-            this.src = path;
-            this.image = createImage(path);
-          }
-        }]);
+          context.restore();
+        }
+        /**
+         * Sets the image path and loads the image.
+         *
+         * @param {string} path - The image's source path
+         */
 
-        return ClientImage;
-      }(WamsImage);
+
+        setImage(path) {
+          this.src = path;
+          this.image = createImage(path);
+        }
+
+      }
 
       module.exports = ClientImage;
     }, {
@@ -12982,14 +12501,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require12 = require('../shared.js'),
-          IdStamper = _require12.IdStamper,
-          Item = _require12.Item;
+      const _require12 = require('../shared.js'),
+            IdStamper = _require12.IdStamper,
+            Item = _require12.Item;
 
-      var _require13 = require('canvas-sequencer'),
-          CanvasSequence = _require13.CanvasSequence;
+      const _require13 = require('canvas-sequencer'),
+            CanvasSequence = _require13.CanvasSequence;
 
-      var STAMPER = new IdStamper();
+      const STAMPER = new IdStamper();
       /**
        * The ClientItem class exposes the draw() funcitonality of wams items.
        *
@@ -12997,30 +12516,22 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ClientItem =
-      /*#__PURE__*/
-      function (_Item) {
-        _inherits(ClientItem, _Item);
-
+      class ClientItem extends Item {
         /**
          * @param {module:shared.Item} data - The data from the server describing this
          * item. Only properties explicity listed in the array passed to the
          * ReporterFactory when the Item class was defined will be accepted.
          */
-        function ClientItem(data) {
-          var _this30;
-
-          _classCallCheck(this, ClientItem);
-
-          _this30 = _possibleConstructorReturn(this, _getPrototypeOf(ClientItem).call(this, data));
+        constructor(data) {
+          super(data);
           /**
            * The actual render.
            *
            * @type {CanvasSequence}
            */
 
-          _this30.render = null;
-          if (data.sequence) _this30.setRender(data.sequence);
+          this.render = null;
+          if (data.sequence) this.setRender(data.sequence);
           /**
            * Id to make the items uniquely identifiable.
            *
@@ -13031,8 +12542,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientItem
            */
 
-          STAMPER.cloneId(_assertThisInitialized(_this30), data.id);
-          return _this30;
+          STAMPER.cloneId(this, data.id);
         }
         /**
          * Render the item onto the given context.
@@ -13041,33 +12551,28 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientItem, [{
-          key: "draw",
-          value: function draw(context) {
-            if (this.render) {
-              context.save();
-              context.translate(this.x, this.y);
-              context.rotate(-this.rotation);
-              context.scale(this.scale, this.scale);
-              this.render.execute(context);
-              context.restore();
-            }
+        draw(context) {
+          if (this.render) {
+            context.save();
+            context.translate(this.x, this.y);
+            context.rotate(-this.rotation);
+            context.scale(this.scale, this.scale);
+            this.render.execute(context);
+            context.restore();
           }
-          /**
-           * Set the item's canvas rendering sequence.
-           *
-           * @param {CanvasSequence} sequence - Raw, unrevived CanvasSequence.
-           */
+        }
+        /**
+         * Set the item's canvas rendering sequence.
+         *
+         * @param {CanvasSequence} sequence - Raw, unrevived CanvasSequence.
+         */
 
-        }, {
-          key: "setRender",
-          value: function setRender(sequence) {
-            this.render = new CanvasSequence(sequence);
-          }
-        }]);
 
-        return ClientItem;
-      }(Item);
+        setRender(sequence) {
+          this.render = new CanvasSequence(sequence);
+        }
+
+      }
 
       module.exports = ClientItem;
     }, {
@@ -13085,18 +12590,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var ClientElement = require('./ClientElement.js');
+      const ClientElement = require('./ClientElement.js');
 
-      var ClientImage = require('./ClientImage.js');
+      const ClientImage = require('./ClientImage.js');
 
-      var ClientItem = require('./ClientItem.js');
+      const ClientItem = require('./ClientItem.js');
 
-      var ShadowView = require('./ShadowView.js');
+      const ShadowView = require('./ShadowView.js');
 
-      var _require14 = require('../shared.js'),
-          removeById = _require14.removeById;
+      const _require14 = require('../shared.js'),
+            removeById = _require14.removeById;
 
-      var REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
+      const REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
       /**
        * The ClientModel is a client-side copy of those aspects of the model that are
        * necessary for rendering the view for the user.
@@ -13104,12 +12609,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ClientModel =
-      /*#__PURE__*/
-      function () {
-        function ClientModel() {
-          _classCallCheck(this, ClientModel);
-
+      class ClientModel {
+        constructor() {
           /**
            * All the items in the model, which may all need rendering at some point.
            * Kept up to date via the ClientController.
@@ -13149,231 +12650,208 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientModel, [{
-          key: "addObject",
-          value: function addObject(class_fn, values) {
-            var object = new class_fn(values);
-            this.itemOrder.push(object);
-            this.items.set(object.id, object);
+        addObject(class_fn, values) {
+          const object = new class_fn(values);
+          this.itemOrder.push(object);
+          this.items.set(object.id, object);
+        }
+        /**
+         * Generate and store an Element with the given values.
+         *
+         * @param {module:shared.WamsElement} values - State of the new Element
+         */
+
+
+        addElement(values) {
+          this.addObject(ClientElement, values);
+        }
+        /**
+         * Generate and store an Image with the given values.
+         *
+         * @param {module:shared.WamsImage} values - State of the new image.
+         */
+
+
+        addImage(values) {
+          this.addObject(ClientImage, values);
+        }
+        /**
+         * Generate and store an Item with the given values.
+         *
+         * @param {module:shared.Item} values - State of the new Item.
+         */
+
+
+        addItem(values) {
+          this.addObject(ClientItem, values);
+        }
+        /**
+         * Generate and store a 'shadow view' to track another active view.
+         *
+         * @param {module:shared.View} values - State of the new View.
+         */
+
+
+        addShadow(values) {
+          const shadow = new ShadowView(values);
+          this.shadows.set(shadow.id, shadow);
+        }
+        /**
+         * Removes the given item.
+         *
+         * @param {module:shared.Item} item - The Item to remove.
+         *
+         * @return {boolean} true if removal was successful, false otherwise.
+         */
+
+
+        removeItem(item) {
+          const obj = this.items.get(item.id);
+
+          if (obj.hasOwnProperty('tagname')) {
+            document.body.removeChild(obj.element);
           }
-          /**
-           * Generate and store an Element with the given values.
-           *
-           * @param {module:shared.WamsElement} values - State of the new Element
-           */
 
-        }, {
-          key: "addElement",
-          value: function addElement(values) {
-            this.addObject(ClientElement, values);
-          }
-          /**
-           * Generate and store an Image with the given values.
-           *
-           * @param {module:shared.WamsImage} values - State of the new image.
-           */
+          this.items.delete(item.id);
+          return removeById(this.itemOrder, item);
+        }
+        /**
+         * Removes the given 'shadow' view.
+         *
+         * @param {module:shared.View} shadow - The 'shadow' view to remove.
+         *
+         * @return {boolean} true if removal was successful, false otherwise.
+         */
 
-        }, {
-          key: "addImage",
-          value: function addImage(values) {
-            this.addObject(ClientImage, values);
-          }
-          /**
-           * Generate and store an Item with the given values.
-           *
-           * @param {module:shared.Item} values - State of the new Item.
-           */
 
-        }, {
-          key: "addItem",
-          value: function addItem(values) {
-            this.addObject(ClientItem, values);
-          }
-          /**
-           * Generate and store a 'shadow view' to track another active view.
-           *
-           * @param {module:shared.View} values - State of the new View.
-           */
+        removeShadow(shadow) {
+          return this.shadows.delete(shadow.id);
+        }
+        /**
+         * Set up the internal copy of the model according to the data provided by the
+         * server.
+         *
+         * @param {module:shared.FullStateReporter} data - The data from the server
+         *       detailing the current state of the model.  See REQUIRED_DATA. If any
+         *       is missing, something has gone terribly wrong, and an exception will
+         *       be thrown.
+         */
 
-        }, {
-          key: "addShadow",
-          value: function addShadow(values) {
-            var shadow = new ShadowView(values);
-            this.shadows.set(shadow.id, shadow);
-          }
-          /**
-           * Removes the given item.
-           *
-           * @param {module:shared.Item} item - The Item to remove.
-           *
-           * @return {boolean} true if removal was successful, false otherwise.
-           */
 
-        }, {
-          key: "removeItem",
-          value: function removeItem(item) {
-            var obj = this.items.get(item.id);
-
-            if (obj.hasOwnProperty('tagname')) {
-              document.body.removeChild(obj.element);
-            }
-
-            this.items.delete(item.id);
-            return removeById(this.itemOrder, item);
-          }
-          /**
-           * Removes the given 'shadow' view.
-           *
-           * @param {module:shared.View} shadow - The 'shadow' view to remove.
-           *
-           * @return {boolean} true if removal was successful, false otherwise.
-           */
-
-        }, {
-          key: "removeShadow",
-          value: function removeShadow(shadow) {
-            return this.shadows.delete(shadow.id);
-          }
-          /**
-           * Set up the internal copy of the model according to the data provided by the
-           * server.
-           *
-           * @param {module:shared.FullStateReporter} data - The data from the server
-           *       detailing the current state of the model.  See REQUIRED_DATA. If any
-           *       is missing, something has gone terribly wrong, and an exception will
-           *       be thrown.
-           */
-
-        }, {
-          key: "setup",
-          value: function setup(data) {
-            var _this31 = this;
-
-            REQUIRED_DATA.forEach(function (d) {
-              if (!data.hasOwnProperty(d)) throw "setup requires: ".concat(d);
-            });
-            data.views.forEach(function (v) {
-              return v.id !== _this31.view.id && _this31.addShadow(v);
-            });
-            data.items.reverse().forEach(function (o) {
-              if (o.hasOwnProperty('src')) {
-                _this31.addImage(o);
-              } else if (o.hasOwnProperty('tagname')) {
-                _this31.addElement(o);
-              } else {
-                _this31.addItem(o);
-              }
-            });
-          }
-          /**
-           * Call the given method with the given property of 'data' on the item with id
-           * equal to data.id.
-           *
-           * @param {string} fn_name
-           * @param {string} property
-           * @param {object} data
-           */
-
-        }, {
-          key: "setItemValue",
-          value: function setItemValue(fn_name, property, data) {
-            if (this.items.has(data.id)) {
-              this.items.get(data.id)[fn_name](data[property]);
-            }
-          }
-          /**
-           * Set the attributes for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setAttributes",
-          value: function setAttributes(data) {
-            this.setItemValue('setAttributes', 'attributes', data);
-          }
-          /**
-           * Set the image for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setImage",
-          value: function setImage(data) {
-            this.setItemValue('setImage', 'src', data);
-          }
-          /**
-           * Set the canvas rendering sequence for the appropriate item.
-           *
-           * @param {object} data
-           */
-
-        }, {
-          key: "setRender",
-          value: function setRender(data) {
-            this.setItemValue('setRender', 'sequence', data);
-          }
-          /**
-           * Intended for use as an internal helper function, so that this functionality
-           * does not need to be defined twice for both of the items and shadows arrays.
-           *
-           * @param {string} container - Name of the ClientView property defining the
-           * array which contains the object to update.
-           * @param {( module:shared.Item | module:shared.View )} data - Data with which
-           * an object in the container will be updated.  Note that the object is
-           * located using an 'id' field on this data object.
-           */
-
-        }, {
-          key: "update",
-          value: function update(container, data) {
-            if (this[container].has(data.id)) {
-              this[container].get(data.id).assign(data);
+        setup(data) {
+          REQUIRED_DATA.forEach(d => {
+            if (!data.hasOwnProperty(d)) throw "setup requires: ".concat(d);
+          });
+          data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
+          data.items.reverse().forEach(o => {
+            if (o.hasOwnProperty('src')) {
+              this.addImage(o);
+            } else if (o.hasOwnProperty('tagname')) {
+              this.addElement(o);
             } else {
-              console.warn("Unable to find in ".concat(container, ": id: "), data.id);
+              this.addItem(o);
             }
-          }
-          /**
-           * Update an item.
-           *
-           * @param {module:shared.Item} data - data from the server, has an 'id' field
-           * with which the item will be located.
-           */
+          });
+        }
+        /**
+         * Call the given method with the given property of 'data' on the item with id
+         * equal to data.id.
+         *
+         * @param {string} fn_name
+         * @param {string} property
+         * @param {object} data
+         */
 
-        }, {
-          key: "updateItem",
-          value: function updateItem(data) {
-            this.update('items', data);
-          }
-          /**
-           * Update a 'shadow' view.
-           *
-           * @param {module:shared.View} data - data from the server, has an 'id' field
-           * with which the view will be located.
-           */
 
-        }, {
-          key: "updateShadow",
-          value: function updateShadow(data) {
-            this.update('shadows', data);
+        setItemValue(fn_name, property, data) {
+          if (this.items.has(data.id)) {
+            this.items.get(data.id)[fn_name](data[property]);
           }
-          /**
-           * Update the view.
-           *
-           * @param {module:shared.View} data - data from the server, specficially
-           * pertaining to this client's view.
-           */
+        }
+        /**
+         * Set the attributes for the appropriate item.
+         *
+         * @param {object} data
+         */
 
-        }, {
-          key: "updateView",
-          value: function updateView(data) {
-            this.view.assign(data);
+
+        setAttributes(data) {
+          this.setItemValue('setAttributes', 'attributes', data);
+        }
+        /**
+         * Set the image for the appropriate item.
+         *
+         * @param {object} data
+         */
+
+
+        setImage(data) {
+          this.setItemValue('setImage', 'src', data);
+        }
+        /**
+         * Set the canvas rendering sequence for the appropriate item.
+         *
+         * @param {object} data
+         */
+
+
+        setRender(data) {
+          this.setItemValue('setRender', 'sequence', data);
+        }
+        /**
+         * Intended for use as an internal helper function, so that this functionality
+         * does not need to be defined twice for both of the items and shadows arrays.
+         *
+         * @param {string} container - Name of the ClientView property defining the
+         * array which contains the object to update.
+         * @param {( module:shared.Item | module:shared.View )} data - Data with which
+         * an object in the container will be updated.  Note that the object is
+         * located using an 'id' field on this data object.
+         */
+
+
+        update(container, data) {
+          if (this[container].has(data.id)) {
+            this[container].get(data.id).assign(data);
+          } else {
+            console.warn("Unable to find in ".concat(container, ": id: "), data.id);
           }
-        }]);
+        }
+        /**
+         * Update an item.
+         *
+         * @param {module:shared.Item} data - data from the server, has an 'id' field
+         * with which the item will be located.
+         */
 
-        return ClientModel;
-      }();
+
+        updateItem(data) {
+          this.update('items', data);
+        }
+        /**
+         * Update a 'shadow' view.
+         *
+         * @param {module:shared.View} data - data from the server, has an 'id' field
+         * with which the view will be located.
+         */
+
+
+        updateShadow(data) {
+          this.update('shadows', data);
+        }
+        /**
+         * Update the view.
+         *
+         * @param {module:shared.View} data - data from the server, specficially
+         * pertaining to this client's view.
+         */
+
+
+        updateView(data) {
+          this.view.assign(data);
+        }
+
+      }
 
       module.exports = ClientModel;
     }, {
@@ -13395,13 +12873,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require15 = require('../shared.js'),
-          View = _require15.View; // Data fields to write for status indicator text.
+      const _require15 = require('../shared.js'),
+            View = _require15.View; // Data fields to write for status indicator text.
 
 
-      var STATUS_KEYS = Object.freeze(['x', 'y', 'width', 'height', 'rotation', 'scale']); // Mark these methods as intended only for internal use.
+      const STATUS_KEYS = Object.freeze(['x', 'y', 'width', 'height', 'rotation', 'scale']); // Mark these methods as intended only for internal use.
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         align: Symbol('align'),
         drawItems: Symbol('drawItems'),
         drawShadows: Symbol('drawShadows'),
@@ -13417,21 +12895,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ClientView =
-      /*#__PURE__*/
-      function (_View) {
-        _inherits(ClientView, _View);
-
+      class ClientView extends View {
         /**
          * @param {CanvasRenderingContext2D} context - The canvas context in which to
          * render the model.
          */
-        function ClientView(context) {
-          var _this32;
-
-          _classCallCheck(this, ClientView);
-
-          _this32 = _possibleConstructorReturn(this, _getPrototypeOf(ClientView).call(this, ClientView.DEFAULTS));
+        constructor(context) {
+          super(ClientView.DEFAULTS);
           /**
            * The CanvasRenderingContext2D is required for drawing (rendering) to take
            * place.
@@ -13439,7 +12909,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {CanvasRenderingContext2D}
            */
 
-          _this32.context = context;
+          this.context = context;
           /**
            * The model holds the information about items and shadows that need
            * rendering.
@@ -13447,7 +12917,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {module:client.ClientModel}
            */
 
-          _this32.model = null;
+          this.model = null;
           /**
            * Id to make the views uniquely identifiable. Will be assigned when setup
            * message is received from server.
@@ -13459,8 +12929,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @memberof module:client.ClientView
            */
 
-          _this32.id = null;
-          return _this32;
+          this.id = null;
         }
         /**
          * Positions the rendering context precisely, taking into account all
@@ -13468,107 +12937,84 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ClientView, [{
-          key: symbols.align,
-          value: function value() {
-            /*
-             * WARNING: It is crucially important that the instructions below occur
-             * in *precisely* this order!
-             */
-            this.context.scale(this.scale, this.scale);
-            this.context.rotate(this.rotation);
-            this.context.translate(-this.x, -this.y);
-          }
-          /**
-           * Renders all the items.
+        [symbols.align]() {
+          /*
+           * WARNING: It is crucially important that the instructions below occur
+           * in *precisely* this order!
            */
+          this.context.scale(this.scale, this.scale);
+          this.context.rotate(this.rotation);
+          this.context.translate(-this.x, -this.y);
+        }
+        /**
+         * Renders all the items.
+         */
 
-        }, {
-          key: symbols.drawItems,
-          value: function value() {
-            var _this33 = this;
 
-            this.model.itemOrder.forEach(function (o) {
-              return o.draw(_this33.context, _this33);
-            });
-          }
-          /**
-           * Renders outlines of all the other views.
-           */
+        [symbols.drawItems]() {
+          this.model.itemOrder.forEach(o => o.draw(this.context, this));
+        }
+        /**
+         * Renders outlines of all the other views.
+         */
 
-        }, {
-          key: symbols.drawShadows,
-          value: function value() {
-            var _this34 = this;
 
-            this.model.shadows.forEach(function (v) {
-              return v.draw(_this34.context);
-            });
-          }
-          /**
-           * Renders text describing the status of the view to the upper left corner of
-           * the view, to assist with debugging.
-           */
+        [symbols.drawShadows]() {
+          this.model.shadows.forEach(v => v.draw(this.context));
+        }
+        /**
+         * Renders text describing the status of the view to the upper left corner of
+         * the view, to assist with debugging.
+         */
 
-        }, {
-          key: symbols.drawStatus,
-          value: function value() {
-            var _this35 = this;
 
-            var messages = STATUS_KEYS.map(function (k) {
-              return "".concat(k, ": ").concat(_this35[k].toFixed(2));
-            }).concat(["# of Shadows: ".concat(this.model.shadows.size)]);
-            var ty = 40;
-            var tx = 20;
-            this.context.save();
-            this.context.setTransform(1, 0, 0, 1, 0, 0);
-            this.context.font = '18px Georgia';
-            messages.forEach(function (m) {
-              _this35.context.fillText(m, tx, ty);
+        [symbols.drawStatus]() {
+          const messages = STATUS_KEYS.map(k => "".concat(k, ": ").concat(this[k].toFixed(2))).concat(["# of Shadows: ".concat(this.model.shadows.size)]);
+          let ty = 40;
+          const tx = 20;
+          this.context.save();
+          this.context.setTransform(1, 0, 0, 1, 0, 0);
+          this.context.font = '18px Georgia';
+          messages.forEach(m => {
+            this.context.fillText(m, tx, ty);
+            ty += 20;
+          });
+          this.context.restore();
+        }
+        /**
+         * Clears all previous renders, to ensure a clean slate for the upcoming
+         * render.
+         */
 
-              ty += 20;
-            });
-            this.context.restore();
-          }
-          /**
-           * Clears all previous renders, to ensure a clean slate for the upcoming
-           * render.
-           */
 
-        }, {
-          key: symbols.wipe,
-          value: function value() {
-            this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-          }
-          /**
-           * Fully render the current state of the system.
-           */
+        [symbols.wipe]() {
+          this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        }
+        /**
+         * Fully render the current state of the system.
+         */
 
-        }, {
-          key: "draw",
-          value: function draw() {
-            this.context.save();
-            this[symbols.wipe]();
-            this[symbols.align]();
-            this[symbols.drawItems]();
-            this[symbols.drawShadows]();
-            this[symbols.drawStatus]();
-            this.context.restore();
-          }
-          /**
-           * Fill all available space in the window.
-           */
 
-        }, {
-          key: "resizeToFillWindow",
-          value: function resizeToFillWindow() {
-            this.width = window.innerWidth;
-            this.height = window.innerHeight;
-          }
-        }]);
+        draw() {
+          this.context.save();
+          this[symbols.wipe]();
+          this[symbols.align]();
+          this[symbols.drawItems]();
+          this[symbols.drawShadows]();
+          this[symbols.drawStatus]();
+          this.context.restore();
+        }
+        /**
+         * Fill all available space in the window.
+         */
 
-        return ClientView;
-      }(View);
+
+        resizeToFillWindow() {
+          this.width = window.innerWidth;
+          this.height = window.innerHeight;
+        }
+
+      }
 
       module.exports = ClientView;
     }, {
@@ -13586,12 +13032,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict'; // const Westures = require('../../../westures');
 
-      var Westures = require('westures');
+      const Westures = require('westures');
 
-      var _require16 = require('../shared.js'),
-          NOP = _require16.NOP;
+      const _require16 = require('../shared.js'),
+            NOP = _require16.NOP;
 
-      var Transform = require('./Transform.js');
+      const Transform = require('./Transform.js');
       /**
        * The Interactor class provides a layer of abstraction between the
        * ClientController and the code that processes user inputs.  Data from
@@ -13607,9 +13053,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Interactor =
-      /*#__PURE__*/
-      function () {
+      class Interactor {
         /**
          * @param {Object} handlers - Object with keys as the names gestures and
          *    values as the corresponding function for handling that gesture when it
@@ -13619,10 +13063,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {Function} [handlers.track=NOP]
          * @param {Function} [handlers.transform=NOP]
          */
-        function Interactor() {
-          var handlers = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
-          _classCallCheck(this, Interactor);
+        constructor() {
+          let handlers = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 
           /**
            * Object holding the handlers, so they can be dynamically referenced by
@@ -13646,88 +13088,81 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Interactor, [{
-          key: "bindRegions",
-          value: function bindRegions() {
-            var swipe = new Westures.Swipe();
-            var swivel = new Westures.Swivel({
-              enableKey: 'ctrlKey'
-            });
-            var tap = new Westures.Tap();
-            var track = new Westures.Track(['start', 'end']);
-            var transform = new Transform();
-            var region = new Westures.Region(document.body);
-            region.addGesture(document.body, tap, this.forward('tap'));
-            region.addGesture(document.body, swipe, this.forward('swipe'));
-            region.addGesture(document.body, swivel, this.swivel());
-            region.addGesture(document.body, transform, this.forward('transform'));
-            region.addGesture(document.body, track, this.forward('track'));
-          }
-          /**
-           * Send a swivel event through as a transformation.
-           */
+        bindRegions() {
+          const swipe = new Westures.Swipe();
+          const swivel = new Westures.Swivel({
+            enableKey: 'ctrlKey'
+          });
+          const tap = new Westures.Tap();
+          const track = new Westures.Track(['start', 'end']);
+          const transform = new Transform();
+          const region = new Westures.Region(document.body);
+          region.addGesture(document.body, tap, this.forward('tap'));
+          region.addGesture(document.body, swipe, this.forward('swipe'));
+          region.addGesture(document.body, swivel, this.swivel());
+          region.addGesture(document.body, transform, this.forward('transform'));
+          region.addGesture(document.body, track, this.forward('track'));
+        }
+        /**
+         * Send a swivel event through as a transformation.
+         */
 
-        }, {
-          key: "swivel",
-          value: function swivel() {
-            function do_swivel(_ref14) {
-              var rotation = _ref14.rotation,
-                  pivot = _ref14.pivot;
-              this.handlers.transform({
-                centroid: pivot,
-                delta: {
-                  rotation: rotation
-                }
-              });
-            }
 
-            return do_swivel.bind(this);
-          }
-          /**
-           * Generates a function that forwards the appropriate gesture and data.
-           *
-           * @param {string} gesture - name of a gesture to forward.
-           *
-           * @return {Function} Handler for westures that receives a data object and
-           * forwards it according to the given gesture name.
-           */
-
-        }, {
-          key: "forward",
-          value: function forward(gesture) {
-            function do_forward(data) {
-              this.handlers[gesture](data);
-            }
-
-            return do_forward.bind(this);
-          }
-          /**
-           * Treat scrollwheel events as zoom events.
-           *
-           * @param {WheelEvent} event - The wheel event from the window.
-           */
-
-        }, {
-          key: "wheel",
-          value: function wheel(event) {
-            event.preventDefault();
-            var factor = event.ctrlKey ? 0.02 : 0.10;
-            var scale = -(Math.sign(event.deltaY) * factor) + 1;
-            var centroid = {
-              x: event.clientX,
-              y: event.clientY
-            };
+        swivel() {
+          function do_swivel(_ref14) {
+            let rotation = _ref14.rotation,
+                pivot = _ref14.pivot;
             this.handlers.transform({
-              centroid: centroid,
+              centroid: pivot,
               delta: {
-                scale: scale
+                rotation
               }
             });
           }
-        }]);
 
-        return Interactor;
-      }();
+          return do_swivel.bind(this);
+        }
+        /**
+         * Generates a function that forwards the appropriate gesture and data.
+         *
+         * @param {string} gesture - name of a gesture to forward.
+         *
+         * @return {Function} Handler for westures that receives a data object and
+         * forwards it according to the given gesture name.
+         */
+
+
+        forward(gesture) {
+          function do_forward(data) {
+            this.handlers[gesture](data);
+          }
+
+          return do_forward.bind(this);
+        }
+        /**
+         * Treat scrollwheel events as zoom events.
+         *
+         * @param {WheelEvent} event - The wheel event from the window.
+         */
+
+
+        wheel(event) {
+          event.preventDefault();
+          const factor = event.ctrlKey ? 0.02 : 0.10;
+          const scale = -(Math.sign(event.deltaY) * factor) + 1;
+          const centroid = {
+            x: event.clientX,
+            y: event.clientY
+          };
+          this.handlers.transform({
+            centroid,
+            delta: {
+              scale
+            }
+          });
+        }
+
+      }
       /**
        * The default handlers used by the Interactor.
        *
@@ -13764,14 +13199,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require17 = require('../shared.js'),
-          colours = _require17.colours,
-          IdStamper = _require17.IdStamper,
-          View = _require17.View;
+      const _require17 = require('../shared.js'),
+            colours = _require17.colours,
+            IdStamper = _require17.IdStamper,
+            View = _require17.View;
 
-      var STAMPER = new IdStamper(); // Symbols to mark these methods as intended for internal use only.
+      const STAMPER = new IdStamper(); // Symbols to mark these methods as intended for internal use only.
 
-      var symbols = Object.freeze({
+      const symbols = Object.freeze({
         align: Symbol('align'),
         style: Symbol('style'),
         outline: Symbol('outline'),
@@ -13785,23 +13220,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:client
        */
 
-      var ShadowView =
-      /*#__PURE__*/
-      function (_View2) {
-        _inherits(ShadowView, _View2);
-
+      class ShadowView extends View {
         /**
          * @param {module:shared.View} values - server-provided data describing this
          * view.
          */
-        function ShadowView(values) {
-          var _this36;
-
-          _classCallCheck(this, ShadowView);
-
-          _this36 = _possibleConstructorReturn(this, _getPrototypeOf(ShadowView).call(this, values));
-          STAMPER.cloneId(_assertThisInitialized(_this36), values.id);
-          return _this36;
+        constructor(values) {
+          super(values);
+          STAMPER.cloneId(this, values.id);
         }
         /**
          * Render an outline of this view.
@@ -13810,80 +13236,72 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(ShadowView, [{
-          key: "draw",
-          value: function draw(context) {
-            /*
-             * WARNING: It is *crucial* that this series of instructions be wrapped in
-             * save() and restore().
-             */
-            context.save();
-            this[symbols.align](context);
-            this[symbols.style](context);
-            this[symbols.outline](context);
-            this[symbols.marker](context);
-            context.restore();
-          }
-          /**
-           * Aligns the drawing context so the outline will be rendered in the correct
-           * location with the correct orientation.
-           *
-           * @param {CanvasRenderingContext2D} context - context on which to draw.
+        draw(context) {
+          /*
+           * WARNING: It is *crucial* that this series of instructions be wrapped in
+           * save() and restore().
            */
+          context.save();
+          this[symbols.align](context);
+          this[symbols.style](context);
+          this[symbols.outline](context);
+          this[symbols.marker](context);
+          context.restore();
+        }
+        /**
+         * Aligns the drawing context so the outline will be rendered in the correct
+         * location with the correct orientation.
+         *
+         * @param {CanvasRenderingContext2D} context - context on which to draw.
+         */
 
-        }, {
-          key: symbols.align,
-          value: function value(context) {
-            context.translate(this.x, this.y);
-            context.rotate(-this.rotation);
-            context.scale(1 / this.scale, 1 / this.scale);
-          }
-          /**
-           * Applies styling to the drawing context.
-           *
-           * @param {CanvasRenderingContext2D} context - context on which to draw.
-           */
 
-        }, {
-          key: symbols.style,
-          value: function value(context) {
-            context.globalAlpha = 0.5;
-            context.strokeStyle = colours[this.id % colours.length];
-            context.fillStyle = context.strokeStyle;
-            context.lineWidth = 5;
-          }
-          /**
-           * Draws an outline of the view.
-           */
+        [symbols.align](context) {
+          context.translate(this.x, this.y);
+          context.rotate(-this.rotation);
+          context.scale(1 / this.scale, 1 / this.scale);
+        }
+        /**
+         * Applies styling to the drawing context.
+         *
+         * @param {CanvasRenderingContext2D} context - context on which to draw.
+         */
 
-        }, {
-          key: symbols.outline,
-          value: function value(context) {
-            context.strokeRect(0, 0, this.width, this.height);
-          }
-          /**
-           * Draws a small triangle in the upper-left corner of the outline, so that
-           * other views can quickly tell which way this view is oriented.
-           *
-           * @param {CanvasRenderingContext2D} context - context on which to draw.
-           */
 
-        }, {
-          key: symbols.marker,
-          value: function value(context) {
-            var base = context.lineWidth / 2;
-            var height = 25;
-            context.beginPath();
-            context.moveTo(base, base);
-            context.lineTo(base, height);
-            context.lineTo(height, base);
-            context.lineTo(base, base);
-            context.fill();
-          }
-        }]);
+        [symbols.style](context) {
+          context.globalAlpha = 0.5;
+          context.strokeStyle = colours[this.id % colours.length];
+          context.fillStyle = context.strokeStyle;
+          context.lineWidth = 5;
+        }
+        /**
+         * Draws an outline of the view.
+         */
 
-        return ShadowView;
-      }(View);
+
+        [symbols.outline](context) {
+          context.strokeRect(0, 0, this.width, this.height);
+        }
+        /**
+         * Draws a small triangle in the upper-left corner of the outline, so that
+         * other views can quickly tell which way this view is oriented.
+         *
+         * @param {CanvasRenderingContext2D} context - context on which to draw.
+         */
+
+
+        [symbols.marker](context) {
+          const base = context.lineWidth / 2;
+          const height = 25;
+          context.beginPath();
+          context.moveTo(base, base);
+          context.lineTo(base, height);
+          context.lineTo(height, base);
+          context.lineTo(base, base);
+          context.fill();
+        }
+
+      }
 
       module.exports = ShadowView;
     }, {
@@ -13898,7 +13316,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Westures = require('westures');
+      const Westures = require('westures');
       /**
        * The Transform class is a custom Westures gestures that combines Pan, Rotate,
        * and Scale into one gesture so that the three gestures can be emitted
@@ -13908,41 +13326,32 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Transform =
-      /*#__PURE__*/
-      function (_Westures$Gesture) {
-        _inherits(Transform, _Westures$Gesture);
-
-        function Transform() {
-          var _this37;
-
-          _classCallCheck(this, Transform);
-
-          _this37 = _possibleConstructorReturn(this, _getPrototypeOf(Transform).call(this, 'transform'));
+      class Transform extends Westures.Gesture {
+        constructor() {
+          super('transform');
           /**
            * The Pinch gesture.
            *
            * @type {Pinch}
            */
 
-          _this37.pinch = new Westures.Pinch();
+          this.pinch = new Westures.Pinch();
           /**
            * The Rotate gesture.
            *
            * @type {Rotate}
            */
 
-          _this37.rotate = new Westures.Rotate();
+          this.rotate = new Westures.Rotate();
           /**
            * The Pan gesture.
            *
            * @type {Pan}
            */
 
-          _this37.pan = new Westures.Pan({
+          this.pan = new Westures.Pan({
             muteKey: 'ctrlKey'
           });
-          return _this37;
         }
         /**
          * Hook for the 'start' phase.
@@ -13951,78 +13360,71 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Transform, [{
-          key: "start",
-          value: function start(state) {
-            this.pinch.start(state);
-            this.rotate.start(state);
-            this.pan.start(state);
+        start(state) {
+          this.pinch.start(state);
+          this.rotate.start(state);
+          this.pan.start(state);
+        }
+        /**
+         * Hook for the 'move' phase.
+         *
+         * @param {State} state
+         */
+
+
+        move(state) {
+          const result = {
+            centroid: state.centroid,
+            delta: {}
+          };
+          const pinch_data = this.pinch.move(state);
+          const rotate_data = this.rotate.move(state);
+          const pan_data = this.pan.move(state);
+          let emit = false;
+
+          if (pinch_data) {
+            result.delta.scale = pinch_data.scale;
+            emit = true;
           }
-          /**
-           * Hook for the 'move' phase.
-           *
-           * @param {State} state
-           */
 
-        }, {
-          key: "move",
-          value: function move(state) {
-            var result = {
-              centroid: state.centroid,
-              delta: {}
-            };
-            var pinch_data = this.pinch.move(state);
-            var rotate_data = this.rotate.move(state);
-            var pan_data = this.pan.move(state);
-            var emit = false;
-
-            if (pinch_data) {
-              result.delta.scale = pinch_data.scale;
-              emit = true;
-            }
-
-            if (rotate_data) {
-              result.delta.rotation = rotate_data.rotation;
-              emit = true;
-            }
-
-            if (pan_data) {
-              result.delta.translation = pan_data.translation;
-              emit = true;
-            }
-
-            return emit ? result : null;
+          if (rotate_data) {
+            result.delta.rotation = rotate_data.rotation;
+            emit = true;
           }
-          /**
-           * Hook for the 'end' phase.
-           *
-           * @param {State} state
-           */
 
-        }, {
-          key: "end",
-          value: function end(state) {
-            this.pinch.end(state);
-            this.rotate.end(state);
-            this.pan.end(state);
+          if (pan_data) {
+            result.delta.translation = pan_data.translation;
+            emit = true;
           }
-          /**
-           * Hook for the 'cancel' phase.
-           *
-           * @param {State} state
-           */
 
-        }, {
-          key: "cancel",
-          value: function cancel(state) {
-            this.pinch.cancel(state);
-            this.rotate.cancel(state);
-            this.pan.cancel(state);
-          }
-        }]);
+          return emit ? result : null;
+        }
+        /**
+         * Hook for the 'end' phase.
+         *
+         * @param {State} state
+         */
 
-        return Transform;
-      }(Westures.Gesture);
+
+        end(state) {
+          this.pinch.end(state);
+          this.rotate.end(state);
+          this.pan.end(state);
+        }
+        /**
+         * Hook for the 'cancel' phase.
+         *
+         * @param {State} state
+         */
+
+
+        cancel(state) {
+          this.pinch.cancel(state);
+          this.rotate.cancel(state);
+          this.pan.cancel(state);
+        }
+
+      }
 
       module.exports = Transform;
     }, {
@@ -14044,17 +13446,17 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var IdStamper = require('./shared/IdStamper.js');
+      const IdStamper = require('./shared/IdStamper.js');
 
-      var Message = require('./shared/Message.js');
+      const Message = require('./shared/Message.js');
 
-      var Reporters = require('./shared/Reporters.js');
+      const Reporters = require('./shared/Reporters.js');
 
-      var Utils = require('./shared/utilities.js');
+      const Utils = require('./shared/utilities.js');
 
-      var Polygon2D = require('./shared/Polygon2D.js');
+      const Polygon2D = require('./shared/Polygon2D.js');
 
-      var Point2D = require('./shared/Point2D.js');
+      const Point2D = require('./shared/Point2D.js');
       /**
        * This object stores a set of core constants for use by both the client and
        *  the server.
@@ -14064,7 +13466,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var constants = {
+      const constants = {
         // General constants
         ROTATE_0: 0,
         ROTATE_90: Math.PI / 2,
@@ -14084,18 +13486,18 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @type {string[]}
        */
 
-      var colours = ['saddlebrown', 'red', 'blue', 'lime', 'darkorange', 'purple', 'yellow', 'aqua', 'darkgreen', 'fuchsia'];
+      const colours = ['saddlebrown', 'red', 'blue', 'lime', 'darkorange', 'purple', 'yellow', 'aqua', 'darkgreen', 'fuchsia'];
       /*
        * Package up the module and freeze it for delivery.
        */
 
       module.exports = Object.freeze(_objectSpread({
-        colours: colours,
-        constants: constants,
-        IdStamper: IdStamper,
-        Message: Message,
-        Point2D: Point2D,
-        Polygon2D: Polygon2D
+        colours,
+        constants,
+        IdStamper,
+        Message,
+        Point2D,
+        Polygon2D
       }, Reporters, Utils));
     }, {
       "./shared/IdStamper.js": 83,
@@ -14120,8 +13522,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require18 = require('./utilities.js'),
-          defineOwnImmutableEnumerableProperty = _require18.defineOwnImmutableEnumerableProperty;
+      const _require18 = require('./utilities.js'),
+            defineOwnImmutableEnumerableProperty = _require18.defineOwnImmutableEnumerableProperty;
       /**
        * Generator for integers from 0 to MAX_SAFE_INTEGER.
        *
@@ -14130,11 +13532,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @generator
        * @returns {number} Unique integers.
        */
-      // function* id_gen() {
-      //   let next_id = 0;
-      //   while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
-      // }
 
+
+      function* id_gen() {
+        let next_id = 0;
+
+        while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
+      }
       /**
        * Mark the class instance's generator as not intended for external use.
        *
@@ -14144,7 +13548,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var gen = Symbol('gen');
+      const gen = Symbol('gen');
       /**
        * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
        * per-IdStamper basis.
@@ -14164,19 +13568,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:shared
        */
 
-      var IdStamper =
-      /*#__PURE__*/
-      function () {
-        function IdStamper() {
-          _classCallCheck(this, IdStamper);
-
+      class IdStamper {
+        constructor() {
           /**
            * A generator instance that yields unique integers.
            *
            * @type {Generator}
            */
-          // this[gen] = id_gen();
-          this[gen] = 0;
+          this[gen] = id_gen();
         }
         /**
          * Stamps an integer ID, unique to this IdStamper, onto the given object.
@@ -14189,30 +13588,24 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(IdStamper, [{
-          key: "stampNewId",
-          value: function stampNewId(obj) {
-            defineOwnImmutableEnumerableProperty(obj, 'id', // this[gen].next().value
-            this[gen]++);
-          }
-          /**
-           * Stamps a clone of the given ID onto the given object.
-           *
-           * @param {Object} obj - An object onto which an ID will be stamped.
-           * @param {number} id - The ID to clone onto obj.
-           */
+        stampNewId(obj) {
+          defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
+        }
+        /**
+         * Stamps a clone of the given ID onto the given object.
+         *
+         * @param {Object} obj - An object onto which an ID will be stamped.
+         * @param {number} id - The ID to clone onto obj.
+         */
 
-        }, {
-          key: "cloneId",
-          value: function cloneId(obj, id) {
-            if (Number.isSafeInteger(id)) {
-              defineOwnImmutableEnumerableProperty(obj, 'id', id);
-            }
-          }
-        }]);
 
-        return IdStamper;
-      }();
+        cloneId(obj, id) {
+          if (Number.isSafeInteger(id)) {
+            defineOwnImmutableEnumerableProperty(obj, 'id', id);
+          }
+        }
+
+      }
 
       module.exports = IdStamper;
     }, {
@@ -14236,8 +13629,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _require19 = require('./utilities.js'),
-          defineOwnImmutableEnumerableProperty = _require19.defineOwnImmutableEnumerableProperty;
+      const _require19 = require('./utilities.js'),
+            defineOwnImmutableEnumerableProperty = _require19.defineOwnImmutableEnumerableProperty;
       /**
        * TYPES is an explicit list of the types of messages that will be passed back
        * and forth. Messages not on this list should be ignored!
@@ -14248,7 +13641,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var TYPES = {
+      const TYPES = {
         // For the server to inform about changes to the model
 
         /** @const */
@@ -14329,7 +13722,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         IMG_LOAD: 'wams-image-loaded'
       };
       Object.freeze(TYPES);
-      var TYPE_VALUES = Object.freeze(Object.values(TYPES));
+      const TYPE_VALUES = Object.freeze(Object.values(TYPES));
       /**
        * The Message class provides a funnel through which data passed between the
        * client and server must flow.
@@ -14337,9 +13730,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:shared
        */
 
-      var Message =
-      /*#__PURE__*/
-      function () {
+      class Message {
         /**
          * If an invalid type is received, throws an exception. If an invalid reporter
          * is received, an exception will not be thrown until 'emitWith()' is called.
@@ -14349,9 +13740,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @param {module:shared.Reporter} reporter - A Reporter instance, containing
          * the data to be emitted.
          */
-        function Message(type, reporter) {
-          _classCallCheck(this, Message);
-
+        constructor(type, reporter) {
           if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
           this.type = type;
           this.reporter = reporter;
@@ -14365,23 +13754,19 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Message, [{
-          key: "emitWith",
-          value: function emitWith(emitter) {
-            emitter.emit(this.type, this.reporter.report());
-          }
-        }]);
+        emitWith(emitter) {
+          emitter.emit(this.type, this.reporter.report());
+        }
 
-        return Message;
-      }();
+      }
       /*
        * Only define the messages once, above, and now attach them to the Message
        * Class object for external reference.
        */
 
 
-      Object.entries(TYPES).forEach(function (_ref15) {
-        var _ref16 = _slicedToArray(_ref15, 2),
+      Object.entries(TYPES).forEach((_ref15) => {
+        let _ref16 = _slicedToArray(_ref15, 2),
             p = _ref16[0],
             v = _ref16[1];
 
@@ -14404,18 +13789,14 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @memberof module:shared
        */
 
-      var Point2D =
-      /*#__PURE__*/
-      function () {
+      class Point2D {
         /**
          * @param {number} x - x coordinate of the point.
          * @param {number} y - y coordinate of the point.
          */
-        function Point2D() {
-          var x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-          var y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
-          _classCallCheck(this, Point2D);
+        constructor() {
+          let x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
 
           /**
            * X coordinate of the point.
@@ -14438,225 +13819,203 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Point2D, [{
-          key: "add",
-          value: function add(_ref17) {
-            var _ref17$x = _ref17.x,
-                x = _ref17$x === void 0 ? 0 : _ref17$x,
-                _ref17$y = _ref17.y,
-                y = _ref17$y === void 0 ? 0 : _ref17$y;
-            this.x += x;
-            this.y += y;
-            return this;
-          }
-          /**
-           * Calculates the angle between this point and the given point.
-           *
-           * @param {!module:gestures.Point2D} point - Projected point for calculating
-           * the angle.
-           *
-           * @return {number} Radians along the unit circle where the projected
-           * point lies.
-           */
+        add(_ref17) {
+          let _ref17$x = _ref17.x,
+              x = _ref17$x === void 0 ? 0 : _ref17$x,
+              _ref17$y = _ref17.y,
+              y = _ref17$y === void 0 ? 0 : _ref17$y;
+          this.x += x;
+          this.y += y;
+          return this;
+        }
+        /**
+         * Calculates the angle between this point and the given point.
+         *
+         * @param {!module:gestures.Point2D} point - Projected point for calculating
+         * the angle.
+         *
+         * @return {number} Radians along the unit circle where the projected
+         * point lies.
+         */
 
-        }, {
-          key: "angleTo",
-          value: function angleTo(point) {
-            return Math.atan2(point.y - this.y, point.x - this.x);
-          }
-          /**
-           * Determine the average distance from this point to the provided array of
-           * points.
-           *
-           * @param {!module:gestures.Point2D[]} points - the Point2D objects to
-           *    calculate the average distance to.
-           *
-           * @return {number} The average distance from this point to the provided
-           *    points.
-           */
 
-        }, {
-          key: "averageDistanceTo",
-          value: function averageDistanceTo(points) {
-            return this.totalDistanceTo(points) / points.length;
-          }
-          /**
-           * Clones this point.
-           *
-           * @returns {module:shared.Point2D} An exact clone of this point.
-           */
+        angleTo(point) {
+          return Math.atan2(point.y - this.y, point.x - this.x);
+        }
+        /**
+         * Determine the average distance from this point to the provided array of
+         * points.
+         *
+         * @param {!module:gestures.Point2D[]} points - the Point2D objects to
+         *    calculate the average distance to.
+         *
+         * @return {number} The average distance from this point to the provided
+         *    points.
+         */
 
-        }, {
-          key: "clone",
-          value: function clone() {
-            return new Point2D(this.x, this.y);
-          }
-          /**
-           * Calculates the distance between two points.
-           *
-           * @param {!module:gestures.Point2D} point - Point to which the distance is
-           * calculated.
-           *
-           * @return {number} The distance between the two points, a.k.a. the
-           *    hypoteneuse.
-           */
 
-        }, {
-          key: "distanceTo",
-          value: function distanceTo(point) {
-            return Math.hypot(point.x - this.x, point.y - this.y);
-          }
-          /**
-           * Divide the point's values by the given amount.
-           *
-           * @param {number} coefficient - divide x,y by this amount.
-           *
-           * @return {module:shared.Point2D} this
-           */
+        averageDistanceTo(points) {
+          return this.totalDistanceTo(points) / points.length;
+        }
+        /**
+         * Clones this point.
+         *
+         * @returns {module:shared.Point2D} An exact clone of this point.
+         */
 
-        }, {
-          key: "divideBy",
-          value: function divideBy() {
-            var coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-            this.x /= coefficient;
-            this.y /= coefficient;
-            return this;
-          }
-          /**
-           * Tests if a point is Left|On|Right of an infinite line. Assumes that the
-           * given points are such that one is above and one is below this point. Note
-           * that the semantics of left/right is based on the normal coordinate space,
-           * not the y-axis-inverted coordinate space of images and the canvas.
-           *
-           * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
-           *
-           * @param {module:shared.Point2D} p0 - first point of the line.
-           * @param {module:shared.Point2D} p1 - second point of the line.
-           *
-           * @return {number} >0 if this point is left of the line through p0 and p1
-           * @return {number} =0 if this point is on the line
-           * @return {number} <0 if this point is right of the line
-           */
 
-        }, {
-          key: "isLeftOf",
-          value: function isLeftOf(p0, p1) {
-            var dl = p1.minus(p0);
-            var dp = this.minus(p0);
-            return dl.x * dp.y - dl.y * dp.x;
-          }
-          /**
-           * Subtracts the given point from this point to form a new point.
-           *
-           * @param {module:shared.Point2D} p - Point to subtract from this point.
-           *
-           * @return {module:shared.Point2D} A new point which is the simple subraction
-           * of the given point from this point.
-           */
+        clone() {
+          return new Point2D(this.x, this.y);
+        }
+        /**
+         * Calculates the distance between two points.
+         *
+         * @param {!module:gestures.Point2D} point - Point to which the distance is
+         * calculated.
+         *
+         * @return {number} The distance between the two points, a.k.a. the
+         *    hypoteneuse.
+         */
 
-        }, {
-          key: "minus",
-          value: function minus(_ref18) {
-            var _ref18$x = _ref18.x,
-                x = _ref18$x === void 0 ? 0 : _ref18$x,
-                _ref18$y = _ref18.y,
-                y = _ref18$y === void 0 ? 0 : _ref18$y;
-            return new Point2D(this.x - x, this.y - y);
-          }
-          /**
-           * Multiply this point by the given point to form a new point.
-           *
-           * @param {number} coefficient - Amount by which to multiply the values in
-           * this point.
-           *
-           * @return {module:shared.Point2D} Return a new point, the multiplation of
-           * this point by the given amount.
-           */
 
-        }, {
-          key: "multiplyBy",
-          value: function multiplyBy() {
-            var coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-            this.x *= coefficient;
-            this.y *= coefficient;
-            return this;
-          }
-          /**
-           * Rotate the point by theta radians.
-           *
-           * @param {number} theta - Amount of rotation to apply, in radians.
-           *
-           * @return {module:shared.Point2D} this
-           */
+        distanceTo(point) {
+          return Math.hypot(point.x - this.x, point.y - this.y);
+        }
+        /**
+         * Divide the point's values by the given amount.
+         *
+         * @param {number} coefficient - divide x,y by this amount.
+         *
+         * @return {module:shared.Point2D} this
+         */
 
-        }, {
-          key: "rotate",
-          value: function rotate() {
-            var theta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-            var x = this.x,
+
+        divideBy() {
+          let coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+          this.x /= coefficient;
+          this.y /= coefficient;
+          return this;
+        }
+        /**
+         * Tests if a point is Left|On|Right of an infinite line. Assumes that the
+         * given points are such that one is above and one is below this point. Note
+         * that the semantics of left/right is based on the normal coordinate space,
+         * not the y-axis-inverted coordinate space of images and the canvas.
+         *
+         * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+         *
+         * @param {module:shared.Point2D} p0 - first point of the line.
+         * @param {module:shared.Point2D} p1 - second point of the line.
+         *
+         * @return {number} >0 if this point is left of the line through p0 and p1
+         * @return {number} =0 if this point is on the line
+         * @return {number} <0 if this point is right of the line
+         */
+
+
+        isLeftOf(p0, p1) {
+          const dl = p1.minus(p0);
+          const dp = this.minus(p0);
+          return dl.x * dp.y - dl.y * dp.x;
+        }
+        /**
+         * Subtracts the given point from this point to form a new point.
+         *
+         * @param {module:shared.Point2D} p - Point to subtract from this point.
+         *
+         * @return {module:shared.Point2D} A new point which is the simple subraction
+         * of the given point from this point.
+         */
+
+
+        minus(_ref18) {
+          let _ref18$x = _ref18.x,
+              x = _ref18$x === void 0 ? 0 : _ref18$x,
+              _ref18$y = _ref18.y,
+              y = _ref18$y === void 0 ? 0 : _ref18$y;
+          return new Point2D(this.x - x, this.y - y);
+        }
+        /**
+         * Multiply this point by the given point to form a new point.
+         *
+         * @param {number} coefficient - Amount by which to multiply the values in
+         * this point.
+         *
+         * @return {module:shared.Point2D} Return a new point, the multiplation of
+         * this point by the given amount.
+         */
+
+
+        multiplyBy() {
+          let coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+          this.x *= coefficient;
+          this.y *= coefficient;
+          return this;
+        }
+        /**
+         * Rotate the point by theta radians.
+         *
+         * @param {number} theta - Amount of rotation to apply, in radians.
+         *
+         * @return {module:shared.Point2D} this
+         */
+
+
+        rotate() {
+          let theta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+          const x = this.x,
                 y = this.y;
-            var cos_theta = Math.cos(theta);
-            var sin_theta = Math.sin(theta);
-            this.x = x * cos_theta - y * sin_theta;
-            this.y = x * sin_theta + y * cos_theta;
-            return this;
-          }
-          /**
-           * Calculates the total distance from this point to an array of points.
-           *
-           * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
-           *    to calculate the total distance to.
-           *
-           * @return {number} The total distance from this point to the provided points.
-           */
+          const cos_theta = Math.cos(theta);
+          const sin_theta = Math.sin(theta);
+          this.x = x * cos_theta - y * sin_theta;
+          this.y = x * sin_theta + y * cos_theta;
+          return this;
+        }
+        /**
+         * Calculates the total distance from this point to an array of points.
+         *
+         * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
+         *    to calculate the total distance to.
+         *
+         * @return {number} The total distance from this point to the provided points.
+         */
 
-        }, {
-          key: "totalDistanceTo",
-          value: function totalDistanceTo(points) {
-            var _this38 = this;
 
-            return points.reduce(function (d, p) {
-              return d + _this38.distanceTo(p);
-            }, 0);
-          }
-          /**
-           * Calculates the midpoint of a list of points.
-           *
-           * @param {module:gestures.Point2D[]} points - The array of Point2D objects
-           *    for which to calculate the midpoint
-           *
-           * @return {module:gestures.Point2D} The midpoint of the provided points.
-           */
+        totalDistanceTo(points) {
+          return points.reduce((d, p) => d + this.distanceTo(p), 0);
+        }
+        /**
+         * Calculates the midpoint of a list of points.
+         *
+         * @param {module:gestures.Point2D[]} points - The array of Point2D objects
+         *    for which to calculate the midpoint
+         *
+         * @return {module:gestures.Point2D} The midpoint of the provided points.
+         */
 
-        }], [{
-          key: "midpoint",
-          value: function midpoint() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            if (points.length === 0) return null;
-            var total = Point2D.sum(points);
-            return new Point2D(total.x / points.length, total.y / points.length);
-          }
-          /**
-           * Calculates the sum of the given points.
-           *
-           * @param {module:gestures.Point2D[]} points - The Point2D objects to sum up.
-           *
-           * @return {module:gestures.Point2D} A new Point2D representing the sum of the
-           * given points.
-           */
 
-        }, {
-          key: "sum",
-          value: function sum() {
-            var points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            return points.reduce(function (total, pt) {
-              return total.add(pt);
-            }, new Point2D(0, 0));
-          }
-        }]);
+        static midpoint() {
+          let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          if (points.length === 0) return null;
+          const total = Point2D.sum(points);
+          return new Point2D(total.x / points.length, total.y / points.length);
+        }
+        /**
+         * Calculates the sum of the given points.
+         *
+         * @param {module:gestures.Point2D[]} points - The Point2D objects to sum up.
+         *
+         * @return {module:gestures.Point2D} A new Point2D representing the sum of the
+         * given points.
+         */
 
-        return Point2D;
-      }();
+
+        static sum() {
+          let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+          return points.reduce((total, pt) => total.add(pt), new Point2D(0, 0));
+        }
+
+      }
 
       module.exports = Point2D;
     }, {}],
@@ -14669,7 +14028,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var Point2D = require('./Point2D.js');
+      const Point2D = require('./Point2D.js');
       /**
        * A polygon in two dimensions. Can be complex.
        *
@@ -14677,18 +14036,12 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Polygon2D =
-      /*#__PURE__*/
-      function () {
+      class Polygon2D {
         /**
          * @param {module:shared.Point2D[]} points - The points that make up the
          * polygon, given in order (clockwise and counter-clockwise are both fine).
          */
-        function Polygon2D(points) {
-          var _this39 = this;
-
-          _classCallCheck(this, Polygon2D);
-
+        constructor(points) {
           if (points.length < 1) {
             throw new TypeError('A polygon requires at least one vertex.');
           }
@@ -14701,8 +14054,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          this.points = points.map(function (_ref19) {
-            var x = _ref19.x,
+          this.points = points.map((_ref19) => {
+            let x = _ref19.x,
                 y = _ref19.y;
             return new Point2D(x, y);
           });
@@ -14719,9 +14072,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            * @type {number}
            */
 
-          this.radius = this.points.reduce(function (max, point) {
-            var curr = _this39.centroid.distanceTo(point);
-
+          this.radius = this.points.reduce((max, point) => {
+            const curr = this.centroid.distanceTo(point);
             return max > curr ? max : curr;
           }); // Close the polygon.
 
@@ -14749,87 +14101,76 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          */
 
 
-        _createClass(Polygon2D, [{
-          key: "contains",
-          value: function contains(p) {
-            if (this.centroid.distanceTo(p) > this.radius) {
-              return false;
-            }
-
-            return this.winding_number(p) !== 0;
+        contains(p) {
+          if (this.centroid.distanceTo(p) > this.radius) {
+            return false;
           }
-          /**
-           * Rotate the polygon by the given amount.
-           *
-           * @param {number} theta - The amount, in radians, that the polygon should be
-           * rotated.
-           */
 
-        }, {
-          key: "rotate",
-          value: function rotate(theta) {
-            this.points.forEach(function (p) {
-              return p.rotate(theta);
-            });
-            this.centroid.rotate(theta);
-          }
-          /**
-           * Scale the polygon by the given amount.
-           *
-           * @param {number} ds - The amount of scaling to apply to the polygon. Will be
-           * multiplicative, so should probably be in the range (0.8 - 1.2) most of the
-           * time.
-           */
+          return this.winding_number(p) !== 0;
+        }
+        /**
+         * Rotate the polygon by the given amount.
+         *
+         * @param {number} theta - The amount, in radians, that the polygon should be
+         * rotated.
+         */
 
-        }, {
-          key: "scale",
-          value: function scale(ds) {
-            this.points.forEach(function (p) {
-              return p.multiplyBy(ds);
-            });
-            this.centroid.multiplyBy(ds);
-            this.radius *= ds;
-          }
-          /**
-           * Winding number test for a point in a polygon
-           *
-           * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
-           *
-           * @param {module:shared.Point2D[]} point - The point to test.
-           *
-           * @return {number} The winding number (=0 only when P is outside)
-           */
 
-        }, {
-          key: "winding_number",
-          value: function winding_number(p) {
-            var wn = 0;
-            var point = new Point2D(p.x, p.y);
+        rotate(theta) {
+          this.points.forEach(p => p.rotate(theta));
+          this.centroid.rotate(theta);
+        }
+        /**
+         * Scale the polygon by the given amount.
+         *
+         * @param {number} ds - The amount of scaling to apply to the polygon. Will be
+         * multiplicative, so should probably be in the range (0.8 - 1.2) most of the
+         * time.
+         */
 
-            for (var i = 0; i < this.points.length - 1; ++i) {
-              if (this.points[i].y <= point.y) {
-                if (this.points[i + 1].y > point.y) {
-                  // Upward crossing
-                  if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
-                    ++wn;
-                  }
+
+        scale(ds) {
+          this.points.forEach(p => p.multiplyBy(ds));
+          this.centroid.multiplyBy(ds);
+          this.radius *= ds;
+        }
+        /**
+         * Winding number test for a point in a polygon
+         *
+         * @see {@link http://geomalgorithms.com/a03-_inclusion.html}
+         *
+         * @param {module:shared.Point2D[]} point - The point to test.
+         *
+         * @return {number} The winding number (=0 only when P is outside)
+         */
+
+
+        winding_number(p) {
+          let wn = 0;
+          const point = new Point2D(p.x, p.y);
+
+          for (let i = 0; i < this.points.length - 1; ++i) {
+            if (this.points[i].y <= point.y) {
+              if (this.points[i + 1].y > point.y) {
+                // Upward crossing
+                if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
+                  ++wn;
                 }
-              } else {
-                if (this.points[i + 1].y <= point.y) {
-                  // Downward crossing
-                  if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
-                    --wn;
-                  }
+              }
+            } else {
+              if (this.points[i + 1].y <= point.y) {
+                // Downward crossing
+                if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
+                  --wn;
                 }
               }
             }
-
-            return wn;
           }
-        }]);
 
-        return Polygon2D;
-      }();
+          return wn;
+        }
+
+      }
 
       module.exports = Polygon2D;
     }, {
@@ -14844,9 +14185,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var IdStamper = require('./IdStamper.js');
+      const IdStamper = require('./IdStamper.js');
 
-      var STAMPER = new IdStamper();
+      const STAMPER = new IdStamper();
       /**
        * This factory can generate the basic classes that need to communicate
        *  property values between the client and server.
@@ -14858,8 +14199,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
       function ReporterFactory(coreProperties) {
-        var INITIALIZER = Object.freeze(_objectSpread({}, coreProperties));
-        var KEYS = Object.freeze(Object.keys(INITIALIZER));
+        const INITIALIZER = Object.freeze(_objectSpread({}, coreProperties));
+        const KEYS = Object.freeze(Object.keys(INITIALIZER));
         /**
          * A Reporter regulates communication between client and server by enforcing a
          * strict set of rules over what data can be shared for the given class.
@@ -14867,17 +14208,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
          * @memberof module:shared
          */
 
-        var Reporter =
-        /*#__PURE__*/
-        function () {
+        class Reporter {
           /**
            * @param {Object} data - data to store in the reporter. Only properties
            * with keys matching those provided in coreProperties and saved in KEYS
            * will be accepted.
            */
-          function Reporter(data) {
-            _classCallCheck(this, Reporter);
-
+          constructor(data) {
             // Merge the defaults with all the own enumerable properties of 'data'
             // onto the new instance.
             Object.assign(this, INITIALIZER, data); // Special access for coreProperties existing anywhere up the prototype
@@ -14893,39 +14230,30 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            */
 
 
-          _createClass(Reporter, [{
-            key: "assign",
-            value: function assign() {
-              var _this40 = this;
+          assign() {
+            let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+            KEYS.forEach(p => {
+              if (p in data) this[p] = data[p];
+            });
+          }
+          /**
+           * Provide a report of the data saved in this Reporter instance. Only those
+           * instance properties which correspond to core properties will be reported.
+           *
+           * @return {Object} Contains the core properties of this Reporter instance.
+           */
 
-              var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-              KEYS.forEach(function (p) {
-                if (p in data) _this40[p] = data[p];
-              });
-            }
-            /**
-             * Provide a report of the data saved in this Reporter instance. Only those
-             * instance properties which correspond to core properties will be reported.
-             *
-             * @return {Object} Contains the core properties of this Reporter instance.
-             */
 
-          }, {
-            key: "report",
-            value: function report() {
-              var _this41 = this;
+          report() {
+            const data = {};
+            KEYS.forEach(p => {
+              data[p] = this[p];
+            });
+            STAMPER.cloneId(data, this.id);
+            return data;
+          }
 
-              var data = {};
-              KEYS.forEach(function (p) {
-                data[p] = _this41[p];
-              });
-              STAMPER.cloneId(data, this.id);
-              return data;
-            }
-          }]);
-
-          return Reporter;
-        }();
+        }
 
         return Reporter;
       }
@@ -14943,7 +14271,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var ReporterFactory = require('./ReporterFactory.js');
+      const ReporterFactory = require('./ReporterFactory.js');
       /**
        * This Item class provides a common interface between the client and the server
        * by which the Items can interact safely.
@@ -14954,7 +14282,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var Item = ReporterFactory({
+      const Item = ReporterFactory({
         /**
          * X coordinate of the Item.
          *
@@ -15019,7 +14347,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var WamsElement = ReporterFactory({
+      const WamsElement = ReporterFactory({
         /**
          * X coordinate of the WamsElement.
          *
@@ -15117,7 +14445,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var WamsImage = ReporterFactory({
+      const WamsImage = ReporterFactory({
         /**
          * X coordinate of the WamsImage.
          *
@@ -15204,7 +14532,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var View = ReporterFactory({
+      const View = ReporterFactory({
         /**
          * X coordinate of the View.
          *
@@ -15294,7 +14622,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var DataReporter = ReporterFactory({
+      const DataReporter = ReporterFactory({
         /**
          * Generic data pass-through.
          *
@@ -15316,7 +14644,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var FullStateReporter = ReporterFactory({
+      const FullStateReporter = ReporterFactory({
         /**
          * All currently active views.
          *
@@ -15380,7 +14708,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @extends module:shared.Reporter
        */
 
-      var TouchReporter = ReporterFactory({
+      const TouchReporter = ReporterFactory({
         /**
          * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
          *
@@ -15448,13 +14776,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         metaKey: false
       });
       module.exports = {
-        Item: Item,
-        View: View,
-        DataReporter: DataReporter,
-        FullStateReporter: FullStateReporter,
-        TouchReporter: TouchReporter,
-        WamsElement: WamsElement,
-        WamsImage: WamsImage
+        Item,
+        View,
+        DataReporter,
+        FullStateReporter,
+        TouchReporter,
+        WamsElement,
+        WamsImage
       };
     }, {
       "./ReporterFactory.js": 87
@@ -15498,7 +14826,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
 
 
-      var NOP = function NOP() {};
+      const NOP = () => {};
       /**
        * Removes the given item from the given array, according to its Id.
        *
@@ -15512,9 +14840,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
 
       function removeById(array, item) {
-        var idx = array.findIndex(function (o) {
-          return o.id === item.id;
-        });
+        const idx = array.findIndex(o => o.id === item.id);
 
         if (idx >= 0) {
           array.splice(idx, 1);
@@ -15525,9 +14851,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       }
 
       module.exports = Object.freeze({
-        defineOwnImmutableEnumerableProperty: defineOwnImmutableEnumerableProperty,
-        NOP: NOP,
-        removeById: removeById
+        defineOwnImmutableEnumerableProperty,
+        NOP,
+        removeById
       });
     }, {}]
   }, {}, [72])(72);

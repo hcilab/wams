@@ -12,6 +12,7 @@ fix:
 bundle:
 	npx browserify 'src/client.js' \
 		--standalone wams-client \
+		-g [ babelify ] \
 		--outfile 'dist/wams-client.js';
 
 docs:

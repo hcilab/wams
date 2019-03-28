@@ -7,7 +7,10 @@
     "westures": "^0.7.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.0",
+    "@babel/preset-env": "^7.4.2",
     "arkit": "^1.5.0",
+    "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.15.3",
     "jest": "^24.5.0",
