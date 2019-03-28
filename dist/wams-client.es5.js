@@ -14,8 +14,6 @@ require("core-js/modules/es7.object.values");
 
 require("core-js/modules/es6.number.is-safe-integer");
 
-require("regenerator-runtime/runtime");
-
 require("core-js/modules/es6.math.sign");
 
 require("core-js/modules/es6.map");
@@ -14122,10 +14120,6 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        */
       'use strict';
 
-      var _marked =
-      /*#__PURE__*/
-      regeneratorRuntime.mark(id_gen);
-
       var _require18 = require('./utilities.js'),
           defineOwnImmutableEnumerableProperty = _require18.defineOwnImmutableEnumerableProperty;
       /**
@@ -14136,36 +14130,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
        * @generator
        * @returns {number} Unique integers.
        */
+      // function* id_gen() {
+      //   let next_id = 0;
+      //   while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
+      // }
 
-
-      function id_gen() {
-        var next_id;
-        return regeneratorRuntime.wrap(function id_gen$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                next_id = 0;
-
-              case 1:
-                if (!Number.isSafeInteger(next_id + 1)) {
-                  _context.next = 6;
-                  break;
-                }
-
-                _context.next = 4;
-                return ++next_id;
-
-              case 4:
-                _context.next = 1;
-                break;
-
-              case 6:
-              case "end":
-                return _context.stop();
-            }
-          }
-        }, _marked);
-      }
       /**
        * Mark the class instance's generator as not intended for external use.
        *
@@ -14206,7 +14175,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
            *
            * @type {Generator}
            */
-          this[gen] = id_gen();
+          // this[gen] = id_gen();
+          this[gen] = 0;
         }
         /**
          * Stamps an integer ID, unique to this IdStamper, onto the given object.
@@ -14222,7 +14192,8 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         _createClass(IdStamper, [{
           key: "stampNewId",
           value: function stampNewId(obj) {
-            defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
+            defineOwnImmutableEnumerableProperty(obj, 'id', // this[gen].next().value
+            this[gen]++);
           }
           /**
            * Stamps a clone of the given ID onto the given object.

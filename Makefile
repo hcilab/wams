@@ -42,3 +42,8 @@ graphs:
 babel:
 	npx babel 'dist/wams-client.js' -o 'dist/wams-client.es5.js'
 
+parcel:
+	npx parcel build 'dist/wams-client.js' \
+		-d 'dist' \
+		--out-file 'wams-client.parcel.js';
+
