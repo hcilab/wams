@@ -1,22 +1,17 @@
 {
   "description": "Workspaces Across Multiple Surfaces",
   "dependencies": {
-    "@babel/polyfill": "^7.4.0",
     "canvas-sequencer": "^3.0.0",
     "express": "^4.16.4",
     "socket.io": "^2.2.0",
     "westures": "^0.7.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.2.3",
-    "@babel/core": "^7.4.0",
-    "@babel/preset-env": "^7.4.2",
     "arkit": "^1.5.0",
     "browserify": "^16.2.3",
     "eslint": "^5.15.3",
     "jest": "^24.5.0",
     "jsdoc": "^3.5.5",
-    "parcel-bundler": "^1.12.3",
     "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
