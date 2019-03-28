@@ -194,7 +194,7 @@ class Switchboard {
  * @type {object}
  */
 Switchboard.DEFAULTS = Object.freeze({
-  clientLimit: 10,
+  clientLimit: 1000,
   port:        9000,
 });
 

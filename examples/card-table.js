@@ -35,7 +35,7 @@ router.use('/cards', router.express.static(images));
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
   color:       'green',
-  clientLimit: 5,
+  // clientLimit: 5,
 }, router);
 
 // Demonstrate a custom rendering sequence.

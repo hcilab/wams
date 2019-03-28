@@ -16,7 +16,7 @@ router.use('/chips', router.express.static(images));
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
   color:       'green',
-  clientLimit: 2,
+  // clientLimit: 2,
 }, router);
 
 const WIDTH = 64;

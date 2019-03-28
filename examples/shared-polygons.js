@@ -7,7 +7,7 @@
 
 const Wams = require('..');
 const app = new Wams.Application({
-  clientLimit:       4,
+  // clientLimit:       4,
   useServerGestures: true,
 });
 

@@ -87,7 +87,8 @@ function table(overlap) {
   user_fns[RIGHT]   = dependOnTable(layoutRight);
 
   function handleLayout(view, position) {
-    user_fns[position](view);
+    const index = position > 0 ? (position % 4) + 1 : 0;
+    user_fns[index](view);
   }
 
   return handleLayout;

@@ -12,7 +12,7 @@ const router = new Wams.Router();
 const images = path.join(__dirname, '../img');
 router.use('/img', router.express.static(images));
 
-const app = new Wams.Application({ clientLimit: 20 }, router);
+const app = new Wams.Application({ clientLimit: 1000 }, router);
 
 app.spawnImage({
   width:  1200,
@@ -29,5 +29,5 @@ function handleLayout(view) {
 }
 
 app.onlayout(handleLayout);
-app.listen(9000);
+app.listen(9015);
 
