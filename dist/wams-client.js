@@ -11660,6 +11660,40 @@ module.exports = {
  */
 'use strict';
 
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   Gesture,
   Point2D,
@@ -11696,15 +11730,15 @@ class Pan extends Smoothable(Gesture) {
    */
   constructor(options = {}) {
     super('pan', options);
-    const settings = { ...Pan.DEFAULTS,
-      ...options
-    };
+
+    const settings = _objectSpread({}, Pan.DEFAULTS, options);
     /**
      * Don't emit any data if this key is pressed.
      *
      * @private
      * @type {string}
      */
+
 
     this.muteKey = settings.muteKey;
     /**
@@ -11827,6 +11861,40 @@ module.exports = Pan;
  */
 'use strict';
 
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   Gesture,
   Smoothable
@@ -11863,9 +11931,8 @@ class Pinch extends Smoothable(Gesture) {
    */
   constructor(options = {}) {
     super('pinch', options);
-    const settings = { ...Pinch.DEFAULTS,
-      ...options
-    };
+
+    const settings = _objectSpread({}, Pinch.DEFAULTS, options);
     /**
      * The minimum number of inputs that must be active for a Pinch to be
      * recognized.
@@ -11873,6 +11940,7 @@ class Pinch extends Smoothable(Gesture) {
      * @private
      * @type {number}
      */
+
 
     this.minInputs = settings.minInputs;
     /**
@@ -11967,6 +12035,40 @@ module.exports = Pinch;
  */
 'use strict';
 
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   Gesture,
   Smoothable
@@ -12005,9 +12107,8 @@ class Rotate extends Smoothable(Gesture) {
    */
   constructor(options = {}) {
     super('rotate', options);
-    const settings = { ...Rotate.DEFAULTS,
-      ...options
-    };
+
+    const settings = _objectSpread({}, Rotate.DEFAULTS, options);
     /**
      * The minimum number of inputs that must be active for a Pinch to be
      * recognized.
@@ -12015,6 +12116,7 @@ class Rotate extends Smoothable(Gesture) {
      * @private
      * @type {number}
      */
+
 
     this.minInputs = settings.minInputs;
     /**
@@ -12387,6 +12489,40 @@ module.exports = Swipe;
  */
 'use strict';
 
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   Gesture,
   Point2D,
@@ -12436,15 +12572,15 @@ class Swivel extends Smoothable(Gesture) {
    */
   constructor(options = {}) {
     super('swivel', options);
-    const settings = { ...Swivel.DEFAULTS,
-      ...options
-    };
+
+    const settings = _objectSpread({}, Swivel.DEFAULTS, options);
     /**
      * The radius around the start point in which to do nothing.
      *
      * @private
      * @type {number}
      */
+
 
     this.deadzoneRadius = settings.deadzoneRadius;
     /**
@@ -12658,6 +12794,40 @@ module.exports = Swivel;
  */
 'use strict';
 
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
 const {
   Gesture,
   Point2D
@@ -12776,10 +12946,9 @@ class Tap extends Gesture {
 
     const centroid = Point2D.centroid(this.ended.map(i => i.current.point));
     this.ended = [];
-    return {
-      centroid,
-      ...centroid
-    };
+    return _objectSpread({
+      centroid
+    }, centroid);
   }
 
 }
@@ -12791,6 +12960,8 @@ module.exports = Tap;
  * Contains the Track class.
  */
 'use strict';
+
+require("core-js/modules/es.string.includes");
 
 const {
   Gesture
@@ -12897,7 +13068,7 @@ class Track extends Gesture {
 
 module.exports = Track;
 
-},{"westures-core":120}],138:[function(require,module,exports){
+},{"core-js/modules/es.string.includes":81,"westures-core":120}],138:[function(require,module,exports){
 /*
  * Constains the angularMinus() function
  */
@@ -13055,23 +13226,16 @@ require("core-js/modules/es.symbol.description");
 
 require("core-js/modules/web.dom-collections.iterator");
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
 const io = require('socket.io-client');
 
-const _require = require('../shared.js'),
-      constants = _require.constants,
-      DataReporter = _require.DataReporter,
-      TouchReporter = _require.TouchReporter,
-      IdStamper = _require.IdStamper,
-      Message = _require.Message,
-      NOP = _require.NOP;
+const {
+  constants,
+  DataReporter,
+  TouchReporter,
+  IdStamper,
+  Message,
+  NOP
+} = require('../shared.js');
 
 const Interactor = require('./Interactor.js');
 
@@ -13171,22 +13335,18 @@ class ClientController {
       [Message.UD_SHADOW]: data => this.handle('updateShadow', data),
       [Message.UD_VIEW]: data => this.handle('updateView', data),
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]: (_ref) => {
-        let data = _ref.data;
-        return this.handle('removeAttributes', data);
-      },
-      [Message.SET_ATTRS]: (_ref2) => {
-        let data = _ref2.data;
-        return this.handle('setAttributes', data);
-      },
-      [Message.SET_IMAGE]: (_ref3) => {
-        let data = _ref3.data;
-        return this.handle('setImage', data);
-      },
-      [Message.SET_RENDER]: (_ref4) => {
-        let data = _ref4.data;
-        return this.handle('setRender', data);
-      },
+      [Message.RM_ATTRS]: ({
+        data
+      }) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]: ({
+        data
+      }) => this.handle('setAttributes', data),
+      [Message.SET_IMAGE]: ({
+        data
+      }) => this.handle('setImage', data),
+      [Message.SET_RENDER]: ({
+        data
+      }) => this.handle('setRender', data),
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: data => this.setup(data),
       [Message.LAYOUT]: NOP,
@@ -13204,13 +13364,7 @@ class ClientController {
         document.body.innerHTML = 'WAMS is full! :(';
       }
     };
-    Object.entries(listeners).forEach((_ref5) => {
-      let _ref6 = _slicedToArray(_ref5, 2),
-          p = _ref6[0],
-          v = _ref6[1];
-
-      return this.socket.on(p, v);
-    }); // Keep the view size up to date.
+    Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v)); // Keep the view size up to date.
 
     window.addEventListener('resize', this.resize.bind(this), false);
     /*
@@ -13361,9 +13515,7 @@ class ClientController {
    */
 
 
-  setupInteractor() {
-    let useServerGestures = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
+  setupInteractor(useServerGestures = false) {
     if (useServerGestures) {
       this.setupInputForwarding();
     } else {
@@ -13488,22 +13640,13 @@ module.exports = ClientController;
  */
 'use strict';
 
-require("core-js/modules/es.symbol.description");
-
 require("core-js/modules/web.dom-collections.iterator");
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-const _require = require('../shared.js'),
-      Point2D = _require.Point2D,
-      IdStamper = _require.IdStamper,
-      WamsElement = _require.WamsElement;
+const {
+  Point2D,
+  IdStamper,
+  WamsElement
+} = require('../shared.js');
 
 const STAMPER = new IdStamper();
 /**
@@ -13577,11 +13720,7 @@ class ClientElement extends WamsElement {
 
   setAttributes(attributes) {
     this.attributes = attributes;
-    Object.entries(attributes).forEach((_ref) => {
-      let _ref2 = _slicedToArray(_ref, 2),
-          k = _ref2[0],
-          v = _ref2[1];
-
+    Object.entries(attributes).forEach(([k, v]) => {
       this.element[k] = v;
     });
   }
@@ -13603,7 +13742,7 @@ class ClientElement extends WamsElement {
 
 module.exports = ClientElement;
 
-},{"../shared.js":150,"core-js/modules/es.symbol.description":82,"core-js/modules/web.dom-collections.iterator":83}],143:[function(require,module,exports){
+},{"../shared.js":150,"core-js/modules/web.dom-collections.iterator":83}],143:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -13611,10 +13750,11 @@ module.exports = ClientElement;
  */
 'use strict';
 
-const _require = require('../shared.js'),
-      IdStamper = _require.IdStamper,
-      WamsImage = _require.WamsImage,
-      Message = _require.Message;
+const {
+  IdStamper,
+  WamsImage,
+  Message
+} = require('../shared.js');
 
 const STAMPER = new IdStamper();
 /**
@@ -13732,12 +13872,14 @@ module.exports = ClientImage;
  */
 'use strict';
 
-const _require = require('../shared.js'),
-      IdStamper = _require.IdStamper,
-      Item = _require.Item;
+const {
+  IdStamper,
+  Item
+} = require('../shared.js');
 
-const _require2 = require('canvas-sequencer'),
-      CanvasSequence = _require2.CanvasSequence;
+const {
+  CanvasSequence
+} = require('canvas-sequencer');
 
 const STAMPER = new IdStamper();
 /**
@@ -13828,8 +13970,9 @@ const ClientItem = require('./ClientItem.js');
 
 const ShadowView = require('./ShadowView.js');
 
-const _require = require('../shared.js'),
-      removeById = _require.removeById;
+const {
+  removeById
+} = require('../shared.js');
 
 const REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
 /**
@@ -14101,8 +14244,9 @@ require("core-js/modules/es.symbol.description");
 
 require("core-js/modules/es.number.to-fixed");
 
-const _require = require('../shared.js'),
-      View = _require.View; // Data fields to write for status indicator text.
+const {
+  View
+} = require('../shared.js'); // Data fields to write for status indicator text.
 
 
 const STATUS_KEYS = Object.freeze(['x', 'y', 'width', 'height', 'rotation', 'scale']); // Mark these methods as intended only for internal use.
@@ -14264,8 +14408,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 const Westures = require('westures');
 
-const _require = require('../shared.js'),
-      NOP = _require.NOP;
+const {
+  NOP
+} = require('../shared.js');
 
 const Transform = require('./Transform.js');
 /**
@@ -14293,9 +14438,7 @@ class Interactor {
    * @param {Function} [handlers.track=NOP]
    * @param {Function} [handlers.transform=NOP]
    */
-  constructor() {
-    let handlers = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-
+  constructor(handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
@@ -14339,9 +14482,10 @@ class Interactor {
 
 
   swivel() {
-    function do_swivel(_ref) {
-      let rotation = _ref.rotation,
-          pivot = _ref.pivot;
+    function do_swivel({
+      rotation,
+      pivot
+    }) {
       this.handlers.transform({
         centroid: pivot,
         delta: {
@@ -14427,10 +14571,11 @@ module.exports = Interactor;
 
 require("core-js/modules/es.symbol.description");
 
-const _require = require('../shared.js'),
-      colours = _require.colours,
-      IdStamper = _require.IdStamper,
-      View = _require.View;
+const {
+  colours,
+  IdStamper,
+  View
+} = require('../shared.js');
 
 const STAMPER = new IdStamper(); // Symbols to mark these methods as intended for internal use only.
 
@@ -14745,8 +14890,9 @@ module.exports = Object.freeze(_objectSpread({
 
 require("core-js/modules/es.symbol.description");
 
-const _require = require('./utilities.js'),
-      defineOwnImmutableEnumerableProperty = _require.defineOwnImmutableEnumerableProperty;
+const {
+  defineOwnImmutableEnumerableProperty
+} = require('./utilities.js');
 /**
  * Generator for integers from 0 to MAX_SAFE_INTEGER.
  *
@@ -14850,22 +14996,13 @@ module.exports = IdStamper;
  */
 'use strict';
 
-require("core-js/modules/es.symbol.description");
-
 require("core-js/modules/es.string.includes");
 
 require("core-js/modules/web.dom-collections.iterator");
 
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-const _require = require('./utilities.js'),
-      defineOwnImmutableEnumerableProperty = _require.defineOwnImmutableEnumerableProperty;
+const {
+  defineOwnImmutableEnumerableProperty
+} = require('./utilities.js');
 /**
  * TYPES is an explicit list of the types of messages that will be passed back
  * and forth. Messages not on this list should be ignored!
@@ -15000,16 +15137,12 @@ class Message {
  */
 
 
-Object.entries(TYPES).forEach((_ref) => {
-  let _ref2 = _slicedToArray(_ref, 2),
-      p = _ref2[0],
-      v = _ref2[1];
-
+Object.entries(TYPES).forEach(([p, v]) => {
   defineOwnImmutableEnumerableProperty(Message, p, v);
 });
 module.exports = Message;
 
-},{"./utilities.js":157,"core-js/modules/es.string.includes":81,"core-js/modules/es.symbol.description":82,"core-js/modules/web.dom-collections.iterator":83}],153:[function(require,module,exports){
+},{"./utilities.js":157,"core-js/modules/es.string.includes":81,"core-js/modules/web.dom-collections.iterator":83}],153:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -15027,10 +15160,7 @@ class Point2D {
    * @param {number} x - x coordinate of the point.
    * @param {number} y - y coordinate of the point.
    */
-  constructor() {
-    let x = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    let y = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-
+  constructor(x = 0, y = 0) {
     /**
      * X coordinate of the point.
      *
@@ -15052,11 +15182,10 @@ class Point2D {
    */
 
 
-  add(_ref) {
-    let _ref$x = _ref.x,
-        x = _ref$x === void 0 ? 0 : _ref$x,
-        _ref$y = _ref.y,
-        y = _ref$y === void 0 ? 0 : _ref$y;
+  add({
+    x = 0,
+    y = 0
+  }) {
     this.x += x;
     this.y += y;
     return this;
@@ -15123,8 +15252,7 @@ class Point2D {
    */
 
 
-  divideBy() {
-    let coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+  divideBy(coefficient = 1) {
     this.x /= coefficient;
     this.y /= coefficient;
     return this;
@@ -15161,11 +15289,10 @@ class Point2D {
    */
 
 
-  minus(_ref2) {
-    let _ref2$x = _ref2.x,
-        x = _ref2$x === void 0 ? 0 : _ref2$x,
-        _ref2$y = _ref2.y,
-        y = _ref2$y === void 0 ? 0 : _ref2$y;
+  minus({
+    x = 0,
+    y = 0
+  }) {
     return new Point2D(this.x - x, this.y - y);
   }
   /**
@@ -15179,8 +15306,7 @@ class Point2D {
    */
 
 
-  multiplyBy() {
-    let coefficient = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
+  multiplyBy(coefficient = 1) {
     this.x *= coefficient;
     this.y *= coefficient;
     return this;
@@ -15194,10 +15320,11 @@ class Point2D {
    */
 
 
-  rotate() {
-    let theta = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    const x = this.x,
-          y = this.y;
+  rotate(theta = 0) {
+    const {
+      x,
+      y
+    } = this;
     const cos_theta = Math.cos(theta);
     const sin_theta = Math.sin(theta);
     this.x = x * cos_theta - y * sin_theta;
@@ -15227,8 +15354,7 @@ class Point2D {
    */
 
 
-  static midpoint() {
-    let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  static midpoint(points = []) {
     if (points.length === 0) return null;
     const total = Point2D.sum(points);
     return new Point2D(total.x / points.length, total.y / points.length);
@@ -15243,8 +15369,7 @@ class Point2D {
    */
 
 
-  static sum() {
-    let points = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+  static sum(points = []) {
     return points.reduce((total, pt) => total.add(pt), new Point2D(0, 0));
   }
 
@@ -15287,11 +15412,10 @@ class Polygon2D {
      */
 
 
-    this.points = points.map((_ref) => {
-      let x = _ref.x,
-          y = _ref.y;
-      return new Point2D(x, y);
-    });
+    this.points = points.map(({
+      x,
+      y
+    }) => new Point2D(x, y));
     /**
      * Store the centroid of the polygon for quick hit tests.
      *
@@ -15465,8 +15589,7 @@ function ReporterFactory(coreProperties) {
      */
 
 
-    assign() {
-      let data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    assign(data = {}) {
       KEYS.forEach(p => {
         if (p in data) this[p] = data[p];
       });
