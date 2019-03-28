@@ -184,7 +184,7 @@ class ServerController {
       [Message.CLICK]:     this.messageHandler.handle('click', this.view),
       [Message.SWIPE]:     this.messageHandler.handle('swipe', this.view),
       [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
-      [Message.RESIZE]:    (data)     => this.resize(data),
+      [Message.RESIZE]:    (data) => this.resize(data),
       [Message.TRACK]:     ({ data }) => {
         this.messageHandler.track(data, this.view);
       },
