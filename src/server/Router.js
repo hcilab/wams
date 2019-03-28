@@ -29,7 +29,7 @@ function Router() {
   const view   = path.join(__dirname, '../../dist/view.html');
   app.get('/', (req, res) => res.sendFile(view));
 
-  const source = path.join(__dirname, '../../dist/wams-client.parcel.js');
+  const source = path.join(__dirname, '../../dist/wams-client.js');
   app.get('/wams-client.js', (req, res) => res.sendFile(source));
 
   // Make the express object accessible (e.g. for express.static())

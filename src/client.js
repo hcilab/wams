@@ -16,8 +16,6 @@
 
 'use strict';
 
-require('@babel/polyfill');
-
 const ClientController = require('./client/ClientController.js');
 const ClientModel = require('./client/ClientModel.js');
 const ClientView = require('./client/ClientView.js');
