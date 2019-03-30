@@ -74,6 +74,9 @@ function ReporterFactory(coreProperties) {
     }
   }
 
+  // Expose the default settings onto the return class object.
+  Reporter.DEFAULTS = Object.freeze({ ...coreProperties });
+
   return Reporter;
 }
 
