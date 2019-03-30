@@ -14895,7 +14895,7 @@ class Interactor {
      *
      * @type {Object}
      * @property {Function} [swipe=NOP]
-     * @property {Function} [top=NOP]
+     * @property {Function} [tap=NOP]
      * @property {Function} [track=NOP]
      * @property {Function} [transform=NOP]
      */
@@ -16061,8 +16061,10 @@ function ReporterFactory(coreProperties) {
       return data;
     }
 
-  }
+  } // Expose the default settings onto the return class object.
 
+
+  Reporter.DEFAULTS = Object.freeze(_objectSpread({}, coreProperties));
   return Reporter;
 }
 
