@@ -10,19 +10,19 @@
 
 const WamsShared = require('../src/shared.js');
 
-const expected = [
+const reporters = Object.keys(require('../src/shared/Reporters.js'));
+const utilities = Object.keys(require('../src/shared/utilities.js'));
+
+const other = [
   'colours',
   'constants',
   'IdStamper',
   'Message',
-  'View',
-  'Item',
-  'DataReporter',
-  'FullStateReporter',
-  'defineOwnImmutableEnumerableProperty',
-  'NOP',
-  'removeById',
+  'Polygon2D',
+  'Point2D',
 ];
+
+const expected = reporters.concat(utilities).concat(other);
 
 test('Exports all the proper shared utilities', () => {
   const exported = Object.keys(WamsShared);

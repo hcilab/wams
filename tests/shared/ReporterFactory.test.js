@@ -7,18 +7,13 @@
 const ReporterFactory = require('../../src/shared/ReporterFactory.js');
 
 describe('ReporterFactory', () => {
-  const props = [
-    'x',
-    'y',
-    'width',
-    'height',
-    'type',
-    'effectiveWidth',
-    'effectiveHeight',
-    'scale',
-    'rotation',
-  ];
-  const View = ReporterFactory(props);
+  const ViewProps = {
+    x: 0,
+    y: 42,
+    width: 999,
+    height: 1337,
+  };
+  const View = ReporterFactory(ViewProps);
 
   test('Builds Reporter classes', () => {
     expect(View.prototype).toHaveProperty('report');
@@ -35,25 +30,19 @@ describe('ReporterFactory', () => {
 
       test('produces expected properties when no data provided', () => {
         const vs = new View();
-        expect(Object.keys(vs)).toEqual(props);
+        expect(vs).toMatchObject(ViewProps);
       });
 
       test('uses provided data', () => {
-        const vs = new View({x:100, y:100, rotation: 90});
-        expect(Object.keys(vs)).toEqual(props);
-        expect(vs.x).toBe(100);
-        expect(vs.y).toBe(100);
-        expect(vs.rotation).toBe(90);
-        expect(vs.width).toBeNull();
-        expect(vs.scale).toBeNull();
+        const props = { x: 100, y: 200, width: 333, height: 213 };
+        const vs = new View(props);
+        expect(vs).toMatchObject(props);
       });
 
-      test('does not use incorrect property names in data', () => {
-        const vs = new View({x: 100, y:100, z:100});
-        expect(Object.keys(vs)).toEqual(props);
-        expect(vs.x).toBe(100);
-        expect(vs.y).toBe(100);
-        expect(vs).not.toHaveProperty('z');
+      test('Allows additional properties to be assigned', () => {
+        const vs = new View({ z:100 });
+        expect(vs).toMatchObject(ViewProps);
+        expect(vs.z).toBe(100);
       });
     });
 
@@ -88,15 +77,11 @@ describe('ReporterFactory', () => {
     });
 
     describe('report()', () => {
-      const vs = new View({x:100, y:50, width:200, height:300});
+      const props = {x:100, y:50, width:200, height:300};
+      const vs = new View(props);
       test('reports data', () => {
         const data = vs.report();
-        expect(Object.keys(data)).toEqual(props);
-        expect(data.x).toBe(100);
-        expect(data.y).toBe(50);
-        expect(data.width).toBe(200);
-        expect(data.height).toBe(300);
-        expect(data.scale).toBeNull();
+        expect(data).toMatchObject(props);
       });
 
       test('does not report an ID if none exists on the object', () => {
