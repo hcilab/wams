@@ -6,17 +6,16 @@ expect.extend({
   toHaveImmutableProperty(received, argument) {
     const descs = Object.getOwnPropertyDescriptor(received, argument);
     const pass = Boolean(descs && !(descs.configurable || descs.writable));
-    const not = pass ? 'not ' : ''
+    const not = pass ? 'not ' : '';
     return {
-      message: () =>
-      `expected ${received} ${not}to have immutable property '${argument}'`,
-      pass: pass,
+      message: () => `expected ${received} ${not}to have immutable property '${argument}'`,
+      pass:    pass,
     };
   },
 });
 
 if (typeof global.CanvasRenderingContext2D !== 'function') {
-  const props = [ 
+  const props = [
     'drawImage',
     'beginPath',
     'fill',
@@ -82,7 +81,7 @@ if (typeof global.CanvasRenderingContext2D !== 'function') {
   ];
   class CanvasRenderingContext2D {
     constructor() {
-      props.forEach( p => {
+      props.forEach(p => {
         this[p] = jest.fn();
       });
     }

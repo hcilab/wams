@@ -12,19 +12,19 @@ const { CanvasSequence, CanvasSequencer } = require('canvas-sequencer');
 
 describe('ClientItem', () => {
   let item, sequence;
-  beforeEach(() => { 
+  beforeEach(() => {
     item = {
-      x: 42, 
-      y: 43, 
-      width: 800, 
+      x:      42,
+      y:      43,
+      width:  800,
       height: 97,
-      type: 'booyah', 
-      id: 3
-    }
+      type:   'booyah',
+      id:     3,
+    };
 
     sequence = new CanvasSequence();
     sequence.fillStyle = 'red';
-    sequence.fillRect(0,0,100,200);
+    sequence.fillRect(0, 0, 100, 200);
     sequence = sequence.toJSON();
   });
 
@@ -97,7 +97,7 @@ describe('ClientItem', () => {
         expect(() => ci.draw(ctx)).not.toThrow();
         expect(ctx.fillStyle).toBe('red');
         expect(ctx.fillRect).toHaveBeenCalled();
-        expect(ctx.fillRect).toHaveBeenLastCalledWith(0,0,100,200);
+        expect(ctx.fillRect).toHaveBeenLastCalledWith(0, 0, 100, 200);
         expect(ctx.drawImage).not.toHaveBeenCalled();
       });
     });

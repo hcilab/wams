@@ -16,29 +16,29 @@ describe('Interactor', () => {
     canvas = document.createElement('canvas');
     canvas.getBoundingClientRect = jest.fn();
     canvas.getBoundingClientRect.mockReturnValue({
-      left: 0,
-      top: 0,
-      right: 1600,
+      left:   0,
+      top:    0,
+      right:  1600,
       bottom: 900,
-      x: 0,
-      y: 0,
-      width: 1600,
+      x:      0,
+      y:      0,
+      width:  1600,
       height: 900,
     });
   });
 
   beforeEach(() => {
     handlers = {
-      swipe: jest.fn(),
-      tap: jest.fn(),
-      track: jest.fn(),
+      swipe:     jest.fn(),
+      tap:       jest.fn(),
+      track:     jest.fn(),
       transform: jest.fn(),
-    }
+    };
   });
 
   describe('constructor(canvas, handlers)', () => {
     test.each(['swipe', 'tap', 'track', 'transform'])(
-      'Accepts a %s handler', 
+      'Accepts a %s handler',
       (name) => {
         let itr;
         expect(() => itr = new Interactor({ [name]: handlers[name] }))
@@ -56,12 +56,12 @@ describe('Interactor', () => {
     });
 
     test.skip('Works with mouse input', () => {
-      canvas.dispatchEvent(new MouseEvent('mousedown', { 
+      canvas.dispatchEvent(new MouseEvent('mousedown', {
         buttons: 1,
         clientX: 42,
         clientY: 43,
       }));
-      canvas.dispatchEvent(new MouseEvent('mouseup', { 
+      canvas.dispatchEvent(new MouseEvent('mouseup', {
         buttons: 1,
         clientX: 42,
         clientY: 43,

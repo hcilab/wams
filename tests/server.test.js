@@ -1,4 +1,4 @@
-/* 
+/*
  * Test suite for src/server.js
  *
  * Author: Michael van der Kamp

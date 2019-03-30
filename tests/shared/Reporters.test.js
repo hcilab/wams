@@ -7,7 +7,7 @@
 
 'use strict';
 
-const Reporters = require('../../src/shared/Reporters.js'); 
+const Reporters = require('../../src/shared/Reporters.js');
 const {
   Item,
   View,
@@ -18,7 +18,7 @@ const {
 } = Reporters;
 
 describe('Reporters', () => {
-  describe.each(Object.keys(Reporters))( '%s', name => {
+  describe.each(Object.keys(Reporters))('%s', name => {
     const Reporter = Reporters[name];
     let instance;
     let property;
@@ -36,10 +36,10 @@ describe('Reporters', () => {
     });
 
     test('assign() works', () => {
-      property = Object.keys(instance).find( k => {
+      property = Object.keys(instance).find(k => {
         return typeof instance[k] !== 'function';
       });
-      expect(() => instance.assign({[property]: 42, bogus: 11})).not.toThrow();
+      expect(() => instance.assign({ [property]: 42, bogus: 11 })).not.toThrow();
       expect(instance[property]).toBe(42);
       expect(instance.bogus).toBeUndefined();
     });

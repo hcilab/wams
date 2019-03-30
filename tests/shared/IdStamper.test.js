@@ -28,7 +28,7 @@ describe('IdStamper', () => {
     test('cannot restamp an object', () => {
       const x = {};
       const id = stamper.stampNewId(x);
-      expect( () => stamper.stampNewId(x) ).toThrow();
+      expect(() => stamper.stampNewId(x)).toThrow();
     });
 
     test('does not reuse Ids', () => {
@@ -51,7 +51,7 @@ describe('IdStamper', () => {
       expect(x).toHaveImmutableProperty('id');
       expect(x.id).toBe(id);
     });
-    
+
     test('Will not define an Id if none provided', () => {
       const x = {};
       expect(x).not.toHaveImmutableProperty('id');

@@ -1,4 +1,4 @@
-/* 
+/*
  * Test suite for ServerView class.
  *
  * Author: Michael van der Kamp
@@ -11,26 +11,26 @@ const ServerView = require('../../src/server/ServerView.js');
 
 describe('ServerView', () => {
   const custom = {
-    x: 42,
-    y: 43,
-    width: 990,
+    x:      42,
+    y:      43,
+    width:  990,
     height: 867,
-    scale: 1,
+    scale:  1,
     bounds: { x: 5000, y: 4000 },
   };
 
   const mover = {
-    x: 0,
-    y: 0,
-    width: 50,
+    x:      0,
+    y:      0,
+    width:  50,
     height: 50,
-    scale: 1,
+    scale:  1,
     bounds: { x: 100, y: 100 },
   };
 
   describe('constructor(values)', () => {
     test('Creates correct item type.', () => {
-      expect( new ServerView()).toBeInstanceOf(ServerView);
+      expect(new ServerView()).toBeInstanceOf(ServerView);
     });
 
     test('Uses default values if none provided', () => {
@@ -46,16 +46,16 @@ describe('ServerView', () => {
     });
 
     test('Ignores inaplicable values', () => {
-      const vs = new ServerView({alpha:3});
+      const vs = new ServerView({ alpha: 3 });
       expect(vs.hasOwnProperty('alpha')).toBe(false);
       expect(vs.alpha).toBeUndefined();
     });
 
     test('Appropriately sets effective width and height', () => {
       const vs = new ServerView({
-        width: 200,
+        width:  200,
         height: 100,
-        scale: 2,
+        scale:  2,
       });
       expect(vs.effectiveWidth).toBe(100);
       expect(vs.effectiveHeight).toBe(50);
@@ -75,7 +75,7 @@ describe('ServerView', () => {
       expect(vs.y + vs.effectiveHeight).toBe(50);
       expect(vs.bottom).toBe(50);
     });
-    
+
     test('Can get left', () => {
       expect(vs.x).toBe(0);
       expect(vs.left).toBe(0);
@@ -104,41 +104,41 @@ describe('ServerView', () => {
     const vs = new ServerView(mover);
 
     test('Accepts midrange widths and heights', () => {
-      expect(vs.canBeScaledTo(75,50)).toBe(true);
-      expect(vs.canBeScaledTo(25,90)).toBe(true);
+      expect(vs.canBeScaledTo(75, 50)).toBe(true);
+      expect(vs.canBeScaledTo(25, 90)).toBe(true);
     });
 
     test('Accepts scale that uses full space', () => {
-      expect(vs.canBeScaledTo(100,100)).toBe(true);
+      expect(vs.canBeScaledTo(100, 100)).toBe(true);
     });
 
     test('Accepts widths and heights greater than 0', () => {
-      expect(vs.canBeScaledTo(1,1)).toBe(true);
-      expect(vs.canBeScaledTo(0.1,0.1)).toBe(true);
+      expect(vs.canBeScaledTo(1, 1)).toBe(true);
+      expect(vs.canBeScaledTo(0.1, 0.1)).toBe(true);
     });
 
     test('Rejects if width or height is 0', () => {
-      expect(vs.canBeScaledTo(0,0)).toBe(false);
-      expect(vs.canBeScaledTo(50,0)).toBe(false);
-      expect(vs.canBeScaledTo(0,50)).toBe(false);
+      expect(vs.canBeScaledTo(0, 0)).toBe(false);
+      expect(vs.canBeScaledTo(50, 0)).toBe(false);
+      expect(vs.canBeScaledTo(0, 50)).toBe(false);
     });
 
     test('Rejects if width or height exceeds bounds', () => {
-      expect(vs.canBeScaledTo(999,999)).toBe(false);
-      expect(vs.canBeScaledTo(50,999)).toBe(false);
-      expect(vs.canBeScaledTo(999,50)).toBe(false);
-      expect(vs.canBeScaledTo(100,101)).toBe(false);
-      expect(vs.canBeScaledTo(101,100)).toBe(false);
-      expect(vs.canBeScaledTo(100,100.1)).toBe(false);
-      expect(vs.canBeScaledTo(100.1,100)).toBe(false);
+      expect(vs.canBeScaledTo(999, 999)).toBe(false);
+      expect(vs.canBeScaledTo(50, 999)).toBe(false);
+      expect(vs.canBeScaledTo(999, 50)).toBe(false);
+      expect(vs.canBeScaledTo(100, 101)).toBe(false);
+      expect(vs.canBeScaledTo(101, 100)).toBe(false);
+      expect(vs.canBeScaledTo(100, 100.1)).toBe(false);
+      expect(vs.canBeScaledTo(100.1, 100)).toBe(false);
     });
 
     test('Works with x and y not equal to 0', () => {
       vs.x = 50;
       vs.y = 50;
-      expect(vs.canBeScaledTo(50,50)).toBe(true);
-      expect(vs.canBeScaledTo(51,50)).toBe(false);
-      expect(vs.canBeScaledTo(50,51)).toBe(false);
+      expect(vs.canBeScaledTo(50, 50)).toBe(true);
+      expect(vs.canBeScaledTo(51, 50)).toBe(false);
+      expect(vs.canBeScaledTo(50, 51)).toBe(false);
     });
   });
 
@@ -240,37 +240,37 @@ describe('ServerView', () => {
     });
 
     test('Works with acceptable destinations', () => {
-      expect(() => vs.moveTo(1,1)).not.toThrow();
+      expect(() => vs.moveTo(1, 1)).not.toThrow();
       expect(vs.x).toBe(1);
       expect(vs.y).toBe(1);
       expect(() => vs.moveTo(25.23, 47.8)).not.toThrow();
       expect(vs.x).toBe(25.23);
       expect(vs.y).toBe(47.8);
-      expect(() => vs.moveTo(50,50)).not.toThrow();
+      expect(() => vs.moveTo(50, 50)).not.toThrow();
       expect(vs.x).toBe(50);
       expect(vs.y).toBe(50);
-      expect(() => vs.moveTo(0,0)).not.toThrow();
+      expect(() => vs.moveTo(0, 0)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
     });
 
     test.skip('Has no effect with unacceptable destinations', () => {
-      expect(() => vs.moveTo(-1,-1)).not.toThrow();
+      expect(() => vs.moveTo(-1, -1)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
-      expect(() => vs.moveTo(999,999)).not.toThrow();
+      expect(() => vs.moveTo(999, 999)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
-      expect(() => vs.moveTo(51,51)).not.toThrow();
+      expect(() => vs.moveTo(51, 51)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
     });
 
     test.skip('Can handle X and Y destinations independently', () => {
-      expect(() => vs.moveTo(25,75)).not.toThrow();
+      expect(() => vs.moveTo(25, 75)).not.toThrow();
       expect(vs.x).toBe(25);
       expect(vs.y).toBe(0);
-      expect(() => vs.moveTo(-25,25)).not.toThrow();
+      expect(() => vs.moveTo(-25, 25)).not.toThrow();
       expect(vs.x).toBe(25);
       expect(vs.y).toBe(25);
     });
@@ -286,25 +286,25 @@ describe('ServerView', () => {
     });
 
     test('Works with valid input', () => {
-      expect(() => vs.moveBy(5,5)).not.toThrow();
+      expect(() => vs.moveBy(5, 5)).not.toThrow();
       expect(vs.x).toBe(5);
       expect(vs.y).toBe(5);
-      expect(() => vs.moveBy(45,45)).not.toThrow();
+      expect(() => vs.moveBy(45, 45)).not.toThrow();
       expect(vs.x).toBe(50);
       expect(vs.y).toBe(50);
-      expect(() => vs.moveBy(-1,-1)).not.toThrow();
+      expect(() => vs.moveBy(-1, -1)).not.toThrow();
       expect(vs.x).toBe(49);
       expect(vs.y).toBe(49);
-      expect(() => vs.moveBy(-49,-49)).not.toThrow();
+      expect(() => vs.moveBy(-49, -49)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
     });
-    
+
     test.skip('Does not work with invalid input', () => {
-      expect(() => vs.moveBy(-1,-1)).not.toThrow();
+      expect(() => vs.moveBy(-1, -1)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
-      expect(() => vs.moveBy(51,51)).not.toThrow();
+      expect(() => vs.moveBy(51, 51)).not.toThrow();
       expect(vs.x).toBe(0);
       expect(vs.y).toBe(0);
       expect(() => vs.moveBy(Number.POSITIVE_INFINITY, -1)).not.toThrow();
@@ -313,10 +313,10 @@ describe('ServerView', () => {
     });
 
     test.skip('Handles X and Y movement independently', () => {
-      expect(() => vs.moveBy(15,-1)).not.toThrow();
+      expect(() => vs.moveBy(15, -1)).not.toThrow();
       expect(vs.x).toBe(15);
       expect(vs.y).toBe(0);
-      expect(() => vs.moveBy(36,15)).not.toThrow();
+      expect(() => vs.moveBy(36, 15)).not.toThrow();
       expect(vs.x).toBe(15);
       expect(vs.y).toBe(15);
     });

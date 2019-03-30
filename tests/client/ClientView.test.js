@@ -38,19 +38,19 @@ describe('ClientView', () => {
     });
 
     describe('draw(context)', () => {
-      beforeAll(() => { 
+      beforeAll(() => {
         cv.width = 500;
         cv.height = 500;
         cv.effectiveWidth = 500;
         cv.effectiveHeight = 500;
 
-        model.addShadow({x:80,y:90,id:44});
-        model.addShadow({x:22,y:5,id:900});
-        model.addItem({x:555, y:253, id:50});
-        model.addItem({x:1,y:2, id:89});
+        model.addShadow({ x: 80, y: 90, id: 44 });
+        model.addShadow({ x: 22, y: 5, id: 900 });
+        model.addItem({ x: 555, y: 253, id: 50 });
+        model.addItem({ x: 1, y: 2, id: 89 });
 
-        model.items.forEach( i => i.draw = jest.fn() );
-        model.shadows.forEach( s => s.draw = jest.fn() );
+        model.items.forEach(i => i.draw = jest.fn());
+        model.shadows.forEach(s => s.draw = jest.fn());
 
         cv.draw();
       });
@@ -62,13 +62,13 @@ describe('ClientView', () => {
       });
 
       test('Draws all of the items', () => {
-        model.items.forEach( i => {
+        model.items.forEach(i => {
           expect(i.draw).toHaveBeenCalledTimes(1);
         });
       });
 
       test('Draws all of the shadows', () => {
-        model.shadows.forEach( s => {
+        model.shadows.forEach(s => {
           expect(s.draw).toHaveBeenCalledTimes(1);
         });
       });

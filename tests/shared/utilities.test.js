@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { 
+const {
   defineOwnImmutableEnumerableProperty,
   removeById,
 } = require('../../src/shared/utilities.js');
@@ -23,7 +23,7 @@ describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
 
   test('defines an immutable property on an object', () => {
     expect(x).toHaveImmutableProperty('a');
-  }); 
+  });
 
   test('defines an enumerable property on an object', () => {
     expect(Object.keys(x)).toContain('a');
@@ -34,8 +34,8 @@ describe('removeById(array, item)', () => {
   function A(id) {
     this.id = id;
   }
-   
-  let arr = [];
+
+  const arr = [];
   beforeEach(() => {
     arr.splice(0, arr.length);
     arr.push(new A(1));
@@ -53,11 +53,11 @@ describe('removeById(array, item)', () => {
     const a2 = new A(2);
     const a3 = new A(3);
     expect(arr.length).toBe(3);
-    expect(() => removeById(arr,a1)).not.toThrow();
+    expect(() => removeById(arr, a1)).not.toThrow();
     expect(arr.find(a => a.id === 1)).toBeUndefined();
-    expect(() => removeById(arr,a2)).not.toThrow();
+    expect(() => removeById(arr, a2)).not.toThrow();
     expect(arr.find(a => a.id === 2)).toBeUndefined();
-    expect(() => removeById(arr,a3)).not.toThrow();
+    expect(() => removeById(arr, a3)).not.toThrow();
     expect(arr.find(a => a.id === 3)).toBeUndefined();
     expect(arr.length).toBe(0);
   });
@@ -65,7 +65,7 @@ describe('removeById(array, item)', () => {
   test('Does not remove any item if no item with Id present.', () => {
     const a4 = new A(4);
     expect(arr.length).toBe(3);
-    expect(() => removeById(arr,a4)).not.toThrow();
+    expect(() => removeById(arr, a4)).not.toThrow();
     expect(arr.length).toBe(3);
   });
 });

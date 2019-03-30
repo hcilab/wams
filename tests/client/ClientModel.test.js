@@ -13,24 +13,24 @@ const ClientItem = require('../../src/client/ClientItem.js');
 const ShadowView = require('../../src/client/ShadowView.js');
 
 describe('ClientModel', () => {
-  let item, shadow, context;
+  let context, item, shadow;
   beforeEach(() => {
     item = {
-      x: 42, 
-      y: 43, 
-      type: 'booyah', 
-      id: 11
+      x:    42,
+      y:    43,
+      type: 'booyah',
+      id:   11,
     };
 
-    shadow = { 
-      x: 43, 
-      y: 42, 
-      width: 1800,
-      height: 240,
-      scale: 2,
-      effectiveWidth: 900, 
-      effectiveHeight: 120, 
-      id: 25
+    shadow = {
+      x:               43,
+      y:               42,
+      width:           1800,
+      height:          240,
+      scale:           2,
+      effectiveWidth:  900,
+      effectiveHeight: 120,
+      id:              25,
     };
 
     context = new CanvasRenderingContext2D();
@@ -76,7 +76,7 @@ describe('ClientModel', () => {
     describe('removeItem(item)', () => {
       let bitem, citem;
       beforeAll(() => {
-        bitem = { x: 555, y: 253, id: 50};
+        bitem = { x: 555, y: 253, id: 50 };
         citem = { x: 1, y: 2, id: 89 };
         cm.addItem(bitem);
         cm.addItem(citem);
@@ -96,9 +96,9 @@ describe('ClientModel', () => {
 
     describe('removeShadow(shadow)', () => {
       let bshadow, cshadow;
-      beforeAll(() => { 
-        bshadow = { x: 80, y: 90, id: 44};
-        cshadow = { x: 22, y: 5, id: 900};
+      beforeAll(() => {
+        bshadow = { x: 80, y: 90, id: 44 };
+        cshadow = { x: 22, y: 5, id: 900 };
         cm.addShadow(bshadow);
         cm.addShadow(cshadow);
       });
@@ -119,14 +119,14 @@ describe('ClientModel', () => {
       let data;
       beforeAll(() => {
         data = {
-          id: 33,
+          id:    33,
           views: [
-            {x:80,y:90,id:44},
-            {x:22,y:5,id:900},
+            { x: 80, y: 90, id: 44 },
+            { x: 22, y: 5, id: 900 },
           ],
           items: [
-            {x:555, y:253, id:50},
-            {x:1,y:2, id:89},
+            { x: 555, y: 253, id: 50 },
+            { x: 1, y: 2, id: 89 },
           ],
           color: '#4ab93d',
         };
@@ -137,9 +137,9 @@ describe('ClientModel', () => {
       });
 
       test('Throws exception if data is missing parameters', () => {
-        expect(() => cm.setup({id:1, views:[]})).toThrow();
-        expect(() => cm.setup({id:1, items:[]})).toThrow();
-        expect(() => cm.setup({items:[], views:[]})).toThrow();
+        expect(() => cm.setup({ id: 1, views: [] })).toThrow();
+        expect(() => cm.setup({ id: 1, items: [] })).toThrow();
+        expect(() => cm.setup({ items: [], views: [] })).toThrow();
       });
 
       test('Does not throw exception if data provided', () => {
@@ -147,7 +147,7 @@ describe('ClientModel', () => {
       });
 
       test('Adds all the views in the data as shadows', () => {
-        data.views.forEach( v => {
+        data.views.forEach(v => {
           expect(cm.shadows.has(v.id)).toBe(true);
           const s = cm.shadows.get(v.id);
           expect(s).toMatchObject(v);
@@ -155,7 +155,7 @@ describe('ClientModel', () => {
       });
 
       test('Adds all the items in the data', () => {
-        data.items.forEach( i => {
+        data.items.forEach(i => {
           expect(cm.items.has(i.id)).toBe(true);
           const t = cm.items.get(i.id);
           expect(t).toMatchObject(i);
@@ -168,9 +168,9 @@ describe('ClientModel', () => {
       beforeAll(() => {
         data = {
           id: item.id,
-          x: item.x + 101,
-          y: item.y - 73,
-        }
+          x:  item.x + 101,
+          y:  item.y - 73,
+        };
         cm.addItem(item);
       });
 
@@ -194,9 +194,9 @@ describe('ClientModel', () => {
       beforeAll(() => {
         data = {
           id: shadow.id,
-          x: shadow.x + 101,
-          y: shadow.y - 73,
-        }
+          x:  shadow.x + 101,
+          y:  shadow.y - 73,
+        };
         cm.addShadow(shadow);
       });
 

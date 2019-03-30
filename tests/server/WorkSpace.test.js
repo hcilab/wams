@@ -1,4 +1,4 @@
-/* 
+/*
  * Test suite for src/server.js
  *
  * Author: Michael van der Kamp
@@ -50,7 +50,7 @@ describe('WorkSpace', () => {
       };
       expect(new WorkSpace(custom).settings).toMatchObject(custom);
 
-      const ws = new WorkSpace({color: 'a'});
+      const ws = new WorkSpace({ color: 'a' });
       expect(ws.settings).not.toEqual(WorkSpace.DEFAULTS);
       expect(ws.settings.color).toEqual('a');
     });
@@ -112,10 +112,8 @@ describe('WorkSpace', () => {
 
     test('Objects returned contain only the expected data', () => {
       const r = ws.reportItems();
-      r.forEach( i => {
-        expect(Object.getOwnPropertyNames(i)).toEqual(
-          expect.arrayContaining(expectedProperties)
-        );
+      r.forEach(i => {
+        expect(Object.getOwnPropertyNames(i)).toEqual(expect.arrayContaining(expectedProperties));
       });
     });
 
@@ -134,31 +132,31 @@ describe('WorkSpace', () => {
     });
 
     test('Finds an item at the given coordinates, if one exists', () => {
-      let i = ws.findItemByCoordinates(0,0);
+      let i = ws.findItemByCoordinates(0, 0);
       expect(i).toBeDefined();
       expect(i).toBeInstanceOf(ServerItem);
       expect(i).toBe(ws.items[0]);
 
-      i = ws.findItemByCoordinates(110,110);
+      i = ws.findItemByCoordinates(110, 110);
       expect(i).toBeDefined();
       expect(i).toBeInstanceOf(ServerItem);
       expect(i).toBe(ws.items[1]);
 
-      i = ws.findItemByCoordinates(250,250);
+      i = ws.findItemByCoordinates(250, 250);
       expect(i).toBeDefined();
       expect(i).toBeInstanceOf(ServerItem);
       expect(i).toBe(ws.items[2]);
     });
 
     test('Finds the first item at the given coordinates', () => {
-      const i = ws.findItemByCoordinates(25,45);
+      const i = ws.findItemByCoordinates(25, 45);
       expect(i).toBeDefined();
       expect(i).toBeInstanceOf(ServerItem);
       expect(i).toBe(ws.items[1]);
     });
 
     test('Returns falsy if no item at given coordinates', () => {
-      expect(ws.findItemByCoordinates(150,150)).toBeFalsy();
+      expect(ws.findItemByCoordinates(150, 150)).toBeFalsy();
     });
   });
 
@@ -170,14 +168,14 @@ describe('WorkSpace', () => {
       ws.spawnItem(ia);
       ws.spawnItem(ib);
       ws.spawnItem(ic);
-      item = ws.findItemByCoordinates(101,101);
+      item = ws.findItemByCoordinates(101, 101);
     });
 
     test('Removes an item if it is found', () => {
       expect(ws.removeItem(item)).toBe(true);
       expect(ws.items).not.toContain(item);
     });
-  
+
     test('Does not remove anything if item not found', () => {
       const is = Array.from(ws.items);
       expect(ws.removeItem(item)).toBe(false);
@@ -192,7 +190,7 @@ describe('WorkSpace', () => {
   describe('spawnView(values)', () => {
     let ws;
     beforeAll(() => {
-      ws = new WorkSpace({clientLimit:4});
+      ws = new WorkSpace({ clientLimit: 4 });
     });
 
     test('Returns a ServerView', () => {
@@ -205,8 +203,8 @@ describe('WorkSpace', () => {
 
     test('Uses user-defined View values, if provided', () => {
       const vs = ws.spawnView({
-        x: 42,
-        y: 71,
+        x:     42,
+        y:     71,
         scale: 3.5,
       });
       expect(vs.x).toBe(42);
@@ -218,9 +216,9 @@ describe('WorkSpace', () => {
 
     test('Keeps track of View', () => {
       const vs = ws.spawnView({
-        x:7,
-        y:9,
-        width: 42,
+        x:      7,
+        y:      9,
+        width:  42,
         height: 870,
       });
       expect(ws.views).toContain(vs);
@@ -239,12 +237,12 @@ describe('WorkSpace', () => {
       'rotation',
       'id',
     ];
-    
+
     beforeAll(() => {
       ws = new WorkSpace();
       ws.spawnView();
-      ws.spawnView({x:2});
-      ws.spawnView({x:42,y:43});
+      ws.spawnView({ x: 2 });
+      ws.spawnView({ x: 42, y: 43 });
     });
 
     test('Returns an array', () => {
@@ -252,14 +250,14 @@ describe('WorkSpace', () => {
     });
 
     test('Does not return the actual Views, but simple Objects', () => {
-      ws.reportViews().forEach( v => {
+      ws.reportViews().forEach(v => {
         expect(v).not.toBeInstanceOf(ServerView);
         expect(v).toBeInstanceOf(Object);
       });
     });
 
     test('Objects returned contain only the expected data', () => {
-      ws.reportViews().forEach( v => {
+      ws.reportViews().forEach(v => {
         expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
       });
     });
@@ -276,8 +274,8 @@ describe('WorkSpace', () => {
     beforeAll(() => {
       ws = new WorkSpace();
       ws.spawnView();
-      view = ws.spawnView({x:2});
-      ws.spawnView({x:42,y:43});
+      view = ws.spawnView({ x: 2 });
+      ws.spawnView({ x: 42, y: 43 });
     });
 
     test('Removes a view if it is found', () => {
@@ -286,7 +284,7 @@ describe('WorkSpace', () => {
     });
 
     test('Does not remove anything if view not found', () => {
-      const v = new ServerView({x:200,y:200});
+      const v = new ServerView({ x: 200, y: 200 });
       const curr = Array.from(ws.views);
       expect(ws.removeView(v)).toBe(false);
       expect(ws.views).toMatchObject(curr);
@@ -310,7 +308,7 @@ describe('WorkSpace', () => {
       expect(() => ws.on('rag')).toThrow();
     });
 
-    describe.each([['click'],['drag'],['layout'],['scale']])('%s', (s) => {
+    describe.each([['click'], ['drag'], ['layout'], ['scale']])('%s', (s) => {
       test('Handler starts as a NOP', () => {
         expect(ws.handlers[s]).toBe(NOP);
       });
@@ -330,12 +328,12 @@ describe('WorkSpace', () => {
         const fn = jest.fn();
         ws.on(s, fn);
         ws.handlers[s](vs, {
-          x: 3,
-          y: 4,
-          delta: 33,
-          point: { x: 1, y: 2 }, 
-          change: { x: 42, y: 43 },
-          pivot: { x: 9, y: 10 },
+          x:        3,
+          y:        4,
+          delta:    33,
+          point:    { x: 1, y: 2 },
+          change:   { x: 42, y: 43 },
+          pivot:    { x: 9, y: 10 },
           midpoint: { x: 50, y: 51 },
         });
         expect(fn).toHaveBeenCalledTimes(1);
@@ -347,7 +345,7 @@ describe('WorkSpace', () => {
   describe('handle(message, ...args)', () => {
     let ws;
     let vs;
-    let x, y, dx, dy, mx, my, scale, point, change, midpoint, delta, pivot;
+    let change, delta, dx, dy, midpoint, mx, my, pivot, point, scale, x, y;
     beforeAll(() => {
       ws = new WorkSpace();
       vs = ws.spawnView();
@@ -373,12 +371,12 @@ describe('WorkSpace', () => {
       });
 
       test('Calls the appropriate listener', () => {
-        expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
+        expect(() => ws.handle('click', vs, { x, y })).not.toThrow();
         expect(fn).toHaveBeenCalledTimes(1);
       });
 
       test('Calls the listener with the expected arguments', () => {
-        expect(() => ws.handle('click', vs, {x, y})).not.toThrow();
+        expect(() => ws.handle('click', vs, { x, y })).not.toThrow();
         expect(fn.mock.calls[0][0]).toBe(vs);
         expect(fn.mock.calls[0][1]).toBe(vs);
         expect(fn.mock.calls[0][2]).toBeCloseTo(x);
