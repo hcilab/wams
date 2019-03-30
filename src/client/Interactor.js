@@ -46,7 +46,7 @@ class Interactor {
      *
      * @type {Object}
      * @property {Function} [swipe=NOP]
-     * @property {Function} [top=NOP]
+     * @property {Function} [tap=NOP]
      * @property {Function} [track=NOP]
      * @property {Function} [transform=NOP]
      */
