@@ -11,15 +11,21 @@ const ClientItem = require('../../src/client/ClientItem.js');
 const { CanvasSequence, CanvasSequencer } = require('canvas-sequencer');
 
 describe('ClientItem', () => {
-  let item; 
-  beforeEach(() => item = {
-    x: 42, 
-    y: 43, 
-    width: 800, 
-    height: 97,
-    type: 'booyah', 
-    imgsrc: 'img/scream.png', 
-    id: 3
+  let item, sequence;
+  beforeEach(() => { 
+    item = {
+      x: 42, 
+      y: 43, 
+      width: 800, 
+      height: 97,
+      type: 'booyah', 
+      id: 3
+    }
+
+    sequence = new CanvasSequence();
+    sequence.fillStyle = 'red';
+    sequence.fillRect(0,0,100,200);
+    sequence = sequence.toJSON();
   });
 
   describe('constructor(data)', () => {
@@ -33,7 +39,7 @@ describe('ClientItem', () => {
 
     test('Uses input values, if provided', () => {
       const ci = new ClientItem(item);
-      Object.keys(item).forEach( k => {
+      Object.keys(item).forEach(k => {
         expect(ci[k]).toBe(item[k]);
       });
     });
@@ -44,91 +50,57 @@ describe('ClientItem', () => {
       expect(ci.id).toBe(3);
     });
 
-    test('Creates an image, if data provides an imgsrc', () => {
-      const ci = new ClientItem(item);
-      expect(ci).toHaveProperty('img');
-      expect(ci.img).toBeInstanceOf(Image);
-      expect(ci.img.src.endsWith(item.imgsrc)).toBe(true);
-    });
-
-    test('Does not create an image, if no imgsrc provided', () => {
-      const ci = new ClientItem({x:10,y:12,id:42});
-      expect(ci.img).toBeNull();
-    });
-
-    test('Creates a sequence if one is provided', () => {
-      const bp = new CanvasSequence();
-      bp.fillStyle = 'red';
-      bp.fillRect(0,0,100,200);
-      item.sequence = bp.toJSON();
+    test('Creates a render sequence if one is provided', () => {
+      item.sequence = sequence;
 
       let ci;
       expect(() => ci = new ClientItem(item)).not.toThrow();
-      expect(ci.sequence).toBeInstanceOf(CanvasSequence);
+      expect(ci.render).toBeInstanceOf(CanvasSequence);
     });
 
-    test('Does not create a sequence if none provided', () => {
+    test('Does not create a render sequence if none provided', () => {
       const ci = new ClientItem(item);
-      expect(ci.sequence).toBeFalsy();
-    });
-
-    test('Builds the sequence if a sequence was provided', () => {
-      const bp = new CanvasSequence();
-      bp.fillStyle = 'red';
-      bp.fillRect(0,0,100,200);
-      item.sequence = bp.toJSON();
-
-      const ci = new ClientItem(item);
-      expect(ci.sequence).toBeInstanceOf(CanvasSequencer);
-    });
-
-    test('Does not build a sequence if no sequence provided', () => {
-      const ci = new ClientItem(item);
-      expect(ci.sequence).toBeFalsy();
+      expect(ci.render).toBeNull();
     });
   });
 
-  describe('draw(context)', () => {
-    let ctx;
-    beforeEach(() => ctx = new CanvasRenderingContext2D());
-
-    test('Throws an exception if no context provided', () => {
-      const ci = new ClientItem(item);
-      expect(() => ci.draw()).toThrow();
+  describe('Methods', () => {
+    let ci;
+    beforeAll(() => {
+      ci = new ClientItem(item);
     });
 
-    test('If a sequence is available, renders the sequence', () => {
-      const bp = new CanvasSequence();
-      bp.fillStyle = 'red';
-      bp.fillRect(0,0,100,200);
-      item.sequence = bp.toJSON();
-      const ci = new ClientItem(item);
-      expect(() => ci.draw(ctx)).not.toThrow();
-      expect(ctx.fillStyle).toBe('red');
-      expect(ctx.fillRect).toHaveBeenCalled();
-      expect(ctx.fillRect).toHaveBeenLastCalledWith(0,0,100,200);
-      expect(ctx.drawImage).not.toHaveBeenCalled();
+    describe('setRender(sequence)', () => {
+      test('Builds an executable render out of a JSON sequence', () => {
+        expect(ci.render).toBeNull();
+        expect(() => ci.setRender(sequence)).not.toThrow();
+        expect(ci.render).toBeInstanceOf(CanvasSequence);
+      });
     });
 
-    test('If no sequence, but an image is provided, draws an image', () => {
-      const ci = new ClientItem(item);
-      ci.img.loaded = true;
-      expect(() => ci.draw(ctx)).not.toThrow();
-      expect(ctx.drawImage).toHaveBeenCalledTimes(1);
-      expect(ctx.drawImage).toHaveBeenLastCalledWith(
-        ci.img, ci.x, ci.y, ci.width, ci.height
-      );
-    });
+    describe('draw(context)', () => {
+      let ctx;
+      beforeEach(() => ctx = new CanvasRenderingContext2D());
 
-    test('If no sequence or image is available, draws a blank rect', () => {
-      const ci = new ClientItem(item);
-      expect(() => ci.draw(ctx)).not.toThrow();
-      expect(ctx.fillRect).toHaveBeenCalled();
-      expect(ctx.fillRect).toHaveBeenLastCalledWith(
-        ci.x, ci.y, ci.width, ci.height
-      );
-    });
+      test('Does nothing if no render sequence provided', () => {
+        ci.render = null;
+        expect(() => ci.draw()).not.toThrow();
+        expect(ctx.save).not.toHaveBeenCalled();
+      });
 
+      test('Throws an exception if renderable but no context provided', () => {
+        expect(() => ci.draw()).not.toThrow();
+      });
+
+      test('If a sequence is available, renders the sequence', () => {
+        ci.setRender(sequence);
+        expect(() => ci.draw(ctx)).not.toThrow();
+        expect(ctx.fillStyle).toBe('red');
+        expect(ctx.fillRect).toHaveBeenCalled();
+        expect(ctx.fillRect).toHaveBeenLastCalledWith(0,0,100,200);
+        expect(ctx.drawImage).not.toHaveBeenCalled();
+      });
+    });
   });
 });
 

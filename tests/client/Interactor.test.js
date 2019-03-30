@@ -28,45 +28,31 @@ describe('Interactor', () => {
   });
 
   beforeEach(() => {
-    const pan = jest.fn();
-    const tap = jest.fn();
-    const rotate = jest.fn();
-    const zoom = jest.fn();
-    handlers = { pan, tap, rotate, zoom };
+    handlers = {
+      swipe: jest.fn(),
+      tap: jest.fn(),
+      track: jest.fn(),
+      transform: jest.fn(),
+    }
   });
 
   describe('constructor(canvas, handlers)', () => {
-    test('Throws an exception if no valid canvas provided', () => {
-      expect(() => new Interactor()).toThrow();
-    });
-
-    test('Works if canvas provided, but no handlers', () => {
-      expect(() => new Interactor(canvas)).not.toThrow();
-    });
-
-    test.each(['pan', 'tap', 'rotate', 'zoom'])(
+    test.each(['swipe', 'tap', 'track', 'transform'])(
       'Accepts a %s handler', 
       (name) => {
         let itr;
-        expect(() => itr = new Interactor(canvas, { [name]: handlers[name] }))
+        expect(() => itr = new Interactor({ [name]: handlers[name] }))
           .not.toThrow();
         expect(itr.handlers[name]).toBe(handlers[name]);
       }
     );
-
-    test('Ignores unrecognized handlers', () => {
-      let itr;
-      const fly = jest.fn();
-      expect(() => itr = new Interactor(canvas, { fly } )).not.toThrow();
-      expect(itr.handlers.fly).toBeUndefined();
-    });
   });
 
   describe('tap', () => {
     let itr;
     beforeEach(() => {
       handlers.tap = jest.fn();
-      itr = new Interactor(canvas, { tap: handlers.tap });
+      itr = new Interactor({ tap: handlers.tap });
     });
 
     test.skip('Works with mouse input', () => {
