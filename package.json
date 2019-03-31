@@ -18,6 +18,10 @@
     "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
+    "modulePaths": [
+      "<rootDir>",
+      "<rootDir>/src/"
+    ],
     "setupFilesAfterEnv": [
       "./tests/setup.js"
     ],

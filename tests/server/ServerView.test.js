@@ -7,7 +7,7 @@
 
 'use strict';
 
-const ServerView = require('../../src/server/ServerView.js');
+const ServerView = require('server/ServerView.js');
 
 describe('ServerView', () => {
   const custom = {

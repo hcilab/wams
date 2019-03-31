@@ -7,7 +7,7 @@
 
 'use strict';
 
-const ShadowView = require('../../src/client/ShadowView.js');
+const ShadowView = require('client/ShadowView.js');
 
 describe('ShadowView', () => {
   const view = {

@@ -7,7 +7,7 @@
 
 'use strict';
 
-const ClientItem = require('../../src/client/ClientItem.js');
+const ClientItem = require('client/ClientItem.js');
 const { CanvasSequence, CanvasSequencer } = require('canvas-sequencer');
 
 describe('ClientItem', () => {

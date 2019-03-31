@@ -7,7 +7,7 @@
 
 'use strict';
 
-const Interactor = require('../../src/client/Interactor.js');
+const Interactor = require('client/Interactor.js');
 
 describe('Interactor', () => {
   let canvas, handlers;

@@ -7,11 +7,11 @@
 
 'use strict';
 
-const { View } = require('../../src/shared.js');
-const ClientView = require('../../src/client/ClientView.js');
-const ClientItem = require('../../src/client/ClientItem.js');
-const ShadowView = require('../../src/client/ShadowView.js');
-const ClientModel = require('../../src/client/ClientModel.js');
+const { View } = require('shared.js');
+const ClientView = require('client/ClientView.js');
+const ClientItem = require('client/ClientItem.js');
+const ShadowView = require('client/ShadowView.js');
+const ClientModel = require('client/ClientModel.js');
 
 describe('ClientView', () => {
   let context;

@@ -7,7 +7,7 @@
 const {
   defineOwnImmutableEnumerableProperty,
   removeById,
-} = require('../../src/shared/utilities.js');
+} = require('shared/utilities.js');
 
 describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
   const x = {};

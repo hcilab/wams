@@ -7,7 +7,7 @@
 
 'use strict';
 
-const Reporters = require('../../src/shared/Reporters.js');
+const Reporters = require('shared/Reporters.js');
 const {
   Item,
   View,

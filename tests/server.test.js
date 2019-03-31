@@ -7,8 +7,8 @@
 
 'use strict';
 
-const Api = require('../src/server.js');
-const Application = require('../src/server/Application.js');
+const Api = require('server.js');
+const Application = require('server/Application.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
 test('Expected values were correctly exported', () => {

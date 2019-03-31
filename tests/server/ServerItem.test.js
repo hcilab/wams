@@ -7,7 +7,7 @@
 
 'use strict';
 
-const ServerItem = require('../../src/server/ServerItem.js');
+const ServerItem = require('server/ServerItem.js');
 
 describe('ServerItem', () => {
   describe('constructor(settings)', () => {

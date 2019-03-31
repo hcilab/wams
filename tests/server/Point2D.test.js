@@ -7,7 +7,7 @@
 
 'use strict';
 
-const Point2D = require('../../src/server/Point2D.js');
+const Point2D = require('shared/Point2D.js');
 
 describe('Point2D', () => {
   describe('constructor(x, y)', () => {

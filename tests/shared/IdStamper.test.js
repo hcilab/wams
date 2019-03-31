@@ -4,7 +4,7 @@
 
 'use strict';
 
-const IdStamper = require('../../src/shared/IdStamper.js');
+const IdStamper = require('shared/IdStamper.js');
 
 describe('IdStamper', () => {
   describe('constructor()', () => {

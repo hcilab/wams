@@ -8,10 +8,10 @@
  *  client side.
  */
 
-const WamsShared = require('../src/shared.js');
+const WamsShared = require('shared.js');
 
-const reporters = Object.keys(require('../src/shared/Reporters.js'));
-const utilities = Object.keys(require('../src/shared/utilities.js'));
+const reporters = Object.keys(require('shared/Reporters.js'));
+const utilities = Object.keys(require('shared/utilities.js'));
 
 const other = [
   'colours',

@@ -7,7 +7,7 @@
 
 'use strict';
 
-const client = require('../src/client.js');
+const client = require('client.js');
 
 test('placeholder', () => {
   expect(true).toBe(true);

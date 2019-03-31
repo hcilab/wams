@@ -4,7 +4,7 @@
 
 'use strict';
 
-const ReporterFactory = require('../../src/shared/ReporterFactory.js');
+const ReporterFactory = require('shared/ReporterFactory.js');
 
 describe('ReporterFactory', () => {
   const ViewProps = {

@@ -2,7 +2,7 @@
  * Test suite for the Message class.
  */
 
-const Message = require('../../src/shared/Message.js');
+const Message = require('shared/Message.js');
 
 describe('Message', () => {
   let emitter, reporter;

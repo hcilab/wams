@@ -7,8 +7,8 @@
 
 'use strict';
 
-const Polygon2D = require('../../src/shared/Polygon2D.js');
-const Point2D = require('../../src/shared/Point2D.js');
+const Polygon2D = require('shared/Polygon2D.js');
+const Point2D = require('shared/Point2D.js');
 
 describe('Polygon2D', () => {
   let rectangle_points, triangle_points;

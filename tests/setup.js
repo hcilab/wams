@@ -8,7 +8,11 @@ expect.extend({
     const pass = Boolean(descs && !(descs.configurable || descs.writable));
     const not = pass ? 'not ' : '';
     return {
-      message: () => `expected ${received} ${not}to have immutable property '${argument}'`,
+      message: () => {
+        const pre = `expected ${received} ${not} to have immutable property `;
+        const fix = `'${argument}'`;
+        return pre + fix;
+      },
       pass:    pass,
     };
   },

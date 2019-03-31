@@ -7,11 +7,11 @@
 
 'use strict';
 
-const { Item, NOP } = require('../../src/shared.js');
-const WorkSpace = require('../../src/server/WorkSpace.js');
-const ServerItem = require('../../src/server/ServerItem.js');
-const ServerView = require('../../src/server/ServerView.js');
-const { rectangularHitbox } = require('../../src/predefined/utilities.js');
+const { Item, NOP } = require('shared.js');
+const WorkSpace = require('server/WorkSpace.js');
+const ServerItem = require('server/ServerItem.js');
+const ServerView = require('server/ServerView.js');
+const { rectangularHitbox } = require('predefined/utilities.js');
 
 let ia, ib, ic, a, b, c;
 beforeAll(() => {
