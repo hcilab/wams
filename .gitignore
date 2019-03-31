@@ -1,6 +1,6 @@
 node_modules/
 *.bak
-*.swp
+*.sw[op]
 custom.css
 
 coverage
