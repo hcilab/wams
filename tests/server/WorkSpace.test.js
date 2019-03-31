@@ -13,7 +13,7 @@ const ServerItem = require('server/ServerItem.js');
 const ServerView = require('server/ServerView.js');
 const { rectangularHitbox } = require('predefined/utilities.js');
 
-let ia, ib, ic, a, b, c;
+let a, b, c, ia, ib, ic;
 beforeAll(() => {
   ia = { x: 0,   y: 0,   hitbox: rectangularHitbox(0, 0, 100, 100) };
   ib = { x: 20,  y: 40,  hitbox: rectangularHitbox(0, 0, 100, 100) };

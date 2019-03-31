@@ -24,7 +24,7 @@ describe('ServerViewGroup', () => {
   });
 
   describe('Methods', () => {
-    let svg, socket, view;
+    let socket, svg, view;
     beforeAll(() => {
       svg = new ServerViewGroup(new MessageHandler());
     });

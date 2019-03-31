@@ -11,7 +11,7 @@ const { Item } = require('shared.js');
 const ServerItem = require('server/ServerItem.js');
 const { rectangularHitbox } = require('predefined/utilities.js');
 
-let namespace, item;
+let item, namespace;
 beforeEach(() => {
   namespace = { emit: jest.fn() };
 });
@@ -32,8 +32,8 @@ describe('ServerItem', () => {
     });
 
     test('Uses user-defined values, if provided', () => {
-      let props = { y: 75, type: 'joker' };
-      let result = { ...Item.DEFAULTS, ...props };
+      const props = { y: 75, type: 'joker' };
+      const result = { ...Item.DEFAULTS, ...props };
       expect(() => item = new ServerItem(namespace, props)).not.toThrow();
       expect(item).toMatchObject(props);
       expect(item).toMatchObject(result);
@@ -47,7 +47,7 @@ describe('ServerItem', () => {
   });
 
   describe('Methods', () => {
-    let props = {
+    const props = {
       x:      50,
       y:      50,
       hitbox: rectangularHitbox(0, 0, 100, 100),

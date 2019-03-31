@@ -10,21 +10,21 @@
 const { View } = require('shared.js');
 const ServerView = require('server/ServerView.js');
 
-let socket, view, props;
+let props, socket, view;
 beforeAll(() => {
-  socket = { 
-    emit: jest.fn(),
+  socket = {
+    emit:      jest.fn(),
     broadcast: {
       emit: jest.fn(),
     },
   };
   props = {
-    x:      0,
-    y:      0,
-    width:  50,
-    height: 50,
-    type:   'testing/view',
-    scale:  1,
+    x:        0,
+    y:        0,
+    width:    50,
+    height:   50,
+    type:     'testing/view',
+    scale:    1,
     rotation: 0,
   };
 });
