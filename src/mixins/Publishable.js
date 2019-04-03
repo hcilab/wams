@@ -23,6 +23,15 @@ const symbols = Object.freeze({
  */
 const Publishable = (superclass) => class Publishable extends superclass {
   /**
+   * Whether a publication has been scheduled.
+   *
+   * @name [@@scheduled]
+   * @type {?boolean}
+   * @default falsy
+   * @memberof module:mixins.Publishable
+   */
+
+  /**
    * Schedule a publication of this object for the end of this turn of the
    * node.js event loop. This will have the effect of making sure that the
    * object update is not emitted until after all transformations applied by
@@ -44,6 +53,8 @@ const Publishable = (superclass) => class Publishable extends superclass {
    * Emit the publication of this object and mark that it is no longer scheduled
    * for publication.
    *
+   * @alias [@@emit]
+   * @static
    * @memberof module:mixins.Publishable
    */
   [symbols.emit]() {

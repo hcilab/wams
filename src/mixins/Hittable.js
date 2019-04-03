@@ -55,7 +55,7 @@ const Hittable = (sclass) => class Hittable extends Interactable(sclass) {
    * always return a falsy value.
    *
    * @name hitbox
-   * @type {module:shared.Hitbox}
+   * @type {?module:shared.Hitbox}
    * @default undefined
    * @memberof module:mixins.Hittable
    */

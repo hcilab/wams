@@ -19,6 +19,24 @@ const holder = Symbol.for('holder');
  */
 const Lockable = (superclass) => class Lockable extends superclass {
   /**
+   * Whether this Lockable is locked.
+   *
+   * @name [@@locked]
+   * @type {?boolean}
+   * @default falsy
+   * @memberof module:mixins.Lockable
+   */
+
+  /**
+   * If the Lockable is locked, stores a reference to the holder of the lock.
+   *
+   * @name [@@holder]
+   * @type {?module:mixins.Locker}
+   * @default undefined
+   * @memberof module:mixins.Lockable
+   */
+
+  /**
    * Checks whether this lockable is locked.
    *
    * @memberof module:mixins.Lockable
@@ -48,8 +66,8 @@ const Lockable = (superclass) => class Lockable extends superclass {
    */
   unlock() {
     this[locked] = false;
-    if (this[holder]) {
-      this[holder].lockedItem = null;
+    if (this[holder] && this[holder].lockedItem === this) {
+      this[holder].clearLockedItem();
       this[holder] = null;
     }
   }

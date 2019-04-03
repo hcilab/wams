@@ -27,7 +27,6 @@ const Identifiable = (superclass) => class Identifiable extends superclass {
      * @name id
      * @type {number}
      * @constant
-     * @instance
      * @memberof module:mixins.Identifiable
      */
     STAMPER.stampNewId(this);

@@ -17,14 +17,37 @@ const lockedItem = Symbol('lockedItem');
  */
 const Locker = (superclass) => class Locker extends superclass {
   /**
-   * The locked item.
+   * The internally stored reference to the locked item. For access use the
+   * external getter. There is no external setter provided. The nature of
+   * Symbols makes this interal reference technically accessible, but it still
+   * should not be set directly.
+   *
+   * @name [@@lockedItem]
+   * @type {?module:mixins.Lockable}
+   * @default undefined
+   * @memberof module:mixins.Locker
+   */
+
+  /**
+   * External getter for the locked item. There is no setter available.
    *
    * @memberof module:mixins.Locker
    *
    * @type {module:mixins.Lockable}
    */
   get lockedItem() { return this[lockedItem]; }
-  set lockedItem(item) { this[lockedItem] = item; }
+
+  /**
+   * Clear the locked item. Shortcuts the releaseLockedItem() approach and just
+   * sets the locked item to null. Use with caution!
+   *
+   * Made available originally purely for use by the Lockable interface.
+   *
+   * @memberof module:mixins.Locker
+   */
+  clearLockedItem() {
+    this[lockedItem] = null;
+  }
 
   /**
    * Obtain a lock on the given item for this view.
