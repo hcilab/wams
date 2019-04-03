@@ -19,27 +19,6 @@ const { rectangularHitbox } = require('./utilities.js');
  */
 
 /**
- * Applies rotation and scale to a hitbox, if necessary.
- *
- * @inner
- * @memberof module:predefined.items
- *
- * @param {Object} data
- * @param {module:shared.Polygon2D} [data.hitbox]
- * @param {number} [data.rotation]
- * @param {number} [data.scale]
- *
- * @returns {Object} The appropriately transformed data.
- */
-function transformed(data = {}) {
-  if (data.hitbox) {
-    if (data.rotation)  data.hitbox.rotate(-data.rotation);
-    if (data.scale)     data.hitbox.scale(data.scale);
-  }
-  return data;
-}
-
-/**
  * Provides an image description, complete with a hitbox only if both 'width'
  * and 'height' properties are present. Note that the hitbox will be
  * rectangular, with the top left corner at the 'x' and 'y' coordinates.
@@ -58,7 +37,7 @@ function image(src, properties = {}) {
   if ('width' in properties && 'height' in properties) {
     hitbox = rectangularHitbox(0, 0, properties.width, properties.height);
   }
-  return transformed({ ...properties, src, hitbox });
+  return { ...properties, src, hitbox };
 }
 
 /**
@@ -83,7 +62,7 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
   sequence.fillStyle = colour;
   sequence.fillRect(x, y, width, height);
 
-  return transformed({ ...properties, hitbox, sequence });
+  return { ...properties, hitbox, sequence };
 }
 
 /**
@@ -134,7 +113,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
   sequence.fill();
   sequence.stroke();
 
-  return transformed({ ...properties, hitbox, sequence });
+  return { ...properties, hitbox, sequence };
 }
 
 /**
@@ -155,7 +134,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
  */
 function element(x, y, width, height, properties = {}) {
   const hitbox = rectangularHitbox(x, y, width, height);
-  return transformed({ ...properties, hitbox });
+  return { ...properties, hitbox };
 }
 
 /**
@@ -180,7 +159,7 @@ function wrappedElement(html, width, height, properties = {}) {
     innerHTML: html,
   };
   const tagname = 'div';
-  return transformed({ ...properties, hitbox, attributes, tagname });
+  return { ...properties, hitbox, attributes, tagname };
 }
 
 module.exports = {

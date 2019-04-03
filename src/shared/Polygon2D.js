@@ -13,6 +13,7 @@ const Point2D = require('./Point2D.js');
  * A polygon in two dimensions. Can be complex.
  *
  * @memberof module:shared
+ * @implements {module:shared.Hitbox}
  */
 class Polygon2D {
   /**
@@ -79,30 +80,6 @@ class Polygon2D {
       return false;
     }
     return this.winding_number(p) !== 0;
-  }
-
-  /**
-   * Rotate the polygon by the given amount.
-   *
-   * @param {number} theta - The amount, in radians, that the polygon should be
-   * rotated.
-   */
-  rotate(theta) {
-    this.points.forEach(p => p.rotate(theta));
-    this.centroid.rotate(theta);
-  }
-
-  /**
-   * Scale the polygon by the given amount.
-   *
-   * @param {number} ds - The amount of scaling to apply to the polygon. Will be
-   * multiplicative, so should probably be in the range (0.8 - 1.2) most of the
-   * time.
-   */
-  scale(ds) {
-    this.points.forEach(p => p.multiplyBy(ds));
-    this.centroid.multiplyBy(ds);
-    this.radius *= ds;
   }
 
   /**
