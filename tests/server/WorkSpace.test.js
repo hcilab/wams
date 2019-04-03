@@ -7,17 +7,16 @@
 
 'use strict';
 
-const { Item, NOP } = require('shared.js');
+const { Item, NOP, Rectangle } = require('shared.js');
 const WorkSpace = require('server/WorkSpace.js');
 const ServerItem = require('server/ServerItem.js');
 const ServerView = require('server/ServerView.js');
-const { rectangularHitbox } = require('predefined/utilities.js');
 
 let a, b, c, ia, ib, ic;
 beforeAll(() => {
-  ia = { x: 0,   y: 0,   hitbox: rectangularHitbox(0, 0, 100, 100) };
-  ib = { x: 20,  y: 40,  hitbox: rectangularHitbox(0, 0, 100, 100) };
-  ic = { x: 220, y: 240, hitbox: rectangularHitbox(0, 0, 50,  50)  };
+  ia = { x: 0,   y: 0,   hitbox: new Rectangle(100, 100) };
+  ib = { x: 20,  y: 40,  hitbox: new Rectangle(100, 100) };
+  ic = { x: 220, y: 240, hitbox: new Rectangle(50,  50)  };
 });
 
 describe('WorkSpace', () => {

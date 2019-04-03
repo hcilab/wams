@@ -7,9 +7,8 @@
 
 'use strict';
 
-const { Item } = require('shared.js');
+const { Item, Rectangle } = require('shared.js');
 const ServerItem = require('server/ServerItem.js');
-const { rectangularHitbox } = require('predefined/utilities.js');
 
 let item, namespace;
 beforeEach(() => {
@@ -50,7 +49,7 @@ describe('ServerItem', () => {
     const props = {
       x:      50,
       y:      50,
-      hitbox: rectangularHitbox(0, 0, 100, 100),
+      hitbox: new Rectangle(100, 100),
     };
     beforeAll(() => {
       item = new ServerItem(namespace, props);
