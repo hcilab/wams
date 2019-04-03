@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: client/ClientView.js | WAMS</title>
+    <title>Source: shared/Rectangle.js | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -53,163 +53,75 @@
     <section>
         <article>
             <pre class="prettyprint source linenums"><code>/*
- * WAMS code to be executed in the client browser.
+ * WAMS - An API for Multi-Surface Environments
  *
  * Author: Michael van der Kamp
  *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
  */
 
 'use strict';
 
-const { View } = require('../shared.js');
-
-// Data fields to write for status indicator text.
-const STATUS_KEYS = Object.freeze([
-  'x',
-  'y',
-  'width',
-  'height',
-  'rotation',
-  'scale',
-]);
-
-// Mark these methods as intended only for internal use.
-const symbols = Object.freeze({
-  align:        Symbol('align'),
-  drawItems:    Symbol('drawItems'),
-  drawShadows:  Symbol('drawShadows'),
-  drawStatus:   Symbol('drawStatus'),
-  wipe:         Symbol('wipe'),
-});
-
 /**
- * The ClientView is responsible for rendering the view. To do this, it keeps
- * track of its own position, scale, and orientation, as well as those values
- * for all items and all other views (which will be represented with outlines).
+ * A rectangular hitbox. Remember that this rectangle describes the item as if
+ * its settings were x=0, y=0, scale=1, rotation=0.
  *
- * @extends module:shared.View
- * @memberof module:client
+ * @memberof module:shared
+ * @implements {module:shared.Hitbox}
  */
-class ClientView extends View {
+class Rectangle {
   /**
-   * @param {CanvasRenderingContext2D} context - The canvas context in which to
-   * render the model.
+   * @param {number} width - The width of the rectangle.
+   * @param {number} height - The height of the rectangle.
+   * @param {number} [x=0] - The x offset of the rectangle.
+   * @param {number} [y=0] - The y offset of the rectangle.
    */
-  constructor(context) {
-    super(ClientView.DEFAULTS);
-
+  constructor(width, height, x = 0, y = 0) {
     /**
-     * The CanvasRenderingContext2D is required for drawing (rendering) to take
-     * place.
+     * The width of the rectangle.
      *
-     * @type {CanvasRenderingContext2D}
-     */
-    this.context = context;
-
-    /**
-     * The model holds the information about items and shadows that need
-     * rendering.
-     *
-     * @type {module:client.ClientModel}
-     */
-    this.model = null;
-
-    /**
-     * Id to make the views uniquely identifiable. Will be assigned when setup
-     * message is received from server.
-     *
-     * @name id
      * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientView
      */
-    this.id = null;
-  }
+    this.width = width;
 
-  /**
-   * Positions the rendering context precisely, taking into account all
-   * transformations, so that rendering can proceed correctly.
-   */
-  [symbols.align]() {
-    /*
-     * WARNING: It is crucially important that the instructions below occur
-     * in *precisely* this order!
+    /**
+     * The height of the rectangle.
+     *
+     * @type {number}
      */
-    this.context.scale(this.scale, this.scale);
-    this.context.rotate(this.rotation);
-    this.context.translate(-this.x, -this.y);
+    this.height = height;
+
+    /**
+     * The x coordinate of the rectangle.
+     *
+     * @type {number}
+     */
+    this.x = x;
+
+    /**
+     * The y coordinate of the rectangle.
+     *
+     * @type {number}
+     */
+    this.y = y;
   }
 
   /**
-   * Renders all the items.
+   * Determines if a point is inside the rectangle.
+   *
+   * @param {module:shared.Point2D} point - The point to test.
+   *
+   * @return {boolean} true if the point is inside the rectangle, false
+   * otherwise.
    */
-  [symbols.drawItems]() {
-    this.model.itemOrder.forEach(o => o.draw(this.context, this));
-  }
-
-  /**
-   * Renders outlines of all the other views.
-   */
-  [symbols.drawShadows]() {
-    this.model.shadows.forEach(v => v.draw(this.context));
-  }
-
-  /**
-   * Renders text describing the status of the view to the upper left corner of
-   * the view, to assist with debugging.
-   */
-  [symbols.drawStatus]() {
-    const messages = STATUS_KEYS
-      .map(k => `${k}: ${this[k].toFixed(2)}`)
-      .concat([`# of Shadows: ${this.model.shadows.size}`]);
-    let ty = 40;
-    const tx = 20;
-
-    this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.font = '18px Georgia';
-    messages.forEach(m => {
-      this.context.fillText(m, tx, ty);
-      ty += 20;
-    });
-    this.context.restore();
-  }
-
-  /**
-   * Clears all previous renders, to ensure a clean slate for the upcoming
-   * render.
-   */
-  [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  }
-
-  /**
-   * Fully render the current state of the system.
-   */
-  draw() {
-    this.context.save();
-    this[symbols.wipe]();
-    this[symbols.align]();
-    this[symbols.drawItems]();
-    this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
-    this.context.restore();
-  }
-
-  /**
-   * Fill all available space in the window.
-   */
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+  contains(point) {
+    return (point.x >= this.x) &amp;&amp;
+      (point.x &lt;= this.x + this.width) &amp;&amp;
+      (point.y >= this.y) &amp;&amp;
+      (point.y &lt;= this.y + this.height);
   }
 }
 
-module.exports = ClientView;
+module.exports = Rectangle;
 
 </code></pre>
         </article>

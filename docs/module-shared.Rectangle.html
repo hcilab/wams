@@ -1,10 +1,8 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Source: client/ClientView.js | WAMS</title>
+    <title>Class: Rectangle | WAMS</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -49,171 +47,812 @@
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- */
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>Rectangle<span class="signature">(width, height, x<span class="signature-attributes">opt</span>, y<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h2>
+        
+            <div class="class-description">A rectangular hitbox. Remember that this rectangle describes the item as if
+its settings were x=0, y=0, scale=1, rotation=0.</div>
+        
+    
+</header>
 
-'use strict';
+<article>
+    
+        <div class="container-overview">
+        
+            
 
-const { View } = require('../shared.js');
+<dt>
+    
+        <h4 class="name" id="Rectangle">
+            
+                new <span class="type-signature"></span>Rectangle<span class="signature">(width, height, x<span class="signature-attributes">opt</span>, y<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span>
+                
+            
+            <div class="container-source members">
+                <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+                <code><a href="shared_Rectangle.js.html#line17">line 17</a></code>
+            </div>
+            
+        </h4>
 
-// Data fields to write for status indicator text.
-const STATUS_KEYS = Object.freeze([
-  'x',
-  'y',
-  'width',
-  'height',
-  'rotation',
-  'scale',
-]);
+        
+    
+</dt>
+<dd>
 
-// Mark these methods as intended only for internal use.
-const symbols = Object.freeze({
-  align:        Symbol('align'),
-  drawItems:    Symbol('drawItems'),
-  drawShadows:  Symbol('drawShadows'),
-  drawStatus:   Symbol('drawStatus'),
-  wipe:         Symbol('wipe'),
-});
+    
 
-/**
- * The ClientView is responsible for rendering the view. To do this, it keeps
- * track of its own position, scale, and orientation, as well as those values
- * for all items and all other views (which will be represented with outlines).
- *
- * @extends module:shared.View
- * @memberof module:client
- */
-class ClientView extends View {
-  /**
-   * @param {CanvasRenderingContext2D} context - The canvas context in which to
-   * render the model.
-   */
-  constructor(context) {
-    super(ClientView.DEFAULTS);
+    
 
-    /**
-     * The CanvasRenderingContext2D is required for drawing (rendering) to take
-     * place.
-     *
-     * @type {CanvasRenderingContext2D}
-     */
-    this.context = context;
+    
 
-    /**
-     * The model holds the information about items and shadows that need
-     * rendering.
-     *
-     * @type {module:client.ClientModel}
-     */
-    this.model = null;
+    
 
-    /**
-     * Id to make the views uniquely identifiable. Will be assigned when setup
-     * message is received from server.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientView
-     */
-    this.id = null;
-  }
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-  /**
-   * Positions the rendering context precisely, taking into account all
-   * transformations, so that rendering can proceed correctly.
-   */
-  [symbols.align]() {
-    /*
-     * WARNING: It is crucially important that the instructions below occur
-     * in *precisely* this order!
-     */
-    this.context.scale(this.scale, this.scale);
-    this.context.rotate(this.rotation);
-    this.context.translate(-this.x, -this.y);
-  }
+        <th>Type</th>
 
-  /**
-   * Renders all the items.
-   */
-  [symbols.drawItems]() {
-    this.model.itemOrder.forEach(o => o.draw(this.context, this));
-  }
+        
+        <th>Attributes</th>
+        
 
-  /**
-   * Renders outlines of all the other views.
-   */
-  [symbols.drawShadows]() {
-    this.model.shadows.forEach(v => v.draw(this.context));
-  }
+        
+        <th>Default</th>
+        
 
-  /**
-   * Renders text describing the status of the view to the upper left corner of
-   * the view, to assist with debugging.
-   */
-  [symbols.drawStatus]() {
-    const messages = STATUS_KEYS
-      .map(k => `${k}: ${this[k].toFixed(2)}`)
-      .concat([`# of Shadows: ${this.model.shadows.size}`]);
-    let ty = 40;
-    const tx = 20;
+        <th class="last">Description</th>
+    </tr>
+    </thead>
 
-    this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
-    this.context.font = '18px Georgia';
-    messages.forEach(m => {
-      this.context.fillText(m, tx, ty);
-      ty += 20;
-    });
-    this.context.restore();
-  }
+    <tbody>
+    
 
-  /**
-   * Clears all previous renders, to ensure a clean slate for the upcoming
-   * render.
-   */
-  [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
-  }
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
 
-  /**
-   * Fully render the current state of the system.
-   */
-  draw() {
-    this.context.save();
-    this[symbols.wipe]();
-    this[symbols.align]();
-    this[symbols.drawItems]();
-    this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
-    this.context.restore();
-  }
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
 
-  /**
-   * Fill all available space in the window.
-   */
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-  }
-}
 
-module.exports = ClientView;
+            
+            </td>
 
-</code></pre>
-        </article>
-    </section>
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The width of the rectangle.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>height</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The height of the rectangle.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">The x offset of the rectangle.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    0
+                
+                </td>
+            
+
+            <td class="description last">The y offset of the rectangle.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="module-shared.Hitbox.html">module:shared.Hitbox</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+        
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        <dl>
+            
+
+<dt>
+<h4 class="name" id="height">
+    <span class="type-signature"></span>height<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+        <code><a href="shared_Rectangle.js.html#line37">line 37</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The height of the rectangle.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="width">
+    <span class="type-signature"></span>width<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+        <code><a href="shared_Rectangle.js.html#line30">line 30</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The width of the rectangle.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="x">
+    <span class="type-signature"></span>x<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+        <code><a href="shared_Rectangle.js.html#line44">line 44</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The x coordinate of the rectangle.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        
+            
+
+<dt>
+<h4 class="name" id="y">
+    <span class="type-signature"></span>y<span class="type-signature"> :number</span>
+    
+    <div class="container-source members">
+        <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+        <code><a href="shared_Rectangle.js.html#line51">line 51</a></code>
+    </div>
+    
+</h4>
+
+
+</dt>
+<dd>
+    
+    <div class="description">
+        The y coordinate of the rectangle.
+    </div>
+    
+
+    <!--
+    
+        <h5>Type:</h5>
+        <ul>
+            <li>
+                
+<span class="param-type">number</span>
+
+
+            </li>
+        </ul>
+    
+    -->
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+    
+</dd>
+
+        </dl>
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+                
+
+<dt>
+    
+        <h4 class="name" id="contains">
+            
+                <span class="type-signature"></span>contains<span class="signature">(point)</span><span class="type-signature"> &rarr; {boolean}</span>
+                
+            
+            <div class="container-source members">
+                <code><a href="shared_Rectangle.js.html">shared/Rectangle.js</a></code>,
+                <code><a href="shared_Rectangle.js.html#line62">line 62</a></code>
+            </div>
+            
+        </h4>
+
+        
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Determines if a point is inside the rectangle.
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-params">
+        <h5>Parameters:</h5>
+        
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>point</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="module-shared.Point2D.html">module:shared.Point2D</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The point to test.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <div class="container-returns">
+        <h5>Returns:</h5>
+        
+                
+
+
+
+<span class="param-type">boolean</span>
+
+
+
+
+
+- true if the point is inside the rectangle, false
+otherwise.
+
+
+
+
+            
+    </div>
+    
+
+    
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="module-shared.Hitbox.html#contains">module:shared.Hitbox#contains</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+    
+
+</dd>
+
+            </dl>
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 
@@ -230,7 +869,7 @@ module.exports = ClientView;
 <script src="scripts/linenumber.js"></script>
 
     <script>
-        var id = '_sub'.replace(/"/g, '_');
+        var id = 'module:shared.Rectangle_sub'.replace(/"/g, '_');
         var selectedApi = document.getElementById(id); // do not use jquery selector
         var $selectedApi = $(selectedApi);
 

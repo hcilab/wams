@@ -15280,6 +15280,8 @@ const Utils = require('./shared/utilities.js');
 const Polygon2D = require('./shared/Polygon2D.js');
 
 const Point2D = require('./shared/Point2D.js');
+
+const Rectangle = require('./shared/Rectangle.js');
 /**
  * This object stores a set of core constants for use by both the client and
  *  the server.
@@ -15320,10 +15322,11 @@ module.exports = Object.freeze(_objectSpread({
   IdStamper,
   Message,
   Point2D,
-  Polygon2D
+  Polygon2D,
+  Rectangle
 }, Reporters, Utils));
 
-},{"./shared/IdStamper.js":158,"./shared/Message.js":159,"./shared/Point2D.js":160,"./shared/Polygon2D.js":161,"./shared/Reporters.js":163,"./shared/utilities.js":164}],158:[function(require,module,exports){
+},{"./shared/IdStamper.js":158,"./shared/Message.js":159,"./shared/Point2D.js":160,"./shared/Polygon2D.js":161,"./shared/Rectangle.js":162,"./shared/Reporters.js":164,"./shared/utilities.js":165}],158:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -15428,7 +15431,7 @@ class IdStamper {
 
 module.exports = IdStamper;
 
-},{"./utilities.js":164,"core-js/modules/es.symbol.description":89}],159:[function(require,module,exports){
+},{"./utilities.js":165,"core-js/modules/es.symbol.description":89}],159:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -15592,7 +15595,7 @@ Object.entries(TYPES).forEach(([p, v]) => {
 });
 module.exports = Message;
 
-},{"./utilities.js":164,"core-js/modules/es.string.includes":87,"core-js/modules/web.dom-collections.iterator":90}],160:[function(require,module,exports){
+},{"./utilities.js":165,"core-js/modules/es.string.includes":87,"core-js/modules/web.dom-collections.iterator":90}],160:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -15958,6 +15961,76 @@ module.exports = Polygon2D;
 
 },{"./Point2D.js":160}],162:[function(require,module,exports){
 /*
+ * WAMS - An API for Multi-Surface Environments
+ *
+ * Author: Michael van der Kamp
+ *  |-> Date: July/August 2018
+ */
+'use strict';
+/**
+ * A rectangular hitbox. Remember that this rectangle describes the item as if
+ * its settings were x=0, y=0, scale=1, rotation=0.
+ *
+ * @memberof module:shared
+ * @implements {module:shared.Hitbox}
+ */
+
+class Rectangle {
+  /**
+   * @param {number} width - The width of the rectangle.
+   * @param {number} height - The height of the rectangle.
+   * @param {number} [x=0] - The x offset of the rectangle.
+   * @param {number} [y=0] - The y offset of the rectangle.
+   */
+  constructor(width, height, x = 0, y = 0) {
+    /**
+     * The width of the rectangle.
+     *
+     * @type {number}
+     */
+    this.width = width;
+    /**
+     * The height of the rectangle.
+     *
+     * @type {number}
+     */
+
+    this.height = height;
+    /**
+     * The x coordinate of the rectangle.
+     *
+     * @type {number}
+     */
+
+    this.x = x;
+    /**
+     * The y coordinate of the rectangle.
+     *
+     * @type {number}
+     */
+
+    this.y = y;
+  }
+  /**
+   * Determines if a point is inside the rectangle.
+   *
+   * @param {module:shared.Point2D} point - The point to test.
+   *
+   * @return {boolean} true if the point is inside the rectangle, false
+   * otherwise.
+   */
+
+
+  contains(point) {
+    return point.x >= this.x && point.x <= this.x + this.width && point.y >= this.y && point.y <= this.y + this.height;
+  }
+
+}
+
+module.exports = Rectangle;
+
+},{}],163:[function(require,module,exports){
+/*
  * Builds Reporter classes for the WAMS application.
  *
  * Author: Michael van der Kamp
@@ -16045,7 +16118,7 @@ function ReporterFactory(coreProperties) {
 
 module.exports = ReporterFactory;
 
-},{"./IdStamper.js":158}],163:[function(require,module,exports){
+},{"./IdStamper.js":158}],164:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -16568,7 +16641,7 @@ module.exports = {
   WamsImage
 };
 
-},{"./ReporterFactory.js":162}],164:[function(require,module,exports){
+},{"./ReporterFactory.js":163}],165:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *
