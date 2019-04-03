@@ -42,10 +42,6 @@ function handleConnect(view, index, device, group) {
   group.onscale = Wams.predefined.scale;
   group.onrotate = Wams.predefined.rotate;
   group.ondrag = Wams.predefined.drag;
-  // view.onclick = spawnItem;
-  // view.onscale = Wams.predefined.scale;
-  // view.onrotate = Wams.predefined.rotate;
-  // view.ondrag = Wams.predefined.drag;
   linelayout(view, index, device);
 }
 
