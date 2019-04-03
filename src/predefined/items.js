@@ -8,8 +8,7 @@
 'use strict';
 
 const { CanvasSequence } = require('canvas-sequencer');
-const { Polygon2D }  = require('../shared.js');
-const { rectangularHitbox } = require('./utilities.js');
+const { Polygon2D, Rectangle }  = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -35,7 +34,7 @@ const { rectangularHitbox } = require('./utilities.js');
 function image(src, properties = {}) {
   let hitbox = null;
   if ('width' in properties && 'height' in properties) {
-    hitbox = rectangularHitbox(0, 0, properties.width, properties.height);
+    hitbox = new Rectangle(properties.width, properties.height);
   }
   return { ...properties, src, hitbox };
 }
@@ -57,7 +56,7 @@ function image(src, properties = {}) {
  * the given width and height, filled in with the given colour.
  */
 function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
-  const hitbox = rectangularHitbox(x, y, width, height);
+  const hitbox = new Rectangle(width, height, x, y);
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.fillRect(x, y, width, height);
@@ -133,7 +132,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
  * the given width and height, filled in with the given colour.
  */
 function element(x, y, width, height, properties = {}) {
-  const hitbox = rectangularHitbox(x, y, width, height);
+  const hitbox = new Rectangle(width, height, x, y);
   return { ...properties, hitbox };
 }
 
@@ -152,7 +151,7 @@ function element(x, y, width, height, properties = {}) {
  * HTML content.
  */
 function wrappedElement(html, width, height, properties = {}) {
-  const hitbox = rectangularHitbox(0, 0, width, height);
+  const hitbox = new Rectangle(width, height);
   const baseattrs = properties.attributes || {};
   const attributes = {
     ...baseattrs,

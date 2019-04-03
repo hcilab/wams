@@ -20,6 +20,7 @@ const Reporters = require('./shared/Reporters.js');
 const Utils     = require('./shared/utilities.js');
 const Polygon2D = require('./shared/Polygon2D.js');
 const Point2D   = require('./shared/Point2D.js');
+const Rectangle = require('./shared/Rectangle.js');
 
 /**
  * This object stores a set of core constants for use by both the client and
@@ -71,6 +72,7 @@ module.exports = Object.freeze({
   Message,
   Point2D,
   Polygon2D,
+  Rectangle,
   ...Reporters,
   ...Utils,
 });
