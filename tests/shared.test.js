@@ -20,6 +20,7 @@ const other = [
   'Message',
   'Polygon2D',
   'Point2D',
+  'Rectangle',
 ];
 
 const expected = reporters.concat(utilities).concat(other);
