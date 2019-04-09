@@ -94,3 +94,16 @@ if (typeof global.CanvasRenderingContext2D !== 'function') {
   global.CanvasRenderingContext2D = CanvasRenderingContext2D;
 }
 
+global.getPrototypeChainOf = function getPrototypeChainOf(object) {
+  const chain = [];
+  let proto = object;
+  while ((proto = Object.getPrototypeOf(proto)) != null) {
+    chain.push(proto);
+  }
+  return chain;
+}
+
+global.getPrototypeChainNamesOf = function getPrototypeChainNamesOf(object) {
+  return getPrototypeChainOf(object).map(p => p.constructor.name);
+}
+
