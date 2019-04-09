@@ -23,6 +23,9 @@ vim \
   tests/client/*.js \
   tests/server/*.js \
   tests/shared/*.js \
+  tests/mixins/*.js \
+  tests/gestures/*.js \
+  tests/predefined/*.js \
   examples/*.js \
   README.md \
   TODO.md \
