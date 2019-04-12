@@ -57,7 +57,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     this.gestureController.clearOutView(id);
   }
 
-  /**
+  /*
    * Move all the views by the given amounts.
    *
    * @override
@@ -87,7 +87,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     return this.views.map(v => v.report());
   }
 
-  /**
+  /*
    * Rotate all the views by the given amount, in radians.
    *
    * @override
@@ -104,7 +104,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     this.views.forEach(v => v.rotateBy(radians, px, py));
   }
 
-  /**
+  /*
    * Adjust the scale of all the views by the given amount.
    *
    * @override
