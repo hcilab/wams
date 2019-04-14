@@ -102,6 +102,9 @@ class ServerController {
   /**
    * Attaches listeners to the socket. Only listens to message types existing on
    * the Message class object.
+   *
+   * @alias [@@attachListeners]
+   * @memberof module:server.ServerController
    */
   [symbols.attachListeners]() {
     const listeners = {
@@ -147,6 +150,9 @@ class ServerController {
 
   /**
    * Inform the client on the current state of the model.
+   *
+   * @alias [@@fullStateReport]
+   * @memberof module:server.ServerController
    */
   [symbols.fullStateReport]() {
     const fsreport = new FullStateReporter({

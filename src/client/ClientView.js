@@ -79,6 +79,9 @@ class ClientView extends View {
   /**
    * Positions the rendering context precisely, taking into account all
    * transformations, so that rendering can proceed correctly.
+   *
+   * @alias [@@align]
+   * @memberof module:client.ClientView
    */
   [symbols.align]() {
     /*
@@ -92,6 +95,9 @@ class ClientView extends View {
 
   /**
    * Renders all the items.
+   *
+   * @alias [@@drawItems]
+   * @memberof module:client.ClientView
    */
   [symbols.drawItems]() {
     this.model.itemOrder.forEach(o => o.draw(this.context, this));
@@ -99,6 +105,9 @@ class ClientView extends View {
 
   /**
    * Renders outlines of all the other views.
+   *
+   * @alias [@@drawShadows]
+   * @memberof module:client.ClientView
    */
   [symbols.drawShadows]() {
     this.model.shadows.forEach(v => v.draw(this.context));
@@ -107,6 +116,9 @@ class ClientView extends View {
   /**
    * Renders text describing the status of the view to the upper left corner of
    * the view, to assist with debugging.
+   *
+   * @alias [@@drawShadows]
+   * @memberof module:client.ClientView
    */
   [symbols.drawStatus]() {
     const messages = STATUS_KEYS
@@ -128,6 +140,9 @@ class ClientView extends View {
   /**
    * Clears all previous renders, to ensure a clean slate for the upcoming
    * render.
+   *
+   * @alias [@@wipe]
+   * @memberof module:client.ClientView
    */
   [symbols.wipe]() {
     this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);

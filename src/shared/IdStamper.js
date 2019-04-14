@@ -28,13 +28,7 @@ function* id_gen() {
   while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
 }
 
-/**
- * Mark the class instance's generator as not intended for external use.
- *
- * @inner
- * @memberof module:shared.IdStamper
- * @type {Symbol}
- */
+// Mark the generator reference as not intended for external use.
 const gen = Symbol('gen');
 
 /**
@@ -61,6 +55,8 @@ class IdStamper {
      * A generator instance that yields unique integers.
      *
      * @type {Generator}
+     * @alias [@@id_gen]
+     * @memberof module:shared.IdStamper
      */
     this[gen] = id_gen();
   }
