@@ -18,8 +18,9 @@ https://mvanderkamp.github.io/wams/).
     - [Client](#client)
     - [Server](#server)
     - [Mixins](#mixins)
-    - [Predefined](#predefined)
     - [Gestures](#gestures)
+    - [Predefined](#predefined)
+* [Gesture Recognition](#gesture-recognition)
 * [Connection Establishment](#connection-establishment)
 
 ## Runtime Dependencies
@@ -559,11 +560,17 @@ input point coordinates when server-side gestures are in use.
 ### ServerItem
 
 The ServerItem maintains the model of an Item. It allows for transformations and
-hit detection.
+hit detection. Transformations are published automatically to the clients. 
 
 ### ServerImage
 
+Similar to the ServerItem class, but with methods and properties specific to
+images.
+
 ### ServerElement
+
+Similar to the ServerItem class, but with methods and properties specific to
+HTML elements.
 
 ### MessageHandler
 
@@ -586,15 +593,68 @@ The Application is the API endpoint of the WAMS system.
 ![Graph of mixins module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
-## Predefined
+* [Hittable](#hittable)
+* [Identifiable](#identifiable)
+* [Interactable](#interactable)
+* [Lockable](#lockable)
+* [Locker](#locker)
+* [Publishable](#publishable)
+* [Transformable2D](#transformable2d)
 
-![Graph of predefined module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
+### Hittable
+
+### Identifiable
+
+### Interactable
+
+### Lockable
+
+### Locker
+
+### Publishable
+
+### Transformable2D
 
 ## Gestures
 
 ![Graph of gestures module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
+
+* [Binding](#binding)
+* [Input](#input)
+* [PHASE](#phase)
+* [PointerData](#PointerData)
+* [Region](#Region)
+* [State](#State)
+
+### Binding
+
+### Input
+
+### PHASE
+
+### PointerData
+
+### Region
+
+### State
+
+## Predefined
+
+![Graph of predefined module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
+
+* [items](#predefined-items)
+* [layouts](#predefined-layouts)
+* [utilities](#predefined-utilities)
+
+### Predefined items
+
+### Predefined layouts
+
+### Predefined utilities
+
+## Gesture Recognition
 
 The process for gesture recognition, starting at the point when the gesture
 library issues a gesture event, to the point when the user-supplied handler is
