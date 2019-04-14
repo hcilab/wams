@@ -244,7 +244,7 @@ information.
 Both the client and the server implement their own version of the MVC pattern,
 ultimately operating together as a larger MVC pattern.
 
-#### Client
+#### Client MVC
 
 The client side version is the most straightforward, and looks a lot like simple
 classical MVC. The catch of course is that the 'ClientController' sends user
@@ -253,7 +253,7 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
-#### Server 
+#### Server MVC 
 
 The server side is more complicated. The most obvious reason for this is that,
 being an API, the users of the API need to be able to attach their own
@@ -281,7 +281,7 @@ occurred. Storing the gesture controller in the view group opens up the
 possibility of creating multiple groups of devices, with each group capable of
 recognizing its own multi-device gestures.
 
-#### Client and Server Together
+#### Client and Server MVC Together
 
 Taken together, the client and the server form a larger MVC pattern, with the
 client representing the view and part of the controller, and the server
