@@ -14018,6 +14018,9 @@ class ClientController {
    * Reporter protocol.
    *
    * This internal routine should be called as part of socket establishment.
+   *
+   * @alias [@@attachListeners]
+   * @memberof module:client.ClientController
    */
 
 
@@ -14095,6 +14098,9 @@ class ClientController {
   }
   /**
    * Renders a frame.
+   *
+   * @alias [@@render]
+   * @memberof module:client.ClientController
    */
 
 
@@ -14106,6 +14112,9 @@ class ClientController {
   }
   /**
    * Initializes the render loop.
+   *
+   * @alias [@@startRender]
+   * @memberof module:client.ClientController
    */
 
 
@@ -15005,6 +15014,9 @@ class ClientView extends View {
   /**
    * Positions the rendering context precisely, taking into account all
    * transformations, so that rendering can proceed correctly.
+   *
+   * @alias [@@align]
+   * @memberof module:client.ClientView
    */
 
 
@@ -15019,6 +15031,9 @@ class ClientView extends View {
   }
   /**
    * Renders all the items.
+   *
+   * @alias [@@drawItems]
+   * @memberof module:client.ClientView
    */
 
 
@@ -15027,6 +15042,9 @@ class ClientView extends View {
   }
   /**
    * Renders outlines of all the other views.
+   *
+   * @alias [@@drawShadows]
+   * @memberof module:client.ClientView
    */
 
 
@@ -15036,6 +15054,9 @@ class ClientView extends View {
   /**
    * Renders text describing the status of the view to the upper left corner of
    * the view, to assist with debugging.
+   *
+   * @alias [@@drawShadows]
+   * @memberof module:client.ClientView
    */
 
 
@@ -15055,6 +15076,9 @@ class ClientView extends View {
   /**
    * Clears all previous renders, to ensure a clean slate for the upcoming
    * render.
+   *
+   * @alias [@@wipe]
+   * @memberof module:client.ClientView
    */
 
 
@@ -15324,6 +15348,9 @@ class ShadowView extends View {
    * Aligns the drawing context so the outline will be rendered in the correct
    * location with the correct orientation.
    *
+   * @alias [@@align]
+   * @memberof module:client.ShadowView
+   *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
 
@@ -15335,6 +15362,9 @@ class ShadowView extends View {
   }
   /**
    * Applies styling to the drawing context.
+   *
+   * @alias [@@style]
+   * @memberof module:client.ShadowView
    *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
@@ -15348,6 +15378,9 @@ class ShadowView extends View {
   }
   /**
    * Draws an outline of the view.
+   *
+   * @alias [@@outline]
+   * @memberof module:client.ShadowView
    */
 
 
@@ -15357,6 +15390,9 @@ class ShadowView extends View {
   /**
    * Draws a small triangle in the upper-left corner of the outline, so that
    * other views can quickly tell which way this view is oriented.
+   *
+   * @alias [@@marker]
+   * @memberof module:client.ShadowView
    *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
@@ -15609,14 +15645,7 @@ function* id_gen() {
   let next_id = 0;
 
   while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
-}
-/**
- * Mark the class instance's generator as not intended for external use.
- *
- * @inner
- * @memberof module:shared.IdStamper
- * @type {Symbol}
- */
+} // Mark the generator reference as not intended for external use.
 
 
 const gen = Symbol('gen');
@@ -15645,6 +15674,8 @@ class IdStamper {
      * A generator instance that yields unique integers.
      *
      * @type {Generator}
+     * @alias [@@id_gen]
+     * @memberof module:shared.IdStamper
      */
     this[gen] = id_gen();
   }
