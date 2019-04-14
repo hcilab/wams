@@ -339,7 +339,8 @@ All graphs were generated using `arkit`, as discussed in the [build tools](
 https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
 
 To coordinate activity between the client and server, a shared set of resources
-are exposed by `shared.js`.
+are exposed by
+[shared.js](https://mvanderkamp.github.io/wams/module-shared.html).
 
 * [utilities](#utilities)
 * [IdStamper](#idstamper)
@@ -352,23 +353,27 @@ are exposed by `shared.js`.
 
 ### utilities
 
-Exported by this module are a few quality-of-life functions intended to be used
-in throughout the codebase. They are there to make writing other code easier,
-and to reduce repetition.
+Exported by the
+[utilities](https://mvanderkamp.github.io/wams/module-shared.utilities.html)
+module are a few quality-of-life functions intended to be used in throughout the
+codebase. They are there to make writing other code easier, and to reduce
+repetition.
 
 ### IdStamper
 
-This class controls ID generation. The class has access to a private generator
+The [IdStamper](https://mvanderkamp.github.io/wams/module-shared.IdStamper.html)
+class controls ID generation. The class has access to a private generator
 function for IDs and exposes a pair of methods for stamping new IDs onto objects
 and cloning previously existing Ids onto objects.
 
 ### ReporterFactory
 
-The ReporterFactory takes a dictionary of default values and returns a
-`Reporter` class definition. Runtime definition of classes is possible due to
-the nature of JavaScript, wherein classes are really just functions that can be
-"constructed" using the keyword `new`. Therefore as functions can be treated
-like variables, so too can classes.
+The [ReporterFactory](https://mvanderkamp.github.io/wams/module-shared.html)
+takes a dictionary of default values and returns a `Reporter` class definition.
+Runtime definition of classes is possible due to the nature of JavaScript,
+wherein classes are really just functions that can be "constructed" using the
+keyword `new`. Therefore as functions can be treated like variables, so too can
+classes.
 
 ### Reporters
 
