@@ -6594,7 +6594,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":93,"component-inherit":15,"debug":100,"engine.io-parser":102,"parseqs":111,"xmlhttprequest-ssl":99,"yeast":146}],98:[function(require,module,exports){
+},{"../transport":93,"component-inherit":15,"debug":100,"engine.io-parser":102,"parseqs":111,"xmlhttprequest-ssl":99,"yeast":147}],98:[function(require,module,exports){
 (function (Buffer){
 /**
  * Module dependencies.
@@ -6889,7 +6889,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../transport":93,"buffer":8,"component-inherit":15,"debug":100,"engine.io-parser":102,"parseqs":111,"ws":7,"yeast":146}],99:[function(require,module,exports){
+},{"../transport":93,"buffer":8,"component-inherit":15,"debug":100,"engine.io-parser":102,"parseqs":111,"ws":7,"yeast":147}],99:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 var hasCORS = require('has-cors');
 
@@ -10668,9 +10668,9 @@ function toArray(list, index) {
 
 },{}],127:[function(require,module,exports){
 /**
- * The global API interface for Westures. Exposes a constructor for the
- * {@link Region} and the generic {@link Gesture} class for user gestures to
- * implement, as well as the {@link Point2D} class, which may be useful.
+ * The global API interface for Westures. Exposes a constructor for the Region
+ * and the generic Gesture class for user gestures to implement, as well as the
+ * Point2D class, which may be useful.
  *
  * @namespace westures-core
  */
@@ -10758,7 +10758,7 @@ class Binding {
      * The gesture to associate with the given element.
      *
      * @private
-     * @type {Gesture}
+     * @type {westures-core.Gesture}
      */
 
     this.gesture = gesture;
@@ -10777,8 +10777,7 @@ class Binding {
    *
    * @private
    *
-   * @param {string} hook - which gesture hook to call, must be one of 'start',
-   *    'move', or 'end'.
+   * @param {string} hook - Must be one of 'start', 'move', 'end', or 'cancel'.
    * @param {State} state - The current State instance.
    */
 
@@ -10804,13 +10803,15 @@ module.exports = Binding;
 
 },{}],129:[function(require,module,exports){
 /*
- * Contains the {@link Gesture} class
+ * Contains the Gesture class
  */
 'use strict';
 
 let nextGestureNum = 0;
 /**
- * The Gesture class that all gestures inherit from.
+ * The Gesture class that all gestures inherit from. A custom gesture class will
+ * need to override some or all of the four phase "hooks": start, move, end, and
+ * cancel.
  *
  * @memberof westures-core
  */
@@ -10823,7 +10824,7 @@ class Gesture {
    */
   constructor(type) {
     if (typeof type !== 'string') {
-      throw new TypeError('Gestures require a string type');
+      throw new TypeError('Gestures require a string type / name');
     }
     /**
      * The name of the gesture. (e.g. 'pan' or 'tap' or 'pinch').
@@ -10913,6 +10914,8 @@ const PointerData = require('./PointerData.js');
  * In case event.composedPath() is not available.
  *
  * @private
+ * @inner
+ * @memberof Input
  *
  * @param {Event} event
  *
@@ -10940,6 +10943,8 @@ function getPropagationPath(event) {
  * element they point to is removed from the page.
  *
  * @private
+ * @inner
+ * @memberof Input
  * @return {WeakSet.<Element>} The Elements in the path of the given event.
  */
 
@@ -11037,6 +11042,8 @@ class Input {
     return this.initial.time;
   }
   /**
+   * @private
+   *
    * @param {string} id - The ID of the gesture whose progress is sought.
    *
    * @return {Object} The progress of the gesture.
@@ -11293,6 +11300,9 @@ const Point2D = require('./Point2D.js');
 const PHASE = require('./PHASE.js');
 /**
  * @private
+ * @inner
+ * @memberof PointerData
+ *
  * @return {Event} The Event object which corresponds to the given identifier.
  *    Contains clientX, clientY values.
  */
@@ -11351,6 +11361,7 @@ class PointerData {
      *
      * @type {westures-core.Point2D}
      */
+    // this.point = new Point2D(eventObj.pageX, eventObj.pageY);
 
     this.point = new Point2D(eventObj.clientX, eventObj.clientY);
   }
@@ -11413,13 +11424,21 @@ class Region {
    * Constructor function for the Region class.
    *
    * @param {Element} element - The element which should listen to input events.
-   * @param {boolean} capture - Whether the region uses the capture phase of
-   *    input events. If false, uses the bubbling phase.
-   * @param {boolean} preventDefault - Whether the default browser functionality
-   *    should be disabled. This option should most likely be ignored. Here
-   *    there by dragons if set to false.
+   * @param {object} [options]
+   * @param {boolean} [options.capture=false] - Whether the region uses the
+   * capture phase of input events. If false, uses the bubbling phase.
+   * @param {boolean} [options.preventDefault=true] - Whether the default
+   * browser functionality should be disabled. This option should most likely be
+   * ignored. Here there by dragons if set to false.
+   * @param {string} [options.source='page'] - One of 'page', 'client', or
+   * 'screen'. Determines what the source of (x,y) coordinates will be from the
+   * input events. ('X' and 'Y' will be appended, then those are the properties
+   * that will be looked up). *** NOT YET IMPLEMENTED ***
    */
+  // constructor(element, options = {}) {
   constructor(element, capture = false, preventDefault = true) {
+    // const settings = { ...Region.DEFAULTS, ...options };
+
     /**
      * The list of relations between elements, their gestures, and the handlers.
      *
@@ -11644,6 +11663,10 @@ class Region {
 
 }
 
+Region.DEFAULTS = Object.freeze({
+  capture: false,
+  preventDefault: true
+});
 module.exports = Region;
 
 },{"./Binding.js":128,"./PHASE.js":131,"./State.js":136}],135:[function(require,module,exports){
@@ -11654,7 +11677,7 @@ module.exports = Region;
 
 require("core-js/modules/es.symbol.description");
 
-const stagedEmit = Symbol('stagedEmit');
+const cascade = Symbol('cascade');
 const smooth = Symbol('smooth');
 /**
  * A Smoothable gesture is one that emits on 'move' events. It provides a
@@ -11663,7 +11686,7 @@ const smooth = Symbol('smooth');
  * as a slight amount of drift over gestures sustained for a long period of
  * time.
  *
- * For a gesture to make use of smoothing, it must return `this.emit(data,
+ * For a gesture to make use of smoothing, it must return `this.smooth(data,
  * field)` from the `move` phase, instead of returning the data directly. If the
  * data being smoothed is not a simple number, it must also override the
  * `smoothingAverage(a, b)` method. Also you will probably want to call
@@ -11683,71 +11706,79 @@ const Smoothable = superclass => class Smoothable extends superclass {
   constructor(name, options = {}) {
     super(name, options);
     /**
-     * The function through which emits are passed.
+     * The function through which smoothed emits are passed.
      *
-     * @private
+     * @memberof westures-core.Smoothable
+     *
      * @type {function}
+     * @param {object} data - The data to emit.
      */
 
-    this.emit = null;
+    this.smooth = null;
 
     if (options.hasOwnProperty('smoothing') && !options.smoothing) {
-      this.emit = data => data;
+      this.smooth = data => data;
     } else {
-      this.emit = this[smooth].bind(this);
+      this.smooth = this[smooth].bind(this);
     }
+    /**
+     * The "identity" value of the data that will be smoothed.
+     *
+     * @memberof westures-core.Smoothable
+     *
+     * @type {*}
+     * @default 0
+     */
+
+
+    this.identity = 0;
     /**
      * Stage the emitted data once.
      *
      * @private
+     * @static
+     * @memberof westures-core.Smoothable
+     *
+     * @alias [@@cascade]
      * @type {object}
      */
 
-
-    this[stagedEmit] = null;
+    this[cascade] = this.identity;
   }
   /**
    * Restart the Smoothable gesture.
    *
-   * @private
-   * @memberof module:westures-core.Smoothable
+   * @memberof westures-core.Smoothable
    */
 
 
   restart() {
-    this[stagedEmit] = null;
+    this[cascade] = this.identity;
   }
   /**
    * Smooth out the outgoing data.
    *
    * @private
-   * @memberof module:westures-core.Smoothable
+   * @memberof westures-core.Smoothable
    *
    * @param {object} next - The next batch of data to emit.
-   * @param {string] field - The field to which smoothing should be applied.
+   * @param {string} field - The field to which smoothing should be applied.
    *
    * @return {?object}
    */
 
 
   [smooth](next, field) {
-    let result = null;
-
-    if (this[stagedEmit]) {
-      result = this[stagedEmit];
-      const avg = this.smoothingAverage(result[field], next[field]);
-      result[field] = avg;
-      next[field] = avg;
-    }
-
-    this[stagedEmit] = next;
-    return result;
+    const avg = this.smoothingAverage(this[cascade], next[field]);
+    this[cascade] = avg;
+    next[field] = avg;
+    return next;
   }
   /**
    * Average out two values, as part of the smoothing algorithm.
    *
    * @private
-   * @memberof module:westures-core.Smoothable
+   * @memberof westures-core.Smoothable
    *
    * @param {number} a
    * @param {number} b
@@ -11788,6 +11819,8 @@ const symbols = Object.freeze({
  * Must be called with a bound 'this', via bind(), or call(), or apply().
  *
  * @private
+ * @inner
+ * @memberof State
  */
 
 const update_fns = {
@@ -11815,6 +11848,8 @@ const update_fns = {
 class State {
   /**
    * Constructor for the State class.
+   *
+   * @param {Element} element - The element underpinning the associated Region.
    */
   constructor(element) {
     /**
@@ -11828,7 +11863,9 @@ class State {
      * Keeps track of the current Input objects.
      *
      * @private
-     * @type {Map}
+     * @alias [@@inputs]
+     * @type {Map.<Input>}
+     * @memberof State
      */
 
     this[symbols.inputs] = new Map();
@@ -12010,6 +12047,8 @@ const Pan = require('./src/Pan.js');
 
 const Pinch = require('./src/Pinch.js');
 
+const Press = require('./src/Press.js');
+
 const Rotate = require('./src/Rotate.js');
 
 const Swipe = require('./src/Swipe.js');
@@ -12027,6 +12066,7 @@ module.exports = {
   Smoothable,
   Pan,
   Pinch,
+  Press,
   Rotate,
   Swipe,
   Swivel,
@@ -12090,11 +12130,10 @@ module.exports = {
  *
  * @typedef {Object} BaseData
  *
- * @property {westures-core.Point2D} centroid - The centroid of the input
- * points.
+ * @property {westures.Point2D} centroid - The centroid of the input points.
  * @property {Event} event - The input event which caused the gesture to be
  * recognized.
- * @property {string} phase - 'start', 'move', or 'end'.
+ * @property {string} phase - 'start', 'move', 'end', or 'cancel'.
  * @property {number} radius - The distance of the furthest input to the
  * centroid.
  * @property {string} type - The name of the gesture as specified by its
@@ -12104,7 +12143,7 @@ module.exports = {
  * @memberof ReturnTypes
  */
 
-},{"./src/Pan.js":138,"./src/Pinch.js":139,"./src/Rotate.js":140,"./src/Swipe.js":141,"./src/Swivel.js":142,"./src/Tap.js":143,"./src/Track.js":144,"westures-core":127}],138:[function(require,module,exports){
+},{"./src/Pan.js":138,"./src/Pinch.js":139,"./src/Press.js":140,"./src/Rotate.js":141,"./src/Swipe.js":142,"./src/Swivel.js":143,"./src/Tap.js":144,"./src/Track.js":145,"westures-core":127}],138:[function(require,module,exports){
 /*
  * Contains the Pan class.
  */
@@ -12203,10 +12242,19 @@ class Pan extends Smoothable(Gesture) {
      * The previous point location.
      *
      * @private
-     * @type {module:westures.Point2D}
+     * @type {westures.Point2D}
      */
 
     this.previous = null;
+    /*
+     * The "identity" value for this smoothable gesture.
+     *
+     * @private
+     * @override
+     * @type {westures.Point2D}
+     */
+
+    this.identity = new Point2D(0, 0);
   }
   /**
    * Resets the gesture's progress by saving the current centroid of the active
@@ -12257,7 +12305,7 @@ class Pan extends Smoothable(Gesture) {
 
     const translation = state.centroid.minus(this.previous);
     this.previous = state.centroid;
-    return this.emit({
+    return this.smooth({
       translation
     }, 'translation');
   }
@@ -12399,6 +12447,15 @@ class Pinch extends Smoothable(Gesture) {
      */
 
     this.previous = 0;
+    /*
+     * The "identity" value for this smoothable gesture.
+     *
+     * @private
+     * @override
+     * @type {number}
+     */
+
+    this.identity = 1;
   }
   /**
    * Initializes the gesture progress and stores it in the first input for
@@ -12441,7 +12498,7 @@ class Pinch extends Smoothable(Gesture) {
     const distance = state.centroid.averageDistanceTo(state.activePoints);
     const scale = distance / this.previous;
     this.previous = distance;
-    return this.emit({
+    return this.smooth({
       distance,
       scale
     }, 'scale');
@@ -12478,6 +12535,200 @@ Pinch.DEFAULTS = Object.freeze({
 module.exports = Pinch;
 
 },{"westures-core":127}],140:[function(require,module,exports){
+/*
+ * Contains the Press class.
+ */
+'use strict';
+
+function _objectSpread(target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i] != null ? arguments[i] : {};
+    var ownKeys = Object.keys(source);
+
+    if (typeof Object.getOwnPropertySymbols === 'function') {
+      ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(source, sym).enumerable;
+      }));
+    }
+
+    ownKeys.forEach(function (key) {
+      _defineProperty(target, key, source[key]);
+    });
+  }
+
+  return target;
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+const {
+  Gesture
+} = require('westures-core');
+/**
+ * Data returned when a Press is recognized.
+ *
+ * @typedef {Object} PressData
+ *
+ * @property {westures.Point2D} centroid - The current centroid of the input
+ * points.
+ * @property {westures.Point2D} initial - The initial centroid of the input
+ * points.
+ * @property {number} distance - The total movement since initial contact.
+ *
+ * @memberof ReturnTypes
+ */
+
+/**
+ * A Press is defined as one or more input points being held down.
+ *
+ * @extends westures.Gesture
+ * @see ReturnTypes.PressData
+ * @memberof westures
+ */
+
+
+class Press extends Gesture {
+  /**
+   * Constructor function for the Press class.
+   *
+   * @param {function} handler - A Press is unique in that the gesture needs to
+   * store the 'handler' callback directly, so it can be called asynchronously.
+   * @param {Object} [options] - The options object.
+   * @param {number} [options.delay=1000] - The delay before emitting, during
+   * which time the number of inputs must not change.
+   * @param {number} [options.numInputs=1] - Number of inputs for a Press
+   * gesture.
+   * @param {number} [options.tolerance=10] - The tolerance in pixels
+   * a user can move and still allow the gesture to emit.
+   */
+  constructor(handler, options = {}) {
+    super('press');
+
+    const settings = _objectSpread({}, Press.DEFAULTS, options);
+    /**
+     * The handler to trigger in case a Press is recognized.
+     *
+     * @private
+     * @type {function}
+     */
+
+
+    this.handler = handler;
+    /**
+     * The delay before emitting a press event, during which time the number of
+     * inputs must not change.
+     *
+     * @private
+     * @type {number}
+     */
+
+    this.delay = settings.delay;
+    /**
+     * The number of inputs that must be active for a Press to be recognized.
+     *
+     * @private
+     * @type {number}
+     */
+
+    this.numInputs = settings.numInputs;
+    /**
+     * A move tolerance in pixels allows some slop between a user's start to end
+     * events. This allows the Press gesture to be triggered more easily.
+     *
+     * @private
+     * @type {number}
+     */
+
+    this.tolerance = settings.tolerance;
+    /**
+     * The initial centroid.
+     *
+     * @private
+     * @type {westures.Point2D}
+     */
+
+    this.initial = null;
+    /**
+     * Saves the timeout callback reference in case it needs to be cleared for
+     * some reason.
+     *
+     * @private
+     * @type {number}
+     */
+
+    this.timeout = null;
+  }
+  /**
+   * Event hook for the start of a gesture. If the number of active inputs is
+   * correct, initializes the timeout.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+
+
+  start(state) {
+    if (state.active.length === this.numInputs) {
+      this.initial = state.centroid;
+      this.timeout = setTimeout(() => this.recognize(state), this.delay);
+    }
+  }
+  /**
+   * Recognize a Press.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+
+
+  recognize(state) {
+    const distance = this.initial.distanceTo(state.centroid);
+
+    if (distance <= this.tolerance) {
+      this.handler({
+        distance,
+        initial: this.initial,
+        centroid: state.centroid,
+        type: this.type
+      });
+    }
+  }
+  /**
+   * Event hook for the end of a gesture.
+   *
+   * @private
+   * @param {State} state - current input state.
+   */
+
+
+  end() {
+    clearTimeout(this.timeout);
+    this.timeout = null;
+  }
+
+}
+
+Press.DEFAULTS = Object.freeze({
+  delay: 1000,
+  tolerance: 10,
+  numInputs: 1
+});
+module.exports = Press;
+
+},{"westures-core":127}],141:[function(require,module,exports){
 /*
  * Contains the Rotate class.
  */
@@ -12632,7 +12883,7 @@ class Rotate extends Smoothable(Gesture) {
     const rotation = this.getAngle(state);
 
     if (rotation) {
-      return this.emit({
+      return this.smooth({
         rotation
       }, 'rotation');
     }
@@ -12670,7 +12921,7 @@ Rotate.DEFAULTS = Object.freeze({
 });
 module.exports = Rotate;
 
-},{"./angularMinus.js":145,"westures-core":127}],141:[function(require,module,exports){
+},{"./angularMinus.js":146,"westures-core":127}],142:[function(require,module,exports){
 /*
  * Contains the Swipe class.
  */
@@ -12702,10 +12953,10 @@ const MS_THRESHOLD = 300;
  *
  * @private
  * @inner
- * @memberof module:westures.Swipe
+ * @memberof westures.Swipe
  * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
  *
- * @param {{time: number, point: module:westures-core.Point2D}} moves - The
+ * @param {{time: number, point: westures-core.Point2D}} moves - The
  * moves list to process.
  * @param {number} vlim - The number of moves to process.
  *
@@ -12733,7 +12984,7 @@ function calc_angle(moves, vlim) {
  *
  * @private
  * @inner
- * @memberof module:westures.Swipe
+ * @memberof westures.Swipe
  *
  * @param {object} start
  * @param {westures.Point2D} start.point
@@ -12756,10 +13007,10 @@ function velocity(start, end) {
  *
  * @private
  * @inner
- * @memberof module:westures.Swipe
+ * @memberof westures.Swipe
  *
- * @param {{time: number, point: module:westures-core.Point2D}} moves - The
- * moves list to process.
+ * @param {{time: number, point: westures-core.Point2D}} moves - The moves list
+ * to process.
  * @param {number} vlim - The number of moves to process.
  *
  * @return {number} The velocity of the moves.
@@ -12930,7 +13181,7 @@ class Swipe extends Gesture {
 
 module.exports = Swipe;
 
-},{"westures-core":127}],142:[function(require,module,exports){
+},{"westures-core":127}],143:[function(require,module,exports){
 /*
  * Contains the Rotate class.
  */
@@ -13060,7 +13311,7 @@ class Swivel extends Smoothable(Gesture) {
      * The pivot point of the swivel.
      *
      * @private
-     * @type {module:westures.Point2D}
+     * @type {westures.Point2D}
      */
 
     this.pivot = null;
@@ -13119,7 +13370,7 @@ class Swivel extends Smoothable(Gesture) {
    * Refresh the gesture.
    *
    * @private
-   * @param {module:westures.Input[]} inputs - Input list to process.
+   * @param {westures.Input[]} inputs - Input list to process.
    * @param {State} state - current input state.
    */
 
@@ -13185,7 +13436,7 @@ class Swivel extends Smoothable(Gesture) {
     if (this.enabled(state.event)) {
       if (this.isActive) {
         const output = this.calculateOutput(state);
-        return output ? this.emit(output, 'rotation') : null;
+        return output ? this.smooth(output, 'rotation') : null;
       } // The enableKey was just pressed again.
 
 
@@ -13234,7 +13485,7 @@ Swivel.DEFAULTS = Object.freeze({
 });
 module.exports = Swivel;
 
-},{"./angularMinus.js":145,"westures-core":127}],143:[function(require,module,exports){
+},{"./angularMinus.js":146,"westures-core":127}],144:[function(require,module,exports){
 /*
  * Contains the Tap class.
  */
@@ -13380,18 +13631,20 @@ class Tap extends Gesture {
 
 
   end(state) {
-    const now = Date.now();
+    const now = Date.now(); // Save the recently ended inputs.
+
     this.ended = this.ended.concat(state.getInputsInPhase('end')).filter(input => {
       const tdiff = now - input.startTime;
       return tdiff <= this.maxDelay && tdiff >= this.minDelay;
-    });
+    }); // Validate the list of ended inputs.
 
     if (this.ended.length !== this.numInputs || this.ended.some(i => i.totalDistance() > this.tolerance)) {
       return null;
     }
 
     const centroid = Point2D.centroid(this.ended.map(i => i.current.point));
-    this.ended = [];
+    this.ended = []; // Critical! Used inputs need to be cleared!
+
     return _objectSpread({
       centroid
     }, centroid);
@@ -13401,7 +13654,7 @@ class Tap extends Gesture {
 
 module.exports = Tap;
 
-},{"westures-core":127}],144:[function(require,module,exports){
+},{"westures-core":127}],145:[function(require,module,exports){
 /*
  * Contains the Track class.
  */
@@ -13514,7 +13767,7 @@ class Track extends Gesture {
 
 module.exports = Track;
 
-},{"core-js/modules/es.string.includes":87,"westures-core":127}],145:[function(require,module,exports){
+},{"core-js/modules/es.string.includes":87,"westures-core":127}],146:[function(require,module,exports){
 /*
  * Constains the angularMinus() function
  */
@@ -13545,7 +13798,7 @@ function angularMinus(a, b = 0) {
 
 module.exports = angularMinus;
 
-},{}],146:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 'use strict';
 
 var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split(''),
@@ -13616,7 +13869,7 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-},{}],147:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -13656,7 +13909,7 @@ window.addEventListener('load', function run() {
   passive: true
 });
 
-},{"./client/ClientController.js":148,"./client/ClientModel.js":152,"./client/ClientView.js":153}],148:[function(require,module,exports){
+},{"./client/ClientController.js":149,"./client/ClientModel.js":153,"./client/ClientView.js":154}],149:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14078,7 +14331,7 @@ class ClientController {
 
 module.exports = ClientController;
 
-},{"../shared.js":157,"./Interactor.js":154,"core-js/modules/es.symbol.description":89,"core-js/modules/web.dom-collections.iterator":90,"socket.io-client":114}],149:[function(require,module,exports){
+},{"../shared.js":158,"./Interactor.js":155,"core-js/modules/es.symbol.description":89,"core-js/modules/web.dom-collections.iterator":90,"socket.io-client":114}],150:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14188,7 +14441,7 @@ class ClientElement extends WamsElement {
 
 module.exports = ClientElement;
 
-},{"../shared.js":157,"core-js/modules/web.dom-collections.iterator":90}],150:[function(require,module,exports){
+},{"../shared.js":158,"core-js/modules/web.dom-collections.iterator":90}],151:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14306,7 +14559,7 @@ class ClientImage extends WamsImage {
 
 module.exports = ClientImage;
 
-},{"../shared.js":157}],151:[function(require,module,exports){
+},{"../shared.js":158}],152:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14395,7 +14648,7 @@ class ClientItem extends Item {
 
 module.exports = ClientItem;
 
-},{"../shared.js":157,"canvas-sequencer":9}],152:[function(require,module,exports){
+},{"../shared.js":158,"canvas-sequencer":9}],153:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14674,7 +14927,7 @@ class ClientModel {
 
 module.exports = ClientModel;
 
-},{"../shared.js":157,"./ClientElement.js":149,"./ClientImage.js":150,"./ClientItem.js":151,"./ShadowView.js":155,"core-js/modules/web.dom-collections.iterator":90}],153:[function(require,module,exports){
+},{"../shared.js":158,"./ClientElement.js":150,"./ClientImage.js":151,"./ClientItem.js":152,"./ShadowView.js":156,"core-js/modules/web.dom-collections.iterator":90}],154:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14836,7 +15089,7 @@ class ClientView extends View {
 
 module.exports = ClientView;
 
-},{"../shared.js":157,"core-js/modules/es.number.to-fixed":86,"core-js/modules/es.symbol.description":89}],154:[function(require,module,exports){
+},{"../shared.js":158,"core-js/modules/es.number.to-fixed":86,"core-js/modules/es.symbol.description":89}],155:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -14998,7 +15251,7 @@ Interactor.DEFAULT_HANDLERS = Object.freeze({
 });
 module.exports = Interactor;
 
-},{"../shared.js":157,"./Transform.js":156,"westures":137}],155:[function(require,module,exports){
+},{"../shared.js":158,"./Transform.js":157,"westures":137}],156:[function(require,module,exports){
 /*
  * WAMS code to be executed in the client browser.
  *
@@ -15124,7 +15377,7 @@ class ShadowView extends View {
 
 module.exports = ShadowView;
 
-},{"../shared.js":157,"core-js/modules/es.symbol.description":89}],156:[function(require,module,exports){
+},{"../shared.js":158,"core-js/modules/es.symbol.description":89}],157:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -15245,7 +15498,7 @@ class Transform extends Westures.Gesture {
 
 module.exports = Transform;
 
-},{"westures":137}],157:[function(require,module,exports){
+},{"westures":137}],158:[function(require,module,exports){
 /*
  * Utilities for the WAMS application.
  *
@@ -15322,7 +15575,7 @@ module.exports = Object.freeze(_objectSpread({
   Rectangle
 }, Reporters, Utils));
 
-},{"./shared/IdStamper.js":158,"./shared/Message.js":159,"./shared/Point2D.js":160,"./shared/Polygon2D.js":161,"./shared/Rectangle.js":162,"./shared/Reporters.js":164,"./shared/utilities.js":165}],158:[function(require,module,exports){
+},{"./shared/IdStamper.js":159,"./shared/Message.js":160,"./shared/Point2D.js":161,"./shared/Polygon2D.js":162,"./shared/Rectangle.js":163,"./shared/Reporters.js":165,"./shared/utilities.js":166}],159:[function(require,module,exports){
 /*
  * IdStamper utility for the WAMS application.
  *
@@ -15427,7 +15680,7 @@ class IdStamper {
 
 module.exports = IdStamper;
 
-},{"./utilities.js":165,"core-js/modules/es.symbol.description":89}],159:[function(require,module,exports){
+},{"./utilities.js":166,"core-js/modules/es.symbol.description":89}],160:[function(require,module,exports){
 /*
  * Shared Message class for the WAMS application.
  *
@@ -15591,7 +15844,7 @@ Object.entries(TYPES).forEach(([p, v]) => {
 });
 module.exports = Message;
 
-},{"./utilities.js":165,"core-js/modules/es.string.includes":87,"core-js/modules/web.dom-collections.iterator":90}],160:[function(require,module,exports){
+},{"./utilities.js":166,"core-js/modules/es.string.includes":87,"core-js/modules/web.dom-collections.iterator":90}],161:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -15826,7 +16079,7 @@ class Point2D {
 
 module.exports = Point2D;
 
-},{}],161:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -15955,7 +16208,7 @@ class Polygon2D {
 
 module.exports = Polygon2D;
 
-},{"./Point2D.js":160}],162:[function(require,module,exports){
+},{"./Point2D.js":161}],163:[function(require,module,exports){
 /*
  * WAMS - An API for Multi-Surface Environments
  *
@@ -16025,7 +16278,7 @@ class Rectangle {
 
 module.exports = Rectangle;
 
-},{}],163:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 /*
  * Builds Reporter classes for the WAMS application.
  *
@@ -16114,7 +16367,7 @@ function ReporterFactory(coreProperties) {
 
 module.exports = ReporterFactory;
 
-},{"./IdStamper.js":158}],164:[function(require,module,exports){
+},{"./IdStamper.js":159}],165:[function(require,module,exports){
 /*
  * Reporters for the WAMS application.
  *
@@ -16637,7 +16890,7 @@ module.exports = {
   WamsImage
 };
 
-},{"./ReporterFactory.js":163}],165:[function(require,module,exports){
+},{"./ReporterFactory.js":164}],166:[function(require,module,exports){
 /*
  * Defines a set of general utilities for use across the project.
  *
@@ -16706,5 +16959,5 @@ module.exports = Object.freeze({
   removeById
 });
 
-},{}]},{},[147])(147)
+},{}]},{},[148])(148)
 });
