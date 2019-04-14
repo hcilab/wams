@@ -82,7 +82,7 @@ class MessageHandler {
    * @param {module:server.ServerView} view - Origin of track request.
    */
   track({ active, centroid, phase }, view) {
-    if (phase === 'start' && active.length === 1) {
+    if (phase === 'start' && view.lockedItem == null) {
       this.workspace.obtainLock(centroid.x, centroid.y, view);
     } else if (phase === 'end' && active.length === 0) {
       view.releaseLockedItem();

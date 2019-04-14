@@ -104,6 +104,9 @@ class ClientController {
    * Reporter protocol.
    *
    * This internal routine should be called as part of socket establishment.
+   *
+   * @alias [@@attachListeners]
+   * @memberof module:client.ClientController
    */
   [symbols.attachListeners]() {
     const listeners = {
@@ -178,6 +181,9 @@ class ClientController {
 
   /**
    * Renders a frame.
+   *
+   * @alias [@@render]
+   * @memberof module:client.ClientController
    */
   [symbols.render]() {
     if (this.renderScheduled) {
@@ -188,6 +194,9 @@ class ClientController {
 
   /**
    * Initializes the render loop.
+   *
+   * @alias [@@startRender]
+   * @memberof module:client.ClientController
    */
   [symbols.startRender]() {
     const render_fn = this[symbols.render].bind(this);

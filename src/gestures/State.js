@@ -18,7 +18,7 @@ const symbols = Object.freeze({
  * @inner
  * @memberof module:gestures.State
  *
- * @param {Map} struct - Actually any container object that has a 'forEach'
+ * @param {Map.<*>} struct - Actually any container object that has a 'forEach'
  * method using a callback that takes (value, key) as its first arguments, and
  * which as a delete(key) method.
  * @param {function} predicate - Predicate function which accepts a single value
@@ -44,14 +44,14 @@ class State {
     /**
      * Keeps track of the current Input objects.
      *
-     * @type {Map}
+     * @type {Map.<module:gestures.Input>}
      */
     this[symbols.inputs] = new Map();
 
     /**
      * All currently valid inputs, including those that have ended.
      *
-     * @type {Input[]}
+     * @type {module:gestures.Input[]}
      */
     this.inputs = [];
 
@@ -59,7 +59,7 @@ class State {
      * The array of currently active inputs, sourced from the current Input
      * objects. "Active" is defined as not being in the 'end' phase.
      *
-     * @type {Input[]}
+     * @type {module:gestures.Input[]}
      */
     this.active = [];
 

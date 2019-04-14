@@ -47,7 +47,7 @@ class Region {
      *
      * @type {string}
      */
-    this.nextUpdate = null;
+    this.nextUpdatePhase = null;
 
     setInterval(() => {
       if (this.hasUpdated) {
@@ -61,12 +61,12 @@ class Region {
    */
   evaluateBindings() {
     this.bindings.forEach(binding => {
-      binding.evaluateHook(this.nextUpdate, this.state);
+      binding.evaluateHook(this.nextUpdatePhase, this.state);
     });
 
     this.state.clearEndedInputs();
     this.hasUpdated = false;
-    this.nextUpdate = null;
+    this.nextUpdatePhase = null;
   }
 
   /**
@@ -79,12 +79,12 @@ class Region {
    */
   arbitrate(event) {
     const phase = PHASE[event.type];
-    if (this.nextUpdate && phase !== this.nextUpdate) {
+    if (this.nextUpdatePhase && phase !== this.nextUpdatePhase) {
       this.evaluateBindings();
     }
 
     this.state.updateAllInputs(event);
-    this.nextUpdate = phase;
+    this.nextUpdatePhase = phase;
     this.hasUpdated = true;
   }
 
@@ -124,7 +124,7 @@ class Region {
   clearInputsFromSource(id) {
     this.state.clearInputsFromSource(id);
     this.state.updateFields();
-    this.nextUpdate = 'cancel';
+    this.nextUpdatePhase = 'cancel';
     this.evaluateBindings();
   }
 }

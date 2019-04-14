@@ -24,7 +24,8 @@ https://mvanderkamp.github.io/wams/).
 
 ## Runtime Dependencies
 
-This project has four runtime dependencies:
+This project has four runtime dependencies, as listed under the "dependencies"
+tag in `package.json`:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
@@ -73,8 +74,9 @@ This project has four runtime dependencies:
 
     Therefore messages are emitted as follows:
     
-    * __To a single client:__ on its socket.
-    * __To everyone except a single client:__ on its socket's broadcast channel.
+    * __To a single client:__ on the client's socket.
+    * __To everyone except a single client:__ on the client's socket's broadcast
+      channel.
     * __To everyone:__ on the namespace.
 
 ## Build Tools
@@ -90,7 +92,8 @@ The tools used and their rationale are as follows:
     These graphs are not full UML, but rather simply show which files are
     connected via explicit `require()` statements. Although somewhat limited,
     this is still very useful, and helps a great deal in terms of keeping the
-    code organized.
+    code organized. All the architecture graphs present in this design document
+    were generated using `arkit`.
 
 2. [browserify](http://browserify.org/)
 
@@ -112,8 +115,9 @@ The tools used and their rationale are as follows:
 4. [jest](https://jestjs.io/)
 
     `jest` is a testing framework for JavaScript. The tests are all written to
-    be run by `jest`, although I will caution that currently the tests are also
-    utterly, hopelessly broken. Too much refactoring, too quickly.
+    be run using the command `npx jest`. (`npx` is a command included when
+    `node.js` is installed. It runs scripts and/or binaries from project
+    dependencies in the `node_modules` package).
 
 5. [jsdoc](http://usejsdoc.org/)
 
@@ -121,19 +125,15 @@ The tools used and their rationale are as follows:
 
 6. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
 
-    This package is a template for the HTML pages produced by `jsdoc`. I tried
-    out a number of templates after being unsatisfied with the default output,
-    and I found this one to be the best combination of style and functionality
-    of the ones I tried.
+    This package is a template for the HTML pages produced by `jsdoc`. 
 
 7. [make](https://www.gnu.org/software/make/manual/make.html)
 
-    `make` is wonderfully flexible, so here I use it as a simple task runner, at
-    which it is quite adept. It also interfaces nicely with `vim`, even if the
-    JavaScript build tools don't. Simply running `make` from the main directory
-    of the project will run eslint, browserify, and jsdoc on the code, keeping
-    everything up to date at once. As I use `vim` for editing, the `make`
-    command will also update the tags. See the Makefile to see the targets.
+    `make` is wonderfully flexible, so here it is used as a simple task runner,
+    at which it is quite adept. It also interfaces nicely with `vim`, even if
+    the JavaScript build tools don't. Simply running `make` from the main
+    directory of the project will run eslint, browserify, and jsdoc on the code,
+    keeping everything up to date at once. See the Makefile to see the targets.
 
 8. [exuberant-ctags](http://ctags.sourceforge.net/)
 
@@ -150,8 +150,6 @@ https://github.com/romainl/ctags-patterns-for-javascript)
     JavaScript.
 
 ## Testing
-
-*WARNING:* The tests are currently _very_ broken!
 
 Testing is done with the `Jest` framework for `npm`. The test suites can be
 found in `tests/`.
@@ -175,7 +173,8 @@ npx test WorkSpace
 ```
 
 Extra configuration can be found and placed in the `jest` field of
-`package.json`. 
+`package.json`. The tests are incomplete, owing to the rapid pace of development
+and refactors since January.
 
 ## Some Core Concepts
 
@@ -186,36 +185,42 @@ Extra configuration can be found and placed in the `jest` field of
 
 ### Message / Reporter protocol
 
-One of the early challenges I encountered was to ensure that only the correct
-data was getting transferred over the network, and that when I received a
-message over the socket, it would have the data that I expected. To solve this
-issue, I designed a Message / Reporter protocol through which I would funnel all
+One of the early challenges encountered was to ensure that only the correct
+data is transferred over the network, and that when a message is received over
+the socket, it would have the expected data. The Message / Reporter protocol was
+developed to solve this issue, providing a funnel through which to pass all
 data.
 
-The first step was to create a class factory for "Reporters", which are the way
-in which I ensure that only the correct data gets transmitted. By calling this
-factory with an object consisting of key-value pairs describing a set of core
-properties and their default values, the factory will return a class which
-extends the `Reporter` class. An instance object of this class has a method,
-`report()`, which returns an object consisting _only_ of the core properties and
-their current values. This ensures that even though arbitrary additional
-properties may exist on the object (either through further class extensions or
-direct additions by a user) only the core properties will be sent if whatever
-routine sends the data calls this `report()` method.
+The first step was to ensure that only the correct data gets transmitted. This
+is where the `ReporterFactory` comes in. By calling this factory with an object
+consisting of key-value pairs describing a set of core properties and their
+default values, the factory will return a class which extends the `Reporter`
+class. An instance object of this class has a method, `report()`, which returns
+an object consisting _only_ of the core properties and their current values.
+This ensures that even though arbitrary additional properties may exist on the
+object (either through further class extensions or direct additions by a user)
+only the core properties will be sent if whatever routine sends the data calls
+this `report()` method.
 
-The second step was to create a `Message` class with an explicit list of
-acceptable message types. A `Message` is constructed with one of these message
-types and an instance of a `Reporter`. It can then emit a `report()` of the
-instance.
+Also available on all `Reporter` classes is an `assign(data)` method. All
+properties immediately on the data object will be assigned to the `Reporter`
+instance, allowing arbitrary data to be stored. A deeper search is done for the
+core properties of the `Reporter` instance, checking the entire prototype chain
+of the `data` object. (For information on the prototype chain, see Kyle
+Simpson's book series, [You Don't Know JavaScript](
+https://github.com/getify/You-Dont-Know-JS)).
 
-If this protocol is follow strictly (which requires discipline- it is obviously
-still possible to directly `emit` messages over socket connections) then only
-the critical pieces of data will get transmitted, and they will be associated
-with one of the expected `Message` types when they get there. Of course,
-programmer discipline is also required to make sure that the `Message` type
-selected is appropriate for the occasion and associated `Reporter` instance,
-though it would be possible to enforce this restriction if this proves
-difficult.
+The second step was to create a `Message` class with a static list of acceptable
+message types. A `Message` is constructed with one of these message types and an
+instance of a `Reporter`. It can then emit a `report()` of the instance.
+
+If this protocol is follow strictly then only the critical pieces of data will
+get transmitted, and they will be associated with the expected `Message` type
+when they get there. This requires discipline- it is obviously still possible to
+directly `emit` messages over socket connections. Of course, programmer
+discipline is also required to make sure that the `Message` type selected is
+appropriate for the occasion and associated `Reporter` instance, though it may
+be possible to enforce this restriction if this proves difficult.
 
 There is a work-around for cases where lots of different types of little pieces
 of data need to be transmitted. See the `DataReporter` class in the
@@ -225,21 +230,21 @@ documentation.
 
 In a large system like this, where it is important to keep track of and uniquely
 identify lots of different kinds of objects correctly on both the client and the
-server, I decided it would be helpful to centralize the identification technique
-somehow. This is where the `IdStamper` class comes in. It provides a common
-structure by which unique IDs can be assigned and copied.
+server, it is very useful to centralize the identification technique. This is
+where the `IdStamper` class comes in. It provides a common structure by which
+unique IDs can be assigned and copied.
 
 Note that uniqueness is generally on a per-class level. There is a mixin,
 `Identifiable`, which uses an `IdStamper` to provide unique IDs to any class
-which mixes it in.
+which mixes it in. See the `IdStamper` class in the documentation for more
+information.
 
 ### Model-View-Controller
 
-Originally the MVC technique I was using was... crude. Over the course of
-studying the MVC pattern and applying it in CMPT 381 I decided to refactor the
-overarching design of the system to more appropriately match an MVC approach.
-Specifically, my approach was to implement an MVC pattern on both the client
-and server.
+Both the client and the server implement their own version of the MVC pattern,
+ultimately operating together as a larger MVC pattern.
+
+#### Client
 
 The client side version is the most straightforward, and looks a lot like simple
 classical MVC. The catch of course is that the 'ClientController' sends user
@@ -248,51 +253,60 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
+#### Server 
+
 The server side is more complicated. The most obvious reason for this is that,
-this being an API, the users of the API need to be able to attach their own
+being an API, the users of the API need to be able to attach their own
 controller code. The one big simplification is that there's no view, as nothing
 needs to be rendered.
 
-The approach I settled on was to actually split the model in two. One of these
-is the WorkSpace, which holds all the actual objects in the model that will need
-to be rendered. Specifically, these are the objects which are explicitly spawned
-into the model by the programmer. The other is the `ServerViewGroup`, which
-holds the server's representations of the client's views (that is, what the
-clients can see). An alternative way of looking at is to think of these as the
-objects of the model that are generated in response to users connecting to the
-system, and which the programmer cannot spawn directly.
+The approach taken is to split the model in two. One of these is the
+`WorkSpace`, which holds all the actual objects in the model that will need to
+be rendered. Specifically, these are the objects which are explicitly spawned
+into the model by the programmer. 
+
+The other is the `ServerViewGroup`, which holds the server's representations of
+the client's views (that is, what the clients can see). The programmer does not
+have control over spawning and removing the views, they are spawned when a user
+connects and removed when a user disconnects.
 
 The `ServerController` instances are spawned and maintained by the
-`Switchboard`, and these controllers maintain a link to their associated view
-and its physical device.
+`Switchboard`, and these controllers maintain a link to their associated
+`ServerView` and its physical `Device`.
 
 One other wrinkle is that, in order to support multi-device gestures, the
 `ServerViewGroup` has a single `GestureController` which is responsible only for
 maintaining the state of active pointers and calculating whether gestures have
-occurred.
+occurred. Storing the gesture controller in the view group opens up the
+possibility of creating multiple groups of devices, with each group capable of
+recognizing its own multi-device gestures.
+
+#### Client and Server Together
+
+Taken together, the client and the server form a larger MVC pattern, with the
+client representing the view and part of the controller, and the server
+representing the other part of the controller as well as the model.
 
 ### Mixin Pattern
 
-Aside from a thorough brushing up on the MVC pattern, I incidentally wound up
-learning about a fascinating and delightful design pattern which is only
-possible in some programming languages: the mixin! The short and simple version
-for those more accustomed to software engineering with Java is that a mixin is
-an interface whose methods are already implemented.
+The complexity of the code, particularly on the server, would be significantly
+higher were it not for the mixin pattern. The short and simple version for those
+more accustomed to software engineering with Java is that a mixin is an
+interface whose methods are already implemented.
 
 More precisely, a mixin "mixes" functionality into an already existing class to
 form a new subclass. This allows the programmer to bundle related pieces of
 functionality together into a mixin, and then attach those bundles to classes as
 they see fit.
 
-This turned out to work perfectly for me, as this pattern fit neatly on top of
-the `Message` / `Reporter` protocol I was using. This protocol requires that
-`Views` and `Items` and their related classes needed be distinct, yet
-functionally these two distinct types of classes ultimately need to perform a
-lot of similar actions. Mixins solves this problem beautifully, making the whole
-system more succinct and easier to maintain in the process.
+This pattern fits neatly on top of the `Message` / `Reporter` protocol. This
+protocol requires that `Views` and `Items` and their related classes needed be
+distinct, yet functionally these two distinct types of classes ultimately need
+to perform a lot of similar actions. Mixins solves this problem beautifully,
+making the whole system more succinct and easier to maintain in the process.
 
 A more in-depth discussion of mixins and the inspiration for the specific
-implementation approach that I used can be found [here](
+implementation approach used can be found [here](
 http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
 
 ## Module Overview
@@ -305,6 +319,9 @@ associations via a `require()` statement (similar to an `import` or `#include`).
 Also note that the above graph does not show the `shared` module, as it provides
 base classes and routines that are used throughout the code and would simply
 clutter the graph without revealing any structure.
+
+All graphs were generated using `arkit`, as discussed in the [build tools](
+#build-tools) section above.
 
 ## Modules
 
@@ -320,8 +337,8 @@ clutter the graph without revealing any structure.
 ![Graph of shared module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
 
-To coordinate activity between the client and server, I provide a shared set of
-resources that are exposed by `shared.js`.
+To coordinate activity between the client and server, a shared set of resources
+are exposed by `shared.js`.
 
 * [utilities](#utilities)
 * [IdStamper](#idstamper)
@@ -330,6 +347,7 @@ resources that are exposed by `shared.js`.
 * [Message](#message)
 * [Point2D](#point2d)
 * [Polygon2D](#polygon2d)
+* [Rectangle](#rectangle)
 
 ### utilities
 
@@ -339,14 +357,17 @@ and to reduce repetition.
 
 ### IdStamper
 
-This class controls ID generation so that I don't have to think about it ever
-again. The class has access to a private generator function for IDs and exposes
-a pair of methods for stamping new IDs onto objects and cloning previously
-existing Ids onto objects.
+This class controls ID generation. The class has access to a private generator
+function for IDs and exposes a pair of methods for stamping new IDs onto objects
+and cloning previously existing Ids onto objects.
 
 ### ReporterFactory
 
-
+The ReporterFactory takes a dictionary of default values and returns a
+`Reporter` class definition. Runtime definition of classes is possible due to
+the nature of JavaScript, wherein classes are really just functions that can be
+"constructed" using the keyword `new`. Therefore as functions can be treated
+like variables, so too can classes.
 
 ### Reporters
 
@@ -354,17 +375,17 @@ All the "reporters" provided by this module share a common interface, as they
 are all generated by the same class factory.
 
 Specifically, each reporter exposes two methods for getting and setting a set of
-core properties: `assign(data)` and `report()`. Each is guaranteed to only
-affect the core properties that were passed to the factory.
+core properties: `assign(data)` and `report()`. 
 
-The motivation for this design was to and provide some semblance of confidence
-about the data that will be passed between the client and server. With the core
-properties defined in a shared module, the chance of data being sent back and
-forth in a format that one end or the other does not recognize is greaty
-reduced. This was taken even further with the [Message](#message) class, which
-uses this reporter interface for the data it transmits. 
+As discussed in the [core concepts](#some-core-concepts) section above, the
+motivation for this design was to provide some semblance of confidence about the
+data that will be passed between the client and server. With the core properties
+defined in a shared module, the chance of data being sent back and forth in a
+format that one end or the other does not recognize is greaty reduced. This was
+taken even further with the [Message](#message) class, which uses this reporter
+interface for the data it transmits. 
 
-Importantly, the set of Reporters includes the common `Item` and `View`
+Crucially, the set of Reporters includes the common `Item` and `View`
 definitions that both client and server extend. Think of these common reporter
 definitions as pipes that both client and server must push their data through if
 they wish to share it.
@@ -372,74 +393,86 @@ they wish to share it.
 ### Message
 
 The Message class takes the notion of reporters one step further by centralizing
-the method of data transmission between the client and server.
+the method of data transmission between the client and server. It does this by
+explicitly requiring that any data objects it receives for transmission be
+reporters. Messages can be transmitted by any object with an `emit` function.
 
-It does this by explicitly requiring that any data objects it receives for
-transmission be reporters (or at least, they must have a `report` function
-available at some location in their prototype chain... Insert complaints about
-JavaScript here).
+### Point2D
 
-Messages can be transmitted by any object with an `emit` function.
+JavaScript lacks a standard library, and no third party standalone module stood
+out. This class therefore provides the necessary two-dimensional point
+operations.
+
+### Polygon2D
+
+This class defines a two dimensional polygon class, capable of hit detection.
+Complex polygons are supported by the hit detection routine as well as simple
+polygons. A discussion of the algorithm used can be found [here](
+http://geomalgorithms.com/a03-_inclusion.html).
+
+### Rectangle
+
+This class provides a two dimensional rectangle class with support for hit
+detection.
 
 ## Client
 
 ![Graph of client module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/client.svg?sanitize=true)
 
-* [ClientView](#clientview)
+* [ClientController](#clientcontroller)
 * [ClientModel](#clientmodel)
+* [ClientView](#clientview)
 * [ShadowView](#shadowview)
 * [ClientItem](#clientitem)
 * [ClientImage](#clientimage)
 * [ClientElement](#clientelement)
-* [ClientController](#clientcontroller)
 * [Interactor](#interactor)
 * [Transform](#transform)
 
-### ShadowView
+### ClientController
 
-The ShadowView class is a simply extension of the View class that provides a
-`draw(context)` method. It is used for rendering the outlines of other views
-onto the canvas, along with a triangle marker indicating the orientation of the
-view. (The triangle appears in what is the view's top left corner).
+The ClientController is the bridge between client and server. To do this, it
+maintains the `socket.io` connection to the server. User interaction is
+forwarded to the server, while model updates from the server are forwarded to
+the model.
 
-Care must be taken with the drawing routines to ensure that the outlines
-accurately reflect what is visible to the view they represent.
+### ClientModel 
 
-### ClientItem
-
-The ClientItem class is an extension of the Item class that provides a
-`draw(context)` method for rendering the item to the canvas. It is aware of and
-able to make use of the `CanvasBlueprint` class from the `canvas-sequencer`
-package for rendering custom sequences to the canvas.
-
-To ensure that the blueprints, sequences, and images are kept up to date, the
-`ClientItem` class wraps extra functionality around the base `assign(data)`
-method.
+The client model is a full copy of the server model, but with only the data
+necessary to render each object.
 
 ### ClientView
 
-The ClientView class maintains the client-side model of the system, keeping
-track of the items and other views, as well as its own status. It is also
-responsible for holding onto the canvas context and running the principle
-`draw()` sequence. 
+The ClientView class is responsible for holding onto the canvas context and
+running the principle `draw()` sequence. It also aligns the canvas context to
+reflect the transformed state of the client's view within the workspace.
 
-These two responsibilities are bundled together because rendering requires
-knowledge of the model. Note, however, that the ClientView is not actually in
-charge of issuing changes to the model, but is rather the endpoint of such
-commands. It is the ClientController which issues these commands as per the
-messages it receieves from the server.
+### ShadowView
 
-One thing that may appear odd is the `handle(message, ...args)` function. Why
-not just call the methods directly, you might ask. This wrapper makes it
-possible to guarantee that changes to the model will always be immediately
-reflected in the render.
+The ShadowView class is a simple extension of the View class that is used for
+rendering the outlines of other views onto the canvas, along with a triangle
+marker indicating the orientation of the view. The triangle appears in what is
+the view's top left corner.
 
-The `handle(message, ...args)` wrapper is necessary because I decided to reduce
-the footprint of the WAMS application by foregoing a `draw()` loop in favour of
-only drawing the canvas when changes to the model are made. This significantly
-reduces the workload when the model is idle, as the page merely needs to
-maintain the `socket.io` connection to the server.
+### ClientItem
+
+The ClientItem class is an extension of the Item class that is aware of and able
+to make use of the `CanvasSequence` class from the `canvas-sequencer` package
+for rendering custom sequences to the canvas. It is therefore intended for
+immediate mode renderable items that don't require additional data beyond the
+render sequence.
+
+### ClientImage
+
+The ClientImage class enables loading and rendering of images.
+
+### ClientElement
+
+The ClientElement class enables the use of HTMLElements as workspace objects. It
+generates the elements and attaches the provided attributes. Transformations are
+handled by CSS methods instead of canvas context transforms, as the elements are
+independent of the canvas.
 
 ### Interactor
 
@@ -451,75 +484,102 @@ When a user interacts with the application in a way that is supported, the
 Interactor tells the ClientController the necessary details so the
 ClientController can forward those details to the server.
 
-### ClientController
+### Transform
 
-The ClientController maintains the `socket.io` connection to the server, and
-informs the ClientView of changes to the model. It also forwards messages to the
-server that it receieves from the Interactor about user interaction.
+The Transform class bundles together the Pan, Pinch, and Rotate gestures so that
+all three updates will occur simultaneously, reducing jitter.
 
 ## Server
 
-![Grpah of server module](
+![Graph of server module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
 
-* [ServerItem](#serveritem)
-* [ServerView](#serverview)
-* [ListenerFactory](#listenerfactory)
+* [ServerController](#servercontroller)
+* [GestureController](#gesturecontroller)
+* [SwitchBoard](#switchboard)
 * [WorkSpace](#workspace)
-* [Connection](#connection)
+* [ServerViewGroup](#serverviewgroup)
+* [ServerView](#serverview)
+* [Device](#device)
+* [ServerItem](#serveritem)
+* [ServerImage](#serverimage)
+* [ServerElement](#serverelement)
+* [MessageHandler](#messagehandler)
 * [Router](#router)
-* [Server](#server)
-* [Wams](#wams)
+* [Application](#application)
 
-### ServerItem
+### ServerController
 
-The ServerItem maintains the model of an item. It can be moved anywhere, and
-provides a `containsPoint(x,y)` method for determining if a point is located
-within its coordinates. It extends the shared Item class.
+The ServerController class acts as a bridge between a client and the server. To
+do this it maintains a `socket.io` connection with a client. It keeps track of
+the ServerView corresponding to that client, as well as the ServerViewGroup to
+which it belongs, and its physical Device.
 
-### ServerView
+User interaction events are forwarded either directly to the MessageHandler or
+to the view group's GestureController, depending on whether server-side or the
+traditional client-side gestures are in use. 
 
-The ServerView maintains the model of a view. It can be moved, scaled, and
-rotated. It also provides a routine for transforming a set of pointer data
-from its user into the corresponding coordinates and data for the general model.
+Outgoing messages will be handled directly by the view or by items, via their
+'publish' mechanism. This mechanism ensures that updates will be sent to clients
+directly, without any special care required on the part of the programmer (save
+that they use the transformation methods provided, instead of modifying
+properties directly).
 
-Also provided is a selection of positional getters for the bottom, top, left,
-and right of the view.
+### GestureController
 
-### ListenerFactory
+The GestureController class is in charge of processing server-side gestures for
+the purpose of enabling multi-device gestures. It accomplishes this by
+interfacing with the `gestures` module.
 
-The ListenerFactory is not a class, but an object exposing a `build` routine for
-the WorkSpace to use when registering event handlers. The handlers built by this
-factory prepare and unpack data before calling the endpoint handler registered
-by the user of the API.
+### SwitchBoard
+
+The SwitchBoard controls connection establishment, as well as disconnection. It
+hooks up all the necessary components when a client connects to a WAMS app.
 
 ### WorkSpace
 
-The WorkSpace is the central maintainer of the model. It keeps track of views
-and items, and registers and calls the endpoint event handlers.
+The WorkSpace is the model for all items that are programmatically added or
+removed. That is, for ServerItems, ServerImages, and ServerElements.
 
-### Connection
+### ServerViewGroup
 
-A Connection maintains a `socket.io` connection with a client. It keeps track of
-the ServerView corresponding to that client, and informs the WorkSpace model of
-messages it receives from its client. 
+The ServerViewGroup class is the model for ServerViews. It has an associated
+GestureController to enable server-side gestures. Transformations applied to a
+group are applied to each view in the group.
+
+### ServerView
+
+The ServerView represents a client's logical view within the workspace. 
+
+### Device
+
+This class represents a client's physical device. It is used for transforming
+input point coordinates when server-side gestures are in use.
+
+### ServerItem
+
+The ServerItem maintains the model of an Item. It allows for transformations and
+hit detection.
+
+### ServerImage
+
+### ServerElement
+
+### MessageHandler
+
+The MessageHandler is the interface between the WAMS system and the programmer.
+All recognized user interactions ultimately end up being transmitted to the
+MessageHandler, which will call the appropriate listener, if the programmer has
+attached one.
 
 ### Router
 
-The Router provides a layer of abstraction between the server and the
-request handling library and its configuration.
+The Router provides a layer of abstraction between the server and the request
+handling library and its configuration.
 
-### Server
+### Application
 
-The Server is responsible for establishing the server and gatekeeping incoming
-connections. Currently it also handles message distribution when it is necessary
-to send messages to the namespace. 
-
-### Wams
-
-This module defines the API endpoint. In practice, this means it is a thin
-wrapper around the Server class which exposes only that functionality of the
-Server which should be available to the end user.
+The Application is the API endpoint of the WAMS system.
 
 ## Mixins
 

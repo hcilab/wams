@@ -70,6 +70,9 @@ class ShadowView extends View {
    * Aligns the drawing context so the outline will be rendered in the correct
    * location with the correct orientation.
    *
+   * @alias [@@align]
+   * @memberof module:client.ShadowView
+   *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.align](context) {
@@ -80,6 +83,9 @@ class ShadowView extends View {
 
   /**
    * Applies styling to the drawing context.
+   *
+   * @alias [@@style]
+   * @memberof module:client.ShadowView
    *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
@@ -92,6 +98,9 @@ class ShadowView extends View {
 
   /**
    * Draws an outline of the view.
+   *
+   * @alias [@@outline]
+   * @memberof module:client.ShadowView
    */
   [symbols.outline](context) {
     context.strokeRect(0, 0, this.width, this.height);
@@ -100,6 +109,9 @@ class ShadowView extends View {
   /**
    * Draws a small triangle in the upper-left corner of the outline, so that
    * other views can quickly tell which way this view is oriented.
+   *
+   * @alias [@@marker]
+   * @memberof module:client.ShadowView
    *
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */

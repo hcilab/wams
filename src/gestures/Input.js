@@ -42,27 +42,12 @@ class Input {
     this.current = currentData;
 
     /**
-     * Holds the previous pointer data for this Input.
-     *
-     * @type {module:gestures.PointerData}
-     */
-    this.previous = currentData;
-
-    /**
      * The identifier for the pointer / touch / mouse button associated with
      * this input.
      *
      * @type {number}
      */
     this.identifier = identifier;
-
-    /**
-     * Stores internal state between events for each gesture based off of the
-     * gesture's id.
-     *
-     * @type {Object}
-     */
-    this.progress = {};
 
     /**
      * The id of the source view for this input.
@@ -77,7 +62,7 @@ class Input {
    *
    * @type {string}
    */
-  get phase() { return this.current.type; }
+  get phase() { return this.current.phase; }
 
   /**
    * The timestamp of the initiating event for this input.
@@ -85,18 +70,6 @@ class Input {
    * @type {number}
    */
   get startTime() { return this.initial.time; }
-
-  /**
-   * @param {string} id - The ID of the gesture whose progress is sought.
-   *
-   * @return {Object} The progress of the gesture.
-   */
-  getProgressOfGesture(id) {
-    if (!this.progress[id]) {
-      this.progress[id] = {};
-    }
-    return this.progress[id];
-  }
 
   /**
    * @return {number} The distance between the initiating event for this input
@@ -115,7 +88,6 @@ class Input {
    * @param {Touch} touch - The touch point data.
    */
   update(event, touch) {
-    this.previous = this.current;
     this.current = new PointerData(event, touch);
   }
 }
