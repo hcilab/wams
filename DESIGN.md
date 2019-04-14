@@ -459,7 +459,7 @@ server that it receieves from the Interactor about user interaction.
 
 ## Server
 
-![Grpah of server module](
+![Graph of server module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
 
 * [ServerItem](#serveritem)
