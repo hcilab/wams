@@ -1,5 +1,5 @@
 
-.PHONY: wams lint fix bundle docs tags test graphs babel
+.PHONY: wams lint fix bundle docs tags test graphs
 
 wams: lint bundle docs tags
 
@@ -39,12 +39,4 @@ graphs:
 	npx arkit -c graphs/predefined.json
 	npx arkit -c graphs/server.json
 	npx arkit -c graphs/shared.json
-
-babel:
-	npx babel 'dist/wams-client.js' -o 'dist/wams-client.es5.js'
-
-parcel:
-	npx parcel build 'dist/wams-client.js' \
-		-d 'dist' \
-		--out-file 'wams-client.parcel.js';
 
