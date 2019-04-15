@@ -6,7 +6,7 @@
 'use strict';
 
 /**
- * Normalizes window events to be either of type start, move, or end.
+ * Normalizes window events to the phases start, move, end, or cancel.
  *
  * @memberof module:gestures
  * @enum {string}
@@ -22,9 +22,10 @@ const PHASE = Object.freeze({
 
   mouseup:       'end',
   touchend:      'end',
-  touchcancel:   'end',
   pointerup:     'end',
-  pointercancel: 'end',
+
+  touchcancel:   'cancel',
+  pointercancel: 'cancel',
 });
 
 module.exports = PHASE;

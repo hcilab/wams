@@ -31,8 +31,7 @@ function filterout(struct, predicate) {
 }
 
 /**
- * Keeps track of currently active and ending input points on the interactive
- * surface.
+ * The State class maintains the list of input points.
  *
  * @memberof module:gestures
  */

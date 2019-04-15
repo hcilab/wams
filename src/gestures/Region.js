@@ -1,5 +1,5 @@
 /*
- * Contains the {@link Region} class
+ * Contains the Region class
  */
 
 'use strict';
@@ -11,8 +11,9 @@ const PHASE   = require('./PHASE.js');
 const EVALUATION_RATE = 1000 / 60;
 
 /**
- * Allows the user to specify the control region which will listen for user
- * input events.
+ * The Region class is the entry point into the gestures module. It maintains
+ * the list of active gestures and acts as a supervisor for all gesture
+ * processes.
  *
  * @memberof module:gestures
  */
