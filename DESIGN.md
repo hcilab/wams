@@ -378,7 +378,7 @@ issues must be taken into consideration.
       input updates have occurred since the last evaluation.
 4. Gesture smoothing:
     - A subtle issue with modern touch interfaces is that contact points, and
-      fingers in particular, typically aren't points, but areas that are
+      fingers in particular, typically aren't points but rather areas that are
       resolved down to points. These points tend to shift around relative to the
       area while a user is interacting with the surface, as the area itself
       fluctuates in shape and size. This can be due to slight adjustments in the
@@ -397,13 +397,15 @@ issues must be taken into consideration.
       This cascading average is defined, generally, by replacing each update
       with the average of the update and the cascade. The cascade is likewise
       updated to this average. The result is a practical application of [Zeno's
-      Dichotomy
-      ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox), as
-      each update is effectively split in half, with half of the remaining
-      update value applied at each subsequent update until the user ends the
-      gesture. Practically, this means that the emitted values have some inertia
-      and thus are significantly less prone to the jumpiness that is otherwise
-      observed.
+      Dichotomy,
+      ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox) as
+      half of the remaining value is theoretically applied at each subsequent
+      update until the user ends the gesture. Practically, this means that the
+      emitted values have some inertia and thus are significantly less prone to
+      the jumpiness that is otherwise observed, and each update is only
+      effectively included in perhaps a dozen or so subsequent updates before
+      the finite precision of floating point numbers wipes out any remaining
+      value from the update.
 
 ## Module Overview
 
