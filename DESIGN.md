@@ -18,8 +18,9 @@ https://mvanderkamp.github.io/wams/).
     - [Client](#client)
     - [Server](#server)
     - [Mixins](#mixins)
-    - [Predefined](#predefined)
     - [Gestures](#gestures)
+    - [Predefined](#predefined)
+* [Gesture Recognition](#gesture-recognition)
 * [Connection Establishment](#connection-establishment)
 
 ## Runtime Dependencies
@@ -244,7 +245,7 @@ information.
 Both the client and the server implement their own version of the MVC pattern,
 ultimately operating together as a larger MVC pattern.
 
-#### Client
+#### Client MVC
 
 The client side version is the most straightforward, and looks a lot like simple
 classical MVC. The catch of course is that the 'ClientController' sends user
@@ -253,7 +254,7 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
-#### Server 
+#### Server MVC 
 
 The server side is more complicated. The most obvious reason for this is that,
 being an API, the users of the API need to be able to attach their own
@@ -281,7 +282,7 @@ occurred. Storing the gesture controller in the view group opens up the
 possibility of creating multiple groups of devices, with each group capable of
 recognizing its own multi-device gestures.
 
-#### Client and Server Together
+#### Client and Server MVC Together
 
 Taken together, the client and the server form a larger MVC pattern, with the
 client representing the view and part of the controller, and the server
@@ -338,7 +339,8 @@ All graphs were generated using `arkit`, as discussed in the [build tools](
 https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
 
 To coordinate activity between the client and server, a shared set of resources
-are exposed by `shared.js`.
+are exposed by
+[shared.js](https://mvanderkamp.github.io/wams/module-shared.html).
 
 * [utilities](#utilities)
 * [IdStamper](#idstamper)
@@ -351,23 +353,27 @@ are exposed by `shared.js`.
 
 ### utilities
 
-Exported by this module are a few quality-of-life functions intended to be used
-in throughout the codebase. They are there to make writing other code easier,
-and to reduce repetition.
+Exported by the
+[utilities](https://mvanderkamp.github.io/wams/module-shared.utilities.html)
+module are a few quality-of-life functions intended to be used in throughout the
+codebase. They are there to make writing other code easier, and to reduce
+repetition.
 
 ### IdStamper
 
-This class controls ID generation. The class has access to a private generator
+The [IdStamper](https://mvanderkamp.github.io/wams/module-shared.IdStamper.html)
+class controls ID generation. The class has access to a private generator
 function for IDs and exposes a pair of methods for stamping new IDs onto objects
 and cloning previously existing Ids onto objects.
 
 ### ReporterFactory
 
-The ReporterFactory takes a dictionary of default values and returns a
-`Reporter` class definition. Runtime definition of classes is possible due to
-the nature of JavaScript, wherein classes are really just functions that can be
-"constructed" using the keyword `new`. Therefore as functions can be treated
-like variables, so too can classes.
+The [ReporterFactory](https://mvanderkamp.github.io/wams/module-shared.html)
+takes a dictionary of default values and returns a `Reporter` class definition.
+Runtime definition of classes is possible due to the nature of JavaScript,
+wherein classes are really just functions that can be "constructed" using the
+keyword `new`. Therefore as functions can be treated like variables, so too can
+classes.
 
 ### Reporters
 
@@ -559,11 +565,17 @@ input point coordinates when server-side gestures are in use.
 ### ServerItem
 
 The ServerItem maintains the model of an Item. It allows for transformations and
-hit detection.
+hit detection. Transformations are published automatically to the clients. 
 
 ### ServerImage
 
+Similar to the ServerItem class, but with methods and properties specific to
+images.
+
 ### ServerElement
+
+Similar to the ServerItem class, but with methods and properties specific to
+HTML elements.
 
 ### MessageHandler
 
@@ -586,15 +598,68 @@ The Application is the API endpoint of the WAMS system.
 ![Graph of mixins module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
-## Predefined
+* [Hittable](#hittable)
+* [Identifiable](#identifiable)
+* [Interactable](#interactable)
+* [Lockable](#lockable)
+* [Locker](#locker)
+* [Publishable](#publishable)
+* [Transformable2D](#transformable2d)
 
-![Graph of predefined module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
+### Hittable
+
+### Identifiable
+
+### Interactable
+
+### Lockable
+
+### Locker
+
+### Publishable
+
+### Transformable2D
 
 ## Gestures
 
 ![Graph of gestures module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
+
+* [Binding](#binding)
+* [Input](#input)
+* [PHASE](#phase)
+* [PointerData](#PointerData)
+* [Region](#Region)
+* [State](#State)
+
+### Binding
+
+### Input
+
+### PHASE
+
+### PointerData
+
+### Region
+
+### State
+
+## Predefined
+
+![Graph of predefined module](
+https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
+
+* [items](#predefined-items)
+* [layouts](#predefined-layouts)
+* [utilities](#predefined-utilities)
+
+### Predefined items
+
+### Predefined layouts
+
+### Predefined utilities
+
+## Gesture Recognition
 
 The process for gesture recognition, starting at the point when the gesture
 library issues a gesture event, to the point when the user-supplied handler is
