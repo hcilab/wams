@@ -152,8 +152,8 @@ https://github.com/romainl/ctags-patterns-for-javascript)
 
 ## Testing
 
-Testing is done with the `Jest` framework for `npm`. The test suites can be
-found in `tests/`.
+Testing is done with the `jest` framework. The test suites can be found in
+`tests/`.
 
 To run all the tests:
 
@@ -553,29 +553,41 @@ The ServerViewGroup class is the model for ServerViews. It has an associated
 GestureController to enable server-side gestures. Transformations applied to a
 group are applied to each view in the group.
 
+Mixins used by this class: Locker, Lockable, Transformable2D.
+
 ### ServerView
 
 The ServerView represents a client's logical view within the workspace. 
+
+Mixins used by this class: Locker, Interactable.
 
 ### Device
 
 This class represents a client's physical device. It is used for transforming
 input point coordinates when server-side gestures are in use.
 
+Mixins used by this class: Transformable2D.
+
 ### ServerItem
 
 The ServerItem maintains the model of an Item. It allows for transformations and
 hit detection. Transformations are published automatically to the clients. 
+
+Mixins used by this class: Identifiable, Hittable.
 
 ### ServerImage
 
 Similar to the ServerItem class, but with methods and properties specific to
 images.
 
+Mixins used by this class: Identifiable, Hittable.
+
 ### ServerElement
 
 Similar to the ServerItem class, but with methods and properties specific to
 HTML elements.
+
+Mixins used by this class: Identifiable, Hittable.
 
 ### MessageHandler
 
@@ -598,27 +610,47 @@ The Application is the API endpoint of the WAMS system.
 ![Graph of mixins module](
 https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
-* [Hittable](#hittable)
-* [Identifiable](#identifiable)
-* [Interactable](#interactable)
 * [Lockable](#lockable)
 * [Locker](#locker)
 * [Publishable](#publishable)
 * [Transformable2D](#transformable2d)
-
-### Hittable
-
-### Identifiable
-
-### Interactable
+* [Interactable](#interactable)
+* [Hittable](#hittable)
+* [Identifiable](#identifiable)
 
 ### Lockable
 
+The Lockable mixin allows a class to enable itself to be locked and unlocked,
+with the default being unlocked.
+
 ### Locker
+
+The Locker mixin allows a class to obtain and release a lock on an item.
 
 ### Publishable
 
+This mixin provides a basis for types that can be published. It ensures that
+publications will not be sent until all transformations relating to an event
+have been applied.
+
 ### Transformable2D
+
+This mixin provides 2D transformation operations for classes with 'x', 'y',
+'scale' and 'rotation' properties.
+
+### Interactable
+
+This mixin combines the Transformable2D, Lockable, and Publishable mixins to
+produce an object that can be interacted with by a WAMS application.
+
+### Hittable
+
+This mixin extends the Interactable mixin by allow hit detection.
+
+### Identifiable
+
+This mixin labels each instantiated object with a unique, immutable ID. All
+classes that use this mixin will share the same pool of IDs.
 
 ## Gestures
 
