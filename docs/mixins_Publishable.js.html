@@ -66,10 +66,14 @@ const symbols = Object.freeze({
 });
 
 /**
- * This mixin provides a basis for types that can be published. In fact it is
- * little more than an interface, as it does not actually implement the
- * 'publish' method, as this is dependent on the specific nature of the
- * Publishable.
+ * This mixin provides a basis for types that can be published. Publish using
+ * the `publish()` method.
+ *
+ * Classes that use this mixin must implement the `emitPublication()` method,
+ * which defines how the instance object will emit its publication. While this
+ * might seem to negate the whole purpose of using a mixin, what the mixin does
+ * is ensure that the publication will not be sent until all transformations
+ * relating to an event have been applied.
  *
  * @memberof module:mixins
  *
