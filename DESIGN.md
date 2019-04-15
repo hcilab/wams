@@ -1,7 +1,7 @@
 # Design
 
 This document details the design of the WAMS project. It covers fundamental
-architectural design decisions, the purpose of each of the modules, and brief
+architectural design decisions, the purpose of each of the modules, and briefly
 discusses each of the classes. For more in-depth information about any
 particular class, method, or chunk of code, see the [documentation](
 https://mvanderkamp.github.io/wams/).
@@ -402,7 +402,7 @@ issues must be taken into consideration.
       half of the remaining value is theoretically applied at each subsequent
       update until the user ends the gesture. Practically, this means that the
       emitted values have some inertia and thus are significantly less prone to
-      the jumpiness that is otherwise observed, and each update is only
+      the jumpiness that is otherwise observed. Also each update is only
       effectively included in perhaps a dozen or so subsequent updates before
       the finite precision of floating point numbers wipes out any remaining
       value from the update.
@@ -886,8 +886,8 @@ following sequence of events occurs:
 2. When the page is loaded, the client's ClientModel, ClientView, and
    ClientController are instantiated and hooked up.
 3. The ClientController resizes the canvas to fill the client's browser window. 
-4. The ClientController registers socket.io message listeners and other assorted
-   non-gesture-related listeners for maintaining the system.
+4. The ClientController registers `socket.io` message listeners and other
+   assorted non-gesture-related listeners for maintaining the system.
 5. The ClientController initiates the render loop.
 6. The ClientController attempts to establish a socket connection with the
    server.
@@ -898,14 +898,14 @@ following sequence of events occurs:
    slotted into the collection of active connections.
 9. The ServerController asks the ServerViewGroup to spawn a view for it, and
    spawns a Device to store the representation of the client's physical device.
-10. The ServerController attaches socket.io message listeners and issues a "full
-    state report" to the client, detailing the current state of the model so
-    that the client can render the model, as well as options specified by the
+10. The ServerController attaches `socket.io` message listeners and issues a
+    "full state report" to the client, detailing the current state of the model
+    so that the client can render the model, as well as options specified by the
     programmer such as whether to use client or server-side gestures.
 11. The ClientController informs the ClientModel of this data and registers user
     event listeners, either in the form of an Interactor for client-side
     gestures or by directly forwarding input events for server-side gestures. 
-12. The ClientController emits a LAYOUT message to the server, detailing the
+12. The ClientController emits a layout message to the server, detailing the
     size of the view.
 13. The ServerController receives this message, and records the size of the view
     in the model.
