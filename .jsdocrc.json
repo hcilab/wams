@@ -38,7 +38,8 @@
       "height": "0px"
     },
     "monospaceLinks": false,
-    "name": "WAMS"
+    "name": "WAMS Documentation",
+    "useCollapsibles": true
   }
 }
 
