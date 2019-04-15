@@ -182,6 +182,7 @@ and refactors since January.
 * [Unique Identification](#unique-identification)
 * [Model-View-Controller](#model-view-controller)
 * [Mixin Pattern](#mixin-pattern)
+* [Smooth and Responsive Interaction](#smooth-and-responsive-interaction)
 
 ### Message / Reporter protocol
 
@@ -308,6 +309,65 @@ making the whole system more succinct and easier to maintain in the process.
 A more in-depth discussion of mixins and the inspiration for the specific
 implementation approach used can be found [here](
 http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
+
+### Smooth and Responsive Interaction
+
+In order to ensure a smooth and responsive experience for the user, several
+issues must be taken into consideration.
+
+1. Network traffic:
+    - The overall amount of traffic over the network must be kept to a minimum.
+    - The size of packets sent over the network must also be kept down.
+    - The Message / Reporter protocol handles most of this work, by stripping
+      out all but the core properties of any object transmitted.
+    - Care must still be taken to ensure that these core properties really are
+      only those that are needed at every update, or at least are small enough
+      to be negligible. Therefore properties such as attribute lists for HTML
+      elements, which could contain huge strings representing entire webpages,
+      should only be sent occasionally as a special event, and not included in
+      the core properties.
+    - Additionally, the only data sent during an update should be the data
+      pertaining to the specific object that has been updated. This is as
+      opposed to sending a full state packet representing all objects in the
+      model.
+2. Consistency with server:
+    - The approach taken to maintain consistency with the server is for every
+      update to consist of state packets, rather than sending transformation
+      commands. The client therefore simply copies the new state information for
+      each updated object.
+3. Bundling transformations:
+    - The three core transformations are translation, scale, and rotation. Each
+      of these is likely to happen every time that a user moves any of the
+      active pointers. If the updates for each are not bundled together into the
+      next state packet, the user will experience a discomforting jitter effect.
+      Solving this issue requires careful attention on both the client and the
+      server.
+    - For the client side, the updates from the gestures corresponding to all
+      three transformations need to be bundled together into a single event
+      before being sent to the server. This way, the server can perform all the
+      necessary transformations before publishing any new state packets that
+      arise.
+    - For the server side, the question becomes when to publish updates for
+      model objects. Programmers should be allowed to update model objects
+      whenever they like (i.e. not necessarily in response to a user event), but
+      still have confidence that their changes will be published. In either this
+      case or the case of responding to user gestures, if transformations are
+      split across publications the jitter issue will surface.
+
+      To solve this issue, the Publishable mixin is used for all model objects.
+      It uses the node.js `setImmediate()` callback timer to schedule a single
+      publication to occur once all code arising from the current event in the
+      event loop has executed. Therefore all transformations responding to a
+      user gesture or some other programmer defined event will get bundled
+      together into a single update.
+    - For server-side gestures, another issue along these lines arises. With
+      user input events being sent to the server from each device at rates of up
+      to 60 updates per second, it only takes a few devices for the update rate
+      to regularly balloon into the hundreds. Therefore user input updates are
+      bundled together. This is done by simply updating the input state in
+      response to user input events, then only evaluating gestures at a rate of
+      up to 60 times per second by using a callback interval that checks whether
+      input updates have occurred since the last evaluation.
 
 ## Module Overview
 
