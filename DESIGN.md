@@ -915,3 +915,29 @@ following sequence of events occurs:
     other views are now informed of the view, adding it as a "shadow".
 16. The connection is now fully established, and normal operation proceeds.
 
+## References
+
+Listed here are references to all external sources, be they code, books,
+algorithms, tutorials, or other articles.
+
+1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
+2. [westures](https://mvanderkamp.github.io/westures/)
+3. [zingtouch](https://github.com/zingchart/zingtouch)
+4. [express](https://www.npmjs.com/package/express)
+5. [socket.io](https://www.npmjs.com/package/socket.io)
+5. [arkit](https://arkit.js.org/)
+6. [browserify](http://browserify.org/)
+7. [eslint](https://eslint.org/)
+8. [jest](https://jestjs.io/)
+9. [jsdoc](http://usejsdoc.org/)
+10. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
+11. [make](https://www.gnu.org/software/make/manual/make.html)
+12. [exuberant-ctags](http://ctags.sourceforge.net/)
+13. [ctags-patterns-for-javascript](
+   https://github.com/romainl/ctags-patterns-for-javascript)
+14. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)).
+15. [Mixins](
+    http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
+16. [Zeno's Dichotomy
+    ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
+17. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
