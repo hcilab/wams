@@ -720,15 +720,39 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=tru
 
 ### Binding
 
+A [ Binding ](https://mvanderkamp.github.io/wams/module-gestures.Binding.html)
+associates a gesture with an element and a handler function that will be called
+when the gesture is recognized.
+
 ### Input
+
+An [ Input ](https://mvanderkamp.github.io/wams/module-gestures.Input.html)
+tracks a single input and contains information about the current and initial
+events. Also tracks the client from whom the input originates.
 
 ### PHASE
 
+The [ PHASE ](https://mvanderkamp.github.io/wams/module-gestures.html) object
+normalizes inputs events to the phases start, move, end, or cancel.
+
 ### PointerData
+
+The [ PointerData
+](https://mvanderkamp.github.io/wams/module-gestures.PointerData.html) class
+provides low-level storage of pointer data based on incoming data from an
+interaction event. Specifically, it stores the (x,y) coordinates of the pointer,
+the time of interaction, and the phase.
 
 ### Region
 
+The [ Region ](https://mvanderkamp.github.io/wams/module-gestures.Region.html)
+class is the entry point into the gestures module. It maintains the list of
+active gestures and acts as a supervisor for all gesture processes. 
+
 ### State
+
+The [ State ](https://mvanderkamp.github.io/wams/module-gestures.State.html)
+class maintains the list of input points.
 
 ## Predefined
 
