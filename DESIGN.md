@@ -21,6 +21,7 @@ https://mvanderkamp.github.io/wams/).
     - [Gestures](#gestures)
     - [Predefined](#predefined)
 * [Connection Establishment](#connection-establishment)
+* [References](#references)
 
 ## Runtime Dependencies
 
@@ -935,7 +936,7 @@ algorithms, tutorials, or other articles.
 12. [exuberant-ctags](http://ctags.sourceforge.net/)
 13. [ctags-patterns-for-javascript](
    https://github.com/romainl/ctags-patterns-for-javascript)
-14. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)).
+14. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
 15. [Mixins](
     http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
 16. [Zeno's Dichotomy
