@@ -883,29 +883,35 @@ When a user visits the IP address and port where the app is hosted, the
 following sequence of events occurs:
 
 1. HTML and client JavaScript code are delivered.
-2. When the page is loaded, a ClientController is instantiated.
-3. The ClientController generates a ClientView, registers gesture listeners via
-   an Interactor, resizes the CanvasElement to fill the available window, then
-   attempts to establish a socket connection with the server.
-4. The Server receives the 'connect' request. If the client limit has been
+2. When the page is loaded, the client's ClientModel, ClientView, and
+   ClientController are instantiated and hooked up.
+3. The ClientController resizes the canvas to fill the client's browser window. 
+4. The ClientController registers socket.io message listeners and other assorted
+   non-gesture-related listeners for maintaining the system.
+5. The ClientController initiates the render loop.
+6. The ClientController attempts to establish a socket connection with the
+   server.
+7. The Switchboard receives the 'connect' request. If the client limit has been
    reached, it rejects the connection. The user is informed of this rejection,
    and all functionality stops. Otherwise, it accepts the connection.
-5. When the connection is accepted, a Connection is instantiated and slotted
-   into the collection of active connections.
-6. The Connection asks the WorkSpace to spawn a view for it, then issues a "full
-   state report" to the client, detailing the current state of the model so that
-   the client can render the model. (Message type is INITIALIZE).
-7. The ClientController informs the ClientView of this data, then emits a LAYOUT
-   message to the server, detailing the state of the view (essentially, its
-   size).
-8. The Connection receives this message, and records the state of the view in
-   the model.
-9. If a WAMS layout handler has been registered with the server, it is called
-   for the new view. 
-10. The view is updated with the new parameters from the layout, and all the
+8. When the connection is accepted, a ServerController is instantiated and
+   slotted into the collection of active connections.
+9. The ServerController asks the ServerViewGroup to spawn a view for it, and
+   spawns a Device to store the representation of the client's physical device.
+10. The ServerController attaches socket.io message listeners and issues a "full
+    state report" to the client, detailing the current state of the model so
+    that the client can render the model, as well as options specified by the
+    programmer such as whether to use client or server-side gestures.
+11. The ClientController informs the ClientModel of this data and registers user
+    event listeners, either in the form of an Interactor for client-side
+    gestures or by directly forwarding input events for server-side gestures. 
+12. The ClientController emits a LAYOUT message to the server, detailing the
+    size of the view.
+13. The ServerController receives this message, and records the size of the view
+    in the model.
+14. If a layout handler has been registered for the application, it is called
+    for the new view. 
+15. The view is updated with the new parameters from the layout, and all the
     other views are now informed of the view, adding it as a "shadow".
-    - Note that layout handlers must not schedule a view update. Doing so would
-      cause an error as the other views haven't added the corresponding shadow
-      yet.
-11. The connection is established, and normal operation proceeds.
+16. The connection is now fully established, and normal operation proceeds.
 
