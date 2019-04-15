@@ -104,7 +104,13 @@ The tools used and their rationale are as follows:
     code organized. All the architecture graphs present in this design document
     were generated using `arkit`.
 
-2. [browserify](http://browserify.org/)
+2. [babel](https://babeljs.io/)
+
+    The `babel` suite of packages provides transpilation, allowing the use of
+    convenient new features of the JavaScript language without breaking browser
+    support. Note however that only relatively recent browswers are supported.
+
+3. [browserify](http://browserify.org/)
 
     The `browserify` package bundles JavaScript code together for delivery to
     clients. Why Browserify, instead of something like webpack or parcel?  Well,
@@ -113,7 +119,7 @@ The tools used and their rationale are as follows:
     but I don't need any of that, and the basic functionality just simply works,
     and works well.
 
-3. [eslint](https://eslint.org/)
+4. [eslint](https://eslint.org/)
 
     `eslint` is akin to an early-warning system. It parses the code and checks
     for style and formatting errors, so that these can be fixed before trying to
@@ -121,22 +127,28 @@ The tools used and their rationale are as follows:
     of its style and format rules to apply. It can also fix some simple style
     errors on its own.
 
-4. [jest](https://jestjs.io/)
+5. [jest](https://jestjs.io/)
 
     `jest` is a testing framework for JavaScript. The tests are all written to
     be run using the command `npx jest`. (`npx` is a command included when
     `node.js` is installed. It runs scripts and/or binaries from project
     dependencies in the `node_modules` package).
 
-5. [jsdoc](http://usejsdoc.org/)
+6. [jsdoc](http://usejsdoc.org/)
 
     `jsdoc` generates documentation from internal comments, akin to javadocs.
 
-6. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
+7. [terser](https://www.npmjs.com/package/terser)
+
+    `terser` is a JavaScript code minifier that supports newer JavaScript
+    syntax. This allows the size of the source code bundle sent when a client
+    connects to be shrunk.
+
+8. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
 
     This package is a template for the HTML pages produced by `jsdoc`. 
 
-7. [make](https://www.gnu.org/software/make/manual/make.html)
+9. [make](https://www.gnu.org/software/make/manual/make.html)
 
     `make` is wonderfully flexible, so here it is used as a simple task runner,
     at which it is quite adept. It also interfaces nicely with `vim`, even if
@@ -144,7 +156,7 @@ The tools used and their rationale are as follows:
     directory of the project will run eslint, browserify, and jsdoc on the code,
     keeping everything up to date at once. See the Makefile to see the targets.
 
-8. [exuberant-ctags](http://ctags.sourceforge.net/)
+10. [exuberant-ctags](http://ctags.sourceforge.net/)
 
     This package should be available from standard Linux repositories with the
     common package managers (e.g. `apt`). Parses source code and generates a map
@@ -152,8 +164,8 @@ The tools used and their rationale are as follows:
     definition location. Works excellently with `vim` and can really make
     navigating the source code a lot easier.
 
-9. [ctags-patterns-for-javascript](
-https://github.com/romainl/ctags-patterns-for-javascript)
+11. [ctags-patterns-for-javascript](
+    https://github.com/romainl/ctags-patterns-for-javascript)
 
     This package provides the necessary plugins to enable 'exuberant-ctags' for
     JavaScript.
@@ -926,19 +938,21 @@ algorithms, tutorials, or other articles.
 3. [zingtouch](https://github.com/zingchart/zingtouch)
 4. [express](https://www.npmjs.com/package/express)
 5. [socket.io](https://www.npmjs.com/package/socket.io)
-5. [arkit](https://arkit.js.org/)
-6. [browserify](http://browserify.org/)
-7. [eslint](https://eslint.org/)
-8. [jest](https://jestjs.io/)
-9. [jsdoc](http://usejsdoc.org/)
-10. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
-11. [make](https://www.gnu.org/software/make/manual/make.html)
-12. [exuberant-ctags](http://ctags.sourceforge.net/)
-13. [ctags-patterns-for-javascript](
+6. [arkit](https://arkit.js.org/)
+7. [babel](https://babeljs.io/)
+8. [browserify](http://browserify.org/)
+9. [eslint](https://eslint.org/)
+10. [jest](https://jestjs.io/)
+11. [jsdoc](http://usejsdoc.org/)
+12. [terser](https://www.npmjs.com/package/terser)
+12. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
+13. [make](https://www.gnu.org/software/make/manual/make.html)
+14. [exuberant-ctags](http://ctags.sourceforge.net/)
+15. [ctags-patterns-for-javascript](
    https://github.com/romainl/ctags-patterns-for-javascript)
-14. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
-15. [Mixins](
+16. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
+17. [Mixins](
     http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
-16. [Zeno's Dichotomy
+18. [Zeno's Dichotomy
     ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
-17. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
+19. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
