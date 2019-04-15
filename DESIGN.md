@@ -20,7 +20,6 @@ https://mvanderkamp.github.io/wams/).
     - [Mixins](#mixins)
     - [Gestures](#gestures)
     - [Predefined](#predefined)
-* [Gesture Recognition](#gesture-recognition)
 * [Connection Establishment](#connection-establishment)
 
 ## Runtime Dependencies
@@ -779,30 +778,6 @@ is a collection of factories for predefined layout handlers.
 The [ utilities
 ](https://mvanderkamp.github.io/wams/module-predefined.utilities.html) namespace
 is an assortment  of predefined helper functions.
-
-## Gesture Recognition
-
-The process for gesture recognition, starting at the point when the gesture
-library issues a gesture event, to the point when the user-supplied handler is
-called, is as follows:
-
-1. Gesture recognized by gesture library.
-2. Handler supplied to gesture library by Interactor is called.
-3. This handler, defined in ClientController, packs the data received from the
-   gesture library into the appropriate gesture Reporter (e.g. RotateReporter),
-   then packs the Reporter into a Message and emits the Message to the server.  
-4. On the server side, a Connection receives the Message and calls its
-   appropriate message handler, which usually means forwarding the Message to
-   its WorkSpace.
-5. The WorkSpace calls its appropriate message handler, which will either be a
-   NOP if the user has not registered a listener, or will be a Listener built by
-   the ListenerFactory for the WorkSpace when the user registered a listener by
-   calling 'on()'.
-6. The Listener unpacks the forwarded gesture data. During this phase, hit
-   detection is performed, if necessary, so as to locate the item that was
-   interacted with.
-7. The Listener calls the user-supplied function with the appropriate arguments.
-   The first argument is _always_ the view from which the gesture originated.
 
 ## Connection Establishment
 
