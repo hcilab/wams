@@ -721,8 +721,8 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=tru
 ### Binding
 
 A [ Binding ](https://mvanderkamp.github.io/wams/module-gestures.Binding.html)
-associates a gesture with an element and a handler function that will be called
-when the gesture is recognized.
+associates a gesture with a handler function that will be called when the
+gesture is recognized.
 
 ### Input
 
