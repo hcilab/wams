@@ -410,7 +410,7 @@ Messages can be transmitted by any object with an `emit` function.
 
 JavaScript lacks a standard library, and no third party standalone module stood
 out. Therefore the
-[Point2D](https://mvanderkamp.github.io/wams/module-shared.Message.html) class
+[Point2D](https://mvanderkamp.github.io/wams/module-shared.Point2D.html) class
 therefore provides the necessary two-dimensional point operations.
 
 ### Polygon2D
@@ -458,41 +458,52 @@ object.
 
 ### ClientView
 
-The ClientView class is responsible for holding onto the canvas context and
-running the principle `draw()` sequence. It also aligns the canvas context to
-reflect the transformed state of the client's view within the workspace.
+The [ ClientView
+](https://mvanderkamp.github.io/wams/module-client.ClientView.html) class is
+responsible for holding onto the canvas context and running the principle
+`draw()` sequence. It also aligns the canvas context to reflect the transformed
+state of the client's view within the workspace.
 
 ### ShadowView
 
-The ShadowView class is a simple extension of the View class that is used for
-rendering the outlines of other views onto the canvas, along with a triangle
-marker indicating the orientation of the view. The triangle appears in what is
-the view's top left corner.
+The [ ShadowView
+](https://mvanderkamp.github.io/wams/module-client.ShadowView.html) class is a
+simple extension of the View class that is used for rendering the outlines of
+other views onto the canvas, along with a triangle marker indicating the
+orientation of the view. The triangle appears in what is the view's top left
+corner.
 
 ### ClientItem
 
-The ClientItem class is an extension of the Item class that is aware of and able
-to make use of the `CanvasSequence` class from the `canvas-sequencer` package
-for rendering custom sequences to the canvas. It is therefore intended for
-immediate mode renderable items that don't require additional data beyond the
-render sequence.
+The [ ClientItem
+](https://mvanderkamp.github.io/wams/module-client.ClientItem.html) class is an
+extension of the Item class that is aware of and able to make use of the
+`CanvasSequence` class from the `canvas-sequencer` package for rendering custom
+sequences to the canvas. It is therefore intended for immediate mode renderable
+items that don't require additional data beyond the render sequence.
 
 ### ClientImage
 
-The ClientImage class enables loading and rendering of images.
+The [ ClientImage
+](https://mvanderkamp.github.io/wams/module-client.ClientImage.html) class
+enables loading and rendering of images.
 
 ### ClientElement
 
-The ClientElement class enables the use of HTMLElements as workspace objects. It
-generates the elements and attaches the provided attributes. Transformations are
-handled by CSS methods instead of canvas context transforms, as the elements are
-independent of the canvas.
+The [ ClientElement
+](https://mvanderkamp.github.io/wams/module-client.ClientElement.html) class
+enables the use of HTMLElements as workspace objects. It generates the elements
+and attaches the provided attributes. Transformations are handled by CSS methods
+instead of canvas context transforms, as the elements are independent of the
+canvas.
 
 ### Interactor
 
-The Interactor class provides a layer of abstraction between the controller and
-the interaction / gesture library being used. This should make it relatively
-easy, in the long run, to swap out interaction libraries if need be.
+The [ Interactor
+](https://mvanderkamp.github.io/wams/module-client.Interactor.html) class
+provides a layer of abstraction between the controller and the interaction /
+gesture library being used. This should make it relatively easy, in the long
+run, to swap out interaction libraries if need be.
 
 When a user interacts with the application in a way that is supported, the
 Interactor tells the ClientController the necessary details so the
@@ -500,8 +511,10 @@ ClientController can forward those details to the server.
 
 ### Transform
 
-The Transform class bundles together the Pan, Pinch, and Rotate gestures so that
-all three updates will occur simultaneously, reducing jitter.
+The [ Transform
+](https://mvanderkamp.github.io/wams/module-client.Transform.html) class bundles
+together the Pan, Pinch, and Rotate gestures so that all three updates will
+occur simultaneously, reducing jitter.
 
 ## Server
 
@@ -524,10 +537,12 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
 
 ### ServerController
 
-The ServerController class acts as a bridge between a client and the server. To
-do this it maintains a `socket.io` connection with a client. It keeps track of
-the ServerView corresponding to that client, as well as the ServerViewGroup to
-which it belongs, and its physical Device.
+The [ ServerController
+](https://mvanderkamp.github.io/wams/module-server.ServerController.html) class
+acts as a bridge between a client and the server. To do this it maintains a
+`socket.io` connection with a client. It keeps track of the ServerView
+corresponding to that client, as well as the ServerViewGroup to which it
+belongs, and its physical Device.
 
 User interaction events are forwarded either directly to the MessageHandler or
 to the view group's GestureController, depending on whether server-side or the
@@ -541,77 +556,97 @@ properties directly).
 
 ### GestureController
 
-The GestureController class is in charge of processing server-side gestures for
-the purpose of enabling multi-device gestures. It accomplishes this by
-interfacing with the `gestures` module.
+The [ GestureController
+](https://mvanderkamp.github.io/wams/module-server.GestureController.html) class
+is in charge of processing server-side gestures for the purpose of enabling
+multi-device gestures. It accomplishes this by interfacing with the `gestures`
+module.
 
 ### SwitchBoard
 
-The SwitchBoard controls connection establishment, as well as disconnection. It
-hooks up all the necessary components when a client connects to a WAMS app.
+The [ SwitchBoard
+](https://mvanderkamp.github.io/wams/module-server.Switchboard.html) controls
+connection establishment, as well as disconnection. It hooks up all the
+necessary components when a client connects to a WAMS app.
 
 ### WorkSpace
 
-The WorkSpace is the model for all items that are programmatically added or
-removed. That is, for ServerItems, ServerImages, and ServerElements.
+The [ WorkSpace
+](https://mvanderkamp.github.io/wams/module-server.WorkSpace.html) is the model
+for all items that are programmatically added or removed. That is, for
+    ServerItems, ServerImages, and ServerElements.
 
 ### ServerViewGroup
 
-The ServerViewGroup class is the model for ServerViews. It has an associated
-GestureController to enable server-side gestures. Transformations applied to a
-group are applied to each view in the group.
+The [ ServerViewGroup
+](https://mvanderkamp.github.io/wams/module-server.ServerViewGroup.html) class
+is the model for ServerViews. It has an associated GestureController to enable
+server-side gestures. Transformations applied to a group are applied to each
+view in the group.
 
 Mixins used by this class: Locker, Lockable, Transformable2D.
 
 ### ServerView
 
-The ServerView represents a client's logical view within the workspace. 
+The [ ServerView
+](https://mvanderkamp.github.io/wams/module-server.ServerView.html) represents a
+client's logical view within the workspace. 
 
 Mixins used by this class: Locker, Interactable.
 
 ### Device
 
-This class represents a client's physical device. It is used for transforming
-input point coordinates when server-side gestures are in use.
+The [ Device ](https://mvanderkamp.github.io/wams/module-server.Device.html)
+class represents a client's physical device. It is used for transforming input
+point coordinates when server-side gestures are in use.
 
 Mixins used by this class: Transformable2D.
 
 ### ServerItem
 
-The ServerItem maintains the model of an Item. It allows for transformations and
-hit detection. Transformations are published automatically to the clients. 
+The [ ServerItem
+](https://mvanderkamp.github.io/wams/module-server.ServerItem.html) maintains
+the model of an Item. It allows for transformations and hit detection.
+Transformations are published automatically to the clients. 
 
 Mixins used by this class: Identifiable, Hittable.
 
 ### ServerImage
 
-Similar to the ServerItem class, but with methods and properties specific to
-images.
+The [ ServerImage
+](https://mvanderkamp.github.io/wams/module-server.ServerImage.html) is similar
+to the ServerItem class, but with methods and properties specific to images.
 
 Mixins used by this class: Identifiable, Hittable.
 
 ### ServerElement
 
-Similar to the ServerItem class, but with methods and properties specific to
+The [ ServerElement
+](https://mvanderkamp.github.io/wams/module-server.ServerElement.html) class is
+similar to the ServerItem class, but with methods and properties specific to
 HTML elements.
 
 Mixins used by this class: Identifiable, Hittable.
 
 ### MessageHandler
 
-The MessageHandler is the interface between the WAMS system and the programmer.
-All recognized user interactions ultimately end up being transmitted to the
-MessageHandler, which will call the appropriate listener, if the programmer has
-attached one.
+The [ MessageHandler
+](https://mvanderkamp.github.io/wams/module-server.MessageHandler.html) is the
+interface between the WAMS system and the programmer.  All recognized user
+interactions ultimately end up being transmitted to the MessageHandler, which
+will call the appropriate listener, if the programmer has attached one.
 
 ### Router
 
-The Router provides a layer of abstraction between the server and the request
-handling library and its configuration.
+The [ Router ](https://mvanderkamp.github.io/wams/module-server.html) provides a
+layer of abstraction between the server and the request handling library and its
+configuration.
 
 ### Application
 
-The Application is the API endpoint of the WAMS system.
+The [ Application
+](https://mvanderkamp.github.io/wams/module-server.Application.html) is the API
+endpoint of the WAMS system.
 
 ## Mixins
 
@@ -628,37 +663,48 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
 ### Lockable
 
-The Lockable mixin allows a class to enable itself to be locked and unlocked,
-with the default being unlocked.
+The [ Lockable ](https://mvanderkamp.github.io/wams/module-mixins.Lockable.html)
+mixin allows a class to enable itself to be locked and unlocked, with the
+default being unlocked.
 
 ### Locker
 
-The Locker mixin allows a class to obtain and release a lock on an item.
+The [ Locker ](https://mvanderkamp.github.io/wams/module-mixins.Locker.html)
+mixin allows a class to obtain and release a lock on an item.
 
 ### Publishable
 
-This mixin provides a basis for types that can be published. It ensures that
-publications will not be sent until all transformations relating to an event
-have been applied.
+The [ Publishable
+](https://mvanderkamp.github.io/wams/module-mixins.Publishable.html) mixin
+provides a basis for types that can be published. It ensures that publications
+will not be sent until all transformations relating to an event have been
+applied.
 
 ### Transformable2D
 
-This mixin provides 2D transformation operations for classes with 'x', 'y',
-'scale' and 'rotation' properties.
+The [ Transformable2D
+](https://mvanderkamp.github.io/wams/module-mixins.Transformable2D.html) mixin
+provides 2D transformation operations for classes with 'x', 'y', 'scale' and
+'rotation' properties.
 
 ### Interactable
 
-This mixin combines the Transformable2D, Lockable, and Publishable mixins to
-produce an object that can be interacted with by a WAMS application.
+The [ Interactable
+](https://mvanderkamp.github.io/wams/module-mixins.Interactable.html) mixin
+combines the Transformable2D, Lockable, and Publishable mixins to produce an
+object that can be interacted with by a WAMS application.
 
 ### Hittable
 
-This mixin extends the Interactable mixin by allow hit detection.
+The [ Hittable ](https://mvanderkamp.github.io/wams/module-mixins.Hittable.html)
+mixin extends the Interactable mixin by allow hit detection.
 
 ### Identifiable
 
-This mixin labels each instantiated object with a unique, immutable ID. All
-classes that use this mixin will share the same pool of IDs.
+The [ Identifiable
+](https://mvanderkamp.github.io/wams/module-mixins.Identifiable.html) mixin
+labels each instantiated object with a unique, immutable ID. All classes that
+use this mixin will share the same pool of IDs.
 
 ## Gestures
 
