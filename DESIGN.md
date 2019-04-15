@@ -376,6 +376,34 @@ issues must be taken into consideration.
       response to user input events, then only evaluating gestures at a rate of
       up to 60 times per second by using a callback interval that checks whether
       input updates have occurred since the last evaluation.
+4. Gesture smoothing:
+    - A subtle issue with modern touch interfaces is that contact points, and
+      fingers in particular, typically aren't points, but areas that are
+      resolved down to points. These points tend to shift around relative to the
+      area while a user is interacting with the surface, as the area itself
+      fluctuates in shape and size. This can be due to slight adjustments in the
+      distribution of pressure onto the contact surface, or else because humans
+      are in constant motion, especially on the miniature scales measured by
+      touch surfaces.
+      
+      Although not immediately obvious, this effect can cause gestures to behave
+      in a jumpy way, characterized by alternating relatively large and small
+      updates, or else updates in alternating directions. This is perceived by
+      the user as jitter or else as a less than smooth interaction experience.
+    - The solution applied by this project is to use a cascading average for the
+      update values. Note that the implementation exists inside the `westures`
+      gesture recognition library that was written as a part of this project.
+
+      This cascading average is defined, generally, by replacing each update
+      with the average of the update and the cascade. The cascade is likewise
+      updated to this average. The result is a practical application of [Zeno's
+      Dichotomy
+      ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox), as
+      each update is effectively split in half, with half of the remaining
+      update value applied at each subsequent update until the user ends the
+      gesture. Practically, this means that the emitted values have some inertia
+      and thus are significantly less prone to the jumpiness that is otherwise
+      observed.
 
 ## Module Overview
 
