@@ -765,9 +765,20 @@ https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=t
 
 ### Predefined items
 
+The [ items ](https://mvanderkamp.github.io/wams/module-predefined.items.html)
+namespace is a collection of factories for predefined item types.
+
 ### Predefined layouts
 
+The [ layouts
+](https://mvanderkamp.github.io/wams/module-predefined.layouts.html) namespace
+is a collection of factories for predefined layout handlers.
+
 ### Predefined utilities
+
+The [ utilities
+](https://mvanderkamp.github.io/wams/module-predefined.utilities.html) namespace
+is an assortment  of predefined helper functions.
 
 ## Gesture Recognition
 
