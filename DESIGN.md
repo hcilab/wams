@@ -36,6 +36,8 @@ tag in `package.json`:
     declarative- there is no way to retrieve the return value from a call to a
     canvas context method or conditionally execute parts of the sequence.
 
+    This package was written and published as part of this project.
+
 2. [westures](https://mvanderkamp.github.io/westures/)
   
     This package is a gesture library that provides a normalization of
@@ -57,6 +59,12 @@ tag in `package.json`:
     simultaneously, reducing the volume of traffic and eliminating jitter in the
     render which was caused by the updates to these three gestures being split
     across render frames.
+
+    This package was written and published as part of this project. Note that it
+    is a fork of [ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch
+    and other existing gesture recognition libraries for JavaScript were found
+    to be insufficient for the demands of this project, hence the creation of
+    this package.
 
 3. [express](https://www.npmjs.com/package/express)
 
