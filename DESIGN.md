@@ -341,89 +341,93 @@ issues must be taken into consideration.
 
 #### Network traffic:
 
-- The overall amount of traffic over the network must be kept to a minimum.
-- The size of packets sent over the network must also be kept down.
-- The Message / Reporter protocol handles most of this work, by stripping out
-  all but the core properties of any object transmitted.
-- Care must still be taken to ensure that these core properties really are only
-  those that are needed at every update, or at least are small enough to be
-  negligible. Therefore properties such as attribute lists for HTML elements,
-  which could contain huge strings representing entire webpages, should only be
-  sent occasionally as a special event, and not included in the core properties.
-- Additionally, the only data sent during an update should be the data
-  pertaining to the specific object that has been updated. This is as opposed to
-  sending a full state packet representing all objects in the model.
+The overall amount of traffic over the network must be kept to a minimum.
+Similarly, the size of packets sent over the network must also be kept down.
+The Message / Reporter protocol handles most of this work, by stripping out all
+but the core properties of any object transmitted, but care must still be taken
+to ensure that these core properties really are only those that are needed at
+every update, or at least are small enough to be negligible. 
+
+Therefore properties such as attribute lists for HTML elements, which could
+contain huge strings representing entire webpages, should only be sent
+occasionally as a special event, and not included in the core properties.
+Additionally, the only data sent during an update should be the data pertaining
+to the specific object that has been updated. This is as opposed to sending a
+full state packet representing all objects in the model.
 
 #### Consistency with server:
 
-- The approach taken to maintain consistency with the server is for every update
-  to consist of state packets, rather than sending transformation commands. The
-  client therefore simply copies the new state information for each updated
-  object.
+The approach taken to maintain consistency with the server is for every update
+to consist of state packets, rather than sending transformation commands. The
+client therefore simply copies the new state information for each updated
+object.
 
 #### Bundling transformations:
 
-- The three core transformations are translation, scale, and rotation. Each of
-  these is likely to happen every time that a user moves any of the active
-  pointers. If the updates for each are not bundled together into the next state
-  packet, the user will experience a discomforting jitter effect.  Solving this
-  issue requires careful attention on both the client and the server.
-- For the client side, the updates from the gestures corresponding to all three
-  transformations need to be bundled together into a single event before being
-  sent to the server. This way, the server can perform all the necessary
-  transformations before publishing any new state packets that arise.
-- For the server side, the question becomes when to publish updates for model
-  objects. Programmers should be allowed to update model objects whenever they
-  like (i.e. not necessarily in response to a user event), but still have
-  confidence that their changes will be published. In either this case or the
-  case of responding to user gestures, if transformations are split across
-  publications the jitter issue will surface.
+The three core transformations are translation, scale, and rotation. Each of
+these is likely to happen every time that a user moves any of the active
+pointers. If the updates for each are not bundled together into the next state
+packet, the user will experience a discomforting jitter effect. Solving this
+issue requires careful attention on both the client and the server.
 
-  To solve this issue, the Publishable mixin is used for all model objects.  It
-  uses the node.js `setImmediate()` callback timer to schedule a single
-  publication to occur once all code arising from the current event in the event
-  loop has executed. Therefore all transformations responding to a user gesture
-  or some other programmer defined event will get bundled together into a single
-  update.
-- For server-side gestures, another issue along these lines arises. With user
-  input events being sent to the server from each device at rates of up to 60
-  updates per second, it only takes a few devices for the update rate to
-  regularly balloon into the hundreds. Therefore user input updates are bundled
-  together. This is done by simply updating the input state in response to user
-  input events, then only evaluating gestures at a rate of up to 60 times per
-  second by using a callback interval that checks whether input updates have
-  occurred since the last evaluation.
+For the client side, the updates from the gestures corresponding to all three
+transformations need to be bundled together into a single event before being
+sent to the server. This way, the server can perform all the necessary
+transformations before publishing any new state packets that arise.
+
+For the server side, the question becomes when to publish updates for model
+objects. Programmers should be allowed to update model objects whenever they
+like (i.e. not necessarily in response to a user event), but still have
+confidence that their changes will be published. In either this case or the case
+of responding to user gestures, if transformations are split across publications
+the jitter issue will surface.
+
+To solve this issue, the Publishable mixin is used for all model objects. It
+uses the node.js `setImmediate()` callback timer to schedule a single
+publication to occur once all code arising from the current event in the event
+loop has executed. Therefore all transformations responding to a user gesture or
+some other programmer defined event will get bundled together into a single
+update.
+
+For server-side gestures, another issue along these lines arises. With user
+input events being sent to the server from each device at rates of up to 60
+updates per second, it only takes a few devices for the update rate to regularly
+balloon into the hundreds. Therefore user input updates are bundled together.
+This is done by simply updating the input state in response to user input
+events, then only evaluating gestures at a rate of up to 60 times per second by
+using a callback interval that checks whether input updates have occurred since
+the last evaluation.
 
 #### Gesture smoothing:
 
-- A subtle issue with modern touch interfaces is that contact points, and
-  fingers in particular, typically aren't points but rather areas that are
-  resolved down to points. These points tend to shift around relative to the
-  area while a user is interacting with the surface, as the area itself
-  fluctuates in shape and size. This can be due to slight adjustments in the
-  distribution of pressure onto the contact surface, or else because humans are
-  in constant motion, especially on the miniature scales measured by touch
-  surfaces.
-  
-  Although not immediately obvious, this effect can cause gestures to behave in
-  a jumpy way, characterized by alternating relatively large and small updates,
-  or else updates in alternating directions. This is perceived by the user as
-  jitter or else as a less than smooth interaction experience.
-- The solution applied by this project is to use a cascading average for the
-  update values. Note that the implementation exists inside the `westures`
-  gesture recognition library that was written as a part of this project.
+A subtle issue with modern touch interfaces is that contact points, and fingers
+in particular, typically aren't points but rather areas that are resolved down
+to points. These points tend to shift around relative to the area while a user
+is interacting with the surface, as the area itself fluctuates in shape and
+size. This can be due to slight adjustments in the distribution of pressure onto
+the contact surface, or else because humans are in constant motion, especially
+on the miniature scales measured by touch surfaces.
 
-  This cascading average is defined, generally, by replacing each update with
-  the average of the update and the cascade. The cascade is likewise updated to
-  this average. The result is a practical application of [Zeno's
-  Dichotomy,](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
-  as half of the remaining value is theoretically applied at each subsequent
-  update until the user ends the gesture. Practically, this means that the
-  emitted values have some inertia and thus are significantly less prone to the
-  jumpiness that is otherwise observed. Also each update is only effectively
-  included in perhaps a dozen or so subsequent updates before the finite
-  precision of floating point numbers wipes out any remaining value from the
-  update.
+Although not immediately obvious, this effect can cause gestures to behave in a
+jumpy way, characterized by alternating relatively large and small updates, or
+else updates in alternating directions. This is perceived by the user as jitter
+or else as a less than smooth interaction experience. The solution applied by
+this project is to use a cascading average for the update values. Note that the
+implementation exists inside the `westures` gesture recognition library that was
+written as a part of this project.
+
+This cascading average is defined, generally, by replacing each update with the
+average of the update and the cascade. The cascade is likewise updated to this
+average. The result is a practical application of [Zeno's
+Dichotomy,](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox) as
+half of the remaining value is theoretically applied at each subsequent update
+until the user ends the gesture.
+
+Practically, this means that the emitted values have some inertia and thus are
+significantly less prone to the jumpiness that is otherwise observed. Also each
+update is only effectively included in perhaps a dozen or so subsequent updates
+before the finite precision of floating point numbers wipes out any remaining
+value from the update.
 
 ## Module Overview
 
