@@ -965,4 +965,6 @@ algorithms, tutorials, or other articles.
 18. [Zeno's Dichotomy](
     https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
 19. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
-20. [Open Source Assets](www.kenney.nl) (Used for image assets in examples).
+20. [Open Source Assets](https://www.kenney.nl) (Used for image assets in
+    examples).
+
