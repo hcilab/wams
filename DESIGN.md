@@ -54,12 +54,12 @@ tag in `package.json`:
 
     As well as providing tracking abilities (i.e. simple updates of input state
     at every change) and gesture customization options, including the ability to
-    plug in entire custom gestures. I made use of this ability to package
-    together the Pan, Pinch, and Rotate gestures into a single Transform
-    gesture, so that all three updates can be transmitted over the network
-    simultaneously, reducing the volume of traffic and eliminating jitter in the
-    render which was caused by the updates to these three gestures being split
-    across render frames.
+    plug in entire custom gestures. This ability was used to package together
+    the Pan, Pinch, and Rotate gestures into a single Transform gesture, so that
+    all three updates can be transmitted over the network simultaneously,
+    reducing the volume of traffic and eliminating jitter in the render which
+    was caused by the updates to these three gestures being split across render
+    frames.
 
     This package was written and published as part of this project. Note that it
     is a fork of [ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch
