@@ -962,6 +962,7 @@ algorithms, tutorials, or other articles.
 16. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
 17. [Mixins](
     http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
-18. [Zeno's Dichotomy
-    ](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
+18. [Zeno's Dichotomy](
+    https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
 19. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
+20. [Open Source Assets](www.kenney.nl) (Used for image assets in examples).
