@@ -6,24 +6,86 @@ author:
 date: April 15, 2019
 keywords: [multi-touch, multi-display, workspace, gestures, interaction, HCI]
 abstract: |
-    something
+    Interactive devices such as smartphones, tablets, and smartwatches are
+    becoming increasing ubiquitous. Collaborative applications remain relatively
+    few, however, owing to the inherent difficulty of coordinating activities
+    between devices. This project presents Workspaces Across Multiple Surfaces
+    (WAMS), an API for creating web-based multi-display applications that can be
+    aimed at multiple users collaborating or a single user seeking to increase
+    their available screen space. WAMS significantly reduces the difficulty of
+    creating such applications by handling coordination and networking
+    challenges, allowing programmers to write a multi-device application in much
+    the same way as they would write a traditional single-device application.
 ---
 
 \pagebreak
 
-# Design
+# Outline
 
-This section of the document details the design of the WAMS project. It covers
-fundamental architectural design decisions, the purpose of each of the modules,
-and briefly discusses each of the classes. For more in-depth information about
-any particular class, method, or chunk of code, see the [documentation](
-https://mvanderkamp.github.io/wams/).
+* [Introduction]
+* [Architecture]
+* [Evaluation]
+* [Future Work]
+* [Deliverables]
+* [References]
+
+\pagebreak
+
+# Introduction
+
+Interactive surfaces, be they smartphones, tablets, traditional desktops,
+smartwatches, or other innovative surfaces have become increasingly ubiquitous.
+A Multi-Display Environment (MDE) aims to coordinate these devices into a single
+shared workspace. Such environments are useful, opening up possible applications
+ranging from multiplayer games to assisting hospitalized
+children.[^hospitalized] Development of such environments is difficult, however,
+owing to challenges relating to design, technical capabilities, and social
+aspects.[^challenge1] This project presents Workspaces Across Multiple Surfaces
+(WAMS), which aims to reduce the technical difficulty of creating multi-display
+applications by providing an API for web-based MDEs.
+
+The technical challenges encountered in the development of an MDE include:
+
+1. Deployment of a server.
+2. Connection establishment and maintenance.
+3. Representation of connected devices within the workspace.
+4. Alignment of the workspace for each device such that the workspace can be
+   accurately rendered.
+5. Maintenance of a model of workspace objects.
+6. Rendering of workspace objects.
+7. Coordination between devices during interaction. This includes
+   synchronization and the locking of objects while they being interacted with.
+8. Ensuring that the system is responsive to user interaction.
+
+These general challenges must be overcome for any MDE before the application
+itself can be successfully written, and it is these challenges that WAMS aims to
+address.
+
+[^challenge1]: Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in
+Mobile Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
+
+[^hospitalized]: Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala.
+"Multi-Display Environments to Foster Emotional Intelligence in Hospitalized
+Children." Proceedings of the XVI International Conference on Human Computer
+Interaction 07-09 (2015): 1-2.
+
+\pagebreak
+
+# Architecture
+
+This section of the document details the architecture design of the WAMS
+project. It covers fundamental architectural design decisions, the purpose of
+each of the modules, and briefly discusses each of the classes. For more
+in-depth information about any particular class, method, or chunk of code, see
+the [documentation]( https://mvanderkamp.github.io/wams/).
 
 ## Contents
 
+* [Basic Design]
 * [Core Concepts]
     - [Unique Identification]
     - [Mixin Pattern]
+    - [Coordination]
     - [Message / Reporter Protocol]
     - [Model-View-Controller]
     - [Smooth and Responsive Interaction]
@@ -38,7 +100,37 @@ https://mvanderkamp.github.io/wams/).
     - [Gestures]
     - [Predefined]
 * [Connection Establishment]
-* [References]
+
+\pagebreak
+
+## Basic Design
+
+The project is written in JavaScript and powered by `node.js`. WAMS applications
+are run from the command line on a computer that acts as the server. Clients, on
+the same local network as the server, use a browser to connect to the IP address
+of the server. The [connection establishment](#connection-establishment) process
+hooks up the client, and they can begin interacting with the application.
+
+Generally, all programmer code will only be run on the server, as the bundle of
+code, HTML, and CSS that is delivered to clients is static and is not exposed by
+the API. This allows programmers to forego concerns such as bundling and
+transpiling that otherwise crop up when delivering JavaScript code to browsers.
+There are some limitations to this technique, but a workaround may exist through
+the use of HTML elements as workspace items, which could include `<script>`
+tags. This feature has not been tested though, and arbitrary code has so far
+only been observed operating via this technique when wrapped inside an
+`<iframe>`.
+
+Primarily, WAMS applications are rendered in immediate mode on an HTML5 canvas
+that fills the client's browser viewport. Objects in the shared workspace are,
+for the most part, rendered by sequences of canvas context instructions that are
+defined and delivered using the `canvas-sequencer` package. It is also possible
+to load and render images onto the canvas. As mentioned above, an experimental
+feature that has not yet been fully developed allows the use of arbitrary HTML
+elements as part of a WAMS application. These sit on top of the canvas and
+operate in the retained mode graphics context of normal webpages, while still
+being consistently presented across devices, with appropriate transformations in
+the same vein as the canvas rendered objects.
 
 \pagebreak
 
@@ -85,6 +177,29 @@ process.[^mixins]
 [^mixins]: A more in-depth discussion of mixins and the inspiration for the
 specific implementation approach used can be found at
 <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>.
+
+\pagebreak
+
+### Coordination
+
+Proper synchronization and object locking is critical to the successful
+operation of a WAMS application. These activities are achieved by taking
+advantage of the single-threaded nature of `node.js`. The client code is
+completely independent of any synchronization and locking tasks, instead simply
+forwarding user interaction events to the server and maintaining an up-to-date
+renderable model of the application. This approach ensures that all user
+interactions are funnelled through a single thread on the server, vastly
+simplifying coordination tasks.
+
+Locking and unlocking is handled by the `Locker` and `Lockable` mixins.  When a
+user begins interacting with the system, the server controller performs hit
+detection, looking for a free item at the centroid of the first contact points.
+If such an item is found, it is locked to the client. No other client can
+interact with the item while this lock is held. The lock is released when the
+client has removed all pointers from the interactive surface. In the case of
+multi-device gestures, a single lock is shared by all clients belonging to a
+`ServerViewGroup`. If hit detection fails to locate a free item, the client
+instead locks onto their own view.
 
 \pagebreak
 
@@ -140,7 +255,7 @@ documentation.
 Both the client and the server implement their own version of the MVC pattern,
 ultimately operating together as a larger MVC pattern.
 
-#### Client MVC
+#### _Client MVC_
 
 The client side version is the most straightforward, and looks a lot like
 classical MVC. The catch of course is that the `ClientController` sends user
@@ -149,7 +264,7 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
-#### Server MVC 
+#### _Server MVC_
 
 The server side is more complicated. The most obvious reason for this is that,
 being an API, programmers need to be able to attach their own controller code.
@@ -173,12 +288,14 @@ The `ServerController` instances are spawned and maintained by the
 One other wrinkle is that, in order to support multi-device gestures, the
 `ServerViewGroup` has a single `GestureController` which is responsible only for
 maintaining the state of active pointers and calculating whether gestures have
-occurred. Storing the gesture controller in the view group opens up the
-possibility of creating multiple groups of devices, with each group capable of
-recognizing its own multi-device gestures, although this extension is not yet
-implemented.
+occurred. It does this by hooking up the gesture classes provided by the
+`westures` package with the custom gesture engine found in the `gestures`
+module of this project. Storing the gesture controller in the view group opens
+up the possibility of creating multiple groups of devices, with each group
+capable of recognizing its own multi-device gestures, although this extension is
+not yet implemented.
 
-#### Client and Server MVC Together
+#### _Client and Server MVC Together_
 
 Taken together, the client and the server form a larger MVC pattern, with the
 client representing the view and part of the controller, and the server
@@ -191,7 +308,7 @@ representing the other part of the controller as well as the model.
 In order to ensure a smooth and responsive experience for the user, several
 issues must be taken into consideration.
 
-#### Network traffic:
+#### _Network traffic:_
 
 The overall amount of traffic over the network must be kept to a minimum.
 Similarly, the size of packets sent over the network must also be kept down.
@@ -207,14 +324,14 @@ Additionally, the only data sent during an update should be the data pertaining
 to the specific object that has been updated. This is as opposed to sending a
 full state packet representing all objects in the model.
 
-#### Consistency with server:
+#### _Consistency with server:_
 
 The approach taken to maintain consistency with the server is for every update
 to consist of state packets, rather than sending transformation commands. The
 client therefore simply copies the new state information for each updated
 object.
 
-#### Bundling transformations:
+#### _Bundling transformations:_
 
 The three core transformations are translation, scale, and rotation. Each of
 these is likely to happen every time that a user moves any of the active
@@ -250,16 +367,16 @@ events, then only evaluating gestures at a rate of up to 60 times per second by
 using a callback interval that checks whether input updates have occurred since
 the last evaluation.
 
-#### Gesture smoothing:
+#### _Gesture smoothing:_
 
 ![Example of jitter and smoothing when
-panning[^graphnote]](./data/PanX.png){height=70%}
+panning[^graphnote]](./data/PanY.png){height=70%}
 
 [^graphnote]: All of the data for the figures in this section was captured
 simulatenouesly, using two fingers.
 
 A subtle issue with modern touch interfaces is that contact points, and fingers
-in particular, typically aren't points but rather areas that are resolved down
+in particular, typically are not points but rather areas that are resolved down
 to points. These points tend to shift around relative to the area while a user
 is interacting with the surface, as the area itself fluctuates in shape and
 size. This can be due to slight adjustments in the distribution of pressure onto
@@ -289,13 +406,17 @@ $$ cascade := average $$
  The result is a practical application of [Zeno's
 Dichotomy,](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox) as
 half of the remaining value from each original update is theoretically applied
-at each subsequent update until the user ends the gesture.
+at each subsequent update until the user ends the gesture. If the gesture where
+to continue indefinitely, theoretically the full value from each update would
+get applied.
 
 Practically, this means that the emitted values have some inertia and thus are
-significantly less prone to the jumpiness that is otherwise observed. Also each
-update is only effectively included in perhaps a dozen or so subsequent updates
-before the finite precision of floating point numbers wipes out any remaining
-value from the update.
+significantly less prone to the jumpiness that is otherwise observed.
+Additionally each update is only effectively included in a few dozen or so
+subsequent updates before the finite precision of 64-bit floating point numbers
+wipes out any remaining value from the update. There also appears to be a
+limited amount of drift, owing perhaps to floating point errors incurred by the
+division operation.
 
 ![Example of jitter and smoothing while rotating](
 ./data/Rotation.png){height=70%}
@@ -327,34 +448,40 @@ tag in `package.json`:
 
 [^self]: This package was written and published as part of this project.
 
-2. [westures](https://mvanderkamp.github.io/westures/)[^iwroteit]
+2. [westures](https://mvanderkamp.github.io/westures/)[^iwroteit]$^,$[^inamedit]
   
-    This package is a gesture library that provides a normalization of
-    interaction across browsers and devices, and makes the following kinds of
-    gestures possible:
+    This package is an n-pointer gesture library that provides a normalization
+    of interaction across browsers and devices. This means that each gesture
+    works with any amount of pointers beyond its minimum, with each pointer
+    contributing to the gesture. It makes the following kinds of gestures
+    possible:
 
-    - __Tap__
-    - __Pan__
-    - __Pinch__
-    - __Rotate__
-    - __Swipe__
-    - __Swivel__
+    Name   | # of Inputs | Description
+    -------|-------------|------------
+    Tap    | 1+          | a.k.a. 'click', a quick touch and release.
+    Pinch  | 2+          | Inputs moving together or apart.
+    Rotate | 2+          | Inputs rotating around each other.
+    Pan    | 1+          | Inputs sliding around the screen.
+    Swipe  | 1+          | Inputs swiping the screen.
+    Swivel | 1+          | Inputs rotating around a fixed pivot point.
 
-    As well as providing tracking abilities (i.e. simple updates of input state
-    at every change) and gesture customization options, including the ability to
-    plug in entire custom gestures. This ability was used to package together
-    the Pan, Pinch, and Rotate gestures into a single Transform gesture, so that
-    all three updates can be transmitted over the network simultaneously,
-    reducing the volume of traffic and eliminating jitter in the render which
-    was caused by the updates to these three gestures being split across render
-    frames.
+    Additionally it provides tracking abilities (i.e. simple updates of input
+    state at every change) and gesture customization options, including the
+    ability to plug in entire custom gestures. This ability was used to package
+    together the Pan, Pinch, and Rotate gestures into a single Transform
+    gesture, so that all three updates can be transmitted over the network
+    simultaneously, reducing the volume of traffic and eliminating jitter in the
+    render which was caused by the updates to these three gestures being split
+    across render frames.
 
 [^iwroteit]: This package was also written and published as part of this
 project. Note that it is a fork of
-[ZingTouch](https://github.com/zingchart/zingtouch).  ZingTouch and other
+[ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch and other
 existing gesture recognition libraries for JavaScript were found to be
 insufficient for the demands of this project, hence the creation of this
 package.
+
+[^inamedit]: The name "westures" is a mash-up of "WAMS" and "gestures".
 
 3. [express](https://www.npmjs.com/package/express)
 
@@ -647,7 +774,7 @@ The [ ClientItem
 extension of the Item class that is aware of and able to make use of the
 `CanvasSequence` class from the `canvas-sequencer` package for rendering custom
 sequences to the canvas. It is therefore intended for immediate mode renderable
-items that don't require additional data beyond the render sequence.
+items that do not require additional data beyond the render sequence.
 
 ### ClientImage
 
@@ -864,8 +991,8 @@ applied.
 
 The [ Transformable2D
 ](https://mvanderkamp.github.io/wams/module-mixins.Transformable2D.html) mixin
-provides 2D transformation operations for classes with 'x', 'y', 'scale' and
-'rotation' properties.
+provides 2D transformation operations for classes with `x`, `y`, `scale` and
+`rotation` properties.
 
 ### Interactable
 
@@ -1020,34 +1147,54 @@ following sequence of events occurs:
 
 \pagebreak
 
-## References
+# Evaluation
+
+
+
+\pagebreak
+
+# Future Work
+
+\pagebreak
+
+# Deliverables
+
+\pagebreak
+
+# References
 
 Listed here are references to all external sources, be they code, books,
 algorithms, tutorials, or other articles.
 
-1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
-2. [westures](https://mvanderkamp.github.io/westures/)
-3. [zingtouch](https://github.com/zingchart/zingtouch)
-4. [express](https://www.npmjs.com/package/express)
-5. [socket.io](https://www.npmjs.com/package/socket.io)
-6. [arkit](https://arkit.js.org/)
-7. [babel](https://babeljs.io/)
-8. [browserify](http://browserify.org/)
-9. [eslint](https://eslint.org/)
-10. [jest](https://jestjs.io/)
-11. [jsdoc](http://usejsdoc.org/)
-12. [terser](https://www.npmjs.com/package/terser)
-12. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
-13. [make](https://www.gnu.org/software/make/manual/make.html)
-14. [exuberant-ctags](http://ctags.sourceforge.net/)
-15. [ctags-patterns-for-javascript](
-   https://github.com/romainl/ctags-patterns-for-javascript)
-16. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
-17. [Mixins](
-    http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
-18. [Zeno's Dichotomy](
-    https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
-19. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
-20. [Open Source Assets](https://www.kenney.nl) (Used for image assets in
+## Web Links
+1. canvas-sequencer: <https://www.npmjs.com/package/canvas-sequencer>
+2. westures: <https://mvanderkamp.github.io/westures/>
+3. zingtouch: <https://github.com/zingchart/zingtouch>
+4. express: <https://www.npmjs.com/package/express>
+5. socket.io: <https://www.npmjs.com/package/socket.io>
+6. arkit: <https://arkit.js.org/>
+7. babel: <https://babeljs.io/>
+8. browserify: <http://browserify.org/>
+9. eslint: <https://eslint.org/>
+10. jest: <https://jestjs.io/>
+11. jsdoc: <http://usejsdoc.org/>
+12. terser: <https://www.npmjs.com/package/terser>
+12. tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
+13. make: <https://www.gnu.org/software/make/manual/make.html>
+14. exuberant-ctags: <http://ctags.sourceforge.net/>
+15. ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
+16. You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
+17. Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
+18. Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
+19. Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
+20. Open Source Assets: <https://www.kenney.nl> (Used for image assets in
     examples).
+
+## Papers and Articles
+21. Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
+    Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
+22. Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
+    Environments to Foster Emotional Intelligence in Hospitalized Children."
+    Proceedings of the XVI International Conference on Human Computer
+    Interaction 07-09 (2015): 1-2.
 
