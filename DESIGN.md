@@ -109,15 +109,13 @@ The tools used and their rationale are as follows:
     The `babel` suite of packages provides transpilation, allowing the use of
     convenient new features of the JavaScript language without breaking browser
     support. Note however that only relatively recent browswers are supported.
+    Babel is used via the `babelify` transform for `browserify`.
 
 3. [browserify](http://browserify.org/)
 
     The `browserify` package bundles JavaScript code together for delivery to
-    clients. Why Browserify, instead of something like webpack or parcel?  Well,
-    because I've found it easy to use. It might not produce the most optimal
-    code, and it doesn't have much in the way of super fancy features built in,
-    but I don't need any of that, and the basic functionality just simply works,
-    and works well.
+    clients. It may not be the most feature-rich bundler, but the basic
+    functionality just simply works, and works well.
 
 4. [eslint](https://eslint.org/)
 
