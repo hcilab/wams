@@ -1,5 +1,5 @@
 
-.PHONY: wams lint fix bundle docs tags test graphs
+.PHONY: wams lint fix bundle docs tags test graphs report
 
 wams: lint bundle docs tags
 
@@ -39,4 +39,7 @@ graphs:
 	npx arkit -c graphs/predefined.json
 	npx arkit -c graphs/server.json
 	npx arkit -c graphs/shared.json
+
+report:
+	pandoc report.md -o report.pdf
 
