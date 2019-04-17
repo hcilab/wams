@@ -2,7 +2,9 @@
 title: Software Architectures for Web-Based Multi-Display Environments
 author:
 - Michael van der Kamp, mjv761, 11190459
-- Supervisor`:` Dr. Carl Gutwin
+- Supervisor`:` Carl Gutwin
+- Additional supervision and input by Scott Bateman
+- Based off implementation by Jesse Rolheiser
 date: April 15, 2019
 keywords: [multi-touch, multi-display, workspace, gestures, interaction, HCI]
 abstract: |
@@ -18,18 +20,17 @@ abstract: |
     the same way as they would write a traditional single-device application.
 ---
 
-\pagebreak
+\clearpage
 
 # Outline
 
 * [Introduction]
 * [Architecture]
 * [Evaluation]
-* [Future Work]
 * [Deliverables]
 * [References]
 
-\pagebreak
+\clearpage
 
 # Introduction
 
@@ -57,9 +58,17 @@ The technical challenges encountered in the development of an MDE include:
    synchronization and the locking of objects while they being interacted with.
 8. Ensuring that the system is responsive to user interaction.
 
-These general challenges must be overcome for any MDE before the application
-itself can be successfully written, and it is these challenges that WAMS aims to
-address.
+These general challenges must be overcome in order for an MDE application to be
+successfully written, and it is these challenges that WAMS aims to address.
+
+Additionally, the use of multiple devices raises the possibility of taking
+traditional multitouch gestures such as pinching or rotating and applying them
+across multiple devices. That is, combining pointers moving on the surface of
+different devices into a single coordinated multitouch gesture. WAMS provides an
+experimental implementation of such gestures that is accessible via the API.
+
+Throughout this document, the phrase "the programmer" is used to refer to a
+programmer making use of the WAMS API.
 
 [^challenge1]: Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in
 Mobile Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
@@ -69,7 +78,7 @@ Mobile Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
 Children." Proceedings of the XVI International Conference on Human Computer
 Interaction 07-09 (2015): 1-2.
 
-\pagebreak
+\clearpage
 
 # Architecture
 
@@ -77,16 +86,20 @@ This section of the document details the architecture design of the WAMS
 project. It covers fundamental architectural design decisions, the purpose of
 each of the modules, and briefly discusses each of the classes. For more
 in-depth information about any particular class, method, or chunk of code, see
-the [documentation]( https://mvanderkamp.github.io/wams/).
+the [documentation](https://mvanderkamp.github.io/wams/).[^mydocs]
+
+[^mydocs]: <https://mvanderkamp.github.io/wams/>
+
+---
 
 ## Contents
 
 * [Basic Design]
 * [Core Concepts]
-    - [Unique Identification]
-    - [Mixin Pattern]
     - [Coordination]
     - [Message / Reporter Protocol]
+    - [Unique Identification]
+    - [Mixin Pattern]
     - [Model-View-Controller]
     - [Smooth and Responsive Interaction]
 * [Runtime Dependencies]
@@ -101,9 +114,18 @@ the [documentation]( https://mvanderkamp.github.io/wams/).
     - [Predefined]
 * [Connection Establishment]
 
-\pagebreak
+\clearpage
 
 ## Basic Design
+
+There have been numerous other projects exploring the concept of Multi-Device
+Environments. Some of them, such as Conductor, have each device running discrete
+tasks, with the system controlling communication and synchronization between
+them.[^conductor] Others used a series of large displays to create digital
+rooms.[^rooms] The approach taken with WAMS is to leverage the technology of
+the web, allowing any device capable of running a modern browser to connect to a
+WAMS application, and to allow the programmer to control the digital layout of
+the devices as they connect to a single, shared workspace.
 
 The project is written in JavaScript and powered by `node.js`. WAMS applications
 are run from the command line on a computer that acts as the server. Clients, on
@@ -112,14 +134,12 @@ of the server. The [connection establishment](#connection-establishment) process
 hooks up the client, and they can begin interacting with the application.
 
 Generally, all programmer code will only be run on the server, as the bundle of
-code, HTML, and CSS that is delivered to clients is static and is not exposed by
-the API. This allows programmers to forego concerns such as bundling and
-transpiling that otherwise crop up when delivering JavaScript code to browsers.
-There are some limitations to this technique, but a workaround may exist through
-the use of HTML elements as workspace items, which could include `<script>`
-tags. This feature has not been tested though, and arbitrary code has so far
-only been observed operating via this technique when wrapped inside an
-`<iframe>`.
+JavaScript, HTML, and CSS that is delivered to clients is static and is not
+exposed by the API. This allows programmers to forego concerns such as bundling
+and transpiling that otherwise crop up when delivering JavaScript code to
+browsers.  There are some limitations to this technique, but a workaround may
+exist through the use of HTML elements as workspace items, which could include
+`<script>` tags. This feature has yet to be tested though.
 
 Primarily, WAMS applications are rendered in immediate mode on an HTML5 canvas
 that fills the client's browser viewport. Objects in the shared workspace are,
@@ -132,53 +152,26 @@ operate in the retained mode graphics context of normal webpages, while still
 being consistently presented across devices, with appropriate transformations in
 the same vein as the canvas rendered objects.
 
-\pagebreak
+[^conductor]: Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and
+  Understanding Cross-device Interaction." Proceedings of the SIGCHI Conference
+  on Human Factors in Computing Systems, 2014, 2773-782.
+
+[^rooms]: Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces
+  Project: Experiences with Ubiquitous Computing Rooms." IEEE Pervasive
+  Computing 1, no. 2 (2002): 67-74.
+
+\clearpage
 
 ## Core Concepts
 
-* [Unique Identification](#unique-identification)
-* [Mixin Pattern](#mixin-pattern)
-* [Message / Reporter Protocol](#message--reporter-protocol)
-* [Model-View-Controller](#model-view-controller)
-* [Smooth and Responsive Interaction](#smooth-and-responsive-interaction)
+* [Coordination]
+* [Message / Reporter Protocol]
+* [Unique Identification]
+* [Mixin Pattern]
+* [Model-View-Controller]
+* [Smooth and Responsive Interaction]
 
-### Unique Identification
-
-In a large system like this, where it is important to keep track of and uniquely
-identify lots of different kinds of objects correctly on both the client and the
-server, it is very useful to centralize the identification technique. This is
-where the `IdStamper` class comes in. It provides a common structure by which
-unique IDs can be assigned and copied.
-
-Note that uniqueness is generally on a per-class level. There is a mixin,
-`Identifiable`, which uses an `IdStamper` to provide unique IDs to any class
-which mixes it in. See the `IdStamper` class in the documentation for more
-information.
-
-### Mixin Pattern
-
-The complexity of the code, particularly on the server, would be significantly
-higher were it not for the mixin pattern. The short and simple version for those
-more accustomed to software engineering with Java is that a mixin is an
-interface whose methods are already implemented.
-
-More precisely, a mixin "mixes" functionality into an already existing class to
-form a new subclass. This allows the programmer to bundle related pieces of
-functionality together into a mixin, and then attach those bundles to classes as
-they see fit.
-
-This pattern fits neatly on top of the `Message` / `Reporter` protocol. This
-protocol requires that `Views` and `Items` and their related classes need to be
-distinct, yet functionally these two distinct types of classes ultimately need
-to perform a lot of similar actions. Mixins solves this problem beautifully,
-making the whole system more succinct and easier to maintain in the
-process.[^mixins]
-
-[^mixins]: A more in-depth discussion of mixins and the inspiration for the
-specific implementation approach used can be found at
-<http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>.
-
-\pagebreak
+---
 
 ### Coordination
 
@@ -201,7 +194,11 @@ multi-device gestures, a single lock is shared by all clients belonging to a
 `ServerViewGroup`. If hit detection fails to locate a free item, the client
 instead locks onto their own view.
 
-\pagebreak
+The successful operation of this approach is contingent on the single-threaded
+nature of JavaScript and `node.js` to ensure that race conditions do not occur
+for the locks.
+
+---
 
 ### Message / Reporter protocol
 
@@ -248,7 +245,44 @@ There is a work-around for cases where lots of different types of little pieces
 of data need to be transmitted. See the `DataReporter` class in the
 documentation.
 
-\pagebreak
+---
+
+### Unique Identification
+
+In a large system like this, where it is important to keep track of and uniquely
+identify lots of different kinds of objects correctly on both the client and the
+server, it is very useful to centralize the identification technique. This is
+where the `IdStamper` class comes in. It provides a common structure by which
+unique IDs can be assigned and copied. Each `IdStamper` instance will only
+generate each numerical ID once, so the scope of the uniqueness of IDs is
+determined by the scope of the `IdStamper` instance.
+
+---
+
+### Mixin Pattern
+
+The complexity of the code, particularly on the server, would be significantly
+higher were it not for the mixin pattern. The short and simple version for those
+more accustomed to software engineering with Java is that a mixin is an
+interface whose methods are already implemented.
+
+More precisely, a mixin "mixes" functionality into an already existing class to
+form a new subclass. This allows the programmer to bundle related pieces of
+functionality together into a mixin, and then attach those bundles to classes as
+they see fit.
+
+This pattern fits neatly on top of the `Message` / `Reporter` protocol. This
+protocol requires that `Views` and `Items` and their related classes need to be
+distinct, yet functionally these two distinct types of classes ultimately need
+to perform a lot of similar actions. Mixins solves this problem beautifully,
+making the whole system more succinct and easier to maintain in the
+process.[^mixins]
+
+[^mixins]: A more in-depth discussion of mixins and the inspiration for the
+specific implementation approach used can be found at
+<http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>.
+
+---
 
 ### Model-View-Controller
 
@@ -295,13 +329,18 @@ up the possibility of creating multiple groups of devices, with each group
 capable of recognizing its own multi-device gestures, although this extension is
 not yet implemented.
 
+Regardless of whether the gestures are processed by a client or on the server,
+either the `ServerController` or the `GestureController` will ultimately funnel
+the event through the `MessageHandler`, which calls any listeners the programmer
+has attached, as appropriate.
+
 #### _Client and Server MVC Together_
 
 Taken together, the client and the server form a larger MVC pattern, with the
 client representing the view and part of the controller, and the server
 representing the other part of the controller as well as the model.
 
-\pagebreak
+---
 
 ### Smooth and Responsive Interaction
 
@@ -430,7 +469,7 @@ exacerbate the issue and result in lag that is perceptible to the user. Given
 the significant improvement already obtained and the efficiency of the simple
 calculations, the current algorithm should therefore be sufficient.
 
-\pagebreak
+\clearpage
 
 ## Runtime Dependencies
 
@@ -503,7 +542,7 @@ package.
       channel.
     * __To everyone:__ on the namespace.
 
-\pagebreak
+\clearpage
 
 ## Build Tools
 
@@ -590,7 +629,7 @@ package.
     This package provides the necessary plugins to enable `exuberant-ctags` for
     JavaScript.
 
-\pagebreak
+\clearpage
 
 ## Testing
 
@@ -619,7 +658,7 @@ Extra configuration can be found and placed in the `jest` field of
 `package.json`. The tests are incomplete, owing to the rapid pace of development
 and refactors since January.
 
-\pagebreak
+\clearpage
 
 ## Shared
 
@@ -629,14 +668,16 @@ To coordinate activity between the client and server, a shared set of resources
 is exposed by
 [shared.js](https://mvanderkamp.github.io/wams/module-shared.html).
 
-* [utilities](#utilities)
-* [IdStamper](#idstamper)
-* [ReporterFactory](#reporterfactory)
-* [Reporters](#reporters)
-* [Message](#message)
-* [Point2D](#point2d)
-* [Polygon2D](#polygon2d)
-* [Rectangle](#rectangle)
+* [utilities]
+* [IdStamper]
+* [ReporterFactory]
+* [Reporters]
+* [Message]
+* [Point2D]
+* [Polygon2D]
+* [Rectangle]
+
+---
 
 ### utilities
 
@@ -715,7 +756,7 @@ polygons.[^polygonal]
 The [Rectangle](https://mvanderkamp.github.io/wams/module-shared.Rectangle.html)
 class provides a two dimensional rectangle class with support for hit detection.
 
-\pagebreak
+\clearpage
 
 ## Client
 
@@ -725,15 +766,17 @@ The client side code is bundled together with the shared module and all their
 dependencies to be executed in the browsers of clients. The `client.js` file
 is the entry point.
 
-* [ClientController](#clientcontroller)
-* [ClientModel](#clientmodel)
-* [ClientView](#clientview)
-* [ShadowView](#shadowview)
-* [ClientItem](#clientitem)
-* [ClientImage](#clientimage)
-* [ClientElement](#clientelement)
-* [Interactor](#interactor)
-* [Transform](#transform)
+* [ClientController]
+* [ClientModel]
+* [ClientView]
+* [ShadowView]
+* [ClientItem]
+* [ClientImage]
+* [ClientElement]
+* [Interactor]
+* [Transform]
+
+---
 
 ### ClientController
 
@@ -810,7 +853,7 @@ The [ Transform
 together the `Pan`, `Pinch`, and `Rotate` gestures so that all three updates
 will occur simultaneously, reducing jitter.
 
-\pagebreak
+\clearpage
 
 ## Server
 
@@ -820,19 +863,21 @@ The server module is run by `node.js` on the server. It has access to and uses
 all other modules except the client module. It also defines the API endpoint,
 which is found in the `Application` class.
 
-* [ServerController](#servercontroller)
-* [GestureController](#gesturecontroller)
-* [SwitchBoard](#switchboard)
-* [WorkSpace](#workspace)
-* [ServerViewGroup](#serverviewgroup)
-* [ServerView](#serverview)
-* [Device](#device)
-* [ServerItem](#serveritem)
-* [ServerImage](#serverimage)
-* [ServerElement](#serverelement)
-* [MessageHandler](#messagehandler)
-* [Router](#router)
-* [Application](#application)
+* [ServerController]
+* [GestureController]
+* [SwitchBoard]
+* [WorkSpace]
+* [ServerViewGroup]
+* [ServerView]
+* [Device]
+* [ServerItem]
+* [ServerImage]
+* [ServerElement]
+* [MessageHandler]
+* [Router]
+* [Application]
+
+---
 
 ### ServerController
 
@@ -950,7 +995,7 @@ The [ Application
 ](https://mvanderkamp.github.io/wams/module-server.Application.html) is the API
 endpoint of the WAMS system.
 
-\pagebreak
+\clearpage
 
 ## Mixins
 
@@ -960,13 +1005,15 @@ These mixins implement the mixin pattern as described [above](#mixins). Their
 use is what enabled the relatively simple and straightforward structure of the
 server module.
 
-* [Lockable](#lockable)
-* [Locker](#locker)
-* [Publishable](#publishable)
-* [Transformable2D](#transformable2d)
-* [Interactable](#interactable)
-* [Hittable](#hittable)
-* [Identifiable](#identifiable)
+* [Lockable]
+* [Locker]
+* [Publishable]
+* [Transformable2D]
+* [Interactable]
+* [Hittable]
+* [Identifiable]
+
+---
 
 ### Lockable
 
@@ -1013,7 +1060,7 @@ The [ Identifiable
 labels each instantiated object with a unique, immutable ID. All classes that
 use this mixin will share the same pool of IDs.
 
-\pagebreak
+\clearpage
 
 ## Gestures
 
@@ -1023,12 +1070,14 @@ The gestures module closely mirrors the core engine of the `westures` package,
 such that the gestures defined by the `westures` package can be used on the
 server side, powered by this gestures module.
 
-* [Binding](#binding)
-* [Input](#input)
-* [PHASE](#phase)
-* [PointerData](#PointerData)
-* [Region](#Region)
-* [State](#State)
+* [Binding]
+* [Input]
+* [PHASE]
+* [PointerData]
+* [Region]
+* [State]
+
+---
 
 ### Binding
 
@@ -1066,7 +1115,7 @@ active gestures and acts as a supervisor for all gesture processes.
 The [ State ](https://mvanderkamp.github.io/wams/module-gestures.State.html)
 class maintains the list of input points.
 
-\pagebreak
+\clearpage
 
 ## Predefined
 
@@ -1080,6 +1129,8 @@ attached directly in `predefined.js`.
 * [items](#predefined-items)
 * [layouts](#predefined-layouts)
 * [utilities](#predefined-utilities)
+
+---
 
 ### Items {#predefined-items}
 
@@ -1098,7 +1149,7 @@ The [ utilities
 ](https://mvanderkamp.github.io/wams/module-predefined.utilities.html) namespace
 is an assortment  of predefined helper functions.
 
-\pagebreak
+\clearpage
 
 ## Connection Establishment
 
@@ -1145,21 +1196,232 @@ following sequence of events occurs:
     other views are now informed of the view, adding it as a "shadow".
 16. The connection is now fully established, and normal operation proceeds.
 
-\pagebreak
+\clearpage
 
 # Evaluation
 
+## Effectiveness 
 
+The challenges described in the introduction, and their solution as implemented
+in WAMS, are discussed as follows:
 
-\pagebreak
+1. _Deployment of a server._
 
-# Future Work
+    The use of `node.js` along with the `express` package allows WAMS to vastly
+    simplify this step. If images or other static assets are not used, the
+    programmer simply needs to call the `listen()` method of the `Application`.
+    If stuch assets are required, for example to load images, the `express`
+    router is exposed in such a way as to give priority to the WAMS assets while
+    still allowing the programmer to define custom routes to the location of
+    their assets.
 
-\pagebreak
+2. _Connection establishment and maintenance._
+
+    All interactions with the `socket.io` package are entirely self-contained
+    within the WAMS API. The programmer therefore does not need to think about
+    connection maintenance at all. The only thing that the programmer may need
+    to do is define a `layout` handler to define how to orient client views as
+    they connect.
+
+    One limitation of the encapsulation of `socket.io` is that the programmer
+    cannot define define custom messages to send between client and server. This
+    is in line with the limitation that custom client-side JavaScript is not
+    easily added to a WAMS application. This may preclude certain types of
+    applications, and might be something to consider adding for future work. The
+    caveat is that if such a feature is added, any programmer who makes use of
+    it may have to contend with coordination tasks relating to such messages on
+    their own.
+
+3. _Representation of connected devices within the workspace._
+
+    This task is handled automatically within a WAMS app by the `ShadowView`
+    class. One potential limitation is that the shadow cannot currently be
+    turned off.
+
+4. _Alignment of the workspace for each device such that the workspace can be
+   accurately rendered._
+
+    This challenge is handled accurately by the `ClientView` class.
+
+5. _Maintenance of a model of workspace objects._
+
+    This task is handled by a WAMS app only insofar as synchronization between
+    client and server is concerned. The model itself is not currently exposed by
+    the API, so programmers may find it necessary to build their own model. This
+    is not necessarily a limitation, however. Encapsulating the WAMS model
+    prevents it from being accidentally corrupted by the programmer. This also
+    allows the WAMS model to be optimized for the purpose of synchronization, a
+    task which may not align with the intents of the programmer. The programmer
+    is thus free to design their own model as they see fit, as spawned objects
+    are available to the programmer for manipulation and storage.
+
+6. _Rendering of workspace objects._
+
+    This task is handled by the `ClientElement`, `ClientImage`, and `ClientItem`
+    classes, along with the use of the `canvas-sequencer` package and the use of
+    CSS transformation functions for the `ClientElement` class.
+
+7. _Coordination between devices during interaction. This includes
+    synchronization and the locking of objects while they being interacted
+    with._
+
+    Locking is handled by the `Lockable` and `Locker` mixins. Synchronization is
+    handled through the publication of updates at a rate of up to 60
+    publications per second by the `Publishable` mixin.
+
+8. _Ensuring that the system is responsive to user interaction._
+
+    This issue has been effectively solved using the approaches discussed in the
+    [Smooth and Responsive Interaction] section. Of course it is always possible
+    for the programmer to overload any given event handler and as such wreck the
+    responsiveness of the system, but the only solution for that is for the
+    programmer to be disciplined.
+
+## Efficiency
+
+Overhead has been reduced as much as possible, such that the gains experienced
+by a multi-display application written from the ground-up would likely be
+negligible. They may even be negative, as not all of the provided solutions for
+ensuring efficiency and responsiveness are necessarily obvious or intuitive.
+
+The API itself is lacking some features, which could increase the amount of
+programmer effort required. The most obvious example is z-ordering, but other
+examples such as the use of single callbacks instead of lists of listeners for
+events could also increase the difficulty of writing WAMS applications.
+
+## Generalizability
+
+Any application focused around the manipulation of graphical objects via pointer
+interaction should be feasible using the WAMS API. Specifically, any application
+that uses immediate mode graphics should be feasible. Given that the popular
+Android operating system for mobile devices is solely rendered using immediate
+mode graphics, theoretically any application that can run on an Android device
+could be ported to the WAMS system. The practical difficulties of achieving this
+would be significant, however, owing to the nascent and unproven nature of the
+API. The examples provided are all toy examples, so it is impossible to say with
+any certainty whether a larger application is truly possible.
+
+There are major caveats of course, to do with hardware capabilities and input
+methods. Currently only pointer input is recognized, and only graphical output
+is produced. Sound or tactile outputs such as rumble are not supported by WAMS.
+It is possible that sound output and keyboard input could be added to the WAMS
+API without too much difficulty.
+
+One exciting experimental feature is the availability of HTML elements for use
+as workspace objects. As demonstrated by the examples, this enables the
+inclusion of such things as embedded video players in a WAMS application, or
+even the inclusion of entire webpages. These elements are even transformable in
+the same way as the immediate mode objects, with the caveat that certain
+elements may either not render or else capture input events and prevent their
+forwarding to the WAMS application. Additionally, the layout capabilities of the
+browser must be foregone in order to accurately represent the workspace model.
+HTML elements are therefore positioned absolutely. The layout of nested elements
+can still take advantage of browser capabilities though, including CSS.
+
+## Extensibility
+
+The inability of the programmer to customize the client-side bundle is probably
+the greatest limitation to extensibility, albeit one that greatly simplified the
+complexity of writing WAMS applications. For the server-side code, the amount of
+code that is truly private is limited, so it is entirely possible that the
+programmer could reach in and add their own functionality.
+
+From a long-term maintenance perspective, the API should be relatively easy to
+continue working on and extending. A great deal of effort was put into
+organizing the code and structuring it in a way that makes sense. In particular
+the use of mixins greatly simplified the extensibility of the API in the last
+month of the project, and should continue to do so. Time will tell whether this
+assessment holds any merit, though.
+
+WAMS application code should be able to use any server-side JavaScript code,
+including packages provided by `node.js` and those found in package repositories
+such as `npm`. This includes packages for interacting with the file system
+(i.e. for saving files), connecting to other remote servers, accessing system
+calls, and much more.
+
+## Limitations
+
+The biggest limitations currently are:
+
+- Lack of customizability of the client-side code by the programmer.
+- Inability to play sounds. Or at least it is not easy. The availability of
+  HTML elements may enable this with some difficulty.
+- Lack of support for non-pointer-based input devices.
+- Lack of z-ordering.
+    - This was deliberately left out, so that it could be used as an
+      implementation task for the next maintainer of the API to familiarize
+      themselves with the architecture.
+- Lack of support for existing applications.
+    - WAMS defines its own API, rather than sitting on top of an existing API.
+      Therefore existing applications would need to be ported to WAMS, and are
+      not automatically supported.
+    - Using `<iframe>` elements, it is possible to include entire webpages
+      inside a WAMS application, but they exist within their own window inside
+      the WAMS application. The webpage is not able to make use of WAMS
+      functionality.
+
+Further testing, including the construction of larger scale applications using
+the API, may reveal additional limitations.
+
+## Multi-Device Gestures
+
+The implementation of multi-device gestures was a success. They are demonstrated
+by the `shared-polygons` example, accessible via the github repo for the
+api.[^api] The gestures feel as smooth and responsive as gestures on a single
+device.
+
+There are two major limitations to these gestures, however, which could possibly
+be addressed in the future:
+
+1. They do not allow users to reorient their devices. Currently, the programmer
+   has to predefine the layout of the devices as they connect. In the
+   `shared-polygons` example, this takes the form of a line, with additional
+   devices laid out to the right of the previous device.[^support]
+2. The resolution of the devices is not taken into consideration- they are all
+   assumed to be the same resolution. This may prove to be an intractable
+   problem to solve automatically, as devices do not seem to report accurate dpi
+   information.
+
+[^api]: <https://github.com/mvanderkamp/wams>
+
+[^support]: Any number of devices with any number of active pointers are
+  theoretically supported, although the application has only been tested with
+  three concurrent devices.
+
+\clearpage
 
 # Deliverables
 
-\pagebreak
+The full API source code is available on github at
+<https://github.com/mvanderkamp/wams>.
+
+Detailed documentation of the complete architecture is available at
+<https://mvanderkamp.github.io/wams/>.
+
+The `canvas-sequencer` package is available at
+<https://github.com/mvanderkamp/canvas-sequencer>.
+
+The `westures` package is available at:
+<https://mvanderkamp.github.io/westures/>. 
+
+Note that the implementation of this package was split in two, with the core
+engine (which is closely mirrored by the `gestures` module of WAMS) found at:
+<https://github.com/mvanderkamp/westures-core>
+
+User documentation for `westures` and `westures-core` is found at:
+
+- `westures`: <https://mvanderkamp.github.io/westures/>
+- `westures-core`: <https://mvanderkamp.github.io/westures-core/>
+
+Included in the github repo for the API is a set of examples. They are all
+runnable by entering the examples directory and using `node [EXAMPLE]`, with
+EXAMPLE replaced by the filename of the example.[^scaffold]
+
+[^scaffold]: The exception is the "scaffold" example, which is simply meant as a
+  placeholder for a programmer to fill in when starting to build a WAMS
+  application.
+
+\clearpage
 
 # References
 
@@ -1167,11 +1429,11 @@ Listed here are references to all external sources, be they code, books,
 algorithms, tutorials, or other articles.
 
 ## Web Links
-1. canvas-sequencer: <https://www.npmjs.com/package/canvas-sequencer>
-2. westures: <https://mvanderkamp.github.io/westures/>
-3. zingtouch: <https://github.com/zingchart/zingtouch>
-4. express: <https://www.npmjs.com/package/express>
-5. socket.io: <https://www.npmjs.com/package/socket.io>
+1. node.js: <https://nodejs.org/en/>
+2. npm: <https://www.npmjs.com/>
+3. zingtouch: <https://zingchart.github.io/zingtouch/>
+4. express: <http://expressjs.com/>
+5. socket.io: <https://socket.io/>
 6. arkit: <https://arkit.js.org/>
 7. babel: <https://babeljs.io/>
 8. browserify: <http://browserify.org/>
@@ -1179,22 +1441,28 @@ algorithms, tutorials, or other articles.
 10. jest: <https://jestjs.io/>
 11. jsdoc: <http://usejsdoc.org/>
 12. terser: <https://www.npmjs.com/package/terser>
-12. tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
-13. make: <https://www.gnu.org/software/make/manual/make.html>
-14. exuberant-ctags: <http://ctags.sourceforge.net/>
-15. ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
-16. You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
-17. Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
-18. Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
-19. Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
-20. Open Source Assets: <https://www.kenney.nl> (Used for image assets in
+13. tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
+14. make: <https://www.gnu.org/software/make/manual/make.html>
+15. exuberant-ctags: <http://ctags.sourceforge.net/>
+16. ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
+17. You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
+18. Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
+19. Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
+20. Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
+21. Open Source Assets: <https://www.kenney.nl> (Used for image assets in
     examples).
 
 ## Papers and Articles
-21. Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
-    Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
 22. Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
     Environments to Foster Emotional Intelligence in Hospitalized Children."
     Proceedings of the XVI International Conference on Human Computer
     Interaction 07-09 (2015): 1-2.
+23. Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
+    Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
+24. Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and Understanding
+    Cross-device Interaction." Proceedings of the SIGCHI Conference on Human
+    Factors in Computing Systems, 2014, 2773-782.
+25. Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces Project:
+    Experiences with Ubiquitous Computing Rooms." IEEE Pervasive Computing 1,
+    no. 2 (2002): 67-74.
 
