@@ -4,8 +4,7 @@ author:
 - Michael van der Kamp, mjv761, 11190459
 - Supervisor`:` Carl Gutwin
 - Additional supervision and input by Scott Bateman
-- Based off implementation by Jesse Rolheiser
-date: April 15, 2019
+date: April 16, 2019
 keywords: [multi-touch, multi-display, workspace, gestures, interaction, HCI]
 abstract: |
     Interactive devices such as smartphones, tablets, and smartwatches are
@@ -22,11 +21,28 @@ abstract: |
 
 \clearpage
 
-# Outline
+# Contents
 
 * [Introduction]
-* [Architecture]
+* [Basic Design]
+* [Core Concepts]
+    - [Coordination]
+    - [Message / Reporter Protocol]
+    - [Unique Identification]
+    - [Mixin Pattern]
+    - [Model-View-Controller]
+    - [Smooth and Responsive Interaction]
+* [Support Environment]
+    - [Runtime Dependencies]
+    - [Build Tools]
+    - [Testing]
 * [Evaluation]
+    - [Effectiveness]
+    - [Efficiency]
+    - [Generalizability]
+    - [Extensibility]
+    - [Limitations]
+    - [Multi-Device Gestures]
 * [Deliverables]
 * [References]
 
@@ -80,58 +96,24 @@ Interaction 07-09 (2015): 1-2.
 
 \clearpage
 
-# Architecture
-
-This section of the document details the architecture design of the WAMS
-project. It covers fundamental architectural design decisions, the purpose of
-each of the modules, and briefly discusses each of the classes. For more
-in-depth information about any particular class, method, or chunk of code, see
-the [documentation](https://mvanderkamp.github.io/wams/).[^mydocs]
-
-[^mydocs]: <https://mvanderkamp.github.io/wams/>
-
----
-
-## Contents
-
-* [Basic Design]
-* [Core Concepts]
-    - [Coordination]
-    - [Message / Reporter Protocol]
-    - [Unique Identification]
-    - [Mixin Pattern]
-    - [Model-View-Controller]
-    - [Smooth and Responsive Interaction]
-* [Runtime Dependencies]
-* [Build Tools]
-* [Testing]
-* Modules
-    - [Shared]
-    - [Client]
-    - [Server]
-    - [Mixins]
-    - [Gestures]
-    - [Predefined]
-* [Connection Establishment]
-
-\clearpage
-
-## Basic Design
+# Basic Design
 
 There have been numerous other projects exploring the concept of Multi-Device
 Environments. Some of them, such as Conductor, have each device running discrete
 tasks, with the system controlling communication and synchronization between
 them.[^conductor] Others used a series of large displays to create digital
-rooms.[^rooms] The approach taken with WAMS is to leverage the technology of
-the web, allowing any device capable of running a modern browser to connect to a
-WAMS application, and to allow the programmer to control the digital layout of
-the devices as they connect to a single, shared workspace.
+rooms.[^rooms] Mobile multi-display environments have also been
+explored,[^mobile1]$^,$[^mobile2] as well as the possibility of combining mobile
+and tabletop surfaces.[^combo] The approach taken with WAMS is to leverage
+the technology of the web, allowing any device capable of running a modern
+browser to connect to a WAMS application, and to allow the programmer to control
+the digital layout of the devices as they connect to a single, shared workspace.
 
 The project is written in JavaScript and powered by `node.js`. WAMS applications
 are run from the command line on a computer that acts as the server. Clients, on
 the same local network as the server, use a browser to connect to the IP address
-of the server. The [connection establishment](#connection-establishment) process
-hooks up the client, and they can begin interacting with the application.
+of the server. The connection establishment process hooks up the client, and
+they can begin interacting with the application.
 
 Generally, all programmer code will only be run on the server, as the bundle of
 JavaScript, HTML, and CSS that is delivered to clients is static and is not
@@ -152,6 +134,10 @@ operate in the retained mode graphics context of normal webpages, while still
 being consistently presented across devices, with appropriate transformations in
 the same vein as the canvas rendered objects.
 
+For detailed information about individual modules, classes, mixins, and routines
+see the documentation[^mydocs] as well as the design document on the github
+page.[^design]
+
 [^conductor]: Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and
   Understanding Cross-device Interaction." Proceedings of the SIGCHI Conference
   on Human Factors in Computing Systems, 2014, 2773-782.
@@ -160,20 +146,34 @@ the same vein as the canvas rendered objects.
   Project: Experiences with Ubiquitous Computing Rooms." IEEE Pervasive
   Computing 1, no. 2 (2002): 67-74.
 
+[^mobile1]: Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings
+  of the 24th Annual ACM Symposium Adjunct on User Interface Software and
+  Technology, 2011, 39-42.
+
+[^mobile2]: Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile
+  Multi-Display Environments through Head Tracking." Proceedings of the 2017 CHI
+  Conference on Human Factors in Computing Systems 2017 (2017): 3966-971.
+
+[^combo]: Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
+  Gesture-based Interaction Techniques in Multi-display Environments with Mobile
+  Phones and a Multi-touch Table." Proceedings of the International Conference
+  on Advanced Visual Interfaces, 2010, 419.
+
+[^mydocs]: <https://mvanderkamp.github.io/wams/>
+
+[^design]: <https://github.com/mvanderkamp/wams/blob/master/DESIGN.md>
+
 \clearpage
 
-## Core Concepts
+# Core Concepts
 
-* [Coordination]
-* [Message / Reporter Protocol]
-* [Unique Identification]
-* [Mixin Pattern]
-* [Model-View-Controller]
-* [Smooth and Responsive Interaction]
+This section discusses some of the key ideas and solutions demonstrated in the
+implementation of the project, detailing the architecture as well as some
+specific routines.
 
 ---
 
-### Coordination
+## Coordination
 
 Proper synchronization and object locking is critical to the successful
 operation of a WAMS application. These activities are achieved by taking
@@ -200,7 +200,7 @@ for the locks.
 
 ---
 
-### Message / Reporter protocol
+## Message / Reporter protocol
 
 One of the early challenges encountered was to ensure that only the correct
 data is transferred over the network, and that when a message is received
@@ -247,7 +247,7 @@ documentation.
 
 ---
 
-### Unique Identification
+## Unique Identification
 
 In a large system like this, where it is important to keep track of and uniquely
 identify lots of different kinds of objects correctly on both the client and the
@@ -259,7 +259,9 @@ determined by the scope of the `IdStamper` instance.
 
 ---
 
-### Mixin Pattern
+![Graph of the client module](./graphs/mixins.png){width=70%}
+
+## Mixin Pattern
 
 The complexity of the code, particularly on the server, would be significantly
 higher were it not for the mixin pattern. The short and simple version for those
@@ -284,12 +286,14 @@ specific implementation approach used can be found at
 
 ---
 
-### Model-View-Controller
+## Model-View-Controller
 
 Both the client and the server implement their own version of the MVC pattern,
 ultimately operating together as a larger MVC pattern.
 
-#### _Client MVC_
+![Graph of the client module](./graphs/client.png)
+
+### _Client MVC_
 
 The client side version is the most straightforward, and looks a lot like
 classical MVC. The catch of course is that the `ClientController` sends user
@@ -298,7 +302,7 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
-#### _Server MVC_
+### _Server MVC_
 
 The server side is more complicated. The most obvious reason for this is that,
 being an API, programmers need to be able to attach their own controller code.
@@ -319,6 +323,8 @@ The `ServerController` instances are spawned and maintained by the
 `Switchboard`, and these controllers maintain a link to their associated
 `ServerView` and its physical `Device`.
 
+![Graph of the server module](./graphs/server.png)
+
 One other wrinkle is that, in order to support multi-device gestures, the
 `ServerViewGroup` has a single `GestureController` which is responsible only for
 maintaining the state of active pointers and calculating whether gestures have
@@ -334,7 +340,7 @@ either the `ServerController` or the `GestureController` will ultimately funnel
 the event through the `MessageHandler`, which calls any listeners the programmer
 has attached, as appropriate.
 
-#### _Client and Server MVC Together_
+### _Client and Server MVC Together_
 
 Taken together, the client and the server form a larger MVC pattern, with the
 client representing the view and part of the controller, and the server
@@ -342,12 +348,12 @@ representing the other part of the controller as well as the model.
 
 ---
 
-### Smooth and Responsive Interaction
+## Smooth and Responsive Interaction
 
 In order to ensure a smooth and responsive experience for the user, several
 issues must be taken into consideration.
 
-#### _Network traffic:_
+### _Network traffic:_
 
 The overall amount of traffic over the network must be kept to a minimum.
 Similarly, the size of packets sent over the network must also be kept down.
@@ -363,14 +369,14 @@ Additionally, the only data sent during an update should be the data pertaining
 to the specific object that has been updated. This is as opposed to sending a
 full state packet representing all objects in the model.
 
-#### _Consistency with server:_
+### _Consistency with server:_
 
 The approach taken to maintain consistency with the server is for every update
 to consist of state packets, rather than sending transformation commands. The
 client therefore simply copies the new state information for each updated
 object.
 
-#### _Bundling transformations:_
+### _Bundling transformations:_
 
 The three core transformations are translation, scale, and rotation. Each of
 these is likely to happen every time that a user moves any of the active
@@ -406,7 +412,7 @@ events, then only evaluating gestures at a rate of up to 60 times per second by
 using a callback interval that checks whether input updates have occurred since
 the last evaluation.
 
-#### _Gesture smoothing:_
+### _Gesture smoothing:_
 
 ![Example of jitter and smoothing when
 panning[^graphnote]](./data/PanY.png){height=70%}
@@ -470,6 +476,12 @@ the significant improvement already obtained and the efficiency of the simple
 calculations, the current algorithm should therefore be sufficient.
 
 \clearpage
+
+# Support Environment
+
+This section details the tools used in the implementation of this project.
+
+---
 
 ## Runtime Dependencies
 
@@ -660,545 +672,12 @@ and refactors since January.
 
 \clearpage
 
-## Shared
-
-![Graph of the shared module](./graphs/shared.png){width=60% height=60%}
-
-To coordinate activity between the client and server, a shared set of resources
-is exposed by
-[shared.js](https://mvanderkamp.github.io/wams/module-shared.html).
-
-* [utilities]
-* [IdStamper]
-* [ReporterFactory]
-* [Reporters]
-* [Message]
-* [Point2D]
-* [Polygon2D]
-* [Rectangle]
-
----
-
-### utilities
-
-Exported by the
-[utilities](https://mvanderkamp.github.io/wams/module-shared.utilities.html)
-module are a few quality-of-life functions intended to be used throughout the
-codebase. They are there to make writing other code easier, and to reduce
-repetition.
-
-### IdStamper
-
-The [IdStamper](https://mvanderkamp.github.io/wams/module-shared.IdStamper.html)
-class controls ID generation. The class has access to a private generator
-function for IDs and exposes a pair of methods for stamping new IDs onto objects
-and cloning previously existing Ids onto objects.
-
-### ReporterFactory
-
-The [ReporterFactory](https://mvanderkamp.github.io/wams/module-shared.html)
-takes a dictionary of default values and returns a `Reporter` class definition.
-Runtime definition of classes is possible due to the nature of JavaScript,
-wherein classes are really just functions that can be "constructed" using the
-keyword `new`. Therefore just as functions can be treated like variables, so too
-can classes.
-
-### Reporters
-
-All the
-[reporters](https://mvanderkamp.github.io/wams/module-shared.Reporter.html)
-provided by this module share a common interface, as they are all generated by
-the same class factory.
-
-Specifically, each reporter exposes two methods for getting and setting a set of
-core properties: `assign(data)` and `report()`. 
-
-As discussed in the [core concepts](#some-core-concepts) section above, the
-motivation for this design was to provide some semblance of confidence about the
-data that will be passed between the client and server. With the core properties
-defined in a shared module, the chance of data being sent back and forth in a
-format that one end or the other does not recognize is greaty reduced. This was
-taken even further with the [Message](#message) class, which uses this reporter
-interface for the data it transmits. 
-
-Crucially, the set of Reporters includes the common `View`, `Item`, `Image`, and
-`Element` definitions that both client and server extend. Think of these common
-reporter definitions as pipes that both client and server must push their data
-through if they wish to share it.
-
-### Message
-
-The [ Message ](https://mvanderkamp.github.io/wams/module-shared.Message.html)
-class takes the notion of reporters one step further by centralizing the method
-of data transmission between the client and server. It does this by explicitly
-requiring that any data objects it receives for transmission be reporters.
-Messages can be transmitted by any object with an `emit` function.
-
-### Point2D
-
-JavaScript lacks a standard library, and no third party standalone module stood
-out. Therefore the
-[Point2D](https://mvanderkamp.github.io/wams/module-shared.Point2D.html) class
-therefore provides the necessary two-dimensional point operations.
-
-### Polygon2D
-
-The [Polygon2D](https://mvanderkamp.github.io/wams/module-shared.Polygon2D.html)
-class defines a two dimensional polygon class, capable of hit detection.
-Complex polygons are supported by the hit detection routine as well as simple
-polygons.[^polygonal] 
-
-[^polygonal]: For a discussion of the algorithm used, see
-<http://geomalgorithms.com/a03-_inclusion.html>.
-
-### Rectangle
-
-The [Rectangle](https://mvanderkamp.github.io/wams/module-shared.Rectangle.html)
-class provides a two dimensional rectangle class with support for hit detection.
-
-\clearpage
-
-## Client
-
-![Graph of the client module](./graphs/client.png)
-
-The client side code is bundled together with the shared module and all their
-dependencies to be executed in the browsers of clients. The `client.js` file
-is the entry point.
-
-* [ClientController]
-* [ClientModel]
-* [ClientView]
-* [ShadowView]
-* [ClientItem]
-* [ClientImage]
-* [ClientElement]
-* [Interactor]
-* [Transform]
-
----
-
-### ClientController
-
-The [ ClientController
-](https://mvanderkamp.github.io/wams/module-client.ClientController.html) is the
-bridge between client and server. To do this, it maintains the `socket.io`
-connection to the server. User interaction is forwarded to the server, while
-updates from the server are forwarded to the model.
-
-### ClientModel 
-
-The [ ClientModel
-](https://mvanderkamp.github.io/wams/module-client.ClientModel.html) is a full
-copy of the server model, but with only the data necessary to render each
-object.
-
-### ClientView
-
-The [ ClientView
-](https://mvanderkamp.github.io/wams/module-client.ClientView.html) class is
-responsible for holding onto the canvas context and running the principle
-`draw()` sequence. It also aligns the canvas context to reflect the transformed
-state of the client's view within the workspace.
-
-### ShadowView
-
-The [ ShadowView
-](https://mvanderkamp.github.io/wams/module-client.ShadowView.html) class is a
-simple extension of the View class that is used for rendering the outlines of
-other clients' views onto the canvas, along with a triangle marker indicating
-the orientation of the view. The triangle appears in what is the view's top left
-corner.
-
-### ClientItem
-
-The [ ClientItem
-](https://mvanderkamp.github.io/wams/module-client.ClientItem.html) class is an
-extension of the Item class that is aware of and able to make use of the
-`CanvasSequence` class from the `canvas-sequencer` package for rendering custom
-sequences to the canvas. It is therefore intended for immediate mode renderable
-items that do not require additional data beyond the render sequence.
-
-### ClientImage
-
-The [ ClientImage
-](https://mvanderkamp.github.io/wams/module-client.ClientImage.html) class
-enables loading and rendering of images.
-
-### ClientElement
-
-The [ ClientElement
-](https://mvanderkamp.github.io/wams/module-client.ClientElement.html) class
-enables the use of HTML Elements as workspace objects. It generates the elements
-and attaches the provided attributes. Transformations are handled by CSS methods
-instead of canvas context transforms, as the elements are independent of the
-canvas.
-
-### Interactor
-
-The [ Interactor
-](https://mvanderkamp.github.io/wams/module-client.Interactor.html) class
-provides a layer of abstraction between the controller and the interaction /
-gesture library being used. This should make it relatively easy, in the long
-run, to swap out interaction libraries if need be.
-
-When a user interacts with the application in a way that is supported, the
-Interactor tells the ClientController the necessary details so the
-`ClientController` can forward those details to the server.
-
-### Transform
-
-The [ Transform
-](https://mvanderkamp.github.io/wams/module-client.Transform.html) class bundles
-together the `Pan`, `Pinch`, and `Rotate` gestures so that all three updates
-will occur simultaneously, reducing jitter.
-
-\clearpage
-
-## Server
-
-![Graph of the server module](./graphs/server.png)
-
-The server module is run by `node.js` on the server. It has access to and uses
-all other modules except the client module. It also defines the API endpoint,
-which is found in the `Application` class.
-
-* [ServerController]
-* [GestureController]
-* [SwitchBoard]
-* [WorkSpace]
-* [ServerViewGroup]
-* [ServerView]
-* [Device]
-* [ServerItem]
-* [ServerImage]
-* [ServerElement]
-* [MessageHandler]
-* [Router]
-* [Application]
-
----
-
-### ServerController
-
-The [ ServerController
-](https://mvanderkamp.github.io/wams/module-server.ServerController.html) class
-acts as a bridge between a client and the server. To do this it maintains a
-`socket.io` connection with a client. It keeps track of the `ServerView`
-corresponding to that client, as well as the `ServerViewGroup` to which it
-belongs, and its physical `Device`.
-
-User interaction events are forwarded either directly to the `MessageHandler` or
-to the view group's `GestureController`, depending on whether server-side or the
-traditional client-side gestures are in use. 
-
-Outgoing messages will be handled directly by the view or by items, via their
-'publish' mechanism. This mechanism ensures that updates will be sent to clients
-directly, without any special care required on the part of the programmer.[^plz]
-
-[^plz]: This is assuming that the programmer is disciplined. It is still
-  possible to modify the properties directly, as JavaScript lacks true private
-  fields. But so long as the programmer uses the transformation methods provided
-  everything will work.
-
-### GestureController
-
-The [ GestureController
-](https://mvanderkamp.github.io/wams/module-server.GestureController.html) class
-is in charge of processing server-side gestures for the purpose of enabling
-multi-device gestures. It accomplishes this by interfacing with the `gestures`
-module.
-
-### SwitchBoard
-
-The [ SwitchBoard
-](https://mvanderkamp.github.io/wams/module-server.Switchboard.html) controls
-connection establishment, as well as disconnection. It hooks up all the
-necessary components when a client connects to a WAMS app.
-
-### WorkSpace
-
-The [ WorkSpace
-](https://mvanderkamp.github.io/wams/module-server.WorkSpace.html) is the model
-for all items that are programmatically added or removed. That is, for
-`ServerItems`, `ServerImages`, and `ServerElements`.
-
-### ServerViewGroup
-
-The [ ServerViewGroup
-](https://mvanderkamp.github.io/wams/module-server.ServerViewGroup.html) class
-is the model for `ServerViews`. It has an associated `GestureController` to
-enable server-side gestures. Transformations applied to a group are applied to
-each view in the group.
-
-Mixins used by this class: `Locker`, `Lockable`, `Transformable2D`.
-
-### ServerView
-
-The [ ServerView
-](https://mvanderkamp.github.io/wams/module-server.ServerView.html) represents a
-client's logical view within the workspace. 
-
-Mixins used by this class: `Locker`, `Interactable`.
-
-### Device
-
-The [ Device ](https://mvanderkamp.github.io/wams/module-server.Device.html)
-class represents a client's physical device. It is used for transforming input
-point coordinates when server-side gestures are in use.
-
-Mixins used by this class: `Transformable2D`.
-
-### ServerItem
-
-The [ ServerItem
-](https://mvanderkamp.github.io/wams/module-server.ServerItem.html) maintains
-the model of an `Item`. It allows for transformations and hit detection.
-Transformations are published automatically to the clients. 
-
-Mixins used by this class: `Identifiable`, `Hittable`.
-
-### ServerImage
-
-The [ ServerImage
-](https://mvanderkamp.github.io/wams/module-server.ServerImage.html) is similar
-to the `ServerItem` class, but with methods and properties specific to images.
-
-Mixins used by this class: `Identifiable`, `Hittable`.
-
-### ServerElement
-
-The [ ServerElement
-](https://mvanderkamp.github.io/wams/module-server.ServerElement.html) class is
-similar to the `ServerItem` class, but with methods and properties specific to
-HTML elements.
-
-Mixins used by this class: `Identifiable`, `Hittable`.
-
-### MessageHandler
-
-The [ MessageHandler
-](https://mvanderkamp.github.io/wams/module-server.MessageHandler.html) is the
-interface between the WAMS system and the programmer.  All recognized user
-interactions ultimately end up being transmitted to the MessageHandler, which
-will call the appropriate listener, if the programmer has attached one.
-
-### Router
-
-The [ Router ](https://mvanderkamp.github.io/wams/module-server.html) provides a
-layer of abstraction between the server and the request handling library and its
-configuration.
-
-### Application
-
-The [ Application
-](https://mvanderkamp.github.io/wams/module-server.Application.html) is the API
-endpoint of the WAMS system.
-
-\clearpage
-
-## Mixins
-
-![Graph of the mixins module](./graphs/mixins.png){width=65% height=65%}
-
-These mixins implement the mixin pattern as described [above](#mixins). Their
-use is what enabled the relatively simple and straightforward structure of the
-server module.
-
-* [Lockable]
-* [Locker]
-* [Publishable]
-* [Transformable2D]
-* [Interactable]
-* [Hittable]
-* [Identifiable]
-
----
-
-### Lockable
-
-The [ Lockable ](https://mvanderkamp.github.io/wams/module-mixins.Lockable.html)
-mixin allows a class to enable itself to be locked and unlocked, with the
-default being unlocked.
-
-### Locker
-
-The [ Locker ](https://mvanderkamp.github.io/wams/module-mixins.Locker.html)
-mixin allows a class to obtain and release a lock on an item.
-
-### Publishable
-
-The [ Publishable
-](https://mvanderkamp.github.io/wams/module-mixins.Publishable.html) mixin
-provides a basis for types that can be published. It ensures that publications
-will not be sent until all transformations relating to an event have been
-applied.
-
-### Transformable2D
-
-The [ Transformable2D
-](https://mvanderkamp.github.io/wams/module-mixins.Transformable2D.html) mixin
-provides 2D transformation operations for classes with `x`, `y`, `scale` and
-`rotation` properties.
-
-### Interactable
-
-The [ Interactable
-](https://mvanderkamp.github.io/wams/module-mixins.Interactable.html) mixin
-combines the `Transformable2D`, `Lockable`, and `Publishable` mixins to produce
-an object that can be interacted with by a WAMS application.
-
-### Hittable
-
-The [ Hittable ](https://mvanderkamp.github.io/wams/module-mixins.Hittable.html)
-mixin extends the Interactable mixin by allow hit detection.
-
-### Identifiable
-
-The [ Identifiable
-](https://mvanderkamp.github.io/wams/module-mixins.Identifiable.html) mixin
-labels each instantiated object with a unique, immutable ID. All classes that
-use this mixin will share the same pool of IDs.
-
-\clearpage
-
-## Gestures
-
-![Graph of the gestures module](./graphs/gestures.png){width=50% height=50%}
-
-The gestures module closely mirrors the core engine of the `westures` package,
-such that the gestures defined by the `westures` package can be used on the
-server side, powered by this gestures module.
-
-* [Binding]
-* [Input]
-* [PHASE]
-* [PointerData]
-* [Region]
-* [State]
-
----
-
-### Binding
-
-A [ Binding ](https://mvanderkamp.github.io/wams/module-gestures.Binding.html)
-associates a gesture with a handler function that will be called when the
-gesture is recognized.
-
-### Input
-
-An [ Input ](https://mvanderkamp.github.io/wams/module-gestures.Input.html)
-tracks a single input and contains information about the current and initial
-events. Also tracks the client from whom the input originates.
-
-### PHASE
-
-The [ PHASE ](https://mvanderkamp.github.io/wams/module-gestures.html) object
-normalizes inputs events to the phases start, move, end, or cancel.
-
-### PointerData
-
-The [ PointerData
-](https://mvanderkamp.github.io/wams/module-gestures.PointerData.html) class
-provides low-level storage of pointer data based on incoming data from an
-interaction event. Specifically, it stores the (x,y) coordinates of the pointer,
-the time of interaction, and the phase.
-
-### Region
-
-The [ Region ](https://mvanderkamp.github.io/wams/module-gestures.Region.html)
-class is the entry point into the gestures module. It maintains the list of
-active gestures and acts as a supervisor for all gesture processes. 
-
-### State
-
-The [ State ](https://mvanderkamp.github.io/wams/module-gestures.State.html)
-class maintains the list of input points.
-
-\clearpage
-
-## Predefined
-
-![Graph of the predefined module](./graphs/predefined.png){width=35% height=35%}
-
-The predefined module provides a limited selection of item factories and event
-handlers for use by programmers using the WAMS API. In addition to what is
-described below, there are predefined `scale`, `rotate`, and `drag` handlers
-attached directly in `predefined.js`.
-
-* [items](#predefined-items)
-* [layouts](#predefined-layouts)
-* [utilities](#predefined-utilities)
-
----
-
-### Items {#predefined-items}
-
-The [ items ](https://mvanderkamp.github.io/wams/module-predefined.items.html)
-namespace is a collection of factories for predefined item types.
-
-### Layouts {#predefined-layouts}
-
-The [ layouts
-](https://mvanderkamp.github.io/wams/module-predefined.layouts.html) namespace
-is a collection of factories for predefined layout handlers.
-
-### Utilities {#predefined-utilities}
-
-The [ utilities
-](https://mvanderkamp.github.io/wams/module-predefined.utilities.html) namespace
-is an assortment  of predefined helper functions.
-
-\clearpage
-
-## Connection Establishment
-
-One of the more complex and critical routines is connection establishment. Much
-of the complexity arises because the algorithm cannot be defined in any one
-file, but rather is scattered across many sources files. Therefore it is
-described in detail here. 
-
-When a user visits the IP address and port where the app is hosted, the
-following sequence of events occurs:
-
-1. HTML and client JavaScript code are delivered.
-2. When the page is loaded, the client's `ClientModel`, `ClientView`, and
-   `ClientController` are instantiated and hooked up.
-3. The `ClientController` resizes the canvas to fill the client's browser
-   window. 
-4. The `ClientController` registers `socket.io` message listeners and other
-   assorted non-gesture-related listeners for maintaining the system.
-5. The `ClientController` initiates the render loop.
-6. The `ClientController` attempts to establish a socket connection with the
-   server.
-7. The `Switchboard` receives the 'connect' request. If the client limit has
-   been reached, it rejects the connection. The user is informed of this
-   rejection, and all functionality stops. Otherwise, it accepts the connection.
-8. When the connection is accepted, a `ServerController` is instantiated and
-   slotted into the collection of active connections.
-9. The `ServerController` asks the `ServerViewGroup` to spawn a view for it, and
-   spawns a `Device` to store the representation of the client's physical
-   device.
-10. The `ServerController` attaches `socket.io` message listeners and issues a
-    "full state report" to the client, detailing the current state of the model
-    so that the client can render the model, as well as options specified by the
-    programmer such as whether to use client or server-side gestures.
-11. The `ClientController` informs the `ClientModel` of this data and registers
-    user event listeners, either in the form of an `Interactor` for client-side
-    gestures or by directly forwarding input events for server-side gestures. 
-12. The `ClientController` emits a layout message to the server, detailing the
-    size of the view.
-13. The `ServerController` receives this message, and records the size of the
-    view in the model.
-14. If a layout handler has been registered for the application, it is called
-    for the new view. 
-15. The view is updated with the new parameters from the layout, and all the
-    other views are now informed of the view, adding it as a "shadow".
-16. The connection is now fully established, and normal operation proceeds.
-
-\clearpage
-
 # Evaluation
+
+This section offers a subjective evaluation of the degree to which the goals of
+the project were achieved.
+
+---
 
 ## Effectiveness 
 
@@ -1428,41 +907,57 @@ EXAMPLE replaced by the filename of the example.[^scaffold]
 Listed here are references to all external sources, be they code, books,
 algorithms, tutorials, or other articles.
 
-## Web Links
-1. node.js: <https://nodejs.org/en/>
-2. npm: <https://www.npmjs.com/>
-3. zingtouch: <https://zingchart.github.io/zingtouch/>
-4. express: <http://expressjs.com/>
-5. socket.io: <https://socket.io/>
-6. arkit: <https://arkit.js.org/>
-7. babel: <https://babeljs.io/>
-8. browserify: <http://browserify.org/>
-9. eslint: <https://eslint.org/>
-10. jest: <https://jestjs.io/>
-11. jsdoc: <http://usejsdoc.org/>
-12. terser: <https://www.npmjs.com/package/terser>
-13. tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
-14. make: <https://www.gnu.org/software/make/manual/make.html>
-15. exuberant-ctags: <http://ctags.sourceforge.net/>
-16. ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
-17. You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
-18. Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
-19. Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
-20. Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
-21. Open Source Assets: <https://www.kenney.nl> (Used for image assets in
-    examples).
-
 ## Papers and Articles
-22. Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
+* Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings of the
+    24th Annual ACM Symposium Adjunct on User Interface Software and Technology,
+    2011, 39-42.
+* Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
+    Gesture-based Interaction Techniques in Multi-display Environments with
+    Mobile Phones and a Multi-touch Table." Proceedings of the International
+    Conference on Advanced Visual Interfaces, 2010, 419.
+* Forlines, Clifton, Alan Esenther, Chia Shen, Daniel Wigdor, and Kathy Ryall.
+    "Multi-user, Multi-display Interaction with a Single-user, Single-display
+    Geospatial Application." Proceedings of the 19th Annual ACM Symposium on
+    User Interface Software and Technology, 2006, 273-76.
+* Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
     Environments to Foster Emotional Intelligence in Hospitalized Children."
     Proceedings of the XVI International Conference on Human Computer
     Interaction 07-09 (2015): 1-2.
-23. Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
+* Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
     Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
-24. Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and Understanding
+* Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile Multi-Display
+    Environments through Head Tracking." Proceedings of the 2017 CHI Conference
+    on Human Factors in Computing Systems 2017 (2017): 3966-971.
+* Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and Understanding
     Cross-device Interaction." Proceedings of the SIGCHI Conference on Human
     Factors in Computing Systems, 2014, 2773-782.
-25. Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces Project:
+* Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces Project:
     Experiences with Ubiquitous Computing Rooms." IEEE Pervasive Computing 1,
     no. 2 (2002): 67-74.
+
+\clearpage
+
+## Web Links
+* node.js: <https://nodejs.org/en/>
+* npm: <https://www.npmjs.com/>
+* zingtouch: <https://zingchart.github.io/zingtouch/>
+* express: <http://expressjs.com/>
+* socket.io: <https://socket.io/>
+* arkit: <https://arkit.js.org/>
+* babel: <https://babeljs.io/>
+* browserify: <http://browserify.org/>
+* eslint: <https://eslint.org/>
+* jest: <https://jestjs.io/>
+* jsdoc: <http://usejsdoc.org/>
+* terser: <https://www.npmjs.com/package/terser>
+* tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
+* make: <https://www.gnu.org/software/make/manual/make.html>
+* exuberant-ctags: <http://ctags.sourceforge.net/>
+* ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
+* You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
+* Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
+* Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
+* Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
+* Open Source Assets: <https://www.kenney.nl> (Used for image assets in
+    examples).
 
