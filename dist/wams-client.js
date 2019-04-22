@@ -11680,6 +11680,37 @@ require("core-js/modules/es.symbol.description");
 const cascade = Symbol('cascade');
 const smooth = Symbol('smooth');
 /**
+ * Determines whether to apply smoothing. Smoothing is on by default but turned
+ * off if either:
+ *  1. The user explicitly requests that it be turned off.
+ *  2. The active poiner is not "coarse".
+ *
+ * @see {@link
+ * https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia}
+ *
+ * @private
+ * @inner
+ * @memberof westures-core.Smoothable
+ *
+ * @param {boolean} isRequested - Whether smoothing was requested by the user.
+ *
+ * @returns {boolean} Whether to apply smoothing.
+ */
+
+function smoothingIsApplicable(isRequested = true) {
+  if (isRequested) {
+    try {
+      return window.matchMedia('(pointer: coarse)').matches;
+    } catch (e) {
+      console.warn(e);
+    }
+
+    return true;
+  }
+
+  return false;
+}
+/**
  * A Smoothable gesture is one that emits on 'move' events. It provides a
  * 'smoothing' option through its constructor, and will apply smoothing before
  * emitting. There will be a tiny, ~1/60th of a second delay to emits, as well
@@ -11695,6 +11726,7 @@ const smooth = Symbol('smooth');
  * @memberof westures-core
  * @mixin
  */
+
 
 const Smoothable = superclass => class Smoothable extends superclass {
   /**
@@ -11716,10 +11748,10 @@ const Smoothable = superclass => class Smoothable extends superclass {
 
     this.smooth = null;
 
-    if (options.hasOwnProperty('smoothing') && !options.smoothing) {
-      this.smooth = data => data;
-    } else {
+    if (smoothingIsApplicable(options.smoothing)) {
       this.smooth = this[smooth].bind(this);
+    } else {
+      this.smooth = data => data;
     }
     /**
      * The "identity" value of the data that will be smoothed.
@@ -13952,17 +13984,16 @@ const symbols = Object.freeze({
  * the server detailing changes to post to the view.
  *
  * @memberof module:client
+ *
+ * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object, (not
+ * the context), which will fill the page.
+ * @param {module:client.ClientView} view - The view that will handle rendering
+ * duties.
+ * @param {module:client.ClientModel} model - The client-side copy of the
+ * server's model.
  */
 
 class ClientController {
-  /**
-   * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
-   * (not the context), which will fill the page.
-   * @param {module:client.ClientView} view - The view that will handle
-   * rendering duties.
-   * @param {module:client.ClientModel} model - The client-side copy of the
-   * server's model.
-   */
   constructor(canvas, view, model) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
@@ -14362,15 +14393,13 @@ const STAMPER = new IdStamper();
  *
  * @extends module:shared.WamsElement
  * @memberof module:client
+ *
+ * @param {module:shared.WamsElement} data - The data from the server describing
+ * this item. Only properties explicity listed in the array passed to the
+ * ReporterFactory when the WamsElement class was defined will be accepted.
  */
 
 class ClientElement extends WamsElement {
-  /**
-   * @param {module:shared.WamsElement} data - The data from the server
-   * describing this item. Only properties explicity listed in the array passed
-   * to the ReporterFactory when the WamsElement class was defined will be
-   * accepted.
-   */
   constructor(data) {
     super(data);
     /**
@@ -14499,15 +14528,14 @@ function createImage(src) {
  *
  * @extends module:shared.WamsImage
  * @memberof module:client
+ *
+ * @param {module:shared.Item} data - The data from the server describing this
+ * item. Only properties explicity listed in the array passed to the
+ * ReporterFactory when the Item class was defined will be accepted.
  */
 
 
 class ClientImage extends WamsImage {
-  /**
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item. Only properties explicity listed in the array passed to the
-   * ReporterFactory when the Item class was defined will be accepted.
-   */
   constructor(data) {
     super(data);
     /**
@@ -14595,14 +14623,13 @@ const STAMPER = new IdStamper();
  *
  * @extends module:shared.Item
  * @memberof module:client
+ *
+ * @param {module:shared.Item} data - The data from the server describing this
+ * item. Only properties explicity listed in the array passed to the
+ * ReporterFactory when the Item class was defined will be accepted.
  */
 
 class ClientItem extends Item {
-  /**
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item. Only properties explicity listed in the array passed to the
-   * ReporterFactory when the Item class was defined will be accepted.
-   */
   constructor(data) {
     super(data);
     /**
@@ -14973,13 +15000,12 @@ const symbols = Object.freeze({
  *
  * @extends module:shared.View
  * @memberof module:client
+ *
+ * @param {CanvasRenderingContext2D} context - The canvas context in which to
+ * render the model.
  */
 
 class ClientView extends View {
-  /**
-   * @param {CanvasRenderingContext2D} context - The canvas context in which to
-   * render the model.
-   */
   constructor(context) {
     super(ClientView.DEFAULTS);
     /**
@@ -15148,19 +15174,18 @@ const Transform = require('./Transform.js');
  * @memberof module:client
  *
  * @see {@link https://mvanderkamp.github.io/westures/}
+ *
+ * @param {Object} handlers - Object with keys as the names gestures and values
+ *    as the corresponding function for handling that gesture when it is
+ *    recognized.
+ * @param {Function} [handlers.swipe=NOP]
+ * @param {Function} [handlers.tap=NOP]
+ * @param {Function} [handlers.track=NOP]
+ * @param {Function} [handlers.transform=NOP]
  */
 
 
 class Interactor {
-  /**
-   * @param {Object} handlers - Object with keys as the names gestures and
-   *    values as the corresponding function for handling that gesture when it
-   *    is recognized.
-   * @param {Function} [handlers.swipe=NOP]
-   * @param {Function} [handlers.tap=NOP]
-   * @param {Function} [handlers.track=NOP]
-   * @param {Function} [handlers.transform=NOP]
-   */
   constructor(handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
@@ -15314,13 +15339,12 @@ const symbols = Object.freeze({
  *
  * @extends module:shared.View
  * @memberof module:client
+ *
+ * @param {module:shared.View} values - server-provided data describing this
+ * view.
  */
 
 class ShadowView extends View {
-  /**
-   * @param {module:shared.View} values - server-provided data describing this
-   * view.
-   */
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);
@@ -15832,19 +15856,19 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  * The Message class provides a funnel through which data passed between the
  * client and server must flow.
  *
+ * If an invalid type is received, the constructor throws an exception. If an
+ * invalid reporter is received, an exception will not be thrown until
+ * 'emitWith()' is called.
+ *
  * @memberof module:shared
+ *
+ * @param {string} type - The message type. Must be one of the explicitly listed
+ * message types available on the Message object.
+ * @param {module:shared.Reporter} reporter - A Reporter instance, containing
+ * the data to be emitted.
  */
 
 class Message {
-  /**
-   * If an invalid type is received, throws an exception. If an invalid reporter
-   * is received, an exception will not be thrown until 'emitWith()' is called.
-   *
-   * @param {string} type - The message type. Must be one of the explicitly
-   * listed message types available on the Message object.
-   * @param {module:shared.Reporter} reporter - A Reporter instance, containing
-   * the data to be emitted.
-   */
   constructor(type, reporter) {
     if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
     this.type = type;
@@ -15886,13 +15910,12 @@ module.exports = Message;
  * Defines a set of basic operations on a point in a two dimensional space.
  *
  * @memberof module:shared
+ *
+ * @param {number} x - x coordinate of the point.
+ * @param {number} y - y coordinate of the point.
  */
 
 class Point2D {
-  /**
-   * @param {number} x - x coordinate of the point.
-   * @param {number} y - y coordinate of the point.
-   */
   constructor(x = 0, y = 0) {
     /**
      * X coordinate of the point.
@@ -16125,14 +16148,13 @@ const Point2D = require('./Point2D.js');
  *
  * @memberof module:shared
  * @implements {module:shared.Hitbox}
+ *
+ * @param {module:shared.Point2D[]} points - The points that make up the
+ * polygon, given in order (clockwise and counter-clockwise are both fine).
  */
 
 
 class Polygon2D {
-  /**
-   * @param {module:shared.Point2D[]} points - The points that make up the
-   * polygon, given in order (clockwise and counter-clockwise are both fine).
-   */
   constructor(points) {
     if (points.length < 1) {
       throw new TypeError('A polygon requires at least one vertex.');
@@ -16253,15 +16275,14 @@ module.exports = Polygon2D;
  *
  * @memberof module:shared
  * @implements {module:shared.Hitbox}
+ *
+ * @param {number} width - The width of the rectangle.
+ * @param {number} height - The height of the rectangle.
+ * @param {number} [x=0] - The x offset of the rectangle.
+ * @param {number} [y=0] - The y offset of the rectangle.
  */
 
 class Rectangle {
-  /**
-   * @param {number} width - The width of the rectangle.
-   * @param {number} height - The height of the rectangle.
-   * @param {number} [x=0] - The x offset of the rectangle.
-   * @param {number} [y=0] - The y offset of the rectangle.
-   */
   constructor(width, height, x = 0, y = 0) {
     /**
      * The width of the rectangle.
@@ -16343,14 +16364,13 @@ function ReporterFactory(coreProperties) {
    * strict set of rules over what data can be shared for the given class.
    *
    * @memberof module:shared
+   *
+   * @param {Object} data - Data to store in the reporter. All own properties of
+   * 'data' will be transferred. Additionally, the prototype chain of 'data'
+   * will be searched for the core properties of this Reporter.
    */
 
   class Reporter {
-    /**
-     * @param {Object} data - data to store in the reporter. Only properties
-     * with keys matching those provided in coreProperties and saved in KEYS
-     * will be accepted.
-     */
     constructor(data) {
       // Merge the defaults with all the own enumerable properties of 'data'
       // onto the new instance.
@@ -16361,7 +16381,7 @@ function ReporterFactory(coreProperties) {
     }
     /**
      * Save onto this Reporter instance the values in data which correspond to
-     * properties named in KEYS.
+     * its core properties. Searches the prototype chain of 'data'.
      *
      * @param {Object} data - Data values to attempt to save.
      */
