@@ -10700,7 +10700,10 @@ module.exports = {
  * A Binding associates a gesture with an element and a handler function that
  * will be called when the gesture is recognized.
  *
- * @private
+ * @param {Element} element - The element to which to associate the gesture.
+ * @param {westures-core.Gesture} gesture - A instance of the Gesture type.
+ * @param {Function} handler - The function handler to execute when a gesture
+ *    is recognized on the associated element.
  */
 
 function _objectSpread(target) {
@@ -10738,14 +10741,6 @@ function _defineProperty(obj, key, value) {
 }
 
 class Binding {
-  /**
-   * Constructor function for the Binding class.
-   *
-   * @param {Element} element - The element to which to associate the gesture.
-   * @param {westures-core.Gesture} gesture - A instance of the Gesture type.
-   * @param {Function} handler - The function handler to execute when a gesture
-   *    is recognized on the associated element.
-   */
   constructor(element, gesture, handler) {
     /**
      * The element to which to associate the gesture.
@@ -10814,14 +10809,11 @@ let nextGestureNum = 0;
  * cancel.
  *
  * @memberof westures-core
+ *
+ * @param {string} type - The name of the gesture.
  */
 
 class Gesture {
-  /**
-   * Constructor function for the Gesture class.
-   *
-   * @param {string} type - The name of the gesture.
-   */
   constructor(type) {
     if (typeof type !== 'string') {
       throw new TypeError('Gestures require a string type / name');
@@ -10957,19 +10949,14 @@ function getElementsInPath(event) {
  * and initial events. Contains the progress of each Input and its associated
  * gestures.
  *
- * @hideconstructor
+ * @param {(PointerEvent | MouseEvent | TouchEvent)} event - The input event
+ *    which will initialize this Input object.
+ * @param {number} identifier - The identifier for this input, so that it can
+ *    be located in subsequent Event objects.
  */
 
 
 class Input {
-  /**
-   * Constructor function for the Input class.
-   *
-   * @param {(PointerEvent | MouseEvent | TouchEvent)} event - The input event
-   *    which will initialize this Input object.
-   * @param {number} identifier - The identifier for this input, so that it can
-   *    be located in subsequent Event objects.
-   */
   constructor(event, identifier) {
     const currentData = new PointerData(event, identifier);
     /**
@@ -11140,15 +11127,12 @@ module.exports = PHASE;
  * x and y coordinates.
  *
  * @memberof westures-core
+ *
+ * @param {number} [ x=0 ] - The x coordinate of the point.
+ * @param {number} [ y=0 ] - The y coordinate of the point.
  */
 
 class Point2D {
-  /**
-   * Constructor function for the Point2D class.
-   *
-   * @param {number} [ x=0 ] - The x coordinate of the point.
-   * @param {number} [ y=0 ] - The y coordinate of the point.
-   */
   constructor(x = 0, y = 0) {
     /**
      * The x coordinate of the point.
@@ -11310,8 +11294,8 @@ const PHASE = require('./PHASE.js');
 
 function getEventObject(event, identifier) {
   if (event.changedTouches) {
-    return Array.from(event.changedTouches).find(t => {
-      return t.identifier === identifier;
+    return Array.from(event.changedTouches).find(touch => {
+      return touch.identifier === identifier;
     });
   }
 
@@ -11321,17 +11305,12 @@ function getEventObject(event, identifier) {
  * Low-level storage of pointer data based on incoming data from an interaction
  * event.
  *
- * @hideconstructor
+ * @param {Event} event - The event object being wrapped.
+ * @param {number} identifier - The index of touch if applicable
  */
 
 
 class PointerData {
-  /**
-   * @constructor
-   *
-   * @param {Event} event - The event object being wrapped.
-   * @param {number} identifier - The index of touch if applicable
-   */
   constructor(event, identifier) {
     /**
      * The original event object.
@@ -11417,24 +11396,21 @@ const CANCEL_EVENTS = ['pointercancel', 'touchcancel'];
  * input events.
  *
  * @memberof westures-core
+ *
+ * @param {Element} element - The element which should listen to input events.
+ * @param {object} [options]
+ * @param {boolean} [options.capture=false] - Whether the region uses the
+ * capture phase of input events. If false, uses the bubbling phase.
+ * @param {boolean} [options.preventDefault=true] - Whether the default
+ * browser functionality should be disabled. This option should most likely be
+ * ignored. Here there by dragons if set to false.
+ * @param {string} [options.source='page'] - One of 'page', 'client', or
+ * 'screen'. Determines what the source of (x,y) coordinates will be from the
+ * input events. ('X' and 'Y' will be appended, then those are the properties
+ * that will be looked up). *** NOT YET IMPLEMENTED ***
  */
 
 class Region {
-  /**
-   * Constructor function for the Region class.
-   *
-   * @param {Element} element - The element which should listen to input events.
-   * @param {object} [options]
-   * @param {boolean} [options.capture=false] - Whether the region uses the
-   * capture phase of input events. If false, uses the bubbling phase.
-   * @param {boolean} [options.preventDefault=true] - Whether the default
-   * browser functionality should be disabled. This option should most likely be
-   * ignored. Here there by dragons if set to false.
-   * @param {string} [options.source='page'] - One of 'page', 'client', or
-   * 'screen'. Determines what the source of (x,y) coordinates will be from the
-   * input events. ('X' and 'Y' will be appended, then those are the properties
-   * that will be looked up). *** NOT YET IMPLEMENTED ***
-   */
   // constructor(element, options = {}) {
   constructor(element, capture = false, preventDefault = true) {
     // const settings = { ...Region.DEFAULTS, ...options };
@@ -11702,10 +11678,8 @@ function smoothingIsApplicable(isRequested = true) {
     try {
       return window.matchMedia('(pointer: coarse)').matches;
     } catch (e) {
-      console.warn(e);
+      return true;
     }
-
-    return true;
   }
 
   return false;
@@ -11725,16 +11699,15 @@ function smoothingIsApplicable(isRequested = true) {
  *
  * @memberof westures-core
  * @mixin
+ *
+ * @param {string} name - The name of the gesture.
+ * @param {Object} [options]
+ * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+ * emitted data.
  */
 
 
 const Smoothable = superclass => class Smoothable extends superclass {
-  /**
-   * @param {string} name - The name of the gesture.
-   * @param {Object} [options]
-   * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-   * emitted data.
-   */
   constructor(name, options = {}) {
     super(name, options);
     /**
@@ -11846,7 +11819,7 @@ const Point2D = require('./Point2D.js');
 const symbols = Object.freeze({
   inputs: Symbol.for('inputs')
 });
-/*
+/**
  * Set of helper functions for updating inputs based on type of input.
  * Must be called with a bound 'this', via bind(), or call(), or apply().
  *
@@ -11874,15 +11847,10 @@ const update_fns = {
  * Keeps track of currently active and ending input points on the interactive
  * surface.
  *
- * @hideconstructor
+ * @param {Element} element - The element underpinning the associated Region.
  */
 
 class State {
-  /**
-   * Constructor for the State class.
-   *
-   * @param {Element} element - The element underpinning the associated Region.
-   */
   constructor(element) {
     /**
      * Keep a reference to the element for the associated region.
@@ -11997,8 +11965,7 @@ class State {
 
         try {
           this.element.setPointerCapture(identifier);
-        } catch (e) {
-          null;
+        } catch (e) {// NOP: Optional operation failed.
         }
 
         break;
@@ -12006,9 +11973,11 @@ class State {
       case 'end':
         try {
           this.element.releasePointerCapture(identifier);
-        } catch (e) {
-          null;
-        }
+        } catch (e) {}
+
+      // NOP: Optional operation failed.
+      // All of 'end', 'move', and 'cancel' perform updates, hence the
+      // following fall-throughs
 
       case 'move':
       case 'cancel':
@@ -12046,7 +12015,8 @@ class State {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map(i => i.current.point);
-    this.centroid = Point2D.centroid(this.activePoints);
+    this.centroid = Point2D.centroid(this.activePoints); // XXX: Delete this.radius for next released. It is not generally useful.
+
     this.radius = this.activePoints.reduce((acc, cur) => {
       const dist = cur.distanceTo(this.centroid);
       return dist > acc ? dist : acc;
@@ -12239,16 +12209,15 @@ const {
  * @mixes westures.Smoothable
  * @see ReturnTypes.PanData
  * @memberof westures
+ *
+ * @param {Object} [options]
+ * @param {string} [options.muteKey=undefined] - If this key is pressed, this
+ * gesture will be muted (i.e. not recognized). One of 'altKey', 'ctrlKey',
+ * 'shiftKey', or 'metaKey'.
  */
 
 
 class Pan extends Smoothable(Gesture) {
-  /**
-   * @param {Object} [options]
-   * @param {string} [options.muteKey=undefined] - If this key is pressed, this
-   *    gesture will be muted (i.e. not recognized). One of 'altKey', 'ctrlKey',
-   *    'shiftKey', or 'metaKey'.
-   */
   constructor(options = {}) {
     const settings = _objectSpread({}, Pan.DEFAULTS, options);
 
@@ -12319,6 +12288,7 @@ class Pan extends Smoothable(Gesture) {
   /**
    * Event hook for the move of a Pan.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.PanData} <tt>null</tt> if the gesture was muted or
    * otherwise not recognized.
@@ -12449,15 +12419,14 @@ const {
  * @mixes westures.Smoothable
  * @see ReturnTypes.PinchData
  * @memberof westures
+ *
+ * @param {Object} [options]
+ * @param {number} [options.minInputs=2] The minimum number of inputs that
+ * must be active for a Pinch to be recognized.
  */
 
 
 class Pinch extends Smoothable(Gesture) {
-  /**
-   * @param {Object} [options]
-   * @param {number} [options.minInputs=2] The minimum number of inputs that
-   * must be active for a Pinch to be recognized.
-   */
   constructor(options = {}) {
     const settings = _objectSpread({}, Pinch.DEFAULTS, options);
 
@@ -12520,6 +12489,7 @@ class Pinch extends Smoothable(Gesture) {
   /**
    * Event hook for the move of a Pinch.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.PinchData} <tt>null</tt> if not recognized.
    */
@@ -12607,7 +12577,8 @@ function _defineProperty(obj, key, value) {
 }
 
 const {
-  Gesture
+  Gesture,
+  Point2D
 } = require('westures-core');
 /**
  * Data returned when a Press is recognized.
@@ -12629,23 +12600,20 @@ const {
  * @extends westures.Gesture
  * @see ReturnTypes.PressData
  * @memberof westures
+ *
+ * @param {function} handler - A Press is unique in that the gesture needs to
+ * store the 'handler' callback directly, so it can be called asynchronously.
+ * @param {Object} [options] - The options object.
+ * @param {number} [options.delay=1000] - The delay before emitting, during
+ * which time the number of inputs must not go below minInputs.
+ * @param {number} [options.minInputs=1] - Number of inputs for a Press
+ * gesture.
+ * @param {number} [options.tolerance=10] - The tolerance in pixels a user can
+ * move and still allow the gesture to emit.
  */
 
 
 class Press extends Gesture {
-  /**
-   * Constructor function for the Press class.
-   *
-   * @param {function} handler - A Press is unique in that the gesture needs to
-   * store the 'handler' callback directly, so it can be called asynchronously.
-   * @param {Object} [options] - The options object.
-   * @param {number} [options.delay=1000] - The delay before emitting, during
-   * which time the number of inputs must not change.
-   * @param {number} [options.numInputs=1] - Number of inputs for a Press
-   * gesture.
-   * @param {number} [options.tolerance=10] - The tolerance in pixels
-   * a user can move and still allow the gesture to emit.
-   */
   constructor(handler, options = {}) {
     super('press');
 
@@ -12669,13 +12637,14 @@ class Press extends Gesture {
 
     this.delay = settings.delay;
     /**
-     * The number of inputs that must be active for a Press to be recognized.
+     * The minimum number of inputs that must be active for a Press to be
+     * recognized.
      *
      * @private
      * @type {number}
      */
 
-    this.numInputs = settings.numInputs;
+    this.minInputs = settings.minInputs;
     /**
      * A move tolerance in pixels allows some slop between a user's start to end
      * events. This allows the Press gesture to be triggered more easily.
@@ -12713,7 +12682,7 @@ class Press extends Gesture {
 
 
   start(state) {
-    if (state.active.length === this.numInputs) {
+    if (state.active.length === this.minInputs) {
       this.initial = state.centroid;
       this.timeout = setTimeout(() => this.recognize(state), this.delay);
     }
@@ -12727,13 +12696,16 @@ class Press extends Gesture {
 
 
   recognize(state) {
-    const distance = this.initial.distanceTo(state.centroid);
+    const inputs = state.active.slice(0, this.minInputs);
+    const points = inputs.map(i => i.current.point);
+    const centroid = Point2D.centroid(points);
+    const distance = this.initial.distanceTo(centroid);
 
     if (distance <= this.tolerance) {
       this.handler({
         distance,
+        centroid,
         initial: this.initial,
-        centroid: state.centroid,
         type: this.type
       });
     }
@@ -12746,9 +12718,11 @@ class Press extends Gesture {
    */
 
 
-  end() {
-    clearTimeout(this.timeout);
-    this.timeout = null;
+  end(state) {
+    if (state.active.length < this.minInputs) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
+    }
   }
 
 }
@@ -12756,7 +12730,7 @@ class Press extends Gesture {
 Press.DEFAULTS = Object.freeze({
   delay: 1000,
   tolerance: 10,
-  numInputs: 1
+  minInputs: 1
 });
 module.exports = Press;
 
@@ -12825,17 +12799,16 @@ const angularMinus = require('./angularMinus.js');
  * @mixes westures.Smoothable
  * @see ReturnTypes.RotateData
  * @memberof westures
+ *
+ * @param {Object} [options]
+ * @param {number} [options.minInputs=2] The minimum number of inputs that must
+ * be active for a Rotate to be recognized.
+ * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
+ * emitted data.
  */
 
 
 class Rotate extends Smoothable(Gesture) {
-  /**
-   * @param {Object} [options]
-   * @param {number} [options.minInputs=2] The minimum number of inputs that
-   * must be active for a Rotate to be recognized.
-   * @param {boolean} [options.smoothing=true] Whether to apply smoothing to
-   * emitted data.
-   */
   constructor(options = {}) {
     const settings = _objectSpread({}, Rotate.DEFAULTS, options);
 
@@ -12906,6 +12879,7 @@ class Rotate extends Smoothable(Gesture) {
   /**
    * Event hook for the move of a Rotate gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.RotateData} <tt>null</tt> if this event did not occur
    */
@@ -12988,8 +12962,8 @@ const MS_THRESHOLD = 300;
  * @memberof westures.Swipe
  * @see {@link https://en.wikipedia.org/wiki/Mean_of_circular_quantities}
  *
- * @param {{time: number, point: westures-core.Point2D}} moves - The
- * moves list to process.
+ * @param {{time: number, point: westures-core.Point2D}} moves - The moves list
+ * to process.
  * @param {number} vlim - The number of moves to process.
  *
  * @return {number} The angle of the movement.
@@ -13071,9 +13045,6 @@ function calc_velocity(moves, vlim) {
 
 
 class Swipe extends Gesture {
-  /**
-   * Constructor function for the Swipe class.
-   */
   constructor() {
     super('swipe');
     /**
@@ -13139,6 +13110,7 @@ class Swipe extends Gesture {
   /**
    * Determines if the input's history validates a swipe motion.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.SwipeData} <tt>null</tt> if the gesture is not
    * recognized.
@@ -13281,25 +13253,22 @@ const angularMinus = require('./angularMinus.js');
  * @mixes westures.Smoothable
  * @see ReturnTypes.SwivelData
  * @memberof westures
+ *
+ * @param {Object} [options]
+ * @param {number} [options.deadzoneRadius=10] - The radius in pixels around the
+ * start point in which to do nothing.
+ * @param {string} [options.enableKey=null] - One of 'altKey', 'ctrlKey',
+ * 'metaKey', or 'shiftKey'. If set, gesture will only be recognized while this
+ * key is down.
+ * @param {number} [options.minInputs=1] - The minimum number of inputs that
+ * must be active for a Swivel to be recognized.
+ * @param {Element} [options.pivotCenter] - If set, the swivel's pivot point
+ * will be set to the center of the given pivotCenter element. Otherwise, the
+ * pivot will be the location of the first contact point.
  */
 
 
 class Swivel extends Smoothable(Gesture) {
-  /**
-   * Constructor for the Swivel class.
-   *
-   * @param {Object} [options]
-   * @param {number} [options.deadzoneRadius=10] - The radius in pixels around
-   * the start point in which to do nothing.
-   * @param {string} [options.enableKey=null] - One of 'altKey', 'ctrlKey',
-   * 'metaKey', or 'shiftKey'. If set, gesture will only be recognized while
-   * this key is down.
-   * @param {number} [options.minInputs=1] - The minimum number of inputs that
-   * must be active for a Swivel to be recognized.
-   * @param {Element} [options.pivotCenter] - If set, the swivel's pivot point
-   * will be set to the center of the given pivotCenter element. Otherwise, the
-   * pivot will be the location of the first contact point.
-   */
   constructor(options = {}) {
     const settings = _objectSpread({}, Swivel.DEFAULTS, options);
 
@@ -13456,6 +13425,7 @@ class Swivel extends Smoothable(Gesture) {
   /**
    * Event hook for the move of a Swivel gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.SwivelData} <tt>null</tt> if the gesture is not
    * recognized.
@@ -13504,10 +13474,6 @@ class Swivel extends Smoothable(Gesture) {
   }
 
 }
-/**
- * The default options for a Swivel gesture.
- */
-
 
 Swivel.DEFAULTS = Object.freeze({
   deadzoneRadius: 15,
@@ -13586,21 +13552,18 @@ const defaults = Object.freeze({
  * @extends westures.Gesture
  * @see ReturnTypes.TapData
  * @memberof westures
+ *
+ * @param {Object} [options] - The options object.
+ * @param {number} [options.minDelay=0] - The minimum delay between a touchstart
+ * and touchend can be configured in milliseconds.
+ * @param {number} [options.maxDelay=300] - The maximum delay between a
+ * touchstart and touchend can be configured in milliseconds.
+ * @param {number} [options.numInputs=1] - Number of inputs for Tap gesture.
+ * @param {number} [options.tolerance=10] - The tolerance in pixels a user can
+ * move.
  */
 
 class Tap extends Gesture {
-  /**
-   * Constructor function for the Tap class.
-   *
-   * @param {Object} [options] - The options object.
-   * @param {number} [options.minDelay=0] - The minimum delay between a
-   *    touchstart and touchend can be configured in milliseconds.
-   * @param {number} [options.maxDelay=300] - The maximum delay between a
-   *    touchstart and touchend can be configured in milliseconds.
-   * @param {number} [options.numInputs=1] - Number of inputs for Tap gesture.
-   * @param {number} [options.tolerance=10] - The tolerance in pixels a user can
-   *    move.
-   */
   constructor(options = {}) {
     super('tap');
     /**
@@ -13656,6 +13619,7 @@ class Tap extends Gesture {
    * Event hook for the end of a gesture.  Determines if this the tap event can
    * be fired if the delay and tolerance constraints are met.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.TapData} <tt>null</tt> if the gesture is not to be
    * emitted, Object with information otherwise.
@@ -13717,16 +13681,13 @@ const {
  * @extends westures.Gesture
  * @see ReturnTypes.TrackData
  * @memberof westures
+ *
+ * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or all
+ * of 'start', 'move', 'end', and 'cancel'.
  */
 
 
 class Track extends Gesture {
-  /**
-   * Constructor for the Track class.
-   *
-   * @param {string[]} [phases=[]] Phases to recognize. Entries can be any or
-   *    all of 'start', 'move', 'end', and 'cancel'.
-   */
   constructor(phases = []) {
     super('track');
     this.trackStart = phases.includes('start');
@@ -13753,6 +13714,7 @@ class Track extends Gesture {
   /**
    * Event hook for the start of a Track gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
@@ -13764,6 +13726,7 @@ class Track extends Gesture {
   /**
    * Event hook for the move of a Track gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
@@ -13775,6 +13738,7 @@ class Track extends Gesture {
   /**
    * Event hook for the end of a Track gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
@@ -13786,6 +13750,7 @@ class Track extends Gesture {
   /**
    * Event hook for the cancel of a Track gesture.
    *
+   * @private
    * @param {State} state - current input state.
    * @return {?ReturnTypes.TrackData} <tt>null</tt> if not recognized.
    */
