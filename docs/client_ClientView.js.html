@@ -92,12 +92,11 @@ const symbols = Object.freeze({
  *
  * @extends module:shared.View
  * @memberof module:client
+ *
+ * @param {CanvasRenderingContext2D} context - The canvas context in which to
+ * render the model.
  */
 class ClientView extends View {
-  /**
-   * @param {CanvasRenderingContext2D} context - The canvas context in which to
-   * render the model.
-   */
   constructor(context) {
     super(ClientView.DEFAULTS);
 

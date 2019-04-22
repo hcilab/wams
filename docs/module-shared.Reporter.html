@@ -76,7 +76,7 @@ strict set of rules over what data can be shared for the given class.</div>
             
             <div class="container-source members">
                 <code><a href="shared_ReporterFactory.js.html">shared/ReporterFactory.js</a></code>,
-                <code><a href="shared_ReporterFactory.js.html#line33">line 33</a></code>
+                <code><a href="shared_ReporterFactory.js.html#line37">line 37</a></code>
             </div>
             
         </h4>
@@ -136,9 +136,9 @@ strict set of rules over what data can be shared for the given class.</div>
 
             
 
-            <td class="description last">data to store in the reporter. Only properties
-with keys matching those provided in coreProperties and saved in KEYS
-will be accepted.</td>
+            <td class="description last">Data to store in the reporter. All own properties of
+'data' will be transferred. Additionally, the prototype chain of 'data'
+will be searched for the core properties of this Reporter.</td>
         </tr>
 
     
@@ -234,7 +234,7 @@ will be accepted.</td>
             
             <div class="container-source members">
                 <code><a href="shared_ReporterFactory.js.html">shared/ReporterFactory.js</a></code>,
-                <code><a href="shared_ReporterFactory.js.html#line55">line 55</a></code>
+                <code><a href="shared_ReporterFactory.js.html#line54">line 54</a></code>
             </div>
             
         </h4>
@@ -247,7 +247,7 @@ will be accepted.</td>
     
     <div class="description">
         Save onto this Reporter instance the values in data which correspond to
-properties named in KEYS.
+its core properties. Searches the prototype chain of 'data'.
     </div>
     
 
@@ -374,7 +374,7 @@ properties named in KEYS.
             
             <div class="container-source members">
                 <code><a href="shared_ReporterFactory.js.html">shared/ReporterFactory.js</a></code>,
-                <code><a href="shared_ReporterFactory.js.html#line67">line 67</a></code>
+                <code><a href="shared_ReporterFactory.js.html#line66">line 66</a></code>
             </div>
             
         </h4>

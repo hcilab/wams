@@ -79,19 +79,18 @@ const symbols = Object.freeze({
  * associated workspace.
  *
  * @memberof module:server
+ *
+ * @param {number} index - The index of this ServerController in the workspace,
+ * can be used as a unique identifier.
+ * @param {Socket} socket - A socket.io connection with a client.
+ * @param {module:server.WorkSpace} workspace - The workspace associated with
+ * this connection.
+ * @param {module:server.MessageHandler} messageHandler - For responding to
+ * messages from clients.
+ * @param {module:server.ServerViewGroup} group - The group to which this
+ * connection will belong.
  */
 class ServerController {
-  /**
-   * @param {number} index - The index of this ServerController in the
-   * workspace, can be used as a unique identifier.
-   * @param {Socket} socket - A socket.io connection with a client.
-   * @param {module:server.WorkSpace} workspace - The workspace associated with
-   * this connection.
-   * @param {module:server.MessageHandler} messageHandler - For responding to
-   * messages from clients.
-   * @param {module:server.ServerViewGroup} group - The group to which this
-   * connection will belong.
-   */
   constructor(index, socket, workspace, messageHandler, group) {
     /**
      * The index is an integer identifying the ServerController, which can also

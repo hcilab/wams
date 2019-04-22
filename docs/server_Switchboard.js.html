@@ -116,17 +116,16 @@ function logConnection(id, status) {
  * so that connections can be linked to the workspace.
  *
  * @memberof module:server
+ *
+ * @param {module:server.WorkSpace} workspace - The workspace associated with
+ * this connection.
+ * @param {module:server.MessageHandler} messageHandler - For responding to
+ * messages from clients.
+ * @param {Namespace} namespace - Socket.io namespace for publishing changes.
+ * @param {Object} settings - User-supplied options, specifying a client limit
+ * and workspace settings.
  */
 class Switchboard {
-  /**
-   * @param {module:server.WorkSpace} workspace - The workspace associated with
-   * this connection.
-   * @param {module:server.MessageHandler} messageHandler - For responding to
-   * messages from clients.
-   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
-   * @param {Object} settings - User-supplied options, specifying a client limit
-   * and workspace settings.
-   */
   constructor(workspace, messageHandler, namespace, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.

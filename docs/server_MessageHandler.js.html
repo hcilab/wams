@@ -65,12 +65,11 @@
  * messages from clients, which it then uses to call the appropriate listener.
  *
  * @memberof module:server
+ *
+ * @param {module:server.WorkSpace} workspace - the model used when responding
+ * to messages.
  */
 class MessageHandler {
-  /**
-   * @param {module:server.WorkSpace} workspace - the model used when responding
-   * to messages.
-   */
   constructor(workspace) {
     /**
      * The model to access when responding to messages.

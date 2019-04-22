@@ -68,12 +68,11 @@ const Point2D = require('./Point2D.js');
  *
  * @memberof module:shared
  * @implements {module:shared.Hitbox}
+ *
+ * @param {module:shared.Point2D[]} points - The points that make up the
+ * polygon, given in order (clockwise and counter-clockwise are both fine).
  */
 class Polygon2D {
-  /**
-   * @param {module:shared.Point2D[]} points - The points that make up the
-   * polygon, given in order (clockwise and counter-clockwise are both fine).
-   */
   constructor(points) {
     if (points.length &lt; 1) {
       throw new TypeError('A polygon requires at least one vertex.');

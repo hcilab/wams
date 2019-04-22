@@ -91,12 +91,11 @@ const symbols = Object.freeze({
  *
  * @extends module:shared.View
  * @memberof module:client
+ *
+ * @param {module:shared.View} values - server-provided data describing this
+ * view.
  */
 class ShadowView extends View {
-  /**
-   * @param {module:shared.View} values - server-provided data describing this
-   * view.
-   */
   constructor(values) {
     super(values);
     STAMPER.cloneId(this, values.id);

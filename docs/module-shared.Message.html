@@ -56,7 +56,11 @@
             <span class="ancestors"><a href="module-shared.html">shared</a>.</span>Message<span class="signature">(type, reporter)</span><span class="type-signature"></span></h2>
         
             <div class="class-description">The Message class provides a funnel through which data passed between the
-client and server must flow.</div>
+client and server must flow.
+
+If an invalid type is received, the constructor throws an exception. If an
+invalid reporter is received, an exception will not be thrown until
+'emitWith()' is called.</div>
         
     
 </header>
@@ -76,7 +80,7 @@ client and server must flow.</div>
             
             <div class="container-source members">
                 <code><a href="shared_Message.js.html">shared/Message.js</a></code>,
-                <code><a href="shared_Message.js.html#line76">line 76</a></code>
+                <code><a href="shared_Message.js.html#line85">line 85</a></code>
             </div>
             
         </h4>
@@ -86,11 +90,6 @@ client and server must flow.</div>
 </dt>
 <dd>
 
-    
-    <div class="description">
-        If an invalid type is received, throws an exception. If an invalid reporter
-is received, an exception will not be thrown until 'emitWith()' is called.
-    </div>
     
 
     
@@ -141,8 +140,8 @@ is received, an exception will not be thrown until 'emitWith()' is called.
 
             
 
-            <td class="description last">The message type. Must be one of the explicitly
-listed message types available on the Message object.</td>
+            <td class="description last">The message type. Must be one of the explicitly listed
+message types available on the Message object.</td>
         </tr>
 
     

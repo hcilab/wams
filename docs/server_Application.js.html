@@ -100,13 +100,11 @@ function getLocalIP() {
  * This module defines the API endpoint.
  *
  * @memberof module:server
+ *
+ * @param {object} [settings={}] - Settings data to be forwarded to the server.
+ * @param {module:server.Router} [router=Router()] - Route handler to use.
  */
 class Application {
-  /**
-   * @param {object} [settings={}] - Settings data to be forwarded to the
-   * server.
-   * @param {module:server.Router} [router=Router()] - Route handler to use.
-   */
   constructor(settings = {}, router = Router()) {
     /**
      * HTTP server for sending and receiving data.

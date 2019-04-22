@@ -66,14 +66,11 @@ const PHASE   = require('./PHASE.js');
  * event.
  *
  * @memberof module:gestures
+ *
+ * @param {TouchEvent} event - The event object being wrapped.
+ * @param {Touch} touch - The touch point data.
  */
 class PointerData {
-  /**
-   * @constructor
-   *
-   * @param {TouchEvent} event - The event object being wrapped.
-   * @param {Touch} touch - The touch point data.
-   */
   constructor(event, touch) {
     /**
      * The type or 'phase' of this batch of pointer data. 'start' or 'move' or

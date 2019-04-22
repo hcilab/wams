@@ -125,18 +125,18 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  * The Message class provides a funnel through which data passed between the
  * client and server must flow.
  *
+ * If an invalid type is received, the constructor throws an exception. If an
+ * invalid reporter is received, an exception will not be thrown until
+ * 'emitWith()' is called.
+ *
  * @memberof module:shared
+ *
+ * @param {string} type - The message type. Must be one of the explicitly listed
+ * message types available on the Message object.
+ * @param {module:shared.Reporter} reporter - A Reporter instance, containing
+ * the data to be emitted.
  */
 class Message {
-  /**
-   * If an invalid type is received, throws an exception. If an invalid reporter
-   * is received, an exception will not be thrown until 'emitWith()' is called.
-   *
-   * @param {string} type - The message type. Must be one of the explicitly
-   * listed message types available on the Message object.
-   * @param {module:shared.Reporter} reporter - A Reporter instance, containing
-   * the data to be emitted.
-   */
   constructor(type, reporter) {
     if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
 
