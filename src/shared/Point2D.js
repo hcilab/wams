@@ -10,12 +10,11 @@
  * Defines a set of basic operations on a point in a two dimensional space.
  *
  * @memberof module:shared
+ *
+ * @param {number} x - x coordinate of the point.
+ * @param {number} y - y coordinate of the point.
  */
 class Point2D {
-  /**
-   * @param {number} x - x coordinate of the point.
-   * @param {number} y - y coordinate of the point.
-   */
   constructor(x = 0, y = 0) {
     /**
      * X coordinate of the point.

@@ -45,13 +45,12 @@ function createImage(src) {
  *
  * @extends module:shared.WamsImage
  * @memberof module:client
+ *
+ * @param {module:shared.Item} data - The data from the server describing this
+ * item. Only properties explicity listed in the array passed to the
+ * ReporterFactory when the Item class was defined will be accepted.
  */
 class ClientImage extends WamsImage {
-  /**
-   * @param {module:shared.Item} data - The data from the server describing this
-   * item. Only properties explicity listed in the array passed to the
-   * ReporterFactory when the Item class was defined will be accepted.
-   */
   constructor(data) {
     super(data);
 

@@ -23,16 +23,14 @@ const ServerItem = require('./ServerItem.js');
  * those items and views which allow them to be interacted with.
  *
  * @memberof module:server
+ *
+ * @param {object} [settings] - Options received from user.
+ * @param {string} [settings.color='gray'] - Background color for the workspace.
+ * @param {boolean} [settings.useServerGestures=false] - Whether to use
+ * server-side gestures. Default is to use client-side gestures.
+ * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  */
 class WorkSpace {
-  /**
-   * @param {object} [settings] - Options received from user.
-   * @param {string} [settings.color='gray'] - Background color for the
-   * workspace.
-   * @param {boolean} [settings.useServerGestures=false] - Whether to use
-   * server-side gestures. Default is to use client-side gestures.
-   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
-   */
   constructor(settings, namespace) {
     /**
      * Configuration settings for the workspace.

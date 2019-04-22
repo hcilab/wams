@@ -11,17 +11,14 @@ const PointerData = require('./PointerData.js');
  * and initial events. Also tracks the client from whom the input originates.
  *
  * @memberof module:gestures
+ *
+ * @param {TouchEvent} event - The input event which will initialize this Input
+ * object.
+ * @param {Touch} touch - The touch point data.
+ * @param {string} identifier - The identifier for this input, so that it can be
+ * located in subsequent Event objects.
  */
 class Input {
-  /**
-   * Constructor function for the Input class.
-   *
-   * @param {TouchEvent} event - The input event which will initialize this
-   *    Input object.
-   * @param {Touch} touch - The touch point data.
-   * @param {string} identifier - The identifier for this input, so that it can
-   *    be located in subsequent Event objects.
-   */
   constructor(event, touch, identifier) {
     const currentData = new PointerData(event, touch);
 

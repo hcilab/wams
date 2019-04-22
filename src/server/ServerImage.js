@@ -21,14 +21,13 @@ const { Hittable, Identifiable } = require('../mixins.js');
  * @extends module:shared.WamsImage
  * @mixes module:mixins.Hittable
  * @mixes module:mixins.Identifiable
+ *
+ * @param {Namespace} namespace - Socket.io namespace for publishing changes.
+ * @param {Object} values - User-supplied data detailing the image. Properties
+ * on this object that line up with {@link module:shared.Image} members will be
+ * stored. Any other properties will be ignored.
  */
 class ServerImage extends Identifiable(Hittable(WamsImage)) {
-  /**
-   * @param {Namespace} namespace - Socket.io namespace for publishing changes.
-   * @param {Object} values - User-supplied data detailing the image. Properties
-   * on this object that line up with {@link module:shared.Image} members will
-   * be stored. Any other properties will be ignored.
-   */
   constructor(namespace, values = {}) {
     super(values);
 

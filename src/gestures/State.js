@@ -36,9 +36,6 @@ function filterout(struct, predicate) {
  * @memberof module:gestures
  */
 class State {
-  /**
-   * Constructor for the State class.
-   */
   constructor() {
     /**
      * Keeps track of the current Input objects.

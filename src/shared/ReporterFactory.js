@@ -29,13 +29,12 @@ function ReporterFactory(coreProperties) {
    * strict set of rules over what data can be shared for the given class.
    *
    * @memberof module:shared
+   *
+   * @param {Object} data - Data to store in the reporter. All own properties of
+   * 'data' will be transferred. Additionally, the prototype chain of 'data'
+   * will be searched for the core properties of this Reporter.
    */
   class Reporter {
-    /**
-     * @param {Object} data - data to store in the reporter. Only properties
-     * with keys matching those provided in coreProperties and saved in KEYS
-     * will be accepted.
-     */
     constructor(data) {
       // Merge the defaults with all the own enumerable properties of 'data'
       // onto the new instance.
@@ -48,7 +47,7 @@ function ReporterFactory(coreProperties) {
 
     /**
      * Save onto this Reporter instance the values in data which correspond to
-     * properties named in KEYS.
+     * its core properties. Searches the prototype chain of 'data'.
      *
      * @param {Object} data - Data values to attempt to save.
      */

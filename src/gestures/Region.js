@@ -18,9 +18,6 @@ const EVALUATION_RATE = 1000 / 60;
  * @memberof module:gestures
  */
 class Region {
-  /**
-   * Constructor function for the Region class.
-   */
   constructor() {
     /**
      * The list of relations between elements, their gestures, and the handlers.

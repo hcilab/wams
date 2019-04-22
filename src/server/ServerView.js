@@ -27,13 +27,12 @@ const STAMPER = new IdStamper();
  * @extends module:shared.View
  * @mixes module:mixins.Interactable
  * @mixes module:mixins.Locker
+ *
+ * @param {Namespace} socket - Socket.io socket for publishing changes.
+ * @param {Object} [ values ] - Object with user supplied values describing the
+ * view.
  */
 class ServerView extends Locker(Interactable(View)) {
-  /**
-   * @param {Namespace} socket - Socket.io socket for publishing changes.
-   * @param {Object} [ values ] - Object with user supplied values describing
-   * the view.
-   */
   constructor(socket, values = {}) {
     super(values);
 

@@ -9,20 +9,17 @@
  * when the gesture is recognized.
  *
  * @memberof module:gestures
+ *
+ * @param {westures.Gesture} gesture - The Gesture to bind.
+ * @param {Function} handler - The function handler to execute when a gesture is
+ * recognized on the associated element.
  */
 class Binding {
-  /**
-   * Constructor function for the Binding class.
-   *
-   * @param {module:gestures.Gesture} gesture - A instance of the Gesture type.
-   * @param {Function} handler - The function handler to execute when a gesture
-   *    is recognized on the associated element.
-   */
   constructor(gesture, handler) {
     /**
      * The gesture to associate with the given element.
      *
-     * @type {module:gestures.Gesture}
+     * @type {westures.Gesture}
      */
     this.gesture = gesture;
 

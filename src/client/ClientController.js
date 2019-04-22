@@ -38,16 +38,15 @@ const symbols = Object.freeze({
  * the server detailing changes to post to the view.
  *
  * @memberof module:client
+ *
+ * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object, (not
+ * the context), which will fill the page.
+ * @param {module:client.ClientView} view - The view that will handle rendering
+ * duties.
+ * @param {module:client.ClientModel} model - The client-side copy of the
+ * server's model.
  */
 class ClientController {
-  /**
-   * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object,
-   * (not the context), which will fill the page.
-   * @param {module:client.ClientView} view - The view that will handle
-   * rendering duties.
-   * @param {module:client.ClientModel} model - The client-side copy of the
-   * server's model.
-   */
   constructor(canvas, view, model) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it

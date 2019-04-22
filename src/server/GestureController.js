@@ -17,14 +17,13 @@ const Gestures = require('../gestures.js');
  * purpose of enabling multi-device gestures.
  *
  * @memberof module:server
+ *
+ * @param {module:server.MessageHandler} messageHandler - For responding to
+ * gestures.
+ * @param {module:server.ServerViewGroup} group - The view group associated with
+ * this controller.
  */
 class GestureController {
-  /**
-   * @param {module:server.MessageHandler} messageHandler - For responding to
-   * gestures.
-   * @param {module:server.ServerViewGroup} group - The view group associated
-   * with this controller.
-   */
   constructor(messageHandler, group) {
     /**
      * For responding to gestures.

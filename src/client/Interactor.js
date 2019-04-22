@@ -28,17 +28,16 @@ const Transform = require('./Transform.js');
  * @memberof module:client
  *
  * @see {@link https://mvanderkamp.github.io/westures/}
+ *
+ * @param {Object} handlers - Object with keys as the names gestures and values
+ *    as the corresponding function for handling that gesture when it is
+ *    recognized.
+ * @param {Function} [handlers.swipe=NOP]
+ * @param {Function} [handlers.tap=NOP]
+ * @param {Function} [handlers.track=NOP]
+ * @param {Function} [handlers.transform=NOP]
  */
 class Interactor {
-  /**
-   * @param {Object} handlers - Object with keys as the names gestures and
-   *    values as the corresponding function for handling that gesture when it
-   *    is recognized.
-   * @param {Function} [handlers.swipe=NOP]
-   * @param {Function} [handlers.tap=NOP]
-   * @param {Function} [handlers.track=NOP]
-   * @param {Function} [handlers.transform=NOP]
-   */
   constructor(handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by

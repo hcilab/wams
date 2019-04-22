@@ -13,14 +13,13 @@
  *
  * @memberof module:shared
  * @implements {module:shared.Hitbox}
+ *
+ * @param {number} width - The width of the rectangle.
+ * @param {number} height - The height of the rectangle.
+ * @param {number} [x=0] - The x offset of the rectangle.
+ * @param {number} [y=0] - The y offset of the rectangle.
  */
 class Rectangle {
-  /**
-   * @param {number} width - The width of the rectangle.
-   * @param {number} height - The height of the rectangle.
-   * @param {number} [x=0] - The x offset of the rectangle.
-   * @param {number} [y=0] - The y offset of the rectangle.
-   */
   constructor(width, height, x = 0, y = 0) {
     /**
      * The width of the rectangle.
