@@ -4,12 +4,12 @@
     "canvas-sequencer": "^3.0.1",
     "express": "^4.16.4",
     "socket.io": "^2.2.0",
-    "westures": "^0.7.4"
+    "westures": "^0.7.5"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
-    "arkit": "^1.5.3",
+    "arkit": "^1.5.4",
     "babelify": "^10.0.0",
     "browserify": "^16.2.3",
     "eslint": "^5.16.0",
