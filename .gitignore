@@ -2,6 +2,10 @@ node_modules/
 *.bak
 *.sw[op]
 custom.css
+*.pdf
+data/
+graphs/*.png
+graphs/*.sh
 
 coverage
 tags
