@@ -8,4 +8,5 @@ graphs/*.sh
 
 coverage
 tags
+.cache
 
