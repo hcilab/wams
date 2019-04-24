@@ -23,13 +23,11 @@ const {
 const Interactor = require('./Interactor.js');
 
 const STAMPER = new IdStamper();
-const FRAME_RATE = 1000 / 60;
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
   render:          Symbol('render'),
-  startRender:     Symbol('startRender'),
 });
 
 /**
@@ -88,6 +86,13 @@ class ClientController {
      * @type {boolean}
      */
     this.renderScheduled = false;
+
+    /**
+     * Bound reference to the render method, for use as a callback.
+     *
+     * @type {function}
+     */
+    this.render_fn = this[symbols.render].bind(this);
 
     /*
      * For proper function, we need to make sure that the canvas is as large as
@@ -174,7 +179,7 @@ class ClientController {
       reconnection: false,
     });
     this[symbols.attachListeners]();
-    this[symbols.startRender]();
+    window.requestAnimationFrame(this.render_fn);
     this.socket.connect();
   }
 
@@ -189,17 +194,7 @@ class ClientController {
       this.view.draw();
       this.renderScheduled = false;
     }
-  }
-
-  /**
-   * Initializes the render loop.
-   *
-   * @alias [@@startRender]
-   * @memberof module:client.ClientController
-   */
-  [symbols.startRender]() {
-    const render_fn = this[symbols.render].bind(this);
-    window.setInterval(render_fn, FRAME_RATE);
+    window.requestAnimationFrame(this.render_fn);
   }
 
   /**
