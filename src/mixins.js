@@ -7,11 +7,6 @@
 /**
  * Mixins used by the WAMS project.
  *
- * @see For a rundown on the mixin pattern I use: {@link
- * http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/}.
- * Note that I actually like the base syntax, and prefer not to add another
- * dependency by requiring the module implemented by the author of that article.
- *
  * <br>
  * <img
  * src =
@@ -19,6 +14,12 @@
  * mixins.png"
  * style = "max-height: 200px;"
  * >
+ * <p>
+ *
+ * @see For a rundown on the mixin pattern I use: {@link
+ * http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/}.
+ * Note that I actually like the base syntax, and prefer not to add another
+ * dependency by requiring the module implemented by the author of that article.
  *
  * @module mixins
  */
