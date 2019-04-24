@@ -16,20 +16,28 @@
 const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
 
 /**
- * Generator for integers from 0 to MAX_SAFE_INTEGER.
+ * Given a previous ID, returns the next unique ID in the sequence.
  *
  * @inner
  * @memberof module:shared.IdStamper
- * @generator
- * @returns {number} Unique integers.
+ * @throws Error
+ *
+ * @param {number} previous - The previously assigned unique ID.
+ *
+ * @returns {number} The next unique ID
  */
-function* id_gen() {
-  let next_id = 0;
-  while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
+function getUniqueId(previous) {
+  const next = previous + 1;
+  if (Number.isSafeInteger(next)) {
+    return next;
+  }
+  throw new Error('Ran out of unique IDs!');
 }
 
-// Mark the generator reference as not intended for external use.
-const gen = Symbol('gen');
+// Mark these fields as intended for internal use.
+const symbols = Object.freeze({
+  prevId: Symbol('prevId'),
+});
 
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
@@ -52,13 +60,13 @@ const gen = Symbol('gen');
 class IdStamper {
   constructor() {
     /**
-     * A generator instance that yields unique integers.
+     * The value of the previously assigned ID.
      *
-     * @type {Generator}
-     * @alias [@@id_gen]
+     * @type {number}
+     * @alias [@@prevId]
      * @memberof module:shared.IdStamper
      */
-    this[gen] = id_gen();
+    this[symbols.prevId] = 0;
   }
 
   /**
@@ -71,10 +79,11 @@ class IdStamper {
    * @param {Object} obj - An object onto which an ID will be stamped.
    */
   stampNewId(obj) {
+    this[symbols.prevId] = getUniqueId(this[symbols.prevId]);
     defineOwnImmutableEnumerableProperty(
       obj,
       'id',
-      this[gen].next().value
+      this[symbols.prevId]
     );
   }
 
