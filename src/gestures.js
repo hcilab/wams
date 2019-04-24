@@ -13,7 +13,7 @@
  *
  * <br>
  * <img
- * src = 
+ * src =
  * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
  * gestures.png"
  * style = "max-height: 300px;"

@@ -13,7 +13,7 @@
  *
  * <br>
  * <img
- * src = 
+ * src =
  * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
  * client.png"
  * style = "max-height: 200px;"
