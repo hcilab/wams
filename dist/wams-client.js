@@ -13941,9 +13941,8 @@ const {
   NOP
 } = require('../shared.js');
 
-const Interactor = require('./Interactor.js');
+const Interactor = require('./Interactor.js'); // Symbols to identify these methods as intended only for internal use
 
-const STAMPER = new IdStamper(); // Symbols to identify these methods as intended only for internal use
 
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
@@ -14203,7 +14202,7 @@ class ClientController {
 
 
   setup(data) {
-    STAMPER.cloneId(this.view, data.id);
+    IdStamper.cloneId(this.view, data.id);
     this.canvas.style.backgroundColor = data.color;
     this.model.setup(data);
     this.setupInteractor(data.useServerGestures); // Need to tell the model what the view looks like once setup is complete.
@@ -14354,8 +14353,6 @@ const {
   IdStamper,
   WamsElement
 } = require('../shared.js');
-
-const STAMPER = new IdStamper();
 /**
  * The ClientElement class exposes the draw() funcitonality of wams elements.
  *
@@ -14366,6 +14363,7 @@ const STAMPER = new IdStamper();
  * this item. Only properties explicity listed in the array passed to the
  * ReporterFactory when the WamsElement class was defined will be accepted.
  */
+
 
 class ClientElement extends WamsElement {
   constructor(data) {
@@ -14398,7 +14396,7 @@ class ClientElement extends WamsElement {
      */
 
 
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
   /**
    * Render the element. Really just updates the rotation and transformation
@@ -14460,8 +14458,6 @@ const {
   WamsImage,
   Message
 } = require('../shared.js');
-
-const STAMPER = new IdStamper();
 /**
  * Abstraction of the requisite logic for generating an image object which will
  * load the appropriate image and report when it has finished loading the image
@@ -14474,6 +14470,7 @@ const STAMPER = new IdStamper();
  *
  * @returns {?Image}
  */
+
 
 function createImage(src) {
   if (src) {
@@ -14524,7 +14521,7 @@ class ClientImage extends WamsImage {
      * @memberof module:client.ClientImage
      */
 
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
   /**
    * Render the image onto the given context.
@@ -14584,8 +14581,6 @@ const {
 const {
   CanvasSequence
 } = require('canvas-sequencer');
-
-const STAMPER = new IdStamper();
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
  *
@@ -14596,6 +14591,7 @@ const STAMPER = new IdStamper();
  * item. Only properties explicity listed in the array passed to the
  * ReporterFactory when the Item class was defined will be accepted.
  */
+
 
 class ClientItem extends Item {
   constructor(data) {
@@ -14618,7 +14614,7 @@ class ClientItem extends Item {
      * @memberof module:client.ClientItem
      */
 
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
   /**
    * Render the item onto the given context.
@@ -15291,9 +15287,8 @@ const {
   colours,
   IdStamper,
   View
-} = require('../shared.js');
+} = require('../shared.js'); // Symbols to mark these methods as intended for internal use only.
 
-const STAMPER = new IdStamper(); // Symbols to mark these methods as intended for internal use only.
 
 const symbols = Object.freeze({
   align: Symbol('align'),
@@ -15315,7 +15310,7 @@ const symbols = Object.freeze({
 class ShadowView extends View {
   constructor(values) {
     super(values);
-    STAMPER.cloneId(this, values.id);
+    IdStamper.cloneId(this, values.id);
   }
   /**
    * Render an outline of this view.
@@ -15632,23 +15627,32 @@ const {
   defineOwnImmutableEnumerableProperty
 } = require('./utilities.js');
 /**
- * Generator for integers from 0 to MAX_SAFE_INTEGER.
+ * Given a previous ID, returns the next unique ID in the sequence.
  *
  * @inner
  * @memberof module:shared.IdStamper
- * @generator
- * @returns {number} Unique integers.
+ * @throws Error
+ *
+ * @param {number} previous - The previously assigned unique ID.
+ *
+ * @returns {number} The next unique ID
  */
 
 
-function* id_gen() {
-  let next_id = 0;
+function getUniqueId(previous) {
+  const next = previous + 1;
 
-  while (Number.isSafeInteger(next_id + 1)) yield ++next_id;
-} // Mark the generator reference as not intended for external use.
+  if (Number.isSafeInteger(next)) {
+    return next;
+  }
+
+  throw new Error('Ran out of unique IDs!');
+} // Mark these fields as intended for internal use.
 
 
-const gen = Symbol('gen');
+const symbols = Object.freeze({
+  prevId: Symbol('prevId')
+});
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
  * per-IdStamper basis.
@@ -15662,8 +15666,8 @@ const gen = Symbol('gen');
  * delete obj.id;        // false
  *
  * const danger = {};
- * stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
- *                                  // now both using the same Id.
+ * IdStamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+ *                                    // now both using the same Id.
  *
  * @memberof module:shared
  */
@@ -15671,13 +15675,13 @@ const gen = Symbol('gen');
 class IdStamper {
   constructor() {
     /**
-     * A generator instance that yields unique integers.
+     * The value of the previously assigned ID.
      *
-     * @type {Generator}
-     * @alias [@@id_gen]
+     * @type {number}
+     * @alias [@@prevId]
      * @memberof module:shared.IdStamper
      */
-    this[gen] = id_gen();
+    this[symbols.prevId] = 0;
   }
   /**
    * Stamps an integer ID, unique to this IdStamper, onto the given object.
@@ -15691,7 +15695,8 @@ class IdStamper {
 
 
   stampNewId(obj) {
-    defineOwnImmutableEnumerableProperty(obj, 'id', this[gen].next().value);
+    this[symbols.prevId] = getUniqueId(this[symbols.prevId]);
+    defineOwnImmutableEnumerableProperty(obj, 'id', this[symbols.prevId]);
   }
   /**
    * Stamps a clone of the given ID onto the given object.
@@ -15701,7 +15706,7 @@ class IdStamper {
    */
 
 
-  cloneId(obj, id) {
+  static cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
       defineOwnImmutableEnumerableProperty(obj, 'id', id);
     }
@@ -16320,8 +16325,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 const IdStamper = require('./IdStamper.js');
-
-const STAMPER = new IdStamper();
 /**
  * This factory can generate the basic classes that need to communicate
  *  property values between the client and server.
@@ -16331,6 +16334,7 @@ const STAMPER = new IdStamper();
  * properties, and only these properties, which will be report()ed by the
  * reporter. The values provided will be used as the defaults.
  */
+
 
 function ReporterFactory(coreProperties) {
   const INITIALIZER = Object.freeze(_objectSpread({}, coreProperties));
@@ -16381,7 +16385,7 @@ function ReporterFactory(coreProperties) {
       KEYS.forEach(p => {
         data[p] = this[p];
       });
-      STAMPER.cloneId(data, this.id);
+      IdStamper.cloneId(data, this.id);
       return data;
     }
 
