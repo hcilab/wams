@@ -9,8 +9,6 @@
 
 const IdStamper = require('./IdStamper.js');
 
-const STAMPER = new IdStamper();
-
 /**
  * This factory can generate the basic classes that need to communicate
  *  property values between the client and server.
@@ -68,7 +66,7 @@ function ReporterFactory(coreProperties) {
       KEYS.forEach(p => {
         data[p] = this[p];
       });
-      STAMPER.cloneId(data, this.id);
+      IdStamper.cloneId(data, this.id);
       return data;
     }
   }

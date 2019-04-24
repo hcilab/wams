@@ -8,8 +8,6 @@
 
 const { IdStamper, WamsImage, Message } = require('../shared.js');
 
-const STAMPER = new IdStamper();
-
 /**
  * Abstraction of the requisite logic for generating an image object which will
  * load the appropriate image and report when it has finished loading the image
@@ -71,7 +69,7 @@ class ClientImage extends WamsImage {
      * @instance
      * @memberof module:client.ClientImage
      */
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
 
   /**

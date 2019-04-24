@@ -22,8 +22,6 @@ const {
 } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
-const STAMPER = new IdStamper();
-
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
@@ -269,7 +267,7 @@ class ClientController {
    * model.
    */
   setup(data) {
-    STAMPER.cloneId(this.view, data.id);
+    IdStamper.cloneId(this.view, data.id);
 
     this.canvas.style.backgroundColor = data.color;
     this.model.setup(data);

@@ -8,8 +8,6 @@
 
 const { Point2D, IdStamper, WamsElement } = require('../shared.js');
 
-const STAMPER = new IdStamper();
-
 /**
  * The ClientElement class exposes the draw() funcitonality of wams elements.
  *
@@ -49,7 +47,7 @@ class ClientElement extends WamsElement {
      * @instance
      * @memberof module:client.ClientElement
      */
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
 
   /**

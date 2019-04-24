@@ -21,8 +21,6 @@ const {
   View,
 } = require('../shared.js');
 
-const STAMPER = new IdStamper();
-
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
   align:    Symbol('align'),
@@ -44,7 +42,7 @@ const symbols = Object.freeze({
 class ShadowView extends View {
   constructor(values) {
     super(values);
-    STAMPER.cloneId(this, values.id);
+    IdStamper.cloneId(this, values.id);
   }
 
   /**

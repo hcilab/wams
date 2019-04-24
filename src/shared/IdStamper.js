@@ -44,8 +44,8 @@ const gen = Symbol('gen');
  * delete obj.id;        // false
  *
  * const danger = {};
- * stamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
- *                                  // now both using the same Id.
+ * IdStamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
+ *                                    // now both using the same Id.
  *
  * @memberof module:shared
  */
@@ -84,7 +84,7 @@ class IdStamper {
    * @param {Object} obj - An object onto which an ID will be stamped.
    * @param {number} id - The ID to clone onto obj.
    */
-  cloneId(obj, id) {
+  static cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
       defineOwnImmutableEnumerableProperty(obj, 'id', id);
     }

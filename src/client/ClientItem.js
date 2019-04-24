@@ -13,8 +13,6 @@
 const { IdStamper, Item } = require('../shared.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
-const STAMPER = new IdStamper();
-
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
  *
@@ -46,7 +44,7 @@ class ClientItem extends Item {
      * @instance
      * @memberof module:client.ClientItem
      */
-    STAMPER.cloneId(this, data.id);
+    IdStamper.cloneId(this, data.id);
   }
 
   /**
