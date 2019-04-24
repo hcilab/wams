@@ -29,8 +29,11 @@ function Router() {
   const view   = path.join(__dirname, '../../dist/view.html');
   app.get('/', (req, res) => res.sendFile(view));
 
-  const source = path.join(__dirname, '../../dist/wams-client.js');
-  app.get('/wams-client.js', (req, res) => res.sendFile(source));
+  const source = path.join(__dirname, '../../dist/client.js');
+  app.get('/client.js', (req, res) => res.sendFile(source));
+
+  const map = path.join(__dirname, '../../dist/client.js.map');
+  app.get('/client.js.map', (req, res) => res.sendFile(map));
 
   // Make the express object accessible (e.g. for express.static())
   app.express = express;
