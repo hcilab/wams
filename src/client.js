@@ -11,6 +11,14 @@
 /**
  * This file defines the entry point for the client side of a WAMS application.
  *
+ * <br>
+ * <img
+ * src = 
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * client.png"
+ * style = "max-height: 200px;"
+ * >
+ *
  * @module client
  */
 

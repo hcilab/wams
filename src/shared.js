@@ -9,6 +9,14 @@
  * This module contains classes and functions intended for use by both the
  * client and the server, in order to provide a common interface.
  *
+ * <br>
+ * <img
+ * src = 
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * shared.png"
+ * style = "max-height: 250px;"
+ * >
+ *
  * @module shared
  */
 

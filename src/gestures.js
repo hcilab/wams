@@ -11,6 +11,14 @@
  * An internal port of the Westures library (v0.5.3), adjusted so that it can
  * operate on the server with events coming from disparate clients.
  *
+ * <br>
+ * <img
+ * src = 
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * gestures.png"
+ * style = "max-height: 300px;"
+ * >
+ *
  * @module gestures
  */
 const {

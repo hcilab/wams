@@ -8,6 +8,14 @@
 /**
  * Bundles together the predefined callback factories.
  *
+ * <br>
+ * <img
+ * src = 
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * predefined.png"
+ * style = "max-height: 150px;"
+ * >
+ *
  * @module predefined
  */
 

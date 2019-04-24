@@ -12,6 +12,14 @@
  * Note that I actually like the base syntax, and prefer not to add another
  * dependency by requiring the module implemented by the author of that article.
  *
+ * <br>
+ * <img
+ * src = 
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * mixins.png"
+ * style = "max-height: 200px;"
+ * >
+ *
  * @module mixins
  */
 
