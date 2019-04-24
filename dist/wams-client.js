@@ -13880,6 +13880,14 @@ module.exports = yeast;
 /**
  * This file defines the entry point for the client side of a WAMS application.
  *
+ * <br>
+ * <img
+ * src =
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * client.png"
+ * style = "max-height: 200px;"
+ * >
+ *
  * @module client
  */
 'use strict';
@@ -15529,6 +15537,14 @@ module.exports = Transform;
 /**
  * This module contains classes and functions intended for use by both the
  * client and the server, in order to provide a common interface.
+ *
+ * <br>
+ * <img
+ * src =
+ * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
+ * shared.png"
+ * style = "max-height: 250px;"
+ * >
  *
  * @module shared
  */
