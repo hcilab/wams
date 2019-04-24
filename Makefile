@@ -1,19 +1,16 @@
 
-.PHONY: wams lint fix bundle docs tags test graphs report
-
-wams: lint bundle docs tags
+.PHONY: wams lint fix parcel docs tags test graphs report
 
 lint:
 	npx eslint src;
 
+wams: lint parcel docs tags
+
 fix:
 	npx eslint src --fix;
 
-bundle:
-	npx browserify 'src/client.js' \
-		--standalone wams-client \
-		-g [ babelify ] \
-		--outfile 'dist/wams-client.js';
+parcel:
+	npx parcel build 'src/client.js';
 
 docs:
 	npx jsdoc -c .jsdocrc.json;
