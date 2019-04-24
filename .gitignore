@@ -4,7 +4,6 @@ node_modules/
 custom.css
 *.pdf
 data/
-graphs/*.png
 graphs/*.sh
 
 coverage
