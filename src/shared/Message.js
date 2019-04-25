@@ -77,6 +77,8 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  *
  * @memberof module:shared
  *
+ * @throws TypeError
+ *
  * @param {string} type - The message type. Must be one of the explicitly listed
  * message types available on the Message object.
  * @param {module:shared.Reporter} reporter - A Reporter instance, containing
@@ -84,9 +86,23 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  */
 class Message {
   constructor(type, reporter) {
-    if (!TYPE_VALUES.includes(type)) throw 'Invalid message type!';
+    if (!TYPE_VALUES.includes(type)) {
+      throw new TypeError('Invalid message type!');
+    }
 
+    /**
+     * The type of Message. Must be one of the predefined types available as
+     * static fields on the Message class.
+     *
+     * @type {string}
+     */
     this.type = type;
+
+    /**
+     * The Reporter which holds the data to send in the Message.
+     *
+     * @type {module:shared.Reporter}
+     */
     this.reporter = reporter;
   }
 

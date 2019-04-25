@@ -11,8 +11,8 @@
  *
  * @memberof module:shared
  *
- * @param {number} x - x coordinate of the point.
- * @param {number} y - y coordinate of the point.
+ * @param {number} [x=0] - x coordinate of the point.
+ * @param {number} [y=0] - y coordinate of the point.
  */
 class Point2D {
   constructor(x = 0, y = 0) {
@@ -24,7 +24,7 @@ class Point2D {
     this.x = x;
 
     /**
-     * X coordinate of the point.
+     * Y coordinate of the point.
      *
      * @type {number}
      */
@@ -34,7 +34,9 @@ class Point2D {
   /**
    * Add the given point to this point.
    *
-   * @param {module:gestures.Point2D} point - The point to add.
+   * @param {module:shared.Point2D} point - The point to add.
+   *
+   * @return {module:shared.Point2D} this
    */
   add({ x = 0, y = 0 }) {
     this.x += x;
@@ -45,11 +47,11 @@ class Point2D {
   /**
    * Calculates the angle between this point and the given point.
    *
-   * @param {!module:gestures.Point2D} point - Projected point for calculating
+   * @param {!module:shared.Point2D} point - Projected point for calculating
    * the angle.
    *
-   * @return {number} Radians along the unit circle where the projected
-   * point lies.
+   * @return {number} Radians along the unit circle where the projected point
+   * lies.
    */
   angleTo(point) {
     return Math.atan2(point.y - this.y, point.x - this.x);
@@ -59,11 +61,11 @@ class Point2D {
    * Determine the average distance from this point to the provided array of
    * points.
    *
-   * @param {!module:gestures.Point2D[]} points - the Point2D objects to
-   *    calculate the average distance to.
+   * @param {!module:shared.Point2D[]} points - the Point2D objects to
+   * calculate the average distance to.
    *
    * @return {number} The average distance from this point to the provided
-   *    points.
+   * points.
    */
   averageDistanceTo(points) {
     return this.totalDistanceTo(points) / points.length;
@@ -81,11 +83,11 @@ class Point2D {
   /**
    * Calculates the distance between two points.
    *
-   * @param {!module:gestures.Point2D} point - Point to which the distance is
+   * @param {!module:shared.Point2D} point - Point to which the distance is
    * calculated.
    *
    * @return {number} The distance between the two points, a.k.a. the
-   *    hypoteneuse.
+   * hypoteneuse.
    */
   distanceTo(point) {
     return Math.hypot(point.x - this.x, point.y - this.y);
@@ -138,13 +140,12 @@ class Point2D {
   }
 
   /**
-   * Multiply this point by the given point to form a new point.
+   * Multiply this point by the given point, in-place.
    *
    * @param {number} coefficient - Amount by which to multiply the values in
    * this point.
    *
-   * @return {module:shared.Point2D} Return a new point, the multiplation of
-   * this point by the given amount.
+   * @return {module:shared.Point2D} this
    */
   multiplyBy(coefficient = 1) {
     this.x *= coefficient;
@@ -173,8 +174,8 @@ class Point2D {
   /**
    * Calculates the total distance from this point to an array of points.
    *
-   * @param {!module:gestures.Point2D[]} points - The array of Point2D objects
-   *    to calculate the total distance to.
+   * @param {!module:shared.Point2D[]} points - The array of Point2D objects to
+   * calculate the total distance to.
    *
    * @return {number} The total distance from this point to the provided points.
    */
@@ -185,10 +186,11 @@ class Point2D {
   /**
    * Calculates the midpoint of a list of points.
    *
-   * @param {module:gestures.Point2D[]} points - The array of Point2D objects
-   *    for which to calculate the midpoint
+   * @param {module:shared.Point2D[]} points - The array of Point2D objects for
+   * which to calculate the midpoint
    *
-   * @return {module:gestures.Point2D} The midpoint of the provided points.
+   * @return {?module:shared.Point2D} The midpoint of the provided points. Null
+   * if the provided array is empty.
    */
   static midpoint(points = []) {
     if (points.length === 0) return null;
@@ -203,9 +205,9 @@ class Point2D {
   /**
    * Calculates the sum of the given points.
    *
-   * @param {module:gestures.Point2D[]} points - The Point2D objects to sum up.
+   * @param {module:shared.Point2D[]} points - The Point2D objects to sum up.
    *
-   * @return {module:gestures.Point2D} A new Point2D representing the sum of the
+   * @return {module:shared.Point2D} A new Point2D representing the sum of the
    * given points.
    */
   static sum(points = []) {

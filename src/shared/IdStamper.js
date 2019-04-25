@@ -2,13 +2,6 @@
  * IdStamper utility for the WAMS application.
  *
  * Author: Michael van der Kamp
- * Date: July / August 2018
- *
- * I wrote this generator class to make Id generation more controlled.
- * The class has access to a private (local lexical scope) generator
- *  function and Symbol for generators, and exposes a pair of methods for
- *  stamping new Ids onto objects and cloning previously existing Ids onto
- *  objects.
  */
 
 'use strict';

@@ -15,8 +15,8 @@ const IdStamper = require('./IdStamper.js');
  *
  * @memberof module:shared
  * @param {object} coreProperties - It is the properties defined on this object,
- * properties, and only these properties, which will be report()ed by the
- * reporter. The values provided will be used as the defaults.
+ * and only these properties, which will be reported by the reporter. The values
+ * provided will be used as the defaults.
  */
 function ReporterFactory(coreProperties) {
   const INITIALIZER = Object.freeze({ ...coreProperties });
