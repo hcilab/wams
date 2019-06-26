@@ -46,7 +46,7 @@ node examples/polygons.js
 The `shared-polygons.js` example demonstrates multi-device gestures.
 
 
-## Hello World
+### Hello World
 The smallest Wams example looks something like this:
 ```javascript
 const Wams = require('..');
