@@ -7,7 +7,6 @@
 
 const path = require('path');
 const Wams = require('..');
-
 /*
  * Randomize array element order in-place.
  * Using Durstenfeld shuffle algorithm.
@@ -34,9 +33,12 @@ router.use('/cards', router.express.static(images));
 
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
-  color:       'green',
+  color: 'green',
   // clientLimit: 5,
 }, router);
+
+// maps `position` index to web socket ID
+const CLIENTS = {}
 
 // Demonstrate a custom rendering sequence.
 const circle = new Wams.CanvasSequence();
@@ -50,9 +52,9 @@ circle.strokeStyle = '#003300';
 circle.stroke();
 
 app.spawnItem({
-  x:         500,
-  y:         250,
-  type:      'circle',
+  x: 500,
+  y: 250,
+  type: 'circle',
   sequence: circle,
 });
 
@@ -63,16 +65,16 @@ text.fillStyle = '#1a1a1a';
 text.fillText('Deal the cards!', 0, 0);
 
 app.spawnItem({
-  x:         380,
-  y:         230,
-  type:      'text',
+  x: 380,
+  y: 230,
+  type: 'text',
   sequence: text,
 });
 
 // Draw a card deck outline.
 app.spawnItem(Wams.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
-  x:       515,
-  y:       300,
+  x: 515,
+  y: 300,
   onclick: dealCards,
 }));
 
@@ -82,9 +84,9 @@ deal.fillStyle = 'black';
 deal.fillText('Shuffle', 0, 0);
 
 app.spawnItem({
-  x:        525,
-  y:        400,
-  type:     'text',
+  x: 525,
+  y: 400,
+  type: 'text',
   sequence: deal,
 });
 
@@ -115,16 +117,16 @@ function dealCards() {
   let offs = 0.0;
   shuffle(cardDescriptors).forEach(card => {
     cards.push(app.spawnImage(Wams.predefined.items.image(card_back_path, {
-      x:        345 - offs,
-      y:        300 - offs,
-      width:    140,
-      height:   190,
-      type:     'card',
-      scale:    1,
-      face:     card,
+      x: 345 - offs,
+      y: 300 - offs,
+      width: 140,
+      height: 190,
+      type: 'card',
+      scale: 1,
+      face: card,
       isFaceUp: false,
-      onclick:  flipCard,
-      ondrag:   Wams.predefined.drag,
+      onclick: flipCard,
+      ondrag: Wams.predefined.drag,
       onrotate: Wams.predefined.rotate,
     })));
     offs += 0.2;
@@ -137,15 +139,19 @@ dealCards();
  * Allows cards to be flipped.
  */
 function flipCard(event) {
+  if (event.view.socket.id === CLIENTS[0]) return
   const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
   card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
 }
 
-const tableLayout = Wams.predefined.layouts.table(30);
+const tableLayout = Wams.predefined.layouts.table(200);
 function handleLayout(view, position) {
+  let socketId = view.socket.id
+  CLIENTS[position] = socketId
   if (position === 0) {
+    console.log(position)
     // User is the "table". Allow them to move around and scale.
     view.ondrag = Wams.predefined.drag;
     view.onscale = Wams.predefined.scale;

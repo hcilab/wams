@@ -64,6 +64,15 @@ class ClientItem extends Item {
   }
 
   /**
+   * Set parent ServerGroup for the item.
+   *
+   * @param {module:server:ServerGroup} parent server group for this item
+   */
+  setParent(parent) {
+    this.parent = parent;
+  }
+
+  /**
    * Set the item's canvas rendering sequence.
    *
    * @param {CanvasSequence} sequence - Raw, unrevived CanvasSequence.

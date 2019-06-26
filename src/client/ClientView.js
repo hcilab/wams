@@ -31,6 +31,12 @@ const symbols = Object.freeze({
   wipe:         Symbol('wipe'),
 });
 
+// Default ClientView configuration.
+const DEFAULT_CONFIG = Object.freeze({
+  showStatus:  false,
+  showShadows: false,
+});
+
 /**
  * The ClientView is responsible for rendering the view. To do this, it keeps
  * track of its own position, scale, and orientation, as well as those values
@@ -73,6 +79,14 @@ class ClientView extends View {
      * @memberof module:client.ClientView
      */
     this.id = null;
+
+    /**
+     * Configuration of ClientView that can be
+     * modified in user-defined `window.WAMS_CONFIG`.
+     *
+     * @type {object}
+     */
+    this.config = { ...DEFAULT_CONFIG, ...window.WAMS_CONFIG };
   }
 
   /**
@@ -155,8 +169,8 @@ class ClientView extends View {
     this[symbols.wipe]();
     this[symbols.align]();
     this[symbols.drawItems]();
-    this[symbols.drawShadows]();
-    this[symbols.drawStatus]();
+    if (this.config.showShadows) this[symbols.drawShadows]();
+    if (this.config.showStatus) this[symbols.drawStatus]();
     this.context.restore();
   }
 

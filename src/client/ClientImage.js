@@ -92,6 +92,15 @@ class ClientImage extends WamsImage {
   }
 
   /**
+   * Set parent ServerGroup for the image.
+   *
+   * @param {module:server:ServerGroup} parent server group for this image
+   */
+  setParent(parent) {
+    this.parent = parent;
+  }
+
+  /**
    * Sets the image path and loads the image.
    *
    * @param {string} path - The image's source path

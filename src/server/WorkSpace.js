@@ -14,6 +14,7 @@ const {
   removeById,
   Message,
 } = require('../shared.js');
+const ServerGroup = require('./ServerGroup.js');
 const ServerElement = require('./ServerElement.js');
 const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
@@ -175,6 +176,15 @@ class WorkSpace {
    */
   spawnItem(values = {}) {
     return this.spawnObject(ServerItem, values);
+  }
+
+  /**
+   * Create a group for existing items in the workspace.
+   *
+   * @param {any} values properties for the group
+   */
+  createGroup(values) {
+    return this.spawnObject(ServerGroup, values);
   }
 }
 

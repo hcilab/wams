@@ -137,7 +137,7 @@ function element(x, y, width, height, properties = {}) {
 }
 
 /**
- * Generate an iframe that wraps the given html.
+ * Generate an item that wraps the given html.
  *
  * @memberof module:predefined.items
  *
@@ -150,7 +150,7 @@ function element(x, y, width, height, properties = {}) {
  * @returns {Object} An object with the parameters for an iframe with the given
  * HTML content.
  */
-function wrappedElement(html, width, height, properties = {}) {
+function html(html, width, height, properties = {}) {
   const hitbox = new Rectangle(width, height);
   const baseattrs = properties.attributes || {};
   const attributes = {
@@ -167,6 +167,6 @@ module.exports = {
   polygon,
   rectangle,
   square,
-  wrappedElement,
+  html,
 };
 

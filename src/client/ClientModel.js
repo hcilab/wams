@@ -21,6 +21,15 @@ const REQUIRED_DATA = Object.freeze([
   'views',
 ]);
 
+// Default ClientView configuration.
+const DEFAULT_CONFIG = Object.freeze({
+
+  // list of custom events that will be allowed in the DOM
+  // if dispatched by WAMS server
+  allowedEvents: [],
+
+});
+
 /**
  * The ClientModel is a client-side copy of those aspects of the model that are
  * necessary for rendering the view for the user.
@@ -59,6 +68,14 @@ class ClientModel {
      * @type {module:client.ClientView}
      */
     this.view = null;
+
+    /**
+     * Configuration of ClientModel that can be
+     * modified in user-defined `window.WAMS_CONFIG`.
+     *
+     * @type {object}
+     */
+    this.config = { ...DEFAULT_CONFIG, ...window.WAMS_CONFIG };
   }
 
   /**
@@ -186,6 +203,10 @@ class ClientModel {
     this.setItemValue('setAttributes', 'attributes', data);
   }
 
+  setParent(data) {
+    this.setItemValue('setParent', 'parent', data);
+  }
+
   /**
    * Set the image for the appropriate item.
    *
@@ -250,6 +271,18 @@ class ClientModel {
    */
   updateView(data) {
     this.view.assign(data);
+  }
+
+  /**
+   * Dispatch custom DOM event to trigger user defined action
+   *
+   * @param {object} event - event data, contains `action` and `payload`
+   */
+  dispatch(event) {
+    document.dispatchEvent(new CustomEvent(
+      event.action,
+      { detail: event.payload }
+    ));
   }
 }
 

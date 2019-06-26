@@ -79,6 +79,13 @@ class ClientController {
     this.view = view;
 
     /**
+     * List of custom event names that will be listened to.
+     *
+     * @type {array}
+     */
+    this.allowedEvents = [];
+
+    /**
      * Tracks whether a render has been scheduled for the next render frame.
      *
      * @type {boolean}
@@ -98,6 +105,16 @@ class ClientController {
      * is.
      */
     this.resizeCanvasToFillWindow();
+
+    window.Wams = {
+      on: (event, func) => {
+        document.addEventListener(event, func);
+        this.allowedEvents.push(event);
+      },
+      dispatch: (event, func) => this.dispatch(event, func),
+    };
+
+    if (window.onWamsReady) window.onWamsReady();
   }
 
   /**
@@ -128,6 +145,7 @@ class ClientController {
       [Message.SET_ATTRS]:  ({ data }) => this.handle('setAttributes', data),
       [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
       [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
+      [Message.SET_PARENT]: ({ data }) => this.handle('setParent', data),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (data) => this.setup(data),
@@ -148,6 +166,9 @@ class ClientController {
       [Message.FULL]: () => {
         document.body.innerHTML = 'WAMS is full! :(';
       },
+
+      // For user-defined behavior
+      [Message.DISPATCH]: ({ data }) => this.handleCustomEvent(data),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -225,6 +246,20 @@ class ClientController {
   handle(message, data) {
     this.model[message](data, this);
     this.scheduleRender();
+  }
+
+  /**
+   * Helper function to ensure that only those events that
+   * have attached listeners will be dispatched by the ClientModel.
+   *
+   * @param {string} message - the name of the ClientModel method to run.
+   * @param {object} data - the argument to pass to `this.handle`.
+   */
+  handleCustomEvent(data) {
+    if (this.allowedEvents.indexOf(data.action) < 0) {
+      throw `There is no event listener for "${data.action}"`;
+    }
+    this.handle('dispatch', data);
   }
 
   /**
@@ -391,6 +426,19 @@ class ClientController {
         });
       new Message(Message.POINTER, treport).emitWith(this.socket);
     });
+  }
+
+  /**
+   * Dispatch a custom ServerEvent.
+   *
+   * @param {string} action
+   * @param {object} payload
+   */
+  dispatch(action, payload) {
+    const dreport = new DataReporter({
+      data: { action, payload },
+    });
+    new Message(Message.DISPATCH, dreport).emitWith(this.socket);
   }
 }
 

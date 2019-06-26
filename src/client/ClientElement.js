@@ -80,6 +80,15 @@ class ClientElement extends WamsElement {
   }
 
   /**
+   * Set parent ServerGroup for the element.
+   *
+   * @param {module:server:ServerGroup} parent server group for this element
+   */
+  setParent(parent) {
+    this.parent = parent;
+  }
+
+  /**
    * Removes attributes from the element.
    *
    * @param {string[]} attributes

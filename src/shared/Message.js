@@ -32,6 +32,7 @@ const TYPES = {
   /** @const */ ADD_IMAGE:   'wams-add-image',
   /** @const */ ADD_ITEM:    'wams-add-item',
   /** @const */ ADD_SHADOW:  'wams-add-shadow',
+  /** @const */ ADD_GROUP:   'wams-add-group',
   /** @const */ RM_ITEM:     'wams-remove-item',
   /** @const */ RM_SHADOW:   'wams-remove-shadow',
   /** @const */ UD_ITEM:     'wams-update-item',
@@ -40,9 +41,11 @@ const TYPES = {
 
   // For hopefully occasional extra adjustments to objects in the model.
   /** @const */ RM_ATTRS:   'wams-remove-attributes',
+  /** @const */ SET_ITEMS:  'wams-set-items',
   /** @const */ SET_ATTRS:  'wams-set-attributes',
   /** @const */ SET_IMAGE:  'wams-set-image',
   /** @const */ SET_RENDER: 'wams-set-render',
+  /** @const */ SET_PARENT: 'wams-set-parent',
 
   // Connection establishment related (disconnect, initial setup)
   /** @const */ INITIALIZE: 'wams-initialize',
@@ -62,6 +65,9 @@ const TYPES = {
 
   // Page event related
   /** @const */ IMG_LOAD:   'wams-image-loaded',
+
+  // User defined actions
+  /** @const */ DISPATCH: 'wams-dispatch',
 };
 Object.freeze(TYPES);
 

@@ -6,6 +6,11 @@
 
 'use strict';
 
+const {
+  Message,
+  DataReporter,
+} = require('../shared.js');
+
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
  * messages from clients, which it then uses to call the appropriate listener.
@@ -30,6 +35,13 @@ class MessageHandler {
      * @type {function}
      */
     this.onlayout = null;
+
+    /**
+     * Custom event listeners and handlers.
+     *
+     * @type {object}
+     */
+    this.listeners = {};
   }
 
   /**
@@ -156,6 +168,32 @@ class MessageHandler {
     const { target } = event;
     const { velocity, direction } = data;
     if (target.onswipe) target.onswipe({ ...event, velocity, direction });
+  }
+
+  /**
+   * Send Message to clients to dispatch custom Client event.
+   *
+   * @param {string} event name of the user-defined event.
+   * @param {object} payload argument to pass to the event handler.
+   */
+  dispatch(action, payload) {
+    const dreport = new DataReporter({
+      data: { action, payload },
+    });
+    new Message(Message.DISPATCH, dreport).emitWith(this.workspace.namespace);
+  }
+
+  /**
+   * Handle custom Server event dispatched by a client.
+   *
+   * @param {string} event name of the event.
+   * @param {any} payload argument to pass to the event handler.
+   */
+  handleCustomEvent(event, payload) {
+    if (!this.listeners[event]) {
+      throw `Server is not listenting for custom event "${event}"`;
+    }
+    this.listeners[event](payload);
   }
 }
 

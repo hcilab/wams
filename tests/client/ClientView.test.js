@@ -68,9 +68,11 @@ describe('ClientView', () => {
       });
 
       test('Draws all of the shadows', () => {
-        model.shadows.forEach(s => {
-          expect(s.draw).toHaveBeenCalledTimes(1);
-        });
+        if (cv.config.showShadows) {
+          model.shadows.forEach(s => {
+            expect(s.draw).toHaveBeenCalledTimes(1);
+          });
+        } else return undefined;
       });
     });
 

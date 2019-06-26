@@ -10,7 +10,7 @@ fix:
 	npx eslint src --fix;
 
 parcel:
-	npx parcel build 'src/client.js';
+	npx parcel build 'src/client.js' --out-dir dist/wams;
 
 docs:
 	npx jsdoc -c .jsdocrc.json;

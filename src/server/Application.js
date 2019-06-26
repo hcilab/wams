@@ -103,8 +103,10 @@ class Application {
    * @see module:server.Application~getLocalIP
    */
   listen(port = Switchboard.DEFAULTS.port, host = getLocalIP()) {
-    this.server.listen(port, host, () => {
-      console.info('Listening on', this.server.address());
+    this.server.listen(port, '0.0.0.0', () => {
+      const address = this.server.address();
+      const message = `Localhost:${address.port} and ${host}:${address.port}`;
+      console.info(message);
     });
   }
 
@@ -116,6 +118,16 @@ class Application {
    */
   onlayout(callback) {
     this.messageHandler.onlayout = callback;
+  }
+
+  /**
+   * Register a disconnect callback.
+   *
+   * @param {function} callback - Layout handler to trigger when a user
+   * disconnects.
+   */
+  ondisconnect(callback) {
+    this.messageHandler.ondisconnect = callback;
   }
 
   /**
@@ -155,6 +167,40 @@ class Application {
    */
   spawnItem(values) {
     return this.workspace.spawnItem(values);
+  }
+
+  /**
+   * Create a group for existing items in the workspace.
+   * A group allows to interact with several elements simultaneously.
+   *
+   * @param  {obj} values properties for the group
+   */
+  createGroup(values) {
+    return this.workspace.createGroup(values);
+  }
+
+  /**
+   * Send Message to clients to dispatch user-defined action.
+   *
+   * @param {string} action name of the user-defined action.
+   * @param {object} payload argument of the user-defined action function.
+   */
+  dispatch(action, payload) {
+    return this.messageHandler.dispatch(action, payload);
+  }
+
+  /**
+   * Set up a custom Server event listener.
+   *
+   * @param {*} event name of the custom Server event.
+   * @param {*} handler handler of the custom event.
+   */
+  on(event, handler) {
+    if (this.messageHandler.listeners[event]) {
+      throw `Listener already exists for custom event "${event}"`;
+    }
+
+    this.messageHandler.listeners[event] = handler;
   }
 }
 

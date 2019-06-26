@@ -15,7 +15,7 @@ const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
  * The ServerElement provides operations for the server to locate and move
- * images around.
+ * elements around.
  *
  * @memberof module:server
  * @extends module:shared.WamsElement
@@ -23,9 +23,9 @@ const { Hittable, Identifiable } = require('../mixins.js');
  * @mixes module:mixins.Identifiable
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
- * @param {Object} values - User-supplied data detailing the image. Properties
- * on this object that line up with {@link module:shared.Element} members will
- * be stored. Any other properties will be ignored.
+ * @param {Object} values - User-supplied data detailing the elements.
+ * Properties on this object that line up with {@link module:shared.Element}
+ * members will be stored. Any other properties will be ignored.
  */
 class ServerElement extends Identifiable(Hittable(WamsElement)) {
   constructor(namespace, values = {}) {

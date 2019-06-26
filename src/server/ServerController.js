@@ -123,6 +123,7 @@ class ServerController {
       [Message.SET_ATTRS]:  NOP,
       [Message.SET_IMAGE]:  NOP,
       [Message.SET_RENDER]: NOP,
+      [Message.SET_PARENT]: NOP,
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: NOP,
@@ -141,6 +142,10 @@ class ServerController {
       [Message.POINTER]: (event) => this.pointerEvent(event),
       [Message.BLUR]:    () => {
         this.group.clearInputsFromView(this.view.id);
+      },
+
+      [Message.DISPATCH]: ({ data }) => {
+        this.messageHandler.handleCustomEvent(data.action, data.payload);
       },
     };
 
@@ -172,6 +177,14 @@ class ServerController {
     this.group.removeView(this.view);
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
+    if (this.messageHandler.ondisconnect) {
+      this.messageHandler.ondisconnect(
+        this.view,
+        this.index,
+        this.device,
+        this.group
+      );
+    }
     return true;
   }
 

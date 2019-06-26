@@ -34,6 +34,8 @@ window.addEventListener(
     document.addEventListener('contextmenu', e => e.preventDefault());
 
     const canvas = document.querySelector('canvas');
+    if (!canvas) throw 'No canvas element was found on the page.';
+
     const context = canvas.getContext('2d');
 
     const model = new ClientModel();

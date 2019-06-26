@@ -26,14 +26,12 @@ function Router() {
   const app = express();
 
   // Establish main routes.
-  const view   = path.join(__dirname, '../../dist/view.html');
+  const view   = path.join(__dirname, '../../dist/index.html');
   app.get('/', (req, res) => res.sendFile(view));
 
-  const source = path.join(__dirname, '../../dist/client.js');
-  app.get('/client.js', (req, res) => res.sendFile(source));
+  app.use('/wams', express.static(path.join(__dirname, '../../dist/wams')))
 
-  const map = path.join(__dirname, '../../dist/client.js.map');
-  app.get('/client.js.map', (req, res) => res.sendFile(map));
+  app.use('/app', express.static(path.join(__dirname, '../../dist/app')))
 
   // Make the express object accessible (e.g. for express.static())
   app.express = express;
