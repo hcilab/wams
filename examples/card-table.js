@@ -5,7 +5,6 @@
 
 'use strict';
 
-const path = require('path');
 const Wams = require('..');
 /*
  * Randomize array element order in-place.
@@ -26,16 +25,11 @@ function shuffle(in_array) {
   return array;
 }
 
-// Provide custom route for card assets
-const router = new Wams.Router();
-const images = path.join(__dirname, '../img/Cards');
-router.use('/cards', router.express.static(images));
-
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
   color: 'green',
   // clientLimit: 5,
-}, router);
+});
 
 // maps `position` index to web socket ID
 const CLIENTS = {}
@@ -100,12 +94,12 @@ const cardDescriptors = [];
 const cards = [];
 values.forEach(value => {
   suits.forEach(suit => {
-    cardDescriptors.push(`cards/${suit}${value}.png`);
+    cardDescriptors.push(`/images/Cards/${suit}${value}.png`);
   });
 });
 
 // Select the look for the back of the cards.
-const card_back_path = 'cards/Back_blue4.png';
+const card_back_path = '/images/Cards/Back_blue4.png';
 
 function dealCards() {
   cards.forEach(card => {
