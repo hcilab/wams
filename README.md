@@ -58,9 +58,12 @@ app.listen(8080);
 
 It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100` and starts the server on port `8080`. Now anyone can connect to the server and see the square.
 
+> **Note** The examples on this page use ES2016 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
+
+
 ## Getting started
 
-Wams app is made of **items**. There is a number of predefined items like:
+A Wams app is made of **items**. There is a number of predefined items like:
 
 - `square`
 - `rectangle`
@@ -70,11 +73,7 @@ Wams app is made of **items**. There is a number of predefined items like:
 
 Most of the items are used on HTML **canvas**, which is the core part of Wams.   You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
-> **TODO** How to create custom items?
-
-
 ### Images
-
 
 ```javascript
 const { image } = Wams.predefined.items;
@@ -103,6 +102,9 @@ app.spawnElement(html('<h1>Hello world!</h1>', 200, 100, {
 The code above will spawn a wrapped `h1` element with width of `200` and height of `100`, positioned at `{ x: 300, y: 100 }`.
 
 ### Adding interactivity
+
+> **Note** An item must have its coordinates, width and height defined to be interactive
+
 Let's get back to our Hello world example with a green square. Just a static square is not that interesting, though. Let's make it **draggable**:
 ```javascript
 ...
@@ -136,29 +138,42 @@ Another cool interactive feature is **rotation**. To rotate an item, first add t
 ...
 ```
 
-You can add `ondrag`, `onclick ` and `onrotate` event handlers to all Wams items.
+To move an item, you can use `moveBy` and `moveTo` item methods:
 
-> **TODO** write about `moveBy` and `moveTo`
+```js
+app.spawnImage(image('images/monaLisa.jpg', {
+  width: 200, height: 300,
+  onclick: handleClick,
+}))
 
-> **Important** An item has to have its coordinates, width and height defined to be interactive
+function handleClick(event) {
+  event.target.moveBy(100, -50);
+}
+```
+
+Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) or the final position (for `moveTo`).
+
+_You can add event handlers to all Wams items._
+
+
 
 ### Connections
 
-Wams handles all the hard parts of managing connections with clients under the hood, and provides you with helpful methods to react on connection-related events:
+Wams manages connections with clients under the hood, and provides helpful methods to react on connection-related events:
 
-- `onlayout`
-- `ondisconnect`
+- `onlayout` – called each time a client connects to Wams server
+- `ondisconnect` – called when client disconnects
 
-Both methods accept a callback function, where you can act on the event. The callback function is supplied with these arguments:
+Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
 
-- `view` – server view object, that provides operations for the server to locate, move, and rescale views
-- `position` – the index of the connected device
-- `device` – the connected device state
+- `view` – current device object that contains the view's state and allows to locate, move, and rescale the view 
+- `position` – index of current device
+- `device` – physical position of current device
 - `group` – server view group, used for multi-device gestures
 
-Setting a callback for `onlayout` event is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Furthemore, you can `moveBy` and `moveTo` views same way as items.
+Setting an `onlayout` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
 
-By setting different layouts for different clients, you can build complex layouts. Wams has predefined layouts that you can use, such as `table` and `row`.
+Combining view event handlers and methods, you can build complex layouts based on client's position index. Wams has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
 ```js
 const setTableLayout = Wams.predefined.layouts.table(200);
@@ -170,4 +185,133 @@ function handleLayout(view, position) {
   }
   setTableLayout(view, position);
 }
+
+app.onlayout(handleLayout);
 ```
+
+## Advanced
+
+When building more complex applications, sometimes you might want to have more flexibility and power than predefined items and behaviors provide. 
+
+The following topics show how to go beyond that.
+
+### Custom item
+
+To spawn a custom item, use `CanvasSequence`. It allows to create a custom sequence of canvas actions on the server and safely execute it on the client. That means you can use most of the HTML Canvas methods as if you were writing regular browser code.
+
+The following sequence draws a smiling face item:
+
+```js
+const smile = new Wams.CanvasSequence();
+
+smile.beginPath();
+smile.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
+smile.moveTo(110, 75);
+smile.arc(75, 75, 35, 0, Math.PI, false);  // Mouth (clockwise)
+smile.moveTo(65, 65);
+smile.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
+smile.moveTo(95, 65);
+smile.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
+smile.stroke();
+
+app.spawnItem({
+  x: 900,
+  y: 300,
+  sequence: smile,
+});
+```
+
+### Custom events
+
+Sometimes, you would like to tell devices to execute client-side code at a specific time. Or you would like to communicate some client-side event to the server. To allow that, Wams provides **custom events**.
+
+_First of all_, let's think of how we've been writing a Wams app up to this point. All of the app's code is in a single file, that acts as a server and defines the app behavior. But as you move to more complex apps, _sometimes you need to have logic on the client side, too._
+
+It means that we want to be able to write client side code and execute it when we want, on client or server events. But how do we write client code with Wams?
+
+1. Go to **dist** directory. This is where Wams' client-side code is located.
+2. Create a folder and name it **app**
+3. In the **app** folder, create a **.js** file (e.g. **main.js**). 
+Add `alert('Hello, World!')` to it.
+4. Go to **dist/index.html** and add the reference to your JS script.
+```html
+...
+  <script src="app/main.js"></script>
+</body>
+...
+````
+5. Refresh the browser page and see your alert – you now have a place to write your client code! 🎊
+
+#### From Client to Server
+
+_Now_, let's say we would like to send a message from the client to the server. To use Wams methods on the client, first wrap your code in an `onWamsReady` function.
+
+```javascript
+function onWamsReady(/* args */) { /* your code here */ }
+```
+
+
+Now, to **dispatch a server event**, use `dispatch()` method supplied by `onWamsReady`:
+
+```javascript
+// my-client-code.js
+
+function onWamsReady({ dispatch }) {
+  dispatch('my-message', { foo: 'bar' });
+}
+```
+
+This dispatches a custom event to the server called `my-message` and sends a payload object.
+
+To **listen to this event on the server**, use `app.on()` method:
+
+```javascript
+// my-server-code.js
+
+app.on('my-message', handleMyMessage);
+
+function handleMyMessage(data) {
+  console.log(data.foo); // logs 'bar' to the server terminal
+}
+```
+
+#### From Server to Client
+
+To **dispatch a client event** from the server, use `app.dispatch()` method.
+
+```javascript
+// my-server-code.js
+
+app.dispatch('my-other-message', { bar: 'foo' });
+```
+
+To **listen to this event on the client**, use `on()` method supplied by `onWamsReady`:
+
+```javascript
+// my-client-code.js
+
+function onWamsReady({ on }) {
+  on('my-other-message', handleMyOtherMessage);
+}
+
+function handleMyOtherMessage(data) {
+  console.log(data.bar); // logs 'foo' to the browser console
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
