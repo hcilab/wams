@@ -161,7 +161,7 @@ _You can add event handlers to all Wams items._
 
 Wams manages connections with clients under the hood, and provides helpful methods to react on connection-related events:
 
-- `onlayout` – called each time a client connects to Wams server
+- `onconnect` – called each time a client connects to Wams server
 - `ondisconnect` – called when client disconnects
 
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
@@ -171,7 +171,7 @@ Both methods accept a callback function, where you can act on the event. The cal
 - `device` – physical position of current device
 - `group` – server view group, used for multi-device gestures
 
-Setting an `onlayout` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
+Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
 
 Combining view event handlers and methods, you can build complex layouts based on client's position index. Wams has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
@@ -186,7 +186,7 @@ function handleLayout(view, position) {
   setTableLayout(view, position);
 }
 
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 ```
 
 ## Advanced
@@ -247,17 +247,17 @@ Add `alert('Hello, World!')` to it.
 _Now_, let's say we would like to send a message from the client to the server. To use Wams methods on the client, first wrap your code in an `onWamsReady` function.
 
 ```javascript
-function onWamsReady(/* args */) { /* your code here */ }
+function onWamsReady() { /* your code here */ }
 ```
 
 
-Now, to **dispatch a server event**, use `dispatch()` method supplied by `onWamsReady`:
+Now, to **dispatch a server event**, use `Wams.dispatch()` method:
 
 ```javascript
 // my-client-code.js
 
-function onWamsReady({ dispatch }) {
-  dispatch('my-message', { foo: 'bar' });
+function onWamsReady() {
+  Wams.dispatch('my-message', { foo: 'bar' });
 }
 ```
 
@@ -285,33 +285,16 @@ To **dispatch a client event** from the server, use `app.dispatch()` method.
 app.dispatch('my-other-message', { bar: 'foo' });
 ```
 
-To **listen to this event on the client**, use `on()` method supplied by `onWamsReady`:
+To **listen to this event on the client**, use `Wams.on()` method:
 
 ```javascript
 // my-client-code.js
 
-function onWamsReady({ on }) {
-  on('my-other-message', handleMyOtherMessage);
+function onWamsReady() {
+  Wams.on('my-other-message', handleMyOtherMessage);
 }
 
 function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
 }
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
