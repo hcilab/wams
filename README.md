@@ -298,3 +298,27 @@ function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
 }
 ```
+
+### Grouped items
+
+Sometimes you need to spawn several items and then move or drag them together. To do that easily, you can use the `spawnGroup` method:
+
+```javascript
+const items = [];
+
+items.push(app.spawn(html('<h1>hello world</h1>', 300, 100, {
+  x: 300,
+  y: 300,
+})));
+
+items.push(app.spawn(square(100, 100, 200, 'yellow')));
+
+items.push(app.spawn(square(150, 150, 200, 'blue')));
+
+const group = app.createGroup({
+  items,
+  ondrag: true,
+});
+
+group.moveTo(500, 300);
+```
