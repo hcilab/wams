@@ -52,7 +52,7 @@ The smallest Wams example looks something like this:
 const Wams = require('..');
 const app = new Wams.Application();
 const { square } = Wams.predefined.items;
-app.spawnItem(square(200, 200, 100, 'green'));
+app.spawn(square(200, 200, 100, 'green'));
 app.listen(8080);
 ```
 
@@ -78,7 +78,7 @@ Most of the items are used on HTML **canvas**, which is the core part of Wams.  
 ```javascript
 const { image } = Wams.predefined.items;
 
-app.spawnImage(image('/images/monaLisa.jpg', {
+app.spawn(image('/images/monaLisa.jpg', {
   width: 200, height: 350,
   x: 300, y: 300,
 }))
@@ -94,7 +94,7 @@ If you need more control over styling than canvas gives, or you would like to us
 ```javascript
 const { html } = Wams.predefined.items;
 
-app.spawnElement(html('<h1>Hello world!</h1>', 200, 100, {
+app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
   x: 300, y: 100,
 }));
 ```
@@ -108,7 +108,7 @@ The code above will spawn a wrapped `h1` element with width of `200` and height 
 Let's get back to our Hello world example with a green square. Just a static square is not that interesting, though. Let's make it **draggable**:
 ```javascript
 ...
-app.spawnItem(square(200, 200, 100, 'green', {
+app.spawn(square(200, 200, 100, 'green', {
   ondrag: Wams.predefined.drag,
 }));
 ...
@@ -141,7 +141,7 @@ Another cool interactive feature is **rotation**. To rotate an item, first add t
 To move an item, you can use `moveBy` and `moveTo` item methods:
 
 ```js
-app.spawnImage(image('images/monaLisa.jpg', {
+app.spawn(image('images/monaLisa.jpg', {
   width: 200, height: 300,
   onclick: handleClick,
 }))
@@ -214,7 +214,7 @@ smile.moveTo(95, 65);
 smile.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
 smile.stroke();
 
-app.spawnItem({
+app.spawn({
   x: 900,
   y: 300,
   sequence: smile,
