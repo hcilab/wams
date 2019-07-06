@@ -28,7 +28,7 @@ class VideoPlayer {
     }
 
     spawnPlayerWrapper(view) {
-        this.app.spawnElement(Wams.predefined.items.html(
+        this.app.spawn(Wams.predefined.items.html(
             `<div id="player-wrapper"></div>`,
             this.mainScreen.width,
             this.mainScreen.height,
@@ -52,17 +52,17 @@ class VideoPlayer {
         const x = this.mainScreen.width / 2 - width / 2
         const y = this.mainScreen.height / 2
 
-        const replayBtn = this.app.spawnImage(Wams.predefined.items.image('icons/white/replay.png', {
+        const replayBtn = this.app.spawn(Wams.predefined.items.image('icons/white/replay.png', {
             x: x - width, y, height, width, type: 'replay',
             onclick: this.handleReplay.bind(this),
         }))
 
-        const playBtn = this.app.spawnImage(Wams.predefined.items.image('icons/white/play.png', {
+        const playBtn = this.app.spawn(Wams.predefined.items.image('icons/white/play.png', {
             x, y: y * 0.98, height: height * 1.4, width: width * 1.4, type: 'control',
             onclick: this.handlePlayPause.bind(this),
         }))
 
-        const forwardBtn = this.app.spawnImage(Wams.predefined.items.image('icons/white/forward.png', {
+        const forwardBtn = this.app.spawn(Wams.predefined.items.image('icons/white/forward.png', {
             x: x + width * 1.4, y, height, width, type: 'forward',
             onclick: this.handleForward.bind(this),
         }))
@@ -72,7 +72,7 @@ class VideoPlayer {
         text.fillStyle = '#fff';
         text.fillText('00:00', 0, 0);
 
-        // app.spawnItem({
+        // app.spawn({
         //     x: 380,
         //     y: 230,
         //     type: 'text',

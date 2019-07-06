@@ -14,7 +14,7 @@ router.use('/img', router.express.static(images));
 
 const app = new Wams.Application({ clientLimit: 1000 }, router);
 
-app.spawnImage({
+app.spawn({
   width:  1200,
   height: 1815,
   src:    'img/monaLisa.jpg',

@@ -34,7 +34,7 @@ function removeElement(event) {
 }
 
 function spawnElement(event) {
-  app.spawnElement(element(event.x, event.y, event.view));
+  app.spawn(element(event.x, event.y, event.view));
 }
 
 function handleLayout(view) {

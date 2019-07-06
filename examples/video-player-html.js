@@ -58,7 +58,7 @@ class VideoPlayer {
 
     spawnPlayerWrapper(view) {
         this.mainScreen = { width: view.width, height: view.height }
-        this.app.spawnElement(Wams.predefined.items.html(
+        this.app.spawn(Wams.predefined.items.html(
             `<div id="player-wrapper"></div>`,
             this.mainScreen.width,
             this.mainScreen.height,
@@ -94,7 +94,7 @@ class VideoPlayer {
             <div class="video-time">00:00</div>
         </div>`
 
-        this.controls = this.app.spawnElement(Wams.predefined.items.html(html, width, height, {
+        this.controls = this.app.spawn(Wams.predefined.items.html(html, width, height, {
             x, y, width, height, playing,
             type: 'controls',
             ondrag: Wams.predefined.drag,
@@ -102,7 +102,7 @@ class VideoPlayer {
             onscale: Wams.predefined.scale,
         }))
 
-        // this.controls = this.app.spawnElement(Wams.predefined.items.htmlGroup(
+        // this.controls = this.app.spawn(Wams.predefined.items.htmlGroup(
         //     {
         //         x, y, width, height, style,
         //     },

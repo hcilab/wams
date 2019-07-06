@@ -36,7 +36,7 @@ for (let i = 0; i < 10; i += 1) {
     const x = BASE + (j * SQUARE_LENGTH);
     const y = BASE + (i * SQUARE_LENGTH);
 
-    app.spawnItem({
+    app.spawn({
       x, y,
       type: 'square',
       sequence: squareSequence(x, y, colour),
@@ -98,7 +98,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
     type = 'blue-token'
   }
 
-  app.spawnElement(Wams.predefined.items.wrappedElement(
+  app.spawn(Wams.predefined.items.wrappedElement(
     `<img class="el ${properties.draggable ? 'draggable-shadow' : ''}" src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" />`,
     SQUARE_LENGTH,
     SQUARE_LENGTH,

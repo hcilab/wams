@@ -1,26 +1,31 @@
 // Includes the Wams API
 const Wams = require('..');
+
 const app = new Wams.Application();
+const { html, image, square } = Wams.predefined.items
 
-function randomOffset() {
-  return Math.floor(Math.random() * 200) * (Math.random() < 0.5 ? -1 : 1);
-}
+app.on('hello', (data) => { console.log(data) })
 
-function multiplySquare(event) {
-  const { x, y } = event;
-  const xOffset = randomOffset(); 
-  const yOffset = randomOffset();
+// app.spawn(html('<h1>hello world</h1>', 300, 100, {
+//   x: 300,
+//   y: 300,
+// }))
 
-  app.spawnItem(Wams.predefined.items.square(x + xOffset, y + yOffset, 100, 'blue', {
-    ondrag: Wams.predefined.drag,
-    onclick: multiplySquare,
-  }))
-}
+app.spawn(square(100, 100, 200, 'yellow'))
 
-app.spawnItem(Wams.predefined.items.square(200, 200, 100, 'green', {
-  ondrag: Wams.predefined.drag,
-  onclick: multiplySquare,
-}));
+// app.spawn(image('/images/joker.png', {
+//   width: 100,
+//   height: 250,
+//   x: 1000,
+//   y: 300,
+// }))
 
+app.onconnect((view, position) => {
+  
+  view.onclick = () => {
+    app.spawn(square(200, 200, 100, 'green'))
 
+  }
+
+})
 app.listen(8080);

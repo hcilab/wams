@@ -23,7 +23,7 @@ function square(x, y, view) {
 }
 
 function spawnSquare(event) {
-  app.spawnItem(square(event.x, event.y, event.view));
+  app.spawn(square(event.x, event.y, event.view));
 }
 
 function handleLayout(view) {

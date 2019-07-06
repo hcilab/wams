@@ -36,7 +36,8 @@ function image(src, properties = {}) {
   if ('width' in properties && 'height' in properties) {
     hitbox = new Rectangle(properties.width, properties.height);
   }
-  return { ...properties, src, hitbox };
+  const type = 'item/image';
+  return { ...properties, src, hitbox, type };
 }
 
 /**
@@ -60,8 +61,9 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.fillRect(x, y, width, height);
+  const type = 'item';
 
-  return { ...properties, hitbox, sequence };
+  return { ...properties, hitbox, sequence, type };
 }
 
 /**
@@ -80,6 +82,7 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
  * given side length, filled in with the given colour.
  */
 function square(x, y, length, colour = 'red', properties = {}) {
+  
   return rectangle(x, y, length, length, colour, properties);
 }
 
@@ -112,7 +115,9 @@ function polygon(points = [], colour = 'green', properties = {}) {
   sequence.fill();
   sequence.stroke();
 
-  return { ...properties, hitbox, sequence };
+  const type = 'item';
+
+  return { ...properties, hitbox, sequence, type };
 }
 
 /**
@@ -133,7 +138,9 @@ function polygon(points = [], colour = 'green', properties = {}) {
  */
 function element(x, y, width, height, properties = {}) {
   const hitbox = new Rectangle(width, height, x, y);
-  return { ...properties, hitbox };
+  const type = 'item';
+
+  return { ...properties, hitbox, type };
 }
 
 /**
@@ -158,7 +165,9 @@ function html(html, width, height, properties = {}) {
     innerHTML: html,
   };
   const tagname = 'div';
-  return { ...properties, hitbox, attributes, tagname };
+  const type = 'item/element';
+  
+  return { ...properties, hitbox, attributes, tagname, type };
 }
 
 module.exports = {

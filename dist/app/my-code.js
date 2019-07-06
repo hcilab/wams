@@ -16,6 +16,7 @@ function handlePlayerStateChange({ data }) {
 }
 
 function onWamsReady() {
+  Wams.dispatch('hello', "world!")
   Wams.on('init', () => {
     // if YouTube iframe API is not ready yet,
     // re-dispatch the `init` custom DOM event later

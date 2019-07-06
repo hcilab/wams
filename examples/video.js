@@ -16,7 +16,7 @@ function topbarred(html) {
   }</div>`;
 }
 
-app.spawnElement(Wams.predefined.items.wrappedElement(
+app.spawn(Wams.predefined.items.wrappedElement(
   topbarred('<iframe width="560" height="315" src="https://www.youtube.com/embed/RONIax0_1ec" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
   560,
   50,
@@ -32,7 +32,7 @@ app.spawnElement(Wams.predefined.items.wrappedElement(
   }
 ));
 
-app.spawnElement(Wams.predefined.items.wrappedElement(
+app.spawn(Wams.predefined.items.wrappedElement(
   topbarred('<iframe width="560" height="315" src="https://www.youtube.com/embed/l5I8jaMsHYk" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>'),
   560,
   50,

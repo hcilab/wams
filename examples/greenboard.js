@@ -15,7 +15,7 @@ const app = new Wams.Application({
 }, router);
 
 function spawnSticker(e) {
-  app.spawnImage(Wams.predefined.items.image('img/sticky-note.png', {
+  app.spawn(Wams.predefined.items.image('img/sticky-note.png', {
     x: e.x,
     y: e.y,
     width: 1000,

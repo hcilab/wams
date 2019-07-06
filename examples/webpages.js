@@ -16,7 +16,7 @@ function topbarred(html) {
   }</div>`;
 }
 
-app.spawnElement(Wams.predefined.items.wrappedElement(
+app.spawn(Wams.predefined.items.wrappedElement(
   topbarred('<iframe width="560" height="315" src="https://www.gamefaqs.com" frameborder="0"></iframe>'),
   560,
   50,
@@ -32,7 +32,7 @@ app.spawnElement(Wams.predefined.items.wrappedElement(
   }
 ));
 
-app.spawnElement(Wams.predefined.items.wrappedElement(
+app.spawn(Wams.predefined.items.wrappedElement(
   topbarred('<iframe width="560" height="315" src="https://www.xkcd.com" frameborder="0"></iframe>'),
   560,
   50,

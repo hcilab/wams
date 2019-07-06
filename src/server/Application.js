@@ -170,6 +170,25 @@ class Application {
   }
 
   /**
+   * Spawn an object. Object type is determined by the `type` key value of the argument object.
+   *
+   * @param {Object} itemdata - Data describing the object to spawn.
+   * @return {module:server.ServerItem} The newly spawned object.
+   */
+  spawn(values) {
+    switch (values.type) {
+      case 'item': 
+        return this.spawnItem(values);
+      case 'item/image':
+        return this.spawnImage(values);
+      case 'item/element':
+        return this.spawnElement(values);
+      default: 
+        throw `Argument with 'type' property required. Use predefined items.`;
+    }
+  }
+
+  /**
    * Create a group for existing items in the workspace.
    * A group allows to interact with several elements simultaneously.
    *

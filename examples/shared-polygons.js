@@ -33,7 +33,7 @@ function removeItem(event) {
 }
 
 function spawnItem(event) {
-  app.spawnItem(polygon(event.x, event.y, event.view));
+  app.spawn(polygon(event.x, event.y, event.view));
 }
 
 const linelayout = Wams.predefined.layouts.line(5);

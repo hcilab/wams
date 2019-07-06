@@ -45,7 +45,7 @@ circle.lineWidth = 5;
 circle.strokeStyle = '#003300';
 circle.stroke();
 
-app.spawnItem({
+app.spawn({
   x: 500,
   y: 250,
   type: 'circle',
@@ -58,7 +58,7 @@ text.font = 'normal 36px Times,serif';
 text.fillStyle = '#1a1a1a';
 text.fillText('Deal the cards!', 0, 0);
 
-app.spawnItem({
+app.spawn({
   x: 380,
   y: 230,
   type: 'text',
@@ -66,7 +66,7 @@ app.spawnItem({
 });
 
 // Draw a card deck outline.
-app.spawnItem(Wams.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
+app.spawn(Wams.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
   x: 515,
   y: 300,
   onclick: dealCards,
@@ -77,7 +77,7 @@ deal.font = 'normal 30px sans-serif';
 deal.fillStyle = 'black';
 deal.fillText('Shuffle', 0, 0);
 
-app.spawnItem({
+app.spawn({
   x: 525,
   y: 400,
   type: 'text',
@@ -110,7 +110,7 @@ function dealCards() {
   // Generate the cards in a random order.
   let offs = 0.0;
   shuffle(cardDescriptors).forEach(card => {
-    cards.push(app.spawnImage(Wams.predefined.items.image(card_back_path, {
+    cards.push(app.spawn(Wams.predefined.items.image(card_back_path, {
       x: 345 - offs,
       y: 300 - offs,
       width: 140,

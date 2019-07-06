@@ -38,10 +38,10 @@ function spawnCustomItem(event) {
     return { hitbox, sequence, ondrag, onrotate, onclick }
   }
   
-  app.spawnItem(customItem(event.x - HEIGHT / 2, event.y - WIDTH / 2, HEIGHT, WIDTH, 'green'));
+  app.spawn(customItem(event.x - HEIGHT / 2, event.y - WIDTH / 2, HEIGHT, WIDTH, 'green'));
 }
 
-app.spawnImage(Wams.predefined.items.image('img/scream.png', {
+app.spawn(Wams.predefined.items.image('img/scream.png', {
   x: 400,
   y: 400,
   width: 800,
@@ -52,7 +52,7 @@ app.spawnImage(Wams.predefined.items.image('img/scream.png', {
   onscale: Wams.predefined.scale,
 }));
 
-app.spawnImage(Wams.predefined.items.image('img/monaLisa.jpg', {
+app.spawn(Wams.predefined.items.image('img/monaLisa.jpg', {
   x: 200,
   y: 200,
   width: 1200,
