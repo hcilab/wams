@@ -153,6 +153,6 @@ function handleLayout(view, position) {
   tableLayout(view, position);
 }
 
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 app.listen(9011);
 

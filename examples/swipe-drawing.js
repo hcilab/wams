@@ -30,6 +30,6 @@ function handleConnect(view) {
   view.onswipe = handleSwipe;
 }
 
-app.onlayout(handleConnect);
+app.onconnect(handleConnect);
 app.listen(9002);
 

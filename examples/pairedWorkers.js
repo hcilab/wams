@@ -68,7 +68,7 @@ function handleLayout(view) {
 }
 
 
-// app.onlayout(Wams.predefined.layouts.line(30));
-app.onlayout(handleLayout)
+// app.onconnect(Wams.predefined.layouts.line(30));
+app.onconnect(handleLayout)
 app.listen(9003);
 

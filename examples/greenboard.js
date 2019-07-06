@@ -43,6 +43,6 @@ function handleLayout(view, position, device) {
 }
 
 // Open up the workspace and listen for connections.
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 app.listen(8080);
 

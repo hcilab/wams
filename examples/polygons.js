@@ -40,6 +40,6 @@ function handleConnect(view) {
   view.ondrag = Wams.predefined.drag;
 }
 
-app.onlayout(handleConnect);
+app.onconnect(handleConnect);
 app.listen(9014);
 

@@ -33,6 +33,6 @@ function handleLayout(view) {
   view.onclick = spawnSquare;
 }
 
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 app.listen(9013);
 

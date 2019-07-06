@@ -34,7 +34,7 @@ class MessageHandler {
      *
      * @type {function}
      */
-    this.onlayout = null;
+    this.onconnect = null;
 
     /**
      * Custom event listeners and handlers.

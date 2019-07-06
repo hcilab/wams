@@ -198,8 +198,8 @@ class ServerController {
    */
   layout({ width, height }) {
     this.setSize(width, height);
-    if (this.messageHandler.onlayout) {
-      this.messageHandler.onlayout(
+    if (this.messageHandler.onconnect) {
+      this.messageHandler.onconnect(
         this.view,
         this.index,
         this.device,

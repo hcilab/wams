@@ -22,7 +22,7 @@ class VideoPlayer {
         }, router);
 
         this.app.on('video-time-sync', () => {})
-        this.app.onlayout(this.handleConnect.bind(this))
+        this.app.onconnect(this.handleConnect.bind(this))
         this.app.ondisconnect(this.handleDisconnect.bind(this))
         this.app.listen(9020)
     }

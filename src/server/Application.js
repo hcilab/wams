@@ -113,11 +113,11 @@ class Application {
   /**
    * Register a layout callback.
    *
-   * @param {function} callback - Layout handler to trigger when a user
+   * @param {function} callback - Handler to trigger when a user
    * connects.
    */
-  onlayout(callback) {
-    this.messageHandler.onlayout = callback;
+  onconnect(callback) {
+    this.messageHandler.onconnect = callback;
   }
 
   /**

@@ -156,6 +156,6 @@ function handleLayout(view, position) {
   view.onrotate = Wams.predefined.rotate;
 }
 
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 app.listen(9012);
 

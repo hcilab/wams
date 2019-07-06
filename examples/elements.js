@@ -44,6 +44,6 @@ function handleLayout(view) {
   view.onclick = spawnElement;
 }
 
-app.onlayout(handleLayout);
+app.onconnect(handleLayout);
 app.listen(9002);
 
