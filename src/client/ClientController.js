@@ -113,8 +113,6 @@ class ClientController {
       },
       dispatch: (event, func) => this.dispatch(event, func),
     };
-
-    if (window.onWamsReady) window.onWamsReady();
   }
 
   /**
@@ -310,6 +308,9 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+
+    // Notify that Wams is ready for client-side actions
+    if (window.onWamsReady) window.onWamsReady();
   }
 
   /**
