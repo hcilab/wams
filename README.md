@@ -195,7 +195,7 @@ const app = new Wams.Application({
 - To provide a path to a folder with your app's **assets**:
 ```javascript
 const app = new Wams.Application({
-  assetsFolder: ['assets']
+  assetsFolder: ['glorious-assets']
 });
 ```
 
