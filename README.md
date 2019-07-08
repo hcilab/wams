@@ -19,7 +19,7 @@ https://codeclimate.com/github/mvanderkamp/WAMS-API/maintainability)
 ## Installation
 
 You will need to install [node.js](https://nodejs.org/en/). This should also
-install `npm`. Once they are installed, go to where you want to install `wams`
+install `npm`. Once they are installed, go to your app folder, where you want to install `wams`
 and run the following commands:
 
 ```bash
@@ -28,7 +28,7 @@ cd wams
 npm install
 ```
 
-## Basic Usage
+## See examples
 
 See the examples in `examples/`, and check the
 [docs](https://mvanderkamp.github.io/wams/). The entry-point of a `wams` app is
@@ -49,7 +49,6 @@ The `shared-polygons.js` example demonstrates multi-device gestures.
 ## Hello, world
 The smallest Wams example looks something like this:
 ```javascript
-const Wams = require('..');
 const app = new Wams.Application();
 const { square } = Wams.predefined.items;
 app.spawn(square(200, 200, 100, 'green'));
@@ -62,6 +61,21 @@ It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` an
 
 
 ## Getting started
+
+### Set up your application
+
+1. In the app folder, create your app server file, e.g. **server.js**
+2. In the server file, include Wams and initialize the application
+```javascript
+// server.js
+const Wams = require('./wams');
+const app = new Wams.Application();
+app.listen(8080);
+```
+
+Now, you can write all of your server-side Wams code in this file.
+
+### Basics
 
 A Wams app is made of **items**. There is a number of predefined items like:
 
@@ -76,6 +90,8 @@ Most of the items are used on HTML **canvas**, which is the core part of Wams.  
 ### Images
 
 ```javascript
+// server.js
+
 const { image } = Wams.predefined.items;
 
 app.spawn(image('/images/monaLisa.jpg', {
@@ -92,6 +108,7 @@ To spawn a Wams image, dont't forget to include _width_ and _height_.
 If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, Wams also supports spawning **HTML** items.
 
 ```javascript
+// server.js
 const { html } = Wams.predefined.items;
 
 app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
@@ -155,7 +172,36 @@ Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) o
 
 _You can add event handlers to all Wams items._
 
+### Client code and assets
 
+Often times, you need to use some JavaScript code on the client, define custom styles with CSS files or include some images. 
+
+- To include **.js** files with your app, create a file in your app folder and add the path to the file to your application config:
+
+```javascript
+const app = new Wams.Application({
+  clientScripts: ['awesome-script.js']
+});
+```
+
+- For **.css** files:
+
+```javascript
+const app = new Wams.Application({
+  stylesheets: ['amazing-styles.css']
+});
+```
+
+- To provide a path to a folder with your app's **assets**:
+```javascript
+const app = new Wams.Application({
+  assetsFolder: ['assets']
+});
+```
+
+Assets folder is a good place to store your images, icons, fonts etc. 
+
+Once specified, the folder and all of its files will be accessible by your app under `/assets`.
 
 ### Connections
 
@@ -225,40 +271,17 @@ app.spawn({
 
 Sometimes, you would like to tell devices to execute client-side code at a specific time. Or you would like to communicate some client-side event to the server. To allow that, Wams provides **custom events**.
 
-_First of all_, let's think of how we've been writing a Wams app up to this point. All of the app's code is in a single file, that acts as a server and defines the app behavior. But as you move to more complex apps, _sometimes you need to have logic on the client side, too._
+##### From Client to Server
 
-It means that we want to be able to write client side code and execute it when we want, on client or server events. But how do we write client code with Wams?
+Let's say we would like to send a message from the client to the server. Wams methods are exposed to the client via the global `Wams` object.
 
-1. Go to **dist** directory. This is where Wams' client-side code is located.
-2. Create a folder and name it **app**
-3. In the **app** folder, create a **.js** file (e.g. **main.js**). 
-Add `alert('Hello, World!')` to it.
-4. Go to **dist/index.html** and add the reference to your JS script.
-```html
-...
-  <script src="app/main.js"></script>
-</body>
-...
-````
-5. Refresh the browser page and see your alert – you now have a place to write your client code! 🎊
 
-#### From Client to Server
-
-_Now_, let's say we would like to send a message from the client to the server. To use Wams methods on the client, first wrap your code in an `onWamsReady` function.
+To **dispatch a server event**, use `Wams.dispatch()` method:
 
 ```javascript
-function onWamsReady() { /* your code here */ }
-```
+// client.js
 
-
-Now, to **dispatch a server event**, use `Wams.dispatch()` method:
-
-```javascript
-// my-client-code.js
-
-function onWamsReady() {
-  Wams.dispatch('my-message', { foo: 'bar' });
-}
+Wams.dispatch('my-message', { foo: 'bar' });
 ```
 
 This dispatches a custom event to the server called `my-message` and sends a payload object.
@@ -266,7 +289,7 @@ This dispatches a custom event to the server called `my-message` and sends a pay
 To **listen to this event on the server**, use `app.on()` method:
 
 ```javascript
-// my-server-code.js
+// server.js
 
 app.on('my-message', handleMyMessage);
 
@@ -275,12 +298,12 @@ function handleMyMessage(data) {
 }
 ```
 
-#### From Server to Client
+##### From Server to Client
 
 To **dispatch a client event** from the server, use `app.dispatch()` method.
 
 ```javascript
-// my-server-code.js
+// server.js
 
 app.dispatch('my-other-message', { bar: 'foo' });
 ```
@@ -288,11 +311,9 @@ app.dispatch('my-other-message', { bar: 'foo' });
 To **listen to this event on the client**, use `Wams.on()` method:
 
 ```javascript
-// my-client-code.js
+// client.js
 
-function onWamsReady() {
-  Wams.on('my-other-message', handleMyOtherMessage);
-}
+Wams.on('my-other-message', handleMyOtherMessage);
 
 function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
