@@ -7,7 +7,6 @@
 
 const path = require('path');
 const Wams = require('..');
-const { Rectangle } = require('../src/shared.js');
 
 const router = new Wams.Router();
 const images = path.join(__dirname, '../img');
@@ -24,7 +23,7 @@ function spawnCustomItem(event) {
   const WIDTH = 250
 
   function customItem(x, y, width, height, color) {
-    const hitbox = new Rectangle(width, height, x, y);
+    const hitbox = new Wams.Rectangle(width, height, x, y);
     const ondrag = Wams.predefined.drag;
     const onrotate = Wams.predefined.rotate;
     const onclick = removeElement;
