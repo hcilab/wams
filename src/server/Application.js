@@ -53,25 +53,8 @@ function getLocalIP() {
  */
 class Application {
   constructor(settings = {}, router = Router()) {
-    if (settings.clientScripts && settings.clientScripts.length) {
-      settings.clientScripts.forEach(src => {
-        // don't bother unless it's internal request
-        if (!src.includes('http://') && !src.includes('https://')) {
-          const script = path.join(__dirname, `../../../${src}`);
-          router.get(`/${src}`, (req, res) => res.sendFile(script));
-        }
-      });
-    }
 
-    if (settings.stylesheets && settings.stylesheets.length) {
-      settings.stylesheets.forEach(src => {
-        // don't bother unless it's internal request
-        if (!src.includes('http://') && !src.includes('https://')) {
-          const link = path.join(__dirname, `../../../${src}`);
-          router.get(`/${src}`, (req, res) => res.sendFile(link));
-        }
-      });
-    }
+    this.setupRoutes(settings, router);
 
     /**
      * HTTP server for sending and receiving data.
@@ -113,6 +96,33 @@ class Application {
       this.namespace,
       settings,
     );
+  }
+
+  setupRoutes(settings, router) {
+    if (settings.clientScripts && settings.clientScripts.length) {
+      settings.clientScripts.forEach(src => {
+        // don't bother unless it's internal request
+        if (!src.includes('http://') && !src.includes('https://')) {
+          const script = path.join(__dirname, `../../../${src}`);
+          router.get(`/${src}`, (req, res) => res.sendFile(script));
+        }
+      });
+    }
+
+    if (settings.stylesheets && settings.stylesheets.length) {
+      settings.stylesheets.forEach(src => {
+        // don't bother unless it's internal request
+        if (!src.includes('http://') && !src.includes('https://')) {
+          const link = path.join(__dirname, `../../../${src}`);
+          router.get(`/${src}`, (req, res) => res.sendFile(link));
+        }
+      });
+    }
+
+    if (settings.assetsFolder) {
+      const assets = path.join(__dirname, `../../../${settings.assetsFolder}`);
+      router.use('/assets', router.express.static(assets));
+    }
   }
 
   /**
@@ -199,14 +209,14 @@ class Application {
    */
   spawn(values) {
     switch (values.type) {
-    case 'item':
-      return this.spawnItem(values);
-    case 'item/image':
-      return this.spawnImage(values);
-    case 'item/element':
-      return this.spawnElement(values);
-    default:
-      return this.spawnItem(values);
+      case 'item':
+        return this.spawnItem(values);
+      case 'item/image':
+        return this.spawnImage(values);
+      case 'item/element':
+        return this.spawnElement(values);
+      default:
+        return this.spawnItem(values);
     }
   }
 
