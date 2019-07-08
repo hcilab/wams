@@ -6,6 +6,13 @@
 'use strict';
 
 const Wams = require('..');
+const path = require('path');
+
+// Provide custom route for card assets
+const router = new Wams.Router();
+const images = path.join(__dirname, '../img');
+router.use('/images', router.express.static(images));
+
 /*
  * Randomize array element order in-place.
  * Using Durstenfeld shuffle algorithm.
@@ -29,7 +36,7 @@ function shuffle(in_array) {
 const app = new Wams.Application({
   color: 'green',
   // clientLimit: 5,
-});
+}, router);
 
 // maps `position` index to web socket ID
 const CLIENTS = {}
