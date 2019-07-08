@@ -24,10 +24,6 @@ const REQUIRED_DATA = Object.freeze([
 // Default ClientView configuration.
 const DEFAULT_CONFIG = Object.freeze({
 
-  // list of custom events that will be allowed in the DOM
-  // if dispatched by WAMS server
-  allowedEvents: [],
-
 });
 
 /**

@@ -14,6 +14,7 @@
 const http = require('http');
 const os = require('os');
 const IO = require('socket.io');
+const path = require('path');
 
 // Local classes, etc
 const { constants } = require('../shared.js');
@@ -52,6 +53,26 @@ function getLocalIP() {
  */
 class Application {
   constructor(settings = {}, router = Router()) {
+    if (settings.clientScripts && settings.clientScripts.length) {
+      settings.clientScripts.forEach(src => {
+        // don't bother unless it's internal request
+        if (!src.includes('http://') && !src.includes('https://')) {
+          const script = path.join(__dirname, `../../../${src}`);
+          router.get(`/${src}`, (req, res) => res.sendFile(script));
+        }
+      });
+    }
+
+    if (settings.stylesheets && settings.stylesheets.length) {
+      settings.stylesheets.forEach(src => {
+        // don't bother unless it's internal request
+        if (!src.includes('http://') && !src.includes('https://')) {
+          const link = path.join(__dirname, `../../../${src}`);
+          router.get(`/${src}`, (req, res) => res.sendFile(link));
+        }
+      });
+    }
+
     /**
      * HTTP server for sending and receiving data.
      *
@@ -170,21 +191,22 @@ class Application {
   }
 
   /**
-   * Spawn an object. Object type is determined by the `type` key value of the argument object.
+   * Spawn an object. Object type is determined by the
+   * `type` key value of the argument object.
    *
    * @param {Object} itemdata - Data describing the object to spawn.
    * @return {module:server.ServerItem} The newly spawned object.
    */
   spawn(values) {
     switch (values.type) {
-      case 'item': 
-        return this.spawnItem(values);
-      case 'item/image':
-        return this.spawnImage(values);
-      case 'item/element':
-        return this.spawnElement(values);
-      default: 
-        throw `Argument with 'type' property required. Use predefined items.`;
+    case 'item':
+      return this.spawnItem(values);
+    case 'item/image':
+      return this.spawnImage(values);
+    case 'item/element':
+      return this.spawnElement(values);
+    default:
+      return this.spawnItem(values);
     }
   }
 

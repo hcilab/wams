@@ -403,6 +403,28 @@ const FullStateReporter = ReporterFactory({
   items: [],
 
   /**
+   * Paths to client scripts to include by browsers.
+   *
+   * @name clientScripts
+   * @type {string[]}
+   * @default []
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  clientScripts: [],
+
+  /**
+   * Paths to stylesheets to include by browsers.
+   *
+   * @name stylesheets
+   * @type {string[]}
+   * @default []
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  stylesheets: [],
+
+  /**
    * The background colour of the workspace.
    *
    * @name color
@@ -412,6 +434,17 @@ const FullStateReporter = ReporterFactory({
    * @instance
    */
   color: '#dad1e3',
+
+  /**
+   * The title of the page.
+   *
+   * @name title
+   * @type {string}
+   * @default 'WAMS: Workspaces Across Multiple Surfaces'
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  title: 'WAMS: Workspaces Across Multiple Surfaces',
 
   /**
    * The id assigned to this view.

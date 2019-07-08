@@ -83,7 +83,14 @@ class ClientController {
      *
      * @type {array}
      */
-    this.allowedEvents = [];
+    this.eventListeners = [];
+
+    /**
+     * Queue of events to be called once Client-side listeners are set up.
+     *
+     * @type {array}
+     */
+    this.eventQueue = [];
 
     /**
      * Tracks whether a render has been scheduled for the next render frame.
@@ -108,8 +115,20 @@ class ClientController {
 
     window.Wams = {
       on: (event, func) => {
+        // listen for this DOM event
         document.addEventListener(event, func);
-        this.allowedEvents.push(event);
+        this.eventListeners.push(event);
+
+        // if this event was called before this code executed,
+        // dispatch it again
+        this.eventQueue.forEach(ev => {
+          if (ev.action === event) {
+            document.dispatchEvent(new CustomEvent(
+              event,
+              { detail: ev.payload },
+            ));
+          }
+        });
       },
       dispatch: (event, func) => this.dispatch(event, func),
     };
@@ -128,15 +147,15 @@ class ClientController {
   [symbols.attachListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_ELEMENT]: (data) => this.handle('addElement',   data),
-      [Message.ADD_IMAGE]:   (data) => this.handle('addImage',     data),
-      [Message.ADD_ITEM]:    (data) => this.handle('addItem',      data),
-      [Message.ADD_SHADOW]:  (data) => this.handle('addShadow',    data),
-      [Message.RM_ITEM]:     (data) => this.handle('removeItem',   data),
+      [Message.ADD_ELEMENT]: (data) => this.handle('addElement', data),
+      [Message.ADD_IMAGE]:   (data) => this.handle('addImage', data),
+      [Message.ADD_ITEM]:    (data) => this.handle('addItem', data),
+      [Message.ADD_SHADOW]:  (data) => this.handle('addShadow', data),
+      [Message.RM_ITEM]:     (data) => this.handle('removeItem', data),
       [Message.RM_SHADOW]:   (data) => this.handle('removeShadow', data),
-      [Message.UD_ITEM]:     (data) => this.handle('updateItem',   data),
+      [Message.UD_ITEM]:     (data) => this.handle('updateItem', data),
       [Message.UD_SHADOW]:   (data) => this.handle('updateShadow', data),
-      [Message.UD_VIEW]:     (data) => this.handle('updateView',   data),
+      [Message.UD_VIEW]:     (data) => this.handle('updateView', data),
 
       // For hopefully occasional extra adjustments to objects in the model.
       [Message.RM_ATTRS]:   ({ data }) => this.handle('removeAttributes', data),
@@ -254,8 +273,8 @@ class ClientController {
    * @param {object} data - the argument to pass to `this.handle`.
    */
   handleCustomEvent(data) {
-    if (this.allowedEvents.indexOf(data.action) < 0) {
-      throw `There is no event listener for "${data.action}"`;
+    if (this.eventListeners.indexOf(data.action) < 0) {
+      this.eventQueue.push(data);
     }
     this.handle('dispatch', data);
   }
@@ -300,6 +319,10 @@ class ClientController {
    * model.
    */
   setup(data) {
+    if (data.clientScripts) this.loadClientScripts(data.clientScripts);
+    if (data.stylesheets) this.loadStylesheets(data.stylesheets);
+    document.title = data.title;
+
     IdStamper.cloneId(this.view, data.id);
 
     this.canvas.style.backgroundColor = data.color;
@@ -308,9 +331,24 @@ class ClientController {
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+  }
 
-    // Notify that Wams is ready for client-side actions
-    if (window.onWamsReady) window.onWamsReady();
+  loadClientScripts(scripts) {
+    scripts.forEach(src => {
+      const script = document.createElement('script');
+      script.src = src;
+      document.body.appendChild(script);
+    });
+  }
+
+  loadStylesheets(stylesheets) {
+    stylesheets.forEach(src => {
+      const link = document.createElement('link');
+      link.href = src;
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    });
   }
 
   /**

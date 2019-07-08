@@ -82,7 +82,6 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
  * given side length, filled in with the given colour.
  */
 function square(x, y, length, colour = 'red', properties = {}) {
-  
   return rectangle(x, y, length, length, colour, properties);
 }
 
@@ -166,7 +165,7 @@ function html(html, width, height, properties = {}) {
   };
   const tagname = 'div';
   const type = 'item/element';
-  
+
   return { ...properties, hitbox, attributes, tagname, type };
 }
 

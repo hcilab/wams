@@ -29,9 +29,9 @@ function Router() {
   const view = path.join(__dirname, '../../dist/index.html');
   app.get('/', (req, res) => res.sendFile(view));
 
-  app.use('/wams', express.static(path.join(__dirname, '../../dist/wams')))
+  app.use('/wams', express.static(path.join(__dirname, '../../dist/wams')));
 
-  app.use('/app', express.static(path.join(__dirname, '../../dist/app')))
+  app.use('/app', express.static(path.join(__dirname, '../../dist/app')));
 
   app.use('/images', express.static(path.join(__dirname, '../../img')));
 
