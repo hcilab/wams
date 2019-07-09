@@ -25,7 +25,7 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 * [Advanced](#advanced)
   * [Custom items](#custom-items)
   * [Custom events](#custom-events)
-  * [Groupted items](#grouped-items)
+  * [Grouped items](#grouped-items)
 
 ## Installation
 
