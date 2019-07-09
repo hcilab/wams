@@ -87,6 +87,24 @@ A Wams app is made of **items**. There is a number of predefined items like:
 
 Most of the items are used on HTML **canvas**, which is the core part of Wams.   You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
+### Polygons
+
+```javascript
+// server.js
+
+const points = [
+  { x: 0, y: 0 },
+  { x: 50, y: 0 },
+  { x: 25, y: 50 },
+];
+
+app.spawn(polygon(points, 'green', {
+  x: 500, y: 100,
+}));
+```
+
+Polygons are built using an array of relative points. For a random set of points, you can use `Wams.predefined.utilities.randomPoints(<number_of_points>)`.
+
 ### Images
 
 ```javascript
@@ -97,12 +115,12 @@ const { image } = Wams.predefined.items;
 app.spawn(image('/images/monaLisa.jpg', {
   width: 200, height: 350,
   x: 300, y: 300,
-}))
+}));
 ```
 
 To spawn a Wams image, dont't forget to include _width_ and _height_.
 
-> **Tip** To see a great example of using images, check out `examples/card-table.js`
+> **Example** To see a great example of using images, check out `examples/card-table.js`
 
 ### HTML
 If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, Wams also supports spawning **HTML** items.
@@ -248,24 +266,44 @@ To spawn a custom item, use `CanvasSequence`. It allows to create a custom seque
 The following sequence draws a smiling face item:
 
 ```js
-const smile = new Wams.CanvasSequence();
+function smile(x, y) {
+    const sequence = new Wams.CanvasSequence();
 
-smile.beginPath();
-smile.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
-smile.moveTo(110, 75);
-smile.arc(75, 75, 35, 0, Math.PI, false);  // Mouth (clockwise)
-smile.moveTo(65, 65);
-smile.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
-smile.moveTo(95, 65);
-smile.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
-smile.stroke();
+    sequence.beginPath();
+    sequence.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
+    sequence.moveTo(110, 75);
+    sequence.arc(75, 75, 35, 0, Math.PI, false);  // Mouth (clockwise)
+    sequence.moveTo(65, 65);
+    sequence.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
+    sequence.moveTo(95, 65);
+    sequence.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
+    sequence.stroke();
+    
+    return { sequence }
+}
 
-app.spawn({
-  x: 900,
-  y: 300,
-  sequence: smile,
-});
+
+app.spawn(smile(900, 300));
 ```
+
+To add interactivity to a custom item, you can use the same handlers as with predefined items (`ondrag`, `onlick` etc). However, you first need to add a _hitbox_ to the item:
+
+```javascript
+function customItem(x, y, width, height) {
+  const hitbox = new Wams.Rectangle(width, height, x, y);
+  const ondrag = Wams.predefined.drag;
+
+  const sequence = new Wams.CanvasSequence();
+  sequence.fillStyle = 'green';
+  sequence.fillRect(x, y, width, height);
+
+  return { hitbox, sequence, ondrag, }
+}
+```
+
+A hitbox can be made from `Wams.Rectangle` or `Wams.Polygon2D`.
+
+`Wams.Polygon2D` accepts an array of points – vertices of the resulting polygon.
 
 ### Custom events
 
