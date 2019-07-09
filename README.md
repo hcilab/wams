@@ -362,7 +362,7 @@ function handleMyOtherMessage(data) {
 
 ### Grouped items
 
-Sometimes you need to spawn several items and then move or drag them together. To do that easily, you can use the `spawnGroup` method:
+Sometimes you need to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method:
 
 ```javascript
 const items = [];
