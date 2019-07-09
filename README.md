@@ -1,14 +1,12 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
 [![dependencies Status](
-https://david-dm.org/mvanderkamp/wams/status.svg)](
-https://david-dm.org/mvanderkamp/wams)
+https://david-dm.org/nick-baliesnyi/wams/status.svg)](
+https://david-dm.org/nick-baliesnyi/wams)
 [![devDependencies Status](
-https://david-dm.org/mvanderkamp/wams/dev-status.svg)](
-https://david-dm.org/mvanderkamp/wams?type=dev)
-[![Maintainability](
-https://api.codeclimate.com/v1/badges/d751ac91ef2c243f5758/maintainability)](
-https://codeclimate.com/github/mvanderkamp/WAMS-API/maintainability)
+https://david-dm.org/nick-baliesnyi/wams/dev-status.svg)](
+https://david-dm.org/nick-baliesnyi/wams?type=dev)
+[![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/nick-baliesnyi/wams/maintainability)
 
 ## Contents
 
