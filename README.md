@@ -266,6 +266,8 @@ Assets folder is a good place to store your images, icons, fonts etc.
 
 Once specified, the folder and all of its files will be accessible by your app under `/assets`.
 
+> **NOTE** All scripts, stylesheets and assets have to be under the app folder and all paths are relative to `wams` parent folder.
+
 ### Connections
 
 Wams manages connections with clients under the hood, and provides helpful methods to react on connection-related events:
