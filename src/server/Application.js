@@ -53,7 +53,6 @@ function getLocalIP() {
  */
 class Application {
   constructor(settings = {}, router = Router()) {
-
     this.setupRoutes(settings, router);
 
     /**
@@ -209,14 +208,14 @@ class Application {
    */
   spawn(values) {
     switch (values.type) {
-      case 'item':
-        return this.spawnItem(values);
-      case 'item/image':
-        return this.spawnImage(values);
-      case 'item/element':
-        return this.spawnElement(values);
-      default:
-        return this.spawnItem(values);
+    case 'item':
+      return this.spawnItem(values);
+    case 'item/image':
+      return this.spawnImage(values);
+    case 'item/element':
+      return this.spawnElement(values);
+    default:
+      return this.spawnItem(values);
     }
   }
 

@@ -34,7 +34,7 @@ const symbols = Object.freeze({
 // Default ClientView configuration.
 const DEFAULT_CONFIG = Object.freeze({
   showStatus:  false,
-  shadows: false,
+  shadows:    false,
 });
 
 /**
