@@ -16,7 +16,17 @@ https://codeclimate.com/github/mvanderkamp/WAMS-API/maintainability)
 * [Examples](#examples)
 * [Hello world](#hello-world)
 * [Get started](#getting-started)
+  * [Set up your application](#set-up-your-application)
+  * [Basics](#basics)
+  * [Polygons](#polygons)
+  * [Images](#images)
+  * [HTML](#html)
+  * [Interactivity](#interactivity)
+  * [Client code and assets](#client-code-and-assets)
+  * [Connections](#connections)  
 * [Advanced](#advanced)
+  * [Custom items](#custom-items)
+  * [Custom events](#custom-events)
 
 ## Installation
 
@@ -138,7 +148,7 @@ app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
 
 The code above will spawn a wrapped `h1` element with width of `200` and height of `100`, positioned at `{ x: 300, y: 100 }`.
 
-### Adding interactivity
+### Interactivity
 
 > **Note** An item must have its coordinates, width and height defined to be interactive
 
@@ -261,7 +271,7 @@ When building more complex applications, sometimes you might want to have more f
 
 The following topics show how to go beyond that.
 
-### Custom item
+### Custom items
 
 To spawn a custom item, use `CanvasSequence`. It allows to create a custom sequence of canvas actions on the server and safely execute it on the client. That means you can use most of the HTML Canvas methods as if you were writing regular browser code.
 
