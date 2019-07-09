@@ -115,7 +115,7 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `Wams.predefined.utilities.randomPoints(<number_of_points>)`.
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints(<number>)` from `Wams.predefined.utilities`.
 
 ### Images
 
@@ -147,6 +147,21 @@ app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
 ```
 
 The code above will spawn a wrapped `h1` element with width of `200` and height of `100`, positioned at `{ x: 300, y: 100 }`.
+
+### Scale and Rotation
+
+You can set initial scale and rotation of an item:
+
+```javascript
+app.spawn(polygon(points, 'green', {
+  x: 500, y: 100,
+  scale: 2,
+  rotation: Math.PI,
+}));
+```
+
+> **Note** Rotation is defined in radians, not degrees, Pi = 180 deg
+
 
 ### Interactivity
 
@@ -201,6 +216,26 @@ function handleClick(event) {
 Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) or the final position (for `moveTo`).
 
 _You can add event handlers to all Wams items._
+
+### Configuration
+
+To configure the application, you can pass a config object when initializing the `Application` class. 
+
+Below is the full list of possible options with example values.
+
+```javascript
+const app = new Wams.Application({
+  assetsFolder:      'path/to/assets', // path to the folder that will be available as `assets`
+  color:             'some-color',     // background color of the app's canvas
+  clientLimit:       2,                // maximum number of devices that can connect to the server
+  clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
+  stylesheets:       ['styles.css'],   // css styles to include by the browser
+  shadows:           true,             // show shadows of other devices
+  status:            true,             // show information on current view, useful for debugging
+  title:             'Awesome App',    // page title
+  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
+});
+```
 
 ### Client code and assets
 
@@ -369,6 +404,8 @@ function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
 }
 ```
+
+*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent) API. If you want to trigger a Wams client event, you can use the API directly.
 
 ### Grouped items
 
