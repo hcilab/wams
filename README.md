@@ -13,8 +13,10 @@ https://codeclimate.com/github/mvanderkamp/WAMS-API/maintainability)
 ## Contents
 
 * [Installation](#installation)
-* [Basic Usage](#basic-usage)
-* [Start building](#start-building)
+* [Examples](#examples)
+* [Hello world](#hello-world)
+* [Get started](#getting-started)
+* [Advanced](#advanced)
 
 ## Installation
 
@@ -28,7 +30,7 @@ cd wams
 npm install
 ```
 
-## See examples
+## Examples
 
 See the examples in `examples/`, and check the
 [docs](https://mvanderkamp.github.io/wams/). The entry-point of a `wams` app is
@@ -46,7 +48,7 @@ node examples/polygons.js
 
 The `shared-polygons.js` example demonstrates multi-device gestures.
 
-## Hello, world
+## Hello world
 The smallest Wams example looks something like this:
 ```javascript
 const app = new Wams.Application();
