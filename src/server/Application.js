@@ -44,6 +44,20 @@ function getLocalIP() {
 }
 
 /**
+ * @inner
+ * @memberof module:server.Application
+ * 
+ * @returns {void}
+ */
+function setupRoute(src, router) {
+  // don't bother unless it's internal request
+  if (!src.includes('http://') && !src.includes('https://')) {
+    const resource = path.join(__dirname, `../../../${src}`);
+    router.get(`/${src}`, (req, res) => res.sendFile(resource));
+  }
+}
+
+/**
  * This module defines the API endpoint.
  *
  * @memberof module:server
@@ -99,23 +113,11 @@ class Application {
 
   setupRoutes(settings, router) {
     if (settings.clientScripts && settings.clientScripts.length) {
-      settings.clientScripts.forEach(src => {
-        // don't bother unless it's internal request
-        if (!src.includes('http://') && !src.includes('https://')) {
-          const script = path.join(__dirname, `../../../${src}`);
-          router.get(`/${src}`, (req, res) => res.sendFile(script));
-        }
-      });
+      settings.clientScripts.forEach(src => setupRoute(src, router))
     }
 
     if (settings.stylesheets && settings.stylesheets.length) {
-      settings.stylesheets.forEach(src => {
-        // don't bother unless it's internal request
-        if (!src.includes('http://') && !src.includes('https://')) {
-          const link = path.join(__dirname, `../../../${src}`);
-          router.get(`/${src}`, (req, res) => res.sendFile(link));
-        }
-      });
+      settings.stylesheets.forEach(src => setupRoute(src, router))
     }
 
     if (settings.assetsFolder) {
