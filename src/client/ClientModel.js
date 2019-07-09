@@ -21,11 +21,6 @@ const REQUIRED_DATA = Object.freeze([
   'views',
 ]);
 
-// Default ClientView configuration.
-const DEFAULT_CONFIG = Object.freeze({
-
-});
-
 /**
  * The ClientModel is a client-side copy of those aspects of the model that are
  * necessary for rendering the view for the user.
@@ -64,14 +59,6 @@ class ClientModel {
      * @type {module:client.ClientView}
      */
     this.view = null;
-
-    /**
-     * Configuration of ClientModel that can be
-     * modified in user-defined `window.WAMS_CONFIG`.
-     *
-     * @type {object}
-     */
-    this.config = { ...DEFAULT_CONFIG, ...window.WAMS_CONFIG };
   }
 
   /**
@@ -174,6 +161,8 @@ class ClientModel {
         this.addItem(o);
       }
     });
+    this.view.config.shadows = data.shadows;
+    this.view.config.status = data.status;
   }
 
   /**

@@ -34,7 +34,7 @@ const symbols = Object.freeze({
 // Default ClientView configuration.
 const DEFAULT_CONFIG = Object.freeze({
   showStatus:  false,
-  showShadows: false,
+  shadows: false,
 });
 
 /**
@@ -86,7 +86,7 @@ class ClientView extends View {
      *
      * @type {object}
      */
-    this.config = { ...DEFAULT_CONFIG, ...window.WAMS_CONFIG };
+    this.config = { ...DEFAULT_CONFIG };
   }
 
   /**
@@ -169,8 +169,8 @@ class ClientView extends View {
     this[symbols.wipe]();
     this[symbols.align]();
     this[symbols.drawItems]();
-    if (this.config.showShadows) this[symbols.drawShadows]();
-    if (this.config.showStatus) this[symbols.drawStatus]();
+    if (this.config.shadows) this[symbols.drawShadows]();
+    if (this.config.status) this[symbols.drawStatus]();
     this.context.restore();
   }
 

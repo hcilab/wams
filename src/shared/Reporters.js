@@ -425,6 +425,28 @@ const FullStateReporter = ReporterFactory({
   stylesheets: [],
 
   /**
+   * Toggle to show/hide client shadows.
+   *
+   * @name shadows
+   * @type {boolean}
+   * @default false
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  shadows: false,
+
+  /**
+   * Toggle to show/hide current view status.
+   *
+   * @name status
+   * @type {boolean}
+   * @default false
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  status: false,
+
+  /**
    * The background colour of the workspace.
    *
    * @name color

@@ -100,7 +100,7 @@ function square(x, y, length, colour = 'red', properties = {}) {
  * in with the given colour.
  */
 function polygon(points = [], colour = 'green', properties = {}) {
-  if (points.length < 3) return null;
+  if (points.length < 3) throw 'Polygon must consist of at least 3 points';
 
   const hitbox = new Polygon2D(points);
 
