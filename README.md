@@ -25,6 +25,7 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 * [Advanced](#advanced)
   * [Custom items](#custom-items)
   * [Custom events](#custom-events)
+  * [Grouped items](#grouped-items)
 
 ## Installation
 
@@ -55,6 +56,8 @@ node examples/polygons.js
 ```
 
 The `shared-polygons.js` example demonstrates multi-device gestures.
+
+See a [live demo](https://wams-player-demo.herokuapp.com/) of a distributed video-player prototype built with Wams. Join it with a second device to control the video remotely.
 
 ## Hello world
 The smallest Wams example looks something like this:
