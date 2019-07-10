@@ -57,6 +57,8 @@ node examples/polygons.js
 
 The `shared-polygons.js` example demonstrates multi-device gestures.
 
+See a [live demo](https://wams-player-demo.herokuapp.com/) of a distributed video-player prototype built with Wams. Join it with a second device to control the video remotely.
+
 ## Hello world
 The smallest Wams example looks something like this:
 ```javascript
