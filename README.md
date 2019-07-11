@@ -226,15 +226,14 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new Wams.Application({
-  assetsFolder:      'path/to/assets', // path to the folder that will be available as `assets`
   color:             'some-color',     // background color of the app's canvas
   clientLimit:       2,                // maximum number of devices that can connect to the server
   clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
   stylesheets:       ['styles.css'],   // css styles to include by the browser
   shadows:           true,             // show shadows of other devices
   status:            true,             // show information on current view, useful for debugging
-  title:             'Awesome App',    // page title
-  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
+  title:             'Awesome App',    // page title  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
+  __dirname,                           // root directory for js, css and assets routing
 });
 ```
 
@@ -258,18 +257,7 @@ const app = new Wams.Application({
 });
 ```
 
-- To provide a path to a folder with your app's **assets**:
-```javascript
-const app = new Wams.Application({
-  assetsFolder: ['glorious-assets']
-});
-```
-
-Assets folder is a good place to store your images, icons, fonts etc. 
-
-Once specified, the folder and all of its files will be accessible by your app under `/assets`.
-
-> **NOTE** All scripts, stylesheets and assets have to be under the app folder and all paths are relative to `wams` parent folder.
+> **NOTE** By default, the root assets directory is the parent folder of `wams` directory. To change it, set `__dirname` property in the application config.
 
 ### Connections
 

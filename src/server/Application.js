@@ -44,16 +44,17 @@ function getLocalIP() {
 }
 
 /**
- * @inner
- * @memberof module:server.Application
  * 
- * @returns {void}
+ * @param {string} customDirname custom absolute path to root direcotry
+ * 
+ * @returns {string} absolute path to resource root directory
  */
-function setupRoute(src, router) {
-  // don't bother unless it's internal request
-  if (!src.includes('http://') && !src.includes('https://')) {
-    const resource = path.join(__dirname, `../../../${src}`);
-    router.get(`/${src}`, (req, res) => res.sendFile(resource));
+function getRootPath(customDirname) {
+  if (customDirname) {
+    return path.join(customDirname, '/');
+  } else {
+    // default to parent of `wams` directory
+    return path.join(__dirname, '../../../')
   }
 }
 
@@ -112,18 +113,8 @@ class Application {
   }
 
   setupRoutes(settings, router) {
-    if (settings.clientScripts && settings.clientScripts.length) {
-      settings.clientScripts.forEach(src => setupRoute(src, router))
-    }
-
-    if (settings.stylesheets && settings.stylesheets.length) {
-      settings.stylesheets.forEach(src => setupRoute(src, router))
-    }
-
-    if (settings.assetsFolder) {
-      const assets = path.join(__dirname, `../../../${settings.assetsFolder}`);
-      router.use('/assets', router.express.static(assets));
-    }
+    const rootDir = getRootPath(settings.__dirname);
+    router.use(router.express.static(rootDir));
   }
 
   /**
@@ -210,14 +201,14 @@ class Application {
    */
   spawn(values) {
     switch (values.type) {
-    case 'item':
-      return this.spawnItem(values);
-    case 'item/image':
-      return this.spawnImage(values);
-    case 'item/element':
-      return this.spawnElement(values);
-    default:
-      return this.spawnItem(values);
+      case 'item':
+        return this.spawnItem(values);
+      case 'item/image':
+        return this.spawnImage(values);
+      case 'item/element':
+        return this.spawnElement(values);
+      default:
+        return this.spawnItem(values);
     }
   }
 
@@ -248,11 +239,11 @@ class Application {
    * @param {*} handler handler of the custom event.
    */
   on(event, handler) {
-    if (this.messageHandler.listeners[event]) {
+    if (this.messageHandler.listeners[ event ]) {
       throw `Listener already exists for custom event "${event}"`;
     }
 
-    this.messageHandler.listeners[event] = handler;
+    this.messageHandler.listeners[ event ] = handler;
   }
 }
 
