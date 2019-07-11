@@ -232,7 +232,8 @@ const app = new Wams.Application({
   stylesheets:       ['styles.css'],   // css styles to include by the browser
   shadows:           true,             // show shadows of other devices
   status:            true,             // show information on current view, useful for debugging
-  title:             'Awesome App',    // page title  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
+  title:             'Awesome App',    // page title  
+  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
   __dirname,                           // root directory for js, css and assets routing
 });
 ```
