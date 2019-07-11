@@ -398,11 +398,29 @@ function handleMyOtherMessage(data) {
 
 To set different rules for items, use `view.index` to differentiate between connected devices.
 
-For example, let's forbid client with index 0 to flip a card:
+For example, let's say we are making a card game and would like to only allow a card owner to flip it.
+
+To do that, first we'll add an index to the card item to show who its owner is.
+
+```javascript
+// during creation
+let card = app.spawn(image(url, {
+  /* ... */
+  owner: 1,
+}))
+
+// or later
+card.owner = 1;
+```
+
+> **NOTE** `owner` number property does not have special meaning. You can use any property of any type.
+
+Now, we will only flip the card if the event comes from the card owner:
+
 
 ```javascript
 function flipCard(event) {
-  if (event.view.index === 0) return; 
+  if (event.view.index !== event.target.owner) return; 
 
   const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
