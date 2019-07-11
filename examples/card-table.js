@@ -140,7 +140,7 @@ dealCards();
  * Allows cards to be flipped.
  */
 function flipCard(event) {
-  if (event.view.socket.id === CLIENTS[0]) return
+  if (event.view.index === 0) return
   const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
   card.setImage(imgsrc);
@@ -148,16 +148,13 @@ function flipCard(event) {
 }
 
 const tableLayout = Wams.predefined.layouts.table(200);
-function handleLayout(view, position) {
-  let socketId = view.socket.id
-  CLIENTS[position] = socketId
-  if (position === 0) {
-    console.log(position)
+function handleLayout(view) {
+  if (view.index === 0) {
     // User is the "table". Allow them to move around and scale.
     view.ondrag = Wams.predefined.drag;
     view.onscale = Wams.predefined.scale;
   }
-  tableLayout(view, position);
+  tableLayout(view);
 }
 
 app.onconnect(handleLayout);

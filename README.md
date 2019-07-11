@@ -261,35 +261,31 @@ const app = new Wams.Application({
 
 ### Connections
 
-Wams manages connections with clients under the hood, and provides helpful methods to react on connection-related events:
+Wams manages connections with clients under the hood, and provides helpful methods to react on **connection-related events**:
 
 - `onconnect` – called each time a client connects to Wams server
 - `ondisconnect` – called when client disconnects
 
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
 
-- `view` – current device object that contains the view's state and allows to locate, move, and rescale the view 
-- `position` – index of current device
+- `view` – current device's view object. Stores view's information and allows to locate, move, rescale the view
 - `device` – physical position of current device
 - `group` – server view group, used for multi-device gestures
 
 Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
 
-Combining view event handlers and methods, you can build complex layouts based on client's position index. Wams has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
+Combining view event handlers and methods, you can build complex layouts based on client's index. Wams has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
 ```js
 const setTableLayout = Wams.predefined.layouts.table(200);
-function handleLayout(view, position) {
-  if (position === 0) {
-    // User 0 is the "table". Allow them to move around and scale.
-    view.ondrag = Wams.predefined.drag;
-    view.onscale = Wams.predefined.scale;
-  }
-  setTableLayout(view, position);
+function handleLayout(view) {
+  setTableLayout(view);
 }
 
 app.onconnect(handleLayout);
 ```
+
+
 
 ## Advanced
 
@@ -396,7 +392,24 @@ function handleMyOtherMessage(data) {
 }
 ```
 
-*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent) API. If you want to trigger a Wams client event, you can use the API directly.
+*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a Wams client event _on the client_, you can dispatch a custom event on the document element.
+
+### Access rules
+
+To set different rules for items, use `view.index` to differentiate between connected devices.
+
+For example, let's forbid client with index 0 to flip a card:
+
+```javascript
+function flipCard(event) {
+  if (event.view.index === 0) return; 
+
+  const card = event.target;
+  const imgsrc = card.isFaceUp ? card_back_path : card.face;
+  card.setImage(imgsrc);
+  card.isFaceUp = !card.isFaceUp;
+}
+```
 
 ### Grouped items
 

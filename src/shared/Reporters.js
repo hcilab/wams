@@ -344,6 +344,17 @@ const View = ReporterFactory({
    * @instance
    */
   rotation: 0,
+
+  /**
+   *  The index is an integer identifying the View, coming from ServerController.
+   * 
+   * @name index
+   * @type {number}
+   * @default null
+   * @memberof module:shared.View
+   * @instance
+   */
+  index: null,
 });
 
 /**

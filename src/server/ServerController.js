@@ -81,7 +81,7 @@ class ServerController {
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.group.spawnView(this.socket);
+    this.view = this.group.spawnView(this.socket, this.index);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -180,7 +180,6 @@ class ServerController {
     if (this.messageHandler.ondisconnect) {
       this.messageHandler.ondisconnect(
         this.view,
-        this.index,
         this.device,
         this.group
       );
@@ -191,7 +190,7 @@ class ServerController {
   /**
    * Adjusts the model to accurately reflect the state of the client once it has
    * set itself up, and informs all other views of these changes. Also triggers
-   * a 'layout handler' if one has been registered.
+   * a 'connect handler' if one has been registered.
    *
    * @param {module:shared.View} data - Data from the client describing the
    *       state of the window in which it is displayed.
@@ -201,7 +200,6 @@ class ServerController {
     if (this.messageHandler.onconnect) {
       this.messageHandler.onconnect(
         this.view,
-        this.index,
         this.device,
         this.group,
       );
