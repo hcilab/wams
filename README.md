@@ -12,8 +12,8 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 
 * [Installation](#installation)
 * [Examples](#examples)
-* [Hello world](#hello-world)
-* [Get started](#getting-started)
+* [Walkthrough](#walkthrough)
+  * [Hello world](#hello-world)
   * [Set up your application](#set-up-your-application)
   * [Basics](#basics)
   * [Polygons](#polygons)
@@ -22,11 +22,11 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
   * [Interactivity](#interactivity)
   * [Client code and assets](#client-code-and-assets)
   * [Connections](#connections)  
-* [Advanced](#advanced)
-  * [Custom items](#custom-items)
-  * [Custom events](#custom-events)
-  * [Interaction rights](#interaction-rights)
-  * [Grouped items](#grouped-items)
+  * [Advanced](#advanced)
+    * [Custom items](#custom-items)
+    * [Custom events](#custom-events)
+    * [Interaction rights](#interaction-rights)
+    * [Grouped items](#grouped-items)
 
 ## Installation
 
@@ -60,7 +60,11 @@ The `shared-polygons.js` example demonstrates multi-device gestures.
 
 See a [live demo](https://wams-player-demo.herokuapp.com/) of a distributed video-player prototype built with Wams. Join it with a second device to control the video remotely.
 
-## Hello world
+## Walkthrough
+
+This walkthrough is a friendly guide on how to use most features of Wams. For a detailed code documentation, see [this page](https://nick-baliesnyi.github.io/wams/).
+
+### Hello world
 The smallest Wams example looks something like this:
 ```javascript
 const app = new Wams.Application();
@@ -73,8 +77,6 @@ It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` an
 
 > **Note** The examples on this page use ES2016 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
-
-## Getting started
 
 ### Set up your application
 
