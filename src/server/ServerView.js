@@ -44,7 +44,8 @@ class ServerView extends Locker(Interactable(View)) {
     this.socket = socket;
 
     /**
-     * The index is an integer identifying the ServerView, coming from its ServerController.
+     * The index is an integer identifying the ServerView,
+     * coming from its ServerController.
      *
      * @type {number}
      */

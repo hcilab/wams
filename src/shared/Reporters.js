@@ -346,8 +346,8 @@ const View = ReporterFactory({
   rotation: 0,
 
   /**
-   *  The index is an integer identifying the View, coming from ServerController.
-   * 
+   * The index is an integer identifying the View, coming from ServerController.
+   *
    * @name index
    * @type {number}
    * @default null
