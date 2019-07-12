@@ -25,6 +25,7 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 * [Advanced](#advanced)
   * [Custom items](#custom-items)
   * [Custom events](#custom-events)
+  * [Interaction rights](#interaction-rights)
   * [Grouped items](#grouped-items)
 
 ## Installation
@@ -395,9 +396,9 @@ function handleMyOtherMessage(data) {
 
 *Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a Wams client event _on the client_, you can dispatch a custom event on the document element.
 
-### Access rules
+### Interaction rights
 
-To set different rules for items, use `view.index` to differentiate between connected devices.
+To give different clients different rights for interacting with items, use `view.index` to differentiate between connected devices.
 
 For example, let's say we are making a card game and would like to only allow a card owner to flip it.
 
