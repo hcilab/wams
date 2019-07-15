@@ -33,7 +33,7 @@
     "testURL": "http://localhost/"
   },
   "main": "index.js",
-  "name": "wams",
+  "name": "@hcilab/wams",
   "private": true,
   "repository": {
     "type": "git",
