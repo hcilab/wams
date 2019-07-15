@@ -1,4 +1,10 @@
 {
+  "author": "Jesse Rolheiser <jlr297@gmail.com>",
+  "contributors": [
+    "mjv761 <michael.vanderkamp@usask.ca>",
+    "Scott Bateman <scottb@unb.ca> (https://scottbateman.github.io/)",
+    "Nikita Baliesnyi <nikita.balesny@gmail.com>"
+  ],
   "description": "Workspaces Across Multiple Surfaces",
   "dependencies": {
     "canvas-sequencer": "^3.0.1",
@@ -13,7 +19,7 @@
     "arkit": "^1.5.4",
     "eslint": "^5.16.0",
     "jest": "^24.7.1",
-    "jsdoc": "^3.5.5",
+    "jsdoc": "^3.6.3",
     "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
@@ -27,11 +33,11 @@
     "testURL": "http://localhost/"
   },
   "main": "index.js",
-  "name": "WAMS",
+  "name": "wams",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/mvanderkamp/wams"
+    "url": "https://github.com/nick-baliesnyi/wams/tree/npm"
   },
   "version": "1.0.0"
 }
