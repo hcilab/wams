@@ -7,7 +7,10 @@
 
 const Wams = require('..');
 const app = new Wams.Application();
+const { html } = Wams.predefined.items;
 
+
+// function that returns input html wrapped with a top bar
 function topbarred(html) {
   return `${'<div>' +
     '<div width="560" height="50" ' +
@@ -16,7 +19,7 @@ function topbarred(html) {
   }</div>`;
 }
 
-app.spawn(Wams.predefined.items.wrappedElement(
+app.spawn(html(
   topbarred('<iframe width="560" height="315" src="https://www.gamefaqs.com" frameborder="0"></iframe>'),
   560,
   50,
@@ -32,7 +35,7 @@ app.spawn(Wams.predefined.items.wrappedElement(
   }
 ));
 
-app.spawn(Wams.predefined.items.wrappedElement(
+app.spawn(html(
   topbarred('<iframe width="560" height="315" src="https://www.xkcd.com" frameborder="0"></iframe>'),
   560,
   50,

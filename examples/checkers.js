@@ -10,7 +10,7 @@ const Wams = require('..');
 
 // Provide custom route for card assets
 const router = new Wams.Router();
-const images = path.join(__dirname, '../img/Chips');
+const images = path.join(__dirname, './img/Chips');
 router.use('/chips', router.express.static(images));
 
 // Spawn application with a green background for that classic playing card look.
@@ -18,8 +18,6 @@ const app = new Wams.Application({
   color: 'green',
   clientLimit: 2,
 }, router);
-
-const CLIENTS = {}
 
 const SQUARE_LENGTH = 64;
 function squareSequence(x, y, colour) {
@@ -50,17 +48,12 @@ let NEXT_USER = 0 // first user to play is the one with idx 0
 let PIECE_RAISED = false
 
 function handleTokenDrag(event, tokenOwnerIdx) {
-  const tokenOwnerWebSocketID = CLIENTS[tokenOwnerIdx]
-  const eventSrcWebSocketID = event.view.socket.id
-  if (eventSrcWebSocketID === tokenOwnerWebSocketID) return Wams.predefined.drag(event)
+  if (event.view.index === tokenOwnerIdx) return Wams.predefined.drag(event)
 }
 
 function handleTokenClick(event, tokenOwnerIdx) {
-  const tokenOwnerWebSocketID = CLIENTS[tokenOwnerIdx]
-  const eventSrcWebSocketID = event.view.socket.id
-  const eventSrcUserIdx = eventSrcWebSocketID === CLIENTS[0] ? 0 : 1 // hacky way, good for now
-  // if (tokenOwnerWebSocketID === eventSrcWebSocketID && NEXT_USER === eventSrcUserIdx) {
-  if (tokenOwnerWebSocketID === eventSrcWebSocketID) {
+  
+  if (tokenOwnerIdx === event.view.index) {
       console.log(`User ${eventSrcUserIdx} allowed to interact with Item ${event.target.id}.`)
 
     if (PIECE_RAISED) {
@@ -83,7 +76,6 @@ function handleTokenClick(event, tokenOwnerIdx) {
 function spawnDraggableToken(x, y, ownerIdx) {
   spawnToken(x, y, ownerIdx, {
     ondrag: e => handleTokenDrag(e, ownerIdx),
-    draggable: true,
   })
 }
 
@@ -98,7 +90,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
     type = 'blue-token'
   }
 
-  app.spawn(Wams.predefined.items.wrappedElement(
+  app.spawn(Wams.predefined.items.html(
     `<img class="el ${properties.draggable ? 'draggable-shadow' : ''}" src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" />`,
     SQUARE_LENGTH,
     SQUARE_LENGTH,
@@ -109,7 +101,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
       height: SQUARE_LENGTH,
       type,
       ownerIdx: userIdx,
-      onclick: e => handleTokenClick(e, userIdx),
+      ondrag: e => handleTokenDrag(e, userIdx),
       ...properties,
     }
   ))
@@ -139,13 +131,9 @@ function centerViewNormal(view) {
   )
 }
 
-function handleLayout(view, position) {
-  console.log(app)
+function handleConnect(view) {
 
-  // map user index (`position`) to their web socket client ID
-  CLIENTS[position] = view.socket.id;
-
-  if (position === 0) {
+  if (view.index === 0) {
     view.rotateBy(Math.PI)
   }
 
@@ -156,6 +144,6 @@ function handleLayout(view, position) {
   view.onrotate = Wams.predefined.rotate;
 }
 
-app.onconnect(handleLayout);
+app.onconnect(handleConnect);
 app.listen(9012);
 

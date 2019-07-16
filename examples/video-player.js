@@ -1,36 +1,57 @@
 /*
- * This is a simple example showing how users can interact with a shared set
- *  of items.
+ * This is an advanced example showing a distributed video-player. 
+ * The first connected device can see a YouTube video and player controls.
+ * When the second device connects, the controls move to their screen 
+ * and are synced with the video.
  */
 
-'use strict';
+const Wams = require('..')
+const { html } = Wams.predefined.items
 
-const Wams = require('..');
-const path = require('path');
-
-// Provide custom route for card assets
-const router = new Wams.Router();
-const icons = path.join(__dirname, '../img/Icons');
-router.use('/icons', router.express.static(icons));
+// markup for video player controls
+const controlsHtml = (videoTitle, playing) => (
+    `<div id="controls">
+        <div class="video-title">
+            ${videoTitle}
+        </div>
+        <div class="control-buttons">
+            <i class="fas fa-undo-alt back-btn-icon"></i>
+            <i class="fas fa-${playing ? 'pause' : 'play'} control-btn-icon"></i>
+            <i class="fas fa-redo-alt frwd-btn-icon"></i>
+        </div>
+        <div class="video-time">00:00</div>
+    </div>`
+)
 
 class VideoPlayer {
     constructor() {
         this.app = new Wams.Application({
             clientLimit: 2,
             color: '#555',
-        });
+            clientScripts: [
+                'https://kit.fontawesome.com/3cc3d78fde.js',
+                'client/video-player.js',
+                'https://www.youtube.com/iframe_api'
+            ],
+            title: 'Video Player',
+            __dirname,
+        })
 
         this.player = {
-            playing: false
+            playing: false,
+            mounted: false,
         }
-        this.videoPlayerExists = false
-        this.app.on('play/pause', this.handlePlayerStateChange.bind(this))
-        this.app.on('forward', this.handleForward.bind(this))
-        this.app.on('replay', this.handleReplay.bind(this))
+        this.initListeners()
+    }
+
+    initListeners() {
+        this.app.on('play/pause',      this.handlePlayerStateChange.bind(this))
+        this.app.on('forward',         this.handleForward.bind(this))
+        this.app.on('replay',          this.handleReplay.bind(this))
         this.app.on('video-time-sync', this.handleVideoTimeSync.bind(this))
         this.app.onconnect(this.handleConnect.bind(this))
         this.app.ondisconnect(this.handleDisconnect.bind(this))
-        this.app.listen(9020)
+        this.app.listen(8080)
     }
 
     handlePlayerStateChange(playing) {
@@ -58,7 +79,7 @@ class VideoPlayer {
 
     spawnPlayerWrapper(view) {
         this.mainScreen = { width: view.width, height: view.height }
-        this.app.spawn(Wams.predefined.items.html(
+        this.app.spawn(html(
             `<div id="player-wrapper"></div>`,
             this.mainScreen.width,
             this.mainScreen.height,
@@ -69,9 +90,9 @@ class VideoPlayer {
                 height: this.mainScreen.height,
                 type: 'player',
             }
-        ));
+        ))
 
-        this.videoPlayerExists = true
+        this.player.mounted = true
     }
 
     spawnControls(options) {
@@ -79,92 +100,50 @@ class VideoPlayer {
         const width = 300
         const height = 200
         const x = this.mainScreen.width / 2 - width / 2
-        const y = this.mainScreen.height * 4 / 5
+        const y = this.mainScreen.height * 3 / 4
+        const markup = controlsHtml(options.videoTitle, playing)
 
-        const html = `
-        <div id="controls">
-            <div class="video-title">
-                ${options.videoTitle}
-            </div>
-            <div class="control-buttons">
-                <i class="fas fa-undo-alt back-btn-icon"></i>
-                <i class="fas fa-${playing ? 'pause' : 'play'} control-btn-icon"></i>
-                <i class="fas fa-redo-alt frwd-btn-icon"></i>
-            </div>
-            <div class="video-time">00:00</div>
-        </div>`
-
-        this.controls = this.app.spawn(Wams.predefined.items.html(html, width, height, {
+        this.controls = this.app.spawn(html(markup, width, height, {
             x, y, width, height, playing,
             type: 'controls',
             ondrag: Wams.predefined.drag,
-            onrotate: Wams.predefined.rotate,
             onscale: Wams.predefined.scale,
         }))
-
-        // this.controls = this.app.spawn(Wams.predefined.items.htmlGroup(
-        //     {
-        //         x, y, width, height, style,
-        //     },
-        //     {
-        //         html: html1,
-        //         onclick: this.handleReplay,
-        //     },
-        //     {
-        //         html: html2,
-        //         onclick: this.handlePlayPause,
-        //     },
-        //     {
-        //         html: html3,
-        //         onclick: this.handleForward,
-        //     }
-        // ))
     }
 
-    // main function
-    // called each time a browser connects
-    handleConnect(view, position) {
-        if (!this.videoPlayerExists) {
+    handleConnect(view) {
+        if (!this.player.mounted) {
             this.spawnPlayerWrapper(view)
         }
 
-
-        // removing and re-creating controls
-        // hacky way to show current play/pause btn status
+        // re-rendering controls
+        // to show current play/pause btn status
         // for newly connected device
         if (this.controls) this.app.removeItem(this.controls)
         this.spawnControls({
             videoTitle: 'Apollo 11 landing from PDI to Touchdown',
         })
 
+        // notify clients that controls are spawned
         this.app.dispatch('controlsSpawned')
 
-        if (position === 0) this.app.dispatch('init')
-
-        if (position === 1) {
-
+        if (view.index === 0) this.app.dispatch('initVideo')
+        if (view.index === 1) {
             const initialOffset = [- (this.mainScreen.width * 2), 0]
-
             view.moveBy(...initialOffset)
-
             this.controls.moveTo(
                 view.x + view.width / 2 - this.controls.width / 2,
                 view.y + view.height / 2 - this.controls.height / 2
             )
-
         }
     }
 
-    handleDisconnect(view, position) {
+    handleDisconnect() {
         this.controls.moveTo(
             this.mainScreen.width / 2 - this.controls.width / 2,
             this.mainScreen.height * 4 / 5
         )
     }
-
-
 }
 
-
 const player = new VideoPlayer()
-

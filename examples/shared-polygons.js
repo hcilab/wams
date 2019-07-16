@@ -1,6 +1,6 @@
 /*
- * This is a simple example showing how users can interact with a shared set
- *  of items.
+ * This is a simple example showing how users 
+ * can interact with the same items on different screens.
  */
 
 'use strict';
@@ -8,7 +8,7 @@
 const Wams = require('..');
 const app = new Wams.Application({
   // clientLimit:       4,
-  useServerGestures: true,
+  useServerGestures: true, // enables multi-screen gestures 
 });
 
 function polygon(x, y, view) {
@@ -36,13 +36,14 @@ function spawnItem(event) {
   app.spawn(polygon(event.x, event.y, event.view));
 }
 
+// use predefined "line layout"
 const linelayout = Wams.predefined.layouts.line(5);
-function handleConnect(view, index, device, group) {
+function handleConnect(view, device, group) {
   group.onclick = spawnItem;
   group.onscale = Wams.predefined.scale;
   group.onrotate = Wams.predefined.rotate;
   group.ondrag = Wams.predefined.drag;
-  linelayout(view, index, device);
+  linelayout(view, view.index, device);
 }
 
 app.onconnect(handleConnect);

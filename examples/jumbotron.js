@@ -5,29 +5,29 @@
 
 'use strict';
 
-const path = require('path');
 const Wams = require('..');
+const { image } = Wams.predefined.items;
 
-const router = new Wams.Router();
-const images = path.join(__dirname, '../img');
-router.use('/img', router.express.static(images));
-
-const app = new Wams.Application({ clientLimit: 1000 }, router);
-
-app.spawn({
-  width:  1200,
-  height: 1815,
-  src:    'img/monaLisa.jpg',
-  type:   'mona',
-  scale:  5,
+const app = new Wams.Application({
+  clientLimit: 1000,
+  __dirname,
 });
 
-function handleLayout(view) {
+app.spawn(image('./img/monaLisa.jpg', {
+  width: 1200,
+  height: 1815,
+  x: 0,
+  y: 0,
+  type: 'mona',
+  scale: .5,
+}));
+
+function handleConnect(view) {
   view.onscale = Wams.predefined.scale;
   view.ondrag = Wams.predefined.drag;
   view.onrotate = Wams.predefined.rotate;
 }
 
-app.onconnect(handleLayout);
+app.onconnect(handleConnect);
 app.listen(9010);
 

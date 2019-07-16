@@ -6,12 +6,6 @@
 'use strict';
 
 const Wams = require('..');
-const path = require('path');
-
-// Provide custom route for card assets
-const router = new Wams.Router();
-const images = path.join(__dirname, '../img');
-router.use('/images', router.express.static(images));
 
 /*
  * Randomize array element order in-place.
@@ -35,11 +29,9 @@ function shuffle(in_array) {
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
   color: 'green',
-  // clientLimit: 5,
-}, router);
-
-// maps `position` index to web socket ID
-const CLIENTS = {}
+  clientLimit: 5,
+  __dirname,
+});
 
 // Demonstrate a custom rendering sequence.
 const circle = new Wams.CanvasSequence();
@@ -101,12 +93,12 @@ const cardDescriptors = [];
 const cards = [];
 values.forEach(value => {
   suits.forEach(suit => {
-    cardDescriptors.push(`/images/Cards/${suit}${value}.png`);
+    cardDescriptors.push(`./img/Cards/${suit}${value}.png`);
   });
 });
 
 // Select the look for the back of the cards.
-const card_back_path = '/images/Cards/Back_blue4.png';
+const card_back_path = './img/Cards/Back_blue4.png';
 
 function dealCards() {
   cards.forEach(card => {
@@ -148,7 +140,7 @@ function flipCard(event) {
 }
 
 const tableLayout = Wams.predefined.layouts.table(200);
-function handleLayout(view) {
+function handleConnect(view) {
   if (view.index === 0) {
     // User is the "table". Allow them to move around and scale.
     view.ondrag = Wams.predefined.drag;
@@ -157,6 +149,5 @@ function handleLayout(view) {
   tableLayout(view);
 }
 
-app.onconnect(handleLayout);
+app.onconnect(handleConnect);
 app.listen(9011);
-

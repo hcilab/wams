@@ -9,7 +9,7 @@ const Wams = require('..');
 const app = new Wams.Application();
 
 function element(x, y, view) {
-  return Wams.predefined.items.wrappedElement(
+  return Wams.predefined.items.html(
     '<button onclick="alert(\'You panicked :(\')">dont panic</button>',
     300,
     50,
@@ -37,13 +37,13 @@ function spawnElement(event) {
   app.spawn(element(event.x, event.y, event.view));
 }
 
-function handleLayout(view) {
+function handleConnect(view) {
   view.onscale = Wams.predefined.scale;
   view.ondrag = Wams.predefined.drag;
   view.onrotate = Wams.predefined.rotate;
   view.onclick = spawnElement;
 }
 
-app.onconnect(handleLayout);
+app.onconnect(handleConnect);
 app.listen(9002);
 

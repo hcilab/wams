@@ -8,10 +8,11 @@
 const Wams = require('..');
 const app = new Wams.Application();
 
+
 function polygon(x, y, view) {
   return Wams.predefined.items.polygon(
-    Wams.predefined.utilities.randomPoints(7),
-    Wams.colours[view.id % Wams.colours.length],
+    Wams.predefined.utilities.randomPoints(7),   // random coordinates
+    Wams.colours[view.id % Wams.colours.length], // random color
     {
       x,
       y,
