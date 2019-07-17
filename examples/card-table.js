@@ -5,6 +5,7 @@
 
 'use strict';
 
+const path = require('path')
 const Wams = require('..');
 
 /*
@@ -30,7 +31,7 @@ function shuffle(in_array) {
 const app = new Wams.Application({
   color: 'green',
   clientLimit: 5,
-  __dirname,
+  staticDir: path.join(__dirname, '/img'),
 });
 
 // Demonstrate a custom rendering sequence.
@@ -93,12 +94,12 @@ const cardDescriptors = [];
 const cards = [];
 values.forEach(value => {
   suits.forEach(suit => {
-    cardDescriptors.push(`./img/Cards/${suit}${value}.png`);
+    cardDescriptors.push(`Cards/${suit}${value}.png`);
   });
 });
 
 // Select the look for the back of the cards.
-const card_back_path = './img/Cards/Back_blue4.png';
+const card_back_path = 'Cards/Back_blue4.png';
 
 function dealCards() {
   cards.forEach(card => {

@@ -10,10 +10,10 @@ const { image } = Wams.predefined.items;
 
 const app = new Wams.Application({
   clientLimit: 1000,
-  __dirname,
+  staticDir: path.join(__dirname, './img'),
 });
 
-app.spawn(image('./img/monaLisa.jpg', {
+app.spawn(image('monaLisa.jpg', {
   width: 1200,
   height: 1815,
   x: 0,

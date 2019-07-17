@@ -5,15 +5,16 @@
 
 'use strict';
 
+const path = require('path')
 const Wams = require('..');
 const { image } = Wams.predefined.items;
 
 const app = new Wams.Application({
   clientLimit: 2,
-  __dirname,
+  staticDir: path.join(__dirname, './img'),
 });
 
-app.spawn(image('./img/scream.png', {
+app.spawn(image('scream.png', {
   x: 400,
   y: 400,
   width: 800,
@@ -24,7 +25,7 @@ app.spawn(image('./img/scream.png', {
   onscale: Wams.predefined.scale,
 }));
 
-app.spawn(image('./img/monaLisa.jpg', {
+app.spawn(image('monaLisa.jpg', {
   x: 200,
   y: 200,
   width: 1200,

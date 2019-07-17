@@ -6,6 +6,7 @@
  */
 
 const Wams = require('..')
+const path = require('path')
 const { html } = Wams.predefined.items
 
 // markup for video player controls
@@ -30,11 +31,11 @@ class VideoPlayer {
             color: '#555',
             clientScripts: [
                 'https://kit.fontawesome.com/3cc3d78fde.js',
-                'client/video-player.js',
+                'video-player.js',
                 'https://www.youtube.com/iframe_api'
             ],
             title: 'Video Player',
-            __dirname,
+            staticDir: path.join(__dirname, './client'),
         })
 
         this.player = {

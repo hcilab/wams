@@ -44,20 +44,6 @@ function getLocalIP() {
 }
 
 /**
- *
- * @param {string} customDirname custom absolute path to root direcotry
- *
- * @returns {string} absolute path to resource root directory
- */
-function getRootPath(customDirname) {
-  if (customDirname) {
-    return path.join(customDirname, '/');
-  }
-  // default to parent of `wams` directory
-  return path.join(__dirname, '../../../');
-}
-
-/**
  * This module defines the API endpoint.
  *
  * @memberof module:server
@@ -67,7 +53,7 @@ function getRootPath(customDirname) {
  */
 class Application {
   constructor(settings = {}, router = Router()) {
-    this.setupRoutes(settings, router);
+    this.setupStaticRoute(settings, router);
 
     /**
      * HTTP server for sending and receiving data.
@@ -111,10 +97,16 @@ class Application {
     );
   }
 
-  setupRoutes(settings, router) {
-    /* eslint no-underscore-dangle: ["error", { "allow": ["__dirname"] }]*/
-    const rootDir = getRootPath(settings.__dirname);
-    router.use(router.express.static(rootDir));
+  /**
+   * Setup the route to the static files directory,
+   * if included in application configuration.
+   *
+   * @param {object} settings 
+   * @param {module:server.Router} router
+   */
+  setupStaticRoute(settings, router) {
+    const staticDir = settings.staticDir;
+    if (staticDir) router.use(router.express.static(staticDir));
   }
 
   /**

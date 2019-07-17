@@ -8,16 +8,12 @@
 const path = require('path');
 const Wams = require('..');
 
-// Provide custom route for card assets
-const router = new Wams.Router();
-const images = path.join(__dirname, './img/Chips');
-router.use('/chips', router.express.static(images));
-
 // Spawn application with a green background for that classic playing card look.
 const app = new Wams.Application({
   color: 'green',
   clientLimit: 2,
-}, router);
+  staticDir: path.join(__dirname, './img/Chips'),
+});
 
 const SQUARE_LENGTH = 64;
 function squareSequence(x, y, colour) {
@@ -44,49 +40,18 @@ for (let i = 0; i < 10; i += 1) {
 
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10
 
-let NEXT_USER = 0 // first user to play is the one with idx 0
-let PIECE_RAISED = false
-
 function handleTokenDrag(event, tokenOwnerIdx) {
   if (event.view.index === tokenOwnerIdx) return Wams.predefined.drag(event)
-}
-
-function handleTokenClick(event, tokenOwnerIdx) {
-  
-  if (tokenOwnerIdx === event.view.index) {
-      console.log(`User ${eventSrcUserIdx} allowed to interact with Item ${event.target.id}.`)
-
-    if (PIECE_RAISED) {
-      console.log('move finished')
-      NEXT_USER = Math.abs(tokenOwnerIdx - 1)
-      app.removeItem(event.target)
-      PIECE_RAISED = false
-      return spawnToken(event.target.x, event.target.y, tokenOwnerIdx)
-    }
-
-    app.removeItem(event.target)
-    PIECE_RAISED = true
-    spawnDraggableToken(event.x, event.y, tokenOwnerIdx)
-  } else {
-    console.log(`User ${eventSrcUserIdx} NOT allowed to interact with Item ${event.target.id}.`)
-
-  }
-}
-
-function spawnDraggableToken(x, y, ownerIdx) {
-  spawnToken(x, y, ownerIdx, {
-    ondrag: e => handleTokenDrag(e, ownerIdx),
-  })
 }
 
 function spawnToken(x, y, userIdx, properties = {}) {
   let imgUrl = null
   let type = null
   if (userIdx === 0) {
-    imgUrl = 'chips/Green_border.png'
+    imgUrl = 'Green_border.png'
     type = 'green-token'
   } else if (userIdx === 1) {
-    imgUrl = 'chips/Blue_border.png'
+    imgUrl = 'Blue_border.png'
     type = 'blue-token'
   }
 

@@ -89,7 +89,28 @@ const app = new Wams.Application();
 app.listen(8080);
 ```
 
-Now, you can write all of your server-side Wams code in this file.
+Now, you can write your Wams code in this file.
+
+### Configuration
+
+To configure the application, you can pass a config object when initializing the `Application` class. 
+
+Below is the full list of possible options with example values.
+
+```javascript
+const app = new Wams.Application({
+  color:             'some-color',     // background color of the app's canvas
+  clientLimit:       2,                // maximum number of devices that can connect to the server
+  clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
+  stylesheets:       ['styles.css'],   // css styles to include by the browser
+  shadows:           true,             // show shadows of other devices
+  // path to directory for static files, will be accessible at app's root
+  staticDir:         path.join(__dirname, './static'),     
+  status:            true,             // show information on current view, useful for debugging
+  title:             'Awesome App',    // page title  
+  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
+});
+```
 
 ### Basics
 
@@ -126,9 +147,14 @@ Polygons are built using an array of relative points. For a random set of points
 ```javascript
 // server.js
 
+const app = Wams.Application({
+  staticDir: path.join(__dirname, './images') 
+  // app's root will serve static files from the `images` folder
+})
 const { image } = Wams.predefined.items;
 
-app.spawn(image('/images/monaLisa.jpg', {
+// url resolves to <current-directory>/images/monaLisa.jpg
+app.spawn(image('monaLisa.jpg', {
   width: 200, height: 350,
   x: 300, y: 300,
 }));
@@ -221,26 +247,6 @@ Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) o
 
 _You can add event handlers to all Wams items._
 
-### Configuration
-
-To configure the application, you can pass a config object when initializing the `Application` class. 
-
-Below is the full list of possible options with example values.
-
-```javascript
-const app = new Wams.Application({
-  color:             'some-color',     // background color of the app's canvas
-  clientLimit:       2,                // maximum number of devices that can connect to the server
-  clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
-  stylesheets:       ['styles.css'],   // css styles to include by the browser
-  shadows:           true,             // show shadows of other devices
-  status:            true,             // show information on current view, useful for debugging
-  title:             'Awesome App',    // page title  
-  useServerGestures: true,             // used for simultaneous interaction with single item from several devices
-  __dirname,                           // root directory for js, css and assets routing
-});
-```
-
 ### Client code and assets
 
 Often times, you need to use some JavaScript code on the client, define custom styles with CSS files or include some images. 
@@ -261,7 +267,7 @@ const app = new Wams.Application({
 });
 ```
 
-> **NOTE** By default, the root assets directory is the parent folder of `wams` directory. To change it, set `__dirname` property in the application config.
+> **NOTE** Don't forget to include the static directory location in the `staticDir` property in the application config.
 
 ### Connections
 
