@@ -41,11 +41,13 @@ cd wams
 npm install
 ```
 
+## Getting started
+
+The easiest way to get started is to follow the [Walkthrough tutorial](#walkthrough) below. More advanced users might want to check the [code documentation](https://mvanderkamp.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
+
 ## Examples
 
-See the examples in `examples/`, and check the
-[docs](https://mvanderkamp.github.io/wams/). The entry-point of a `wams` app is
-the `Application` class.
+See the examples in `examples/`, and check the [code documentation](https://mvanderkamp.github.io/wams/). The entry-point of a `wams` app is the `Application` class.
 
 To try out the examples (except the no-op "scaffold" example), run as follows:
 
@@ -57,19 +59,22 @@ node examples/[EXAMPLE_FILENAME]
 node examples/polygons.js
 ```
 
-The `shared-polygons.js` example demonstrates multi-device gestures.
+The `shared-polygons.js` example demonstrates multi-device gestures (gestures that spand multiple screens).
 
-See a [live demo](https://wams-player-demo.herokuapp.com/) of a distributed video-player prototype built with Wams. Join it with a second device to control the video remotely.
+## Live Demo
+The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. When a second view is connected, the controls are automatically moved to that view. 
+
+To check out the code of the live demo, see `examples/video-player.js`
 
 ## Walkthrough
 
-This walkthrough is a friendly guide on how to use most features of Wams. For a detailed code documentation, see [this page](https://nick-baliesnyi.github.io/wams/).
+This walkthrough is a friendly guide on how to use most features of WAMS. For a detailed code documentation, see [this page](https://nick-baliesnyi.github.io/wams/).
 
 ### Hello world
-The smallest Wams example looks something like this:
+The smallest WAMS example looks something like this:
 ```javascript
-const app = new Wams.Application();
-const { square } = Wams.predefined.items;
+const app = new WAMS.Application();
+const { square } = WAMS.predefined.items;
 app.spawn(square(200, 200, 100, 'green'));
 app.listen(8080);
 ```
@@ -82,15 +87,15 @@ It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` an
 ### Set up your application
 
 1. In the app folder, create your app server file, e.g. **server.js**
-2. In the server file, include Wams and initialize the application
+2. In the server file, include WAMS and initialize the application
 ```javascript
 // server.js
-const Wams = require('./wams');
-const app = new Wams.Application();
+const WAMS = require('./wams');
+const app = new WAMS.Application();
 app.listen(8080);
 ```
 
-Now, you can write your Wams code in this file.
+Now, you can write your WAMS code in this file.
 
 ### Configuration
 
@@ -99,7 +104,7 @@ To configure the application, you can pass a config object when initializing the
 Below is the full list of possible options with example values.
 
 ```javascript
-const app = new Wams.Application({
+const app = new WAMS.Application({
   color:             'some-color',     // background color of the app's canvas
   clientLimit:       2,                // maximum number of devices that can connect to the server
   clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
@@ -115,7 +120,7 @@ const app = new Wams.Application({
 
 ### Basics
 
-A Wams app is made of **items**. There is a number of predefined items like:
+A WAMS app is made of **items**. There is a number of predefined items like:
 
 - `square`
 - `rectangle`
@@ -123,7 +128,7 @@ A Wams app is made of **items**. There is a number of predefined items like:
 - `image`
 - `html`
 
-Most of the items are used on HTML **canvas**, which is the core part of Wams.   You have already seen `square` used in the Hello world example above. Now let's look at some other items.
+Most of the items are used on HTML **canvas**, which is the core part of WAMS.   You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
 ### Polygons
 
@@ -141,18 +146,18 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints(<number>)` from `Wams.predefined.utilities`.
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints(<number>)` from `WAMS.predefined.utilities`.
 
 ### Images
 
 ```javascript
 // server.js
 
-const app = Wams.Application({
+const app = WAMS.Application({
   staticDir: path.join(__dirname, './images') 
   // app's root will serve static files from the `images` folder
 })
-const { image } = Wams.predefined.items;
+const { image } = WAMS.predefined.items;
 
 // url resolves to <current-directory>/images/monaLisa.jpg
 app.spawn(image('monaLisa.jpg', {
@@ -161,16 +166,16 @@ app.spawn(image('monaLisa.jpg', {
 }));
 ```
 
-To spawn a Wams image, dont't forget to include _width_ and _height_.
+To spawn a WAMS image, dont't forget to include _width_ and _height_.
 
 > **Example** To see a great example of using images, check out `examples/card-table.js`
 
 ### HTML
-If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, Wams also supports spawning **HTML** items.
+If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, WAMS also supports spawning **HTML** items.
 
 ```javascript
 // server.js
-const { html } = Wams.predefined.items;
+const { html } = WAMS.predefined.items;
 
 app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
   x: 300, y: 100,
@@ -202,15 +207,15 @@ Let's get back to our Hello world example with a green square. Just a static squ
 ```javascript
 ...
 app.spawn(square(200, 200, 100, 'green', {
-  ondrag: Wams.predefined.drag,
+  ondrag: WAMS.predefined.drag,
 }));
 ...
 ```
-This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use Wams' `removeItem` method._
+This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
 ...
-  ondrag: Wams.predefined.drag,
+  ondrag: WAMS.predefined.drag,
   onclick: handleClick,
 }));
 
@@ -224,9 +229,9 @@ function handleClick(event) {
 Another cool interactive feature is **rotation**. To rotate an item, first add the `onrotate` handler and then grab the item with your mouse and hold **Control** key. 
 ```js
 ...
-  ondrag: Wams.predefined.drag,
+  ondrag: WAMS.predefined.drag,
   onclick: handleClick,
-  onrotate: Wams.predefined.rotate,
+  onrotate: WAMS.predefined.rotate,
 }));
 ...
 ```
@@ -246,7 +251,7 @@ function handleClick(event) {
 
 Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) or the final position (for `moveTo`).
 
-_You can add event handlers to all Wams items._
+_You can add event handlers to all WAMS items._
 
 ### Client code and assets
 
@@ -255,7 +260,7 @@ Often times, you need to use some JavaScript code on the client, define custom s
 - To include **.js** files with your app, create a file in your app folder and add the path to the file to your application config:
 
 ```javascript
-const app = new Wams.Application({
+const app = new WAMS.Application({
   clientScripts: ['awesome-script.js']
 });
 ```
@@ -263,7 +268,7 @@ const app = new Wams.Application({
 - For **.css** files:
 
 ```javascript
-const app = new Wams.Application({
+const app = new WAMS.Application({
   stylesheets: ['amazing-styles.css']
 });
 ```
@@ -272,9 +277,9 @@ const app = new Wams.Application({
 
 ### Connections
 
-Wams manages connections with clients under the hood, and provides helpful methods to react on **connection-related events**:
+WAMS manages connections with clients under the hood, and provides helpful methods to react on **connection-related events**:
 
-- `onconnect` – called each time a client connects to Wams server
+- `onconnect` – called each time a client connects to WAMS server
 - `ondisconnect` – called when client disconnects
 
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
@@ -285,10 +290,10 @@ Both methods accept a callback function, where you can act on the event. The cal
 
 Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
 
-Combining view event handlers and methods, you can build complex layouts based on client's index. Wams has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
+Combining view event handlers and methods, you can build complex layouts based on client's index. WAMS has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
 ```js
-const setTableLayout = Wams.predefined.layouts.table(200);
+const setTableLayout = WAMS.predefined.layouts.table(200);
 function handleLayout(view) {
   setTableLayout(view);
 }
@@ -312,7 +317,7 @@ The following sequence draws a smiling face item:
 
 ```js
 function smile(x, y) {
-    const sequence = new Wams.CanvasSequence();
+    const sequence = new WAMS.CanvasSequence();
 
     sequence.beginPath();
     sequence.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
@@ -335,10 +340,10 @@ To add interactivity to a custom item, you can use the same handlers as with pre
 
 ```javascript
 function customItem(x, y, width, height) {
-  const hitbox = new Wams.Rectangle(width, height, x, y);
-  const ondrag = Wams.predefined.drag;
+  const hitbox = new WAMS.Rectangle(width, height, x, y);
+  const ondrag = WAMS.predefined.drag;
 
-  const sequence = new Wams.CanvasSequence();
+  const sequence = new WAMS.CanvasSequence();
   sequence.fillStyle = 'green';
   sequence.fillRect(x, y, width, height);
 
@@ -346,25 +351,25 @@ function customItem(x, y, width, height) {
 }
 ```
 
-A hitbox can be made from `Wams.Rectangle` or `Wams.Polygon2D`.
+A hitbox can be made from `WAMS.Rectangle` or `WAMS.Polygon2D`.
 
-`Wams.Polygon2D` accepts an array of points – vertices of the resulting polygon.
+`WAMS.Polygon2D` accepts an array of points – vertices of the resulting polygon.
 
 ### Custom events
 
-Sometimes, you would like to tell devices to execute client-side code at a specific time. Or you would like to communicate some client-side event to the server. To allow that, Wams provides **custom events**.
+Sometimes, you would like to tell devices to execute client-side code at a specific time. Or you would like to communicate some client-side event to the server. To allow that, WAMS provides **custom events**.
 
 ##### From Client to Server
 
-Let's say we would like to send a message from the client to the server. Wams methods are exposed to the client via the global `Wams` object.
+Let's say we would like to send a message from the client to the server. WAMS methods are exposed to the client via the global `WAMS` object.
 
 
-To **dispatch a server event**, use `Wams.dispatch()` method:
+To **dispatch a server event**, use `WAMS.dispatch()` method:
 
 ```javascript
 // client.js
 
-Wams.dispatch('my-message', { foo: 'bar' });
+WAMS.dispatch('my-message', { foo: 'bar' });
 ```
 
 This dispatches a custom event to the server called `my-message` and sends a payload object.
@@ -391,19 +396,19 @@ To **dispatch a client event** from the server, use `app.dispatch()` method.
 app.dispatch('my-other-message', { bar: 'foo' });
 ```
 
-To **listen to this event on the client**, use `Wams.on()` method:
+To **listen to this event on the client**, use `WAMS.on()` method:
 
 ```javascript
 // client.js
 
-Wams.on('my-other-message', handleMyOtherMessage);
+WAMS.on('my-other-message', handleMyOtherMessage);
 
 function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
 }
 ```
 
-*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a Wams client event _on the client_, you can dispatch a custom event on the document element.
+*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a WAMS client event _on the client_, you can dispatch a custom event on the document element.
 
 ### Interaction rights
 
