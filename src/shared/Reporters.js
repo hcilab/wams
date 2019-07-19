@@ -76,6 +76,11 @@ const Item = ReporterFactory({
   /**
    * Represents position in stack order.
    * Higher values puts item above others.
+   * @name zIndex
+   * @type {number}
+   * @default 1
+   * @memberof module:shared.Item
+   * @instance
    */
   zIndex: 1,
 });
@@ -178,9 +183,14 @@ const WamsElement = ReporterFactory({
   tagname: 'div',
 
   /**
- * Represents position in stack order.
- * Higher values puts item above others.
- */
+   * Represents position in stack order.
+   * Higher values puts item above others.
+   * @name zIndex
+   * @type {number}
+   * @default 1
+   * @memberof module:shared.WamsElement
+   * @instance
+   */
   zIndex: 1,
 });
 
@@ -273,6 +283,11 @@ const WamsImage = ReporterFactory({
   /**
    * Represents position in stack order.
    * Higher values puts item above others.
+   * @name zIndex
+   * @type {number}
+   * @default 1
+   * @memberof module:shared.WamsImage
+   * @instance
    */
   zIndex: 1,
 });
