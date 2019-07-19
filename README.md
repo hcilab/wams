@@ -43,11 +43,11 @@ npm install
 
 ## Getting started
 
-The easiest way to get started is to follow the [Walkthrough tutorial](#walkthrough) below. More advanced users might want to check the [code documentation](https://mvanderkamp.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
+The easiest way to get started is to follow the [Walkthrough tutorial](#walkthrough) below. More advanced users might want to check the [code documentation](https://nick-baliesnyi.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
 
 ## Examples
 
-See the examples in `examples/`, and check the [code documentation](https://mvanderkamp.github.io/wams/). The entry-point of a `wams` app is the `Application` class.
+Go to  `examples/` to see the examples. The entry-point of a `wams` app is the `Application` class.
 
 To try out the examples (except the no-op "scaffold" example), run as follows:
 
@@ -59,7 +59,7 @@ node examples/[EXAMPLE_FILENAME]
 node examples/polygons.js
 ```
 
-The `shared-polygons.js` example demonstrates multi-device gestures (gestures that spand multiple screens).
+The `shared-polygons.js` example demonstrates multi-device gestures (gestures that span multiple screens).
 
 ## Live Demo
 The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. When a second view is connected, the controls are automatically moved to that view. 
@@ -68,11 +68,14 @@ To check out the code of the live demo, see `examples/video-player.js`
 
 ## Walkthrough
 
-This walkthrough is a friendly guide on how to use most features of WAMS. For a detailed code documentation, see [this page](https://nick-baliesnyi.github.io/wams/).
+This walkthrough is a friendly guide on how to use most WAMS features. For detailed code documentation, see [code documentation](https://nick-baliesnyi.github.io/wams/).
+
+> **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
 ### Hello world
-The smallest WAMS example looks something like this:
+Before you try, here is how a simple WAMS example would look like:
 ```javascript
+const WAMS = require('./wams');
 const app = new WAMS.Application();
 const { square } = WAMS.predefined.items;
 app.spawn(square(200, 200, 100, 'green'));
@@ -81,15 +84,13 @@ app.listen(8080);
 
 It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100` and starts the server on port `8080`. Now anyone can connect to the server and see the square.
 
-> **Note** The examples on this page use ES2016 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
-
-
 ### Set up your application
 
-1. In the app folder, create your app server file, e.g. **server.js**
-2. In the server file, include WAMS and initialize the application
+1. In the app folder, [install](#installation) WAMS
+2. Create **app.js**
+2. In the app.js file, include WAMS and initialize the application
 ```javascript
-// server.js
+// app.js
 const WAMS = require('./wams');
 const app = new WAMS.Application();
 app.listen(8080);
@@ -97,9 +98,9 @@ app.listen(8080);
 
 Now, you can write your WAMS code in this file.
 
-### Configuration
+### Genertal Configuration of Your App
 
-To configure the application, you can pass a config object when initializing the `Application` class. 
+The application can be configured through some options.
 
 Below is the full list of possible options with example values.
 
@@ -110,8 +111,7 @@ const app = new WAMS.Application({
   clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
   stylesheets:       ['styles.css'],   // css styles to include by the browser
   shadows:           true,             // show shadows of other devices
-  // path to directory for static files, will be accessible at app's root
-  staticDir:         path.join(__dirname, './static'),     
+  staticDir:         path.join(__dirname, 'static'), // path to directory for static files, will be accessible at app's root
   status:            true,             // show information on current view, useful for debugging
   title:             'Awesome App',    // page title  
   useServerGestures: true,             // used for simultaneous interaction with single item from several devices
@@ -120,7 +120,7 @@ const app = new WAMS.Application({
 
 ### Basics
 
-A WAMS app is made of **items**. There is a number of predefined items like:
+A WAMS app is made of **items**. There is a number of predefined items (see them in the [docs](https://nick-baliesnyi.github.io/wams/module-predefined.items.html)): 
 
 - `square`
 - `rectangle`
@@ -133,7 +133,7 @@ Most of the items are used on HTML **canvas**, which is the core part of WAMS.  
 ### Polygons
 
 ```javascript
-// server.js
+// app.js
 
 const points = [
   { x: 0, y: 0 },
@@ -150,16 +150,19 @@ Polygons are built using an array of relative points. For a random set of points
 
 ### Images
 
+To use images, you first need to set up a path to the [static directory](#static-files).
+
 ```javascript
-// server.js
+// app.js
 
 const app = WAMS.Application({
   staticDir: path.join(__dirname, './images') 
-  // app's root will serve static files from the `images` folder
 })
-const { image } = WAMS.predefined.items;
 
-// url resolves to <current-directory>/images/monaLisa.jpg
+const { image } = WAMS.predefined.items;
+// ES2015 syntax, same as
+// const image = WAMS.predefined.items.image;
+
 app.spawn(image('monaLisa.jpg', {
   width: 200, height: 350,
   x: 300, y: 300,
@@ -174,7 +177,7 @@ To spawn a WAMS image, dont't forget to include _width_ and _height_.
 If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, WAMS also supports spawning **HTML** items.
 
 ```javascript
-// server.js
+// app.js
 const { html } = WAMS.predefined.items;
 
 app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
@@ -196,7 +199,7 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-> **Note** Rotation is defined in radians, not degrees, Pi = 180 deg
+> **Note** Rotation is defined in radians (Pi = 180 deg)
 
 
 ### Interactivity
@@ -253,27 +256,39 @@ Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) o
 
 _You can add event handlers to all WAMS items._
 
-### Client code and assets
+### Static resources
 
-Often times, you need to use some JavaScript code on the client, define custom styles with CSS files or include some images. 
+Often times, you want to use images, run custom code in the browser, or add CSS stylesheets. 
 
-- To include **.js** files with your app, create a file in your app folder and add the path to the file to your application config:
-
+To do that, first **set up a path to the static directory:**
 ```javascript
+const path = require('path');
+
 const app = new WAMS.Application({
-  clientScripts: ['awesome-script.js']
+  staticDir:     path.join(__dirname, './assets'),
 });
 ```
 
-- For **.css** files:
+This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
+
+- To run code in the browsers that connect to your app, create a **.js** file in your app _static directory_ and include it in the application config:
 
 ```javascript
 const app = new WAMS.Application({
-  stylesheets: ['amazing-styles.css']
+  clientScripts: ['awesome-script.js'],
+  staticDir:     path.join(__dirname, 'assets'),
 });
 ```
 
-> **NOTE** Don't forget to include the static directory location in the `staticDir` property in the application config.
+- To add CSS stylesheets:
+
+```javascript
+const app = new WAMS.Application({
+  stylesheets: ['amazing-styles.css'],
+  staticDir:   path.join(__dirname, 'assets'),
+});
+```
+
 
 ### Connections
 
@@ -377,7 +392,7 @@ This dispatches a custom event to the server called `my-message` and sends a pay
 To **listen to this event on the server**, use `app.on()` method:
 
 ```javascript
-// server.js
+// app.js
 
 app.on('my-message', handleMyMessage);
 
@@ -391,7 +406,7 @@ function handleMyMessage(data) {
 To **dispatch a client event** from the server, use `app.dispatch()` method.
 
 ```javascript
-// server.js
+// app.js
 
 app.dispatch('my-other-message', { bar: 'foo' });
 ```
