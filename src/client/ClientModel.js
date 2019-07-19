@@ -166,6 +166,14 @@ class ClientModel {
   }
 
   /**
+   * Sort the items by their zIndex to reflect their stack order;
+   *
+   */
+  updateItemsOrder() {
+    this.itemOrder = this.itemOrder.sort((a, b) => a.zIndex - b.zIndex);
+  }
+
+  /**
    * Call the given method with the given property of 'data' on the item with id
    * equal to data.id.
    *
@@ -223,6 +231,7 @@ class ClientModel {
   update(container, data) {
     if (this[container].has(data.id)) {
       this[container].get(data.id).assign(data);
+      if (container === 'items') this.updateItemsOrder(data);
     } else {
       console.warn(`Unable to find in ${container}: id: `, data.id);
     }

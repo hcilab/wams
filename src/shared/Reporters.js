@@ -72,6 +72,12 @@ const Item = ReporterFactory({
    * @instance
    */
   type: 'item/polygonal',
+
+  /**
+   * Represents position in stack order.
+   * Higher values puts item above others.
+   */
+  zIndex: 1,
 });
 
 /**
@@ -170,6 +176,12 @@ const WamsElement = ReporterFactory({
    * @instance
    */
   tagname: 'div',
+
+  /**
+ * Represents position in stack order.
+ * Higher values puts item above others.
+ */
+  zIndex: 1,
 });
 
 /**
@@ -257,6 +269,12 @@ const WamsImage = ReporterFactory({
    * @instance
    */
   type: 'item/image',
+
+  /**
+   * Represents position in stack order.
+   * Higher values puts item above others.
+   */
+  zIndex: 1,
 });
 
 /**

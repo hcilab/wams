@@ -14,7 +14,6 @@
 const http = require('http');
 const os = require('os');
 const IO = require('socket.io');
-const path = require('path');
 
 // Local classes, etc
 const { constants } = require('../shared.js');
@@ -101,7 +100,7 @@ class Application {
    * Setup the route to the static files directory,
    * if included in application configuration.
    *
-   * @param {object} settings 
+   * @param {object} settings
    * @param {module:server.Router} router
    */
   setupStaticRoute(settings, router) {
