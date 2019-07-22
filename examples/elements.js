@@ -5,11 +5,11 @@
 
 'use strict';
 
-const Wams = require('..');
-const app = new Wams.Application();
+const WAMS = require('..');
+const app = new WAMS.Application();
 
 function element(x, y, view) {
-  return Wams.predefined.items.html(
+  return WAMS.predefined.items.html(
     '<button onclick="alert(\'You panicked :(\')">dont panic</button>',
     300,
     50,
@@ -21,9 +21,9 @@ function element(x, y, view) {
       type:     'button',
       scale:    1 / view.scale,
       rotation: view.rotation,
-      onscale:  Wams.predefined.scale,
-      ondrag:   Wams.predefined.drag,
-      onrotate: Wams.predefined.rotate,
+      onscale:  WAMS.predefined.scale,
+      ondrag:   WAMS.predefined.drag,
+      onrotate: WAMS.predefined.rotate,
       onclick:  removeElement,
     }
   );
@@ -38,9 +38,9 @@ function spawnElement(event) {
 }
 
 function handleConnect(view) {
-  view.onscale = Wams.predefined.scale;
-  view.ondrag = Wams.predefined.drag;
-  view.onrotate = Wams.predefined.rotate;
+  view.onscale = WAMS.predefined.scale;
+  view.ondrag = WAMS.predefined.drag;
+  view.onrotate = WAMS.predefined.rotate;
   view.onclick = spawnElement;
 }
 

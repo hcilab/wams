@@ -6,10 +6,10 @@
 'use strict';
 
 const path = require('path')
-const Wams = require('..');
-const { image } = Wams.predefined.items;
+const WAMS = require('..');
+const { image } = WAMS.predefined.items;
 
-const app = new Wams.Application({
+const app = new WAMS.Application({
   clientLimit: 2,
   staticDir: path.join(__dirname, './img'),
 });
@@ -20,9 +20,9 @@ app.spawn(image('scream.png', {
   width: 800,
   height: 1013,
   scale: 0.25,
-  ondrag: Wams.predefined.drag,
-  onrotate: Wams.predefined.rotate,
-  onscale: Wams.predefined.scale,
+  ondrag: WAMS.predefined.drag,
+  onrotate: WAMS.predefined.rotate,
+  onscale: WAMS.predefined.scale,
 }));
 
 app.spawn(image('monaLisa.jpg', {
@@ -31,9 +31,9 @@ app.spawn(image('monaLisa.jpg', {
   width: 1200,
   height: 1815,
   scale: 0.2,
-  ondrag: Wams.predefined.drag,
-  onrotate: Wams.predefined.rotate,
-  onscale: Wams.predefined.scale,
+  ondrag: WAMS.predefined.drag,
+  onrotate: WAMS.predefined.rotate,
+  onscale: WAMS.predefined.scale,
 }));
 
 app.listen(9003);

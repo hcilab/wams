@@ -6,10 +6,10 @@
 'use strict';
 
 const path = require('path');
-const Wams = require('..');
+const WAMS = require('..');
 
 // Spawn application with a green background for that classic playing card look.
-const app = new Wams.Application({
+const app = new WAMS.Application({
   color: 'green',
   clientLimit: 2,
   staticDir: path.join(__dirname, './img/Chips'),
@@ -17,7 +17,7 @@ const app = new Wams.Application({
 
 const SQUARE_LENGTH = 64;
 function squareSequence(x, y, colour) {
-  const seq = new Wams.CanvasSequence();
+  const seq = new WAMS.CanvasSequence();
   seq.fillStyle = colour;
   seq.fillRect(0, 0, SQUARE_LENGTH, SQUARE_LENGTH);
   return seq;
@@ -41,7 +41,7 @@ for (let i = 0; i < 10; i += 1) {
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10
 
 function handleTokenDrag(event, tokenOwnerIdx) {
-  if (event.view.index === tokenOwnerIdx) return Wams.predefined.drag(event)
+  if (event.view.index === tokenOwnerIdx) return WAMS.predefined.drag(event)
 }
 
 function spawnToken(x, y, userIdx, properties = {}) {
@@ -55,7 +55,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
     type = 'blue-token'
   }
 
-  app.spawn(Wams.predefined.items.html(
+  app.spawn(WAMS.predefined.items.html(
     `<img class="el ${properties.draggable ? 'draggable-shadow' : ''}" src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" />`,
     SQUARE_LENGTH,
     SQUARE_LENGTH,
@@ -104,9 +104,9 @@ function handleConnect(view) {
 
   centerViewNormal(view)
 
-  view.ondrag = Wams.predefined.drag;
-  view.onscale = Wams.predefined.scale;
-  view.onrotate = Wams.predefined.rotate;
+  view.ondrag = WAMS.predefined.drag;
+  view.onscale = WAMS.predefined.scale;
+  view.onrotate = WAMS.predefined.rotate;
 }
 
 app.onconnect(handleConnect);

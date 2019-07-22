@@ -5,9 +5,9 @@
  * and are synced with the video.
  */
 
-const Wams = require('..')
+const WAMS = require('..')
 const path = require('path')
-const { html } = Wams.predefined.items
+const { html } = WAMS.predefined.items
 
 // markup for video player controls
 const controlsHtml = (videoTitle, playing) => (
@@ -26,7 +26,7 @@ const controlsHtml = (videoTitle, playing) => (
 
 class VideoPlayer {
     constructor() {
-        this.app = new Wams.Application({
+        this.app = new WAMS.Application({
             clientLimit: 2,
             color: '#555',
             clientScripts: [
@@ -107,8 +107,8 @@ class VideoPlayer {
         this.controls = this.app.spawn(html(markup, width, height, {
             x, y, width, height, playing,
             type: 'controls',
-            ondrag: Wams.predefined.drag,
-            onscale: Wams.predefined.scale,
+            ondrag: WAMS.predefined.drag,
+            onscale: WAMS.predefined.scale,
         }))
     }
 

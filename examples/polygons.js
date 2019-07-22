@@ -5,23 +5,23 @@
 
 'use strict';
 
-const Wams = require('..');
-const app = new Wams.Application();
+const WAMS = require('..');
+const app = new WAMS.Application();
 
 
 function polygon(x, y, view) {
-  return Wams.predefined.items.polygon(
-    Wams.predefined.utilities.randomPoints(7),   // random coordinates
-    Wams.colours[view.id % Wams.colours.length], // random color
+  return WAMS.predefined.items.polygon(
+    WAMS.predefined.utilities.randomPoints(7),   // random coordinates
+    WAMS.colours[view.id % WAMS.colours.length], // random color
     {
       x,
       y,
       type:     'colour',
       scale:    1 / view.scale,
       onclick:  removeItem,
-      onscale:  Wams.predefined.scale,
-      onrotate: Wams.predefined.rotate,
-      ondrag:   Wams.predefined.drag,
+      onscale:  WAMS.predefined.scale,
+      onrotate: WAMS.predefined.rotate,
+      ondrag:   WAMS.predefined.drag,
     }
   );
 }
@@ -36,9 +36,9 @@ function spawnItem(event) {
 
 function handleConnect(view) {
   view.onclick = spawnItem;
-  view.onscale = Wams.predefined.scale;
-  view.onrotate = Wams.predefined.rotate;
-  view.ondrag = Wams.predefined.drag;
+  view.onscale = WAMS.predefined.scale;
+  view.onrotate = WAMS.predefined.rotate;
+  view.ondrag = WAMS.predefined.drag;
 }
 
 app.onconnect(handleConnect);

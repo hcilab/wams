@@ -12,7 +12,7 @@ function onYouTubeIframeAPIReady() {
  * 
 **/
 
-Wams.on('controlsSpawned', () => {
+WAMS.on('controlsSpawned', () => {
   const playBtn = document.querySelector('.control-btn-icon')
   const backBtn = document.querySelector('.back-btn-icon')
   const frwdBtn = document.querySelector('.frwd-btn-icon')
@@ -21,7 +21,7 @@ Wams.on('controlsSpawned', () => {
     lastCurrentTime: 0
   }
 
-  Wams.on('video-time-sync', updateTime)
+  WAMS.on('video-time-sync', updateTime)
 
   // need to listen for touch events separately from clicks
   // due to wams event forwarding  
@@ -35,7 +35,7 @@ Wams.on('controlsSpawned', () => {
   frwdBtn.addEventListener('touchstart', handleForward)
 })
 
-Wams.on('initVideo', () => {
+WAMS.on('initVideo', () => {
   // if YouTube iframe API is not ready yet,
   // re-dispatch the `init` custom DOM event later
   if (window.youTubeIframeAPIReady) {
@@ -49,7 +49,7 @@ Wams.on('initVideo', () => {
       }
     })
     setInterval(() => {
-      Wams.dispatch('video-time-sync', Math.floor(window.player.getCurrentTime()))
+      WAMS.dispatch('video-time-sync', Math.floor(window.player.getCurrentTime()))
       window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime())
     }, 1000)
   } else {
@@ -57,7 +57,7 @@ Wams.on('initVideo', () => {
   }
 })
 
-Wams.on('setPlayingState', ({ detail }) => {
+WAMS.on('setPlayingState', ({ detail }) => {
   const controlBtn = document.querySelector('.control-btn-icon')
   if (detail.playing) {
     controlBtn.classList.replace('fa-play', 'fa-pause')
@@ -68,11 +68,11 @@ Wams.on('setPlayingState', ({ detail }) => {
   }
 })
 
-Wams.on('replay', () => {
+WAMS.on('replay', () => {
   window.player.seekTo(window.player.l.currentTime - 10)
 })
 
-Wams.on('forward', () => {
+WAMS.on('forward', () => {
   window.player.seekTo(window.player.l.currentTime + 10)
 })
 
@@ -87,7 +87,7 @@ function handlePlayerStateChange({ data }) {
   //    -1         0        1         2         3           5
   // unstarted   ended   playing   paused   buffering   video cued
   const playing = (data !== 2 && data !== 5)
-  Wams.dispatch('play/pause', playing)
+  WAMS.dispatch('play/pause', playing)
 }
 
 function updateTime({ detail }) {
@@ -96,23 +96,23 @@ function updateTime({ detail }) {
 }
 
 function handlePlayToggle() {
-  Wams.dispatch('play/pause')
+  WAMS.dispatch('play/pause')
 }
 
 function handleReplay() {
-  Wams.dispatch('replay')
+  WAMS.dispatch('replay')
 
   // handle possible negative seconds
   let newTime = Math.floor(window.controls.lastCurrentTime) - 10
   if (Math.sign(newTime) === -1) newTime = 0
 
-  Wams.dispatch('video-time-sync', newTime)
+  WAMS.dispatch('video-time-sync', newTime)
 }
 
 function handleForward() {
-  Wams.dispatch('forward')
+  WAMS.dispatch('forward')
   let newTime = Math.floor(window.controls.lastCurrentTime) + 10
-  Wams.dispatch('video-time-sync', newTime)
+  WAMS.dispatch('video-time-sync', newTime)
 }
 
 function secondsToMinSecs(totalSeconds) {

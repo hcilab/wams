@@ -15,13 +15,13 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 * [Walkthrough](#walkthrough)
   * [Hello world](#hello-world)
   * [Set up your application](#set-up-your-application)
-  * [Configuration](#configuration)
+  * [General Configuration](#general-configuration-of-your-app)
   * [Basics](#basics)
   * [Polygons](#polygons)
   * [Images](#images)
   * [HTML](#html)
   * [Interactivity](#interactivity)
-  * [Client code and assets](#client-code-and-assets)
+  * [Static resources](#static-resources)
   * [Connections](#connections)  
   * [Advanced](#advanced)
     * [Custom items](#custom-items)
@@ -43,7 +43,7 @@ npm install
 
 ## Getting started
 
-The easiest way to get started is to follow the [Walkthrough tutorial](#walkthrough) below. More advanced users might want to check the [code documentation](https://nick-baliesnyi.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
+The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://nick-baliesnyi.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
 
 ## Examples
 
@@ -62,43 +62,60 @@ node examples/polygons.js
 The `shared-polygons.js` example demonstrates multi-device gestures (gestures that span multiple screens).
 
 ## Live Demo
-The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. When a second view is connected, the controls are automatically moved to that view. 
+The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view. 
 
 To check out the code of the live demo, see `examples/video-player.js`
 
 ## Walkthrough
 
-This walkthrough is a friendly guide on how to use most WAMS features. For detailed code documentation, see [code documentation](https://nick-baliesnyi.github.io/wams/).
+This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://nick-baliesnyi.github.io/wams/).
 
 > **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
 ### Hello world
-Before you try, here is how a simple WAMS example would look like:
+_Before you start_, here is how a simple WAMS example would look like:
 ```javascript
 const WAMS = require('./wams');
 const app = new WAMS.Application();
+
 const { square } = WAMS.predefined.items;
+// ES2015 object destructuring
+// same as `const square = WAMS.predefined.items.square`;
+
 app.spawn(square(200, 200, 100, 'green'));
-app.listen(8080);
+app.listen(3500);
 ```
 
-It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100` and starts the server on port `8080`. Now anyone can connect to the server and see the square.
+It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100` and starts the app on port `3500`. Now anyone can connect to the app and see the square.
 
 ### Set up your application
 
-1. In the app folder, [install](#installation) WAMS
-2. Create **app.js**
-2. In the app.js file, include WAMS and initialize the application
+1. In the app folder, [install](#installation) WAMS, if you haven't already
+2. Create an **app.js** file
+3. In this file, include WAMS and initialize the application
 ```javascript
-// app.js
+
 const WAMS = require('./wams');
 const app = new WAMS.Application();
-app.listen(8080);
+app.listen(3500); // this starts the app on port 3500, you can use any port
 ```
 
-Now, you can write your WAMS code in this file.
+Now, you can write your WAMS code in this file. 
+You could add the square from the Hello world example just before the last line:
+```javascript
+const { square } = WAMS.predefined.items;
+app.spawn(square(200, 200, 100, 'green'));
+```
 
-### Genertal Configuration of Your App
+Now you can run your first WAMS application by executing:
+```bash
+node app.js
+```
+
+And you can connect to the app using the address in the output.
+
+
+### General Configuration of your app
 
 The application can be configured through some options.
 
@@ -106,8 +123,8 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new WAMS.Application({
-  color:             'some-color',     // background color of the app's canvas
-  clientLimit:       2,                // maximum number of devices that can connect to the server
+  color:             'white',          // background color of the app's canvas
+  clientLimit:       2,                // maximum number of devices that can connect to the app
   clientScripts:     ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
   stylesheets:       ['styles.css'],   // css styles to include by the browser
   shadows:           true,             // show shadows of other devices
@@ -118,22 +135,29 @@ const app = new WAMS.Application({
 });
 ```
 
+You can substitute `const app = new Wams.Application();` in your code with the code above to play with different options. 
+
 ### Basics
 
-A WAMS app is made of **items**. There is a number of predefined items (see them in the [docs](https://nick-baliesnyi.github.io/wams/module-predefined.items.html)): 
+A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://nick-baliesnyi.github.io/wams/module-predefined.items.html)): 
 
-- `square`
 - `rectangle`
+- `square`
 - `polygon`
 - `image`
 - `html`
 
-Most of the items are used on HTML **canvas**, which is the core part of WAMS.   You have already seen `square` used in the Hello world example above. Now let's look at some other items.
+Most of the items (except `html`) are used on HTML **canvas**, which is the core of WAMS (i.e., in WAMS everything is drawn on HTML canvas, although for the most part, you do not need to know about this). 
+
+You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
 ### Polygons
 
 ```javascript
-// app.js
+// application setup omitted here
+// and in following examples
+
+const { polygon } = WAMS.predefined.items;
 
 const points = [
   { x: 0, y: 0 },
@@ -146,38 +170,46 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints(<number>)` from `WAMS.predefined.utilities`.
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://nick-baliesnyi.github.io/wams/module-predefined.utilities.html#.randomPoints)). 
+
+For example:
+```javascript
+const { randomPoints } = WAMS.predefined.utilities;
+const { polygon } = WAMS.predefined.items;
+
+const points = randomPoints(4);
+
+app.spawn(polygon(points, 'green', {
+  x: 500, y: 100,
+}));
+```
+
+
 
 ### Images
 
-To use images, you first need to set up a path to the [static directory](#static-files).
+To use images, you first need to set up a path to the [static directory](#static-resources).
 
 ```javascript
-// app.js
-
 const app = WAMS.Application({
   staticDir: path.join(__dirname, './images') 
 })
 
 const { image } = WAMS.predefined.items;
-// ES2015 syntax, same as
-// const image = WAMS.predefined.items.image;
-
 app.spawn(image('monaLisa.jpg', {
   width: 200, height: 350,
   x: 300, y: 300,
 }));
 ```
 
-To spawn a WAMS image, dont't forget to include _width_ and _height_.
+Make sure to include __width__ and __height__.
 
 > **Example** To see a great example of using images, check out `examples/card-table.js`
 
 ### HTML
-If you need more control over styling than canvas gives, or you would like to use `iframe`, `audio`, `video` or other browser elements apart from canvas, WAMS also supports spawning **HTML** items.
+If you need more control over styling than a canvas provides, or you would like to use `iframe`, `audio`, `video` or other browser elements, WAMS also supports spawning **HTML** items.
 
 ```javascript
-// app.js
 const { html } = WAMS.predefined.items;
 
 app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
@@ -199,7 +231,7 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-> **Note** Rotation is defined in radians (Pi = 180 deg)
+> **Note** Rotation is done around the top left corner and is defined in radians (Pi = 180 deg)
 
 
 ### Interactivity
@@ -265,37 +297,40 @@ To do that, first **set up a path to the static directory:**
 const path = require('path');
 
 const app = new WAMS.Application({
-  staticDir:     path.join(__dirname, './assets'),
+  staticDir: path.join(__dirname, './assets'),
 });
 ```
 
 This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
 
-- To run code in the browsers that connect to your app, create a **.js** file in your app _static directory_ and include it in the application config:
+- To run code in the browsers that use your app, create a **.js** file in your app _static directory_ and include it in the application config:
 
 ```javascript
 const app = new WAMS.Application({
-  clientScripts: ['awesome-script.js'],
-  staticDir:     path.join(__dirname, 'assets'),
+  clientScripts: ['js/awesome-script.js'],
+  staticDir: path.join(__dirname, 'assets'),
 });
 ```
+The scripts will be automatically loaded by the browsers.
 
 - To add CSS stylesheets:
 
 ```javascript
 const app = new WAMS.Application({
-  stylesheets: ['amazing-styles.css'],
-  staticDir:   path.join(__dirname, 'assets'),
+  stylesheets: ['css/amazing-styles.css'],
+  staticDir: path.join(__dirname, 'assets'),
 });
 ```
+The stylesheets will be automatically loaded by the browsers.
+
 
 
 ### Connections
 
-WAMS manages connections with clients under the hood, and provides helpful methods to react on **connection-related events**:
+WAMS manages all connections under the hood, and provides helpful methods to react on **connection-related events**:
 
-- `onconnect` – called each time a client connects to WAMS server
-- `ondisconnect` – called when client disconnects
+- `onconnect` – called each time a view connects to a WAMS application
+- `ondisconnect` – called when a view disconnects
 
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
 
@@ -303,12 +338,16 @@ Both methods accept a callback function, where you can act on the event. The cal
 - `device` – physical position of current device
 - `group` – server view group, used for multi-device gestures
 
-Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different clients' views. Same as with items, you can `moveBy` and `moveTo` views.
+Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different views. Same as with items, you can `moveBy` and `moveTo` views.
 
-Combining view event handlers and methods, you can build complex layouts based on client's index. WAMS has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
+Combining view event handlers and methods, you can build complex layouts based on view's index. WAMS has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
 ```js
-const setTableLayout = WAMS.predefined.layouts.table(200);
+const { table } = WAMS.predefined.layouts;
+
+const overlap = 200; // 200px overlap between views
+const setTableLayout = table(overlap); 
+
 function handleLayout(view) {
   setTableLayout(view);
 }
@@ -320,18 +359,18 @@ app.onconnect(handleLayout);
 
 ## Advanced
 
-When building more complex applications, sometimes you might want to have more flexibility and power than predefined items and behaviors provide. 
+When building more complex applications, sometimes you might want to have more flexibility than predefined items and behaviors provide. 
 
-The following topics show how to go beyond that.
+The following sections show how to go beyond that.
 
 ### Custom items
 
-To spawn a custom item, use `CanvasSequence`. It allows to create a custom sequence of canvas actions on the server and safely execute it on the client. That means you can use most of the HTML Canvas methods as if you were writing regular browser code.
+To spawn a custom item, use `CanvasSequence`. It allows to create a custom sequence of canvas actions and you can use most of the HTML Canvas methods as if you are writing regular canvas code.
 
 The following sequence draws a smiling face item:
 
 ```js
-function smile(x, y) {
+function smileFace(x, y) {
     const sequence = new WAMS.CanvasSequence();
 
     sequence.beginPath();
@@ -348,7 +387,7 @@ function smile(x, y) {
 }
 
 
-app.spawn(smile(900, 300));
+app.spawn(smileFace(900, 300));
 ```
 
 To add interactivity to a custom item, you can use the same handlers as with predefined items (`ondrag`, `onlick` etc). However, you first need to add a _hitbox_ to the item:
@@ -427,7 +466,9 @@ function handleMyOtherMessage(data) {
 
 ### Interaction rights
 
-To give different clients different rights for interacting with items, use `view.index` to differentiate between connected devices.
+To give different views different rights for interacting with items, use `view.index` to differentiate between connected devices.
+
+> A view is assigned the lowest free `index`, starting with 0. When a view with lower index disconnects, other connected views' indices stay the same.
 
 For example, let's say we are making a card game and would like to only allow a card owner to flip it.
 
@@ -444,7 +485,7 @@ let card = app.spawn(image(url, {
 card.owner = 1;
 ```
 
-> **NOTE** `owner` number property does not have special meaning. You can use any property of any type.
+The `owner` property does not have a special meaning. You can use any property of any type.
 
 Now, we will only flip the card if the event comes from the card owner:
 
@@ -460,9 +501,11 @@ function flipCard(event) {
 }
 ```
 
+
+
 ### Grouped items
 
-Sometimes you need to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method:
+Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method (see in the [code documentation](https://nick-baliesnyi.github.io/wams/module-server.Application.html#createGroup)):
 
 ```javascript
 const items = [];

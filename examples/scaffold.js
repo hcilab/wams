@@ -1,7 +1,7 @@
 // scaffold example for an app
 
-const Wams = require('..');
-const app = new Wams.Application();
+const WAMS = require('..');
+const app = new WAMS.Application();
 
 app.onconnect((view) => {
 

@@ -5,16 +5,16 @@
 
 'use strict';
 
-const Wams = require('..');
-const app = new Wams.Application();
+const WAMS = require('..');
+const app = new WAMS.Application();
 
 
 // create a custom square
 // with a random color
 // using CanvasSequence
 function square(x, y, view) {
-  const sequence = new Wams.CanvasSequence();
-  sequence.fillStyle = Wams.colours[view.id % Wams.colours.length];
+  const sequence = new WAMS.CanvasSequence();
+  sequence.fillStyle = WAMS.colours[view.id % WAMS.colours.length];
   sequence.fillRect(-64, -64, 128, 128);
 
   return {
@@ -31,9 +31,9 @@ function spawnSquare(event) {
 }
 
 function handleConnect(view) {
-  view.onscale = Wams.predefined.scale;
-  view.ondrag = Wams.predefined.drag;
-  view.onrotate = Wams.predefined.rotate;
+  view.onscale = WAMS.predefined.scale;
+  view.ondrag = WAMS.predefined.drag;
+  view.onrotate = WAMS.predefined.rotate;
   view.onclick = spawnSquare;
 }
 

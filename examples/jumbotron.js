@@ -2,13 +2,14 @@
  * This example is intended to demonstrate having multiple users move their
  *  view around in a shared space.
  */
-
 'use strict';
 
-const Wams = require('..');
-const { image } = Wams.predefined.items;
+const path = require('path');
+const WAMS = require('..');
 
-const app = new Wams.Application({
+const { image } = WAMS.predefined.items;
+
+const app = new WAMS.Application({
   clientLimit: 1000,
   staticDir: path.join(__dirname, './img'),
 });
@@ -23,9 +24,9 @@ app.spawn(image('monaLisa.jpg', {
 }));
 
 function handleConnect(view) {
-  view.onscale = Wams.predefined.scale;
-  view.ondrag = Wams.predefined.drag;
-  view.onrotate = Wams.predefined.rotate;
+  view.onscale = WAMS.predefined.scale;
+  view.ondrag = WAMS.predefined.drag;
+  view.onrotate = WAMS.predefined.rotate;
 }
 
 app.onconnect(handleConnect);

@@ -5,9 +5,9 @@
 
 'use strict';
 
-const Wams = require('..');
-const app = new Wams.Application();
-const { html } = Wams.predefined.items;
+const WAMS = require('..');
+const app = new WAMS.Application();
+const { html } = WAMS.predefined.items;
 
 
 // function that returns input html wrapped with a top bar
@@ -29,9 +29,9 @@ app.spawn(html(
     width:    560,
     height:   365,
     type:     'video',
-    onscale:  Wams.predefined.scale,
-    onrotate: Wams.predefined.rotate,
-    ondrag:   Wams.predefined.drag,
+    onscale:  WAMS.predefined.scale,
+    onrotate: WAMS.predefined.rotate,
+    ondrag:   WAMS.predefined.drag,
   }
 ));
 
@@ -45,16 +45,16 @@ app.spawn(html(
     width:    560,
     height:   365,
     type:     'video',
-    onscale:  Wams.predefined.scale,
-    onrotate: Wams.predefined.rotate,
-    ondrag:   Wams.predefined.drag,
+    onscale:  WAMS.predefined.scale,
+    onrotate: WAMS.predefined.rotate,
+    ondrag:   WAMS.predefined.drag,
   }
 ));
 
 function handleConnect(view) {
-  view.onscale = Wams.predefined.scale;
-  view.onrotate = Wams.predefined.rotate;
-  view.ondrag = Wams.predefined.drag;
+  view.onscale = WAMS.predefined.scale;
+  view.onrotate = WAMS.predefined.rotate;
+  view.ondrag = WAMS.predefined.drag;
 }
 
 app.onconnect(handleConnect);
