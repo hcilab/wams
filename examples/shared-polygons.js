@@ -7,7 +7,6 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
-  // clientLimit:       4,
   useServerGestures: true, // enables multi-screen gestures 
 });
 
@@ -37,13 +36,13 @@ function spawnItem(event) {
 }
 
 // use predefined "line layout"
-const linelayout = WAMS.predefined.layouts.line(5);
+const linelayout = WAMS.predefined.layouts.line(200);
 function handleConnect(view, device, group) {
   group.onclick = spawnItem;
   group.onscale = WAMS.predefined.scale;
   group.onrotate = WAMS.predefined.rotate;
   group.ondrag = WAMS.predefined.drag;
-  linelayout(view, view.index, device);
+  linelayout(view, device);
 }
 
 app.onconnect(handleConnect);

@@ -111,20 +111,20 @@ function line(overlap) {
   const views = [];
   const rights = [];
 
-  function layout(view, position, device) {
-    if (position > 0) {
-      if (views[position - 1] == null) {
-        setTimeout(() => layout(view, position, device), 0);
+  function layout(view, device) {
+    if (view.index > 0) {
+      if (views[view.index - 1] == null) {
+        setTimeout(() => layout(view, view.index, device), 0);
       } else {
-        const prev = views[position - 1];
+        const prev = views[view.index - 1];
         const change = prev.transformPointChange(overlap, 0);
         const anchor = prev.topRight.minus(change);
         view.moveTo(anchor.x, anchor.y);
 
-        const side = rights[position - 1] - overlap;
+        const side = rights[view.index - 1] - overlap;
         device.moveTo(side, 0);
-        rights[position] = side + device.width;
-        views[position] = view;
+        rights[view.index] = side + device.width;
+        views[view.index] = view;
       }
     } else {
       rights[0] = device.width;
