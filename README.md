@@ -31,9 +31,8 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 
 ## Installation
 
-You will need to install [node.js](https://nodejs.org/en/). This should also
-install `npm`. Once they are installed, go to your app folder, where you want to install `wams`
-and run the following commands:
+You will need to install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). 
+Once they are installed, go to your app folder, where you want to install `wams` and run the following commands:
 
 ```bash
 git clone https://github.com/nick-baliesnyi/wams.git
@@ -47,9 +46,7 @@ The easiest way to get started is to follow the [Walkthrough](#walkthrough) tuto
 
 ## Examples
 
-Go to  `examples/` to see the examples. The entry-point of a `wams` app is the `Application` class.
-
-To try out the examples (except the no-op "scaffold" example), run as follows:
+To try out the examples, go to  `examples/` and run as follows:
 
 ```bash
 node examples/[EXAMPLE_FILENAME]
