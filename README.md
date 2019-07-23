@@ -239,15 +239,15 @@ Let's get back to our Hello world example with a green square. Just a static squ
 ```javascript
 ...
 app.spawn(square(200, 200, 100, 'green', {
-  ondrag: WAMS.predefined.drag,
+  allowDrag: true,
 }));
 ...
-```
+``` 
 This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
 ...
-  ondrag: WAMS.predefined.drag,
+  allowDrag: true,
   onclick: handleClick,
 }));
 
@@ -258,13 +258,28 @@ function handleClick(event) {
 ```
 
 
-Another cool interactive feature is **rotation**. To rotate an item, first add the `onrotate` handler and then grab the item with your mouse and hold **Control** key. 
+Another cool interactive feature is **rotation**. To rotate an item, first add the `allowRotate` property and then grab the item with your mouse and hold **Control** key. 
 ```js
 ...
-  ondrag: WAMS.predefined.drag,
+  allowDrag: true,
   onclick: handleClick,
-  onrotate: WAMS.predefined.rotate,
+  allowRotate: true,
 }));
+...
+```
+
+You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add the `onswipe` handler. 
+```js
+...
+  onswipe: handleSwipe,
+}));
+
+function handleSwipe(event) {
+  console.log(`Swipe registered!`);
+  console.log(`Velocity: ${event.velocity}`);
+  console.log(`Direction: ${event.direction}`);
+  console.log(`X, Y: ${event.x}, ${event.y}`);
+}
 ...
 ```
 
@@ -335,7 +350,7 @@ Both methods accept a callback function, where you can act on the event. The cal
 - `device` – physical position of current device
 - `group` – server view group, used for multi-device gestures
 
-Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set up `onclick`, `ondrag`, `onrotate` and `onscale` handlers for different views. Same as with items, you can `moveBy` and `moveTo` views.
+Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set `onclick`, `allowDrag`, `allowRotate` and `allowScale` properties for different views. Same as with items, you can `moveBy` and `moveTo` views.
 
 Combining view event handlers and methods, you can build complex layouts based on view's index. WAMS has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
 
@@ -387,18 +402,18 @@ function smileFace(x, y) {
 app.spawn(smileFace(900, 300));
 ```
 
-To add interactivity to a custom item, you can use the same handlers as with predefined items (`ondrag`, `onlick` etc). However, you first need to add a _hitbox_ to the item:
+You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item:
 
 ```javascript
 function customItem(x, y, width, height) {
   const hitbox = new WAMS.Rectangle(width, height, x, y);
-  const ondrag = WAMS.predefined.drag;
+  const allowDrag = true;
 
   const sequence = new WAMS.CanvasSequence();
   sequence.fillStyle = 'green';
   sequence.fillRect(x, y, width, height);
 
-  return { hitbox, sequence, ondrag, }
+  return { hitbox, sequence, allowDrag, }
 }
 ```
 
@@ -518,7 +533,7 @@ items.push(app.spawn(square(150, 150, 200, 'blue')));
 
 const group = app.createGroup({
   items,
-  ondrag: true,
+  allowDrag: true,
 });
 
 group.moveTo(500, 300);
