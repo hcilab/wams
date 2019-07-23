@@ -10,7 +10,7 @@ const {
   Message,
   DataReporter,
 } = require('../shared.js');
-const { actions } = require('../predefined')
+const { actions } = require('../predefined');
 
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
@@ -178,18 +178,19 @@ class MessageHandler {
 
   /**
    * Helper function to tell if gesture should be done.
-   * 
-   * @param {*} handler 
+   *
+   * @param {*} handler
    */
   shouldDoGesture(handler) {
     switch (typeof handler) {
-      case 'function': 
-        if (handler() === true) return true;
-      case 'boolean':
-        if (handler === true) return true;
-        break;
-      default:
-        return false;
+    case 'function':
+      if (handler() === true) return true;
+      return false;
+    case 'boolean':
+      if (handler === true) return true;
+      return false;
+    default:
+      return false;
     }
   }
 

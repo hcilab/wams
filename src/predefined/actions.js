@@ -22,8 +22,8 @@
  * @param {object} event
  */
 function drag(event) {
-    const item = event.target.parent || event.target;
-    item.moveBy(event.dx, event.dy);
+  const item = event.target.parent || event.target;
+  item.moveBy(event.dx, event.dy);
 }
 
 /**
@@ -34,7 +34,7 @@ function drag(event) {
  * @param {object} event
  */
 function rotate(event) {
-    event.target.rotateBy(event.rotation, event.x, event.y);
+  event.target.rotateBy(event.rotation, event.x, event.y);
 }
 
 /**
@@ -45,11 +45,11 @@ function rotate(event) {
  * @param {object} event
  */
 function scale(event) {
-    event.target.scaleBy(event.scale, event.x, event.y);
+  event.target.scaleBy(event.scale, event.x, event.y);
 }
 
 module.exports = Object.freeze({
-    drag,
-    rotate,
-    scale,
+  drag,
+  rotate,
+  scale,
 });

@@ -50,7 +50,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   }
 
   setupInteractions() {
-    const doGesture = this.shouldDoGesture(this.allowDrag);    
+    const doGesture = this.shouldDoGesture(this.allowDrag);
     if (doGesture) {
       this.items.forEach(item => {
         // trying to drag any of the items will drag the whole group
@@ -61,18 +61,19 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
 
   /**
    * Helper function to tell if gesture should be done.
-   * 
-   * @param {*} handler 
+   *
+   * @param {*} handler
    */
   shouldDoGesture(handler) {
     switch (typeof handler) {
-      case 'function': 
-        if (handler() === true) return true;
-      case 'boolean':
-        if (handler === true) return true;
-        break;
-      default:
-        return false;
+    case 'function':
+      if (handler() === true) return true;
+      return false;
+    case 'boolean':
+      if (handler === true) return true;
+      return false;
+    default:
+      return false;
     }
   }
 
