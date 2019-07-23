@@ -7,7 +7,7 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
-  useServerGestures: true, // enables multi-screen gestures 
+  useMultiScreenGestures: true, // enables multi-screen gestures 
 });
 
 function polygon(x, y, view) {

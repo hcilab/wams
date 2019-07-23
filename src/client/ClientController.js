@@ -327,7 +327,7 @@ class ClientController {
 
     this.canvas.style.backgroundColor = data.color;
     this.model.setup(data);
-    this.setupInteractor(data.useServerGestures);
+    this.setupInteractor(data.useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
@@ -358,11 +358,11 @@ class ClientController {
    * needs to provide is handler functions for responding to the recognized
    * gestures.
    *
-   * @param {boolean} [useServerGestures=false] Whether to use server-side
+   * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
    * gestures. Default is to use client-side gestures.
    */
-  setupInteractor(useServerGestures = false) {
-    if (useServerGestures) {
+  setupInteractor(useMultiScreenGestures = false) {
+    if (useMultiScreenGestures) {
       this.setupInputForwarding();
     } else {
       new Interactor({

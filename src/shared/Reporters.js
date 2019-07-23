@@ -524,15 +524,16 @@ const FullStateReporter = ReporterFactory({
   id: null,
 
   /**
-   * Whether to use server-side gestures.
+   * Whether to enable multi-screen gestures
+   * by processing gestures on the server side.
    *
-   * @name useServerGestures
+   * @name useMultiScreenGestures
    * @type {boolean}
    * @default false
    * @memberof module:shared.FullStateReporter
    * @instance
    */
-  useServerGestures: false,
+  useMultiScreenGestures: false,
 });
 
 /**

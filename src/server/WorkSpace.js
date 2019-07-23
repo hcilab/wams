@@ -25,9 +25,9 @@ const ServerItem = require('./ServerItem.js');
  *
  * @memberof module:server
  *
- * @param {object} [settings] - Options received from user.
- * @param {string} [settings.color='gray'] - Background color for the workspace.
- * @param {boolean} [settings.useServerGestures=false] - Whether to use
+ * @param {object} [settings] Options received from user.
+ * @param {string} [settings.color='gray'] Background color for the workspace.
+ * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use
  * server-side gestures. Default is to use client-side gestures.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  */
@@ -37,8 +37,9 @@ class WorkSpace {
      * Configuration settings for the workspace.
      *
      * @type {object}
-     * @property {string} [color='gray'] - Background color for the workspace.
-     * @property {boolean} [settings.useServerGestures=false] - Whether to use
+     * @property {string} [color='gray'] Background color for the workspace.
+     * @property {boolean} [settings.useMultiScreenGestures=false] Whether
+     * to use
      * server-side gestures. Default is to use client-side gestures.
      */
     this.settings = { ...WorkSpace.DEFAULTS, ...settings };
@@ -62,8 +63,8 @@ class WorkSpace {
    * Looks for an unlocked item at the given coordinates and returns the first
    * one that it finds, or none if no unlocked items are found.
    *
-   * @param {number} x - x coordinate at which to look for items.
-   * @param {number} y - y coordinate at which to look for items.
+   * @param {number} x x coordinate at which to look for items.
+   * @param {number} y y coordinate at which to look for items.
    *
    * @return {?module:server.ServerItem} A free item at the given coordinates,
    * or null if there is none.
@@ -218,8 +219,8 @@ class WorkSpace {
  * @type {object}
  */
 WorkSpace.DEFAULTS = Object.freeze({
-  color:             '#dad1e3',
-  useServerGestures: false,
+  color:                  '#dad1e3',
+  useMultiScreenGestures: false,
 });
 
 module.exports = WorkSpace;
