@@ -14,6 +14,7 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 * [Examples](#examples)
 * [Walkthrough](#walkthrough)
   * [Hello world](#hello-world)
+  * [Multi-screen Hello world](#multi-screen-hello-world)
   * [Set up your application](#set-up-your-application)
   * [General Configuration](#general-configuration-of-your-app)
   * [Basics](#basics)
@@ -22,7 +23,7 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
   * [HTML](#html)
   * [Interactivity](#interactivity)
   * [Static resources](#static-resources)
-  * [Connections](#connections)  
+  * [Connections](#connections)
   * [Advanced](#advanced)
     * [Custom items](#custom-items)
     * [Custom events](#custom-events)
@@ -46,7 +47,7 @@ The easiest way to get started is to follow the [Walkthrough](#walkthrough) tuto
 
 ## Examples
 
-To try out the examples, go to  `examples/` and run as follows:
+To try out the examples, go to `examples/` and run as follows:
 
 ```bash
 node examples/[EXAMPLE_FILENAME]
@@ -55,8 +56,6 @@ node examples/[EXAMPLE_FILENAME]
 
 node examples/polygons.js
 ```
-
-The `shared-polygons.js` example demonstrates multi-device gestures (gestures that span multiple screens).
 
 ## Live Demo
 The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view. 
@@ -69,21 +68,6 @@ This walkthrough is a friendly guide on how to use most WAMS features. For more 
 
 > **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
-### Hello world
-_Before you start_, here is how a simple WAMS example would look like:
-```javascript
-const WAMS = require('./wams');
-const app = new WAMS.Application();
-
-const { square } = WAMS.predefined.items;
-// ES2015 object destructuring
-// same as `const square = WAMS.predefined.items.square`;
-
-app.spawn(square(200, 200, 100, 'green'));
-app.listen(3500);
-```
-
-It creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100` and starts the app on port `3500`. Now anyone can connect to the app and see the square.
 
 ### Set up your application
 
@@ -97,19 +81,59 @@ const app = new WAMS.Application();
 app.listen(3500); // this starts the app on port 3500, you can use any port
 ```
 
-Now, you can write your WAMS code in this file. 
-You could add the square from the Hello world example just before the last line:
-```javascript
-const { square } = WAMS.predefined.items;
-app.spawn(square(200, 200, 100, 'green'));
-```
-
-Now you can run your first WAMS application by executing:
+Now, you can run your first WAMS application by executing:
 ```bash
 node app.js
 ```
 
 And you can connect to the app using the address in the output.
+
+### Hello world
+
+Let's now make your first WAMS app do something. Add the following code just before the last line:
+```javascript
+const { square } = WAMS.predefined.items;
+// ES2015 object destructuring
+// same as `const square = WAMS.predefined.items.square;`
+app.spawn(square(200, 200, 100, 'green'));
+```
+
+This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a side of `100`.
+
+### Multi-screen Hello world
+Here is a simple example to show how several screens work with WAMS.
+
+This example will:
+- spawn a draggable square
+- position connected screens in a line.
+
+Put this code to your **app.js** file:
+```javascript
+const WAMS = require('./wams');
+const app = new WAMS.Application();
+
+const { square } = WAMS.predefined.items;
+const { line } = WAMS.predefined.layouts;
+
+app.spawn(square(200, 200, 100, 'green', {
+  allowDrag: true,
+}));
+
+const linelayout = line(300); // 300px overlap betweens views
+function handleConnect(view, device) {
+  view.onclick = spawnSquare;
+  linelayout(view, device);
+}
+
+app.onconnect(handleConnect);
+app.listen(3500);
+```
+
+_Don't worry if the code doesn't make sense to you yet. The walkthrough will explain all the features used in it._
+
+The square can now be moved around and seen by multiple screens with less than 20 lines of code 🎉
+
+> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js` 
 
 
 ### General Configuration of your app
