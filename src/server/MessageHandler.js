@@ -10,7 +10,7 @@ const {
   Message,
   DataReporter,
 } = require('../shared.js');
-const predefined = require('../predefined')
+const { actions } = require('../predefined')
 
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
@@ -132,7 +132,7 @@ class MessageHandler {
    */
   scale(event, { scale }) {
     const doGesture = this.shouldDoGesture(event.target.allowScale);
-    if (doGesture) predefined.scale({ ...event, scale });
+    if (doGesture) actions.scale({ ...event, scale });
   }
 
   /**
@@ -143,7 +143,7 @@ class MessageHandler {
    */
   rotate(event, { rotation }) {
     const doGesture = this.shouldDoGesture(event.target.allowRotate);
-    if (doGesture) predefined.rotate({ ...event, rotation });
+    if (doGesture) actions.rotate({ ...event, rotation });
   }
 
   /**
@@ -156,7 +156,7 @@ class MessageHandler {
     const doGesture = this.shouldDoGesture(event.target.allowDrag);
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
-      predefined.drag({
+      actions.drag({
         ...event,
         dx: d.x,
         dy: d.y,

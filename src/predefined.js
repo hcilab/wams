@@ -24,45 +24,10 @@
 const items   = require('./predefined/items.js');
 const layouts = require('./predefined/layouts.js');
 const utilities = require('./predefined/utilities.js');
-
-/**
- * Drags the group or target.
- *
- * @memberof module:predefined
- *
- * @param {object} event
- */
-function drag(event) {
-  const item = event.target.parent || event.target;
-  item.moveBy(event.dx, event.dy);
-}
-
-/**
- * Rotates the target.
- *
- * @memberof module:predefined
- *
- * @param {object} event
- */
-function rotate(event) {
-  event.target.rotateBy(event.rotation, event.x, event.y);
-}
-
-/**
- * Scales the target.
- *
- * @memberof module:predefined
- *
- * @param {object} event
- */
-function scale(event) {
-  event.target.scaleBy(event.scale, event.x, event.y);
-}
+const actions = require('./predefined/actions.js');
 
 module.exports = Object.freeze({
-  drag,
-  rotate,
-  scale,
+  actions,
   items,
   layouts,
   utilities,
