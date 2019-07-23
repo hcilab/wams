@@ -24,9 +24,9 @@ app.spawn(image('monaLisa.jpg', {
 }));
 
 function handleConnect(view) {
-  view.onscale = WAMS.predefined.scale;
-  view.ondrag = WAMS.predefined.drag;
-  view.onrotate = WAMS.predefined.rotate;
+  view.allowScale = true;
+  view.allowDrag = true;
+  view.allowRotate = true;
 }
 
 app.onconnect(handleConnect);

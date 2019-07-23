@@ -10,6 +10,7 @@ const {
   Message,
   DataReporter,
 } = require('../shared.js');
+const predefined = require('../predefined')
 
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
@@ -130,7 +131,8 @@ class MessageHandler {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    if (event.target.onscale) event.target.onscale({ ...event, scale });
+    const doGesture = this.shouldDoGesture(event.target.allowScale);
+    if (doGesture) predefined.scale({ ...event, scale });
   }
 
   /**
@@ -140,7 +142,8 @@ class MessageHandler {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
+    const doGesture = this.shouldDoGesture(event.target.allowRotate);
+    if (doGesture) predefined.rotate({ ...event, rotation });
   }
 
   /**
@@ -150,12 +153,15 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const d = event.view.transformPointChange(translation.x, translation.y);
-    if (event.target.ondrag) event.target.ondrag({
-      ...event,
-      dx: d.x,
-      dy: d.y,
-    });
+    const doGesture = this.shouldDoGesture(event.target.allowDrag);
+    if (doGesture) {
+      const d = event.view.transformPointChange(translation.x, translation.y);
+      predefined.drag({
+        ...event,
+        dx: d.x,
+        dy: d.y,
+      });
+    }
   }
 
   /**
@@ -168,6 +174,23 @@ class MessageHandler {
     const { target } = event;
     const { velocity, direction } = data;
     if (target.onswipe) target.onswipe({ ...event, velocity, direction });
+  }
+
+  /**
+   * Helper function to tell if gesture should be done.
+   * 
+   * @param {*} handler 
+   */
+  shouldDoGesture(handler) {
+    switch (typeof handler) {
+      case 'function': 
+        if (handler() === true) return true;
+      case 'boolean':
+        if (handler === true) return true;
+        break;
+      default:
+        return false;
+    }
   }
 
   /**

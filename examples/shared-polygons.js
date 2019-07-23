@@ -20,9 +20,9 @@ function polygon(x, y, view) {
       type:     'colour',
       scale:    1 / view.scale,
       onclick:  removeItem,
-      onscale:  WAMS.predefined.scale,
-      onrotate: WAMS.predefined.rotate,
-      ondrag:   WAMS.predefined.drag,
+      allowScale:  true,
+      allowRotate: true,
+      allowDrag:   true,
     }
   );
 }
@@ -39,9 +39,10 @@ function spawnItem(event) {
 const linelayout = WAMS.predefined.layouts.line(200);
 function handleConnect(view, device, group) {
   group.onclick = spawnItem;
-  group.onscale = WAMS.predefined.scale;
-  group.onrotate = WAMS.predefined.rotate;
-  group.ondrag = WAMS.predefined.drag;
+  // view.onclick = spawnItem;
+  group.allowScale = true;
+  group.allowRotate = true;
+  group.allowDrag = true;
   linelayout(view, device);
 }
 

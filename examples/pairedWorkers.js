@@ -20,9 +20,9 @@ app.spawn(image('scream.png', {
   width: 800,
   height: 1013,
   scale: 0.25,
-  ondrag: WAMS.predefined.drag,
-  onrotate: WAMS.predefined.rotate,
-  onscale: WAMS.predefined.scale,
+  allowDrag: true,
+  allowRotate: true,
+  allowScale: true,
 }));
 
 app.spawn(image('monaLisa.jpg', {
@@ -31,9 +31,9 @@ app.spawn(image('monaLisa.jpg', {
   width: 1200,
   height: 1815,
   scale: 0.2,
-  ondrag: WAMS.predefined.drag,
-  onrotate: WAMS.predefined.rotate,
-  onscale: WAMS.predefined.scale,
+  allowDrag: true,
+  allowRotate: true,
+  allowScale: true,
 }));
 
 app.listen(9003);

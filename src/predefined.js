@@ -26,14 +26,15 @@ const layouts = require('./predefined/layouts.js');
 const utilities = require('./predefined/utilities.js');
 
 /**
- * Drags the target.
+ * Drags the group or target.
  *
  * @memberof module:predefined
  *
  * @param {object} event
  */
 function drag(event) {
-  event.target.moveBy(event.dx, event.dy);
+  const item = event.target.parent || event.target;
+  item.moveBy(event.dx, event.dy);
 }
 
 /**

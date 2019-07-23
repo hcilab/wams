@@ -120,8 +120,9 @@ function dealCards() {
       face: card,
       isFaceUp: false,
       onclick: flipCard,
-      ondrag: WAMS.predefined.drag,
-      onrotate: WAMS.predefined.rotate,
+      allowScale: true,
+      allowDrag: true,
+      allowRotate: true,
     })));
     offs += 0.2;
   });
@@ -144,8 +145,8 @@ const tableLayout = WAMS.predefined.layouts.table(200);
 function handleConnect(view) {
   if (view.index === 0) {
     // User is the "table". Allow them to move around and scale.
-    view.ondrag = WAMS.predefined.drag;
-    view.onscale = WAMS.predefined.scale;
+    view.allowDrag = true;
+    view.allowScale = true;
   }
   tableLayout(view);
 }

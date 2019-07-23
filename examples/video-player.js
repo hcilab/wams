@@ -107,8 +107,8 @@ class VideoPlayer {
         this.controls = this.app.spawn(html(markup, width, height, {
             x, y, width, height, playing,
             type: 'controls',
-            ondrag: WAMS.predefined.drag,
-            onscale: WAMS.predefined.scale,
+            allowDrag: true,
+            allowScale: true,
         }))
     }
 

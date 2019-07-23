@@ -50,11 +50,29 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   }
 
   setupInteractions() {
-    if (this.ondrag) {
+    const doGesture = this.shouldDoGesture(this.allowDrag);    
+    if (doGesture) {
       this.items.forEach(item => {
         // trying to drag any of the items will drag the whole group
-        item.ondrag = (e) => this.moveBy(e.dx, e.dy);
+        item.allowDrag = true;
       });
+    }
+  }
+
+  /**
+   * Helper function to tell if gesture should be done.
+   * 
+   * @param {*} handler 
+   */
+  shouldDoGesture(handler) {
+    switch (typeof handler) {
+      case 'function': 
+        if (handler() === true) return true;
+      case 'boolean':
+        if (handler === true) return true;
+        break;
+      default:
+        return false;
     }
   }
 
@@ -79,17 +97,13 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     this.items.forEach(item => item.moveBy(dx, dy));
   }
 
-  // setGroupAttrs() {
-  //   this.items = this.items.map(item => ({ ...item, parent: this }))
-  // }
-
   /**
    * Update children items to have parent property.
    *
    */
   setParentForItems() {
     this.items.forEach(item => {
-      item.parent = this.id;
+      item.parent = this;
       const dreport = new DataReporter({
         data: { id: item.id, parent: this.id },
       });

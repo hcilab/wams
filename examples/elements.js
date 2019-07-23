@@ -21,9 +21,9 @@ function element(x, y, view) {
       type:     'button',
       scale:    1 / view.scale,
       rotation: view.rotation,
-      onscale:  WAMS.predefined.scale,
-      ondrag:   WAMS.predefined.drag,
-      onrotate: WAMS.predefined.rotate,
+      allowScale: true,
+      allowDrag: true,
+      allowRotate: true,
       onclick:  removeElement,
     }
   );
@@ -38,9 +38,9 @@ function spawnElement(event) {
 }
 
 function handleConnect(view) {
-  view.onscale = WAMS.predefined.scale;
-  view.ondrag = WAMS.predefined.drag;
-  view.onrotate = WAMS.predefined.rotate;
+  view.allowScale = true;
+  view.allowDrag = true;
+  view.allowRotate = true;
   view.onclick = spawnElement;
 }
 

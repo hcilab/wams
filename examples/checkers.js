@@ -41,7 +41,7 @@ for (let i = 0; i < 10; i += 1) {
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10
 
 function handleTokenDrag(event, tokenOwnerIdx) {
-  if (event.view.index === tokenOwnerIdx) return WAMS.predefined.drag(event)
+  if (event.view.index === tokenOwnerIdx) return true
 }
 
 function spawnToken(x, y, userIdx, properties = {}) {
@@ -66,7 +66,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
       height: SQUARE_LENGTH,
       type,
       ownerIdx: userIdx,
-      ondrag: e => handleTokenDrag(e, userIdx),
+      allowDrag: e => handleTokenDrag(e, userIdx),
       ...properties,
     }
   ))
@@ -104,9 +104,9 @@ function handleConnect(view) {
 
   centerViewNormal(view)
 
-  view.ondrag = WAMS.predefined.drag;
-  view.onscale = WAMS.predefined.scale;
-  view.onrotate = WAMS.predefined.rotate;
+  view.allowDrag = true;
+  view.allowScale = true;
+  view.allowRotate = true;
 }
 
 app.onconnect(handleConnect);
