@@ -38,13 +38,6 @@ function drag(event) {
 }
 
 /**
- * Allow to drag the the group of items.
- */
-function dragGroup() {
-  return true;
-}
-
-/**
  * Rotates the target.
  *
  * @memberof module:predefined
@@ -68,7 +61,6 @@ function scale(event) {
 
 module.exports = Object.freeze({
   drag,
-  dragGroup,
   rotate,
   scale,
   items,
