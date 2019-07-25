@@ -39,7 +39,6 @@ function spawnItem(event) {
 const linelayout = WAMS.predefined.layouts.line(200);
 function handleConnect(view, device, group) {
   group.onclick = spawnItem;
-  // view.onclick = spawnItem;
   group.allowScale = true;
   group.allowRotate = true;
   group.allowDrag = true;

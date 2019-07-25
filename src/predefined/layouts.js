@@ -114,7 +114,7 @@ function line(overlap) {
   function layout(view, device) {
     if (view.index > 0) {
       if (views[view.index - 1] == null) {
-        setTimeout(() => layout(view, view.index, device), 0);
+        setTimeout(() => layout(view, device), 0);
       } else {
         const prev = views[view.index - 1];
         const change = prev.transformPointChange(overlap, 0);
