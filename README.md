@@ -11,19 +11,23 @@ https://david-dm.org/nick-baliesnyi/wams?type=dev)
 ## Contents
 
 * [Installation](#installation)
+* [Getting started](#getting-started)
 * [Examples](#examples)
+* [Live Demo](#live-demo)
 * [Walkthrough](#walkthrough)
-  * [Hello world](#hello-world)
-  * [Multi-screen Hello world](#multi-screen-hello-world)
   * [Set up your application](#set-up-your-application)
+  * [Hello world](#hello-world)
+  * [Hello world: Multi-Screen](#hello-world-multi-screen)
   * [General Configuration](#general-configuration-of-your-app)
   * [Basics](#basics)
   * [Polygons](#polygons)
   * [Images](#images)
   * [HTML](#html)
+  * [Scale and Rotation](#scale-and-rotation)
   * [Interactivity](#interactivity)
   * [Static resources](#static-resources)
   * [Connections](#connections)
+  * [Multi-Screen Layouts](#multi-screen-layouts)
   * [Advanced](#advanced)
     * [Custom items](#custom-items)
     * [Custom events](#custom-events)
@@ -100,12 +104,10 @@ app.spawn(square(200, 200, 100, 'green'));
 
 This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a side of `100`.
 
-### Multi-screen Hello world
+### Hello world: Multi-Screen
 Here is a simple example to show how several screens work with WAMS.
 
-This example will:
-- spawn a draggable square
-- position connected screens in a line.
+This example will spawn a draggable square and position connected screens in a line.
 
 Put this code to your **app.js** file:
 ```javascript
@@ -365,23 +367,53 @@ The stylesheets will be automatically loaded by the browsers.
 
 WAMS manages all connections under the hood, and provides helpful methods to react on **connection-related events**:
 
-- `onconnect` – called each time a view connects to a WAMS application
-- `ondisconnect` – called when a view disconnects
+- `onconnect` – called each time a screen connects to a WAMS application
+- `ondisconnect` – called when a screen disconnects
 
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
 
-- `view` – current device's view object. Stores view's information and allows to locate, move, rescale the view
-- `device` – physical position of current device
-- `group` – server view group, used for multi-device gestures
+1. `view`
+0. `device`
+0. `group`
 
-Setting an `onconnect` callback  is often used to change the scale, rotation or position of a device. You can also set `onclick`, `allowDrag`, `allowRotate` and `allowScale` properties for different views. Same as with items, you can `moveBy` and `moveTo` views.
+**`View`** is an object that stores the **state** of the connected screen, including:
+- `index`
+- `topLeft`, `topRight`, `bottomRight` and `bottomLeft` positions
+- `scale`
+- `rotation`
+- `width`
+- `height`
 
-Combining view event handlers and methods, you can build complex layouts based on view's index. WAMS has predefined layouts that you can use, such as `table` and `row`. Here's how you can use them:
+It also provides **methods** to transform the current screen's view:
+- `moveBy`
+- `moveTo` 
+- `rotateBy`
+- `scaleBy`
+
+And you can set up **interactions and event listeners** for the view itself:
+- `allowDrag`
+- `allowRotate`
+- `allowScale`
+- `onclick`
+
+**`Device`** stores dimensions of the screen and its original position when connected.
+
+**`Group`** is a group of views and should be used instead of **View** _when multi-screen gestures are enabled_.
+
+### Multi-Screen Layouts
+
+By default, every connected screen is positioned in the same location and can see the same objects. However, you can build more complex layouts by using `view`, `device` and `group` objects' methods and state, or use one of the out-of-box predefined layouts.
+
+There are currently two predefined layouts: `table` and `line`. 
+
+**`Table`**
+
+Places users around a table, with the given amount of overlap. The first user will be the "table", and their position when they join is stamped as the outline of the table. The next four users are positioned, facing inwards, around the four sides of the table.
 
 ```js
 const { table } = WAMS.predefined.layouts;
 
-const overlap = 200; // 200px overlap between views
+const overlap = 200; // 200px overlap between screens
 const setTableLayout = table(overlap); 
 
 function handleLayout(view) {
@@ -391,6 +423,29 @@ function handleLayout(view) {
 app.onconnect(handleLayout);
 ```
 
+To see this layout in action, check out the `card-table.js` example.
+
+**`Line`**
+
+Places users in a line, with the given amount of overlap. Best used with either multi-screen gestures or when users are unable to manipulate their views.
+
+```js
+// application config should include
+// "useMultiScreenGestures: true"
+
+const { line } = WAMS.predefined.layouts;
+
+const overlap = 200; // 200px overlap between screens
+const setLineLayout = line(overlap);
+
+function handleLayout(view, device) {
+  setLineLayout(view, device);
+}
+
+app.onconnect(handleLayout);
+```
+
+To see this layout in action with multi-screen gestures, check out the `shared-polygons.js` example.
 
 
 ## Advanced
@@ -536,8 +591,6 @@ function flipCard(event) {
   card.isFaceUp = !card.isFaceUp;
 }
 ```
-
-
 
 ### Grouped items
 
