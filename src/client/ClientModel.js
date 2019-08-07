@@ -169,8 +169,9 @@ class ClientModel {
    * Sort the items by their zIndex to reflect their stack order;
    *
    */
-  updateItemsOrder() {
-    this.itemOrder = this.itemOrder.sort((a, b) => a.zIndex - b.zIndex);
+  updateItemsOrder(id) {
+    const index = this.itemOrder.findIndex(el => el.id === id);
+    this.itemOrder.push(...this.itemOrder.splice(index, 1));
   }
 
   /**
@@ -231,7 +232,7 @@ class ClientModel {
   update(container, data) {
     if (this[container].has(data.id)) {
       this[container].get(data.id).assign(data);
-      if (container === 'items') this.updateItemsOrder(data);
+      if (container === 'items') this.updateItemsOrder(data.id);
     } else {
       console.warn(`Unable to find in ${container}: id: `, data.id);
     }
