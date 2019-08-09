@@ -502,6 +502,17 @@ const FullStateReporter = ReporterFactory({
   color: '#dad1e3',
 
   /**
+   * The background colour of the workspace.
+   *
+   * @name backgroundImage
+   * @type {string}
+   * @default null
+   * @memberof module:shared.FullStateReporter
+   * @instance
+   */
+  backgroundImage: null,
+
+  /**
    * The title of the page.
    *
    * @name title

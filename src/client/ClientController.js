@@ -295,9 +295,14 @@ class ClientController {
    * view accordingly.
    */
   resizeCanvasToFillWindow() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    this.view.resizeToFillWindow();
+    const dpr = window.devicePixelRatio || 1;
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.canvas.width = w * dpr;
+    this.canvas.height = h * dpr;
+    this.canvas.style.width = `${w}px`;
+    this.canvas.style.height = `${h}px`;
+    this.view.resizeToFillWindow(dpr);
   }
 
   /**
@@ -325,7 +330,12 @@ class ClientController {
 
     IdStamper.cloneId(this.view, data.id);
 
-    this.canvas.style.backgroundColor = data.color;
+    if (data.backgroundImage) {
+      this.canvas.style.backgroundColor = 'transperent';
+      document.body.style.backgroundImage = `url("${data.backgroundImage}")`;
+    } else {
+      this.canvas.style.backgroundColor = data.color;
+    }
     this.model.setup(data);
     this.setupInteractor(data.useMultiScreenGestures);
 

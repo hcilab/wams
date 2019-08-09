@@ -24,11 +24,12 @@ const STATUS_KEYS = Object.freeze([
 
 // Mark these methods as intended only for internal use.
 const symbols = Object.freeze({
-  align:        Symbol('align'),
-  drawItems:    Symbol('drawItems'),
-  drawShadows:  Symbol('drawShadows'),
-  drawStatus:   Symbol('drawStatus'),
-  wipe:         Symbol('wipe'),
+  align:          Symbol('align'),
+  drawBackground: Symbol('dragBackground'),
+  drawItems:      Symbol('drawItems'),
+  drawShadows:    Symbol('drawShadows'),
+  drawStatus:     Symbol('drawStatus'),
+  wipe:           Symbol('wipe'),
 });
 
 // Default ClientView configuration.
@@ -177,9 +178,10 @@ class ClientView extends View {
   /**
    * Fill all available space in the window.
    */
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+  resizeToFillWindow(dpr) {
+    this.width = window.innerWidth * dpr;
+    this.height = window.innerHeight * dpr;
+    this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 }
 

@@ -163,6 +163,7 @@ class ClientModel {
     });
     this.view.config.shadows = data.shadows;
     this.view.config.status = data.status;
+    this.view.config.backgroundImage = data.backgroundImage;
   }
 
   /**
