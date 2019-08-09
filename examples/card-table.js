@@ -7,6 +7,8 @@
 
 const path = require('path')
 const WAMS = require('..');
+const Rectangle = WAMS.Rectangle;
+const { image } = WAMS.predefined.items;
 
 /*
  * Randomize array element order in-place.
@@ -30,76 +32,113 @@ function shuffle(in_array) {
 // Spawn application with a green background for that classic playing card look.
 const app = new WAMS.Application({
   color: 'green',
+  backgroundImage: 'green-table.jpeg',
   clientLimit: 5,
   staticDir: path.join(__dirname, '/img'),
 });
 
-// Demonstrate a custom rendering sequence.
-const circle = new WAMS.CanvasSequence();
-circle.beginPath();
-circle.arc(0, 0, 150, Math.PI, 0, false);
-circle.closePath();
-circle.fillStyle = 'white';
-circle.fill();
-circle.lineWidth = 5;
-circle.strokeStyle = '#003300';
-circle.stroke();
+const STYLES = {
+  button: {
+    font: 'bold 20px "Proxima Nova"',
+    width: 200,
+    height: 48,
+    shadowColor: 'rgba(0,0,0,.5)',
+  }
+}
 
-app.spawn({
-  x: 500,
-  y: 250,
-  type: 'circle',
-  sequence: circle,
-});
 
-// Text is possible too!
-const text = new WAMS.CanvasSequence();
-text.font = 'normal 36px Times,serif';
-text.fillStyle = '#1a1a1a';
-text.fillText('Deal the cards!', 0, 0);
+function shuffleButton(x, y) {
+  const width = STYLES.button.width
+  const height = STYLES.button.height
+  const button = new WAMS.CanvasSequence();
+  button.font = STYLES.button.font;
+  button.shadowColor = STYLES.button.shadowColor;
+  button.shadowBlur = 50;
+  button.fillStyle = '#7B3E3D';
+  // button.fillRect(0, 0, width, height);
+  roundRect(button, 0, 0, width, height, 15, true, false)
+  button.shadowBlur = 0;
+  button.fillStyle = '#ddd';
+  button.textAlign = "center";
+  button.textBaseline = "middle";
+  button.fillText('Collect & Shuffle', width / 2, height / 2);
+  
 
-app.spawn({
-  x: 380,
-  y: 230,
-  type: 'text',
-  sequence: text,
-});
+  const hitbox = new Rectangle(width, height, 0, 0)
 
-// Draw a card deck outline.
-app.spawn(WAMS.predefined.items.rectangle(0, 0, 140, 190, 'lightgrey', {
-  x: 515,
-  y: 300,
-  onclick: dealCards,
-}));
+  return {
+    x, y,
+    width, height,
+    hitbox,
+    type: 'item',
+    sequence: button,
+    onclick: dealCards,
+  };
+}
 
-const deal = new WAMS.CanvasSequence();
-deal.font = 'normal 30px sans-serif';
-deal.fillStyle = 'black';
-deal.fillText('Shuffle', 0, 0);
+function chip(chipName, x, y) {
+  const width = 80;
+  const height = 80;
 
-app.spawn({
-  x: 525,
-  y: 400,
-  type: 'text',
-  sequence: deal,
-});
+  return image(`Chips/${chipName}.png`, {
+    x, y,
+    width, height,
+    allowDrag: true,
+  })
+}
 
+function spawnChip(chipName, x, y) {
+  app.spawn(chip(chipName, x, y))
+}
+
+function chipButton(chipLabel, chipName, x, y) {
+  const width = STYLES.button.width
+  const height = STYLES.button.height
+  const button = new WAMS.CanvasSequence();
+  button.font = STYLES.button.font;
+  button.shadowColor = STYLES.button.shadowColor;
+  button.shadowBlur = 50;
+  button.fillStyle = '#E8E7EA';
+  // button.fillRect(0, 0, width, height);
+  roundRect(button, 0, 0, width, height, 15, true, false)
+  button.shadowBlur = 0;
+  button.fillStyle = '#325B29';
+  button.textAlign = "center";
+  button.textBaseline = "middle";
+  button.fillText(`${chipLabel} Chip`, width / 2, height / 2);
+
+  const hitbox = new Rectangle(width, height, 0, 0)
+
+  return {
+    x, y,
+    width, height,
+    hitbox,
+    type: 'item',
+    sequence: button,
+    onclick: () => spawnChip(chipName, x+250, y - height/4),
+  };
+}
+
+app.spawn(shuffleButton(525, 260))
+app.spawn(chipButton('Green', 'GreenWhite_border', 525, 360))
+app.spawn(chipButton('Blue', 'BlueWhite_border', 525, 440))
+app.spawn(chipButton('Red', 'RedWhite_border', 525, 520))
 
 // Generate a deck of cards, consisting solely of image source paths.
 const values = [
   '2', '3', '4', '5', '6', '7', '8', '9', '10', 'A', 'J', 'Q', 'K',
 ];
-const suits = ['Clubs', 'Diamonds', 'Hearts', 'Spades'];
+const suits = ['C', 'D', 'H', 'S'];
 const cardDescriptors = [];
 const cards = [];
 values.forEach(value => {
   suits.forEach(suit => {
-    cardDescriptors.push(`Cards/${suit}${value}.png`);
+    cardDescriptors.push(`Cards/hi-res/${value}${suit}.png`);
   });
 });
 
 // Select the look for the back of the cards.
-const card_back_path = 'Cards/Back_blue4.png';
+const card_back_path = 'Cards/Back_red_poker.png';
 
 function dealCards() {
   cards.forEach(card => {
@@ -120,7 +159,6 @@ function dealCards() {
       face: card,
       isFaceUp: false,
       onclick: flipCard,
-      allowScale: true,
       allowDrag: true,
       allowRotate: true,
     })));
@@ -134,22 +172,72 @@ dealCards();
  * Allows cards to be flipped.
  */
 function flipCard(event) {
-  if (event.view.index === 0) return
+  // if (event.view.index === 0) return
   const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
   card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
 }
 
-const tableLayout = WAMS.predefined.layouts.table(200);
+const tableLayout = WAMS.predefined.layouts.table(20);
 function handleConnect(view) {
-  if (view.index === 0) {
-    // User is the "table". Allow them to move around and scale.
-    view.allowDrag = true;
-    view.allowScale = true;
-  }
   tableLayout(view);
 }
 
 app.onconnect(handleConnect);
 app.listen(9011);
+
+
+
+/**
+ * Draws a rounded rectangle using the current state of the canvas.
+ * If you omit the last three params, it will draw a rectangle
+ * outline with a 5 pixel border radius
+ * @param {CanvasRenderingContext2D} ctx
+ * @param {Number} x The top left x coordinate
+ * @param {Number} y The top left y coordinate
+ * @param {Number} width The width of the rectangle
+ * @param {Number} height The height of the rectangle
+ * @param {Number} [radius = 5] The corner radius; It can also be an object 
+ *                 to specify different radii for corners
+ * @param {Number} [radius.tl = 0] Top left
+ * @param {Number} [radius.tr = 0] Top right
+ * @param {Number} [radius.br = 0] Bottom right
+ * @param {Number} [radius.bl = 0] Bottom left
+ * @param {Boolean} [fill = false] Whether to fill the rectangle.
+ * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+ */
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  if (typeof stroke == 'undefined') {
+    stroke = true;
+  }
+  if (typeof radius === 'undefined') {
+    radius = 5;
+  }
+  if (typeof radius === 'number') {
+    radius = {tl: radius, tr: radius, br: radius, bl: radius};
+  } else {
+    var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+    for (var side in defaultRadius) {
+      radius[side] = radius[side] || defaultRadius[side];
+    }
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+  if (fill) {
+    ctx.fill();
+  }
+  if (stroke) {
+    ctx.stroke();
+  }
+
+}
