@@ -40,7 +40,7 @@ const app = new WAMS.Application({
 
 const STYLES = {
   button: {
-    font: 'bold 20px "Proxima Nova"',
+    font: 'bold 20px "Arial"',
     width: 200,
     height: 48,
     shadowColor: 'rgba(0,0,0,.5)',
@@ -186,7 +186,7 @@ function handleConnect(view) {
 }
 
 app.onconnect(handleConnect);
-app.listen(9011);
+app.listen(9700);
 
 
 
