@@ -92,7 +92,7 @@ class MessageHandler {
    * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
    * @param {module:server.ServerView} view - Origin of track request.
    */
-  track({ active, x, y, phase }, view) {
+  track({ x, y, phase }, view) {
     if (phase === 'start' && view.lockedItem == null) {
       this.workspace.obtainLock(x, y, view);
     } else if (phase === 'end') {

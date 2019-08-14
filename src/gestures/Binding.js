@@ -40,7 +40,7 @@ class Binding {
    * @param {module:gestures.State} state - The current State instance.
    */
   evaluateHook(hook, state) {
-    const data = {...this.gesture[hook](state)};
+    const data = { ...this.gesture[hook](state) };
     if (data) {
       delete data.active;
       delete data.target;
