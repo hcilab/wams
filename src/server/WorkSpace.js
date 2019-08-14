@@ -97,13 +97,12 @@ class WorkSpace {
   obtainLock(x, y, view) {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
-    if (item.zIndex) this.raiseItem(item);
+    this.raiseItem(item);
     view.obtainLockOnItem(item);
   }
 
   /**
-   * Changes the item's zIndex to raise it
-   * above others and notifies subscribers.
+   * Raises item above others and notifies subscribers.
    *
    * @param {*} item
    */
@@ -111,17 +110,20 @@ class WorkSpace {
     const highestItem = this.items[0];
     // don't raise if item is already highest
     if (highestItem.id === item.id) return;
-    item.zIndex = highestItem.zIndex + 1;
     item.emitPublication();
-    this.sortItemsByZIndex();
+    this.bringItemToTop(item.id);
   }
 
   /**
-   * Sort the items by their zIndex so that
-   * items with highest index are drawn on top.
+   * Bring item to top, so that it's above others.
+   *
+   * @param {number} id
    */
-  sortItemsByZIndex() {
-    this.items.sort((a, b) => b.zIndex - a.zIndex);
+  bringItemToTop(id) {
+    const reversedIndex = this.items.findIndex(el => el.id === id);
+    if (reversedIndex < 0) throw new Error('Couldn\'t find item by id');
+    const index = this.items.length - 1 - reversedIndex;
+    this.items.unshift(...this.items.splice(index, 1));
   }
 
   /**

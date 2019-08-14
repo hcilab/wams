@@ -54,8 +54,7 @@ class MessageHandler {
     function do_gesture({ data }) {
       const target = view.lockedItem;
       if (target != null) {
-        const { centroid } = data;
-        const { x, y } = view.transformPoint(centroid.x, centroid.y);
+        const { x, y } = view.transformPoint(data.x, data.y);
         const event = { view, target, x, y };
         this[gesture](event, data);
       }
@@ -93,10 +92,10 @@ class MessageHandler {
    * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
    * @param {module:server.ServerView} view - Origin of track request.
    */
-  track({ active, centroid, phase }, view) {
+  track({ active, x, y, phase }, view) {
     if (phase === 'start' && view.lockedItem == null) {
-      this.workspace.obtainLock(centroid.x, centroid.y, view);
-    } else if (phase === 'end' && active.length === 0) {
+      this.workspace.obtainLock(x, y, view);
+    } else if (phase === 'end') {
       view.releaseLockedItem();
     }
   }

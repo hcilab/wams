@@ -28,46 +28,46 @@ const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
  */
 const TYPES = {
   // For the server to inform about changes to the model
-  /** @const */ ADD_ELEMENT: 'wams-add-element',
-  /** @const */ ADD_IMAGE:   'wams-add-image',
-  /** @const */ ADD_ITEM:    'wams-add-item',
-  /** @const */ ADD_SHADOW:  'wams-add-shadow',
-  /** @const */ ADD_GROUP:   'wams-add-group',
-  /** @const */ RM_ITEM:     'wams-remove-item',
-  /** @const */ RM_SHADOW:   'wams-remove-shadow',
-  /** @const */ UD_ITEM:     'wams-update-item',
-  /** @const */ UD_SHADOW:   'wams-update-shadow',
-  /** @const */ UD_VIEW:     'wams-update-view',
+  /** @const */ ADD_ELEMENT: 'add-element',
+  /** @const */ ADD_IMAGE:   'add-image',
+  /** @const */ ADD_ITEM:    'add-item',
+  /** @const */ ADD_SHADOW:  'add-shadow',
+  /** @const */ ADD_GROUP:   'add-group',
+  /** @const */ RM_ITEM:     'remove-item',
+  /** @const */ RM_SHADOW:   'remove-shadow',
+  /** @const */ UD_ITEM:     'update-item',
+  /** @const */ UD_SHADOW:   'update-shadow',
+  /** @const */ UD_VIEW:     'update-view',
 
   // For hopefully occasional extra adjustments to objects in the model.
-  /** @const */ RM_ATTRS:   'wams-remove-attributes',
-  /** @const */ SET_ITEMS:  'wams-set-items',
-  /** @const */ SET_ATTRS:  'wams-set-attributes',
-  /** @const */ SET_IMAGE:  'wams-set-image',
-  /** @const */ SET_RENDER: 'wams-set-render',
-  /** @const */ SET_PARENT: 'wams-set-parent',
+  /** @const */ RM_ATTRS:   'remove-attributes',
+  /** @const */ SET_ITEMS:  'set-items',
+  /** @const */ SET_ATTRS:  'set-attributes',
+  /** @const */ SET_IMAGE:  'set-image',
+  /** @const */ SET_RENDER: 'set-render',
+  /** @const */ SET_PARENT: 'set-parent',
 
   // Connection establishment related (disconnect, initial setup)
-  /** @const */ INITIALIZE: 'wams-initialize',
-  /** @const */ LAYOUT:     'wams-layout',
-  /** @const */ FULL:       'wams-full',
+  /** @const */ INITIALIZE: 'initialize',
+  /** @const */ LAYOUT:     'layout',
+  /** @const */ FULL:       'full',
 
   // User event related
-  /** @const */ CLICK:      'wams-click',
-  /** @const */ RESIZE:     'wams-resize',
-  /** @const */ SWIPE:      'wams-swipe',
-  /** @const */ TRACK:      'wams-track',
-  /** @const */ TRANSFORM:  'wams-transform',
+  /** @const */ CLICK:      'click',
+  /** @const */ RESIZE:     'resize',
+  /** @const */ SWIPE:      'swipe',
+  /** @const */ TRACK:      'track',
+  /** @const */ TRANSFORM:  'transform',
 
   // Multi-device gesture related
-  /** @const */ POINTER:    'wams-pointer',
-  /** @const */ BLUR:       'wams-blur',
+  /** @const */ POINTER:    'pointer',
+  /** @const */ BLUR:       'blur',
 
   // Page event related
-  /** @const */ IMG_LOAD:   'wams-image-loaded',
+  /** @const */ IMG_LOAD:   'image-loaded',
 
   // User defined actions
-  /** @const */ DISPATCH: 'wams-dispatch',
+  /** @const */ DISPATCH:   'dispatch',
 };
 Object.freeze(TYPES);
 
