@@ -87,18 +87,32 @@ class WorkSpace {
   }
 
   /**
-   * Gives a lock on the item at (x,y) to the view.
+   * Gives a lock on the item at (x,y) or view itself to the view.
    *
    * @param {number} x - x coordinate at which to look for items.
    * @param {number} y - y coordinate at which to look for items.
    * @param {module:server.ServerView} view - View that will receive a lock on
-   * the item.
+   * the item/view.
    */
   obtainLock(x, y, view) {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
-    this.raiseItem(item);
-    view.obtainLockOnItem(item);
+    const itemClass = item.constructor.name;
+    if (
+      itemClass !== 'ServerView' &&
+      itemClass !== 'ServerViewGroup'
+    ) {
+      this.raiseItem(item);
+      if (
+        item.allowDrag  ||
+        item.allowScale ||
+        item.allowRotate
+      ) {
+        view.obtainLockOnItem(item);
+      } else {
+        view.obtainLockOnItem(view);
+      }
+    }
   }
 
   /**
@@ -221,7 +235,7 @@ class WorkSpace {
  * @type {object}
  */
 WorkSpace.DEFAULTS = Object.freeze({
-  color:                  '#dad1e3',
+  color: '#dad1e3',
   useMultiScreenGestures: false,
 });
 
