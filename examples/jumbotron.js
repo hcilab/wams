@@ -10,6 +10,7 @@ const WAMS = require('..');
 const { image } = WAMS.predefined.items;
 
 const app = new WAMS.Application({
+  color: 'black',
   clientLimit: 1000,
   staticDir: path.join(__dirname, './img'),
 });
@@ -20,15 +21,50 @@ app.spawn(image('monaLisa.jpg', {
   x: 0,
   y: 0,
   type: 'mona',
-  scale: .5,
+  scale: 1,
+  allowDrag: true,
+  allowScale: true,
+  allowRotate: true
 }));
 
+const jumbotronLayout = jumbotron(1200 * .5);
+
 function handleConnect(view) {
-  view.allowScale = true;
-  view.allowDrag = true;
-  view.allowRotate = true;
+  jumbotronLayout(view);
 }
 
 app.onconnect(handleConnect);
 app.listen(9010);
 
+/**
+ * Generates a handler that places users in a junkyard jumbotron.
+ *
+ * @param {number} width
+ */
+function jumbotron(width) {
+  const jumbotronWidth = width;
+  const views          = [];
+  let coveredWidth     = 0;
+  let coveredHeight    = 0;
+  let currentRowHeight = 0;
+
+  function layout(view) {
+    if (views[view.index] !== undefined) {
+      view.moveTo(views[view.index].x, views[view.index].y);
+      return;
+    }
+    if (coveredWidth >= jumbotronWidth) moveToNextRow(view);
+    view.moveTo(coveredWidth, coveredHeight);
+    views[view.index] = { x: coveredWidth, y: coveredHeight };
+    coveredWidth += view.width;
+    currentRowHeight = Math.max(view.height, currentRowHeight);
+  }
+
+  function moveToNextRow(view) {
+    coveredWidth = 0;
+    coveredHeight += currentRowHeight;
+    currentRowHeight = view.height;
+  }
+
+  return layout;
+}
