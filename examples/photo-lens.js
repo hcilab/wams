@@ -10,6 +10,7 @@ const WAMS = require('..');
 const { image } = WAMS.predefined.items;
 
 const app = new WAMS.Application({
+    shadows: true,
     color: 'white',
     staticDir: path.join(__dirname, './img'),
 });
@@ -26,6 +27,7 @@ function handleConnect(view) {
         view.scale = 2.5;
         view.allowDrag = true;
         view.allowScale = true;
+        view.allowRotate = true;
     }
 }
 

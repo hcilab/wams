@@ -15,19 +15,21 @@ const app = new WAMS.Application({
   staticDir: path.join(__dirname, './img'),
 });
 
+const scale = 1;
+
 app.spawn(image('monaLisa.jpg', {
   width: 1200,
   height: 1815,
   x: 0,
   y: 0,
   type: 'mona',
-  scale: 1,
+  scale,
   allowDrag: true,
   allowScale: true,
   allowRotate: true
 }));
 
-const jumbotronLayout = jumbotron(1200 * .5);
+const jumbotronLayout = jumbotron(1200 * scale);
 
 function handleConnect(view) {
   jumbotronLayout(view);
@@ -37,7 +39,8 @@ app.onconnect(handleConnect);
 app.listen(9010);
 
 /**
- * Generates a handler that places users in a junkyard jumbotron.
+ * Generates a handler that places devices in a jumbotron.
+ * (see junkyard jumbotron)
  *
  * @param {number} width
  */
