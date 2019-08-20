@@ -114,7 +114,7 @@ class Interactor {
     const factor = event.ctrlKey ? 0.02 : 0.10;
     const scale = -(Math.sign(event.deltaY) * factor) + 1;
     const centroid = { x: event.clientX, y: event.clientY };
-    this.handlers.transform({ ...centroid, delta: { scale } });
+    this.handlers.transform({ centroid, delta: { scale } });
   }
 }
 

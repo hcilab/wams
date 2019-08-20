@@ -26,8 +26,8 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
    * @param {number} [ dy=0 ] - Movement along the y ayis.
    */
   moveBy(dx = 0, dy = 0) {
-    this.x = Math.round(this.x + dx);
-    this.y = Math.round(this.y + dy);
+    this.x += dx;
+    this.y += dy;
   }
 
   /**
@@ -39,8 +39,8 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
    * @param {number} [ y=this.y ] - y coordinate to move to.
    */
   moveTo(x = this.x, y = this.y) {
-    this.x = Math.round(x);
-    this.y = Math.round(y);
+    this.x = x;
+    this.y = y;
   }
 
   /**
@@ -79,8 +79,8 @@ const Transformable2D = (sclass) => class Transformable2D extends sclass {
    */
   scaleBy(ds = 1, mx = this.x, my = this.y, delta_fn = 'multiplyBy') {
     const delta = new Point2D(this.x - mx, this.y - my)[delta_fn](ds);
-    this.x = Math.round(mx + delta.x);
-    this.y = Math.round(my + delta.y);
+    this.x = mx + delta.x;
+    this.y = my + delta.y;
     this.scale = ds * this.scale;
   }
 

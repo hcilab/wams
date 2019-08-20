@@ -112,6 +112,8 @@ class WorkSpace {
       } else {
         view.obtainLockOnItem(view);
       }
+    } else {
+      view.obtainLockOnItem(view);
     }
   }
 
@@ -122,7 +124,7 @@ class WorkSpace {
    */
   raiseItem(item) {
     const highestItem = this.items[0];
-    // don't raise if item is already highest
+    // don't raise if item is already on top
     if (highestItem.id === item.id) return;
     item.emitPublication();
     this.bringItemToTop(item.id);

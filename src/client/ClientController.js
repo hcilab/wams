@@ -292,17 +292,22 @@ class ClientController {
 
   /**
    * Stretches the canvas to fit the available window space, and updates the
-   * view accordingly.
+   * view accordingly. 
+   * 
+   * Note: Scaling to account for device pixel ratio is disabled for iOS
+   * as a workaround for a bug with Safari and Chrome, where `context.setTransform`
+   * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
-    const dpr = window.devicePixelRatio || 1;
+    const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
+    const dpr = iOS ? 1 : (window.devicePixelRatio || 1);
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width = w * dpr;
     this.canvas.height = h * dpr;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow(dpr);
+    this.view.resizeToFillWindow(dpr, iOS);
   }
 
   /**
@@ -331,7 +336,7 @@ class ClientController {
     IdStamper.cloneId(this.view, data.id);
 
     if (data.backgroundImage) {
-      this.canvas.style.backgroundColor = 'transperent';
+      this.canvas.style.backgroundColor = 'transparent';
       document.body.style.backgroundImage = `url("${data.backgroundImage}")`;
     } else {
       this.canvas.style.backgroundColor = data.color;
