@@ -56,6 +56,7 @@ function shuffleButton(x, y) {
   button.shadowColor = STYLES.button.shadowColor;
   button.shadowBlur = 50;
   button.fillStyle = '#7B3E3D';
+  // button.fillRect(0, 0, width, height);
   roundRect(button, 0, 0, width, height, 15, true, false)
   button.shadowBlur = 0;
   button.fillStyle = '#ddd';
@@ -179,8 +180,8 @@ function flipCard(event) {
 }
 
 const tableLayout = WAMS.predefined.layouts.table(20);
-function handleConnect(view) {
-  tableLayout(view);
+function handleConnect(view, device) {
+  tableLayout(view, device);
 }
 
 app.onconnect(handleConnect);

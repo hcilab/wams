@@ -42,7 +42,7 @@ function table(overlap) {
   const TOP     = 3;
   const RIGHT   = 4;
 
-  function layoutTable(view) {
+  function layoutTable(view, device) {
     table = view;
     bottomLeft = view.bottomLeft;
     bottomRight = view.bottomRight;
@@ -50,31 +50,38 @@ function table(overlap) {
     topRight = view.topRight;
   }
 
-  function layoutBottom(view) {
+  function layoutBottom(view, device) {
     view.moveTo(bottomLeft.x, bottomLeft.y - overlap);
+    device.moveTo(bottomLeft.x, bottomLeft.y - overlap);
   }
 
-  function layoutLeft(view) {
+  function layoutLeft(view, device) {
     view.moveTo(topLeft.x + overlap, topLeft.y);
     view.rotateBy(constants.ROTATE_270);
+    device.moveTo(topLeft.x + overlap, topLeft.y);
+    device.rotateBy(-constants.ROTATE_270);
   }
 
-  function layoutTop(view) {
+  function layoutTop(view, device) {
     view.moveTo(topRight.x, topRight.y + overlap);
     view.rotateBy(constants.ROTATE_180);
+    device.moveTo(topRight.x, topRight.y + overlap);
+    device.rotateBy(-constants.ROTATE_180);
   }
 
-  function layoutRight(view) {
+  function layoutRight(view, device) {
     view.moveTo(bottomRight.x - overlap, bottomRight.y);
     view.rotateBy(constants.ROTATE_90);
+    device.moveTo(bottomRight.x - overlap, bottomRight.y);
+    device.rotateBy(-constants.ROTATE_90);
   }
 
   function dependOnTable(fn) {
-    return function layoutDepender(view) {
+    return function layoutDepender(view, device) {
       if (table == null) {
-        setTimeout(() => layoutDepender(view), 0);
+        setTimeout(() => layoutDepender(view, device), 0);
       } else {
-        fn(view);
+        fn(view, device);
       }
     };
   }
@@ -86,9 +93,9 @@ function table(overlap) {
   user_fns[TOP]     = dependOnTable(layoutTop);
   user_fns[RIGHT]   = dependOnTable(layoutRight);
 
-  function handleLayout(view) {
+  function handleLayout(view, device) {
     const index = view.index > 0 ? (view.index % 4) + 1 : 0;
-    user_fns[index](view);
+    user_fns[index](view, device);
   }
 
   return handleLayout;
