@@ -1,0 +1,42 @@
+:root {
+    --color-one: #4767E6;
+    --color-two: #97CCF6;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+#controls {
+    position: fixed;
+    background-color: var(--color-one);
+    border-radius: 24px 0 0 24px;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.control-buttons {
+    display: flex;
+    flex-direction: column;
+    padding: .25rem;
+}
+
+.control-buttons > .button {
+    align-items: center;
+    border-radius: 50%; 
+    color: white;
+    cursor: pointer;
+    display: flex;
+    font-size: 24px;
+    justify-content: center;
+    height: 48px;
+    margin-bottom: .25rem;
+    transition: .15s ease-out;
+    width: 48px;
+}
+
+.control-buttons > .button.active {
+    color: var(--color-two);
+}
