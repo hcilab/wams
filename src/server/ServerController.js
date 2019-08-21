@@ -145,7 +145,7 @@ class ServerController {
       },
 
       [Message.DISPATCH]: ({ data }) => {
-        this.messageHandler.handleCustomEvent(data.action, data.payload);
+        this.messageHandler.handleCustomEvent(data.action, data.payload, this.view);
       },
     };
 
