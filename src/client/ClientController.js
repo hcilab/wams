@@ -113,7 +113,7 @@ class ClientController {
      */
     this.resizeCanvasToFillWindow();
 
-    window.Wams = {
+    window.WAMS = {
       on: (event, func) => {
         // listen for this DOM event
         document.addEventListener(event, func);
