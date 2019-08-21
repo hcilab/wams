@@ -8,6 +8,12 @@ https://david-dm.org/nick-baliesnyi/wams/dev-status.svg)](
 https://david-dm.org/nick-baliesnyi/wams?type=dev)
 [![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/nick-baliesnyi/wams/maintainability)
 
+WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
+
+WAMS abstracts away connection code, client and server architecture and related technology, to provide a simple, unified framework that allows focus to be placed on creating and defining new interactions rather than on pre-requisite communication code. 
+
+We use browser windows to represent screens because browsers are extremely flexible - they are cross-platform, already available on multiple devices and can fill screens (or be used to subdivide screens).
+
 ## Contents
 
 * [Installation](#installation)
@@ -96,9 +102,10 @@ And you can connect to the app using the address in the output.
 
 Let's now make your first WAMS app do something. Add the following code just before the last line:
 ```javascript
+// the line below is equivalent to `const square = WAMS.predefined.items.square;`
 const { square } = WAMS.predefined.items;
-// ES2015 object destructuring
-// same as `const square = WAMS.predefined.items.square;`
+
+// spawn a square on the screen
 app.spawn(square(200, 200, 100, 'green'));
 ```
 
@@ -109,7 +116,7 @@ Here is a simple example to show how several screens work with WAMS.
 
 This example will spawn a draggable square and position connected screens in a line.
 
-Put this code to your **app.js** file:
+Put this code in your **app.js** file:
 ```javascript
 const WAMS = require('./wams');
 const app = new WAMS.Application();
@@ -117,9 +124,12 @@ const app = new WAMS.Application();
 const { square } = WAMS.predefined.items;
 const { line } = WAMS.predefined.layouts;
 
-app.spawn(square(200, 200, 100, 'green', {
-  allowDrag: true,
-}));
+function spawnSquare() {
+  app.spawn(square(200, 200, 100, 'green', {
+    allowDrag: true,
+  }));
+}
+
 
 const linelayout = line(300); // 300px overlap betweens views
 function handleConnect(view, device) {
@@ -135,6 +145,16 @@ _Don't worry if the code doesn't make sense to you yet. The walkthrough will exp
 
 The square can now be moved around and seen by multiple screens with less than 20 lines of code 🎉
 
+To test this on a single computer you could:
+- open one browser window covering half your screen and position it on the left
+- open another browser to the same address and position it on the right
+- now click on an empty area to create a square
+- click and hold to drag the square towards the other browser window
+- you have your first multiscreen app!
+
+![Screenshot of first multiscreen app](./img/multiscreen.png)
+
+
 > To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js` 
 
 
@@ -146,7 +166,8 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new WAMS.Application({
-  color:                  'white',          // background color of the app's canvas
+  backgroundImage:        './monaLisa',     // background image of the app
+  color:                  'white',          // background color of the app
   clientLimit:            2,                // maximum number of devices that can connect to the app
   clientScripts:          ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
   stylesheets:            ['styles.css'],   // css styles to include by the browser
@@ -212,6 +233,10 @@ app.spawn(polygon(points, 'green', {
 ### Images
 
 To use images, you first need to set up a path to the [static directory](#static-resources).
+
+For this example, create an `images` directory in the app folder and use it as your static directory.
+
+Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const app = WAMS.Application({
