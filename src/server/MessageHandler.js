@@ -156,11 +156,19 @@ class MessageHandler {
     const doGesture = this.shouldDoGesture(event.target.allowDrag);
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
-      actions.drag({
-        ...event,
-        dx: d.x,
-        dy: d.y,
-      });
+      if (event.target.ondrag) {
+        event.target.ondrag({
+          ...event,
+          dx: d.x,
+          dy: d.y,
+        }, this.workspace)
+      } else {
+        actions.drag({
+          ...event,
+          dx: d.x,
+          dy: d.y,
+        });
+      } 
     }
   }
 
@@ -213,11 +221,11 @@ class MessageHandler {
    * @param {string} event name of the event.
    * @param {any} payload argument to pass to the event handler.
    */
-  handleCustomEvent(event, payload) {
+  handleCustomEvent(event, payload, view) {
     if (!this.listeners[event]) {
-      throw `Server is not listenting for custom event "${event}"`;
+      console.warn(`Server is not listening for custom event "${event}"`);
     }
-    this.listeners[event](payload);
+    this.listeners[event](payload, view);
   }
 }
 
