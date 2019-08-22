@@ -28,12 +28,14 @@ function draw(event, workspace) {
   // line.lineTo(toX, toY);
   // line.strokeStyle = 'blue';
   // line.stroke();
+
+  console.log(workspace.state.color)
   
-  line.beginPath()
-  line.fillStyle = 'blue'
-  line.ellipse(toX, toY, 20, 20, Math.PI / 2, 0, 2 * Math.PI)
-  line.fill()
-  workspace.spawnItem({ sequence: line })
+  line.beginPath();
+  line.fillStyle = workspace.state.color || 'blue';
+  line.ellipse(toX, toY, 20, 20, Math.PI / 2, 0, 2 * Math.PI);
+  line.fill();
+  workspace.spawnItem({ sequence: line });
 }
 
 /**
