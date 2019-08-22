@@ -18,9 +18,11 @@ ul {
 }
 
 .control-buttons {
+    align-items: center;
     display: flex;
     flex-direction: column;
     padding: .25rem;
+    position: relative;
 }
 
 .control-buttons > .button {
@@ -39,4 +41,76 @@ ul {
 
 .control-buttons > .button.active {
     color: var(--color-two);
+}
+
+#color.button > * {
+    border: 2px solid #bbb;
+    border-radius: 50%;
+}
+
+#color-picker {
+    align-items: center;
+    background-color: rgba(0,0,0, .2);
+    border-radius: 30px;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    padding: .5rem;
+    position: absolute;
+    left: -50px;
+    top: -50%;
+    visibility: hidden;
+}
+
+#color-picker > * {
+    cursor: pointer;
+    font-size: 30px;
+    margin-bottom: .5rem;
+}
+
+#color-picker > *:last-of-type {
+    margin-bottom: 0;
+}
+
+#color-picker.show {
+    visibility: visible;
+}
+
+
+/* COLORS */
+
+.red {
+    color: #D12C1F !important;
+}
+
+.orange {
+    color: #EF9135 !important;
+}
+
+.yellow {
+    color: #FBEE4F !important;
+}
+
+.green {
+    color: #377F34 !important;
+}
+
+.blue {
+    color: #1E4CF5 !important;
+}
+
+.purple {
+    color: #6C1684 !important;
+}
+
+.white {
+    color: #fff !important;
+}
+
+.grey {
+    color: #808080 !important;
+}
+
+.black {
+    color: #000 !important;
 }
