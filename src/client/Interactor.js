@@ -68,12 +68,13 @@ class Interactor {
     const track     = new Westures.Track(['start', 'end']);
     const transform = new Transform();
 
-    const region = new Westures.Region(document.body);
-    region.addGesture(document.body, tap,       this.forward('tap'));
-    region.addGesture(document.body, swipe,     this.forward('swipe'));
-    region.addGesture(document.body, swivel,    this.swivel());
-    region.addGesture(document.body, transform, this.forward('transform'));
-    region.addGesture(document.body, track,     this.forward('track'));
+    const canvas = document.querySelector('canvas#main')
+    const region = new Westures.Region(canvas);
+    region.addGesture(canvas, tap,       this.forward('tap'));
+    region.addGesture(canvas, swipe,     this.forward('swipe'));
+    region.addGesture(canvas, swivel,    this.swivel());
+    region.addGesture(canvas, transform, this.forward('transform'));
+    region.addGesture(canvas, track,     this.forward('track'));
   }
 
   /**
