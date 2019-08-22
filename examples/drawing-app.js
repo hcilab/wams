@@ -15,8 +15,6 @@ const COLORS = {
     yellow: '#FBEE4F',
     green:  '#377F34',
     blue:   '#1E4CF5',
-    purple: '#6C1684',
-    white:  '#fff',
     grey:   '#808080',
     black:  '#000',
 }
@@ -56,7 +54,7 @@ class DrawingApp {
             const color = this.screensColors[view.index] || this.initialColor
             this.setColor(color, view)
             // this.app.dispatch('init', { color })
-            view.dispatch('init', { color })
+            view.dispatch('init', { color, listOfColors: COLORS })
         })
 
         // where is this coming from?

@@ -2,23 +2,10 @@ const root = document.createElement('div')
 root.id = 'root'
 document.querySelector('body').appendChild(root)
 
+let colors = {}
 const states = ['pan', 'draw']
 let currentState = 0
 
-const RAINBOW_COLORS = ['red', 'orange', 'yellow', 'green', 'blue', ]
-const listOfColors = [...RAINBOW_COLORS, 'white', 'black']
-
-const COLORS = {
-    red:    '#D12C1F',
-    orange: '#EF9135',
-    yellow: '#FBEE4F',
-    green:  '#377F34',
-    blue:   '#1E4CF5',
-    purple: '#6C1684',
-    white:  '#fff',
-    grey:   '#808080',
-    black:  '#000',
-}
 
 const CONTROLS = (color) => `
 <div id="controls">
@@ -33,7 +20,7 @@ const CONTROLS = (color) => `
             <i class="fas fa-circle"></i>
         </div>
         <div id="color-picker">
-            ${Object.keys(COLORS).map(colorName => `
+            ${Object.keys(colors).map(colorName => `
                 <i class="fas fa-circle ${colorName}" data-color="${colorName}"></i>            
             `).join('')}
         </div>
@@ -101,6 +88,7 @@ function addClickTouchListener(el, callback) {
 WAMS.dispatch('init')
 
 WAMS.on('init', ({ detail }) => {
-    const { color } = detail
+    const { color, listOfColors } = detail
+    colors = listOfColors
     renderControls(color)
 })
