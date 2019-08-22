@@ -11,6 +11,7 @@
 'use strict';
 
 const {
+  DataReporter,
   IdStamper,
   Message,
   View,
@@ -99,6 +100,19 @@ class ServerView extends Locker(Interactable(View)) {
   emitPublication() {
     new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW,   this).emitWith(this.socket);
+  }
+
+  /**
+   * Send Message to clients to dispatch custom Client event.
+   *
+   * @param {string} event name of the user-defined event.
+   * @param {object} payload argument to pass to the event handler.
+   */
+  dispatch(action, payload) {
+    const dreport = new DataReporter({
+      data: { action, payload },
+    });
+    new Message(Message.DISPATCH, dreport).emitWith(this.socket);
   }
 
   /*
