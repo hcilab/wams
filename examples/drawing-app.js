@@ -37,27 +37,44 @@ class DrawingApp {
             staticDir: path.join(__dirname, './client'),
         })
 
-        this.setColor(COLORS['red'])
+        this.initialColor = 'red'
+
+        this.screensColors = []
 
         this.initListeners()
     }
 
-    setColor(color) {
-        this.currentColor = COLORS['red']
-        this.app.workspace.state.color = color
+    setColor(color, view) {
+        // this.app.workspace.state.color = color
+        this.screensColors[view.index] = color
+        view.color = COLORS[color]
     }
 
     initListeners() {
+
+        this.app.on('init', (data, view) => {
+            const color = this.screensColors[view.index] || this.initialColor
+            this.setColor(color, view)
+            // this.app.dispatch('init', { color })
+            view.dispatch('init', { color })
+        })
+
         // where is this coming from?
         // TODO: update WAMS to pass `view` when invoking `on` callback
         this.app.on('set-control', (type, view) => {
             this.updateControlType(type, view)
         })
 
-        this.app.on('set-color', (color) => {
-            this.setColor(COLORS[color])
+        this.app.on('set-color', (color, view) => {
+            this.setColor(color, view)
         })
-        this.app.spawn(square(200, 200, 100, '#555'))
+        this.app.spawn(square(200, 200, 100, '#555', {
+            onclick: () => {
+                this.app.dispatch('init', {
+                    color: this.initialColor
+                })
+            }
+        }))
         this.app.onconnect(this.handleConnect.bind(this))
         this.app.listen(8080)
     }

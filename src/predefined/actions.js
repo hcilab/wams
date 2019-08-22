@@ -17,22 +17,20 @@ const { CanvasSequence } = require('canvas-sequencer');
  */
 
 function draw(event, workspace) {
-  const fromX = event.x - event.dx;
-  const fromY = event.y - event.dy;
+  const color = event.view.color || 'black'
+  // const fromX = event.x - event.dx;
+  // const fromY = event.y - event.dy;
   const toX = event.x;
   const toY = event.y;
   const line = new CanvasSequence();
-
   // line.beginPath()
   // line.moveTo(fromX, fromY);
   // line.lineTo(toX, toY);
   // line.strokeStyle = 'blue';
   // line.stroke();
-
-  console.log(workspace.state.color)
   
   line.beginPath();
-  line.fillStyle = workspace.state.color || 'blue';
+  line.fillStyle = color;
   line.ellipse(toX, toY, 20, 20, Math.PI / 2, 0, 2 * Math.PI);
   line.fill();
   workspace.spawnItem({ sequence: line });

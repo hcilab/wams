@@ -5,13 +5,22 @@ document.querySelector('body').appendChild(root)
 const states = ['pan', 'draw']
 let currentState = 0
 
-// rainbow colors + black + white
 const RAINBOW_COLORS = ['red', 'orange', 'yellow', 'green', 'blue', ]
 const listOfColors = [...RAINBOW_COLORS, 'white', 'black']
-let currentColor = 0
 
+const COLORS = {
+    red:    '#D12C1F',
+    orange: '#EF9135',
+    yellow: '#FBEE4F',
+    green:  '#377F34',
+    blue:   '#1E4CF5',
+    purple: '#6C1684',
+    white:  '#fff',
+    grey:   '#808080',
+    black:  '#000',
+}
 
-const CONTROLS = () => `
+const CONTROLS = (color) => `
 <div id="controls">
     <ul class="control-buttons">
         <div id="pan" class="button ${currentState === 0 ? 'active' : ''}" data-type="pan">
@@ -20,20 +29,20 @@ const CONTROLS = () => `
         <div id="draw" class="button ${currentState === 1 ? 'active' : ''}" data-type="draw">
             <i class="fas fa-pencil-alt"></i>
         </div>
-        <div id="color" class="button ${listOfColors[currentColor]}" data-type="color">
+        <div id="color" class="button ${color}" data-type="color">
             <i class="fas fa-circle"></i>
         </div>
         <div id="color-picker">
-            ${listOfColors.map(color => `
-                <i class="fas fa-circle ${color}" data-color="${color}"></i>            
+            ${Object.keys(COLORS).map(colorName => `
+                <i class="fas fa-circle ${colorName}" data-color="${colorName}"></i>            
             `).join('')}
         </div>
     </ul>
 </div>
 `
 
-function renderControls() {
-    root.innerHTML = CONTROLS()
+function renderControls(colorName) {
+    root.innerHTML = CONTROLS(colorName)
     initControlsListeners()
 }
 
@@ -73,9 +82,8 @@ function initControlsListeners() {
         addClickTouchListener(el, event => {
             const color = event.target.dataset.color
             colorPicker.classList.remove('show')
-            currentColor = listOfColors.indexOf(color)
             WAMS.dispatch('set-color', color)
-            renderControls()
+            renderControls(color)
         })
     })
 
@@ -90,4 +98,9 @@ function addClickTouchListener(el, callback) {
     el.addEventListener('touch', callback)
 }
 
-renderControls()
+WAMS.dispatch('init')
+
+WAMS.on('init', ({ detail }) => {
+    const { color } = detail
+    renderControls(color)
+})
