@@ -6,7 +6,6 @@
 
 const WAMS = require('..')
 const path = require('path')
-const { html, square } = WAMS.predefined.items
 const { actions } = WAMS.predefined
 
 const COLORS = {
@@ -19,10 +18,15 @@ const COLORS = {
     black:  '#000',
 }
 
+const WIDTHS = {
+    thin:   10,
+    medium: 20,
+    thick:  40,
+}
+
 class DrawingApp {
     constructor() {
         this.app = new WAMS.Application({
-            clientLimit: 2,
             color: 'white',
             clientScripts: [
                 'https://kit.fontawesome.com/3cc3d78fde.js',
@@ -37,28 +41,24 @@ class DrawingApp {
 
         this.initialColor = 'red'
 
-        this.screensColors = []
-
         this.initListeners()
     }
 
     setColor(color, view) {
-        // this.app.workspace.state.color = color
-        this.screensColors[view.index] = color
-        view.color = COLORS[color]
+        view.state.color = COLORS[color]
+    }
+
+    setWidth(width, view) {
+        view.state.width = WIDTHS[width]
     }
 
     initListeners() {
-
         this.app.on('init', (data, view) => {
-            const color = this.screensColors[view.index] || this.initialColor
+            const color = this.initialColor
             this.setColor(color, view)
-            // this.app.dispatch('init', { color })
-            view.dispatch('init', { color, listOfColors: COLORS })
+            view.dispatch('render-controls', { color, listOfColors: COLORS, listOfWidths: WIDTHS })
         })
 
-        // where is this coming from?
-        // TODO: update WAMS to pass `view` when invoking `on` callback
         this.app.on('set-control', (type, view) => {
             this.updateControlType(type, view)
         })
@@ -66,13 +66,11 @@ class DrawingApp {
         this.app.on('set-color', (color, view) => {
             this.setColor(color, view)
         })
-        this.app.spawn(square(200, 200, 100, '#555', {
-            onclick: () => {
-                this.app.dispatch('init', {
-                    color: this.initialColor
-                })
-            }
-        }))
+
+        this.app.on('set-width', (width, view) => {
+            this.setWidth(width, view)
+        })
+
         this.app.onconnect(this.handleConnect.bind(this))
         this.app.listen(8080)
     }
@@ -80,18 +78,6 @@ class DrawingApp {
     updateControlType(type, view) {
         this.controlType = type
         view.ondrag = type === 'pan' ? actions.drag : actions.draw
-    }
-
-    spawnControls(view) {
-        const width = 60
-        const height = 100
-        const x = view.width - width
-        const y = view.height / 2 - height / 2
-        const markup = controlsHtml({ draw: true, pan: false })
-
-        this.controls = this.app.spawn(html(markup, width, height, {
-            x, y, width, height,
-        }))
     }
 
     handleConnect(view) {
