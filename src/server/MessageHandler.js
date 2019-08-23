@@ -223,7 +223,7 @@ class MessageHandler {
    */
   handleCustomEvent(event, payload, view) {
     if (!this.listeners[event]) {
-      console.warn(`Server is not listening for custom event "${event}"`);
+      return console.warn(`Server is not listening for custom event "${event}"`);
     }
     this.listeners[event](payload, view);
   }
