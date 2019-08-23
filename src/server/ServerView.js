@@ -53,6 +53,11 @@ class ServerView extends Locker(Interactable(View)) {
     this.index = index;
 
     /**
+     * A place for user to store view state.
+     */
+    this.state = {};
+
+    /**
      * Id to make the views uniquely identifiable.
      *
      * @name id
