@@ -1,0 +1,73 @@
+const WAMS = require('..')
+const { square } = WAMS.predefined.items
+const { line } = WAMS.predefined.layouts
+
+const dimensions = []
+const deepSpace = {x: 99999, y: 99999}
+
+const app = new WAMS.Application({
+    shadows: true,
+})
+
+spawnSquare(200, 300)
+
+app.on('deviceNearScreen', (data) => {
+    const { deviceIndex, nearIndex } = data
+    console.log(`View ${deviceIndex} is close to ${nearIndex}`)
+    moveScreenToScreen(app.group.views[deviceIndex], app.group.views[nearIndex])
+})
+
+app.on('deviceFarFromScreens', (data) => {
+    const { deviceIndex } = data
+    console.log(`View ${deviceIndex} is far from screens`)
+    moveScreenWithItems(app.group.views[deviceIndex], deepSpace.x, deepSpace.y)
+})
+
+const setLayout = line(0)
+function handleConnect(view, device, group) {
+    if (view.index === 2) {
+        // send to deep space :)
+        view.moveTo(deepSpace.x, deepSpace.y)
+    } else {
+        setLayout(view, device)
+    }
+    dimensions[view.index] = { x: device.x, y: device.y, width: device.width, height: device.height }
+}
+
+app.onconnect(handleConnect)
+app.listen(9700)
+
+function moveScreenToScreen(currentView, targetView) {
+    const centeredBelowPosX = targetView.x + (targetView.width/2) - currentView.width/2
+    const centeredBelowPosY = targetView.y + targetView.height - 100
+    moveScreenWithItems(currentView, centeredBelowPosX, centeredBelowPosY)
+}
+
+function moveScreenWithItems(currentView, targetX, targetY) {
+    const deltaX = targetX - currentView.x
+    const deltaY = targetY - currentView.y
+    app.workspace.items.forEach(item => {
+        if (viewContainsItem(currentView, item)) {
+            item.moveBy(deltaX, deltaY)
+        }
+    })
+    currentView.moveBy(deltaX, deltaY)
+}
+
+function viewContainsItem(view, item) {
+    const { width, height, x, y } = view
+    if (
+        item.x >= x && item.x < x + width &&
+        item.y >= y && item.y < y + height
+        ) {
+            return true
+        }
+    return false
+}
+
+function spawnSquare(x, y) {
+    return app.spawn(square(x, y, 200, 'blue', {
+        allowDrag: true,
+        allowRotate: true,
+    }))
+}
