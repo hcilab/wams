@@ -213,6 +213,7 @@ class ClientController {
     this.socket = io.connect(constants.NS_WAMS, {
       autoConnect:  false,
       reconnection: false,
+      transports: ['websocket', 'polling'],
     });
     this[symbols.attachListeners]();
     window.requestAnimationFrame(this.render_fn);
