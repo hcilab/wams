@@ -126,7 +126,7 @@ class ServerView extends Locker(Interactable(View)) {
    * @override
    */
   moveBy(dx = 0, dy = 0) {
-    super.moveBy(-dx, -dy);
+    super.moveBy(dx, dy);
   }
 
   /*
@@ -135,7 +135,7 @@ class ServerView extends Locker(Interactable(View)) {
    * @override
    */
   rotateBy(radians = 0, px, py) {
-    super.rotateBy(-radians, px, py);
+    super.rotateBy(radians, px, py);
   }
 
   /*
