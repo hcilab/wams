@@ -57,13 +57,13 @@ function image(src, properties = {}) {
  * the given width and height, filled in with the given colour.
  */
 function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
-  const hitbox = new Rectangle(width, height, x, y);
+  const hitbox = new Rectangle(width, height, 0, 0);
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
-  sequence.fillRect(x, y, width, height);
+  sequence.fillRect(0, 0, width, height);
   const type = 'item';
 
-  return { ...properties, hitbox, sequence, type };
+  return { ...properties, x, y, hitbox, sequence, type };
 }
 
 /**
