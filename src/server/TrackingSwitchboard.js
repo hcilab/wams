@@ -138,7 +138,7 @@ class TrackingSwitchboard {
    *
    */
   disconnect() {
-    logConnection(controller.view.id, false);
+    logConnection(false);
   }
 
   /**
