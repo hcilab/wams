@@ -19,8 +19,10 @@ const IO = require('socket.io');
 const { constants } = require('../shared.js');
 const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
+const TrackingSwitchboard = require('./TrackingSwitchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
  * @inner
@@ -61,13 +63,27 @@ class Application {
      */
     this.server = http.createServer(router);
 
+
+    /**
+     * Socket.io instance using http server.
+     */
+    this.IOserver = IO(this.server)
+
     /**
      * Socket.io namespace in which to operate.
      *
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = IO(this.server).of(constants.NS_WAMS);
+    this.namespace = this.IOserver.of(constants.NS_WAMS);
+
+    /**
+     * Socket.io namespace for position tracking.
+     *
+     * @type {Namespace}
+     * @see {@link https://socket.io/docs/server-api/}
+     */
+    this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING)
 
     /**
      * The main model. The buck stops here.
@@ -84,6 +100,13 @@ class Application {
     this.messageHandler = new MessageHandler(this.workspace);
 
     /**
+     * Track the active group.
+     *
+     * @type {module:server.ServerViewGroup}
+     */
+    this.group = new ServerViewGroup(this.messageHandler);
+
+    /**
      * The switchboard allows communication with clients
      *
      * @type {module:server.Switchboard}
@@ -92,8 +115,17 @@ class Application {
       this.workspace,
       this.messageHandler,
       this.namespace,
+      this.group,
       settings,
     );
+
+    this.trackingSwitchboard = new TrackingSwitchboard(
+      this.workspace,
+      this.messageHandler,
+      this.trackingNamespace,
+      this.group,
+      settings,      
+    )
   }
 
   /**

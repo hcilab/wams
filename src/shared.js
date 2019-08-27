@@ -48,6 +48,7 @@ const constants = {
   // Namespaces
   /** @type {string} */
   NS_WAMS:  '/wams',
+  NS_WAMS_TRACKING:  '/wams/tracking',
 };
 
 /**

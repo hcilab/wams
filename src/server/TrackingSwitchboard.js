@@ -13,45 +13,22 @@
 // Local project packages, shared between client and server.
 const { Message } = require('../shared.js');
 
-// Local project packages for the server.
-const ServerController = require('./ServerController.js');
-
-/**
- * Finds the first null or undefined index in the given array, and returns that
- * index. If all items in the array are defined and non-null, returns the length
- * of the array. JavaScript arrays allow arbitrary insertion, so in this case
- * the length of the array _is_ the first empty index!
- *
- * @inner
- * @memberof module:server.Switchboard
- *
- * @param {Array} array - The array to search.
- *
- * @return {number} The first empty index in the array.
- */
-function findEmptyIndex(array) {
-  /*
-   * This is a very deliberate use of '==' instead of '==='. It should catch
-   * both undefined and null.
-   */
-  const index = array.findIndex(e => e == null);
-  return index < 0 ? array.length : index;
-}
+// Symbols to mark these methods as intended for internal use only.
+const symbols = Object.freeze({
+  attachListeners: Symbol('attachListeners'),
+});
 
 /**
  * Report information about the given connection to the console.
  *
  * @inner
  * @memberof module:server.Switchboard
- * @param {number} id - ID of the view corresponding to the connection.
- * @param {number} port - Port on which the workspace is listening for the
- * connection.
  * @param {boolean} status - True if this is a new connection, False if this is
  * a disconnection.
  */
-function logConnection(id, status) {
+function logConnection(status) {
   const event = status ? 'connected' : 'disconnected';
-  console.info('View', id, event, 'to workspace.');
+  console.info('Tracker', event, 'to workspace.');
 }
 
 /**
@@ -70,14 +47,14 @@ function logConnection(id, status) {
  * @param {Object} settings - User-supplied options, specifying a client limit
  * and workspace settings.
  */
-class Switchboard {
+class TrackingSwitchboard {
   constructor(workspace, messageHandler, namespace, group, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || Switchboard.DEFAULTS.clientLimit;
+    this.clientLimit = settings.clientLimit || TrackingSwitchboard.DEFAULTS.clientLimit;
 
     /**
      * The principle workspace for this server.
@@ -94,30 +71,38 @@ class Switchboard {
     this.messageHandler = messageHandler;
 
     /**
-     * Socket.io namespace in which to operate.
-     *
-     * @type {Namespace}
-     */
-    this.namespace = namespace;
-
-    /**
-     * Tracks all active connections. Will pack new connections into the start
-     * of this array at all times. Old connections will not have their position
-     * in the array changed.
-     *
-     * @type {module:server.ServerController[]}
-     */
-    this.connections = [];
-
-    /**
      * Track the active group.
      *
      * @type {module:server.ServerViewGroup}
      */
     this.group = group;
 
+    /**
+     * Socket.io namespace in which to operate.
+     *
+     * @type {Namespace}
+     */
+    this.namespace = namespace;
+
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
+  }
+
+  /**
+   * Attaches listeners to the socket. Only listens to message types existing on
+   * the Message class object.
+   *
+   * @alias [@@attachListeners]
+   * @memberof module:server.ServerController
+   */
+  [symbols.attachListeners](socket) {
+    const listeners = {
+      [Message.DISPATCH]: ({ data }) => {
+        this.messageHandler.handleCustomEvent(data.action, data.payload);
+      },
+    };
+
+    Object.entries(listeners).forEach(([p, v]) => socket.on(p, v));
   }
 
   /**
@@ -127,19 +112,9 @@ class Switchboard {
    * connection.
    */
   accept(socket) {
-    const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(
-      index,
-      socket,
-      this.workspace,
-      this.messageHandler,
-      this.group,
-    );
-
-    this.connections[index] = controller;
-    socket.on('disconnect', () => this.disconnect(controller));
-
-    logConnection(controller.view.id, true);
+    this[symbols.attachListeners](socket)
+    socket.on('disconnect', () => this.disconnect());
+    logConnection(true);
   }
 
   /**
@@ -161,16 +136,9 @@ class Switchboard {
   /**
    * Disconnect the given connection.
    *
-   * @param {ServerController} connection - ServerController to disconnect.
    */
-  disconnect(controller) {
-    if (controller.disconnect()) {
-      this.connections[controller.index] = null;
-      new Message(Message.RM_SHADOW, controller.view).emitWith(this.namespace);
-      logConnection(controller.view.id, false);
-    } else {
-      console.error('Failed to disconnect:', this);
-    }
+  disconnect() {
+    logConnection(controller.view.id, false);
   }
 
   /**
@@ -182,7 +150,7 @@ class Switchboard {
   reject(socket) {
     socket.emit(Message.FULL);
     socket.disconnect(true);
-    console.warn('Rejected incoming connection: client limit reached.');
+    console.warn('Rejected incoming tracker connection: client limit reached.');
   }
 }
 
@@ -191,10 +159,10 @@ class Switchboard {
  *
  * @type {object}
  */
-Switchboard.DEFAULTS = Object.freeze({
+TrackingSwitchboard.DEFAULTS = Object.freeze({
   clientLimit: 1000,
-  port:        9000,
+  port: 9000,
 });
 
-module.exports = Switchboard;
+module.exports = TrackingSwitchboard;
 
