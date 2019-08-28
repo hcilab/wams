@@ -1,15 +1,18 @@
 const WAMS = require('..')
-const { square } = WAMS.predefined.items
+const path = require('path')
+const { image } = WAMS.predefined.items
 const { line } = WAMS.predefined.layouts
 
 const dimensions = []
 const deepSpace = {x: 99999, y: 99999}
 
 const app = new WAMS.Application({
+    color: '#f4f4f4',
     shadows: true,
+    staticDir: path.join(__dirname, '/img')
 })
 
-spawnSquare(200, 300)
+spawnImage(200, 300)
 
 app.on('deviceNearScreen', (data) => {
     const { deviceIndex, nearIndex } = data
@@ -68,9 +71,13 @@ function viewContainsItem(view, item) {
     return false
 }
 
-function spawnSquare(x, y) {
-    return app.spawn(square(x, y, 200, 'blue', {
+function spawnImage(x, y) {
+    return app.spawn(image('dribble.png', {
         allowDrag: true,
         allowRotate: true,
+        width: 1600,
+        height: 1200,
+        scale: 1/4,
+        x, y,
     }))
 }
