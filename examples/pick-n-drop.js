@@ -13,14 +13,17 @@ spawnSquare(200, 300)
 
 app.on('deviceNearScreen', (data) => {
     const { deviceIndex, nearIndex } = data
-    console.log(`View ${deviceIndex} is close to ${nearIndex}`)
-    moveScreenToScreen(app.group.views[deviceIndex], app.group.views[nearIndex])
+    console.log(`[Tracker] View ${deviceIndex} is close to ${nearIndex}`)
+    const currentView = app.group.views[deviceIndex]
+    const nearView    = app.group.views[nearIndex]
+    if (currentView) moveScreenToScreen(currentView, nearView)
 })
 
 app.on('deviceFarFromScreens', (data) => {
     const { deviceIndex } = data
-    console.log(`View ${deviceIndex} is far from screens`)
-    moveScreenWithItems(app.group.views[deviceIndex], deepSpace.x, deepSpace.y)
+    console.log(`[Tracker] View ${deviceIndex} is far from screens`)
+    const currentView = app.group.views[deviceIndex]
+    if (currentView) moveScreenWithItems(currentView, deepSpace.x, deepSpace.y)
 })
 
 const setLayout = line(0)
