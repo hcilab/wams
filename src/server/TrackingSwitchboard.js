@@ -125,7 +125,7 @@ class TrackingSwitchboard {
   connect(socket) {
     this.namespace.clients((error, clients) => {
       if (error) throw error;
-      if (clients.length <= this.clientLimit) {
+      if (clients.length <= this.clientLimit || true) {
         this.accept(socket);
       } else {
         this.reject(socket);

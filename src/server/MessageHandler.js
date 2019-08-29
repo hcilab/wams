@@ -163,10 +163,20 @@ class MessageHandler {
           dy: d.y,
         }, this.workspace)
       } else {
+        let x = d.x;
+        let y = d.y;
+        const itemClass = event.target.constructor.name;
+        if (
+          itemClass === 'ServerView' ||
+          itemClass === 'ServerViewGroup'
+        ) {
+          x = -x;
+          y = -y;
+        }
         actions.drag({
           ...event,
-          dx: d.x,
-          dy: d.y,
+          dx: x,
+          dy: y,
         });
       } 
     }

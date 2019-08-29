@@ -79,11 +79,14 @@ class Application {
 
     /**
      * Socket.io namespace for position tracking.
+     * 
+     * WARNING: Currently uses root namespace due to Unity Socket.io
+     * library not having namespace support. This results in ...
      *
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING)
+    if (settings.enableTracking) this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING)
 
     /**
      * The main model. The buck stops here.
@@ -119,7 +122,7 @@ class Application {
       settings,
     );
 
-    this.trackingSwitchboard = new TrackingSwitchboard(
+    if (settings.enableTracking) this.trackingSwitchboard = new TrackingSwitchboard(
       this.workspace,
       this.messageHandler,
       this.trackingNamespace,
