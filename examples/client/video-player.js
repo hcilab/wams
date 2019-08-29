@@ -69,11 +69,13 @@ WAMS.on('setPlayingState', ({ detail }) => {
 })
 
 WAMS.on('replay', () => {
-  window.player.seekTo(window.player.l.currentTime - 10)
+  window.player.seekTo(window.player.getCurrentTime() - 10)
+  console.log(window.player)
 })
 
 WAMS.on('forward', () => {
-  window.player.seekTo(window.player.l.currentTime + 10)
+  window.player.seekTo(window.player.getCurrentTime() + 10)
+  console.log(window.player)
 })
 
 

@@ -12,14 +12,12 @@ const app = new WAMS.Application();
 function handleSwipe({ x, y, velocity, direction }) {
   const cidx = Math.ceil(velocity * 10) % WAMS.colours.length;
   app.spawn(WAMS.predefined.items.rectangle(
-    0,
-    0,
+    x,
+    y,
     velocity * 10,
     32,
     WAMS.colours[cidx],
     {
-      x,
-      y,
       type:     'colour',
       rotation: -direction,
     },

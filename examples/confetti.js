@@ -8,9 +8,9 @@
 const WAMS = require('..');
 const app = new WAMS.Application();
 
-
 // create a custom square
 // with a random color
+// with a centered location
 // using CanvasSequence
 function square(x, y, view) {
   const sequence = new WAMS.CanvasSequence();

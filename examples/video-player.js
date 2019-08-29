@@ -34,6 +34,7 @@ class VideoPlayer {
                 'video-player.js',
                 'https://www.youtube.com/iframe_api'
             ],
+            stylesheets: ['./video-player.css'],
             title: 'Video Player',
             staticDir: path.join(__dirname, './client'),
         })
@@ -110,6 +111,8 @@ class VideoPlayer {
             allowDrag: true,
             allowScale: true,
         }))
+
+        console.log(this.controls)
     }
 
     handleConnect(view) {
@@ -120,7 +123,10 @@ class VideoPlayer {
         // re-rendering controls
         // to show current play/pause btn status
         // for newly connected device
-        if (this.controls) this.app.removeItem(this.controls)
+        if (this.controls) {
+            console.log('removing item')
+            this.app.removeItem(this.controls)
+        }
         this.spawnControls({
             videoTitle: 'Apollo 11 landing from PDI to Touchdown',
         })

@@ -1,6 +1,7 @@
 /*
  * This example is intended to demonstrate how users can coordinate with the
- * workspace from several different angles.
+ * workspace from several different angles and how item interaction could be
+ * allowed or rejected based on view index.
  */
 
 'use strict';
@@ -8,7 +9,6 @@
 const path = require('path');
 const WAMS = require('..');
 
-// Spawn application with a green background for that classic playing card look.
 const app = new WAMS.Application({
   color: 'green',
   clientLimit: 2,
@@ -56,7 +56,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
   }
 
   app.spawn(WAMS.predefined.items.html(
-    `<img class="el ${properties.draggable ? 'draggable-shadow' : ''}" src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" />`,
+    `<div><img src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" /></div>`,
     SQUARE_LENGTH,
     SQUARE_LENGTH,
     {
@@ -81,9 +81,9 @@ for (let i = 0; i < 10; i += 1) {
 
     if (colour === 'black') {
       if (i < 4) {
-        spawnToken(x, y, 0)
-      } else if (i > 5) {
         spawnToken(x, y, 1)
+      } else if (i > 5) {
+        spawnToken(x, y, 0)
       }
     }
   }
@@ -98,7 +98,7 @@ function centerViewNormal(view) {
 
 function handleConnect(view) {
 
-  if (view.index === 0) {
+  if (view.index === 1) {
     view.rotateBy(Math.PI)
   }
 

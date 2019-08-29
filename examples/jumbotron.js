@@ -15,7 +15,7 @@ const app = new WAMS.Application({
   staticDir: path.join(__dirname, './img'),
 });
 
-const scale = 1;
+const scale = 2;
 
 app.spawn(image('monaLisa.jpg', {
   width: 1200,
