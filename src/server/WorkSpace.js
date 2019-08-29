@@ -141,9 +141,8 @@ class WorkSpace {
    * @param {number} id
    */
   bringItemToTop(id) {
-    const reversedIndex = this.items.findIndex(el => el.id === id);
-    if (reversedIndex < 0) throw new Error('Couldn\'t find item by id');
-    const index = this.items.length - 1 - reversedIndex;
+    const index = this.items.findIndex(el => el.id === id);
+    if (index < 0) throw new Error('Couldn\'t find item by id');
     this.items.unshift(...this.items.splice(index, 1));
   }
 
