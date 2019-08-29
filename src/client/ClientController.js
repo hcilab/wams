@@ -43,7 +43,14 @@ const symbols = Object.freeze({
  * server's model.
  */
 class ClientController {
-  constructor(canvas, view, model) {
+  constructor(root, canvas, view, model) {
+    /**
+     * Root element where WAMS canvas and HTML elements are located.
+     *
+     * @type {Element}
+     */
+    this.rootElement = root;
+
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only
@@ -300,14 +307,15 @@ class ClientController {
    * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
-    const dpr = (window.devicePixelRatio || 1);
+    const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
+    const dpr = iOS ? 1 : (window.devicePixelRatio || 1);
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width = w * dpr;
     this.canvas.height = h * dpr;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow(dpr);
+    this.view.resizeToFillWindow(dpr, iOS);
   }
 
   /**
@@ -380,7 +388,7 @@ class ClientController {
     if (useMultiScreenGestures) {
       this.setupInputForwarding();
     } else {
-      new Interactor({
+      new Interactor(this.rootElement, {
         swipe:     this.forward(Message.SWIPE),
         tap:       this.forward(Message.CLICK),
         track:     this.forward(Message.TRACK),

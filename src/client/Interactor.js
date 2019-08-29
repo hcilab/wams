@@ -38,7 +38,7 @@ const Transform = require('./Transform.js');
  * @param {Function} [handlers.transform=NOP]
  */
 class Interactor {
-  constructor(handlers = {}) {
+  constructor(root, handlers = {}) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
@@ -52,7 +52,7 @@ class Interactor {
     this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
 
     // Begin listening activities immediately.
-    this.bindRegions();
+    this.bindRegions(root);
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
 
@@ -61,20 +61,19 @@ class Interactor {
    * element, along with a handler for responding to that gesture. This method
    * takes care of those activities.
    */
-  bindRegions() {
+  bindRegions(root) {
     const swipe     = new Westures.Swipe();
     const swivel    = new Westures.Swivel({ enableKey: 'ctrlKey' });
     const tap       = new Westures.Tap();
     const track     = new Westures.Track(['start', 'end']);
     const transform = new Transform();
 
-    const canvas = document.querySelector('canvas#main')
-    const region = new Westures.Region(canvas);
-    region.addGesture(canvas, tap,       this.forward('tap'));
-    region.addGesture(canvas, swipe,     this.forward('swipe'));
-    region.addGesture(canvas, swivel,    this.swivel());
-    region.addGesture(canvas, transform, this.forward('transform'));
-    region.addGesture(canvas, track,     this.forward('track'));
+    const region = new Westures.Region(root);
+    region.addGesture(root, tap,       this.forward('tap'));
+    region.addGesture(root, swipe,     this.forward('swipe'));
+    region.addGesture(root, swivel,    this.swivel());
+    region.addGesture(root, transform, this.forward('transform'));
+    region.addGesture(root, track,     this.forward('track'));
   }
 
   /**

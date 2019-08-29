@@ -23,6 +23,13 @@ class ClientElement extends WamsElement {
     super(data);
 
     /**
+     * Root element where WAMS canvas and HTML elements are located.
+     *
+     * @type {Element}
+     */
+    const root = document.querySelector('#root');
+
+    /**
      * The DOM element.
      *
      * @type {Element}
@@ -33,7 +40,7 @@ class ClientElement extends WamsElement {
     this.element.height = this.height;
     this.element.style.width = `${this.width}px`;
     this.element.style.height = `${this.height}px`;
-    document.body.appendChild(this.element);
+    root.appendChild(this.element);
     if (data.hasOwnProperty('attributes')) {
       this.setAttributes(data.attributes);
     }

@@ -30,6 +30,13 @@ const REQUIRED_DATA = Object.freeze([
 class ClientModel {
   constructor() {
     /**
+     * Root element where WAMS canvas and HTML elements are located.
+     *
+     * @type {Element}
+     */
+    this.rootElement = root;
+
+    /**
      * All the items in the model, which may all need rendering at some point.
      * Kept up to date via the ClientController.
      *
@@ -120,7 +127,7 @@ class ClientModel {
   removeItem(item) {
     const obj = this.items.get(item.id);
     if (obj.hasOwnProperty('tagname')) {
-      document.body.removeChild(obj.element);
+      this.rootElement.removeChild(obj.element);
     }
 
     this.items.delete(item.id);

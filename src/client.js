@@ -33,14 +33,16 @@ window.addEventListener(
   function run() {
     document.addEventListener('contextmenu', e => e.preventDefault());
 
+    const root = document.querySelector('#root');
+    if (!root) throw 'No root element was found on the page.';
     const canvas = document.querySelector('canvas');
     if (!canvas) throw 'No canvas element was found on the page.';
 
     const context = canvas.getContext('2d');
 
-    const model = new ClientModel();
+    const model = new ClientModel(root);
     const view = new ClientView(context);
-    const ctrl = new ClientController(canvas, view, model);
+    const ctrl = new ClientController(root, canvas, view, model);
 
     model.view = view;
     view.model = model;
