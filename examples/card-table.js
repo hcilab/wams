@@ -33,6 +33,7 @@ function shuffle(in_array) {
 const app = new WAMS.Application({
   color: 'green',
   backgroundImage: 'green-table.jpeg',
+  enableTracking: true,
   shadows: true,
   clientLimit: 5,
   staticDir: path.join(__dirname, '/img'),
