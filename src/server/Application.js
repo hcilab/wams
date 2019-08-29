@@ -81,7 +81,8 @@ class Application {
      * Socket.io namespace for position tracking.
      * 
      * WARNING: Currently uses root namespace due to Unity Socket.io
-     * library not having namespace support. This results in ...
+     * library not having namespace support. Due to this, connection
+     * functionality is limited.
      *
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}

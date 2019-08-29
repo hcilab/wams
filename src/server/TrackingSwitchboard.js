@@ -27,6 +27,9 @@ const symbols = Object.freeze({
  * a disconnection.
  */
 function logConnection(status) {
+  // DISABLE LOGGING DUE TO BUGS
+  // FROM USING ROOT NAMESPACE
+  return;
   const event = status ? 'connected' : 'disconnected';
   console.info('Tracker', event, 'to workspace.');
 }
@@ -125,11 +128,7 @@ class TrackingSwitchboard {
   connect(socket) {
     this.namespace.clients((error, clients) => {
       if (error) throw error;
-      if (clients.length <= this.clientLimit || true) {
-        this.accept(socket);
-      } else {
-        this.reject(socket);
-      }
+      this.accept(socket);
     });
   }
 
@@ -139,18 +138,6 @@ class TrackingSwitchboard {
    */
   disconnect() {
     logConnection(false);
-  }
-
-  /**
-   * Reject the connection associated with the given socket.
-   *
-   * @param {Socket} socket - socket.io socket instance for the rejected
-   * connection.
-   */
-  reject(socket) {
-    socket.emit(Message.FULL);
-    socket.disconnect(true);
-    console.warn('Rejected incoming tracker connection: client limit reached.');
   }
 }
 
