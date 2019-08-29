@@ -29,10 +29,10 @@ function draw(event, workspace) {
   // line.lineTo(toX, toY);
   // line.strokeStyle = 'blue';
   // line.stroke();
-  
+
   line.beginPath();
   line.fillStyle = color;
-  line.ellipse(toX, toY, width/2, width/2, Math.PI / 2, 0, 2 * Math.PI);
+  line.ellipse(toX, toY, width / 2, width / 2, Math.PI / 2, 0, 2 * Math.PI);
   line.fill();
   workspace.spawnItem({ sequence: line });
 }
@@ -45,8 +45,13 @@ function draw(event, workspace) {
  * @param {object} event
  */
 function drag(event) {
+  let { dx, dy } = event;
   const item = event.target.parent || event.target;
-  item.moveBy(event.dx, event.dy);
+  if (isView(item)) {
+    dx = -dx;
+    dy = -dy;
+  }
+  item.moveBy(dx, dy);
 }
 
 /**
@@ -57,7 +62,12 @@ function drag(event) {
  * @param {object} event
  */
 function rotate(event) {
-  event.target.rotateBy(event.rotation, event.x, event.y);
+  let { rotation, x, y } = event;
+  const item = event.target;
+  if (isView(item)) {
+    rotation = -rotation;
+  }
+  event.target.rotateBy(rotation, x, y);
 }
 
 /**
@@ -69,6 +79,17 @@ function rotate(event) {
  */
 function scale(event) {
   event.target.scaleBy(event.scale, event.x, event.y);
+}
+
+/**
+ * Says if an item is a View instance.
+ * 
+ * @param {*} item 
+ */
+function isView(item) {
+  const itemClass = item.constructor.name;
+  const viewConstructors = ['ServerView', 'ServerViewGroup']
+  return viewConstructors.indexOf(itemClass) > -1
 }
 
 module.exports = Object.freeze({

@@ -153,7 +153,7 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const doGesture = this.shouldDoGesture(event.target.allowDrag);
+    const doGesture = this.shouldDoGesture(event.target.allowDrag, event);
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
       if (event.target.ondrag) {
@@ -163,20 +163,10 @@ class MessageHandler {
           dy: d.y,
         }, this.workspace)
       } else {
-        let x = d.x;
-        let y = d.y;
-        const itemClass = event.target.constructor.name;
-        if (
-          itemClass === 'ServerView' ||
-          itemClass === 'ServerViewGroup'
-        ) {
-          x = -x;
-          y = -y;
-        }
         actions.drag({
           ...event,
-          dx: x,
-          dy: y,
+          dx: d.x,
+          dy: d.y,
         });
       } 
     }
@@ -199,10 +189,10 @@ class MessageHandler {
    *
    * @param {*} handler
    */
-  shouldDoGesture(handler) {
+  shouldDoGesture(handler, event) {
     switch (typeof handler) {
     case 'function':
-      if (handler() === true) return true;
+      if (handler(event) === true) return true;
       return false;
     case 'boolean':
       if (handler === true) return true;
