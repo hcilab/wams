@@ -57,21 +57,21 @@ function table(overlap) {
 
   function layoutLeft(view, device) {
     view.moveTo(topLeft.x + overlap, topLeft.y);
-    view.rotateBy(constants.ROTATE_270);
+    view.rotateBy(constants.ROTATE_90);
     device.moveTo(topLeft.x + overlap, topLeft.y);
-    device.rotateBy(-constants.ROTATE_270);
+    device.rotateBy(constants.ROTATE_90);
   }
 
   function layoutTop(view, device) {
     view.moveTo(topRight.x, topRight.y + overlap);
     view.rotateBy(constants.ROTATE_180);
     device.moveTo(topRight.x, topRight.y + overlap);
-    device.rotateBy(-constants.ROTATE_180);
+    device.rotateBy(constants.ROTATE_180);
   }
 
   function layoutRight(view, device) {
     view.moveTo(bottomRight.x - overlap, bottomRight.y);
-    view.rotateBy(constants.ROTATE_90);
+    view.rotateBy(-constants.ROTATE_90);
     device.moveTo(bottomRight.x - overlap, bottomRight.y);
     device.rotateBy(-constants.ROTATE_90);
   }
