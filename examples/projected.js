@@ -1,6 +1,9 @@
 const WAMS = require('..');
 const path = require('path')
 
+const TOTAL_WIDTH = 5650
+const TOTAL_HEIGHT = 6053
+
 const app = new WAMS.Application({
 	shadows: true,
 	staticDir: path.join(__dirname, './img'),
@@ -11,6 +14,11 @@ const { image } = WAMS.predefined.items;
 
 app.on('position', (data) => {
 	console.log(data)
+	// x and y are floats from 0 to 1, representing relative
+	// position of the tracker in space on each dimension
+	const { x, y } = data.position
+	const trackedView = app.group.views[data.deviceIndex]
+	trackedView.moveTo(x * TOTAL_WIDTH, y * TOTAL_HEIGHT)
 })
 
 app.spawn(image('map.jpg', {
@@ -20,7 +28,7 @@ app.spawn(image('map.jpg', {
 
 function viewSetup(view, device, group) {
 	if (view.index == 0) {
-		view.scaleBy(0.6);
+		view.scaleBy(0.22);
 	}
 	else {
 		group.allowDrag = true;
