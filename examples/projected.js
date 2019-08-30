@@ -25,8 +25,7 @@ function viewSetup(view, device, group) {
 	else {
 		group.allowDrag = true;
 		view.scaleBy(3.4);
-		view.x = 1615;
-		view.y = 2800;
+		view.moveTo(1615, 2800);
 	}
 }
 
