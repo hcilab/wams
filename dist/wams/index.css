@@ -27,6 +27,7 @@
     align-items: stretch;
     background-color: transparent;
     display: flex;
+    flex-direction: column;
     left: 0px;
     overflow: hidden;
     position: absolute;
