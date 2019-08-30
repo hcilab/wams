@@ -28,7 +28,7 @@ app.spawn(image('map.jpg', {
 
 function viewSetup(view, device, group) {
 	if (view.index == 0) {
-		view.scaleBy(0.22);
+		view.scaleBy(0.6);
 	}
 	else {
 		group.allowDrag = true;
