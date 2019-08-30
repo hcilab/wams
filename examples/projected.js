@@ -27,7 +27,23 @@ app.on('position', (data) => {
 app.spawn(image('map.jpg', {
 	width: 5650, height: 6053,
 	x: 0, y: 0,
+	onclick: handleClick
 }));
+
+function spawnPin(x, y) {
+	app.spawn(image('pin.png', {
+		x, y,
+		width: 50, 
+		height: 50,
+	}))
+}
+
+function handleClick(ev) {
+	const view = ev.view
+	if (view.index === 2) {
+		spawnPin(ev.x, ev.y)
+	}
+}
 
 function viewSetup(view, device, group) {
 	if (view.index === 0) {
