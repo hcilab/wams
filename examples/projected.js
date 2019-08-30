@@ -5,6 +5,7 @@ const TOTAL_WIDTH = 5650
 const TOTAL_HEIGHT = 6053
 
 const app = new WAMS.Application({
+	enableTracking: true,
 	shadows: true,
 	staticDir: path.join(__dirname, './img'),
 	useMultiScreenGestures: true
@@ -18,7 +19,9 @@ app.on('position', (data) => {
 	// position of the tracker in space on each dimension
 	const { x, y } = data.position
 	const trackedView = app.group.views[data.deviceIndex]
-	trackedView.moveTo(x * TOTAL_WIDTH, y * TOTAL_HEIGHT)
+	if (trackedView) {
+		trackedView.moveTo(x * TOTAL_WIDTH, y * TOTAL_HEIGHT)
+	}
 })
 
 app.spawn(image('map.jpg', {
