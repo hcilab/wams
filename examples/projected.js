@@ -54,7 +54,7 @@ function viewSetup(view, device, group) {
 		view.scaleBy(3.4);
 		view.moveTo(1615, 2800);
 	} else {
-		view.scaleBy(2.5)
+		view.scaleBy(1.7)
 	}
 }
 
