@@ -88,7 +88,7 @@ class ShadowView extends View {
    */
   [symbols.style](context) {
     context.globalAlpha = 1;
-    context.strokeStyle = colours[this.id % colours.length];
+    context.strokeStyle = 'black';//colours[this.id % colours.length];
     context.fillStyle = context.strokeStyle;
     context.lineWidth = 10;
   }
