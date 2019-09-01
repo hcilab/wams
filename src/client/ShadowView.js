@@ -87,10 +87,10 @@ class ShadowView extends View {
    * @param {CanvasRenderingContext2D} context - context on which to draw.
    */
   [symbols.style](context) {
-    context.globalAlpha = 1;
-    context.strokeStyle = 'black';//colours[this.id % colours.length];
+    context.globalAlpha = 0.5;
+    context.strokeStyle = colours[this.id % colours.length];
     context.fillStyle = context.strokeStyle;
-    context.lineWidth = 10;
+    context.lineWidth = 5;
   }
 
   /**
