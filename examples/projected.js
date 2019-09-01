@@ -27,34 +27,19 @@ app.on('position', (data) => {
 app.spawn(image('map.jpg', {
 	width: 5650, height: 6053,
 	x: 0, y: 0,
-	onclick: handleClick
 }));
-
-function spawnPin(x, y) {
-	app.spawn(image('pin.png', {
-		x, y,
-		width: 50, 
-		height: 50,
-	}))
-}
-
-function handleClick(ev) {
-	const view = ev.view
-	if (view.index === 2) {
-		spawnPin(ev.x, ev.y)
-	}
-}
 
 function viewSetup(view, device, group) {
 	if (view.index === 0) {
 		view.scaleBy(0.6);
 	}
 	else if (view.index === 1) {
-		group.allowDrag = true;
+		group.allowDrag = true
 		view.scaleBy(3.4);
 		view.moveTo(1615, 2800);
 	} else {
 		view.scaleBy(1.7)
+		view.allowDrag = true
 	}
 }
 
