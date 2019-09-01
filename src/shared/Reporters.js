@@ -72,6 +72,18 @@ const Item = ReporterFactory({
    * @instance
    */
   type: 'item/polygonal',
+
+  /**
+   * Whether to raise item upon interaction or
+   * lock Z position instead.
+   *
+   * @name lockZ
+   * @type {boolean}
+   * @default false
+   * @memberof module:shared.Item
+   * @instance
+   */
+  lockZ: false,
 });
 
 /**
@@ -170,6 +182,18 @@ const WamsElement = ReporterFactory({
    * @instance
    */
   tagname: 'div',
+
+  /**
+   * Whether to raise item upon interaction or
+   * lock Z position instead.
+   *
+   * @name lockZ
+   * @type {boolean}
+   * @default false
+   * @memberof module:shared.Item
+   * @instance
+   */
+  lockZ: false,
 });
 
 /**
@@ -257,6 +281,18 @@ const WamsImage = ReporterFactory({
    * @instance
    */
   type: 'item/image',
+
+  /**
+   * Whether to raise image upon interaction or
+   * lock Z position instead.
+   *
+   * @name lockZ
+   * @type {boolean}
+   * @default false
+   * @memberof module:shared.WamsImage
+   * @instance
+   */
+  lockZ: false,
 });
 
 /**

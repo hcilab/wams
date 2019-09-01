@@ -107,7 +107,7 @@ class WorkSpace {
       itemClass !== 'ServerView' &&
       itemClass !== 'ServerViewGroup'
     ) {
-      this.raiseItem(item);
+      if (!item.lockZ) this.raiseItem(item);
       if (
         item.allowDrag  ||
         item.allowScale ||

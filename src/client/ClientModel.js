@@ -240,7 +240,12 @@ class ClientModel {
   update(container, data) {
     if (this[container].has(data.id)) {
       this[container].get(data.id).assign(data);
-      if (container === 'items') this.bringItemToTop(data.id);
+      if (container === 'items') {
+        const item = this[container].get(data.id)
+        if (!item.lockZ) { 
+          this.bringItemToTop(data.id);
+        }
+      }
     } else {
       console.warn(`Unable to find in ${container}: id: `, data.id);
     }
