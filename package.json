@@ -1,19 +1,19 @@
 {
   "description": "Workspaces Across Multiple Surfaces",
   "dependencies": {
-    "canvas-sequencer": "^3.0.1",
-    "express": "^4.16.4",
-    "parcel-bundler": "^1.12.3",
-    "socket.io": "^2.2.0",
-    "westures": "^0.7.5"
+    "canvas-sequencer": "^3.0.6",
+    "express": "^4.17.1",
+    "socket.io": "^4.1.2",
+    "westures": "^1.0.0-alpha.4"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.4.3",
-    "arkit": "^1.5.4",
-    "eslint": "^5.16.0",
-    "jest": "^24.7.1",
-    "jsdoc": "^3.5.5",
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "arkit": "^1.6.4",
+    "eslint": "^7.29.0",
+    "jest": "^27.0.5",
+    "jsdoc": "^3.6.7",
+    "parcel": "^2.0.0-beta.2",
     "tui-jsdoc-template": "^1.2.2"
   },
   "jest": {
@@ -27,11 +27,11 @@
     "testURL": "http://localhost/"
   },
   "main": "index.js",
-  "name": "WAMS",
+  "name": "wams",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/mvanderkamp/wams"
+    "url": "https://github.com/hcilab/wams"
   },
   "version": "1.0.0"
 }
