@@ -76,8 +76,7 @@ To check out the code of the live demo, see `examples/video-player.js`
 
 This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://nick-baliesnyi.github.io/wams/).
 
-> **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object desctructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
-
+> **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object destructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
 ### Set up your application
 
