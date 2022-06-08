@@ -15,7 +15,7 @@ const e = require('express');
 const app = new WAMS.Application({
   color: 'peru',          // background color of the app
   clientLimit: 2,                // maximum number of devices that can connect to the app
-  staticDir: path.join(__dirname, './img/chess pieces'), // path to directory for static files, will be accessible at app's root
+  staticDir: path.join(__dirname, './img/chess_pieces'), // path to directory for static files, will be accessible at app's root
   shadows: true,             // show shadows of other devices
   title: 'Chess using Wams',  // page title  
 });
