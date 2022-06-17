@@ -8,8 +8,7 @@
     "package": "package.json",
     "pedantic": true,
     "readme": "README.md",
-    "recurse": true,
-    "template": "node_modules/tui-jsdoc-template"
+    "recurse": true
   },
   "plugins": [],
   "recurseDepth": 10,
