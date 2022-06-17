@@ -1,0 +1,5 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/deep/Documents/wams'
+npx eslint src;
+make: Leaving directory '/home/deep/Documents/wams'
+ 
