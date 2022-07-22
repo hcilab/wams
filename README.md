@@ -1,12 +1,12 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
 [![dependencies Status](
-https://david-dm.org/nick-baliesnyi/wams/status.svg)](
-https://david-dm.org/nick-baliesnyi/wams)
+https://david-dm.org/hcilab/wams/status.svg)](
+https://david-dm.org/hcilab/wams)
 [![devDependencies Status](
-https://david-dm.org/nick-baliesnyi/wams/dev-status.svg)](
-https://david-dm.org/nick-baliesnyi/wams?type=dev)
-[![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/nick-baliesnyi/wams/maintainability)
+https://david-dm.org/hcilab/wams/dev-status.svg)](
+https://david-dm.org/hcilab/wams?type=dev)
+[![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/hcilab/wams/maintainability)
 
 WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
 
@@ -46,14 +46,14 @@ You will need to install [node.js and npm](https://docs.npmjs.com/downloading-an
 Once they are installed, go to your app folder, where you want to install `wams` and run the following commands:
 
 ```bash
-git clone https://github.com/nick-baliesnyi/wams.git
+git clone https://github.com/hcilab/wams.git
 cd wams
 npm install
 ```
 
 ## Getting started
 
-The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://nick-baliesnyi.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
+The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://hcilab.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
 
 ## Examples
 
@@ -74,7 +74,7 @@ To check out the code of the live demo, see `examples/video-player.js`
 
 ## Walkthrough
 
-This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://nick-baliesnyi.github.io/wams/).
+This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://hcilab.github.io/wams/).
 
 > **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object destructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
@@ -182,7 +182,7 @@ You can substitute `const app = new Wams.Application();` in your code with the c
 
 ### Basics
 
-A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://nick-baliesnyi.github.io/wams/module-predefined.items.html)): 
+A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://hcilab.github.io/wams/module-predefined.items.html)): 
 
 - `rectangle`
 - `square`
@@ -213,7 +213,7 @@ app.spawn(polygon(points, 'green', {
 }));
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://nick-baliesnyi.github.io/wams/module-predefined.utilities.html#.randomPoints)). 
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://hcilab.github.io/wams/module-predefined.utilities.html#.randomPoints)). 
 
 For example:
 ```javascript
@@ -618,7 +618,7 @@ function flipCard(event) {
 
 ### Grouped items
 
-Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method (see in the [code documentation](https://nick-baliesnyi.github.io/wams/module-server.Application.html#createGroup)):
+Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method (see in the [code documentation](https://hcilab.github.io/wams/module-server.Application.html#createGroup)):
 
 ```javascript
 const items = [];
