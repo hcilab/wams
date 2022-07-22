@@ -26,6 +26,7 @@ function handleSwipe({ x, y, velocity, direction }) {
 
 function handleConnect(view) {
   view.onswipe = handleSwipe;
+  view.ondrag = handleSwipe;
 }
 
 app.onconnect(handleConnect);
