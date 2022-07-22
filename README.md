@@ -1,11 +1,5 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
-[![dependencies Status](
-https://david-dm.org/hcilab/wams/status.svg)](
-https://david-dm.org/hcilab/wams)
-[![devDependencies Status](
-https://david-dm.org/hcilab/wams/dev-status.svg)](
-https://david-dm.org/hcilab/wams?type=dev)
 [![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/hcilab/wams/maintainability)
 
 WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
