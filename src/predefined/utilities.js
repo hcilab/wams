@@ -41,4 +41,3 @@ function randomPoints(x = 5, lim = 256) {
 module.exports = {
   randomPoints,
 };
-

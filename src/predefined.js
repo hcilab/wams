@@ -21,7 +21,7 @@
 
 'use strict';
 
-const items   = require('./predefined/items.js');
+const items = require('./predefined/items.js');
 const layouts = require('./predefined/layouts.js');
 const utilities = require('./predefined/utilities.js');
 const actions = require('./predefined/actions.js');
@@ -32,4 +32,3 @@ module.exports = Object.freeze({
   layouts,
   utilities,
 });
-

@@ -7,10 +7,10 @@
 
 'use strict';
 
-const { CanvasSequence }                 = require('canvas-sequencer');
-const { colours, Rectangle, Polygon2D }  = require('./src/shared.js');
-const { Router, Application }            = require('./src/server.js');
-const predefined                         = require('./src/predefined.js');
+const { CanvasSequence } = require('canvas-sequencer');
+const { colours, Rectangle, Polygon2D } = require('./src/shared.js');
+const { Router, Application } = require('./src/server.js');
+const predefined = require('./src/predefined.js');
 
 module.exports = {
   CanvasSequence,
@@ -21,4 +21,3 @@ module.exports = {
   Router,
   Application,
 };
-

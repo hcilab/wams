@@ -18,11 +18,11 @@ beforeEach(() => {
 describe('ServerItem', () => {
   describe('constructor(namespace, values)', () => {
     test('Throws exception if no namespace provided', () => {
-      expect(() => item = new ServerItem()).toThrow();
+      expect(() => (item = new ServerItem())).toThrow();
     });
 
     test('Uses defaults if no values provided', () => {
-      expect(() => item = new ServerItem(namespace)).not.toThrow();
+      expect(() => (item = new ServerItem(namespace))).not.toThrow();
       expect(item).toMatchObject(Item.DEFAULTS);
     });
 
@@ -33,7 +33,7 @@ describe('ServerItem', () => {
     test('Uses user-defined values, if provided', () => {
       const props = { y: 75, type: 'joker' };
       const result = { ...Item.DEFAULTS, ...props };
-      expect(() => item = new ServerItem(namespace, props)).not.toThrow();
+      expect(() => (item = new ServerItem(namespace, props))).not.toThrow();
       expect(item).toMatchObject(props);
       expect(item).toMatchObject(result);
     });
@@ -47,8 +47,8 @@ describe('ServerItem', () => {
 
   describe('Methods', () => {
     const props = {
-      x:      50,
-      y:      50,
+      x: 50,
+      y: 50,
       hitbox: new Rectangle(100, 100),
     };
     beforeAll(() => {
@@ -111,8 +111,7 @@ describe('ServerItem', () => {
       });
 
       test('Does not affect other values', () => {
-        expect(() => item.moveTo(Item.DEFAULTS.x, Item.DEFAULTS.y))
-          .not.toThrow();
+        expect(() => item.moveTo(Item.DEFAULTS.x, Item.DEFAULTS.y)).not.toThrow();
         expect(item).toMatchObject(Item.DEFAULTS);
       });
     });
@@ -153,4 +152,3 @@ describe('ServerItem', () => {
     });
   });
 });
-

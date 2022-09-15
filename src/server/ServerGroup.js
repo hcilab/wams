@@ -6,11 +6,7 @@
 
 'use strict';
 
-const {
-  DataReporter,
-  Message,
-  Item,
-} = require('../shared.js');
+const { DataReporter, Message, Item } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -39,7 +35,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     this.namespace = namespace;
 
     // Notify subscribers immediately.
-    if (!this.items) throw 'Items must be passed to ServerGroup.';
+    if (!this.items) throw Error('Items must be passed to ServerGroup.');
 
     // calculate based on elements positions;
     this.setMeasures();
@@ -52,7 +48,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   setupInteractions() {
     const doGesture = this.shouldDoGesture(this.allowDrag);
     if (doGesture) {
-      this.items.forEach(item => {
+      this.items.forEach((item) => {
         // trying to drag any of the items will drag the whole group
         item.allowDrag = true;
       });
@@ -66,14 +62,14 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
    */
   shouldDoGesture(handler) {
     switch (typeof handler) {
-    case 'function':
-      if (handler() === true) return true;
-      return false;
-    case 'boolean':
-      if (handler === true) return true;
-      return false;
-    default:
-      return false;
+      case 'function':
+        if (handler() === true) return true;
+        return false;
+      case 'boolean':
+        if (handler === true) return true;
+        return false;
+      default:
+        return false;
     }
   }
 
@@ -89,13 +85,13 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     const offsetY = y - this.y;
     this.x = x;
     this.y = y;
-    this.items.forEach(item => item.moveBy(offsetX, offsetY));
+    this.items.forEach((item) => item.moveBy(offsetX, offsetY));
   }
 
   moveBy(dx, dy) {
     this.x = this.x + dx;
     this.y = this.y + dy;
-    this.items.forEach(item => item.moveBy(dx, dy));
+    this.items.forEach((item) => item.moveBy(dx, dy));
   }
 
   /**
@@ -103,7 +99,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
    *
    */
   setParentForItems() {
-    this.items.forEach(item => {
+    this.items.forEach((item) => {
       item.parent = this;
       const dreport = new DataReporter({
         data: { id: item.id, parent: this.id },
@@ -119,7 +115,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     let minY = Number.MAX_SAFE_INTEGER;
     let maxX = -Number.MAX_SAFE_INTEGER;
     let maxY = -Number.MAX_SAFE_INTEGER;
-    this.items.forEach(el => {
+    this.items.forEach((el) => {
       minX = Math.min(minX, el.x);
       minY = Math.min(minY, el.y);
       maxX = Math.max(maxX, el.x + el.width);
@@ -133,4 +129,3 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
 }
 
 module.exports = ServerGroup;
-

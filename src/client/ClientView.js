@@ -13,29 +13,22 @@
 const { View } = require('../shared.js');
 
 // Data fields to write for status indicator text.
-const STATUS_KEYS = Object.freeze([
-  'x',
-  'y',
-  'width',
-  'height',
-  'rotation',
-  'scale',
-]);
+const STATUS_KEYS = Object.freeze(['x', 'y', 'width', 'height', 'rotation', 'scale']);
 
 // Mark these methods as intended only for internal use.
 const symbols = Object.freeze({
-  align:          Symbol('align'),
+  align: Symbol('align'),
   drawBackground: Symbol('dragBackground'),
-  drawItems:      Symbol('drawItems'),
-  drawShadows:    Symbol('drawShadows'),
-  drawStatus:     Symbol('drawStatus'),
-  wipe:           Symbol('wipe'),
+  drawItems: Symbol('drawItems'),
+  drawShadows: Symbol('drawShadows'),
+  drawStatus: Symbol('drawStatus'),
+  wipe: Symbol('wipe'),
 });
 
 // Default ClientView configuration.
 const DEFAULT_CONFIG = Object.freeze({
-  showStatus:  false,
-  shadows:    false,
+  showStatus: false,
+  shadows: false,
 });
 
 /**
@@ -114,7 +107,7 @@ class ClientView extends View {
    * @memberof module:client.ClientView
    */
   [symbols.drawItems]() {
-    this.model.itemOrder.forEach(o => o.draw(this.context, this));
+    this.model.itemOrder.forEach((o) => o.draw(this.context, this));
   }
 
   /**
@@ -124,7 +117,7 @@ class ClientView extends View {
    * @memberof module:client.ClientView
    */
   [symbols.drawShadows]() {
-    this.model.shadows.forEach(v => v.draw(this.context));
+    this.model.shadows.forEach((v) => v.draw(this.context));
   }
 
   /**
@@ -135,16 +128,16 @@ class ClientView extends View {
    * @memberof module:client.ClientView
    */
   [symbols.drawStatus]() {
-    const messages = STATUS_KEYS
-      .map(k => `${k}: ${this[k].toFixed(2)}`)
-      .concat([`# of Shadows: ${this.model.shadows.size}`]);
+    const messages = STATUS_KEYS.map((k) => `${k}: ${this[k].toFixed(2)}`).concat([
+      `# of Shadows: ${this.model.shadows.size}`,
+    ]);
     let ty = 40;
     const tx = 20;
 
     this.context.save();
     this.context.setTransform(1, 0, 0, 1, 0, 0);
     this.context.font = '18px Georgia';
-    messages.forEach(m => {
+    messages.forEach((m) => {
       this.context.fillText(m, tx, ty);
       ty += 20;
     });
@@ -186,4 +179,3 @@ class ClientView extends View {
 }
 
 module.exports = ClientView;
-

@@ -36,11 +36,11 @@ function table(overlap) {
   let topLeft = null;
   let topRight = null;
 
-  const TABLE   = 0;
-  const BOTTOM  = 1;
-  const LEFT    = 2;
-  const TOP     = 3;
-  const RIGHT   = 4;
+  const TABLE = 0;
+  const BOTTOM = 1;
+  const LEFT = 2;
+  const TOP = 3;
+  const RIGHT = 4;
 
   function layoutTable(view, device) {
     table = view;
@@ -86,16 +86,16 @@ function table(overlap) {
     };
   }
 
-  const user_fns = [];
-  user_fns[TABLE]   = layoutTable;
-  user_fns[BOTTOM]  = dependOnTable(layoutBottom);
-  user_fns[LEFT]    = dependOnTable(layoutLeft);
-  user_fns[TOP]     = dependOnTable(layoutTop);
-  user_fns[RIGHT]   = dependOnTable(layoutRight);
+  const userFns = [];
+  userFns[TABLE] = layoutTable;
+  userFns[BOTTOM] = dependOnTable(layoutBottom);
+  userFns[LEFT] = dependOnTable(layoutLeft);
+  userFns[TOP] = dependOnTable(layoutTop);
+  userFns[RIGHT] = dependOnTable(layoutRight);
 
   function handleLayout(view, device) {
     const index = view.index > 0 ? (view.index % 4) + 1 : 0;
-    user_fns[index](view, device);
+    userFns[index](view, device);
   }
 
   return handleLayout;
@@ -146,4 +146,3 @@ module.exports = {
   line,
   table,
 };
-

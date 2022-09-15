@@ -34,7 +34,7 @@ function findEmptyIndex(array) {
    * This is a very deliberate use of '==' instead of '==='. It should catch
    * both undefined and null.
    */
-  const index = array.findIndex(e => e == null);
+  const index = array.findIndex((e) => e == null);
   return index < 0 ? array.length : index;
 }
 
@@ -128,13 +128,7 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(
-      index,
-      socket,
-      this.workspace,
-      this.messageHandler,
-      this.group,
-    );
+    const controller = new ServerController(index, socket, this.workspace, this.messageHandler, this.group);
 
     this.connections[index] = controller;
     socket.on('disconnect', () => this.disconnect(controller));
@@ -193,8 +187,7 @@ class Switchboard {
  */
 Switchboard.DEFAULTS = Object.freeze({
   clientLimit: 1000,
-  port:        9000,
+  port: 9000,
 });
 
 module.exports = Switchboard;
-

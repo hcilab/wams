@@ -12,21 +12,20 @@
  * @enum {string}
  */
 const PHASE = Object.freeze({
-  mousedown:   'start',
-  touchstart:  'start',
+  mousedown: 'start',
+  touchstart: 'start',
   pointerdown: 'start',
 
-  mousemove:   'move',
-  touchmove:   'move',
+  mousemove: 'move',
+  touchmove: 'move',
   pointermove: 'move',
 
-  mouseup:       'end',
-  touchend:      'end',
-  pointerup:     'end',
+  mouseup: 'end',
+  touchend: 'end',
+  pointerup: 'end',
 
-  touchcancel:   'cancel',
+  touchcancel: 'cancel',
   pointercancel: 'cancel',
 });
 
 module.exports = PHASE;
-

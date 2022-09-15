@@ -1,50 +1,50 @@
 ---
 title: Software Architectures for Web-Based Multi-Display Environments
 author:
-- Michael van der Kamp, mjv761, 11190459
-- Supervisor`:` Carl Gutwin
-- Additional supervision and input by Scott Bateman
+  - Michael van der Kamp, mjv761, 11190459
+  - Supervisor`:` Carl Gutwin
+  - Additional supervision and input by Scott Bateman
 date: April 16, 2019
 keywords: [multi-touch, multi-display, workspace, gestures, interaction, HCI]
 abstract: |
-    Interactive devices such as smartphones, tablets, and smartwatches are
-    becoming increasing ubiquitous. Collaborative applications remain relatively
-    few, however, owing to the inherent difficulty of coordinating activities
-    between devices. This project presents Workspaces Across Multiple Surfaces
-    (WAMS), an API for creating web-based multi-display applications that can be
-    aimed at multiple users collaborating or a single user seeking to increase
-    their available screen space. WAMS significantly reduces the difficulty of
-    creating such applications by handling coordination and networking
-    challenges, allowing programmers to write a multi-device application in much
-    the same way as they would write a traditional single-device application.
+  Interactive devices such as smartphones, tablets, and smartwatches are
+  becoming increasing ubiquitous. Collaborative applications remain relatively
+  few, however, owing to the inherent difficulty of coordinating activities
+  between devices. This project presents Workspaces Across Multiple Surfaces
+  (WAMS), an API for creating web-based multi-display applications that can be
+  aimed at multiple users collaborating or a single user seeking to increase
+  their available screen space. WAMS significantly reduces the difficulty of
+  creating such applications by handling coordination and networking
+  challenges, allowing programmers to write a multi-device application in much
+  the same way as they would write a traditional single-device application.
 ---
 
 \clearpage
 
 # Contents
 
-* [Introduction]
-* [Basic Design]
-* [Core Concepts]
-    - [Coordination]
-    - [Message / Reporter Protocol]
-    - [Unique Identification]
-    - [Mixin Pattern]
-    - [Model-View-Controller]
-    - [Smooth and Responsive Interaction]
-* [Support Environment]
-    - [Runtime Dependencies]
-    - [Build Tools]
-    - [Testing]
-* [Evaluation]
-    - [Effectiveness]
-    - [Efficiency]
-    - [Generalizability]
-    - [Extensibility]
-    - [Limitations]
-    - [Multi-Device Gestures]
-* [Deliverables]
-* [References]
+- [Introduction]
+- [Basic Design]
+- [Core Concepts]
+  - [Coordination]
+  - [Message / Reporter Protocol]
+  - [Unique Identification]
+  - [Mixin Pattern]
+  - [Model-View-Controller]
+  - [Smooth and Responsive Interaction]
+- [Support Environment]
+  - [Runtime Dependencies]
+  - [Build Tools]
+  - [Testing]
+- [Evaluation]
+  - [Effectiveness]
+  - [Efficiency]
+  - [Generalizability]
+  - [Extensibility]
+  - [Limitations]
+  - [Multi-Device Gestures]
+- [Deliverables]
+- [References]
 
 \clearpage
 
@@ -86,13 +86,15 @@ experimental implementation of such gestures that is accessible via the API.
 Throughout this document, the phrase "the programmer" is used to refer to a
 programmer making use of the WAMS API.
 
-[^challenge1]: Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in
-Mobile Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
+[^challenge1]:
+    Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in
+    Mobile Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
 
-[^hospitalized]: Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala.
-"Multi-Display Environments to Foster Emotional Intelligence in Hospitalized
-Children." Proceedings of the XVI International Conference on Human Computer
-Interaction 07-09 (2015): 1-2.
+[^hospitalized]:
+    Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala.
+    "Multi-Display Environments to Foster Emotional Intelligence in Hospitalized
+    Children." Proceedings of the XVI International Conference on Human Computer
+    Interaction 07-09 (2015): 1-2.
 
 \clearpage
 
@@ -119,7 +121,7 @@ Generally, all programmer code will only be run on the server, as the bundle of
 JavaScript, HTML, and CSS that is delivered to clients is static and is not
 exposed by the API. This allows programmers to forego concerns such as bundling
 and transpiling that otherwise crop up when delivering JavaScript code to
-browsers.  There are some limitations to this technique, but a workaround may
+browsers. There are some limitations to this technique, but a workaround may
 exist through the use of HTML elements as workspace items, which could include
 `<script>` tags. This feature has yet to be tested though.
 
@@ -138,29 +140,33 @@ For detailed information about individual modules, classes, mixins, and routines
 see the documentation[^mydocs] as well as the design document on the github
 page.[^design]
 
-[^conductor]: Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and
-  Understanding Cross-device Interaction." Proceedings of the SIGCHI Conference
-  on Human Factors in Computing Systems, 2014, 2773-782.
+[^conductor]:
+    Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and
+    Understanding Cross-device Interaction." Proceedings of the SIGCHI Conference
+    on Human Factors in Computing Systems, 2014, 2773-782.
 
-[^rooms]: Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces
-  Project: Experiences with Ubiquitous Computing Rooms." IEEE Pervasive
-  Computing 1, no. 2 (2002): 67-74.
+[^rooms]:
+    Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces
+    Project: Experiences with Ubiquitous Computing Rooms." IEEE Pervasive
+    Computing 1, no. 2 (2002): 67-74.
 
-[^mobile1]: Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings
-  of the 24th Annual ACM Symposium Adjunct on User Interface Software and
-  Technology, 2011, 39-42.
+[^mobile1]:
+    Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings
+    of the 24th Annual ACM Symposium Adjunct on User Interface Software and
+    Technology, 2011, 39-42.
 
-[^mobile2]: Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile
-  Multi-Display Environments through Head Tracking." Proceedings of the 2017 CHI
-  Conference on Human Factors in Computing Systems 2017 (2017): 3966-971.
+[^mobile2]:
+    Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile
+    Multi-Display Environments through Head Tracking." Proceedings of the 2017 CHI
+    Conference on Human Factors in Computing Systems 2017 (2017): 3966-971.
 
-[^combo]: Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
-  Gesture-based Interaction Techniques in Multi-display Environments with Mobile
-  Phones and a Multi-touch Table." Proceedings of the International Conference
-  on Advanced Visual Interfaces, 2010, 419.
+[^combo]:
+    Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
+    Gesture-based Interaction Techniques in Multi-display Environments with Mobile
+    Phones and a Multi-touch Table." Proceedings of the International Conference
+    on Advanced Visual Interfaces, 2010, 419.
 
 [^mydocs]: <https://mvanderkamp.github.io/wams/>
-
 [^design]: <https://github.com/mvanderkamp/wams/blob/master/DESIGN.md>
 
 \clearpage
@@ -184,7 +190,7 @@ renderable model of the application. This approach ensures that all user
 interactions are funnelled through a single thread on the server, vastly
 simplifying coordination tasks.
 
-Locking and unlocking is handled by the `Locker` and `Lockable` mixins.  When a
+Locking and unlocking is handled by the `Locker` and `Lockable` mixins. When a
 user begins interacting with the system, the server controller performs hit
 detection, looking for a free item at the centroid of the first contact points.
 If such an item is found, it is locked to the client. No other client can
@@ -224,8 +230,7 @@ properties immediately on the data object will be assigned to the `Reporter`
 instance, allowing arbitrary data to be stored. A deeper search is done for the
 core properties of the `Reporter` instance, checking the entire prototype chain
 of the `data` object. For information on the prototype chain, see Kyle
-Simpson's book series, [You Don't Know JavaScript[^ydkjs]](
-https://github.com/getify/You-Dont-Know-JS).
+Simpson's book series, [You Don't Know JavaScript[^ydkjs]](https://github.com/getify/You-Dont-Know-JS).
 
 [^ydkjs]: See <https://github.com/getify/You-Dont-Know-JS>.
 
@@ -280,9 +285,10 @@ to perform a lot of similar actions. Mixins solves this problem beautifully,
 making the whole system more succinct and easier to maintain in the
 process.[^mixins]
 
-[^mixins]: A more in-depth discussion of mixins and the inspiration for the
-specific implementation approach used can be found at
-<http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>.
+[^mixins]:
+    A more in-depth discussion of mixins and the inspiration for the
+    specific implementation approach used can be found at
+    <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>.
 
 ---
 
@@ -312,7 +318,7 @@ rendered.
 The approach taken is to split the model in two. One of these is the
 `WorkSpace`, which holds all the actual objects in the model that will need to
 be rendered. Specifically, these are the objects which are explicitly spawned
-into the model by the programmer. 
+into the model by the programmer.
 
 The other is the `ServerViewGroup`, which holds the server's representations of
 the client's views (that is, what the clients can see). The programmer does not
@@ -360,7 +366,7 @@ Similarly, the size of packets sent over the network must also be kept down.
 The `Message / Reporter` protocol handles most of this work, by stripping out
 all but the core properties of any object transmitted, but care must still be
 taken to ensure that these core properties really are only those that are needed
-at every update, or at least are small enough to be negligible. 
+at every update, or at least are small enough to be negligible.
 
 Therefore properties such as attribute lists for HTML elements, which could
 contain huge strings representing entire webpages, should only be sent
@@ -417,8 +423,9 @@ the last evaluation.
 ![Example of jitter and smoothing when
 panning[^graphnote]](./data/PanY.png){height=70%}
 
-[^graphnote]: All of the data for the figures in this section was captured
-simulatenouesly, using two fingers.
+[^graphnote]:
+    All of the data for the figures in this section was captured
+    simulatenouesly, using two fingers.
 
 A subtle issue with modern touch interfaces is that contact points, and fingers
 in particular, typically are not points but rather areas that are resolved down
@@ -435,8 +442,9 @@ user as jitter, or at least as a less than smooth interaction experience. The
 solution applied by this project is to use a cascading average for the update
 values.[^westures]
 
-[^westures]: The implementation of these details exists inside the `westures`
-gesture recognition library that was written as a part of this project.
+[^westures]:
+    The implementation of these details exists inside the `westures`
+    gesture recognition library that was written as a part of this project.
 
 ![Example of jitter and smoothing while scaling](./data/Scale.png){height=70%}
 
@@ -448,7 +456,7 @@ $$ average := \frac{update + cascade}{2} $$
 $$ update := average $$
 $$ cascade := average $$
 
- The result is a practical application of [Zeno's
+The result is a practical application of [Zeno's
 Dichotomy,](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox) as
 half of the remaining value from each original update is theoretically applied
 at each subsequent update until the user ends the gesture. If the gesture where
@@ -463,8 +471,7 @@ wipes out any remaining value from the update. There also appears to be a
 limited amount of drift, owing perhaps to floating point errors incurred by the
 division operation.
 
-![Example of jitter and smoothing while rotating](
-./data/Rotation.png){height=70%}
+![Example of jitter and smoothing while rotating](./data/Rotation.png){height=70%}
 
 The graphs suggest that further smoothing might be possible, perhaps by the
 application of another layer of the same algorithm, or some other technique.
@@ -490,69 +497,70 @@ tag in `package.json`:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)[^self]
 
-    This package allows end users to define custom rendering sequences for the
-    canvas. These sequences can be transmitted over the network and executed on
-    the client without having to use the `eval()` function and all its incumbent
-    issues. The downside to this approach is that the sequences must be
-    declarative- there is no way to retrieve the return value from a call to a
-    canvas context method or conditionally execute parts of the sequence.
+   This package allows end users to define custom rendering sequences for the
+   canvas. These sequences can be transmitted over the network and executed on
+   the client without having to use the `eval()` function and all its incumbent
+   issues. The downside to this approach is that the sequences must be
+   declarative- there is no way to retrieve the return value from a call to a
+   canvas context method or conditionally execute parts of the sequence.
 
 [^self]: This package was written and published as part of this project.
 
 2. [westures](https://mvanderkamp.github.io/westures/)[^iwroteit]$^,$[^inamedit]
-  
-    This package is an n-pointer gesture library that provides a normalization
-    of interaction across browsers and devices. This means that each gesture
-    works with any amount of pointers beyond its minimum, with each pointer
-    contributing to the gesture. It makes the following kinds of gestures
-    possible:
 
-    Name   | # of Inputs | Description
-    -------|-------------|------------
-    Tap    | 1+          | a.k.a. 'click', a quick touch and release.
-    Pinch  | 2+          | Inputs moving together or apart.
-    Rotate | 2+          | Inputs rotating around each other.
-    Pan    | 1+          | Inputs sliding around the screen.
-    Swipe  | 1+          | Inputs swiping the screen.
-    Swivel | 1+          | Inputs rotating around a fixed pivot point.
+   This package is an n-pointer gesture library that provides a normalization
+   of interaction across browsers and devices. This means that each gesture
+   works with any amount of pointers beyond its minimum, with each pointer
+   contributing to the gesture. It makes the following kinds of gestures
+   possible:
 
-    Additionally it provides tracking abilities (i.e. simple updates of input
-    state at every change) and gesture customization options, including the
-    ability to plug in entire custom gestures. This ability was used to package
-    together the Pan, Pinch, and Rotate gestures into a single Transform
-    gesture, so that all three updates can be transmitted over the network
-    simultaneously, reducing the volume of traffic and eliminating jitter in the
-    render which was caused by the updates to these three gestures being split
-    across render frames.
+   | Name   | # of Inputs | Description                                 |
+   | ------ | ----------- | ------------------------------------------- |
+   | Tap    | 1+          | a.k.a. 'click', a quick touch and release.  |
+   | Pinch  | 2+          | Inputs moving together or apart.            |
+   | Rotate | 2+          | Inputs rotating around each other.          |
+   | Pan    | 1+          | Inputs sliding around the screen.           |
+   | Swipe  | 1+          | Inputs swiping the screen.                  |
+   | Swivel | 1+          | Inputs rotating around a fixed pivot point. |
 
-[^iwroteit]: This package was also written and published as part of this
-project. Note that it is a fork of
-[ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch and other
-existing gesture recognition libraries for JavaScript were found to be
-insufficient for the demands of this project, hence the creation of this
-package.
+   Additionally it provides tracking abilities (i.e. simple updates of input
+   state at every change) and gesture customization options, including the
+   ability to plug in entire custom gestures. This ability was used to package
+   together the Pan, Pinch, and Rotate gestures into a single Transform
+   gesture, so that all three updates can be transmitted over the network
+   simultaneously, reducing the volume of traffic and eliminating jitter in the
+   render which was caused by the updates to these three gestures being split
+   across render frames.
+
+[^iwroteit]:
+    This package was also written and published as part of this
+    project. Note that it is a fork of
+    [ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch and other
+    existing gesture recognition libraries for JavaScript were found to be
+    insufficient for the demands of this project, hence the creation of this
+    package.
 
 [^inamedit]: The name "westures" is a mash-up of "WAMS" and "gestures".
 
 3. [express](https://www.npmjs.com/package/express)
 
-    The `express` package provides a simple way of establishing routes for the
-    node.js server. The `express` router used by a WAMS app can be exposed to
-    the end user, allowing them to define custom routes.
+   The `express` package provides a simple way of establishing routes for the
+   node.js server. The `express` router used by a WAMS app can be exposed to
+   the end user, allowing them to define custom routes.
 
 4. [socket.io](https://www.npmjs.com/package/socket.io)
 
-    The `socket.io` package is used on both client and server side behind the
-    scenes to maintain an open, real-time connection between the server and
-    client. Each client is on its own socket connection, but all clients share a
-    namespace.
+   The `socket.io` package is used on both client and server side behind the
+   scenes to maintain an open, real-time connection between the server and
+   client. Each client is on its own socket connection, but all clients share a
+   namespace.
 
-    Therefore messages are emitted as follows:
-    
-    * __To a single client:__ on the client's socket.
-    * __To everyone except a single client:__ on the client's socket's broadcast
-      channel.
-    * __To everyone:__ on the namespace.
+   Therefore messages are emitted as follows:
+
+   - **To a single client:** on the client's socket.
+   - **To everyone except a single client:** on the client's socket's broadcast
+     channel.
+   - **To everyone:** on the namespace.
 
 \clearpage
 
@@ -565,67 +573,68 @@ The tools used and their rationale are as follows:
 
 1. [arkit](https://arkit.js.org/)
 
-    The `arkit` package builds dependency graphs out of JavaScript source code.
-    These graphs are not full UML, but rather simply show which files are
-    connected via explicit `require()` statements. Although somewhat limited,
-    this is still very useful, and helps a great deal in terms of keeping the
-    code organized. All the architecture graphs present in this design document
-    were generated using `arkit`.
+   The `arkit` package builds dependency graphs out of JavaScript source code.
+   These graphs are not full UML, but rather simply show which files are
+   connected via explicit `require()` statements. Although somewhat limited,
+   this is still very useful, and helps a great deal in terms of keeping the
+   code organized. All the architecture graphs present in this design document
+   were generated using `arkit`.
 
 2. [babel](https://babeljs.io/)
 
-    The `babel` suite of packages provides transpilation, allowing the use of
-    convenient new features of the JavaScript language without breaking browser
-    support. Note however that only relatively recent browswers are supported in
-    the current configuration. Babel is used via the `babelify` transform for
-    `browserify`.
+   The `babel` suite of packages provides transpilation, allowing the use of
+   convenient new features of the JavaScript language without breaking browser
+   support. Note however that only relatively recent browswers are supported in
+   the current configuration. Babel is used via the `babelify` transform for
+   `browserify`.
 
 3. [browserify](http://browserify.org/)
 
-    The `browserify` package bundles JavaScript code together for delivery to
-    clients. It may not be the most feature-rich bundler, but the basic
-    functionality just simply works, and works well.
+   The `browserify` package bundles JavaScript code together for delivery to
+   clients. It may not be the most feature-rich bundler, but the basic
+   functionality just simply works, and works well.
 
 4. [eslint](https://eslint.org/)
 
-    `eslint` is akin to an early-warning system. It parses the code and checks
-    for style and formatting errors, so that these can be fixed before trying to
-    run the code. It works very well and is fully customizable in terms of which
-    of its style and format rules to apply. It can also fix some simple style
-    errors on its own.
+   `eslint` is akin to an early-warning system. It parses the code and checks
+   for style and formatting errors, so that these can be fixed before trying to
+   run the code. It works very well and is fully customizable in terms of which
+   of its style and format rules to apply. It can also fix some simple style
+   errors on its own.
 
 5. [jest](https://jestjs.io/)
 
-    `jest` is a testing framework for JavaScript. The tests are all written to
-    be run using the command `npx jest`.[^npx] See the [Testing] section below for
-    more information. 
-    
-[^npx]: `npx` is a command included when `node.js` is installed. It runs
-scripts and/or binaries from project dependencies in the `node_modules`
-package.
+   `jest` is a testing framework for JavaScript. The tests are all written to
+   be run using the command `npx jest`.[^npx] See the [Testing] section below for
+   more information.
+
+[^npx]:
+    `npx` is a command included when `node.js` is installed. It runs
+    scripts and/or binaries from project dependencies in the `node_modules`
+    package.
 
 6. [jsdoc](http://usejsdoc.org/)
 
-    `jsdoc` generates documentation from internal comments, akin to javadocs.
+   `jsdoc` generates documentation from internal comments, akin to javadocs.
 
 7. [terser](https://www.npmjs.com/package/terser)
 
-    `terser` is a JavaScript code minifier that supports newer JavaScript
-    syntax. This allows the size of the source code bundle sent when a client
-    connects to be shrunk.
+   `terser` is a JavaScript code minifier that supports newer JavaScript
+   syntax. This allows the size of the source code bundle sent when a client
+   connects to be shrunk.
 
 8. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
 
-    This package is a template for the HTML pages produced by `jsdoc`. 
+   This package is a template for the HTML pages produced by `jsdoc`.
 
 9. [make](https://www.gnu.org/software/make/manual/make.html)
 
-    `make` is wonderfully flexible, so here it is used as a simple task runner,
-    at which it is quite adept. It also interfaces nicely with `vim`, even if
-    other JavaScript build tools do not. Simply running `make` from the main
-    directory of the project will run [ eslint ], [ browserify ], and [ jsdoc ]
-    on the code, keeping everything up to date at once. See the Makefile to see
-    the targets.
+   `make` is wonderfully flexible, so here it is used as a simple task runner,
+   at which it is quite adept. It also interfaces nicely with `vim`, even if
+   other JavaScript build tools do not. Simply running `make` from the main
+   directory of the project will run [ eslint ], [ browserify ], and [ jsdoc ]
+   on the code, keeping everything up to date at once. See the Makefile to see
+   the targets.
 
 10. [exuberant-ctags](http://ctags.sourceforge.net/)
 
@@ -635,8 +644,7 @@ package.
     definition location. Works excellently with `vim` and can really make
     navigating the source code a lot easier.
 
-11. [ctags-patterns-for-javascript](
-    https://github.com/romainl/ctags-patterns-for-javascript)
+11. [ctags-patterns-for-javascript](https://github.com/romainl/ctags-patterns-for-javascript)
 
     This package provides the necessary plugins to enable `exuberant-ctags` for
     JavaScript.
@@ -679,82 +687,82 @@ the project were achieved.
 
 ---
 
-## Effectiveness 
+## Effectiveness
 
 The challenges described in the introduction, and their solution as implemented
 in WAMS, are discussed as follows:
 
 1. _Deployment of a server._
 
-    The use of `node.js` along with the `express` package allows WAMS to vastly
-    simplify this step. If images or other static assets are not used, the
-    programmer simply needs to call the `listen()` method of the `Application`.
-    If stuch assets are required, for example to load images, the `express`
-    router is exposed in such a way as to give priority to the WAMS assets while
-    still allowing the programmer to define custom routes to the location of
-    their assets.
+   The use of `node.js` along with the `express` package allows WAMS to vastly
+   simplify this step. If images or other static assets are not used, the
+   programmer simply needs to call the `listen()` method of the `Application`.
+   If stuch assets are required, for example to load images, the `express`
+   router is exposed in such a way as to give priority to the WAMS assets while
+   still allowing the programmer to define custom routes to the location of
+   their assets.
 
 2. _Connection establishment and maintenance._
 
-    All interactions with the `socket.io` package are entirely self-contained
-    within the WAMS API. The programmer therefore does not need to think about
-    connection maintenance at all. The only thing that the programmer may need
-    to do is define a `layout` handler to define how to orient client views as
-    they connect.
+   All interactions with the `socket.io` package are entirely self-contained
+   within the WAMS API. The programmer therefore does not need to think about
+   connection maintenance at all. The only thing that the programmer may need
+   to do is define a `layout` handler to define how to orient client views as
+   they connect.
 
-    One limitation of the encapsulation of `socket.io` is that the programmer
-    cannot define define custom messages to send between client and server. This
-    is in line with the limitation that custom client-side JavaScript is not
-    easily added to a WAMS application. This may preclude certain types of
-    applications, and might be something to consider adding for future work. The
-    caveat is that if such a feature is added, any programmer who makes use of
-    it may have to contend with coordination tasks relating to such messages on
-    their own.
+   One limitation of the encapsulation of `socket.io` is that the programmer
+   cannot define define custom messages to send between client and server. This
+   is in line with the limitation that custom client-side JavaScript is not
+   easily added to a WAMS application. This may preclude certain types of
+   applications, and might be something to consider adding for future work. The
+   caveat is that if such a feature is added, any programmer who makes use of
+   it may have to contend with coordination tasks relating to such messages on
+   their own.
 
 3. _Representation of connected devices within the workspace._
 
-    This task is handled automatically within a WAMS app by the `ShadowView`
-    class. One potential limitation is that the shadow cannot currently be
-    turned off.
+   This task is handled automatically within a WAMS app by the `ShadowView`
+   class. One potential limitation is that the shadow cannot currently be
+   turned off.
 
 4. _Alignment of the workspace for each device such that the workspace can be
    accurately rendered._
 
-    This challenge is handled accurately by the `ClientView` class.
+   This challenge is handled accurately by the `ClientView` class.
 
 5. _Maintenance of a model of workspace objects._
 
-    This task is handled by a WAMS app only insofar as synchronization between
-    client and server is concerned. The model itself is not currently exposed by
-    the API, so programmers may find it necessary to build their own model. This
-    is not necessarily a limitation, however. Encapsulating the WAMS model
-    prevents it from being accidentally corrupted by the programmer. This also
-    allows the WAMS model to be optimized for the purpose of synchronization, a
-    task which may not align with the intents of the programmer. The programmer
-    is thus free to design their own model as they see fit, as spawned objects
-    are available to the programmer for manipulation and storage.
+   This task is handled by a WAMS app only insofar as synchronization between
+   client and server is concerned. The model itself is not currently exposed by
+   the API, so programmers may find it necessary to build their own model. This
+   is not necessarily a limitation, however. Encapsulating the WAMS model
+   prevents it from being accidentally corrupted by the programmer. This also
+   allows the WAMS model to be optimized for the purpose of synchronization, a
+   task which may not align with the intents of the programmer. The programmer
+   is thus free to design their own model as they see fit, as spawned objects
+   are available to the programmer for manipulation and storage.
 
 6. _Rendering of workspace objects._
 
-    This task is handled by the `ClientElement`, `ClientImage`, and `ClientItem`
-    classes, along with the use of the `canvas-sequencer` package and the use of
-    CSS transformation functions for the `ClientElement` class.
+   This task is handled by the `ClientElement`, `ClientImage`, and `ClientItem`
+   classes, along with the use of the `canvas-sequencer` package and the use of
+   CSS transformation functions for the `ClientElement` class.
 
 7. _Coordination between devices during interaction. This includes
-    synchronization and the locking of objects while they being interacted
-    with._
+   synchronization and the locking of objects while they being interacted
+   with._
 
-    Locking is handled by the `Lockable` and `Locker` mixins. Synchronization is
-    handled through the publication of updates at a rate of up to 60
-    publications per second by the `Publishable` mixin.
+   Locking is handled by the `Lockable` and `Locker` mixins. Synchronization is
+   handled through the publication of updates at a rate of up to 60
+   publications per second by the `Publishable` mixin.
 
 8. _Ensuring that the system is responsive to user interaction._
 
-    This issue has been effectively solved using the approaches discussed in the
-    [Smooth and Responsive Interaction] section. Of course it is always possible
-    for the programmer to overload any given event handler and as such wreck the
-    responsiveness of the system, but the only solution for that is for the
-    programmer to be disciplined.
+   This issue has been effectively solved using the approaches discussed in the
+   [Smooth and Responsive Interaction] section. Of course it is always possible
+   for the programmer to overload any given event handler and as such wreck the
+   responsiveness of the system, but the only solution for that is for the
+   programmer to be disciplined.
 
 ## Efficiency
 
@@ -827,17 +835,17 @@ The biggest limitations currently are:
   HTML elements may enable this with some difficulty.
 - Lack of support for non-pointer-based input devices.
 - Lack of z-ordering.
-    - This was deliberately left out, so that it could be used as an
-      implementation task for the next maintainer of the API to familiarize
-      themselves with the architecture.
+  - This was deliberately left out, so that it could be used as an
+    implementation task for the next maintainer of the API to familiarize
+    themselves with the architecture.
 - Lack of support for existing applications.
-    - WAMS defines its own API, rather than sitting on top of an existing API.
-      Therefore existing applications would need to be ported to WAMS, and are
-      not automatically supported.
-    - Using `<iframe>` elements, it is possible to include entire webpages
-      inside a WAMS application, but they exist within their own window inside
-      the WAMS application. The webpage is not able to make use of WAMS
-      functionality.
+  - WAMS defines its own API, rather than sitting on top of an existing API.
+    Therefore existing applications would need to be ported to WAMS, and are
+    not automatically supported.
+  - Using `<iframe>` elements, it is possible to include entire webpages
+    inside a WAMS application, but they exist within their own window inside
+    the WAMS application. The webpage is not able to make use of WAMS
+    functionality.
 
 Further testing, including the construction of larger scale applications using
 the API, may reveal additional limitations.
@@ -862,10 +870,10 @@ be addressed in the future:
    information.
 
 [^api]: <https://github.com/mvanderkamp/wams>
-
-[^support]: Any number of devices with any number of active pointers are
-  theoretically supported, although the application has only been tested with
-  three concurrent devices.
+[^support]:
+    Any number of devices with any number of active pointers are
+    theoretically supported, although the application has only been tested with
+    three concurrent devices.
 
 \clearpage
 
@@ -881,7 +889,7 @@ The `canvas-sequencer` package is available at
 <https://github.com/mvanderkamp/canvas-sequencer>.
 
 The `westures` package is available at:
-<https://mvanderkamp.github.io/westures/>. 
+<https://mvanderkamp.github.io/westures/>.
 
 Note that the implementation of this package was split in two, with the core
 engine (which is closely mirrored by the `gestures` module of WAMS) found at:
@@ -896,9 +904,10 @@ Included in the github repo for the API is a set of examples. They are all
 runnable by entering the examples directory and using `node [EXAMPLE]`, with
 EXAMPLE replaced by the filename of the example.[^scaffold]
 
-[^scaffold]: The exception is the "scaffold" example, which is simply meant as a
-  placeholder for a programmer to fill in when starting to build a WAMS
-  application.
+[^scaffold]:
+    The exception is the "scaffold" example, which is simply meant as a
+    placeholder for a programmer to fill in when starting to build a WAMS
+    application.
 
 \clearpage
 
@@ -908,56 +917,57 @@ Listed here are references to all external sources, be they code, books,
 algorithms, tutorials, or other articles.
 
 ## Papers and Articles
-* Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings of the
-    24th Annual ACM Symposium Adjunct on User Interface Software and Technology,
-    2011, 39-42.
-* Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
-    Gesture-based Interaction Techniques in Multi-display Environments with
-    Mobile Phones and a Multi-touch Table." Proceedings of the International
-    Conference on Advanced Visual Interfaces, 2010, 419.
-* Forlines, Clifton, Alan Esenther, Chia Shen, Daniel Wigdor, and Kathy Ryall.
-    "Multi-user, Multi-display Interaction with a Single-user, Single-display
-    Geospatial Application." Proceedings of the 19th Annual ACM Symposium on
-    User Interface Software and Technology, 2006, 273-76.
-* Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
-    Environments to Foster Emotional Intelligence in Hospitalized Children."
-    Proceedings of the XVI International Conference on Human Computer
-    Interaction 07-09 (2015): 1-2.
-* Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
-    Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
-* Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile Multi-Display
-    Environments through Head Tracking." Proceedings of the 2017 CHI Conference
-    on Human Factors in Computing Systems 2017 (2017): 3966-971.
-* Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and Understanding
-    Cross-device Interaction." Proceedings of the SIGCHI Conference on Human
-    Factors in Computing Systems, 2014, 2773-782.
-* Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces Project:
-    Experiences with Ubiquitous Computing Rooms." IEEE Pervasive Computing 1,
-    no. 2 (2002): 67-74.
+
+- Cauchard, Jessica. "Mobile Multi-display Environments." Proceedings of the
+  24th Annual ACM Symposium Adjunct on User Interface Software and Technology,
+  2011, 39-42.
+- Döring, Tanja, Alireza Shirazi, and Albrecht Schmidt. "Exploring
+  Gesture-based Interaction Techniques in Multi-display Environments with
+  Mobile Phones and a Multi-touch Table." Proceedings of the International
+  Conference on Advanced Visual Interfaces, 2010, 419.
+- Forlines, Clifton, Alan Esenther, Chia Shen, Daniel Wigdor, and Kathy Ryall.
+  "Multi-user, Multi-display Interaction with a Single-user, Single-display
+  Geospatial Application." Proceedings of the 19th Annual ACM Symposium on
+  User Interface Software and Technology, 2006, 273-76.
+- Garcia-Sanjuan, Fernando, Javier Jaen, and Alejandro Catala. "Multi-Display
+  Environments to Foster Emotional Intelligence in Hospitalized Children."
+  Proceedings of the XVI International Conference on Human Computer
+  Interaction 07-09 (2015): 1-2.
+- Grubert, Jens, Matthias Kranz, and Aaron Quigley. "Challenges in Mobile
+  Multi-Device Ecosystems." ArXiv.org 5, no. 1 (2016): 1-22.
+- Grubert, Jens, and Matthias Kranz. "HeadPhones: Ad Hoc Mobile Multi-Display
+  Environments through Head Tracking." Proceedings of the 2017 CHI Conference
+  on Human Factors in Computing Systems 2017 (2017): 3966-971.
+- Hamilton, Peter, and Daniel Wigdor. "Conductor: Enabling and Understanding
+  Cross-device Interaction." Proceedings of the SIGCHI Conference on Human
+  Factors in Computing Systems, 2014, 2773-782.
+- Johanson, B., A. Fox, and T. Winograd. "The Interactive Workspaces Project:
+  Experiences with Ubiquitous Computing Rooms." IEEE Pervasive Computing 1,
+  no. 2 (2002): 67-74.
 
 \clearpage
 
 ## Web Links
-* node.js: <https://nodejs.org/en/>
-* npm: <https://www.npmjs.com/>
-* zingtouch: <https://zingchart.github.io/zingtouch/>
-* express: <http://expressjs.com/>
-* socket.io: <https://socket.io/>
-* arkit: <https://arkit.js.org/>
-* babel: <https://babeljs.io/>
-* browserify: <http://browserify.org/>
-* eslint: <https://eslint.org/>
-* jest: <https://jestjs.io/>
-* jsdoc: <http://usejsdoc.org/>
-* terser: <https://www.npmjs.com/package/terser>
-* tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
-* make: <https://www.gnu.org/software/make/manual/make.html>
-* exuberant-ctags: <http://ctags.sourceforge.net/>
-* ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
-* You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
-* Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
-* Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
-* Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
-* Open Source Assets: <https://www.kenney.nl> (Used for image assets in
-    examples).
 
+- node.js: <https://nodejs.org/en/>
+- npm: <https://www.npmjs.com/>
+- zingtouch: <https://zingchart.github.io/zingtouch/>
+- express: <http://expressjs.com/>
+- socket.io: <https://socket.io/>
+- arkit: <https://arkit.js.org/>
+- babel: <https://babeljs.io/>
+- browserify: <http://browserify.org/>
+- eslint: <https://eslint.org/>
+- jest: <https://jestjs.io/>
+- jsdoc: <http://usejsdoc.org/>
+- terser: <https://www.npmjs.com/package/terser>
+- tui-jsdoc-template: <https://www.npmjs.com/package/tui-jsdoc-template>
+- make: <https://www.gnu.org/software/make/manual/make.html>
+- exuberant-ctags: <http://ctags.sourceforge.net/>
+- ctags-patterns-for-javascript: <https://github.com/romainl/ctags-patterns-for-javascript>
+- You Don't Know JavaScript: <https://github.com/getify/You-Dont-Know-JS>
+- Mixins: <http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/>
+- Zeno's Dichotomy: <https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox>
+- Polygonal Hit Detection: <http://geomalgorithms.com/a03-_inclusion.html>
+- Open Source Assets: <https://www.kenney.nl> (Used for image assets in
+  examples).

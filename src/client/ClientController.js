@@ -12,20 +12,13 @@
 
 const io = require('socket.io-client');
 
-const {
-  constants,
-  DataReporter,
-  TouchReporter,
-  IdStamper,
-  Message,
-  NOP,
-} = require('../shared.js');
+const { constants, DataReporter, TouchReporter, IdStamper, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
   attachListeners: Symbol('attachListeners'),
-  render:          Symbol('render'),
+  render: Symbol('render'),
 });
 
 /**
@@ -128,12 +121,9 @@ class ClientController {
 
         // if this event was called before this code executed,
         // dispatch it again
-        this.eventQueue.forEach(ev => {
+        this.eventQueue.forEach((ev) => {
           if (ev.action === event) {
-            document.dispatchEvent(new CustomEvent(
-              event,
-              { detail: ev.payload },
-            ));
+            document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
           }
         });
       },
@@ -155,36 +145,36 @@ class ClientController {
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: (data) => this.handle('addElement', data),
-      [Message.ADD_IMAGE]:   (data) => this.handle('addImage', data),
-      [Message.ADD_ITEM]:    (data) => this.handle('addItem', data),
-      [Message.ADD_SHADOW]:  (data) => this.handle('addShadow', data),
-      [Message.RM_ITEM]:     (data) => this.handle('removeItem', data),
-      [Message.RM_SHADOW]:   (data) => this.handle('removeShadow', data),
-      [Message.UD_ITEM]:     (data) => this.handle('updateItem', data),
-      [Message.UD_SHADOW]:   (data) => this.handle('updateShadow', data),
-      [Message.UD_VIEW]:     (data) => this.handle('updateView', data),
+      [Message.ADD_IMAGE]: (data) => this.handle('addImage', data),
+      [Message.ADD_ITEM]: (data) => this.handle('addItem', data),
+      [Message.ADD_SHADOW]: (data) => this.handle('addShadow', data),
+      [Message.RM_ITEM]: (data) => this.handle('removeItem', data),
+      [Message.RM_SHADOW]: (data) => this.handle('removeShadow', data),
+      [Message.UD_ITEM]: (data) => this.handle('updateItem', data),
+      [Message.UD_SHADOW]: (data) => this.handle('updateShadow', data),
+      [Message.UD_VIEW]: (data) => this.handle('updateView', data),
 
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]:   ({ data }) => this.handle('removeAttributes', data),
-      [Message.SET_ATTRS]:  ({ data }) => this.handle('setAttributes', data),
-      [Message.SET_IMAGE]:  ({ data }) => this.handle('setImage', data),
+      [Message.RM_ATTRS]: ({ data }) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]: ({ data }) => this.handle('setAttributes', data),
+      [Message.SET_IMAGE]: ({ data }) => this.handle('setImage', data),
       [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
       [Message.SET_PARENT]: ({ data }) => this.handle('setParent', data),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: (data) => this.setup(data),
-      [Message.LAYOUT]:     NOP,
+      [Message.LAYOUT]: NOP,
 
       // User event related
-      [Message.CLICK]:     NOP,
-      [Message.RESIZE]:    NOP,
-      [Message.SWIPE]:     NOP,
-      [Message.TRACK]:     NOP,
+      [Message.CLICK]: NOP,
+      [Message.RESIZE]: NOP,
+      [Message.SWIPE]: NOP,
+      [Message.TRACK]: NOP,
       [Message.TRANSFORM]: NOP,
 
       // Multi-device gesture related
       [Message.POINTER]: NOP,
-      [Message.BLUR]:    NOP,
+      [Message.BLUR]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -204,8 +194,8 @@ class ClientController {
      * As no automatic draw loop is used, (there are no animations), need to
      * know when to re-render in response to an image loading.
      */
-    const schedule_fn = this.scheduleRender.bind(this);
-    document.addEventListener(Message.IMG_LOAD, schedule_fn);
+    const scheduleFn = this.scheduleRender.bind(this);
+    document.addEventListener(Message.IMG_LOAD, scheduleFn);
   }
 
   /**
@@ -218,7 +208,7 @@ class ClientController {
    */
   connect() {
     this.socket = io.connect(constants.NS_WAMS, {
-      autoConnect:  false,
+      autoConnect: false,
       reconnection: false,
       transports: ['websocket', 'polling'],
     });
@@ -253,11 +243,11 @@ class ClientController {
    * the server with the given message type label.
    */
   forward(message) {
-    function do_forward(data) {
+    function doForward(data) {
       const dreport = new DataReporter({ data });
       new Message(message, dreport).emitWith(this.socket);
     }
-    return do_forward.bind(this);
+    return doForward.bind(this);
   }
 
   /**
@@ -300,15 +290,15 @@ class ClientController {
 
   /**
    * Stretches the canvas to fit the available window space, and updates the
-   * view accordingly. 
-   * 
+   * view accordingly.
+   *
    * Note: Scaling to account for device pixel ratio is disabled for iOS
    * as a workaround for a bug with Safari and Chrome, where `context.setTransform`
    * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
     const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
-    const dpr = iOS ? 1 : (window.devicePixelRatio || 1);
+    const dpr = iOS ? 1 : window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
     this.canvas.width = w * dpr;
@@ -357,7 +347,7 @@ class ClientController {
   }
 
   loadClientScripts(scripts) {
-    scripts.forEach(src => {
+    scripts.forEach((src) => {
       const script = document.createElement('script');
       script.src = src;
       document.body.appendChild(script);
@@ -365,7 +355,7 @@ class ClientController {
   }
 
   loadStylesheets(stylesheets) {
-    stylesheets.forEach(src => {
+    stylesheets.forEach((src) => {
       const link = document.createElement('link');
       link.href = src;
       link.type = 'text/css';
@@ -388,10 +378,11 @@ class ClientController {
     if (useMultiScreenGestures) {
       this.setupInputForwarding();
     } else {
+      // eslint-disable-next-line
       new Interactor(this.rootElement, {
-        swipe:     this.forward(Message.SWIPE),
-        tap:       this.forward(Message.CLICK),
-        track:     this.forward(Message.TRACK),
+        swipe: this.forward(Message.SWIPE),
+        tap: this.forward(Message.CLICK),
+        track: this.forward(Message.TRACK),
         transform: this.forward(Message.TRANSFORM),
       });
     }
@@ -417,10 +408,10 @@ class ClientController {
    * @param {function} callback
    */
   forwardEvents(eventnames, callback) {
-    eventnames.forEach(eventname => {
+    eventnames.forEach((eventname) => {
       window.addEventListener(eventname, callback, {
         capture: true,
-        once:    false,
+        once: false,
         passive: false,
       });
     });
@@ -444,11 +435,13 @@ class ClientController {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
       event.preventDefault();
       const treport = new TouchReporter(event);
-      treport.changedTouches = [{
-        identifier: event.pointerId,
-        clientX:    event.clientX,
-        clientY:    event.clientY,
-      }];
+      treport.changedTouches = [
+        {
+          identifier: event.pointerId,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        },
+      ];
       new Message(Message.POINTER, treport).emitWith(this.socket);
     });
   }
@@ -461,11 +454,13 @@ class ClientController {
       event.preventDefault();
       if (event.button === 0) {
         const treport = new TouchReporter(event);
-        treport.changedTouches = [{
-          identifier: 0,
-          clientX:    event.clientX,
-          clientY:    event.clientY,
-        }];
+        treport.changedTouches = [
+          {
+            identifier: 0,
+            clientX: event.clientX,
+            clientY: event.clientY,
+          },
+        ];
         new Message(Message.POINTER, treport).emitWith(this.socket);
       }
     });
@@ -478,14 +473,13 @@ class ClientController {
     this.forwardEvents(['touchstart', 'touchmove', 'touchend'], (event) => {
       event.preventDefault();
       const treport = new TouchReporter(event);
-      treport.changedTouches = Array.from(event.changedTouches)
-        .map(touch => {
-          return {
-            identifier: touch.identifier,
-            clientX:    touch.clientX,
-            clientY:    touch.clientY,
-          };
-        });
+      treport.changedTouches = Array.from(event.changedTouches).map((touch) => {
+        return {
+          identifier: touch.identifier,
+          clientX: touch.clientX,
+          clientY: touch.clientY,
+        };
+      });
       new Message(Message.POINTER, treport).emitWith(this.socket);
     });
   }
@@ -505,4 +499,3 @@ class ClientController {
 }
 
 module.exports = ClientController;
-

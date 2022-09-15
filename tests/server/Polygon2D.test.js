@@ -11,41 +11,32 @@ const Polygon2D = require('shared/Polygon2D.js');
 const Point2D = require('shared/Point2D.js');
 
 describe('Polygon2D', () => {
-  let rectangle_points, triangle_points;
+  let rectanglePoints, trianglePoints;
   beforeAll(() => {
-    triangle_points = [
-      new Point2D(2, 4),
-      new Point2D(2, 0),
-      new Point2D(0, 0),
-    ];
+    trianglePoints = [new Point2D(2, 4), new Point2D(2, 0), new Point2D(0, 0)];
 
-    rectangle_points = [
-      new Point2D(0, 0),
-      new Point2D(5, 0),
-      new Point2D(5, 3),
-      new Point2D(0, 3),
-    ];
+    rectanglePoints = [new Point2D(0, 0), new Point2D(5, 0), new Point2D(5, 3), new Point2D(0, 3)];
   });
 
   describe('constructor(points)', () => {
     let triangle;
 
     test('Constructs an object of the correct type', () => {
-      expect(new Polygon2D([rectangle_points[0]])).toBeInstanceOf(Polygon2D);
+      expect(new Polygon2D([rectanglePoints[0]])).toBeInstanceOf(Polygon2D);
     });
 
     test('Accepts an array of Point2D objects', () => {
-      expect(() => triangle = new Polygon2D(triangle_points)).not.toThrow();
+      expect(() => (triangle = new Polygon2D(trianglePoints))).not.toThrow();
       expect(triangle.points).toBeDefined();
       expect(triangle.points[0]).toBeInstanceOf(Point2D);
     });
   });
 
   describe('contains(p)', () => {
-    let pin, pon, pout, pvertex, rectangle, triangle;
+    let pin, pon, pout, rectangle, triangle;
     beforeAll(() => {
-      triangle = new Polygon2D(triangle_points);
-      rectangle = new Polygon2D(rectangle_points);
+      triangle = new Polygon2D(trianglePoints);
+      rectangle = new Polygon2D(rectanglePoints);
     });
 
     test('Returns true for points inside the polygon', () => {
@@ -201,4 +192,3 @@ describe('Polygon2D', () => {
     });
   });
 });
-

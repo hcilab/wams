@@ -32,8 +32,8 @@ const ServerViewGroup = require('./ServerViewGroup.js');
  */
 function getLocalIP() {
   let ipaddr = null;
-  Object.values(os.networkInterfaces()).some(f => {
-    return f.some(a => {
+  Object.values(os.networkInterfaces()).some((f) => {
+    return f.some((a) => {
       if (a.family === 'IPv4' && a.internal === false) {
         ipaddr = a.address;
         return true;
@@ -63,11 +63,10 @@ class Application {
      */
     this.server = http.createServer(router);
 
-
     /**
      * Socket.io instance using http server.
      */
-    this.IOserver = IO(this.server)
+    this.IOserver = IO(this.server);
 
     /**
      * Socket.io namespace in which to operate.
@@ -79,7 +78,7 @@ class Application {
 
     /**
      * Socket.io namespace for position tracking.
-     * 
+     *
      * WARNING: Currently uses root namespace due to Unity Socket.io
      * library not having namespace support. Due to this, connection
      * functionality is limited.
@@ -87,7 +86,7 @@ class Application {
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    if (settings.enableTracking) this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING)
+    if (settings.enableTracking) this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING);
 
     /**
      * The main model. The buck stops here.
@@ -115,21 +114,16 @@ class Application {
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(
-      this.workspace,
-      this.messageHandler,
-      this.namespace,
-      this.group,
-      settings,
-    );
+    this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, this.group, settings);
 
-    if (settings.enableTracking) this.trackingSwitchboard = new TrackingSwitchboard(
-      this.workspace,
-      this.messageHandler,
-      this.trackingNamespace,
-      this.group,
-      settings,      
-    )
+    if (settings.enableTracking)
+      this.trackingSwitchboard = new TrackingSwitchboard(
+        this.workspace,
+        this.messageHandler,
+        this.trackingNamespace,
+        this.group,
+        settings
+      );
   }
 
   /**
@@ -231,14 +225,14 @@ class Application {
    */
   spawn(values) {
     switch (values.type) {
-    case 'item':
-      return this.spawnItem(values);
-    case 'item/image':
-      return this.spawnImage(values);
-    case 'item/element':
-      return this.spawnElement(values);
-    default:
-      return this.spawnItem(values);
+      case 'item':
+        return this.spawnItem(values);
+      case 'item/image':
+        return this.spawnImage(values);
+      case 'item/element':
+        return this.spawnElement(values);
+      default:
+        return this.spawnItem(values);
     }
   }
 
@@ -270,7 +264,7 @@ class Application {
    */
   on(event, handler) {
     if (this.messageHandler.listeners[event]) {
-      throw `Listener already exists for custom event "${event}"`;
+      throw Error(`Listener already exists for custom event "${event}"`);
     }
 
     this.messageHandler.listeners[event] = handler;
@@ -278,4 +272,3 @@ class Application {
 }
 
 module.exports = Application;
-

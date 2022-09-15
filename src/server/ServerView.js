@@ -10,12 +10,7 @@
 
 'use strict';
 
-const {
-  DataReporter,
-  IdStamper,
-  Message,
-  View,
-} = require('../shared.js');
+const { DataReporter, IdStamper, Message, View } = require('../shared.js');
 const { Interactable, Locker } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
@@ -74,28 +69,36 @@ class ServerView extends Locker(Interactable(View)) {
    *
    * @type {module:shared.Point2D}
    */
-  get bottomLeft() { return this.transformPoint(0, this.height); }
+  get bottomLeft() {
+    return this.transformPoint(0, this.height);
+  }
 
   /**
    * Get the position of the bottom right corner of this view.
    *
    * @type {module:shared.Point2D}
    */
-  get bottomRight() { return this.transformPoint(this.width, this.height); }
+  get bottomRight() {
+    return this.transformPoint(this.width, this.height);
+  }
 
   /**
    * Get the position of the top left corner of this view.
    *
    * @type {module:shared.Point2D}
    */
-  get topLeft() { return this.transformPoint(0, 0); }
+  get topLeft() {
+    return this.transformPoint(0, 0);
+  }
 
   /**
    * Get the position of the top right corner of this view.
    *
    * @type {module:shared.Point2D}
    */
-  get topRight() { return this.transformPoint(this.width, 0); }
+  get topRight() {
+    return this.transformPoint(this.width, 0);
+  }
 
   /*
    * Publish the view, bringing subscribers up to date.
@@ -104,7 +107,7 @@ class ServerView extends Locker(Interactable(View)) {
    */
   emitPublication() {
     new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
-    new Message(Message.UD_VIEW,   this).emitWith(this.socket);
+    new Message(Message.UD_VIEW, this).emitWith(this.socket);
   }
 
   /**
@@ -149,4 +152,3 @@ class ServerView extends Locker(Interactable(View)) {
 }
 
 module.exports = ServerView;
-

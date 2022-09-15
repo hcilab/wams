@@ -7,16 +7,15 @@
 
 'use strict';
 
-const { Item, NOP, Rectangle } = require('shared.js');
+const { Item, Rectangle } = require('shared.js');
 const WorkSpace = require('server/WorkSpace.js');
 const ServerItem = require('server/ServerItem.js');
-const ServerView = require('server/ServerView.js');
 
 let a, b, c, ia, ib, ic;
 beforeAll(() => {
-  ia = { x: 0,   y: 0,   hitbox: new Rectangle(100, 100) };
-  ib = { x: 20,  y: 40,  hitbox: new Rectangle(100, 100) };
-  ic = { x: 220, y: 240, hitbox: new Rectangle(50,  50)  };
+  ia = { x: 0, y: 0, hitbox: new Rectangle(100, 100) };
+  ib = { x: 20, y: 40, hitbox: new Rectangle(100, 100) };
+  ic = { x: 220, y: 240, hitbox: new Rectangle(50, 50) };
 });
 
 describe('WorkSpace', () => {
@@ -85,7 +84,7 @@ describe('WorkSpace', () => {
       });
 
       test('Does not return the actual items, but simple Objects', () => {
-        ws.reportItems().forEach(i => {
+        ws.reportItems().forEach((i) => {
           expect(i).not.toBeInstanceOf(ServerItem);
           expect(i).toBeInstanceOf(Object);
         });
@@ -93,7 +92,7 @@ describe('WorkSpace', () => {
 
       test('Objects returned contain the expected data', () => {
         const r = ws.reportItems();
-        r.forEach(i => {
+        r.forEach((i) => {
           expect(Object.getOwnPropertyNames(i)).toEqual(expectedProperties);
         });
       });
@@ -159,4 +158,3 @@ describe('WorkSpace', () => {
     });
   });
 });
-

@@ -109,38 +109,38 @@ class ServerController {
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
-      [Message.ADD_IMAGE]:   NOP,
-      [Message.ADD_ITEM]:    NOP,
-      [Message.ADD_SHADOW]:  NOP,
-      [Message.RM_ITEM]:     NOP,
-      [Message.RM_SHADOW]:   NOP,
-      [Message.UD_ITEM]:     NOP,
-      [Message.UD_SHADOW]:   NOP,
-      [Message.UD_VIEW]:     NOP,
+      [Message.ADD_IMAGE]: NOP,
+      [Message.ADD_ITEM]: NOP,
+      [Message.ADD_SHADOW]: NOP,
+      [Message.RM_ITEM]: NOP,
+      [Message.RM_SHADOW]: NOP,
+      [Message.UD_ITEM]: NOP,
+      [Message.UD_SHADOW]: NOP,
+      [Message.UD_VIEW]: NOP,
 
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]:   NOP,
-      [Message.SET_ATTRS]:  NOP,
-      [Message.SET_IMAGE]:  NOP,
+      [Message.RM_ATTRS]: NOP,
+      [Message.SET_ATTRS]: NOP,
+      [Message.SET_IMAGE]: NOP,
       [Message.SET_RENDER]: NOP,
       [Message.SET_PARENT]: NOP,
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: NOP,
-      [Message.LAYOUT]:     (...args) => this.layout(...args),
+      [Message.LAYOUT]: (...args) => this.layout(...args),
 
       // User event related
-      [Message.CLICK]:     this.messageHandler.handle('click', this.view),
-      [Message.SWIPE]:     this.messageHandler.handle('swipe', this.view),
+      [Message.CLICK]: this.messageHandler.handle('click', this.view),
+      [Message.SWIPE]: this.messageHandler.handle('swipe', this.view),
       [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
-      [Message.RESIZE]:    (data) => this.resize(data),
-      [Message.TRACK]:     ({ data }) => {
+      [Message.RESIZE]: (data) => this.resize(data),
+      [Message.TRACK]: ({ data }) => {
         this.messageHandler.track(data, this.view);
       },
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
-      [Message.BLUR]:    () => {
+      [Message.BLUR]: () => {
         this.group.clearInputsFromView(this.view.id);
       },
 
@@ -163,7 +163,7 @@ class ServerController {
       ...this.workspace.settings,
       views: this.group.reportViews(),
       items: this.workspace.reportItems(),
-      id:    this.view.id,
+      id: this.view.id,
     });
     new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
   }
@@ -178,11 +178,7 @@ class ServerController {
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
     if (this.messageHandler.ondisconnect) {
-      this.messageHandler.ondisconnect(
-        this.view,
-        this.device,
-        this.group
-      );
+      this.messageHandler.ondisconnect(this.view, this.device, this.group);
     }
     return true;
   }
@@ -198,14 +194,10 @@ class ServerController {
   layout({ width, height }) {
     this.setSize(width, height);
     if (this.messageHandler.onconnect) {
-      this.messageHandler.onconnect(
-        this.view,
-        this.device,
-        this.group,
-      );
+      this.messageHandler.onconnect(this.view, this.device, this.group);
     }
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
-    new Message(Message.UD_VIEW,    this.view).emitWith(this.socket);
+    new Message(Message.UD_VIEW, this.view).emitWith(this.socket);
   }
 
   /**
@@ -215,7 +207,7 @@ class ServerController {
    */
   pointerEvent(event) {
     event.source = this.view.id;
-    event.changedTouches.forEach(touch => {
+    event.changedTouches.forEach((touch) => {
       touch.identifier = `${String(this.view.id)}-${touch.identifier}`;
       const { x, y } = this.device.transformPoint(touch.clientX, touch.clientY);
       touch.clientX = x;
@@ -249,4 +241,3 @@ class ServerController {
 }
 
 module.exports = ServerController;
-

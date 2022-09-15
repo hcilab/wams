@@ -11,17 +11,12 @@ const app = new WAMS.Application();
 // Executed every time a user swipes the screen.
 function handleSwipe({ x, y, velocity, direction }) {
   const cidx = Math.ceil(velocity * 10) % WAMS.colours.length;
-  app.spawn(WAMS.predefined.items.rectangle(
-    x,
-    y,
-    velocity * 10,
-    32,
-    WAMS.colours[cidx],
-    {
-      type:     'colour',
+  app.spawn(
+    WAMS.predefined.items.rectangle(x, y, velocity * 10, 32, WAMS.colours[cidx], {
+      type: 'colour',
       rotation: -direction,
-    },
-  ));
+    })
+  );
 }
 
 function handleConnect(view) {
@@ -31,4 +26,3 @@ function handleConnect(view) {
 
 app.onconnect(handleConnect);
 app.listen(9002);
-

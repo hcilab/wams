@@ -10,11 +10,7 @@
 
 'use strict';
 
-const {
-  DataReporter,
-  Item,
-  Message,
-} = require('../shared.js');
+const { DataReporter, Item, Message } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -75,4 +71,3 @@ class ServerItem extends Identifiable(Hittable(Item)) {
 }
 
 module.exports = ServerItem;
-

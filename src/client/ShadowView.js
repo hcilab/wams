@@ -15,18 +15,14 @@
 
 'use strict';
 
-const {
-  colours,
-  IdStamper,
-  View,
-} = require('../shared.js');
+const { colours, IdStamper, View } = require('../shared.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
-  align:    Symbol('align'),
-  style:    Symbol('style'),
-  outline:  Symbol('outline'),
-  marker:   Symbol('marker'),
+  align: Symbol('align'),
+  style: Symbol('style'),
+  outline: Symbol('outline'),
+  marker: Symbol('marker'),
 });
 
 /**
@@ -126,4 +122,3 @@ class ShadowView extends View {
 }
 
 module.exports = ShadowView;
-

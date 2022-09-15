@@ -6,10 +6,7 @@
 
 'use strict';
 
-const {
-  Message,
-  DataReporter,
-} = require('../shared.js');
+const { Message, DataReporter } = require('../shared.js');
 const { actions } = require('../predefined');
 
 /**
@@ -51,7 +48,7 @@ class MessageHandler {
    * @param {string} gesture
    */
   handle(gesture, view) {
-    function do_gesture({ data }) {
+    function doGesture({ data }) {
       const target = view.lockedItem;
       if (target != null) {
         const { centroid } = data;
@@ -60,7 +57,7 @@ class MessageHandler {
         this[gesture](event, data);
       }
     }
-    return do_gesture.bind(this);
+    return doGesture.bind(this);
   }
 
   /**
@@ -71,12 +68,10 @@ class MessageHandler {
   click(event) {
     const { target, x, y } = event;
 
-    if (typeof target.containsPoint === 'function' &&
-      target.containsPoint(x, y)) {
+    if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
       if (target.onclick) target.onclick(event);
     } else {
-      const target = this.workspace.findFreeItemByCoordinates(x, y) ||
-        event.view;
+      const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
       if (target.onclick) target.onclick({ ...event, target });
     }
   }
@@ -111,15 +106,15 @@ class MessageHandler {
   transform(event, data) {
     const { delta } = data;
 
-    if (delta.hasOwnProperty('scale')) {
+    if (Object.prototype.hasOwnProperty.call(delta, 'scale')) {
       this.scale(event, delta);
     }
 
-    if (delta.hasOwnProperty('rotation')) {
+    if (Object.prototype.hasOwnProperty.call(delta, 'rotation')) {
       this.rotate(event, delta);
     }
 
-    if (delta.hasOwnProperty('translation')) {
+    if (Object.prototype.hasOwnProperty.call(delta, 'translation')) {
       this.drag(event, delta);
     }
   }
@@ -157,18 +152,21 @@ class MessageHandler {
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
       if (event.target.ondrag) {
-        event.target.ondrag({
-          ...event,
-          dx: d.x,
-          dy: d.y,
-        }, this.workspace)
+        event.target.ondrag(
+          {
+            ...event,
+            dx: d.x,
+            dy: d.y,
+          },
+          this.workspace
+        );
       } else {
         actions.drag({
           ...event,
           dx: d.x,
           dy: d.y,
         });
-      } 
+      }
     }
   }
 
@@ -191,14 +189,14 @@ class MessageHandler {
    */
   shouldDoGesture(handler, event) {
     switch (typeof handler) {
-    case 'function':
-      if (handler(event) === true) return true;
-      return false;
-    case 'boolean':
-      if (handler === true) return true;
-      return false;
-    default:
-      return false;
+      case 'function':
+        if (handler(event) === true) return true;
+        return false;
+      case 'boolean':
+        if (handler === true) return true;
+        return false;
+      default:
+        return false;
     }
   }
 
@@ -230,4 +228,3 @@ class MessageHandler {
 }
 
 module.exports = MessageHandler;
-

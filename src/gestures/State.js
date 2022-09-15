@@ -4,8 +4,8 @@
 
 'use strict';
 
-const Input   = require('./Input.js');
-const PHASE   = require('./PHASE.js');
+const Input = require('./Input.js');
+const PHASE = require('./PHASE.js');
 const { Point2D } = require('../shared.js');
 
 const symbols = Object.freeze({
@@ -86,7 +86,7 @@ class State {
    * Deletes all inputs that are in the 'end' phase.
    */
   clearEndedInputs() {
-    filterout(this[symbols.inputs], v => v.phase === 'end');
+    filterout(this[symbols.inputs], (v) => v.phase === 'end');
   }
 
   /**
@@ -95,7 +95,7 @@ class State {
    * @param {number} id - The id of the source view.
    */
   clearInputsFromSource(id) {
-    filterout(this[symbols.inputs], v => v.source === id);
+    filterout(this[symbols.inputs], (v) => v.source === id);
   }
 
   /**
@@ -104,7 +104,7 @@ class State {
    * @return {module:gestures.Input[]} Inputs in the given phase.
    */
   getInputsInPhase(phase) {
-    return this.inputs.filter(i => i.phase === phase);
+    return this.inputs.filter((i) => i.phase === phase);
   }
 
   /**
@@ -113,7 +113,7 @@ class State {
    * @return {module:gestures.Input[]} Inputs <b>not</b> in the given phase.
    */
   getInputsNotInPhase(phase) {
-    return this.inputs.filter(i => i.phase !== phase);
+    return this.inputs.filter((i) => i.phase !== phase);
   }
 
   /**
@@ -144,7 +144,7 @@ class State {
    * @param {TouchEvent} event - The event being captured.
    */
   updateAllInputs(event) {
-    event.changedTouches.forEach(touch => this.updateInput(event, touch));
+    event.changedTouches.forEach((touch) => this.updateInput(event, touch));
     this.event = event;
     this.updateFields();
   }
@@ -155,10 +155,9 @@ class State {
   updateFields() {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
-    this.activePoints = this.active.map(i => i.current.point);
+    this.activePoints = this.active.map((i) => i.current.point);
     this.centroid = Point2D.midpoint(this.activePoints) || {};
   }
 }
 
 module.exports = State;
-

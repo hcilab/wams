@@ -13,7 +13,7 @@ expect.extend({
         const fix = `'${argument}'`;
         return pre + fix;
       },
-      pass:    pass,
+      pass,
     };
   },
 });
@@ -85,7 +85,7 @@ if (typeof global.CanvasRenderingContext2D !== 'function') {
   ];
   class CanvasRenderingContext2D {
     constructor() {
-      props.forEach(p => {
+      props.forEach((p) => {
         this[p] = jest.fn();
       });
     }
@@ -101,9 +101,8 @@ global.getPrototypeChainOf = function getPrototypeChainOf(object) {
     chain.push(proto);
   }
   return chain;
-}
+};
 
 global.getPrototypeChainNamesOf = function getPrototypeChainNamesOf(object) {
-  return getPrototypeChainOf(object).map(p => p.constructor.name);
-}
-
+  return global.getPrototypeChainOf(object).map((p) => p.constructor.name);
+};

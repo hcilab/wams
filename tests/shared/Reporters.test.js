@@ -8,17 +8,9 @@
 'use strict';
 
 const Reporters = require('shared/Reporters.js');
-const {
-  Item,
-  View,
-  MouseReporter,
-  ScaleReporter,
-  RotateReporter,
-  FullStateReporter,
-} = Reporters;
 
 describe('Reporters', () => {
-  describe.each(Object.keys(Reporters))('%s', name => {
+  describe.each(Object.keys(Reporters))('%s', (name) => {
     const Reporter = Reporters[name];
     let instance;
     let property;
@@ -31,12 +23,12 @@ describe('Reporters', () => {
     });
 
     test('Can be instantiated', () => {
-      expect(() => instance = new Reporter()).not.toThrow();
+      expect(() => (instance = new Reporter())).not.toThrow();
       expect(instance).toBeInstanceOf(Reporter);
     });
 
     test('assign() works', () => {
-      property = Object.keys(instance).find(k => {
+      property = Object.keys(instance).find((k) => {
         return typeof instance[k] !== 'function';
       });
       expect(() => instance.assign({ [property]: 42, bogus: 11 })).not.toThrow();
@@ -46,10 +38,9 @@ describe('Reporters', () => {
 
     test('report() works', () => {
       let report;
-      expect(() => report = instance.report()).not.toThrow();
+      expect(() => (report = instance.report())).not.toThrow();
       expect(report[property]).toBe(42);
       expect(report.bogus).toBeUndefined();
     });
   });
 });
-

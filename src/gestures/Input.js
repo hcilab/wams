@@ -58,14 +58,18 @@ class Input {
    *
    * @type {string}
    */
-  get phase() { return this.current.phase; }
+  get phase() {
+    return this.current.phase;
+  }
 
   /**
    * The timestamp of the initiating event for this input.
    *
    * @type {number}
    */
-  get startTime() { return this.initial.time; }
+  get startTime() {
+    return this.initial.time;
+  }
 
   /**
    * @return {number} The distance between the initiating event for this input
@@ -89,4 +93,3 @@ class Input {
 }
 
 module.exports = Input;
-

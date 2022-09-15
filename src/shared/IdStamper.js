@@ -73,11 +73,7 @@ class IdStamper {
    */
   stampNewId(obj) {
     this[symbols.prevId] = getUniqueId(this[symbols.prevId]);
-    defineOwnImmutableEnumerableProperty(
-      obj,
-      'id',
-      this[symbols.prevId]
-    );
+    defineOwnImmutableEnumerableProperty(obj, 'id', this[symbols.prevId]);
   }
 
   /**
@@ -94,4 +90,3 @@ class IdStamper {
 }
 
 module.exports = IdStamper;
-

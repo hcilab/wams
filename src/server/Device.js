@@ -20,4 +20,3 @@ const { Transformable2D } = require('../mixins.js');
 class Device extends Transformable2D(View) {}
 
 module.exports = Device;
-

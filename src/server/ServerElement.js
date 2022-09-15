@@ -6,11 +6,7 @@
 
 'use strict';
 
-const {
-  DataReporter,
-  Message,
-  WamsElement,
-} = require('../shared.js');
+const { DataReporter, Message, WamsElement } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -58,7 +54,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
    * @param {string[]} attributes
    */
   removeAttributes(attributes) {
-    attributes.forEach(attr => {
+    attributes.forEach((attr) => {
       delete this.attributes[attr];
     });
     const dreport = new DataReporter({
@@ -79,7 +75,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     this.attributes = Object.assign(this.attributes, attributes);
     const dreport = new DataReporter({
       data: {
-        id:  this.id,
+        id: this.id,
         attributes,
       },
     });
@@ -88,4 +84,3 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
 }
 
 module.exports = ServerElement;
-

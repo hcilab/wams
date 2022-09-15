@@ -66,7 +66,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   moveBy(dx = 0, dy = 0) {
     super.moveBy(-dx, -dy);
-    this.views.forEach(v => v.moveBy(dx, dy));
+    this.views.forEach((v) => v.moveBy(dx, dy));
   }
 
   /**
@@ -83,7 +83,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @return {module:shared.View[]} Reports of the views in this group.
    */
   reportViews() {
-    return this.views.map(v => v.report());
+    return this.views.map((v) => v.report());
   }
 
   /*
@@ -100,7 +100,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
     super.rotateBy(-radians, px, py);
-    this.views.forEach(v => v.rotateBy(radians, px, py));
+    this.views.forEach((v) => v.rotateBy(radians, px, py));
   }
 
   /*
@@ -116,7 +116,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
-    this.views.forEach(v => v.scaleBy(ds, mx, my));
+    this.views.forEach((v) => v.scaleBy(ds, mx, my));
   }
 
   /**
@@ -132,4 +132,3 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
 }
 
 module.exports = ServerViewGroup;
-

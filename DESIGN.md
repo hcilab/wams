@@ -3,25 +3,24 @@
 This document details the design of the WAMS project. It covers fundamental
 architectural design decisions, the purpose of each of the modules, and briefly
 discusses each of the classes. For more in-depth information about any
-particular class, method, or chunk of code, see the [documentation](
-https://mvanderkamp.github.io/wams/).
+particular class, method, or chunk of code, see the [documentation](https://mvanderkamp.github.io/wams/).
 
 ## Contents
 
-* [Runtime Dependencies](#runtime-dependencies)
-* [Build Tools](#build-tools)
-* [Testing](#testing)
-* [Some Core Concepts](#some-core-concepts)
-* [Module Overview](#module-overview)
-* [Modules](#modules)
-    - [Shared](#shared)
-    - [Client](#client)
-    - [Server](#server)
-    - [Mixins](#mixins)
-    - [Gestures](#gestures)
-    - [Predefined](#predefined)
-* [Connection Establishment](#connection-establishment)
-* [References](#references)
+- [Runtime Dependencies](#runtime-dependencies)
+- [Build Tools](#build-tools)
+- [Testing](#testing)
+- [Some Core Concepts](#some-core-concepts)
+- [Module Overview](#module-overview)
+- [Modules](#modules)
+  - [Shared](#shared)
+  - [Client](#client)
+  - [Server](#server)
+  - [Mixins](#mixins)
+  - [Gestures](#gestures)
+  - [Predefined](#predefined)
+- [Connection Establishment](#connection-establishment)
+- [References](#references)
 
 ## Runtime Dependencies
 
@@ -30,63 +29,63 @@ tag in `package.json`:
 
 1. [canvas-sequencer](https://www.npmjs.com/package/canvas-sequencer)
 
-    This package allows end users to define custom rendering sequences for the
-    canvas. These sequences can be transmitted over the network and executed on
-    the client without having to use the `eval()` function and all its incumbent
-    issues. The downside to this approach is that the sequences must be
-    declarative- there is no way to retrieve the return value from a call to a
-    canvas context method or conditionally execute parts of the sequence.
+   This package allows end users to define custom rendering sequences for the
+   canvas. These sequences can be transmitted over the network and executed on
+   the client without having to use the `eval()` function and all its incumbent
+   issues. The downside to this approach is that the sequences must be
+   declarative- there is no way to retrieve the return value from a call to a
+   canvas context method or conditionally execute parts of the sequence.
 
-    This package was written and published as part of this project.
+   This package was written and published as part of this project.
 
 2. [westures](https://mvanderkamp.github.io/westures/)
-  
-    This package is a gesture library that provides a normalization of
-    interaction across browsers and devices, and makes the following kinds of
-    gestures possible:
 
-    - __Tap__
-    - __Pan__
-    - __Pinch__
-    - __Rotate__
-    - __Swipe__
-    - __Swivel__
+   This package is a gesture library that provides a normalization of
+   interaction across browsers and devices, and makes the following kinds of
+   gestures possible:
 
-    As well as providing tracking abilities (i.e. simple updates of input state
-    at every change) and gesture customization options, including the ability to
-    plug in entire custom gestures. This ability was used to package together
-    the Pan, Pinch, and Rotate gestures into a single Transform gesture, so that
-    all three updates can be transmitted over the network simultaneously,
-    reducing the volume of traffic and eliminating jitter in the render which
-    was caused by the updates to these three gestures being split across render
-    frames.
+   - **Tap**
+   - **Pan**
+   - **Pinch**
+   - **Rotate**
+   - **Swipe**
+   - **Swivel**
 
-    This package was written and published as part of this project. Note that it
-    is a fork of [ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch
-    and other existing gesture recognition libraries for JavaScript were found
-    to be insufficient for the demands of this project, hence the creation of
-    this package.
+   As well as providing tracking abilities (i.e. simple updates of input state
+   at every change) and gesture customization options, including the ability to
+   plug in entire custom gestures. This ability was used to package together
+   the Pan, Pinch, and Rotate gestures into a single Transform gesture, so that
+   all three updates can be transmitted over the network simultaneously,
+   reducing the volume of traffic and eliminating jitter in the render which
+   was caused by the updates to these three gestures being split across render
+   frames.
+
+   This package was written and published as part of this project. Note that it
+   is a fork of [ZingTouch](https://github.com/zingchart/zingtouch). ZingTouch
+   and other existing gesture recognition libraries for JavaScript were found
+   to be insufficient for the demands of this project, hence the creation of
+   this package.
 
 3. [express](https://www.npmjs.com/package/express)
 
-    The `express` package provides a simple way of establishing routes for the
-    node.js server. The `express` router used by a WAMS app can be exposed to
-    the end user, allowing them to define custom routes. Using a popular library
-    for this feature enhances the ease of use for end users.
+   The `express` package provides a simple way of establishing routes for the
+   node.js server. The `express` router used by a WAMS app can be exposed to
+   the end user, allowing them to define custom routes. Using a popular library
+   for this feature enhances the ease of use for end users.
 
 4. [socket.io](https://www.npmjs.com/package/socket.io)
 
-    The `socket.io` package is used on both client and server side behind the
-    scenes to maintain an open, real-time connection between the server and
-    client. Each client is on its own socket connection, but all clients share a
-    namespace.
+   The `socket.io` package is used on both client and server side behind the
+   scenes to maintain an open, real-time connection between the server and
+   client. Each client is on its own socket connection, but all clients share a
+   namespace.
 
-    Therefore messages are emitted as follows:
-    
-    * __To a single client:__ on the client's socket.
-    * __To everyone except a single client:__ on the client's socket's broadcast
-      channel.
-    * __To everyone:__ on the namespace.
+   Therefore messages are emitted as follows:
+
+   - **To a single client:** on the client's socket.
+   - **To everyone except a single client:** on the client's socket's broadcast
+     channel.
+   - **To everyone:** on the namespace.
 
 ## Build Tools
 
@@ -97,62 +96,62 @@ The tools used and their rationale are as follows:
 
 1. [arkit](https://arkit.js.org/)
 
-    The `arkit` package builds dependency graphs out of JavaScript source code.
-    These graphs are not full UML, but rather simply show which files are
-    connected via explicit `require()` statements. Although somewhat limited,
-    this is still very useful, and helps a great deal in terms of keeping the
-    code organized. All the architecture graphs present in this design document
-    were generated using `arkit`.
+   The `arkit` package builds dependency graphs out of JavaScript source code.
+   These graphs are not full UML, but rather simply show which files are
+   connected via explicit `require()` statements. Although somewhat limited,
+   this is still very useful, and helps a great deal in terms of keeping the
+   code organized. All the architecture graphs present in this design document
+   were generated using `arkit`.
 
 2. [babel](https://babeljs.io/)
 
-    The `babel` suite of packages provides transpilation, allowing the use of
-    convenient new features of the JavaScript language without breaking browser
-    support. Note however that only relatively recent browswers are supported.
-    Babel is used via the `babelify` transform for `browserify`.
+   The `babel` suite of packages provides transpilation, allowing the use of
+   convenient new features of the JavaScript language without breaking browser
+   support. Note however that only relatively recent browswers are supported.
+   Babel is used via the `babelify` transform for `browserify`.
 
 3. [browserify](http://browserify.org/)
 
-    The `browserify` package bundles JavaScript code together for delivery to
-    clients. It may not be the most feature-rich bundler, but the basic
-    functionality just simply works, and works well.
+   The `browserify` package bundles JavaScript code together for delivery to
+   clients. It may not be the most feature-rich bundler, but the basic
+   functionality just simply works, and works well.
 
 4. [eslint](https://eslint.org/)
 
-    `eslint` is akin to an early-warning system. It parses the code and checks
-    for style and formatting errors, so that these can be fixed before trying to
-    run the code. It works very well and is fully customizable in terms of which
-    of its style and format rules to apply. It can also fix some simple style
-    errors on its own.
+   `eslint` is akin to an early-warning system. It parses the code and checks
+   for style and formatting errors, so that these can be fixed before trying to
+   run the code. It works very well and is fully customizable in terms of which
+   of its style and format rules to apply. It can also fix some simple style
+   errors on its own.
 
 5. [jest](https://jestjs.io/)
 
-    `jest` is a testing framework for JavaScript. The tests are all written to
-    be run using the command `npx jest`. (`npx` is a command included when
-    `node.js` is installed. It runs scripts and/or binaries from project
-    dependencies in the `node_modules` package).
+   `jest` is a testing framework for JavaScript. The tests are all written to
+   be run using the command `npx jest`. (`npx` is a command included when
+   `node.js` is installed. It runs scripts and/or binaries from project
+   dependencies in the `node_modules` package).
 
 6. [jsdoc](http://usejsdoc.org/)
 
-    `jsdoc` generates documentation from internal comments, akin to javadocs.
+   `jsdoc` generates documentation from internal comments, akin to javadocs.
 
 7. [terser](https://www.npmjs.com/package/terser)
 
-    `terser` is a JavaScript code minifier that supports newer JavaScript
-    syntax. This allows the size of the source code bundle sent when a client
-    connects to be shrunk.
+   `terser` is a JavaScript code minifier that supports newer JavaScript
+   syntax. This allows the size of the source code bundle sent when a client
+   connects to be shrunk.
 
 8. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
 
-    This package is a template for the HTML pages produced by `jsdoc`. 
+   This package is a template for the HTML pages produced by `jsdoc`.
 
 9. [make](https://www.gnu.org/software/make/manual/make.html)
 
-    `make` is wonderfully flexible, so here it is used as a simple task runner,
-    at which it is quite adept. It also interfaces nicely with `vim`, even if
-    the JavaScript build tools don't. Simply running `make` from the main
-    directory of the project will run eslint, browserify, and jsdoc on the code,
-    keeping everything up to date at once. See the Makefile to see the targets.
+   `make` is wonderfully flexible, so here it is used as a simple task runner,
+   at which it is quite adept. It also interfaces nicely with `vim`, even if
+   the JavaScript build tools don't. Simply running `make` from the main
+   directory of the project will run eslint, browserify, and jsdoc on the code,
+   keeping everything up to date at once. See the Makefile to see the targets.
 
 10. [exuberant-ctags](http://ctags.sourceforge.net/)
 
@@ -162,8 +161,7 @@ The tools used and their rationale are as follows:
     definition location. Works excellently with `vim` and can really make
     navigating the source code a lot easier.
 
-11. [ctags-patterns-for-javascript](
-    https://github.com/romainl/ctags-patterns-for-javascript)
+11. [ctags-patterns-for-javascript](https://github.com/romainl/ctags-patterns-for-javascript)
 
     This package provides the necessary plugins to enable 'exuberant-ctags' for
     JavaScript.
@@ -197,11 +195,11 @@ and refactors since January.
 
 ## Some Core Concepts
 
-* [Message / Reporter Protocol](#message--reporter-protocol)
-* [Unique Identification](#unique-identification)
-* [Model-View-Controller](#model-view-controller)
-* [Mixin Pattern](#mixin-pattern)
-* [Smooth and Responsive Interaction](#smooth-and-responsive-interaction)
+- [Message / Reporter Protocol](#message--reporter-protocol)
+- [Unique Identification](#unique-identification)
+- [Model-View-Controller](#model-view-controller)
+- [Mixin Pattern](#mixin-pattern)
+- [Smooth and Responsive Interaction](#smooth-and-responsive-interaction)
 
 ### Message / Reporter protocol
 
@@ -227,8 +225,7 @@ properties immediately on the data object will be assigned to the `Reporter`
 instance, allowing arbitrary data to be stored. A deeper search is done for the
 core properties of the `Reporter` instance, checking the entire prototype chain
 of the `data` object. (For information on the prototype chain, see Kyle
-Simpson's book series, [You Don't Know JavaScript](
-https://github.com/getify/You-Dont-Know-JS)).
+Simpson's book series, [You Don't Know JavaScript](https://github.com/getify/You-Dont-Know-JS)).
 
 The second step was to create a `Message` class with a static list of acceptable
 message types. A `Message` is constructed with one of these message types and an
@@ -273,7 +270,7 @@ instructions from the server. The other catch is that, as the only thing objects
 in the model need to do is draw themselves, they each implement a `draw()`
 method for the `ClientView` to use.
 
-#### Server MVC 
+#### Server MVC
 
 The server side is more complicated. The most obvious reason for this is that,
 being an API, the users of the API need to be able to attach their own
@@ -283,7 +280,7 @@ needs to be rendered.
 The approach taken is to split the model in two. One of these is the
 `WorkSpace`, which holds all the actual objects in the model that will need to
 be rendered. Specifically, these are the objects which are explicitly spawned
-into the model by the programmer. 
+into the model by the programmer.
 
 The other is the `ServerViewGroup`, which holds the server's representations of
 the client's views (that is, what the clients can see). The programmer does not
@@ -326,8 +323,7 @@ to perform a lot of similar actions. Mixins solves this problem beautifully,
 making the whole system more succinct and easier to maintain in the process.
 
 A more in-depth discussion of mixins and the inspiration for the specific
-implementation approach used can be found [here](
-http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
+implementation approach used can be found [here](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/).
 
 ### Smooth and Responsive Interaction
 
@@ -346,7 +342,7 @@ Similarly, the size of packets sent over the network must also be kept down.
 The Message / Reporter protocol handles most of this work, by stripping out all
 but the core properties of any object transmitted, but care must still be taken
 to ensure that these core properties really are only those that are needed at
-every update, or at least are small enough to be negligible. 
+every update, or at least are small enough to be negligible.
 
 Therefore properties such as attribute lists for HTML elements, which could
 contain huge strings representing entire webpages, should only be sent
@@ -431,8 +427,7 @@ value from the update.
 
 ## Module Overview
 
-![Graph of all modules except shared](
-https://github.com/mvanderkamp/wams/blob/master/graphs/full.svg?sanitize=true)
+![Graph of all modules except shared](https://github.com/mvanderkamp/wams/blob/master/graphs/full.svg?sanitize=true)
 
 Note that this graph (and all that follow) merely show explicit file
 associations via a `require()` statement (similar to an `import` or `#include`).
@@ -440,35 +435,33 @@ Also note that the above graph does not show the `shared` module, as it provides
 base classes and routines that are used throughout the code and would simply
 clutter the graph without revealing any structure.
 
-All graphs were generated using `arkit`, as discussed in the [build tools](
-#build-tools) section above.
+All graphs were generated using `arkit`, as discussed in the [build tools](#build-tools) section above.
 
 ## Modules
 
-* [Shared](#shared)
-* [Client](#client)
-* [Server](#server)
-* [Mixins](#mixins)
-* [Predefined](#predefined)
-* [Gestures](#gestures)
+- [Shared](#shared)
+- [Client](#client)
+- [Server](#server)
+- [Mixins](#mixins)
+- [Predefined](#predefined)
+- [Gestures](#gestures)
 
 ## Shared
 
-![Graph of shared module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
+![Graph of shared module](https://github.com/mvanderkamp/wams/blob/master/graphs/shared.svg?sanitize=true)
 
 To coordinate activity between the client and server, a shared set of resources
 are exposed by
 [shared.js](https://mvanderkamp.github.io/wams/module-shared.html).
 
-* [utilities](#utilities)
-* [IdStamper](#idstamper)
-* [ReporterFactory](#reporterfactory)
-* [Reporters](#reporters)
-* [Message](#message)
-* [Point2D](#point2d)
-* [Polygon2D](#polygon2d)
-* [Rectangle](#rectangle)
+- [utilities](#utilities)
+- [IdStamper](#idstamper)
+- [ReporterFactory](#reporterfactory)
+- [Reporters](#reporters)
+- [Message](#message)
+- [Point2D](#point2d)
+- [Polygon2D](#polygon2d)
+- [Rectangle](#rectangle)
 
 ### utilities
 
@@ -502,7 +495,7 @@ provided by this module share a common interface, as they are all generated by
 the same class factory.
 
 Specifically, each reporter exposes two methods for getting and setting a set of
-core properties: `assign(data)` and `report()`. 
+core properties: `assign(data)` and `report()`.
 
 As discussed in the [core concepts](#some-core-concepts) section above, the
 motivation for this design was to provide some semblance of confidence about the
@@ -510,7 +503,7 @@ data that will be passed between the client and server. With the core properties
 defined in a shared module, the chance of data being sent back and forth in a
 format that one end or the other does not recognize is greaty reduced. This was
 taken even further with the [Message](#message) class, which uses this reporter
-interface for the data it transmits. 
+interface for the data it transmits.
 
 Crucially, the set of Reporters includes the common `Item` and `View`
 definitions that both client and server extend. Think of these common reporter
@@ -537,8 +530,7 @@ therefore provides the necessary two-dimensional point operations.
 The [Polygon2D](https://mvanderkamp.github.io/wams/module-shared.Polygon2D.html)
 class defines a two dimensional polygon class, capable of hit detection.
 Complex polygons are supported by the hit detection routine as well as simple
-polygons. A discussion of the algorithm used can be found [here](
-http://geomalgorithms.com/a03-_inclusion.html).
+polygons. A discussion of the algorithm used can be found [here](http://geomalgorithms.com/a03-_inclusion.html).
 
 ### Rectangle
 
@@ -547,18 +539,17 @@ class provides a two dimensional rectangle class with support for hit detection.
 
 ## Client
 
-![Graph of client module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/client.svg?sanitize=true)
+![Graph of client module](https://github.com/mvanderkamp/wams/blob/master/graphs/client.svg?sanitize=true)
 
-* [ClientController](#clientcontroller)
-* [ClientModel](#clientmodel)
-* [ClientView](#clientview)
-* [ShadowView](#shadowview)
-* [ClientItem](#clientitem)
-* [ClientImage](#clientimage)
-* [ClientElement](#clientelement)
-* [Interactor](#interactor)
-* [Transform](#transform)
+- [ClientController](#clientcontroller)
+- [ClientModel](#clientmodel)
+- [ClientView](#clientview)
+- [ShadowView](#shadowview)
+- [ClientItem](#clientitem)
+- [ClientImage](#clientimage)
+- [ClientElement](#clientelement)
+- [Interactor](#interactor)
+- [Transform](#transform)
 
 ### ClientController
 
@@ -568,7 +559,7 @@ bridge between client and server. To do this, it maintains the `socket.io`
 connection to the server. User interaction is forwarded to the server, while
 model updates from the server are forwarded to the model.
 
-### ClientModel 
+### ClientModel
 
 The [ ClientModel
 ](https://mvanderkamp.github.io/wams/module-client.ClientModel.html) is a full
@@ -637,22 +628,21 @@ occur simultaneously, reducing jitter.
 
 ## Server
 
-![Graph of server module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
+![Graph of server module](https://github.com/mvanderkamp/wams/blob/master/graphs/server.svg?sanitize=true)
 
-* [ServerController](#servercontroller)
-* [GestureController](#gesturecontroller)
-* [SwitchBoard](#switchboard)
-* [WorkSpace](#workspace)
-* [ServerViewGroup](#serverviewgroup)
-* [ServerView](#serverview)
-* [Device](#device)
-* [ServerItem](#serveritem)
-* [ServerImage](#serverimage)
-* [ServerElement](#serverelement)
-* [MessageHandler](#messagehandler)
-* [Router](#router)
-* [Application](#application)
+- [ServerController](#servercontroller)
+- [GestureController](#gesturecontroller)
+- [SwitchBoard](#switchboard)
+- [WorkSpace](#workspace)
+- [ServerViewGroup](#serverviewgroup)
+- [ServerView](#serverview)
+- [Device](#device)
+- [ServerItem](#serveritem)
+- [ServerImage](#serverimage)
+- [ServerElement](#serverelement)
+- [MessageHandler](#messagehandler)
+- [Router](#router)
+- [Application](#application)
 
 ### ServerController
 
@@ -665,7 +655,7 @@ belongs, and its physical Device.
 
 User interaction events are forwarded either directly to the MessageHandler or
 to the view group's GestureController, depending on whether server-side or the
-traditional client-side gestures are in use. 
+traditional client-side gestures are in use.
 
 Outgoing messages will be handled directly by the view or by items, via their
 'publish' mechanism. This mechanism ensures that updates will be sent to clients
@@ -693,7 +683,7 @@ necessary components when a client connects to a WAMS app.
 The [ WorkSpace
 ](https://mvanderkamp.github.io/wams/module-server.WorkSpace.html) is the model
 for all items that are programmatically added or removed. That is, for
-    ServerItems, ServerImages, and ServerElements.
+ServerItems, ServerImages, and ServerElements.
 
 ### ServerViewGroup
 
@@ -709,7 +699,7 @@ Mixins used by this class: Locker, Lockable, Transformable2D.
 
 The [ ServerView
 ](https://mvanderkamp.github.io/wams/module-server.ServerView.html) represents a
-client's logical view within the workspace. 
+client's logical view within the workspace.
 
 Mixins used by this class: Locker, Interactable.
 
@@ -726,7 +716,7 @@ Mixins used by this class: Transformable2D.
 The [ ServerItem
 ](https://mvanderkamp.github.io/wams/module-server.ServerItem.html) maintains
 the model of an Item. It allows for transformations and hit detection.
-Transformations are published automatically to the clients. 
+Transformations are published automatically to the clients.
 
 Mixins used by this class: Identifiable, Hittable.
 
@@ -751,7 +741,7 @@ Mixins used by this class: Identifiable, Hittable.
 
 The [ MessageHandler
 ](https://mvanderkamp.github.io/wams/module-server.MessageHandler.html) is the
-interface between the WAMS system and the programmer.  All recognized user
+interface between the WAMS system and the programmer. All recognized user
 interactions ultimately end up being transmitted to the MessageHandler, which
 will call the appropriate listener, if the programmer has attached one.
 
@@ -769,16 +759,15 @@ endpoint of the WAMS system.
 
 ## Mixins
 
-![Graph of mixins module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
+![Graph of mixins module](https://github.com/mvanderkamp/wams/blob/master/graphs/mixins.svg?sanitize=true)
 
-* [Lockable](#lockable)
-* [Locker](#locker)
-* [Publishable](#publishable)
-* [Transformable2D](#transformable2d)
-* [Interactable](#interactable)
-* [Hittable](#hittable)
-* [Identifiable](#identifiable)
+- [Lockable](#lockable)
+- [Locker](#locker)
+- [Publishable](#publishable)
+- [Transformable2D](#transformable2d)
+- [Interactable](#interactable)
+- [Hittable](#hittable)
+- [Identifiable](#identifiable)
 
 ### Lockable
 
@@ -827,15 +816,14 @@ use this mixin will share the same pool of IDs.
 
 ## Gestures
 
-![Graph of gestures module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
+![Graph of gestures module](https://github.com/mvanderkamp/wams/blob/master/graphs/gestures.svg?sanitize=true)
 
-* [Binding](#binding)
-* [Input](#input)
-* [PHASE](#phase)
-* [PointerData](#PointerData)
-* [Region](#Region)
-* [State](#State)
+- [Binding](#binding)
+- [Input](#input)
+- [PHASE](#phase)
+- [PointerData](#PointerData)
+- [Region](#Region)
+- [State](#State)
 
 ### Binding
 
@@ -866,7 +854,7 @@ the time of interaction, and the phase.
 
 The [ Region ](https://mvanderkamp.github.io/wams/module-gestures.Region.html)
 class is the entry point into the gestures module. It maintains the list of
-active gestures and acts as a supervisor for all gesture processes. 
+active gestures and acts as a supervisor for all gesture processes.
 
 ### State
 
@@ -875,12 +863,11 @@ class maintains the list of input points.
 
 ## Predefined
 
-![Graph of predefined module](
-https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
+![Graph of predefined module](https://github.com/mvanderkamp/wams/blob/master/graphs/predefined.svg?sanitize=true)
 
-* [items](#predefined-items)
-* [layouts](#predefined-layouts)
-* [utilities](#predefined-utilities)
+- [items](#predefined-items)
+- [layouts](#predefined-layouts)
+- [utilities](#predefined-utilities)
 
 ### Predefined items
 
@@ -897,7 +884,7 @@ is a collection of factories for predefined layout handlers.
 
 The [ utilities
 ](https://mvanderkamp.github.io/wams/module-predefined.utilities.html) namespace
-is an assortment  of predefined helper functions.
+is an assortment of predefined helper functions.
 
 ## Connection Establishment
 
@@ -907,7 +894,7 @@ following sequence of events occurs:
 1. HTML and client JavaScript code are delivered.
 2. When the page is loaded, the client's ClientModel, ClientView, and
    ClientController are instantiated and hooked up.
-3. The ClientController resizes the canvas to fill the client's browser window. 
+3. The ClientController resizes the canvas to fill the client's browser window.
 4. The ClientController registers `socket.io` message listeners and other
    assorted non-gesture-related listeners for maintaining the system.
 5. The ClientController initiates the render loop.
@@ -926,13 +913,13 @@ following sequence of events occurs:
     programmer such as whether to use client or server-side gestures.
 11. The ClientController informs the ClientModel of this data and registers user
     event listeners, either in the form of an Interactor for client-side
-    gestures or by directly forwarding input events for server-side gestures. 
+    gestures or by directly forwarding input events for server-side gestures.
 12. The ClientController emits a layout message to the server, detailing the
     size of the view.
 13. The ServerController receives this message, and records the size of the view
     in the model.
 14. If a layout handler has been registered for the application, it is called
-    for the new view. 
+    for the new view.
 15. The view is updated with the new parameters from the layout, and all the
     other views are now informed of the view, adding it as a "shadow".
 16. The connection is now fully established, and normal operation proceeds.
@@ -954,17 +941,13 @@ algorithms, tutorials, or other articles.
 10. [jest](https://jestjs.io/)
 11. [jsdoc](http://usejsdoc.org/)
 12. [terser](https://www.npmjs.com/package/terser)
-12. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
-13. [make](https://www.gnu.org/software/make/manual/make.html)
-14. [exuberant-ctags](http://ctags.sourceforge.net/)
-15. [ctags-patterns-for-javascript](
-   https://github.com/romainl/ctags-patterns-for-javascript)
-16. [You Don't Know JavaScript]( https://github.com/getify/You-Dont-Know-JS)
-17. [Mixins](
-    http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
-18. [Zeno's Dichotomy](
-    https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
-19. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
-20. [Open Source Assets](https://www.kenney.nl) (Used for image assets in
+13. [tui-jsdoc-template](https://www.npmjs.com/package/tui-jsdoc-template)
+14. [make](https://www.gnu.org/software/make/manual/make.html)
+15. [exuberant-ctags](http://ctags.sourceforge.net/)
+16. [ctags-patterns-for-javascript](https://github.com/romainl/ctags-patterns-for-javascript)
+17. [You Don't Know JavaScript](https://github.com/getify/You-Dont-Know-JS)
+18. [Mixins](http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/)
+19. [Zeno's Dichotomy](https://en.wikipedia.org/wiki/Zeno's_paradoxes#Dichotomy_paradox)
+20. [Polygonal Hit Detection](http://geomalgorithms.com/a03-_inclusion.html)
+21. [Open Source Assets](https://www.kenney.nl) (Used for image assets in
     examples).
-

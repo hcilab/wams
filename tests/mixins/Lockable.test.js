@@ -20,17 +20,17 @@ describe('Lockable', () => {
     });
 
     test('"instanceof" operator works', () => {
-      const obj = new TestArray(4,5,6);
+      const obj = new TestArray(4, 5, 6);
       expect(obj instanceof Array).toBe(true);
       expect(obj instanceof TestArray).toBe(true);
-      expect(getPrototypeChainNamesOf(obj)).toContain('Lockable');
+      expect(global.getPrototypeChainNamesOf(obj)).toContain('Lockable');
     });
   });
 
   describe('Instance Methods', () => {
     let tarr;
     beforeEach(() => {
-      tarr = new TestArray(42, 'hi', {x: 1});
+      tarr = new TestArray(42, 'hi', { x: 1 });
     });
 
     describe('isLocked()', () => {
@@ -61,6 +61,3 @@ describe('Lockable', () => {
     });
   });
 });
-
-
-

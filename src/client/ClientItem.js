@@ -83,4 +83,3 @@ class ClientItem extends Item {
 }
 
 module.exports = ClientItem;
-

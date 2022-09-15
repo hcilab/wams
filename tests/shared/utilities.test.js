@@ -4,21 +4,16 @@
 
 'use strict';
 
-const {
-  defineOwnImmutableEnumerableProperty,
-  removeById,
-} = require('shared/utilities.js');
+const { defineOwnImmutableEnumerableProperty, removeById } = require('shared/utilities.js');
 
 describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
   const x = {};
   test('throws if obj is not a valid object', () => {
-    expect(() => defineOwnImmutableEnumerableProperty(undefined, 'a', 1))
-      .toThrow();
+    expect(() => defineOwnImmutableEnumerableProperty(undefined, 'a', 1)).toThrow();
   });
 
   test('Does not throw if obj is valid', () => {
-    expect(() => defineOwnImmutableEnumerableProperty(x, 'a', 1))
-      .not.toThrow();
+    expect(() => defineOwnImmutableEnumerableProperty(x, 'a', 1)).not.toThrow();
   });
 
   test('defines an immutable property on an object', () => {
@@ -54,11 +49,11 @@ describe('removeById(array, item)', () => {
     const a3 = new A(3);
     expect(arr.length).toBe(3);
     expect(() => removeById(arr, a1)).not.toThrow();
-    expect(arr.find(a => a.id === 1)).toBeUndefined();
+    expect(arr.find((a) => a.id === 1)).toBeUndefined();
     expect(() => removeById(arr, a2)).not.toThrow();
-    expect(arr.find(a => a.id === 2)).toBeUndefined();
+    expect(arr.find((a) => a.id === 2)).toBeUndefined();
     expect(() => removeById(arr, a3)).not.toThrow();
-    expect(arr.find(a => a.id === 3)).toBeUndefined();
+    expect(arr.find((a) => a.id === 3)).toBeUndefined();
     expect(arr.length).toBe(0);
   });
 
@@ -69,4 +64,3 @@ describe('removeById(array, item)', () => {
     expect(arr.length).toBe(3);
   });
 });
-

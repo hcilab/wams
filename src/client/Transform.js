@@ -61,26 +61,26 @@ class Transform extends Westures.Gesture {
   move(state) {
     const result = {
       centroid: state.centroid,
-      delta:    {},
+      delta: {},
     };
 
-    const pinch_data = this.pinch.move(state);
-    const rotate_data = this.rotate.move(state);
-    const pan_data = this.pan.move(state);
+    const pinchData = this.pinch.move(state);
+    const rotateData = this.rotate.move(state);
+    const panData = this.pan.move(state);
     let emit = false;
 
-    if (pinch_data) {
-      result.delta.scale = pinch_data.scale;
+    if (pinchData) {
+      result.delta.scale = pinchData.scale;
       emit = true;
     }
 
-    if (rotate_data) {
-      result.delta.rotation = rotate_data.rotation;
+    if (rotateData) {
+      result.delta.rotation = rotateData.rotation;
       emit = true;
     }
 
-    if (pan_data) {
-      result.delta.translation = pan_data.translation;
+    if (panData) {
+      result.delta.translation = panData.translation;
       emit = true;
     }
 
@@ -111,4 +111,3 @@ class Transform extends Westures.Gesture {
 }
 
 module.exports = Transform;
-

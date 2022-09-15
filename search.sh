@@ -1,7 +1,7 @@
 #!/bin/bash
 
 USAGE="\
-This script allows you to quickly locate where a term is used inside all 
+This script allows you to quickly locate where a term is used inside all
 project source files.
 
 usage:
