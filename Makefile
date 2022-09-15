@@ -1,13 +1,7 @@
 
-.PHONY: wams lint fix parcel docs tags test graphs report
+.PHONY: wams parcel docs tags test graphs report
 
-lint:
-	npx eslint src;
-
-wams: lint parcel docs tags
-
-fix:
-	npx eslint src --fix;
+wams:  parcel docs tags
 
 parcel:
 	npx parcel build 'src/client.js' --out-dir dist/wams;
