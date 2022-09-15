@@ -9,8 +9,6 @@
 
 const { View } = require('shared.js');
 const ClientView = require('client/ClientView.js');
-const ClientItem = require('client/ClientItem.js');
-const ShadowView = require('client/ShadowView.js');
 const ClientModel = require('client/ClientModel.js');
 
 describe('ClientView', () => {
@@ -49,8 +47,8 @@ describe('ClientView', () => {
         model.addItem({ x: 555, y: 253, id: 50 });
         model.addItem({ x: 1, y: 2, id: 89 });
 
-        model.items.forEach(i => i.draw = jest.fn());
-        model.shadows.forEach(s => s.draw = jest.fn());
+        model.items.forEach((i) => (i.draw = jest.fn()));
+        model.shadows.forEach((s) => (s.draw = jest.fn()));
 
         cv.draw();
       });
@@ -62,14 +60,14 @@ describe('ClientView', () => {
       });
 
       test('Draws all of the items', () => {
-        model.items.forEach(i => {
+        model.items.forEach((i) => {
           expect(i.draw).toHaveBeenCalledTimes(1);
         });
       });
 
       test('Draws all of the shadows', () => {
         if (cv.config.showShadows) {
-          model.shadows.forEach(s => {
+          model.shadows.forEach((s) => {
             expect(s.draw).toHaveBeenCalledTimes(1);
           });
         } else return undefined;
@@ -87,4 +85,3 @@ describe('ClientView', () => {
     });
   });
 });
-

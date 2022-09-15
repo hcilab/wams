@@ -43,4 +43,3 @@ module.exports = {
   Publishable,
   Transformable2D,
 };
-

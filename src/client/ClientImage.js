@@ -112,4 +112,3 @@ class ClientImage extends WamsImage {
 }
 
 module.exports = ClientImage;
-

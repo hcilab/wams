@@ -5,7 +5,7 @@
 'use strict';
 
 const { Point2D } = require('../shared.js');
-const PHASE   = require('./PHASE.js');
+const PHASE = require('./PHASE.js');
 
 /**
  * Low-level storage of pointer data based on incoming data from an interaction
@@ -68,4 +68,3 @@ class PointerData {
 }
 
 module.exports = PointerData;
-

@@ -31,12 +31,12 @@ const ClientView = require('./client/ClientView.js');
 window.addEventListener(
   'load',
   function run() {
-    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 
     const root = document.querySelector('#root');
-    if (!root) throw 'No root element was found on the page.';
+    if (!root) throw Error('No root element was found on the page.');
     const canvas = document.querySelector('canvas');
-    if (!canvas) throw 'No canvas element was found on the page.';
+    if (!canvas) throw Error('No canvas element was found on the page.');
 
     const context = canvas.getContext('2d');
 
@@ -51,8 +51,7 @@ window.addEventListener(
   },
   {
     capture: false,
-    once:    true,
+    once: true,
     passive: true,
   }
 );
-

@@ -15,11 +15,7 @@ const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const { removeById } = require('../shared.js');
 
-const REQUIRED_DATA = Object.freeze([
-  'id',
-  'items',
-  'views',
-]);
+const REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
 
 /**
  * The ClientModel is a client-side copy of those aspects of the model that are
@@ -34,6 +30,7 @@ class ClientModel {
      *
      * @type {Element}
      */
+    // eslint-disable-next-line
     this.rootElement = root;
 
     /**
@@ -71,11 +68,11 @@ class ClientModel {
   /**
    * Generate and store an item of the given type.
    *
-   * @param {function} class_fn
+   * @param {function} ClassFn
    * @param {object} values
    */
-  addObject(class_fn, values) {
-    const object = new class_fn(values);
+  addObject(ClassFn, values) {
+    const object = new ClassFn(values);
     this.itemOrder.push(object);
     this.items.set(object.id, object);
   }
@@ -126,7 +123,7 @@ class ClientModel {
    */
   removeItem(item) {
     const obj = this.items.get(item.id);
-    if (obj.hasOwnProperty('tagname')) {
+    if (Object.prototype.hasOwnProperty.call(obj, 'tagname')) {
       this.rootElement.removeChild(obj.element);
     }
 
@@ -155,14 +152,14 @@ class ClientModel {
    *       be thrown.
    */
   setup(data) {
-    REQUIRED_DATA.forEach(d => {
-      if (!data.hasOwnProperty(d)) throw `setup requires: ${d}`;
+    REQUIRED_DATA.forEach((d) => {
+      if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`setup requires: ${d}`);
     });
-    data.views.forEach(v => v.id !== this.view.id && this.addShadow(v));
-    data.items.reverse().forEach(o => {
-      if (o.hasOwnProperty('src')) {
+    data.views.forEach((v) => v.id !== this.view.id && this.addShadow(v));
+    data.items.reverse().forEach((o) => {
+      if (Object.prototype.hasOwnProperty.call(o, 'src')) {
         this.addImage(o);
-      } else if (o.hasOwnProperty('tagname')) {
+      } else if (Object.prototype.hasOwnProperty.call(o, 'tagname')) {
         this.addElement(o);
       } else {
         this.addItem(o);
@@ -178,7 +175,7 @@ class ClientModel {
    *
    */
   bringItemToTop(id) {
-    const index = this.itemOrder.findIndex(el => el.id === id);
+    const index = this.itemOrder.findIndex((el) => el.id === id);
     this.itemOrder.push(...this.itemOrder.splice(index, 1));
   }
 
@@ -186,13 +183,13 @@ class ClientModel {
    * Call the given method with the given property of 'data' on the item with id
    * equal to data.id.
    *
-   * @param {string} fn_name
+   * @param {string} fnName
    * @param {string} property
    * @param {object} data
    */
-  setItemValue(fn_name, property, data) {
+  setItemValue(fnName, property, data) {
     if (this.items.has(data.id)) {
-      this.items.get(data.id)[fn_name](data[property]);
+      this.items.get(data.id)[fnName](data[property]);
     }
   }
 
@@ -241,8 +238,8 @@ class ClientModel {
     if (this[container].has(data.id)) {
       this[container].get(data.id).assign(data);
       if (container === 'items') {
-        const item = this[container].get(data.id)
-        if (!item.lockZ) { 
+        const item = this[container].get(data.id);
+        if (!item.lockZ) {
           this.bringItemToTop(data.id);
         }
       }
@@ -287,12 +284,8 @@ class ClientModel {
    * @param {object} event - event data, contains `action` and `payload`
    */
   dispatch(event) {
-    document.dispatchEvent(new CustomEvent(
-      event.action,
-      { detail: event.payload }
-    ));
+    document.dispatchEvent(new CustomEvent(event.action, { detail: event.payload }));
   }
 }
 
 module.exports = ClientModel;
-

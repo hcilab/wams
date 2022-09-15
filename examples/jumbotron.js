@@ -17,17 +17,19 @@ const app = new WAMS.Application({
 
 const scale = 2;
 
-app.spawn(image('monaLisa.jpg', {
-  width: 1200,
-  height: 1815,
-  x: 0,
-  y: 0,
-  type: 'mona',
-  scale,
-  allowDrag: true,
-  allowScale: true,
-  allowRotate: true
-}));
+app.spawn(
+  image('monaLisa.jpg', {
+    width: 1200,
+    height: 1815,
+    x: 0,
+    y: 0,
+    type: 'mona',
+    scale,
+    allowDrag: true,
+    allowScale: true,
+    allowRotate: true,
+  })
+);
 
 const jumbotronLayout = jumbotron(1200 * scale);
 
@@ -46,9 +48,9 @@ app.listen(9010);
  */
 function jumbotron(width) {
   const jumbotronWidth = width;
-  const views          = [];
-  let coveredWidth     = 0;
-  let coveredHeight    = 0;
+  const views = [];
+  let coveredWidth = 0;
+  let coveredHeight = 0;
   let currentRowHeight = 0;
 
   function layout(view) {

@@ -45,9 +45,9 @@ class Binding {
       this.handler({
         data: {
           centroid: state.centroid,
-          event:    state.event,
-          phase:    hook,
-          type:     this.gesture.type,
+          event: state.event,
+          phase: hook,
+          type: this.gesture.type,
           ...data,
         },
       });
@@ -56,4 +56,3 @@ class Binding {
 }
 
 module.exports = Binding;
-

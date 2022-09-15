@@ -59,12 +59,11 @@ const Interactable = (superclass) => {
      *
      * @override
      */
-    scaleBy(ds, mx, my, delta_fn) {
-      super.scaleBy(ds, mx, my, delta_fn);
+    scaleBy(ds, mx, my, deltaFn) {
+      super.scaleBy(ds, mx, my, deltaFn);
       this.publish();
     }
   };
 };
 
 module.exports = Interactable;
-

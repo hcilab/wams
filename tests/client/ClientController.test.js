@@ -14,41 +14,27 @@ describe('ClientController', () => {
     });
   });
 
-  describe('drag(event)', () => {
-  });
+  describe('drag(event)', () => {});
 
-  describe('dragend(event)', () => {
-  });
+  describe('dragend(event)', () => {});
 
-  describe('dragstart(event)', () => {
-  });
+  describe('dragstart(event)', () => {});
 
-  describe('refineMouseCoordinates(event)', () => {
-  });
+  describe('refineMouseCoordinates(event)', () => {});
 
-  describe('resize()', () => {
-  });
+  describe('resize()', () => {});
 
-  describe('run()', () => {
-  });
+  describe('run()', () => {});
 
-  describe('scroll(event)', () => {
-  });
+  describe('scroll(event)', () => {});
 
-  describe('sendUpdate()', () => {
-  });
+  describe('sendUpdate()', () => {});
 
-  describe('tap(event)', () => {
-  });
+  describe('tap(event)', () => {});
 
-  describe('transform(event)', () => {
-  });
+  describe('transform(event)', () => {});
 
-  describe('transformend(event)', () => {
-  });
+  describe('transformend(event)', () => {});
 
-  describe('transformstart(event)', () => {
-  });
+  describe('transformstart(event)', () => {});
 });
-
-

@@ -29,9 +29,9 @@ const symbols = Object.freeze({
 function logConnection(status) {
   // DISABLE LOGGING DUE TO BUGS
   // FROM USING ROOT NAMESPACE
-  return;
-  const event = status ? 'connected' : 'disconnected';
-  console.info('Tracker', event, 'to workspace.');
+  // return;
+  // const event = status ? 'connected' : 'disconnected';
+  // console.info('Tracker', event, 'to workspace.');
 }
 
 /**
@@ -115,7 +115,7 @@ class TrackingSwitchboard {
    * connection.
    */
   accept(socket) {
-    this[symbols.attachListeners](socket)
+    this[symbols.attachListeners](socket);
     socket.on('disconnect', () => this.disconnect());
     logConnection(true);
   }
@@ -152,4 +152,3 @@ TrackingSwitchboard.DEFAULTS = Object.freeze({
 });
 
 module.exports = TrackingSwitchboard;
-

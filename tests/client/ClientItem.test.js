@@ -8,18 +8,18 @@
 'use strict';
 
 const ClientItem = require('client/ClientItem.js');
-const { CanvasSequence, CanvasSequencer } = require('canvas-sequencer');
+const { CanvasSequence } = require('canvas-sequencer');
 
 describe('ClientItem', () => {
   let item, sequence;
   beforeEach(() => {
     item = {
-      x:      42,
-      y:      43,
-      width:  800,
+      x: 42,
+      y: 43,
+      width: 800,
       height: 97,
-      type:   'booyah',
-      id:     3,
+      type: 'booyah',
+      id: 3,
     };
 
     sequence = new CanvasSequence();
@@ -39,7 +39,7 @@ describe('ClientItem', () => {
 
     test('Uses input values, if provided', () => {
       const ci = new ClientItem(item);
-      Object.keys(item).forEach(k => {
+      Object.keys(item).forEach((k) => {
         expect(ci[k]).toBe(item[k]);
       });
     });
@@ -54,7 +54,7 @@ describe('ClientItem', () => {
       item.sequence = sequence;
 
       let ci;
-      expect(() => ci = new ClientItem(item)).not.toThrow();
+      expect(() => (ci = new ClientItem(item))).not.toThrow();
       expect(ci.render).toBeInstanceOf(CanvasSequence);
     });
 
@@ -80,7 +80,7 @@ describe('ClientItem', () => {
 
     describe('draw(context)', () => {
       let ctx;
-      beforeEach(() => ctx = new CanvasRenderingContext2D());
+      beforeEach(() => (ctx = new CanvasRenderingContext2D()));
 
       test('Does nothing if no render sequence provided', () => {
         ci.render = null;
@@ -103,5 +103,3 @@ describe('ClientItem', () => {
     });
   });
 });
-
-

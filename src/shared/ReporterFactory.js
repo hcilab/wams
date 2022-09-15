@@ -50,7 +50,7 @@ function ReporterFactory(coreProperties) {
      * @param {Object} data - Data values to attempt to save.
      */
     assign(data = {}) {
-      KEYS.forEach(p => {
+      KEYS.forEach((p) => {
         if (p in data) this[p] = data[p];
       });
     }
@@ -63,7 +63,7 @@ function ReporterFactory(coreProperties) {
      */
     report() {
       const data = {};
-      KEYS.forEach(p => {
+      KEYS.forEach((p) => {
         data[p] = this[p];
       });
       IdStamper.cloneId(data, this.id);
@@ -78,4 +78,3 @@ function ReporterFactory(coreProperties) {
 }
 
 module.exports = ReporterFactory;
-

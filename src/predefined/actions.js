@@ -17,8 +17,8 @@ const { CanvasSequence } = require('canvas-sequencer');
  */
 
 function draw(event, workspace) {
-  const color = event.view.state.color || 'black'
-  const width = event.view.state.width || 20
+  const color = event.view.state.color || 'black';
+  const width = event.view.state.width || 20;
   // const fromX = event.x - event.dx;
   // const fromY = event.y - event.dy;
   const toX = event.x;
@@ -83,13 +83,13 @@ function scale(event) {
 
 /**
  * Says if an item is a View instance.
- * 
- * @param {*} item 
+ *
+ * @param {*} item
  */
 function isView(item) {
   const itemClass = item.constructor.name;
-  const viewConstructors = ['ServerView', 'ServerViewGroup']
-  return viewConstructors.indexOf(itemClass) > -1
+  const viewConstructors = ['ServerView', 'ServerViewGroup'];
+  return viewConstructors.indexOf(itemClass) > -1;
 }
 
 module.exports = Object.freeze({

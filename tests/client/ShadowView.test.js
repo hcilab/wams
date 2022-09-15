@@ -11,20 +11,14 @@ const ShadowView = require('client/ShadowView.js');
 
 describe('ShadowView', () => {
   const view = {
-    x:               43,
-    y:               42,
-    effectiveWidth:  900,
+    x: 43,
+    y: 42,
+    effectiveWidth: 900,
     effectiveHeight: 120,
-    id:              1,
+    id: 1,
   };
 
   describe('constructor(values)', () => {
-    const DEFAULTS = Object.freeze({
-      x:               0,
-      y:               0,
-      effectiveWidth:  window.innerWidth,
-      effectiveHeight: window.innerHeight,
-    });
     test('Throws exception if no values provided', () => {
       expect(() => new ShadowView()).toThrow();
     });
@@ -48,4 +42,3 @@ describe('ShadowView', () => {
     });
   });
 });
-

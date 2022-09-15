@@ -13,18 +13,18 @@ const ServerView = require('server/ServerView.js');
 let props, socket, view;
 beforeAll(() => {
   socket = {
-    emit:      jest.fn(),
+    emit: jest.fn(),
     broadcast: {
       emit: jest.fn(),
     },
   };
   props = {
-    x:        0,
-    y:        0,
-    width:    50,
-    height:   50,
-    type:     'testing/view',
-    scale:    1,
+    x: 0,
+    y: 0,
+    width: 50,
+    height: 50,
+    type: 'testing/view',
+    scale: 1,
     rotation: 0,
   };
 });
@@ -41,7 +41,7 @@ describe('ServerView', () => {
     });
 
     test('Uses user-defined values, if provided', () => {
-      expect(() => view = new ServerView(socket, props)).not.toThrow();
+      expect(() => (view = new ServerView(socket, props))).not.toThrow();
       expect(view).toMatchObject(props);
     });
 
@@ -117,4 +117,3 @@ describe('ServerView', () => {
     });
   });
 });
-

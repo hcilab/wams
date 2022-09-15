@@ -62,31 +62,31 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions(root) {
-    const swipe     = new Westures.Swipe();
-    const swivel    = new Westures.Swivel({ enableKey: 'ctrlKey' });
-    const tap       = new Westures.Tap();
-    const track     = new Westures.Track(['start', 'end']);
+    const swipe = new Westures.Swipe();
+    const swivel = new Westures.Swivel({ enableKey: 'ctrlKey' });
+    const tap = new Westures.Tap();
+    const track = new Westures.Track(['start', 'end']);
     const transform = new Transform();
 
     const region = new Westures.Region(root);
-    region.addGesture(root, tap,       this.forward('tap'));
-    region.addGesture(root, swipe,     this.forward('swipe'));
-    region.addGesture(root, swivel,    this.swivel());
+    region.addGesture(root, tap, this.forward('tap'));
+    region.addGesture(root, swipe, this.forward('swipe'));
+    region.addGesture(root, swivel, this.swivel());
     region.addGesture(root, transform, this.forward('transform'));
-    region.addGesture(root, track,     this.forward('track'));
+    region.addGesture(root, track, this.forward('track'));
   }
 
   /**
    * Send a swivel event through as a transformation.
    */
   swivel() {
-    function do_swivel({ rotation, pivot }) {
+    function doSwivel({ rotation, pivot }) {
       this.handlers.transform({
         centroid: pivot,
-        delta:    { rotation },
+        delta: { rotation },
       });
     }
-    return do_swivel.bind(this);
+    return doSwivel.bind(this);
   }
 
   /**
@@ -98,10 +98,10 @@ class Interactor {
    * forwards it according to the given gesture name.
    */
   forward(gesture) {
-    function do_forward(data) {
+    function doForward(data) {
       this.handlers[gesture](data);
     }
-    return do_forward.bind(this);
+    return doForward.bind(this);
   }
 
   /**
@@ -111,7 +111,7 @@ class Interactor {
    */
   wheel(event) {
     event.preventDefault();
-    const factor = event.ctrlKey ? 0.02 : 0.10;
+    const factor = event.ctrlKey ? 0.02 : 0.1;
     const scale = -(Math.sign(event.deltaY) * factor) + 1;
     const centroid = { x: event.clientX, y: event.clientY };
     this.handlers.transform({ centroid, delta: { scale } });
@@ -124,11 +124,10 @@ class Interactor {
  * @type {object}
  */
 Interactor.DEFAULT_HANDLERS = Object.freeze({
-  swipe:     NOP,
-  tap:       NOP,
-  track:     NOP,
+  swipe: NOP,
+  tap: NOP,
+  track: NOP,
   transform: NOP,
 });
 
 module.exports = Interactor;
-

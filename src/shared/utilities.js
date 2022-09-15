@@ -24,10 +24,10 @@
  */
 function defineOwnImmutableEnumerableProperty(obj, prop, val) {
   Object.defineProperty(obj, prop, {
-    value:        val,
+    value: val,
     configurable: false,
-    enumerable:   true,
-    writable:     false,
+    enumerable: true,
+    writable: false,
   });
 }
 
@@ -49,7 +49,7 @@ const NOP = () => {};
  * @return {boolean} True if the item was found and removed, false otherwise.
  */
 function removeById(array, item) {
-  const idx = array.findIndex(o => o.id === item.id);
+  const idx = array.findIndex((o) => o.id === item.id);
   if (idx >= 0) {
     array.splice(idx, 1);
     return true;
@@ -62,4 +62,3 @@ module.exports = Object.freeze({
   NOP,
   removeById,
 });
-

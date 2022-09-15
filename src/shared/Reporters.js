@@ -634,4 +634,3 @@ module.exports = {
   WamsElement,
   WamsImage,
 };
-

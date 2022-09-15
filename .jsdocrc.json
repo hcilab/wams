@@ -13,9 +13,7 @@
   "plugins": [],
   "recurseDepth": 10,
   "source": {
-    "include": [
-      "src"
-    ],
+    "include": ["src"],
     "includePattern": ".js$"
   },
   "sourceType": "module",
@@ -25,9 +23,7 @@
   },
   "templates": {
     "cleverLinks": false,
-    "css": [
-      "styles/custom.css"
-    ],
+    "css": ["styles/custom.css"],
     "default": {
       "outputSourceFiles": true,
       "useLongnameInNav": true
@@ -42,4 +38,3 @@
     "useCollapsibles": true
   }
 }
-

@@ -124,7 +124,7 @@ class Point2D {
   isLeftOf(p0, p1) {
     const dl = p1.minus(p0);
     const dp = this.minus(p0);
-    return (dl.x * dp.y) - (dl.y * dp.x);
+    return dl.x * dp.y - dl.y * dp.x;
   }
 
   /**
@@ -162,11 +162,11 @@ class Point2D {
    */
   rotate(theta = 0) {
     const { x, y } = this;
-    const cos_theta = Math.cos(theta);
-    const sin_theta = Math.sin(theta);
+    const cosTheta = Math.cos(theta);
+    const sinTheta = Math.sin(theta);
 
-    this.x = x * cos_theta - y * sin_theta;
-    this.y = x * sin_theta + y * cos_theta;
+    this.x = x * cosTheta - y * sinTheta;
+    this.y = x * sinTheta + y * cosTheta;
 
     return this;
   }
@@ -196,10 +196,7 @@ class Point2D {
     if (points.length === 0) return null;
 
     const total = Point2D.sum(points);
-    return new Point2D(
-      total.x / points.length,
-      total.y / points.length,
-    );
+    return new Point2D(total.x / points.length, total.y / points.length);
   }
 
   /**
@@ -216,4 +213,3 @@ class Point2D {
 }
 
 module.exports = Point2D;
-

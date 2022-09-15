@@ -8,7 +8,7 @@
 'use strict';
 
 const { CanvasSequence } = require('canvas-sequencer');
-const { Polygon2D, Rectangle }  = require('../shared.js');
+const { Polygon2D, Rectangle } = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -100,7 +100,7 @@ function square(x, y, length, colour = 'red', properties = {}) {
  * in with the given colour.
  */
 function polygon(points = [], colour = 'green', properties = {}) {
-  if (points.length < 3) throw 'Polygon must consist of at least 3 points';
+  if (points.length < 3) throw Error('Polygon must consist of at least 3 points');
 
   const hitbox = new Polygon2D(points);
 
@@ -109,7 +109,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
   sequence.strokeStyle = 'black';
   sequence.beginPath();
   sequence.moveTo(points[0].x, points[0].y);
-  points.forEach(p => sequence.lineTo(p.x, p.y));
+  points.forEach((p) => sequence.lineTo(p.x, p.y));
   sequence.closePath();
   sequence.fill();
   sequence.stroke();
@@ -177,4 +177,3 @@ module.exports = {
   square,
   html,
 };
-

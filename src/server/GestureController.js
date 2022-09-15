@@ -55,19 +55,19 @@ class GestureController {
    * care of those activities.
    */
   begin() {
-    const pan     = new Gestures.Pan();
-    const rotate  = new Gestures.Rotate();
-    const pinch   = new Gestures.Pinch();
-    const swipe   = new Gestures.Swipe();
-    const tap     = new Gestures.Tap();
-    const track   = new Gestures.Track(['start', 'end']);
+    const pan = new Gestures.Pan();
+    const rotate = new Gestures.Rotate();
+    const pinch = new Gestures.Pinch();
+    const swipe = new Gestures.Swipe();
+    const tap = new Gestures.Tap();
+    const track = new Gestures.Track(['start', 'end']);
 
     const mh = this.messageHandler;
-    this.region.addGesture(pan,    mh.handle('drag',   this.group));
-    this.region.addGesture(tap,    mh.handle('click',  this.group));
-    this.region.addGesture(pinch,  mh.handle('scale',  this.group));
+    this.region.addGesture(pan, mh.handle('drag', this.group));
+    this.region.addGesture(tap, mh.handle('click', this.group));
+    this.region.addGesture(pinch, mh.handle('scale', this.group));
     this.region.addGesture(rotate, mh.handle('rotate', this.group));
-    this.region.addGesture(swipe,  mh.handle('swipe',  this.group));
+    this.region.addGesture(swipe, mh.handle('swipe', this.group));
     this.region.addGesture(track, ({ data }) => mh.track(data, this.group));
   }
 
@@ -80,10 +80,10 @@ class GestureController {
    * handles it according to the given gesture name.
    */
   handle(message) {
-    function do_handle(data) {
+    function doHandle(data) {
       this.messageHandler.handle(message, this.group, data);
     }
-    return do_handle.bind(this);
+    return doHandle.bind(this);
   }
 
   /**
@@ -106,4 +106,3 @@ class GestureController {
 }
 
 module.exports = GestureController;
-

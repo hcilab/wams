@@ -9,24 +9,19 @@ const WAMS = require('..');
 const app = new WAMS.Application();
 
 function element(x, y, view) {
-  return WAMS.predefined.items.html(
-    '<button onclick="alert(\'You panicked :(\')">dont panic</button>',
-    300,
-    50,
-    {
-      x,
-      y,
-      width:    300,
-      height:   50,
-      type:     'button',
-      scale:    1 / view.scale,
-      rotation: view.rotation,
-      allowScale: true,
-      allowDrag: true,
-      allowRotate: true,
-      onclick:  removeElement,
-    }
-  );
+  return WAMS.predefined.items.html('<button onclick="alert(\'You panicked :(\')">dont panic</button>', 300, 50, {
+    x,
+    y,
+    width: 300,
+    height: 50,
+    type: 'button',
+    scale: 1 / view.scale,
+    rotation: view.rotation,
+    allowScale: true,
+    allowDrag: true,
+    allowRotate: true,
+    onclick: removeElement,
+  });
 }
 
 function removeElement(event) {
@@ -46,4 +41,3 @@ function handleConnect(view) {
 
 app.onconnect(handleConnect);
 app.listen(9002);
-

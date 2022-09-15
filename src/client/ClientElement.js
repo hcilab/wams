@@ -41,7 +41,7 @@ class ClientElement extends WamsElement {
     this.element.style.width = `${this.width}px`;
     this.element.style.height = `${this.height}px`;
     root.appendChild(this.element);
-    if (data.hasOwnProperty('attributes')) {
+    if (Object.prototype.hasOwnProperty.call(data, 'attributes')) {
       this.setAttributes(data.attributes);
     }
 
@@ -65,9 +65,7 @@ class ClientElement extends WamsElement {
    * @param {module:client.ClientView} view
    */
   draw(context, view) {
-    const tl = new Point2D(this.x - view.x, this.y - view.y)
-      .divideBy(this.scale)
-      .rotate(this.rotation);
+    const tl = new Point2D(this.x - view.x, this.y - view.y).divideBy(this.scale).rotate(this.rotation);
     const rotate = `rotate(${view.rotation - this.rotation}rad) `;
     const scale = `scale(${this.scale * view.scale}) `;
     const translate = `translate(${tl.x}px, ${tl.y}px) `;
@@ -101,7 +99,7 @@ class ClientElement extends WamsElement {
    * @param {string[]} attributes
    */
   removeAttributes(attributes) {
-    attributes.forEach(attr => {
+    attributes.forEach((attr) => {
       delete this.attributes[attr];
       this.element[attr] = null;
     });
@@ -109,4 +107,3 @@ class ClientElement extends WamsElement {
 }
 
 module.exports = ClientElement;
-

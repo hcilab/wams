@@ -17,14 +17,14 @@ describe('Point2D', () => {
 
     test('Defaults x and y to 0 if not provided', () => {
       let p;
-      expect(() => p = new Point2D()).not.toThrow();
+      expect(() => (p = new Point2D())).not.toThrow();
       expect(p.x).toBe(0);
       expect(p.y).toBe(0);
     });
 
     test('Uses given x and y values', () => {
       let p;
-      expect(() => p = new Point2D(42, 9)).not.toThrow();
+      expect(() => (p = new Point2D(42, 9))).not.toThrow();
       expect(p.x).toBe(42);
       expect(p.y).toBe(9);
     });
@@ -39,11 +39,11 @@ describe('Point2D', () => {
 
     test('Subtracts the given point from "this" point', () => {
       let r;
-      expect(() => r = p.minus(q)).not.toThrow();
+      expect(() => (r = p.minus(q))).not.toThrow();
       expect(r.x).toBe(29);
       expect(r.y).toBe(45);
 
-      expect(() => r = q.minus(p)).not.toThrow();
+      expect(() => (r = q.minus(p))).not.toThrow();
       expect(r.x).toBe(-29);
       expect(r.y).toBe(-45);
     });
@@ -56,21 +56,19 @@ describe('Point2D', () => {
 
     test('Defaults to x = 0 and y = 0 if not defined', () => {
       let r;
-      expect(() => r = p.minus({})).not.toThrow();
+      expect(() => (r = p.minus({}))).not.toThrow();
       expect(r).toMatchObject(p);
     });
   });
 
   describe('isLeftOf(p0, p1)', () => {
-    let p, p0, paboveleft, paboveright, pequal, pleft, pright;
+    let p, p0, pequal, pleft, pright;
     beforeAll(() => {
       p = new Point2D(0, 0);
       p0 = new Point2D(0, 1);
       pleft = new Point2D(-1, -1);
       pright = new Point2D(1, -1);
       pequal = new Point2D(0, -1);
-      paboveleft = new Point2D(1, 2);
-      paboveright = new Point2D(-1, 2);
     });
 
     test('Returns >0 if point is left of the line through p0 and p1', () => {
@@ -86,5 +84,3 @@ describe('Point2D', () => {
     });
   });
 });
-
-

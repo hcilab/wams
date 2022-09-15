@@ -96,13 +96,15 @@ class Polygon2D {
 
     for (let i = 0; i < this.points.length - 1; ++i) {
       if (this.points[i].y <= point.y) {
-        if (this.points[i + 1].y > point.y) { // Upward crossing
+        if (this.points[i + 1].y > point.y) {
+          // Upward crossing
           if (point.isLeftOf(this.points[i], this.points[i + 1]) > 0) {
             ++wn;
           }
         }
       } else {
-        if (this.points[i + 1].y <= point.y) { // Downward crossing
+        if (this.points[i + 1].y <= point.y) {
+          // Downward crossing
           if (point.isLeftOf(this.points[i], this.points[i + 1]) < 0) {
             --wn;
           }
@@ -115,4 +117,3 @@ class Polygon2D {
 }
 
 module.exports = Polygon2D;
-

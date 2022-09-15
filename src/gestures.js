@@ -21,16 +21,9 @@
  *
  * @module gestures
  */
-const {
-  Pan,
-  Pinch,
-  Rotate,
-  Swipe,
-  Tap,
-  Track,
-} = require('westures');
+const { Pan, Pinch, Rotate, Swipe, Tap, Track } = require('westures');
 
-const Region  = require('./gestures/Region.js');
+const Region = require('./gestures/Region.js');
 
 module.exports = {
   Region,
@@ -65,4 +58,3 @@ module.exports = {
  *
  * @memberof module:gestures.ReturnTypes
  */
-

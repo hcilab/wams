@@ -23,11 +23,11 @@
 'use strict';
 
 const IdStamper = require('./shared/IdStamper.js');
-const Message   = require('./shared/Message.js');
+const Message = require('./shared/Message.js');
 const Reporters = require('./shared/Reporters.js');
-const Utils     = require('./shared/utilities.js');
+const Utils = require('./shared/utilities.js');
 const Polygon2D = require('./shared/Polygon2D.js');
-const Point2D   = require('./shared/Point2D.js');
+const Point2D = require('./shared/Point2D.js');
 const Rectangle = require('./shared/Rectangle.js');
 
 /**
@@ -39,16 +39,16 @@ const Rectangle = require('./shared/Rectangle.js');
  */
 const constants = {
   // General constants
-  ROTATE_0:   0,
-  ROTATE_90:  Math.PI / 2,
+  ROTATE_0: 0,
+  ROTATE_90: Math.PI / 2,
   ROTATE_180: Math.PI,
   ROTATE_270: Math.PI * 1.5,
   ROTATE_360: Math.PI * 2,
 
   // Namespaces
   /** @type {string} */
-  NS_WAMS:  '/wams',
-  NS_WAMS_TRACKING:  '/',
+  NS_WAMS: '/wams',
+  NS_WAMS_TRACKING: '/',
 };
 
 /**
@@ -85,4 +85,3 @@ module.exports = Object.freeze({
   ...Reporters,
   ...Utils,
 });
-

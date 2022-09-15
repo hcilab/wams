@@ -18,10 +18,11 @@ function square(x, y, view) {
   sequence.fillRect(-64, -64, 128, 128);
 
   return {
-    x, y,
+    x,
+    y,
     sequence,
-    type:     'colour',
-    scale:    1 / view.scale,
+    type: 'colour',
+    scale: 1 / view.scale,
     rotation: view.rotation,
   };
 }
@@ -39,4 +40,3 @@ function handleConnect(view) {
 
 app.onconnect(handleConnect);
 app.listen(9013);
-

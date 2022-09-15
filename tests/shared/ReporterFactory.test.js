@@ -8,9 +8,9 @@ const ReporterFactory = require('shared/ReporterFactory.js');
 
 describe('ReporterFactory', () => {
   const ViewProps = {
-    x:      0,
-    y:      42,
-    width:  999,
+    x: 0,
+    y: 42,
+    width: 999,
     height: 1337,
   };
   const View = ReporterFactory(ViewProps);
@@ -24,7 +24,7 @@ describe('ReporterFactory', () => {
     describe('constructor(data)', () => {
       test('correctly constructs expected object', () => {
         let vs;
-        expect(() => vs = new View()).not.toThrow();
+        expect(() => (vs = new View())).not.toThrow();
         expect(vs).toBeInstanceOf(View);
       });
 
@@ -99,4 +99,3 @@ describe('ReporterFactory', () => {
     });
   });
 });
-

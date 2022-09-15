@@ -5,8 +5,8 @@
 'use strict';
 
 const Binding = require('./Binding.js');
-const State   = require('./State.js');
-const PHASE   = require('./PHASE.js');
+const State = require('./State.js');
+const PHASE = require('./PHASE.js');
 
 const EVALUATION_RATE = 1000 / 60;
 
@@ -58,7 +58,7 @@ class Region {
    * Evaluate the active bindings for the current state and phase.
    */
   evaluateBindings() {
-    this.bindings.forEach(binding => {
+    this.bindings.forEach((binding) => {
       binding.evaluateHook(this.nextUpdatePhase, this.state);
     });
 
@@ -107,7 +107,7 @@ class Region {
    * undefined, will unbind all Bindings associated with the given element.
    */
   removeGestures(element, gesture) {
-    this.getBindingsByElement(element).forEach(b => {
+    this.getBindingsByElement(element).forEach((b) => {
       if (gesture == null || b.gesture === gesture) {
         this.bindings.splice(this.bindings.indexOf(b), 1);
       }
@@ -128,4 +128,3 @@ class Region {
 }
 
 module.exports = Region;
-

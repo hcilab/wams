@@ -49,37 +49,34 @@ const Interactable = require('./Interactable.js');
  * @mixin
  * @mixes module:mixins.Interactable
  */
-const Hittable = (sclass) => class Hittable extends Interactable(sclass) {
-  /**
-   * The hitbox for this Hittable instance. If it is null, hit detection will
-   * always return a falsy value.
-   *
-   * @name hitbox
-   * @type {?module:shared.Hitbox}
-   * @default undefined
-   * @memberof module:mixins.Hittable
-   */
+const Hittable = (sclass) =>
+  class Hittable extends Interactable(sclass) {
+    /**
+     * The hitbox for this Hittable instance. If it is null, hit detection will
+     * always return a falsy value.
+     *
+     * @name hitbox
+     * @type {?module:shared.Hitbox}
+     * @default undefined
+     * @memberof module:mixins.Hittable
+     */
 
-  /**
-   * Checks whether a point with the given x,y coordinates is contained by
-   * this item.
-   *
-   * @memberof module:mixins.Hittable
-   *
-   * @param {number} px - x coordinate of the point to check.
-   * @param {number} py - y coordinate of the point to check.
-   *
-   * @return {boolean} True if the (x,y) point is located inside this Item.
-   * False otherwise.
-   */
-  containsPoint(px, py) {
-    const point = new Point2D(px, py)
-      .minus(this)
-      .divideBy(this.scale)
-      .rotate(this.rotation);
-    return this.hitbox && this.hitbox.contains(point);
-  }
-};
+    /**
+     * Checks whether a point with the given x,y coordinates is contained by
+     * this item.
+     *
+     * @memberof module:mixins.Hittable
+     *
+     * @param {number} px - x coordinate of the point to check.
+     * @param {number} py - y coordinate of the point to check.
+     *
+     * @return {boolean} True if the (x,y) point is located inside this Item.
+     * False otherwise.
+     */
+    containsPoint(px, py) {
+      const point = new Point2D(px, py).minus(this).divideBy(this.scale).rotate(this.rotation);
+      return this.hitbox && this.hitbox.contains(point);
+    }
+  };
 
 module.exports = Hittable;
-

@@ -10,10 +10,7 @@
 
 'use strict';
 
-const {
-  removeById,
-  Message,
-} = require('../shared.js');
+const { removeById, Message } = require('../shared.js');
 const ServerGroup = require('./ServerGroup.js');
 const ServerElement = require('./ServerElement.js');
 const ServerImage = require('./ServerImage.js');
@@ -75,7 +72,7 @@ class WorkSpace {
    * or null if there is none.
    */
   findFreeItemByCoordinates(x, y) {
-    return this.items.find(i => !i.isLocked() && i.containsPoint(x, y));
+    return this.items.find((i) => !i.isLocked() && i.containsPoint(x, y));
   }
 
   /**
@@ -88,7 +85,7 @@ class WorkSpace {
    * null if there is none.
    */
   findItemByCoordinates(x, y) {
-    return this.items.find(i => i.containsPoint(x, y));
+    return this.items.find((i) => i.containsPoint(x, y));
   }
 
   /**
@@ -103,16 +100,9 @@ class WorkSpace {
     const p = view.transformPoint(x, y);
     const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
     const itemClass = item.constructor.name;
-    if (
-      itemClass !== 'ServerView' &&
-      itemClass !== 'ServerViewGroup'
-    ) {
+    if (itemClass !== 'ServerView' && itemClass !== 'ServerViewGroup') {
       if (!item.lockZ) this.raiseItem(item);
-      if (
-        item.allowDrag  ||
-        item.allowScale ||
-        item.allowRotate
-      ) {
+      if (item.allowDrag || item.allowScale || item.allowRotate) {
         view.obtainLockOnItem(item);
       } else {
         view.obtainLockOnItem(view);
@@ -141,8 +131,8 @@ class WorkSpace {
    * @param {number} id
    */
   bringItemToTop(id) {
-    const index = this.items.findIndex(el => el.id === id);
-    if (index < 0) throw new Error('Couldn\'t find item by id');
+    const index = this.items.findIndex((el) => el.id === id);
+    if (index < 0) throw new Error("Couldn't find item by id");
     this.items.unshift(...this.items.splice(index, 1));
   }
 
@@ -165,7 +155,7 @@ class WorkSpace {
    * @return {module:shared.Item[]} Reports of the currently active items.
    */
   reportItems() {
-    return this.items.map(o => {
+    return this.items.map((o) => {
       const report = o.report();
       if (o instanceof ServerImage) {
         report.src = o.src;
@@ -181,13 +171,13 @@ class WorkSpace {
   /**
    * Spawn a new workspace object of the given type, with the given values.
    *
-   * @param {function} class_fn
+   * @param {function} ClassFn
    * @param {object} values
    *
    * @return {object} The newly spawned object.
    */
-  spawnObject(class_fn, values) {
-    const object = new class_fn(this.namespace, values);
+  spawnObject(ClassFn, values) {
+    const object = new ClassFn(this.namespace, values);
     this.items.unshift(object);
     return object;
   }
@@ -246,4 +236,3 @@ WorkSpace.DEFAULTS = Object.freeze({
 });
 
 module.exports = WorkSpace;
-

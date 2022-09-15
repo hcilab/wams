@@ -22,11 +22,10 @@
 
 'use strict';
 
-const Router      = require('./server/Router.js');
+const Router = require('./server/Router.js');
 const Application = require('./server/Application.js');
 
 module.exports = {
   Application,
   Router,
 };
-

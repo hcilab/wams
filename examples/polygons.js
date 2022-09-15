@@ -8,17 +8,16 @@
 const WAMS = require('..');
 const app = new WAMS.Application();
 
-
 function polygon(x, y, view) {
   return WAMS.predefined.items.polygon(
-    WAMS.predefined.utilities.randomPoints(7),   // random coordinates
+    WAMS.predefined.utilities.randomPoints(7), // random coordinates
     WAMS.colours[view.id % WAMS.colours.length], // random color
     {
       x,
       y,
-      type:     'colour',
-      scale:    1 / view.scale,
-      onclick:  removeItem,
+      type: 'colour',
+      scale: 1 / view.scale,
+      onclick: removeItem,
       allowScale: true,
       allowRotate: true,
       allowDrag: true,
@@ -43,4 +42,3 @@ function handleConnect(view) {
 
 app.onconnect(handleConnect);
 app.listen(9014);
-

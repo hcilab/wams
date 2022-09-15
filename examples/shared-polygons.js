@@ -1,5 +1,5 @@
 /*
- * This is a simple example showing how users 
+ * This is a simple example showing how users
  * can interact with the same items on different screens.
  */
 
@@ -7,7 +7,7 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
-  useMultiScreenGestures: true, // enables multi-screen gestures 
+  useMultiScreenGestures: true, // enables multi-screen gestures
 });
 
 function polygon(x, y, view) {
@@ -17,12 +17,12 @@ function polygon(x, y, view) {
     {
       x,
       y,
-      type:     'colour',
-      scale:    1 / view.scale,
-      onclick:  removeItem,
-      allowScale:  true,
+      type: 'colour',
+      scale: 1 / view.scale,
+      onclick: removeItem,
+      allowScale: true,
       allowRotate: true,
-      allowDrag:   true,
+      allowDrag: true,
     }
   );
 }
@@ -47,4 +47,3 @@ function handleConnect(view, device, group) {
 
 app.onconnect(handleConnect);
 app.listen(9500);
-

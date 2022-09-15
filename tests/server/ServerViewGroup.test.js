@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { NOP, View } = require('shared.js');
+const { View } = require('shared.js');
 const ServerViewGroup = require('server/ServerViewGroup.js');
 const ServerView = require('server/ServerView.js');
 const MessageHandler = require('server/MessageHandler.js');
@@ -58,14 +58,14 @@ describe('ServerViewGroup', () => {
       });
 
       test('Does not return the actual Views, but simple Objects', () => {
-        svg.reportViews().forEach(v => {
+        svg.reportViews().forEach((v) => {
           expect(v).not.toBeInstanceOf(ServerView);
           expect(v).toBeInstanceOf(Object);
         });
       });
 
       test('Objects returned contain only the expected data', () => {
-        svg.reportViews().forEach(v => {
+        svg.reportViews().forEach((v) => {
           expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
         });
       });
@@ -95,4 +95,3 @@ describe('ServerViewGroup', () => {
     });
   });
 });
-
