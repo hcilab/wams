@@ -4,39 +4,39 @@
 
 WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
 
-WAMS abstracts away connection code, client and server architecture and related technology, to provide a simple, unified framework that allows focus to be placed on creating and defining new interactions rather than on pre-requisite communication code. 
+WAMS abstracts away connection code, client and server architecture and related technology, to provide a simple, unified framework that allows focus to be placed on creating and defining new interactions rather than on pre-requisite communication code.
 
 We use browser windows to represent screens because browsers are extremely flexible - they are cross-platform, already available on multiple devices and can fill screens (or be used to subdivide screens).
 
 ## Contents
 
-* [Installation](#installation)
-* [Getting started](#getting-started)
-* [Examples](#examples)
-* [Live Demo](#live-demo)
-* [Walkthrough](#walkthrough)
-  * [Set up your application](#set-up-your-application)
-  * [Hello world](#hello-world)
-  * [Hello world: Multi-Screen](#hello-world-multi-screen)
-  * [General Configuration](#general-configuration-of-your-app)
-  * [Basics](#basics)
-  * [Polygons](#polygons)
-  * [Images](#images)
-  * [HTML](#html)
-  * [Scale and Rotation](#scale-and-rotation)
-  * [Interactivity](#interactivity)
-  * [Static resources](#static-resources)
-  * [Connections](#connections)
-  * [Multi-Screen Layouts](#multi-screen-layouts)
-  * [Advanced](#advanced)
-    * [Custom items](#custom-items)
-    * [Custom events](#custom-events)
-    * [Interaction rights](#interaction-rights)
-    * [Grouped items](#grouped-items)
+- [Installation](#installation)
+- [Getting started](#getting-started)
+- [Examples](#examples)
+- [Live Demo](#live-demo)
+- [Walkthrough](#walkthrough)
+  - [Set up your application](#set-up-your-application)
+  - [Hello world](#hello-world)
+  - [Hello world: Multi-Screen](#hello-world-multi-screen)
+  - [General Configuration](#general-configuration-of-your-app)
+  - [Basics](#basics)
+  - [Polygons](#polygons)
+  - [Images](#images)
+  - [HTML](#html)
+  - [Scale and Rotation](#scale-and-rotation)
+  - [Interactivity](#interactivity)
+  - [Static resources](#static-resources)
+  - [Connections](#connections)
+  - [Multi-Screen Layouts](#multi-screen-layouts)
+  - [Advanced](#advanced)
+    - [Custom items](#custom-items)
+    - [Custom events](#custom-events)
+    - [Interaction rights](#interaction-rights)
+    - [Grouped items](#grouped-items)
 
 ## Installation
 
-You will need to install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm). 
+You will need to install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 Once they are installed, go to your app folder, where you want to install `wams` and run the following commands:
 
 ```bash
@@ -62,7 +62,8 @@ node examples/polygons.js
 ```
 
 ## Live Demo
-The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view. 
+
+The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view.
 
 To check out the code of the live demo, see `examples/video-player.js`
 
@@ -77,14 +78,15 @@ This walkthrough is a friendly guide on how to use most WAMS features. For more 
 1. In the app folder, [install](#installation) WAMS, if you haven't already
 2. Create an **app.js** file
 3. In this file, include WAMS and initialize the application
-```javascript
 
-const WAMS = require('./wams');
+```javascript
+const WAMS = require("./wams");
 const app = new WAMS.Application();
 app.listen(3500); // this starts the app on port 3500, you can use any port
 ```
 
 Now, you can run your first WAMS application by executing:
+
 ```bash
 node app.js
 ```
@@ -94,35 +96,39 @@ And you can connect to the app using the address in the output.
 ### Hello world
 
 Let's now make your first WAMS app do something. Add the following code just before the last line:
+
 ```javascript
 // the line below is equivalent to `const square = WAMS.predefined.items.square;`
 const { square } = WAMS.predefined.items;
 
 // spawn a square on the screen
-app.spawn(square(200, 200, 100, 'green'));
+app.spawn(square(200, 200, 100, "green"));
 ```
 
 This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a side of `100`.
 
 ### Hello world: Multi-Screen
+
 Here is a simple example to show how several screens work with WAMS.
 
 This example will spawn a draggable square and position connected screens in a line.
 
 Put this code in your **app.js** file:
+
 ```javascript
-const WAMS = require('./wams');
+const WAMS = require("./wams");
 const app = new WAMS.Application();
 
 const { square } = WAMS.predefined.items;
 const { line } = WAMS.predefined.layouts;
 
 function spawnSquare() {
-  app.spawn(square(200, 200, 100, 'green', {
-    allowDrag: true,
-  }));
+  app.spawn(
+    square(200, 200, 100, "green", {
+      allowDrag: true,
+    })
+  );
 }
-
 
 const linelayout = line(300); // 300px overlap betweens views
 function handleConnect(view, device) {
@@ -139,6 +145,7 @@ _Don't worry if the code doesn't make sense to you yet. The walkthrough will exp
 The square can now be moved around and seen by multiple screens with less than 20 lines of code 🎉
 
 To test this on a single computer you could:
+
 - open one browser window covering half your screen and position it on the left
 - open another browser to the same address and position it on the right
 - now click on an empty area to create a square
@@ -147,9 +154,7 @@ To test this on a single computer you could:
 
 ![Screenshot of first multiscreen app](./img/multiscreen.png)
 
-
-> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js` 
-
+> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js`
 
 ### General Configuration of your app
 
@@ -159,24 +164,24 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new WAMS.Application({
-  backgroundImage:        './monaLisa',     // background image of the app
-  color:                  'white',          // background color of the app
-  clientLimit:            2,                // maximum number of devices that can connect to the app
-  clientScripts:          ['script.js'],    // javascript scripts (relative paths or URLs) to include by the browser
-  stylesheets:            ['styles.css'],   // css styles to include by the browser
-  shadows:                true,             // show shadows of other devices
-  staticDir:              path.join(__dirname, 'static'), // path to directory for static files, will be accessible at app's root
-  status:                 true,             // show information on current view, useful for debugging
-  title:                  'Awesome App',    // page title  
-  useMultiScreenGestures: true,             // enable multi-screen gestures
+  backgroundImage: "./monaLisa", // background image of the app
+  color: "white", // background color of the app
+  clientLimit: 2, // maximum number of devices that can connect to the app
+  clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
+  stylesheets: ["styles.css"], // css styles to include by the browser
+  shadows: true, // show shadows of other devices
+  staticDir: path.join(__dirname, "static"), // path to directory for static files, will be accessible at app's root
+  status: true, // show information on current view, useful for debugging
+  title: "Awesome App", // page title
+  useMultiScreenGestures: true, // enable multi-screen gestures
 });
 ```
 
-You can substitute `const app = new Wams.Application();` in your code with the code above to play with different options. 
+You can substitute `const app = new Wams.Application();` in your code with the code above to play with different options.
 
 ### Basics
 
-A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://hcilab.github.io/wams/module-predefined.items.html)): 
+A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://hcilab.github.io/wams/module-predefined.items.html)):
 
 - `rectangle`
 - `square`
@@ -184,7 +189,7 @@ A WAMS app is made of **items**. There are several predefined items (see in the 
 - `image`
 - `html`
 
-Most of the items (except `html`) are used on HTML **canvas**, which is the core of WAMS (i.e., in WAMS everything is drawn on HTML canvas, although for the most part, you do not need to know about this). 
+Most of the items (except `html`) are used on HTML **canvas**, which is the core of WAMS (i.e., in WAMS everything is drawn on HTML canvas, although for the most part, you do not need to know about this).
 
 You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
@@ -202,26 +207,31 @@ const points = [
   { x: 25, y: 50 },
 ];
 
-app.spawn(polygon(points, 'green', {
-  x: 500, y: 100,
-}));
+app.spawn(
+  polygon(points, "green", {
+    x: 500,
+    y: 100,
+  })
+);
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://hcilab.github.io/wams/module-predefined.utilities.html#.randomPoints)). 
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://hcilab.github.io/wams/module-predefined.utilities.html#.randomPoints)).
 
 For example:
+
 ```javascript
 const { randomPoints } = WAMS.predefined.utilities;
 const { polygon } = WAMS.predefined.items;
 
 const points = randomPoints(4);
 
-app.spawn(polygon(points, 'green', {
-  x: 500, y: 100,
-}));
+app.spawn(
+  polygon(points, "green", {
+    x: 500,
+    y: 100,
+  })
+);
 ```
-
-
 
 ### Images
 
@@ -233,29 +243,37 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const app = WAMS.Application({
-  staticDir: path.join(__dirname, './images') 
-})
+  staticDir: path.join(__dirname, "./images"),
+});
 
 const { image } = WAMS.predefined.items;
-app.spawn(image('monaLisa.jpg', {
-  width: 200, height: 350,
-  x: 300, y: 300,
-}));
+app.spawn(
+  image("monaLisa.jpg", {
+    width: 200,
+    height: 350,
+    x: 300,
+    y: 300,
+  })
+);
 ```
 
-Make sure to include __width__ and __height__.
+Make sure to include **width** and **height**.
 
 > **Example** To see a great example of using images, check out `examples/card-table.js`
 
 ### HTML
+
 If you need more control over styling than a canvas provides, or you would like to use `iframe`, `audio`, `video` or other browser elements, WAMS also supports spawning **HTML** items.
 
 ```javascript
 const { html } = WAMS.predefined.items;
 
-app.spawn(html('<h1>Hello world!</h1>', 200, 100, {
-  x: 300, y: 100,
-}));
+app.spawn(
+  html("<h1>Hello world!</h1>", 200, 100, {
+    x: 300,
+    y: 100,
+  })
+);
 ```
 
 The code above will spawn a wrapped `h1` element with width of `200` and height of `100`, positioned at `{ x: 300, y: 100 }`.
@@ -265,28 +283,32 @@ The code above will spawn a wrapped `h1` element with width of `200` and height 
 You can set initial scale and rotation of an item:
 
 ```javascript
-app.spawn(polygon(points, 'green', {
-  x: 500, y: 100,
-  scale: 2,
-  rotation: Math.PI,
-}));
+app.spawn(
+  polygon(points, "green", {
+    x: 500,
+    y: 100,
+    scale: 2,
+    rotation: Math.PI,
+  })
+);
 ```
 
 > **Note** Rotation is done around the top left corner and is defined in radians (Pi = 180 deg)
-
 
 ### Interactivity
 
 > **Note** An item must have its coordinates, width and height defined to be interactive
 
 Let's get back to our Hello world example with a green square. Just a static square is not that interesting, though. Let's make it **draggable**:
+
 ```javascript
 ...
 app.spawn(square(200, 200, 100, 'green', {
   allowDrag: true,
 }));
 ...
-``` 
+```
+
 This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
@@ -301,8 +323,8 @@ function handleClick(event) {
 ...
 ```
 
+Another cool interactive feature is **rotation**. To rotate an item, first add the `allowRotate` property and then grab the item with your mouse and hold **Control** key.
 
-Another cool interactive feature is **rotation**. To rotate an item, first add the `allowRotate` property and then grab the item with your mouse and hold **Control** key. 
 ```js
 ...
   allowDrag: true,
@@ -312,7 +334,8 @@ Another cool interactive feature is **rotation**. To rotate an item, first add t
 ...
 ```
 
-You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add the `onswipe` handler. 
+You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add the `onswipe` handler.
+
 ```js
 ...
   onswipe: handleSwipe,
@@ -330,10 +353,13 @@ function handleSwipe(event) {
 To move an item, you can use `moveBy` and `moveTo` item methods:
 
 ```js
-app.spawn(image('images/monaLisa.jpg', {
-  width: 200, height: 300,
-  onclick: handleClick,
-}))
+app.spawn(
+  image("images/monaLisa.jpg", {
+    width: 200,
+    height: 300,
+    onclick: handleClick,
+  })
+);
 
 function handleClick(event) {
   event.target.moveBy(100, -50);
@@ -346,14 +372,15 @@ _You can add event handlers to all WAMS items._
 
 ### Static resources
 
-Often times, you want to use images, run custom code in the browser, or add CSS stylesheets. 
+Often times, you want to use images, run custom code in the browser, or add CSS stylesheets.
 
 To do that, first **set up a path to the static directory:**
+
 ```javascript
-const path = require('path');
+const path = require("path");
 
 const app = new WAMS.Application({
-  staticDir: path.join(__dirname, './assets'),
+  staticDir: path.join(__dirname, "./assets"),
 });
 ```
 
@@ -363,23 +390,23 @@ This makes files under the specified path available at the root URL of the appli
 
 ```javascript
 const app = new WAMS.Application({
-  clientScripts: ['js/awesome-script.js'],
-  staticDir: path.join(__dirname, 'assets'),
+  clientScripts: ["js/awesome-script.js"],
+  staticDir: path.join(__dirname, "assets"),
 });
 ```
+
 The scripts will be automatically loaded by the browsers.
 
 - To add CSS stylesheets:
 
 ```javascript
 const app = new WAMS.Application({
-  stylesheets: ['css/amazing-styles.css'],
-  staticDir: path.join(__dirname, 'assets'),
+  stylesheets: ["css/amazing-styles.css"],
+  staticDir: path.join(__dirname, "assets"),
 });
 ```
+
 The stylesheets will be automatically loaded by the browsers.
-
-
 
 ### Connections
 
@@ -391,10 +418,11 @@ WAMS manages all connections under the hood, and provides helpful methods to rea
 Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
 
 1. `view`
-0. `device`
-0. `group`
+2. `device`
+3. `group`
 
 **`View`** is an object that stores the **state** of the connected screen, including:
+
 - `index`
 - `topLeft`, `topRight`, `bottomRight` and `bottomLeft` positions
 - `scale`
@@ -403,12 +431,14 @@ Both methods accept a callback function, where you can act on the event. The cal
 - `height`
 
 It also provides **methods** to transform the current screen's view:
+
 - `moveBy`
-- `moveTo` 
+- `moveTo`
 - `rotateBy`
 - `scaleBy`
 
 And you can set up **interactions and event listeners** for the view itself:
+
 - `allowDrag`
 - `allowRotate`
 - `allowScale`
@@ -422,7 +452,7 @@ And you can set up **interactions and event listeners** for the view itself:
 
 By default, every connected screen is positioned in the same location and can see the same objects. However, you can build more complex layouts by using `view`, `device` and `group` objects' methods and state, or use one of the out-of-box predefined layouts.
 
-There are currently two predefined layouts: `table` and `line`. 
+There are currently two predefined layouts: `table` and `line`.
 
 **`Table`**
 
@@ -432,7 +462,7 @@ Places users around a table, with the given amount of overlap. The first user wi
 const { table } = WAMS.predefined.layouts;
 
 const overlap = 200; // 200px overlap between screens
-const setTableLayout = table(overlap); 
+const setTableLayout = table(overlap);
 
 function handleLayout(view) {
   setTableLayout(view);
@@ -465,10 +495,9 @@ app.onconnect(handleLayout);
 
 To see this layout in action with multi-screen gestures, check out the `shared-polygons.js` example.
 
-
 ## Advanced
 
-When building more complex applications, sometimes you might want to have more flexibility than predefined items and behaviors provide. 
+When building more complex applications, sometimes you might want to have more flexibility than predefined items and behaviors provide.
 
 The following sections show how to go beyond that.
 
@@ -480,21 +509,20 @@ The following sequence draws a smiling face item:
 
 ```js
 function smileFace(x, y) {
-    const sequence = new WAMS.CanvasSequence();
+  const sequence = new WAMS.CanvasSequence();
 
-    sequence.beginPath();
-    sequence.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
-    sequence.moveTo(110, 75);
-    sequence.arc(75, 75, 35, 0, Math.PI, false);  // Mouth (clockwise)
-    sequence.moveTo(65, 65);
-    sequence.arc(60, 65, 5, 0, Math.PI * 2, true);  // Left eye
-    sequence.moveTo(95, 65);
-    sequence.arc(90, 65, 5, 0, Math.PI * 2, true);  // Right eye
-    sequence.stroke();
-    
-    return { sequence }
+  sequence.beginPath();
+  sequence.arc(75, 75, 50, 0, Math.PI * 2, true); // Outer circle
+  sequence.moveTo(110, 75);
+  sequence.arc(75, 75, 35, 0, Math.PI, false); // Mouth (clockwise)
+  sequence.moveTo(65, 65);
+  sequence.arc(60, 65, 5, 0, Math.PI * 2, true); // Left eye
+  sequence.moveTo(95, 65);
+  sequence.arc(90, 65, 5, 0, Math.PI * 2, true); // Right eye
+  sequence.stroke();
+
+  return { sequence };
 }
-
 
 app.spawn(smileFace(900, 300));
 ```
@@ -507,10 +535,10 @@ function customItem(x, y, width, height) {
   const allowDrag = true;
 
   const sequence = new WAMS.CanvasSequence();
-  sequence.fillStyle = 'green';
+  sequence.fillStyle = "green";
   sequence.fillRect(x, y, width, height);
 
-  return { hitbox, sequence, allowDrag, }
+  return { hitbox, sequence, allowDrag };
 }
 ```
 
@@ -526,13 +554,12 @@ Sometimes, you would like to tell devices to execute client-side code at a speci
 
 Let's say we would like to send a message from the client to the server. WAMS methods are exposed to the client via the global `WAMS` object.
 
-
 To **dispatch a server event**, use `WAMS.dispatch()` method:
 
 ```javascript
 // client.js
 
-WAMS.dispatch('my-message', { foo: 'bar' });
+WAMS.dispatch("my-message", { foo: "bar" });
 ```
 
 This dispatches a custom event to the server called `my-message` and sends a payload object.
@@ -542,7 +569,7 @@ To **listen to this event on the server**, use `app.on()` method:
 ```javascript
 // app.js
 
-app.on('my-message', handleMyMessage);
+app.on("my-message", handleMyMessage);
 
 function handleMyMessage(data) {
   console.log(data.foo); // logs 'bar' to the server terminal
@@ -556,7 +583,7 @@ To **dispatch a client event** from the server, use `app.dispatch()` method.
 ```javascript
 // app.js
 
-app.dispatch('my-other-message', { bar: 'foo' });
+app.dispatch("my-other-message", { bar: "foo" });
 ```
 
 To **listen to this event on the client**, use `WAMS.on()` method:
@@ -564,14 +591,14 @@ To **listen to this event on the client**, use `WAMS.on()` method:
 ```javascript
 // client.js
 
-WAMS.on('my-other-message', handleMyOtherMessage);
+WAMS.on("my-other-message", handleMyOtherMessage);
 
 function handleMyOtherMessage(data) {
   console.log(data.bar); // logs 'foo' to the browser console
 }
 ```
 
-*Under the hood*, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a WAMS client event _on the client_, you can dispatch a custom event on the document element.
+_Under the hood_, client-side events are implemented with the DOM's [CustomEvent](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent). If you want to trigger a WAMS client event _on the client_, you can dispatch a custom event on the document element.
 
 ### Interaction rights
 
@@ -585,10 +612,12 @@ To do that, first we'll add an index to the card item to show who its owner is.
 
 ```javascript
 // during creation
-let card = app.spawn(image(url, {
-  /* ... */
-  owner: 1,
-}))
+let card = app.spawn(
+  image(url, {
+    /* ... */
+    owner: 1,
+  })
+);
 
 // or later
 card.owner = 1;
@@ -598,10 +627,9 @@ The `owner` property does not have a special meaning. You can use any property o
 
 Now, we will only flip the card if the event comes from the card owner:
 
-
 ```javascript
 function flipCard(event) {
-  if (event.view.index !== event.target.owner) return; 
+  if (event.view.index !== event.target.owner) return;
 
   const card = event.target;
   const imgsrc = card.isFaceUp ? card_back_path : card.face;
@@ -617,14 +645,18 @@ Sometimes you would like to spawn several items and then move or drag them toget
 ```javascript
 const items = [];
 
-items.push(app.spawn(html('<h1>hello world</h1>', 300, 100, {
-  x: 300,
-  y: 300,
-})));
+items.push(
+  app.spawn(
+    html("<h1>hello world</h1>", 300, 100, {
+      x: 300,
+      y: 300,
+    })
+  )
+);
 
-items.push(app.spawn(square(100, 100, 200, 'yellow')));
+items.push(app.spawn(square(100, 100, 200, "yellow")));
 
-items.push(app.spawn(square(150, 150, 200, 'blue')));
+items.push(app.spawn(square(150, 150, 200, "blue")));
 
 const group = app.createGroup({
   items,
@@ -633,3 +665,53 @@ const group = app.createGroup({
 
 group.moveTo(500, 300);
 ```
+
+---
+
+# Contribution
+
+We welcome contribution to WAMS, please find details on how to setup your local development environment.
+
+## Setup
+
+WAMS is a Node.js projects, and with that requires that you have Node installed. We recommend using [ASDF](https://asdf-vm.com/) or [NVM](https://github.com/nvm-sh/nvm) as your Node Version Manager to install the correct version of Node.
+
+**Step #1:** Install Node.js
+
+```bash
+# Using ASDF
+asdf current # This will list the version of Node for this project
+asdf install nodejs <version> # Install the correct version of Node
+
+# Using NVM
+nvm install
+```
+
+**Step #2:** Install dependencies
+
+```bash
+npm install
+```
+
+<!-- **Step #3:** Build the project -->
+<!-- TODO: Figure out how to build or test the project -->
+
+## Workflow
+
+### Linting
+
+The package.json file include a `lint` script that will run the linter via the CLI via
+
+```bash
+npm run lint
+```
+
+To fix linting errors, run
+
+```bash
+npm run lint:fix
+```
+
+#### Automatic Linting/Format On Save
+
+To enable automatic linting and saving on save, you can download the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) VS Code extension. All other required settings are included in the `.vscode/settings.json` file.
