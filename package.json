@@ -9,7 +9,8 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "docs": "npx jsdoc -c .jsdocrc.json"
   },
   "dependencies": {
     "canvas-sequencer": "^3.0.6",
