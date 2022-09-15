@@ -154,9 +154,12 @@ class Application {
    */
   listen(port = Switchboard.DEFAULTS.port, host = getLocalIP()) {
     this.server.listen(port, '0.0.0.0', () => {
-      const address = this.server.address();
-      const message = `Localhost:${address.port} and ${host}:${address.port}`;
-      console.info(message);
+      const createAddress = (host, port) => `http://${host}:${port}`;
+      const { address, port } = this.server.address();
+
+      console.log('🚀 WAMS server listening on:');
+      console.log(`🔗 ${createAddress(address, port)}`);
+      console.log(`🔗 ${createAddress(host, port)}`);
     });
   }
 
