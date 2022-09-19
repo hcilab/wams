@@ -10,10 +10,12 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "docs": "npx jsdoc -c .jsdocrc.json"
+    "docs": "npx jsdoc -c .jsdocrc.json",
+    "test": "jest"
   },
   "dependencies": {
     "canvas-sequencer": "^3.0.6",
+    "core-js": "^3",
     "express": "^4.17.1",
     "socket.io": "^2.4.1",
     "westures": "^1.0.0"
@@ -29,19 +31,9 @@
     "eslint-plugin-n": "^15.2.5",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.0.1",
-    "jest": "^27.0.5",
+    "jest": "^29.0.3",
     "jsdoc": "^3.6.7",
     "parcel": "^2.0.0",
     "prettier": "^2.7.1"
-  },
-  "jest": {
-    "modulePaths": [
-      "<rootDir>",
-      "<rootDir>/src/"
-    ],
-    "setupFilesAfterEnv": [
-      "./tests/setup.js"
-    ],
-    "testURL": "http://localhost/"
   }
 }
