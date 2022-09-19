@@ -3,6 +3,6 @@
  * https://jestjs.io/docs/configuration
  */
 module.exports = {
-  modulePaths: ["<rootDir>", "<rootDir>/src"],
-  setupFilesAfterEnv: ["<rootDir>/tests/setup.js"],
+  modulePaths: ['<rootDir>', '<rootDir>/src'],
+  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
 };
