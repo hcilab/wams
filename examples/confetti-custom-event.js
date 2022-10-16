@@ -1,6 +1,8 @@
 /*
- * This is a simple example showing how users can interact with a shared set
+ * This is a simple example builds on the confetti.js example, which shows how users can interact with a shared set
  *  of items.
+ *
+ *  It demonstrates how an interaction effect (changing color during mouse down of a target item) can be achieved using custom events using a client script.
  */
 
 'use strict';
