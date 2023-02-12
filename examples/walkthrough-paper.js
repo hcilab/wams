@@ -1,5 +1,5 @@
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({useMultiScreenGestures: true});
 
 const { square } = WAMS.predefined.items;
 const { line } = WAMS.predefined.layouts;
