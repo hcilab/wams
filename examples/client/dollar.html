@@ -1,0 +1,18 @@
+<html>
+	<head>
+		<script src="https://code.jquery.com/jquery-1.12.4.js" integrity="sha256-Qw82+bXyGq6MydymqBxNPYTaUXXq7c8v3CwiYwLLNXU=" crossorigin="anonymous"></script>
+	</head>
+<body onload="onLoadEvent();">
+  <div id="root">
+	    <canvas id="main" width="420" height="400" style="background-color:#dddddd"
+								onmousedown="mouseDownEvent(event.clientX, event.clientY, event.button)"
+								onmousemove="mouseMoveEvent(event.clientX, event.clientY, event.button)"
+								onmouseup="mouseUpEvent(event.clientX, event.clientY, event.button)"
+								oncontextmenu="return false;">
+							<span style="background-color:#ffff88;">The &lt;canvas&gt; element is not supported by this browser.</span>
+						</canvas>
+
+  </div>
+		<script src="dollar.js"></script>
+</body>
+</html>
