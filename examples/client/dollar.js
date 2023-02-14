@@ -179,7 +179,7 @@
 				if (_points.length >= 10)
 				{
 					var result = _r.Recognize(_points, false);//document.getElementById('useProtractor').checked);
-					if (result.Name === "rectangle") paperRun();
+					paperRun(result.Name, Centroid(_points));
 					drawText("Result: " + result.Name + " (" + round(result.Score,2) + ") in " + result.Time + " ms.");
 				}
 				else // fewer than 10 points were inputted
