@@ -13,7 +13,7 @@ const WamsShared = require('shared.js');
 const reporters = Object.keys(require('shared/Reporters.js'));
 const utilities = Object.keys(require('shared/utilities.js'));
 
-const other = ['colours', 'constants', 'IdStamper', 'Message', 'Polygon2D', 'Point2D', 'Rectangle'];
+const other = ['colours', 'Circle', 'constants', 'IdStamper', 'Message', 'Polygon2D', 'Point2D', 'Rectangle'];
 
 const expected = reporters.concat(utilities).concat(other);
 

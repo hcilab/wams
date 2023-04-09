@@ -542,7 +542,7 @@ function customItem(x, y, width, height) {
 }
 ```
 
-A hitbox can be made from `WAMS.Rectangle` or `WAMS.Polygon2D`.
+A hitbox can be made from `WAMS.Rectangle` or `WAMS.Polygon2D` or `WAMS.Circle`
 
 `WAMS.Polygon2D` accepts an array of points – vertices of the resulting polygon.
 
