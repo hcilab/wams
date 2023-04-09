@@ -8,6 +8,7 @@
 const path = require('path');
 const WAMS = require('..');
 const Rectangle = WAMS.Rectangle;
+const Circle = WAMS.Circle
 const { image } = WAMS.predefined.items;
 
 /*
@@ -78,16 +79,23 @@ function shuffleButton(x, y) {
 }
 
 function chip(chipName, x, y) {
-  const width = 80;
-  const height = 80;
-
-  return image(`Chips/${chipName}.png`, {
+  const radius = 40;
+  return {
     x,
     y,
-    width,
-    height,
+
+    // Radius for x and y too?
+    // Yes: need to offset hitbox (x, y) to center of circle
+    hitbox: new Circle(radius, radius, radius),
+
     allowDrag: true,
-  });
+    type: 'item/image',
+    src: `Chips/${chipName}.png`,
+
+    // Unclear if width/height actually needed: used by WamsImage
+    width: 80,
+    height: 80,
+  };
 }
 
 function spawnChip(chipName, x, y) {

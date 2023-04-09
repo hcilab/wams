@@ -8,7 +8,7 @@
 'use strict';
 
 const { CanvasSequence } = require('canvas-sequencer');
-const { Polygon2D, Rectangle } = require('../shared.js');
+const { Circle, Polygon2D, Rectangle } = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -83,6 +83,33 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
  */
 function square(x, y, length, colour = 'red', properties = {}) {
   return rectangle(x, y, length, length, colour, properties);
+}
+
+/**
+ * Generate a circle item.
+ *
+ * @memberof module:predefined.items
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} radius
+ * @param {string} [colour='yellow'] - Fill colour for the circle.
+ * @param {Object} properties - Location and orientation options for the item.
+ * See {@link module:shared.Item} members for available parameters.
+ *
+ * @returns {Object} An object with the parameters for a circle item with the
+ * given radius, filled in with the given colour.
+ */
+function circle(x, y, radius, colour = 'yellow', properties = {}) {
+  const hitbox = new Circle(radius, x, y);
+  const sequence = new CanvasSequence();
+  sequence.fillStyle = colour;
+  sequence.beginPath();
+  sequence.arc(0, 0, radius, 0, 2 * Math.PI);
+  sequence.fill();
+  const type = 'item';
+
+  return { ...properties, x, y, hitbox, sequence, type };
 }
 
 /**
@@ -170,6 +197,7 @@ function html(html, width, height, properties = {}) {
 }
 
 module.exports = {
+  circle,
   element,
   image,
   polygon,
