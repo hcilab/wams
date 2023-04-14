@@ -151,22 +151,12 @@ class MessageHandler {
     const doGesture = this.shouldDoGesture(event.target.allowDrag, event);
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
-      if (event.target.ondrag) {
-        event.target.ondrag(
-          {
-            ...event,
-            dx: d.x,
-            dy: d.y,
-          },
-          this.workspace
-        );
-      } else {
-        actions.drag({
-          ...event,
-          dx: d.x,
-          dy: d.y,
-        });
-      }
+      const dragCallback = event.target.ondrag || actions.drag;
+      dragCallback({
+        ...event,
+        dx: d.x,
+        dy: d.y,
+      });
     }
   }
 
