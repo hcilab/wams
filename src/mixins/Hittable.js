@@ -51,15 +51,20 @@ const Interactable = require('./Interactable.js');
  */
 const Hittable = (sclass) =>
   class Hittable extends Interactable(sclass) {
-    /**
-     * The hitbox for this Hittable instance. If it is null, hit detection will
-     * always return a falsy value.
-     *
-     * @name hitbox
-     * @type {?module:shared.Hitbox}
-     * @default undefined
-     * @memberof module:mixins.Hittable
-     */
+    constructor(...args) {
+      super(...args);
+
+      /**
+       * The hitbox for this Hittable instance. If it is null, hit detection will
+       * always return a falsy value.
+       *
+       * @name hitbox
+       * @type {?module:shared.Hitbox}
+       * @default undefined
+       * @memberof module:mixins.Hittable
+       */
+      this.hitbox = undefined;
+    }
 
     /**
      * Checks whether a point with the given x,y coordinates is contained by
