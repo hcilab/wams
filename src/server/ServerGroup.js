@@ -63,11 +63,9 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   shouldDoGesture(handler) {
     switch (typeof handler) {
       case 'function':
-        if (handler() === true) return true;
-        return false;
+        return handler(event);
       case 'boolean':
-        if (handler === true) return true;
-        return false;
+        return handler;
       default:
         return false;
     }
