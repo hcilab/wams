@@ -148,7 +148,7 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const doGesture = this.shouldDoGesture(event.target.allowDrag, event);
+    const doGesture = this.shouldDoGesture(event.target.allowDrag, event) || event.target.ondrag;
     if (doGesture) {
       const d = event.view.transformPointChange(translation.x, translation.y);
       const dragCallback = event.target.ondrag || actions.drag;
