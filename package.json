@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "docs": "npx jsdoc -c .jsdocrc.json",
-    "test": "jest"
+    "test": "jest",
+    "test:debug": "node inspect $(npm bin)/jest --runInBand"
   },
   "dependencies": {
     "canvas-sequencer": "^3.0.6",
