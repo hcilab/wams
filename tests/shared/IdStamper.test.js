@@ -31,6 +31,7 @@ describe('IdStamper', () => {
 
       test('cannot restamp an object', () => {
         const x = {};
+        stamper.stampNewId(x);
         expect(() => stamper.stampNewId(x)).toThrow();
       });
 

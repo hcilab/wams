@@ -17,8 +17,8 @@ const Westures = require('westures');
  * @memberof module:client
  */
 class Transform extends Westures.Gesture {
-  constructor() {
-    super('transform');
+  constructor(element, handler, options = {}) {
+    super('transform', element, handler, { ...Transform.DEFAULTS, ...options });
 
     /**
      * The Pinch gesture.

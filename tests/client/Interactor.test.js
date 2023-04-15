@@ -1,8 +1,5 @@
-/*
- * Test suite for the Interactor class.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
+/**
+ * @jest-environment jsdom
  */
 
 'use strict';
@@ -39,7 +36,7 @@ describe('Interactor', () => {
   describe('constructor(canvas, handlers)', () => {
     test.each(['swipe', 'tap', 'track', 'transform'])('Accepts a %s handler', (name) => {
       let itr;
-      expect(() => (itr = new Interactor({ [name]: handlers[name] }))).not.toThrow();
+      expect(() => (itr = new Interactor(canvas, { [name]: handlers[name] }))).not.toThrow();
       expect(itr.handlers[name]).toBe(handlers[name]);
     });
   });
@@ -49,7 +46,7 @@ describe('Interactor', () => {
     let itr;
     beforeEach(() => {
       handlers.tap = jest.fn();
-      itr = new Interactor({ tap: handlers.tap });
+      itr = new Interactor(canvas, { tap: handlers.tap });
     });
 
     test.skip('Works with mouse input', () => {

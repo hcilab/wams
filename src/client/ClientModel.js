@@ -24,7 +24,7 @@ const REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
  * @memberof module:client
  */
 class ClientModel {
-  constructor() {
+  constructor(root) {
     /**
      * Root element where WAMS canvas and HTML elements are located.
      *

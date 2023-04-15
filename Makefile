@@ -16,9 +16,6 @@ redoc:
 tags:
 	ctags -R src;
 
-test:
-	npx jest --bail 1
-
 graphs:
 	npx arkit -c graphs/client.json
 	npx arkit -c graphs/full.json

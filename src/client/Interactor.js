@@ -62,18 +62,18 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions(root) {
-    const swipe = new Westures.Swipe();
-    const swivel = new Westures.Swivel({ enableKey: 'ctrlKey' });
-    const tap = new Westures.Tap();
-    const track = new Westures.Track(['start', 'end']);
-    const transform = new Transform();
+    const swipe = new Westures.Swipe(root, this.forward('swipe'));
+    const swivel = new Westures.Swivel(root, this.swivel(), { enableKey: 'ctrlKey' });
+    const tap = new Westures.Tap(root, this.forward('tap'));
+    const track = new Westures.Track(root, this.forward('track'), { phases: ['start', 'end'] });
+    const transform = new Transform(root, this.forward('transform'));
 
     const region = new Westures.Region(root);
-    region.addGesture(root, tap, this.forward('tap'));
-    region.addGesture(root, swipe, this.forward('swipe'));
-    region.addGesture(root, swivel, this.swivel());
-    region.addGesture(root, transform, this.forward('transform'));
-    region.addGesture(root, track, this.forward('track'));
+    region.addGesture(tap);
+    region.addGesture(swipe);
+    region.addGesture(swivel);
+    region.addGesture(transform);
+    region.addGesture(track);
   }
 
   /**

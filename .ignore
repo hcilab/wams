@@ -1,0 +1,5 @@
+dist
+docs
+package-lock.json
+
+*.svg
