@@ -213,7 +213,8 @@ class ServerController {
       touch.clientX = x;
       touch.clientY = y;
     });
-    this.group.gestureController.process(event);
+    // FIXME TODO: reinstate support for server-side gestures
+    // this.group.gestureController.process(event);
   }
 
   /**

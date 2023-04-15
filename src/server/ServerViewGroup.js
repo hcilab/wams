@@ -76,7 +76,8 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   removeView(view) {
     removeById(this.views, view);
-    this.clearInputsFromView(view.id);
+    // FIXME TODO: reinstate support for server-side gestures
+    // this.clearInputsFromView(view.id);
   }
 
   /**
