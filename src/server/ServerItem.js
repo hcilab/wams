@@ -38,6 +38,14 @@ class ServerItem extends Identifiable(Hittable(Item)) {
      */
     this.namespace = namespace;
 
+    /**
+     * Sequence of canvas instructions to be run on the client
+     *
+     * @type {CanvasSequence}
+     * @default undefined
+     */
+    this.sequence = undefined;
+
     // Notify subscribers immediately.
     new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
     if (values.sequence) {

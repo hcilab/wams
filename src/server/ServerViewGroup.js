@@ -21,8 +21,9 @@ const { Lockable, Transformable2D, Locker } = require('../mixins.js');
  *
  * @memberof module:server
  * @extends module:server.View
- * @mixes module:mixins.Interactable
  * @mixes module:mixins.Locker
+ * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Transformable2D
  *
  * @param {module:server.MessageHandler} messageHandler - For responding to
  * messages from clients.
