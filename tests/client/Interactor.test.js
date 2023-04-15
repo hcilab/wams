@@ -46,7 +46,7 @@ describe('Interactor', () => {
     let itr;
     beforeEach(() => {
       handlers.tap = jest.fn();
-      itr = new Interactor({ tap: handlers.tap });
+      itr = new Interactor(canvas, { tap: handlers.tap });
     });
 
     test.skip('Works with mouse input', () => {
