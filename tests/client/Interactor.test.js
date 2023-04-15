@@ -36,7 +36,7 @@ describe('Interactor', () => {
   describe('constructor(canvas, handlers)', () => {
     test.each(['swipe', 'tap', 'track', 'transform'])('Accepts a %s handler', (name) => {
       let itr;
-      expect(() => (itr = new Interactor({ [name]: handlers[name] }))).not.toThrow();
+      expect(() => (itr = new Interactor(canvas, { [name]: handlers[name] }))).not.toThrow();
       expect(itr.handlers[name]).toBe(handlers[name]);
     });
   });
