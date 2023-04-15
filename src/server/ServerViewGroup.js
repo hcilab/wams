@@ -125,7 +125,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {Namespace} socket - Socket.io socket for publishing changes.
    */
   spawnView(socket, index) {
-    const view = new ServerView(socket, index, this);
+    const view = new ServerView(socket, { index, ...this });
     this.views.push(view);
     return view;
   }

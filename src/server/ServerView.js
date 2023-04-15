@@ -29,7 +29,7 @@ const STAMPER = new IdStamper();
  * view.
  */
 class ServerView extends Locker(Interactable(View)) {
-  constructor(socket, index, values = {}) {
+  constructor(socket, values = {}) {
     super(values);
 
     /**
@@ -38,14 +38,6 @@ class ServerView extends Locker(Interactable(View)) {
      * @type {Socket}
      */
     this.socket = socket;
-
-    /**
-     * The index is an integer identifying the ServerView,
-     * coming from its ServerController.
-     *
-     * @type {number}
-     */
-    this.index = index;
 
     /**
      * A place for user to store view state.

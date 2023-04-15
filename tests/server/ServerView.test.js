@@ -1,8 +1,5 @@
 /*
  * Test suite for ServerView class.
- *
- * Author: Michael van der Kamp
- * Date: July/August 2018
  */
 
 'use strict';
@@ -26,6 +23,7 @@ beforeAll(() => {
     type: 'testing/view',
     scale: 1,
     rotation: 0,
+    index: 1,
   };
 });
 
