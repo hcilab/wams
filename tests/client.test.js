@@ -1,8 +1,5 @@
-/*
- * Test suite for the class.
- *
- * Author: Michael van der Kamp
- * Date: July/August 2018
+/**
+ * @jest-environment jsdom
  */
 
 'use strict';
