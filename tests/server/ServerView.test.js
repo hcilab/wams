@@ -100,14 +100,14 @@ describe('ServerView', () => {
 
       test('Works with valid input', () => {
         expect(() => view.moveBy(-5, -5)).not.toThrow();
-        expect(view.x).toBe(5);
-        expect(view.y).toBe(5);
+        expect(view.x).toBe(-5);
+        expect(view.y).toBe(-5);
         expect(() => view.moveBy(-45, -45)).not.toThrow();
-        expect(view.x).toBe(50);
-        expect(view.y).toBe(50);
+        expect(view.x).toBe(-50);
+        expect(view.y).toBe(-50);
         expect(() => view.moveBy(1, 1)).not.toThrow();
-        expect(view.x).toBe(49);
-        expect(view.y).toBe(49);
+        expect(view.x).toBe(-49);
+        expect(view.y).toBe(-49);
         expect(() => view.moveBy(49, 49)).not.toThrow();
         expect(view.x).toBe(0);
         expect(view.y).toBe(0);
