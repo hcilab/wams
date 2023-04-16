@@ -14,10 +14,14 @@
     "prettier/prettier": [
       "error",
       {
-        "trailingComma": "es5",
-        "singleQuote": true,
+        "bracketSameLine": false,
+        "bracketSpacing": true,
+        "endOfLine": "lf",
         "printWidth": 120,
-        "tabWidth": 2
+        "semi": true,
+        "singleQuote": true,
+        "tabWidth": 2,
+        "trailingComma": "es5"
       }
     ]
   },
