@@ -44,9 +44,7 @@ class Circle {
    * otherwise.
    */
   contains(point) {
-    const distance = Math.sqrt(
-      Math.pow(point.x - this.x, 2) + Math.pow(point.y - this.y, 2)
-    );
+    const distance = Math.sqrt(Math.pow(point.x - this.x, 2) + Math.pow(point.y - this.y, 2));
     return distance <= this.radius;
   }
 }

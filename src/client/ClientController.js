@@ -112,23 +112,6 @@ class ClientController {
      * is.
      */
     this.resizeCanvasToFillWindow();
-
-    window.WAMS = {
-      on: (event, func) => {
-        // listen for this DOM event
-        document.addEventListener(event, func);
-        this.eventListeners.push(event);
-
-        // if this event was called before this code executed,
-        // dispatch it again
-        this.eventQueue.forEach((ev) => {
-          if (ev.action === event) {
-            document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
-          }
-        });
-      },
-      dispatch: (event, func) => this.dispatch(event, func),
-    };
   }
 
   /**

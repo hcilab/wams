@@ -1,26 +1,15 @@
 {
-  "extends": ["standard", "plugin:prettier/recommended"],
   "env": {
     "browser": true,
     "commonjs": true,
     "es2021": true,
     "jest": true
   },
-  "overrides": [],
+  "extends": [
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": "latest"
   },
-  "rules": {
-    "prettier/prettier": [
-      "error",
-      {
-        "trailingComma": "es5",
-        "singleQuote": true,
-        "printWidth": 120,
-        "tabWidth": 2
-      }
-    ]
-  },
-  "plugins": ["prettier"],
-  "ignorePatterns": ["dist", "docs"]
+  "ignorePatterns": ["dist", "docs", "*.html"]
 }
