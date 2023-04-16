@@ -8,8 +8,7 @@
 const path = require('path');
 const WAMS = require('..');
 const Rectangle = WAMS.Rectangle;
-const Circle = WAMS.Circle
-const { image } = WAMS.predefined.items;
+const Circle = WAMS.Circle;
 
 /*
  * Randomize array element order in-place.
