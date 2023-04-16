@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write src tests examples",
+    "format:check": "prettier --check src tests examples",
     "docs": "npx jsdoc -c .jsdocrc.json",
     "test": "jest",
     "test:debug": "node inspect $(npm bin)/jest --runInBand"

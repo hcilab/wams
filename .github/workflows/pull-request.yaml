@@ -22,5 +22,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: npm ci
 
-      - name: 👀 Check Lint
+      - name: 👀 Check Lint Errors
         run: npm run lint
+
+      - name: 👀 Check Formatting Style
+        run: npm run format:check
