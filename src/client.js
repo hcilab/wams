@@ -28,47 +28,47 @@ const ClientController = require('./client/ClientController.js');
 const ClientModel = require('./client/ClientModel.js');
 const ClientView = require('./client/ClientView.js');
 
-window.addEventListener(
-  'load',
-  function run() {
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
+function ClientApplication(controller) {
+  return {
+    on: (event, func) => {
+      // listen for this DOM event
+      document.addEventListener(event, func);
+      controller.eventListeners.push(event);
 
-    const root = document.querySelector('#root');
-    if (!root) throw Error('No root element was found on the page.');
-    const canvas = document.querySelector('canvas');
-    if (!canvas) throw Error('No canvas element was found on the page.');
+      // if this event was called before this code executed,
+      // dispatch it again
+      controller.eventQueue.forEach((ev) => {
+        if (ev.action === event) {
+          document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
+        }
+      });
+    },
+    dispatch: (event, func) => controller.dispatch(event, func),
+  };
+}
 
-    const context = canvas.getContext('2d');
+function run() {
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-    const model = new ClientModel(root);
-    const view = new ClientView(context);
-    const ctrl = new ClientController(root, canvas, view, model);
+  const root = document.querySelector('#root');
+  if (!root) throw Error('No root element was found on the page.');
+  const canvas = document.querySelector('canvas');
+  if (!canvas) throw Error('No canvas element was found on the page.');
 
-    model.view = view;
-    view.model = model;
+  const context = canvas.getContext('2d');
 
-    window.WAMS = {
-      on: (event, func) => {
-        // listen for this DOM event
-        document.addEventListener(event, func);
-        ctrl.eventListeners.push(event);
+  const model = new ClientModel(root);
+  const view = new ClientView(context);
+  const controller = new ClientController(root, canvas, view, model);
+  window.WAMS = ClientApplication(controller);
 
-        // if this event was called before this code executed,
-        // dispatch it again
-        ctrl.eventQueue.forEach((ev) => {
-          if (ev.action === event) {
-            document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
-          }
-        });
-      },
-      dispatch: (event, func) => ctrl.dispatch(event, func),
-    };
+  model.view = view;
+  view.model = model;
+  controller.connect();
+}
 
-    ctrl.connect();
-  },
-  {
-    capture: false,
-    once: true,
-    passive: true,
-  }
-);
+window.addEventListener('load', run, {
+  capture: false,
+  once: true,
+  passive: true,
+});
