@@ -1,3 +1,4 @@
+---
 name: Pull Request
 
 on:
@@ -8,7 +9,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint && Test
     runs-on: ubuntu-latest
     steps:
       - name: ⬇️ Checkout Repo
@@ -27,3 +28,6 @@ jobs:
 
       - name: 👀 Check Formatting Style
         run: npm run format:check
+
+      - name: 🧪 Run Unit Tests
+        run: npm run test
