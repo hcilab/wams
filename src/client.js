@@ -47,6 +47,23 @@ window.addEventListener(
     model.view = view;
     view.model = model;
 
+    window.WAMS = {
+      on: (event, func) => {
+        // listen for this DOM event
+        document.addEventListener(event, func);
+        ctrl.eventListeners.push(event);
+
+        // if this event was called before this code executed,
+        // dispatch it again
+        ctrl.eventQueue.forEach((ev) => {
+          if (ev.action === event) {
+            document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
+          }
+        });
+      },
+      dispatch: (event, func) => ctrl.dispatch(event, func),
+    };
+
     ctrl.connect();
   },
   {
