@@ -110,7 +110,7 @@ class VideoPlayer {
         playing,
         type: 'controls',
         ondrag: WAMS.predefined.actions.drag,
-        allowScale: true,
+        onpinch: WAMS.predefined.actions.pinch,
       })
     );
 

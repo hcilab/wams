@@ -37,7 +37,7 @@ app.spawn(
     width: WIDTH,
     height: HEIGHT,
     type: 'video',
-    allowScale: true,
+    onpinch: WAMS.predefined.actions.pinch,
     onrotate: WAMS.predefined.actions.rotate,
     ondrag: WAMS.predefined.actions.drag,
   })
@@ -50,7 +50,7 @@ app.spawn(
     width: WIDTH,
     height: HEIGHT,
     type: 'video',
-    allowScale: true,
+    onpinch: WAMS.predefined.actions.pinch,
     onrotate: WAMS.predefined.actions.rotate,
     ondrag: WAMS.predefined.actions.drag,
   })
@@ -59,7 +59,7 @@ app.spawn(
 function handleConnect(view) {
   // allowing the whole view to
   // be moved around, rotated and scaled
-  view.allowScale = true;
+  view.onpinch = WAMS.predefined.actions.pinch;
   view.onrotate = WAMS.predefined.actions.rotate;
   view.ondrag = WAMS.predefined.actions.drag;
 }

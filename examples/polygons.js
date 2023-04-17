@@ -18,7 +18,7 @@ function polygon(x, y, view) {
       type: 'colour',
       scale: 1 / view.scale,
       onclick: removeItem,
-      allowScale: true,
+      onpinch: WAMS.predefined.actions.pinch,
       onrotate: WAMS.predefined.actions.rotate,
       ondrag: WAMS.predefined.actions.drag,
     }
@@ -35,7 +35,7 @@ function spawnItem(event) {
 
 function handleConnect(view) {
   view.onclick = spawnItem;
-  view.allowScale = true;
+  view.onpinch = WAMS.predefined.actions.pinch;
   view.onrotate = WAMS.predefined.actions.rotate;
   view.ondrag = WAMS.predefined.actions.drag;
 }

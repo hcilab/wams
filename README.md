@@ -441,7 +441,7 @@ And you can set up **interactions and event listeners** for the view itself:
 
 - `ondrag`
 - `onrotate`
-- `allowScale`
+- `onpinch`
 - `onclick`
 
 **`Device`** stores dimensions of the screen and its original position when connected.

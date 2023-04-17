@@ -9,7 +9,7 @@ function spawnSquare(event) {
     square(event.x - 50, event.y - 50, 100, 'green', {
       ondrag: WAMS.predefined.actions.drag,
       onrotate: WAMS.predefined.actions.rotate,
-      allowScale: true,
+      onpinch: WAMS.predefined.actions.pinch,
     })
   );
 }

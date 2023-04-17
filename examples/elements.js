@@ -17,7 +17,7 @@ function element(x, y, view) {
     type: 'button',
     scale: 1 / view.scale,
     rotation: view.rotation,
-    allowScale: true,
+    onpinch: WAMS.predefined.actions.pinch,
     ondrag: WAMS.predefined.actions.drag,
     onrotate: WAMS.predefined.actions.rotate,
     onclick: removeElement,
@@ -33,7 +33,7 @@ function spawnElement(event) {
 }
 
 function handleConnect(view) {
-  view.allowScale = true;
+  view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;
   view.onclick = spawnElement;

@@ -23,7 +23,7 @@ app.spawn(
     scale: 0.25,
     ondrag: WAMS.predefined.actions.drag,
     onrotate: WAMS.predefined.actions.rotate,
-    allowScale: true,
+    onpinch: WAMS.predefined.actions.pinch,
   })
 );
 
@@ -36,7 +36,7 @@ app.spawn(
     scale: 0.2,
     ondrag: WAMS.predefined.actions.drag,
     onrotate: WAMS.predefined.actions.rotate,
-    allowScale: true,
+    onpinch: WAMS.predefined.actions.pinch,
   })
 );
 

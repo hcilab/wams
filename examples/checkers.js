@@ -108,7 +108,7 @@ function handleConnect(view) {
   centerViewNormal(view);
 
   view.ondrag = WAMS.predefined.actions.drag;
-  view.allowScale = true;
+  view.onpinch = WAMS.predefined.actions.pinch;
   view.onrotate = WAMS.predefined.actions.rotate;
 }
 

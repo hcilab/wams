@@ -102,7 +102,7 @@ class WorkSpace {
     const itemClass = item.constructor.name;
     if (itemClass !== 'ServerView' && itemClass !== 'ServerViewGroup') {
       if (!item.lockZ) this.raiseItem(item);
-      if (item.ondrag || item.allowScale || item.onrotate) {
+      if (item.ondrag || item.onpinch || item.onrotate) {
         view.obtainLockOnItem(item);
       } else {
         view.obtainLockOnItem(view);

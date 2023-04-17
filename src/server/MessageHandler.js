@@ -126,8 +126,7 @@ class MessageHandler {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    const doGesture = this.shouldDoGesture(event.target.allowScale);
-    if (doGesture) actions.scale({ ...event, scale });
+    if (event.target.onpinch) event.target.onpinch({ ...event, scale });
   }
 
   /**
