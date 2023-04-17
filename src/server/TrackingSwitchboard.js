@@ -13,11 +13,6 @@
 // Local project packages, shared between client and server.
 const { Message } = require('../shared.js');
 
-// Symbols to mark these methods as intended for internal use only.
-const symbols = Object.freeze({
-  attachListeners: Symbol('attachListeners'),
-});
-
 /**
  * Report information about the given connection to the console.
  *
@@ -92,30 +87,12 @@ class TrackingSwitchboard {
   }
 
   /**
-   * Attaches listeners to the socket. Only listens to message types existing on
-   * the Message class object.
-   *
-   * @alias [@@attachListeners]
-   * @memberof module:server.ServerController
-   */
-  [symbols.attachListeners](socket) {
-    const listeners = {
-      [Message.DISPATCH]: ({ data }) => {
-        this.messageHandler.handleCustomEvent(data.action, data.payload);
-      },
-    };
-
-    Object.entries(listeners).forEach(([p, v]) => socket.on(p, v));
-  }
-
-  /**
    * Accept the connection associated with the given socket.
    *
    * @param {Socket} socket - socket.io socket instance for the new accepted
    * connection.
    */
   accept(socket) {
-    this[symbols.attachListeners](socket);
     socket.on('disconnect', () => this.disconnect());
     logConnection(true);
   }
