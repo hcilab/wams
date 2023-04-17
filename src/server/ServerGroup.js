@@ -54,22 +54,6 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     }
   }
 
-  /**
-   * Helper function to tell if gesture should be done.
-   *
-   * @param {*} handler
-   */
-  shouldDoGesture(handler) {
-    switch (typeof handler) {
-      case 'function':
-        return handler(event);
-      case 'boolean':
-        return handler;
-      default:
-        return false;
-    }
-  }
-
   /*
    * Publish a general notification about the status of the group.
    */

@@ -169,22 +169,6 @@ class MessageHandler {
   }
 
   /**
-   * Helper function to tell if gesture should be done.
-   *
-   * @param {*} handler
-   */
-  shouldDoGesture(handler, event) {
-    switch (typeof handler) {
-      case 'function':
-        return handler(event);
-      case 'boolean':
-        return handler;
-      default:
-        return false;
-    }
-  }
-
-  /**
    * Send Message to clients to dispatch custom Client event.
    *
    * @param {string} event name of the user-defined event.
