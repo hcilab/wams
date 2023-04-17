@@ -8,7 +8,7 @@ function spawnSquare(event) {
   app.spawn(
     square(event.x - 50, event.y - 50, 100, 'green', {
       ondrag: WAMS.predefined.actions.drag,
-      allowRotate: true,
+      onrotate: WAMS.predefined.actions.rotate,
       allowScale: true,
     })
   );

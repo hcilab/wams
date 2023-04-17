@@ -20,7 +20,7 @@ const app = new WAMS.Application({
 function handleConnect(view) {
   view.allowScale = true;
   view.ondrag = WAMS.predefined.actions.drag;
-  view.allowRotate = true; // view.onclick = spawnSquare;
+  view.onrotate = WAMS.predefined.actions.rotate;
 }
 app.onconnect(handleConnect);
 app.listen(9013);

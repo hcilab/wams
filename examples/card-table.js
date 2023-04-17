@@ -171,7 +171,7 @@ function dealCards() {
           isFaceUp: false,
           onclick: flipCard,
           ondrag: WAMS.predefined.actions.drag,
-          allowRotate: true,
+          onrotate: WAMS.predefined.actions.rotate,
         })
       )
     );

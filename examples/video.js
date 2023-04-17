@@ -38,7 +38,7 @@ app.spawn(
     height: HEIGHT,
     type: 'video',
     allowScale: true,
-    allowRotate: true,
+    onrotate: WAMS.predefined.actions.rotate,
     ondrag: WAMS.predefined.actions.drag,
   })
 );
@@ -51,7 +51,7 @@ app.spawn(
     height: HEIGHT,
     type: 'video',
     allowScale: true,
-    allowRotate: true,
+    onrotate: WAMS.predefined.actions.rotate,
     ondrag: WAMS.predefined.actions.drag,
   })
 );
@@ -60,7 +60,7 @@ function handleConnect(view) {
   // allowing the whole view to
   // be moved around, rotated and scaled
   view.allowScale = true;
-  view.allowRotate = true;
+  view.onrotate = WAMS.predefined.actions.rotate;
   view.ondrag = WAMS.predefined.actions.drag;
 }
 

@@ -25,12 +25,11 @@ app.spawn(
 );
 
 function handleConnect(view) {
-  view.allowRotate = true;
+  view.onrotate = WAMS.predefined.actions.rotate;
   if (view.index > 0) {
     view.scale = 2.5;
     view.ondrag = WAMS.predefined.actions.drag;
     view.allowScale = true;
-    view.allowRotate = true;
   }
 }
 

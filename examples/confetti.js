@@ -34,7 +34,7 @@ function spawnSquare(event) {
 function handleConnect(view) {
   view.allowScale = true;
   view.ondrag = WAMS.predefined.actions.drag;
-  view.allowRotate = true;
+  view.onrotate = WAMS.predefined.actions.rotate;
   view.onclick = spawnSquare;
 }
 

@@ -137,8 +137,7 @@ class MessageHandler {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    const doGesture = this.shouldDoGesture(event.target.allowRotate);
-    if (doGesture) actions.rotate({ ...event, rotation });
+    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
   }
 
   /**

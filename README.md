@@ -323,13 +323,13 @@ app.spawn(items.square(200, 200, 100, 'green', {
 ...
 ```
 
-Another cool interactive feature is **rotation**. To rotate an item, first add the `allowRotate` property and then grab the item with your mouse and hold **Control** key.
+Another cool interactive feature is **rotation**. To rotate an item, first set the `onrotate` property and then grab the item with your mouse and hold **Control** key.
 
 ```js
 ...
   ondrag: actions.drag,
   onclick: handleClick,
-  allowRotate: true,
+  onrotate: actions.rotate,
 }));
 ...
 ```
@@ -440,7 +440,7 @@ It also provides **methods** to transform the current screen's view:
 And you can set up **interactions and event listeners** for the view itself:
 
 - `ondrag`
-- `allowRotate`
+- `onrotate`
 - `allowScale`
 - `onclick`
 

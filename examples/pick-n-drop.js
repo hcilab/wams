@@ -73,7 +73,7 @@ function spawnImage(x, y) {
   return app.spawn(
     image('dribble.png', {
       ondrag: WAMS.predefined.actions.drag,
-      allowRotate: true,
+      onrotate: WAMS.predefined.actions.rotate,
       width: 1600,
       height: 1200,
       scale: 1 / 4,

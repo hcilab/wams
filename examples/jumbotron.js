@@ -27,7 +27,7 @@ app.spawn(
     scale,
     ondrag: WAMS.predefined.actions.drag,
     allowScale: true,
-    allowRotate: true,
+    onrotate: WAMS.predefined.actions.rotate,
   })
 );
 

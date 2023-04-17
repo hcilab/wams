@@ -22,7 +22,7 @@ app.spawn(
     height: 1013,
     scale: 0.25,
     ondrag: WAMS.predefined.actions.drag,
-    allowRotate: true,
+    onrotate: WAMS.predefined.actions.rotate,
     allowScale: true,
   })
 );
@@ -35,7 +35,7 @@ app.spawn(
     height: 1815,
     scale: 0.2,
     ondrag: WAMS.predefined.actions.drag,
-    allowRotate: true,
+    onrotate: WAMS.predefined.actions.rotate,
     allowScale: true,
   })
 );

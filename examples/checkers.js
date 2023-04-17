@@ -109,7 +109,7 @@ function handleConnect(view) {
 
   view.ondrag = WAMS.predefined.actions.drag;
   view.allowScale = true;
-  view.allowRotate = true;
+  view.onrotate = WAMS.predefined.actions.rotate;
 }
 
 app.onconnect(handleConnect);
