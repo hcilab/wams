@@ -76,7 +76,7 @@ class DrawingApp {
   }
 
   handleConnect(view) {
-    view.allowDrag = true;
+    view.ondrag = WAMS.predefined.actions.drag;
     view.allowScale = true;
   }
 }

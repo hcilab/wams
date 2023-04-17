@@ -34,7 +34,7 @@ function square(x, y, view, color) {
     type: 'colour',
     scale: 1 / view.scale,
     rotation: view.rotation,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
   };
 }
 
@@ -45,7 +45,7 @@ function spawnSquare(event, color) {
 
 function handleConnect(view) {
   view.allowScale = true;
-  view.allowDrag = true;
+  view.ondrag = WAMS.predefined.actions.drag;
   view.allowRotate = true;
   // view.onclick = spawnSquare;
 }

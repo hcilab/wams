@@ -25,7 +25,7 @@ app.spawn(
     y: 0,
     type: 'mona',
     scale,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
     allowScale: true,
     allowRotate: true,
   })

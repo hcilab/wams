@@ -28,7 +28,7 @@ function handleConnect(view) {
   view.allowRotate = true;
   if (view.index > 0) {
     view.scale = 2.5;
-    view.allowDrag = true;
+    view.ondrag = WAMS.predefined.actions.drag;
     view.allowScale = true;
     view.allowRotate = true;
   }

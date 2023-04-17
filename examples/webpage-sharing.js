@@ -42,7 +42,7 @@ function spawnIframe(event, url) {
       y: event.y,
       width: 560,
       height: 365,
-      allowDrag: handleIframeDrag,
+      ondrag: handleIframeDrag,
       onclick: (e) => app.removeItem(e.target),
     })
   );
@@ -68,9 +68,8 @@ app.onconnect(handleConnect);
 app.listen(9021);
 
 function handleIframeDrag(event) {
-  if (event.view.index === 0) return true;
-  if (event.target.y <= 0) {
+  if (event.view.index !== 0 && event.target.y <= 0) {
     event.target.moveTo(mainScreen.x, mainScreen.bottomLeft.y - OVERLAP);
   }
-  return true;
+  WAMS.predefined.actions.drag(event);
 }

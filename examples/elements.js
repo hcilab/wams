@@ -18,7 +18,7 @@ function element(x, y, view) {
     scale: 1 / view.scale,
     rotation: view.rotation,
     allowScale: true,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
     allowRotate: true,
     onclick: removeElement,
   });
@@ -34,7 +34,7 @@ function spawnElement(event) {
 
 function handleConnect(view) {
   view.allowScale = true;
-  view.allowDrag = true;
+  view.ondrag = WAMS.predefined.actions.drag;
   view.allowRotate = true;
   view.onclick = spawnElement;
 }

@@ -22,7 +22,7 @@ function polygon(x, y, view) {
       onclick: removeItem,
       allowScale: true,
       allowRotate: true,
-      allowDrag: true,
+      ondrag: WAMS.predefined.actions.drag,
     }
   );
 }
@@ -41,7 +41,7 @@ function handleConnect(view, device, group) {
   group.onclick = spawnItem;
   group.allowScale = true;
   group.allowRotate = true;
-  group.allowDrag = true;
+  group.ondrag = WAMS.predefined.actions.drag;
   linelayout(view, device);
 }
 

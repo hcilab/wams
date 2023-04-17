@@ -109,7 +109,7 @@ class VideoPlayer {
         height,
         playing,
         type: 'controls',
-        allowDrag: true,
+        ondrag: WAMS.predefined.actions.drag,
         allowScale: true,
       })
     );

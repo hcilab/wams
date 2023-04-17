@@ -47,8 +47,9 @@ const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 8;
 
 /* Function to handle interaction rights between devices to drag pieces on board */
 function handleTokenDrag(e, tokenOwnerIdx) {
-  if (e.view.index === tokenOwnerIdx) return false;
-  return true;
+  if (e.view.index !== tokenOwnerIdx) {
+    WAMS.predefined.actions.drag(e);
+  }
 }
 
 /* Function to spawn pieces at right place on board */
@@ -114,7 +115,7 @@ function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
         height: SQUARE_LENGTH,
         type,
         ownerIdx: userIdx,
-        allowDrag: (e) => handleTokenDrag(e, userIdx),
+        ondrag: (e) => handleTokenDrag(e, userIdx),
         // rotation: event => handleRotate(event),
         ...properties,
       }
@@ -167,7 +168,7 @@ function handleConnect(view) {
 
   centerViewNormal(view);
 
-  view.allowDrag = true;
+  view.ondrag = WAMS.predefined.actions.drag;
   view.allowScale = true;
   view.allowRotate = true;
 }

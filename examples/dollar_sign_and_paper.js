@@ -19,7 +19,7 @@ const app = new WAMS.Application({
 
 function handleConnect(view) {
   view.allowScale = true;
-  view.allowDrag = true;
+  view.ondrag = WAMS.predefined.actions.drag;
   view.allowRotate = true; // view.onclick = spawnSquare;
 }
 app.onconnect(handleConnect);

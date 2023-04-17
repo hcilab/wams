@@ -87,7 +87,7 @@ function chip(chipName, x, y) {
     // Yes: need to offset hitbox (x, y) to center of circle
     hitbox: new Circle(radius, radius, radius),
 
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
     type: 'item/image',
     src: `Chips/${chipName}.png`,
 
@@ -170,7 +170,7 @@ function dealCards() {
           face: card,
           isFaceUp: false,
           onclick: flipCard,
-          allowDrag: true,
+          ondrag: WAMS.predefined.actions.drag,
           allowRotate: true,
         })
       )

@@ -21,7 +21,7 @@ app.spawn(
     width: 800,
     height: 1013,
     scale: 0.25,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
     allowRotate: true,
     allowScale: true,
   })
@@ -34,7 +34,7 @@ app.spawn(
     width: 1200,
     height: 1815,
     scale: 0.2,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
     allowRotate: true,
     allowScale: true,
   })

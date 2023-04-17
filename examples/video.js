@@ -39,7 +39,7 @@ app.spawn(
     type: 'video',
     allowScale: true,
     allowRotate: true,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
   })
 );
 
@@ -52,7 +52,7 @@ app.spawn(
     type: 'video',
     allowScale: true,
     allowRotate: true,
-    allowDrag: true,
+    ondrag: WAMS.predefined.actions.drag,
   })
 );
 
@@ -61,7 +61,7 @@ function handleConnect(view) {
   // be moved around, rotated and scaled
   view.allowScale = true;
   view.allowRotate = true;
-  view.allowDrag = true;
+  view.ondrag = WAMS.predefined.actions.drag;
 }
 
 app.onconnect(handleConnect);

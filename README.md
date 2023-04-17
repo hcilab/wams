@@ -119,13 +119,13 @@ Put this code in your **app.js** file:
 const WAMS = require("./wams");
 const app = new WAMS.Application();
 
-const { square } = WAMS.predefined.items;
+const { items, actions } = WAMS.predefined;
 const { line } = WAMS.predefined.layouts;
 
 function spawnSquare() {
   app.spawn(
-    square(200, 200, 100, "green", {
-      allowDrag: true,
+    items.square(200, 200, 100, "green", {
+      ondrag: actions.drag,
     })
   );
 }
@@ -303,8 +303,8 @@ Let's get back to our Hello world example with a green square. Just a static squ
 
 ```javascript
 ...
-app.spawn(square(200, 200, 100, 'green', {
-  allowDrag: true,
+app.spawn(items.square(200, 200, 100, 'green', {
+  ondrag: actions.drag,
 }));
 ...
 ```
@@ -312,14 +312,14 @@ app.spawn(square(200, 200, 100, 'green', {
 This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
-...
-  allowDrag: true,
-  onclick: handleClick,
-}));
-
 function handleClick(event) {
   app.removeItem(event.target)
 }
+
+app.spawn(items.square(200, 200, 100, 'green', {
+  ondrag: actions.drag,
+  onclick: handleClick,
+}));
 ...
 ```
 
@@ -327,7 +327,7 @@ Another cool interactive feature is **rotation**. To rotate an item, first add t
 
 ```js
 ...
-  allowDrag: true,
+  ondrag: actions.drag,
   onclick: handleClick,
   allowRotate: true,
 }));
@@ -439,7 +439,7 @@ It also provides **methods** to transform the current screen's view:
 
 And you can set up **interactions and event listeners** for the view itself:
 
-- `allowDrag`
+- `ondrag`
 - `allowRotate`
 - `allowScale`
 - `onclick`
@@ -532,13 +532,13 @@ You can add interactivity to a custom item the same way as with predefined items
 ```javascript
 function customItem(x, y, width, height) {
   const hitbox = new WAMS.Rectangle(width, height, x, y);
-  const allowDrag = true;
+  const ondrag = actions.drag;
 
   const sequence = new WAMS.CanvasSequence();
   sequence.fillStyle = "green";
   sequence.fillRect(x, y, width, height);
 
-  return { hitbox, sequence, allowDrag };
+  return { hitbox, sequence, ondrag };
 }
 ```
 
@@ -660,7 +660,7 @@ items.push(app.spawn(square(150, 150, 200, "blue")));
 
 const group = app.createGroup({
   items,
-  allowDrag: true,
+  ondrag: actions.drag,
 });
 
 group.moveTo(500, 300);
