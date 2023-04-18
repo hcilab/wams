@@ -25,9 +25,9 @@ app.spawn(
     y: 0,
     type: 'mona',
     scale,
-    allowDrag: true,
-    allowScale: true,
-    allowRotate: true,
+    ondrag: WAMS.predefined.actions.drag,
+    onpinch: WAMS.predefined.actions.pinch,
+    onrotate: WAMS.predefined.actions.rotate,
   })
 );
 

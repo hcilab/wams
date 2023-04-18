@@ -77,9 +77,10 @@ function rotate(event) {
  *
  * @param {object} event
  */
-function scale(event) {
+function pinch(event) {
   event.target.scaleBy(event.scale, event.x, event.y);
 }
+const scale = pinch;
 
 /**
  * Says if an item is a View instance.
@@ -97,4 +98,5 @@ module.exports = Object.freeze({
   drag,
   rotate,
   scale,
+  pinch,
 });

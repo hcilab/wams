@@ -21,9 +21,9 @@ app.spawn(
     width: 800,
     height: 1013,
     scale: 0.25,
-    allowDrag: true,
-    allowRotate: true,
-    allowScale: true,
+    ondrag: WAMS.predefined.actions.drag,
+    onrotate: WAMS.predefined.actions.rotate,
+    onpinch: WAMS.predefined.actions.pinch,
   })
 );
 
@@ -34,9 +34,9 @@ app.spawn(
     width: 1200,
     height: 1815,
     scale: 0.2,
-    allowDrag: true,
-    allowRotate: true,
-    allowScale: true,
+    ondrag: WAMS.predefined.actions.drag,
+    onrotate: WAMS.predefined.actions.rotate,
+    onpinch: WAMS.predefined.actions.pinch,
   })
 );
 

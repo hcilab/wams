@@ -72,8 +72,8 @@ function viewContainsItem(view, item) {
 function spawnImage(x, y) {
   return app.spawn(
     image('dribble.png', {
-      allowDrag: true,
-      allowRotate: true,
+      ondrag: WAMS.predefined.actions.drag,
+      onrotate: WAMS.predefined.actions.rotate,
       width: 1600,
       height: 1200,
       scale: 1 / 4,

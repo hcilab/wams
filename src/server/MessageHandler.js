@@ -126,8 +126,7 @@ class MessageHandler {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    const doGesture = this.shouldDoGesture(event.target.allowScale);
-    if (doGesture) actions.scale({ ...event, scale });
+    if (event.target.onpinch) event.target.onpinch({ ...event, scale });
   }
 
   /**
@@ -137,8 +136,7 @@ class MessageHandler {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    const doGesture = this.shouldDoGesture(event.target.allowRotate);
-    if (doGesture) actions.rotate({ ...event, rotation });
+    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
   }
 
   /**
@@ -148,11 +146,9 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const doGesture = this.shouldDoGesture(event.target.allowDrag, event) || event.target.ondrag;
-    if (doGesture) {
+    if (event.target.ondrag) {
       const d = event.view.transformPointChange(translation.x, translation.y);
-      const dragCallback = event.target.ondrag || actions.drag;
-      dragCallback({
+      event.target.ondrag({
         ...event,
         dx: d.x,
         dy: d.y,
@@ -170,22 +166,6 @@ class MessageHandler {
     const { target } = event;
     const { velocity, direction } = data;
     if (target.onswipe) target.onswipe({ ...event, velocity, direction });
-  }
-
-  /**
-   * Helper function to tell if gesture should be done.
-   *
-   * @param {*} handler
-   */
-  shouldDoGesture(handler, event) {
-    switch (typeof handler) {
-      case 'function':
-        return handler(event);
-      case 'boolean':
-        return handler;
-      default:
-        return false;
-    }
   }
 
   /**

@@ -7,9 +7,9 @@ const { line } = WAMS.predefined.layouts;
 function spawnSquare(event) {
   app.spawn(
     square(event.x - 50, event.y - 50, 100, 'green', {
-      allowDrag: true,
-      allowRotate: true,
-      allowScale: true,
+      ondrag: WAMS.predefined.actions.drag,
+      onrotate: WAMS.predefined.actions.rotate,
+      onpinch: WAMS.predefined.actions.pinch,
     })
   );
 }

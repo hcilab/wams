@@ -76,8 +76,8 @@ class DrawingApp {
   }
 
   handleConnect(view) {
-    view.allowDrag = true;
-    view.allowScale = true;
+    view.ondrag = WAMS.predefined.actions.drag;
+    view.onpinch = WAMS.predefined.actions.zoom;
   }
 }
 
