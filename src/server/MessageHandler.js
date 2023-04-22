@@ -35,7 +35,9 @@ class MessageHandler {
     this.onconnect = null;
 
     /**
-     * Custom event listeners and handlers.
+     * Custom event listeners. Maps string events names to arrays of functions.
+     * Functions will be called with two arguments: the event object, and the
+     * view object.
      *
      * @type {object}
      */
@@ -188,10 +190,36 @@ class MessageHandler {
    * @param {any} payload argument to pass to the event handler.
    */
   handleCustomEvent(event, payload, view) {
-    if (!this.listeners[event]) {
+    if (!this.listeners[event] || this.listeners[event].length === 0) {
       return console.warn(`Server is not listening for custom event "${event}"`);
     }
-    this.listeners[event](payload, view);
+    this.listeners[event].forEach((listener) => listener(payload, view));
+  }
+
+  /**
+   * Add a listener for the given event.
+   *
+   * @param {string} event name of the event.
+   * @param {function} listener function to call when the event is dispatched.
+   */
+  addEventListener(event, listener) {
+    if (!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(listener);
+  }
+
+  /**
+   * Remove a listener for the given event.
+   *
+   * @param {string} event name of the event.
+   * @param {function} listener function to call when the event is dispatched.
+   * @returns {boolean} true if the listener was removed, false if it was not
+   */
+  removeEventListener(event, listener) {
+    if (!this.listeners[event]) return false;
+    const index = this.listeners[event].indexOf(listener);
+    if (index === -1) return false;
+    this.listeners[event].splice(index, 1);
+    return true;
   }
 }
 

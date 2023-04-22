@@ -263,11 +263,7 @@ class Application {
    * @param {*} handler handler of the custom event.
    */
   on(event, handler) {
-    if (this.messageHandler.listeners[event]) {
-      throw Error(`Listener already exists for custom event "${event}"`);
-    }
-
-    this.messageHandler.listeners[event] = handler;
+    this.messageHandler.addEventListener(event, handler);
   }
 }
 
