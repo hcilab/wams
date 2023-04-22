@@ -28,16 +28,13 @@ class MessageHandler {
     this.workspace = workspace;
 
     /**
-     * Layout handler, for when clients connect to the application.
-     *
-     * @type {function}
-     */
-    this.onconnect = null;
-
-    /**
      * Custom event listeners. Maps string events names to arrays of functions.
      * Functions will be called with two arguments: the event object, and the
      * view object.
+     *
+     * Handlers can also be connected directly as "onX" properties of the
+     * object, however only one handler can be connected per event type in this
+     * manner.
      *
      * @type {object}
      */
@@ -187,13 +184,15 @@ class MessageHandler {
    * Handle custom Server event dispatched by a client.
    *
    * @param {string} event name of the event.
-   * @param {any} payload argument to pass to the event handler.
+   * @param {object} payload argument to pass to the event handler.
    */
-  handleCustomEvent(event, payload, view) {
-    if (!this.listeners[event] || this.listeners[event].length === 0) {
+  handleEvent(event, payload) {
+    const callback_name = `on${event}`;
+    if (!this[callback_name] && (!this.listeners[event] || this.listeners[event].length === 0)) {
       return console.warn(`Server is not listening for custom event "${event}"`);
     }
-    this.listeners[event].forEach((listener) => listener(payload, view));
+    if (this[callback_name]) this[callback_name](payload);
+    this.listeners[event].forEach((listener) => listener(payload));
   }
 
   /**

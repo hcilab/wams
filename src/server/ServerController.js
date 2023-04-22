@@ -141,7 +141,7 @@ class ServerController {
       [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: ({ data }) => {
-        this.messageHandler.handleCustomEvent(data.action, data.payload, this.view);
+        this.messageHandler.handleEvent(data.action, { ...data.payload, view: this.view });
       },
     };
 
