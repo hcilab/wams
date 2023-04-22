@@ -93,7 +93,7 @@ class TrackingSwitchboard {
    * connection.
    */
   accept(socket) {
-    socket.on('disconnect', () => this.disconnect());
+    socket.on('disconnect', this.disconnect.bind(this));
     logConnection(true);
   }
 
