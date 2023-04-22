@@ -103,7 +103,7 @@ class ServerView extends Locker(Interactable(View)) {
   }
 
   /**
-   * Send Message to clients to dispatch custom Client event.
+   * Send Message to this view to dispatch a user-defined event.
    *
    * @param {string} event name of the user-defined event.
    * @param {object} payload argument to pass to the event handler.

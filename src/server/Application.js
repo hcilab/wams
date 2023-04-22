@@ -247,7 +247,7 @@ class Application {
   }
 
   /**
-   * Send Message to clients to dispatch user-defined action.
+   * Send Message to all clients to dispatch user-defined action.
    *
    * @param {string} action name of the user-defined action.
    * @param {object} payload argument of the user-defined action function.
