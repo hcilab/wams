@@ -7,35 +7,12 @@
 
 'use strict';
 
-const { CanvasSequence } = require('canvas-sequencer');
-
 /**
  * Transformation actions for items.
  *
  * @namespace actions
  * @memberof module:predefined
  */
-
-function draw(event, workspace) {
-  const color = event.view.state.color || 'black';
-  const width = event.view.state.width || 20;
-  // const fromX = event.x - event.dx;
-  // const fromY = event.y - event.dy;
-  const toX = event.x;
-  const toY = event.y;
-  const line = new CanvasSequence();
-  // line.beginPath()
-  // line.moveTo(fromX, fromY);
-  // line.lineTo(toX, toY);
-  // line.strokeStyle = 'blue';
-  // line.stroke();
-
-  line.beginPath();
-  line.fillStyle = color;
-  line.ellipse(toX, toY, width / 2, width / 2, Math.PI / 2, 0, 2 * Math.PI);
-  line.fill();
-  workspace.spawnItem({ sequence: line });
-}
 
 /**
  * Drags the group or target.
@@ -94,7 +71,6 @@ function isView(item) {
 }
 
 module.exports = Object.freeze({
-  draw,
   drag,
   rotate,
   scale,
