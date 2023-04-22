@@ -121,17 +121,17 @@ class WorkSpace {
     const highestItem = this.items[0];
     // don't raise if item is already on top
     if (highestItem.id === item.id) return;
-    this.bringItemToTop(item.id);
+    this.bringItemToTop(item);
     item.publish();
   }
 
   /**
    * Bring item to top, so that it's above others.
    *
-   * @param {number} id
+   * @param {Item} item
    */
-  bringItemToTop(id) {
-    const index = this.items.findIndex((el) => el.id === id);
+  bringItemToTop(item) {
+    const index = this.items.indexOf(item);
     if (index < 0) throw new Error("Couldn't find item by id");
     this.items.unshift(...this.items.splice(index, 1));
   }
