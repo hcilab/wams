@@ -134,15 +134,11 @@ class ServerController {
       [Message.SWIPE]: this.messageHandler.handle('swipe', this.view),
       [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
       [Message.RESIZE]: (data) => this.resize(data),
-      [Message.TRACK]: ({ data }) => {
-        this.messageHandler.track(data, this.view);
-      },
+      [Message.TRACK]: ({ data }) => this.messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
-      [Message.BLUR]: () => {
-        this.group.clearInputsFromView(this.view.id);
-      },
+      [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: ({ data }) => {
         this.messageHandler.handleCustomEvent(data.action, data.payload, this.view);
