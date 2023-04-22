@@ -97,7 +97,7 @@ class ServerView extends Locker(Interactable(View)) {
    *
    * @override
    */
-  emitPublication() {
+  _emitPublication() {
     new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW, this).emitWith(this.socket);
   }

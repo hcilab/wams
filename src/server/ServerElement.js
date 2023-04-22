@@ -44,7 +44,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
   /*
    * Publish a general notification about the status of the image.
    */
-  emitPublication() {
+  _emitPublication() {
     new Message(Message.UD_ITEM, this).emitWith(this.namespace);
   }
 

@@ -64,16 +64,19 @@ const Publishable = (superclass) =>
      */
     [symbols.emit]() {
       this[symbols.scheduled] = false;
-      this.emitPublication();
+      this._emitPublication();
     }
 
     /**
-     * Emit the publication of this object.
+     * Emit the publication of this object. This method must be implemented by
+     * classes that use this mixin. It should never be called except by this
+     * mixin.
      *
+     * @protected
      * @memberof module:mixins.Publishable
      */
-    emitPublication() {
-      throw Error('Classes using Publishable mixin must implement emitPublication()');
+    _emitPublication() {
+      throw Error('Classes using Publishable mixin must implement _emitPublication()');
     }
   };
 

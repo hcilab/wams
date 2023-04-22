@@ -56,7 +56,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
   /*
    * Publish a general notification about the status of the item.
    */
-  emitPublication() {
+  _emitPublication() {
     new Message(Message.UD_ITEM, this).emitWith(this.namespace);
   }
 
