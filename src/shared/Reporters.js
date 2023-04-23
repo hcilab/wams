@@ -386,11 +386,11 @@ const View = ReporterFactory({
    *
    * @name index
    * @type {number}
-   * @default null
+   * @default undefined
    * @memberof module:shared.View
    * @instance
    */
-  index: null,
+  index: undefined,
 });
 
 /**
