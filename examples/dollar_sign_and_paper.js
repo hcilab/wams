@@ -17,7 +17,7 @@ const app = new WAMS.Application({
   staticDir: path.join(__dirname, './client'),
 });
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;

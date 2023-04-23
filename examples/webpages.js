@@ -47,7 +47,7 @@ app.spawn(
   })
 );
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.onrotate = WAMS.predefined.actions.rotate;
   view.ondrag = WAMS.predefined.actions.drag;

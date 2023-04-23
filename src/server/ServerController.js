@@ -174,7 +174,11 @@ class ServerController {
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
     if (this.messageHandler.ondisconnect) {
-      this.messageHandler.ondisconnect(this.view, this.device, this.group);
+      this.messageHandler.ondisconnect({
+        view: this.view,
+        device: this.device,
+        group: this.group,
+      });
     }
     return true;
   }
@@ -190,7 +194,11 @@ class ServerController {
   layout({ width, height }) {
     this.setSize(width, height);
     if (this.messageHandler.onconnect) {
-      this.messageHandler.onconnect(this.view, this.device, this.group);
+      this.messageHandler.onconnect({
+        view: this.view,
+        device: this.device,
+        group: this.group,
+      });
     }
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW, this.view).emitWith(this.socket);

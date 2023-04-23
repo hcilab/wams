@@ -118,7 +118,7 @@ class VideoPlayer {
     console.log(this.controls);
   }
 
-  handleConnect(view) {
+  handleConnect({ view }) {
     if (!this.player.mounted) {
       this.spawnPlayerWrapper(view);
     }

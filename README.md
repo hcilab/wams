@@ -415,7 +415,7 @@ WAMS manages all connections under the hood, and provides helpful methods to rea
 - `onconnect` – called each time a screen connects to a WAMS application
 - `ondisconnect` – called when a screen disconnects
 
-Both methods accept a callback function, where you can act on the event. The callback function gets these arguments:
+Both methods accept a callback function, where you can act on the event. The callback function gets an event object with these properties:
 
 1. `view`
 2. `device`

@@ -32,7 +32,7 @@ function spawnElement(event) {
   app.spawn(element(event.x, event.y, event.view));
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;

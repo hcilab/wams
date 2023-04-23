@@ -100,7 +100,7 @@ function centerViewNormal(view) {
   );
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 1) {
     view.rotateBy(Math.PI);
   }

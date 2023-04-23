@@ -43,7 +43,7 @@ function spawnSquare(event, color) {
   else app.spawn(square(event.x, event.y, event.view, color));
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;

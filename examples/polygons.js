@@ -33,7 +33,7 @@ function spawnItem(event) {
   app.spawn(polygon(event.x, event.y, event.view));
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onclick = spawnItem;
   view.onpinch = WAMS.predefined.actions.pinch;
   view.onrotate = WAMS.predefined.actions.rotate;

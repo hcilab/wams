@@ -161,7 +161,7 @@ function centerViewNormal(view) {
 }
 
 /* Function to place board at center of the device view */
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 1) {
     view.rotateBy(Math.PI);
   }

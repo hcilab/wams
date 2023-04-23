@@ -54,7 +54,7 @@ function setLayout(view) {
   }
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 0) {
     mainScreen = view;
   }

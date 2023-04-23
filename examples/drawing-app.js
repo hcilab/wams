@@ -90,7 +90,7 @@ class DrawingApp {
     view.ondrag = type === 'pan' ? actions.drag : this.draw.bind(this);
   }
 
-  handleConnect(view) {
+  handleConnect({ view }) {
     view.ondrag = WAMS.predefined.actions.drag;
     view.onpinch = WAMS.predefined.actions.zoom;
   }

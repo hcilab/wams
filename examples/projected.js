@@ -33,7 +33,7 @@ app.spawn(
   })
 );
 
-function viewSetup(view, device, group) {
+function viewSetup({ view, device, group }) {
   if (view.index === 0) {
     view.scaleBy(0.6);
   } else if (view.index === 1) {
