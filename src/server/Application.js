@@ -19,7 +19,6 @@ const IO = require('socket.io');
 const { constants } = require('../shared.js');
 const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
-const TrackingSwitchboard = require('./TrackingSwitchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
@@ -80,18 +79,6 @@ class Application extends EventTarget(Object) {
     this.namespace = this.IOserver.of(constants.NS_WAMS);
 
     /**
-     * Socket.io namespace for position tracking.
-     *
-     * WARNING: Currently uses root namespace due to Unity Socket.io
-     * library not having namespace support. Due to this, connection
-     * functionality is limited.
-     *
-     * @type {Namespace}
-     * @see {@link https://socket.io/docs/server-api/}
-     */
-    if (settings.enableTracking) this.trackingNamespace = this.IOserver.of(constants.NS_WAMS_TRACKING);
-
-    /**
      * The main model. The buck stops here.
      *
      * @type {module:server.WorkSpace}
@@ -118,15 +105,6 @@ class Application extends EventTarget(Object) {
      * @type {module:server.Switchboard}
      */
     this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, this.group, settings);
-
-    if (settings.enableTracking)
-      this.trackingSwitchboard = new TrackingSwitchboard(
-        this.workspace,
-        this.messageHandler,
-        this.trackingNamespace,
-        this.group,
-        settings
-      );
   }
 
   /**

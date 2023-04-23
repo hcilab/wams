@@ -5,7 +5,6 @@ const TOTAL_WIDTH = 5650;
 const TOTAL_HEIGHT = 6053;
 
 const app = new WAMS.Application({
-  enableTracking: true,
   shadows: true,
   staticDir: path.join(__dirname, './img'),
   useMultiScreenGestures: true,
