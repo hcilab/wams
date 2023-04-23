@@ -9,7 +9,6 @@ const path = require('path');
 const { actions } = WAMS.predefined;
 const { CanvasSequence } = require('canvas-sequencer');
 
-
 const COLORS = {
   red: '#D12C1F',
   orange: '#EF9135',
