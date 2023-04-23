@@ -15,7 +15,7 @@ const Device = require('./Device.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
-  attachListeners: Symbol('attachListeners'),
+  attachSocketIoListeners: Symbol('attachSocketIoListeners'),
   fullStateReport: Symbol('fullStateReport'),
 });
 
@@ -94,7 +94,7 @@ class ServerController {
      * Automatically begin operations by registering Message listeners and
      * Informing the client on the current state of the model.
      */
-    this[symbols.attachListeners]();
+    this[symbols.attachSocketIoListeners]();
     this[symbols.fullStateReport]();
   }
 
@@ -102,10 +102,10 @@ class ServerController {
    * Attaches listeners to the socket. Only listens to message types existing on
    * the Message class object.
    *
-   * @alias [@@attachListeners]
+   * @alias [@@attachSocketIoListeners]
    * @memberof module:server.ServerController
    */
-  [symbols.attachListeners]() {
+  [symbols.attachSocketIoListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
