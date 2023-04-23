@@ -136,7 +136,7 @@ function handleConnect(view, device) {
   linelayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(3500);
 ```
 
@@ -410,12 +410,12 @@ The stylesheets will be automatically loaded by the browsers.
 
 ### Connections
 
-WAMS manages all connections under the hood, and provides helpful methods to react on **connection-related events**:
+WAMS manages all connections under the hood, and provides helpful ways to react on **connection-related events**:
 
 - `onconnect` – called each time a screen connects to a WAMS application
 - `ondisconnect` – called when a screen disconnects
 
-Both methods accept a callback function, where you can act on the event. The callback function gets an event object with these properties:
+Both properties can be assigned a callback function, where you can act on the event. The callback function gets an event object with these properties:
 
 1. `view`
 2. `device`
@@ -468,7 +468,7 @@ function handleLayout(view) {
   setTableLayout(view);
 }
 
-app.onconnect(handleLayout);
+app.onconnect = handleLayout;
 ```
 
 To see this layout in action, check out the `card-table.js` example.
@@ -490,7 +490,7 @@ function handleLayout(view, device) {
   setLineLayout(view, device);
 }
 
-app.onconnect(handleLayout);
+app.onconnect = handleLayout;
 ```
 
 To see this layout in action with multi-screen gestures, check out the `shared-polygons.js` example.

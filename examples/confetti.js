@@ -38,5 +38,5 @@ function handleConnect({ view }) {
   view.onclick = spawnSquare;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9013);

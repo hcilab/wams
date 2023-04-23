@@ -23,6 +23,7 @@ const TrackingSwitchboard = require('./TrackingSwitchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 const ServerViewGroup = require('./ServerViewGroup.js');
+const { EventTarget } = require('../mixins.js');
 
 /**
  * @inner
@@ -52,8 +53,10 @@ function getLocalIP() {
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
  * @param {module:server.Router} [router=Router()] - Route handler to use.
  */
-class Application {
-  constructor(settings = {}, router = Router()) {
+class Application extends EventTarget(Object) {
+  constructor(settings = {}, router = Router(), ...args) {
+    super(...args);
+
     this.setupStaticRoute(settings, router);
 
     /**
@@ -100,7 +103,7 @@ class Application {
      *
      * @type {module:server.MessageHandler}
      */
-    this.messageHandler = new MessageHandler(this.workspace);
+    this.messageHandler = new MessageHandler(this, this.workspace);
 
     /**
      * Track the active group.
@@ -155,26 +158,6 @@ class Application {
       console.log(`🔗 ${createAddress(address, port)}`);
       console.log(`🔗 ${createAddress(host, port)}`);
     });
-  }
-
-  /**
-   * Register a layout callback.
-   *
-   * @param {function} callback - Handler to trigger when a user
-   * connects.
-   */
-  onconnect(callback) {
-    this.messageHandler.onconnect = callback;
-  }
-
-  /**
-   * Register a disconnect callback.
-   *
-   * @param {function} callback - Layout handler to trigger when a user
-   * disconnects.
-   */
-  ondisconnect(callback) {
-    this.messageHandler.ondisconnect = callback;
   }
 
   /**
@@ -266,7 +249,7 @@ class Application {
    * @param {*} handler handler of the custom event.
    */
   on(event, handler) {
-    this.messageHandler.addEventListener(event, handler);
+    this.addEventListener(event, handler);
   }
 }
 

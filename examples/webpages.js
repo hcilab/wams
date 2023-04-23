@@ -53,5 +53,5 @@ function handleConnect({ view }) {
   view.ondrag = WAMS.predefined.actions.drag;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9021);

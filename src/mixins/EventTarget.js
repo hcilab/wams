@@ -26,7 +26,6 @@ const EventTarget = (superclass) => class EventTarget extends superclass {
    * @param {object} payload argument to pass to the event handler.
    */
   handleEvent(event, payload) {
-    console.debug(`handleEvent: "${event}"`);
     const callback_name = `on${event}`;
     if (this[callback_name]) this[callback_name](payload);
     if (this.listeners[event]) this.listeners[event].forEach((listener) => listener(payload));

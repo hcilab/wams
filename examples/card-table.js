@@ -197,7 +197,7 @@ function handleConnect({ view, device }) {
   tableLayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9700);
 
 /**

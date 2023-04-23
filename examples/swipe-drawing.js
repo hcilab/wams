@@ -42,5 +42,5 @@ function handleConnect({ view }) {
   view.ondrag = handleDrag;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9002);

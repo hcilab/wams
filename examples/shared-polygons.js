@@ -45,5 +45,5 @@ function handleConnect({ view, device, group }) {
   linelayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9500);

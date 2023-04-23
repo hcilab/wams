@@ -50,8 +50,8 @@ class VideoPlayer {
     this.app.on('forward', this.handleForward.bind(this));
     this.app.on('replay', this.handleReplay.bind(this));
     this.app.on('video-time-sync', this.handleVideoTimeSync.bind(this));
-    this.app.onconnect(this.handleConnect.bind(this));
-    this.app.ondisconnect(this.handleDisconnect.bind(this));
+    this.app.onconnect = this.handleConnect.bind(this);
+    this.app.ondisconnect = this.handleDisconnect.bind(this);
     this.app.listen(3000);
   }
 

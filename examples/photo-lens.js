@@ -33,5 +33,5 @@ function handleConnect({ view }) {
   }
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9011);

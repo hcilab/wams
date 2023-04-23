@@ -41,7 +41,7 @@ function handleConnect({ view, device, group }) {
   dimensions[view.index] = { x: device.x, y: device.y, width: device.width, height: device.height };
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9700);
 
 function moveScreenToScreen(currentView, targetView) {

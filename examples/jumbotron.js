@@ -37,7 +37,7 @@ function handleConnect({ view }) {
   jumbotronLayout(view);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9010);
 
 /**

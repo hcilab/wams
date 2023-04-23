@@ -64,7 +64,7 @@ function handleConnect({ view }) {
   view.onclick = (ev) => spawnIframe(ev, 'http://www.example.com');
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9021);
 
 function handleIframeDrag(event) {

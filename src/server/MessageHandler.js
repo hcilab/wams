@@ -2,7 +2,6 @@
 
 const { Message, DataReporter } = require('../shared.js');
 const { actions } = require('../predefined');
-const { EventTarget } = require('../mixins.js');
 
 const EVENTS = Object.freeze(['connect', 'disconnect']);
 
@@ -15,9 +14,15 @@ const EVENTS = Object.freeze(['connect', 'disconnect']);
  * @param {module:server.WorkSpace} workspace - the model used when responding
  * to messages.
  */
-class MessageHandler extends EventTarget(Object) {
-  constructor(workspace, ...args) {
-    super(...args);
+class MessageHandler {
+  constructor(application, workspace) {
+    /**
+     * The Application to which this MessageHandler belongs.
+     * @type {module:server.Application}
+     * @private
+     * @readonly
+     */
+    this.application = application;
 
     /**
      * The model to access when responding to messages.
@@ -43,6 +48,16 @@ class MessageHandler extends EventTarget(Object) {
       }
     }
     return doGesture.bind(this);
+  }
+
+  /**
+   * Send an event to the application
+   *
+   * @param {string} name
+   * @param {object} data
+   */
+  send(name, data) {
+    this.application.handleEvent(name, data);
   }
 
   /**

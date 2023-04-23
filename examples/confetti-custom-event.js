@@ -69,5 +69,5 @@ app.on('mouseup', (event) => {
   }
   spawnSquare(event);
 });
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9013);

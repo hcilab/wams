@@ -46,5 +46,5 @@ function viewSetup({ view, device, group }) {
   }
 }
 
-app.onconnect(viewSetup);
+app.onconnect = viewSetup;
 app.listen(3500);
