@@ -1,9 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- */
-
 /**
  * Mixins used by the WAMS project.
  *
@@ -26,6 +20,7 @@
 
 'use strict';
 
+const EventTarget = require('./mixins/EventTarget.js');
 const Hittable = require('./mixins/Hittable.js');
 const Identifiable = require('./mixins/Identifiable.js');
 const Interactable = require('./mixins/Interactable.js');
@@ -35,6 +30,7 @@ const Publishable = require('./mixins/Publishable.js');
 const Transformable2D = require('./mixins/Transformable2D.js');
 
 module.exports = {
+  EventTarget,
   Hittable,
   Identifiable,
   Interactable,

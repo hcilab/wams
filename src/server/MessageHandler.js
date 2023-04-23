@@ -1,13 +1,8 @@
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- */
-
 'use strict';
 
 const { Message, DataReporter } = require('../shared.js');
 const { actions } = require('../predefined');
+const { EventTarget } = require('../mixins.js');
 
 const EVENTS = Object.freeze(['connect', 'disconnect']);
 
@@ -20,30 +15,16 @@ const EVENTS = Object.freeze(['connect', 'disconnect']);
  * @param {module:server.WorkSpace} workspace - the model used when responding
  * to messages.
  */
-class MessageHandler {
-  constructor(workspace) {
+class MessageHandler extends EventTarget(Object) {
+  constructor(workspace, ...args) {
+    super(...args);
+
     /**
      * The model to access when responding to messages.
      *
      * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
-
-    /**
-     * Custom event listeners. Maps string events names to arrays of functions.
-     * Functions will be called with one argument: an event object. Contents
-     * will depend on the type of event.
-     *
-     * Handlers can also be connected directly as "onX" properties of the
-     * object, however only one handler can be connected per event type in this
-     * manner.
-     *
-     * @type {object}
-     */
-    this.listeners = {};
-    EVENTS.forEach((event_name) => {
-      this.listeners[event_name] = [];
-    });
   }
 
   /**
@@ -170,48 +151,6 @@ class MessageHandler {
     const { target } = event;
     const { velocity, direction } = data;
     if (target.onswipe) target.onswipe({ ...event, velocity, direction });
-  }
-
-  /**
-   * Handle Server event.
-   *
-   * @param {string} event name of the event.
-   * @param {object} payload argument to pass to the event handler.
-   */
-  handleEvent(event, payload) {
-    console.debug(`handleEvent: "${event}"`);
-    const callback_name = `on${event}`;
-    if (!this[callback_name] && (!this.listeners[event] || this.listeners[event].length === 0)) {
-      return console.warn(`Server is not listening for custom event "${event}"`);
-    }
-    if (this[callback_name]) this[callback_name](payload);
-    this.listeners[event].forEach((listener) => listener(payload));
-  }
-
-  /**
-   * Add a listener for the given event.
-   *
-   * @param {string} event name of the event.
-   * @param {function} listener function to call when the event is dispatched.
-   */
-  addEventListener(event, listener) {
-    if (!this.listeners[event]) this.listeners[event] = [];
-    this.listeners[event].push(listener);
-  }
-
-  /**
-   * Remove a listener for the given event.
-   *
-   * @param {string} event name of the event.
-   * @param {function} listener function to call when the event is dispatched.
-   * @returns {boolean} true if the listener was removed, false if it was not
-   */
-  removeEventListener(event, listener) {
-    if (!this.listeners[event]) return false;
-    const index = this.listeners[event].indexOf(listener);
-    if (index === -1) return false;
-    this.listeners[event].splice(index, 1);
-    return true;
   }
 }
 
