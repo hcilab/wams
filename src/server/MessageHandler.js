@@ -54,10 +54,10 @@ class MessageHandler extends EventTarget(Object) {
     const { target, x, y } = event;
 
     if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
-      if (target.onclick) target.onclick(event);
+      target.handleEvent('click', event);
     } else {
       const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
-      if (target.onclick) target.onclick({ ...event, target });
+      target.handleEvent('click', { ...event, target });
     }
   }
 
@@ -111,7 +111,7 @@ class MessageHandler extends EventTarget(Object) {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    if (event.target.onpinch) event.target.onpinch({ ...event, scale });
+    event.target.handleEvent('pinch', { ...event, scale });
   }
 
   /**
@@ -121,7 +121,7 @@ class MessageHandler extends EventTarget(Object) {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
+    event.target.handleEvent('rotate', { ...event, rotation });
   }
 
   /**
@@ -131,14 +131,8 @@ class MessageHandler extends EventTarget(Object) {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    if (event.target.ondrag) {
-      const d = event.view.transformPointChange(translation.x, translation.y);
-      event.target.ondrag({
-        ...event,
-        dx: d.x,
-        dy: d.y,
-      });
-    }
+    const d = event.view.transformPointChange(translation.x, translation.y);
+    event.target.handleEvent('drag', { ...event, dx: d.x, dy: d.y });
   }
 
   /**
@@ -150,7 +144,7 @@ class MessageHandler extends EventTarget(Object) {
   swipe(event, data) {
     const { target } = event;
     const { velocity, direction } = data;
-    if (target.onswipe) target.onswipe({ ...event, velocity, direction });
+    event.target.handleEvent('swipe', { ...event, velocity, direction });
   }
 }
 
