@@ -52,10 +52,11 @@ class VideoPlayer {
     this.app.on('video-time-sync', this.handleVideoTimeSync.bind(this));
     this.app.onconnect(this.handleConnect.bind(this));
     this.app.ondisconnect(this.handleDisconnect.bind(this));
-    this.app.listen(8080);
+    this.app.listen(3000);
   }
 
-  handlePlayerStateChange(playing) {
+  handlePlayerStateChange({ playing }) {
+    console.log('handlePlayerStateChange: ', playing);
     if (playing === undefined) {
       this.player.playing = !this.player.playing;
       this.app.dispatch('setPlayingState', { playing: this.player.playing });
@@ -66,7 +67,7 @@ class VideoPlayer {
     }
   }
 
-  handleVideoTimeSync(currentVideoTime) {
+  handleVideoTimeSync({ currentVideoTime }) {
     this.app.dispatch('video-time-sync', currentVideoTime);
   }
 

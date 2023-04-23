@@ -109,6 +109,7 @@ class ServerView extends Locker(Interactable(View)) {
    * @param {object} payload argument to pass to the event handler.
    */
   dispatch(action, payload) {
+    console.debug(`dispatch: ${action} to View ${this.id}`);
     const dreport = new DataReporter({
       data: { action, payload },
     });
