@@ -31,8 +31,8 @@ class MessageHandler {
 
     /**
      * Custom event listeners. Maps string events names to arrays of functions.
-     * Functions will be called with two arguments: the event object, and the
-     * view object.
+     * Functions will be called with one argument: an event object. Contents
+     * will depend on the type of event.
      *
      * Handlers can also be connected directly as "onX" properties of the
      * object, however only one handler can be connected per event type in this
@@ -186,7 +186,7 @@ class MessageHandler {
   }
 
   /**
-   * Handle custom Server event dispatched by a client.
+   * Handle Server event.
    *
    * @param {string} event name of the event.
    * @param {object} payload argument to pass to the event handler.
