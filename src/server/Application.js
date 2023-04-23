@@ -253,7 +253,10 @@ class Application {
    * @param {object} payload argument of the user-defined action function.
    */
   dispatch(action, payload) {
-    return this.messageHandler.dispatch(action, payload);
+    const dreport = new DataReporter({
+      data: { action, payload },
+    });
+    new Message(Message.DISPATCH, dreport).emitWith(this.workspace.namespace);
   }
 
   /**
