@@ -9,6 +9,8 @@
 const { Message, DataReporter } = require('../shared.js');
 const { actions } = require('../predefined');
 
+const EVENTS = Object.freeze(['connect', 'disconnect']);
+
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
  * messages from clients, which it then uses to call the appropriate listener.
@@ -39,6 +41,9 @@ class MessageHandler {
      * @type {object}
      */
     this.listeners = {};
+    EVENTS.forEach((event_name) => {
+      this.listeners[event_name] = [];
+    });
   }
 
   /**
