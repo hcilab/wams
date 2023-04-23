@@ -42,7 +42,7 @@ for (let i = 0; i < 10; i += 1) {
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10;
 
 function handleTokenDrag(event, tokenOwnerIdx) {
-  if (event.view.index !== tokenOwnerIdx) {
+  if (event.view.index === tokenOwnerIdx) {
     WAMS.predefined.actions.drag(event);
   }
 }
