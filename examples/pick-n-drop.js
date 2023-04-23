@@ -31,7 +31,7 @@ app.on('deviceFarFromScreens', (data) => {
 });
 
 const setLayout = line(0);
-function handleConnect(view, device, group) {
+function handleConnect({ view, device, group }) {
   if (view.index >= 2) {
     // send to deep space :)
     view.moveTo(deepSpace.x, deepSpace.y);
@@ -41,7 +41,7 @@ function handleConnect(view, device, group) {
   dimensions[view.index] = { x: device.x, y: device.y, width: device.width, height: device.height };
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9700);
 
 function moveScreenToScreen(currentView, targetView) {

@@ -46,7 +46,7 @@ class DrawingApp {
       button.classList.add('active');
 
       const type = button.dataset.type;
-      WAMS.dispatch('set-control', type);
+      WAMS.dispatch('set-control', { type });
     }
 
     addClickTouchListener(panBtn, (event) => {
@@ -73,7 +73,7 @@ class DrawingApp {
         colorPicker.classList.remove('show');
         colorBtn.classList = '';
         colorBtn.classList.add(color);
-        WAMS.dispatch('set-color', color);
+        WAMS.dispatch('set-color', { color });
       });
     });
 
@@ -81,7 +81,7 @@ class DrawingApp {
       addClickTouchListener(el, (event) => {
         const width = event.target.dataset.widthname;
         widthPicker.classList.remove('show');
-        WAMS.dispatch('set-width', width);
+        WAMS.dispatch('set-width', { width });
       });
     });
   }

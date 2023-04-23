@@ -56,7 +56,7 @@ app.spawn(
   })
 );
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   // allowing the whole view to
   // be moved around, rotated and scaled
   view.onpinch = WAMS.predefined.actions.pinch;
@@ -64,5 +64,5 @@ function handleConnect(view) {
   view.ondrag = WAMS.predefined.actions.drag;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9020);

@@ -54,7 +54,7 @@ function setLayout(view) {
   }
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 0) {
     mainScreen = view;
   }
@@ -64,7 +64,7 @@ function handleConnect(view) {
   view.onclick = (ev) => spawnIframe(ev, 'http://www.example.com');
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9021);
 
 function handleIframeDrag(event) {

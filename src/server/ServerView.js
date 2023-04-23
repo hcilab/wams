@@ -97,18 +97,19 @@ class ServerView extends Locker(Interactable(View)) {
    *
    * @override
    */
-  emitPublication() {
+  _emitPublication() {
     new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW, this).emitWith(this.socket);
   }
 
   /**
-   * Send Message to clients to dispatch custom Client event.
+   * Send Message to this view to dispatch a user-defined event.
    *
    * @param {string} event name of the user-defined event.
    * @param {object} payload argument to pass to the event handler.
    */
   dispatch(action, payload) {
+    console.debug(`dispatch: ${action} to View ${this.id}`);
     const dreport = new DataReporter({
       data: { action, payload },
     });

@@ -33,7 +33,7 @@ app.spawn(
   })
 );
 
-function viewSetup(view, device, group) {
+function viewSetup({ view, device, group }) {
   if (view.index === 0) {
     view.scaleBy(0.6);
   } else if (view.index === 1) {
@@ -46,5 +46,5 @@ function viewSetup(view, device, group) {
   }
 }
 
-app.onconnect(viewSetup);
+app.onconnect = viewSetup;
 app.listen(3500);

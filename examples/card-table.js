@@ -193,11 +193,11 @@ function flipCard(event) {
 }
 
 const tableLayout = WAMS.predefined.layouts.table(20);
-function handleConnect(view, device) {
+function handleConnect({ view, device }) {
   tableLayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9700);
 
 /**

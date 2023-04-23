@@ -15,7 +15,7 @@ const Device = require('./Device.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({
-  attachListeners: Symbol('attachListeners'),
+  attachSocketIoListeners: Symbol('attachSocketIoListeners'),
   fullStateReport: Symbol('fullStateReport'),
 });
 
@@ -94,7 +94,7 @@ class ServerController {
      * Automatically begin operations by registering Message listeners and
      * Informing the client on the current state of the model.
      */
-    this[symbols.attachListeners]();
+    this[symbols.attachSocketIoListeners]();
     this[symbols.fullStateReport]();
   }
 
@@ -102,10 +102,10 @@ class ServerController {
    * Attaches listeners to the socket. Only listens to message types existing on
    * the Message class object.
    *
-   * @alias [@@attachListeners]
+   * @alias [@@attachSocketIoListeners]
    * @memberof module:server.ServerController
    */
-  [symbols.attachListeners]() {
+  [symbols.attachSocketIoListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
@@ -134,18 +134,14 @@ class ServerController {
       [Message.SWIPE]: this.messageHandler.handle('swipe', this.view),
       [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
       [Message.RESIZE]: (data) => this.resize(data),
-      [Message.TRACK]: ({ data }) => {
-        this.messageHandler.track(data, this.view);
-      },
+      [Message.TRACK]: ({ data }) => this.messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: (event) => this.pointerEvent(event),
-      [Message.BLUR]: () => {
-        this.group.clearInputsFromView(this.view.id);
-      },
+      [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: ({ data }) => {
-        this.messageHandler.handleCustomEvent(data.action, data.payload, this.view);
+        this.messageHandler.send(data.action, { ...data.payload, view: this.view });
       },
     };
 
@@ -177,9 +173,11 @@ class ServerController {
     this.group.removeView(this.view);
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
-    if (this.messageHandler.ondisconnect) {
-      this.messageHandler.ondisconnect(this.view, this.device, this.group);
-    }
+    this.messageHandler.send('disconnect', {
+      view: this.view,
+      device: this.device,
+      group: this.group,
+    });
     return true;
   }
 
@@ -193,9 +191,11 @@ class ServerController {
    */
   layout({ width, height }) {
     this.setSize(width, height);
-    if (this.messageHandler.onconnect) {
-      this.messageHandler.onconnect(this.view, this.device, this.group);
-    }
+    this.messageHandler.send('connect', {
+      view: this.view,
+      device: this.device,
+      group: this.group,
+    });
     new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
     new Message(Message.UD_VIEW, this.view).emitWith(this.socket);
   }

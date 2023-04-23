@@ -161,7 +161,7 @@ function centerViewNormal(view) {
 }
 
 /* Function to place board at center of the device view */
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 1) {
     view.rotateBy(Math.PI);
   }
@@ -173,5 +173,5 @@ function handleConnect(view) {
   view.onrotate = WAMS.predefined.actions.rotate;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(4000);

@@ -7,6 +7,7 @@
 const WAMS = require('..');
 const path = require('path');
 const { actions } = WAMS.predefined;
+const { CanvasSequence } = require('canvas-sequencer');
 
 const COLORS = {
   red: '#D12C1F',
@@ -39,43 +40,56 @@ class DrawingApp {
     this.initListeners();
   }
 
-  setColor(color, view) {
+  setColor({ color, view }) {
     view.state.color = COLORS[color];
   }
 
-  setWidth(width, view) {
+  setWidth({ width, view }) {
     view.state.width = WIDTHS[width];
   }
 
   initListeners() {
-    this.app.on('init', (data, view) => {
+    this.app.on('init', ({ view }) => {
       const color = this.initialColor;
-      this.setColor(color, view);
+      this.setColor({ color, view });
       view.dispatch('render-controls', { color, listOfColors: COLORS, listOfWidths: WIDTHS });
     });
 
-    this.app.on('set-control', (type, view) => {
-      this.updateControlType(type, view);
-    });
-
-    this.app.on('set-color', (color, view) => {
-      this.setColor(color, view);
-    });
-
-    this.app.on('set-width', (width, view) => {
-      this.setWidth(width, view);
-    });
-
-    this.app.onconnect(this.handleConnect.bind(this));
-    this.app.listen(8080);
+    this.app.on('set-control', this.updateControlType.bind(this));
+    this.app.on('set-color', this.setColor.bind(this));
+    this.app.on('set-width', this.setWidth.bind(this));
+    this.app.onconnect = this.handleConnect.bind(this);
+    this.app.listen(3000);
   }
 
-  updateControlType(type, view) {
+  draw(event) {
+    const color = event.view.state.color || 'black';
+    const width = event.view.state.width || 20;
+    // const fromX = event.x - event.dx;
+    // const fromY = event.y - event.dy;
+    const toX = event.x;
+    const toY = event.y;
+    console.log('draw', color, width, toX, toY);
+    const line = new CanvasSequence();
+    // line.beginPath()
+    // line.moveTo(fromX, fromY);
+    // line.lineTo(toX, toY);
+    // line.strokeStyle = 'blue';
+    // line.stroke();
+
+    line.beginPath();
+    line.fillStyle = color;
+    line.ellipse(toX, toY, width / 2, width / 2, Math.PI / 2, 0, 2 * Math.PI);
+    line.fill();
+    this.app.workspace.spawnItem({ sequence: line });
+  }
+
+  updateControlType({ type, view }) {
     this.controlType = type;
-    view.ondrag = type === 'pan' ? actions.drag : actions.draw;
+    view.ondrag = type === 'pan' ? actions.drag : this.draw.bind(this);
   }
 
-  handleConnect(view) {
+  handleConnect({ view }) {
     view.ondrag = WAMS.predefined.actions.drag;
     view.onpinch = WAMS.predefined.actions.zoom;
   }

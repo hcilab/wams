@@ -42,6 +42,9 @@ function ClientApplication(controller) {
           document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
         }
       });
+
+      // Remove events from the queue that have been dispatched.
+      controller.eventQueue = controller.eventQueue.filter((ev) => ev.action !== event);
     },
     dispatch: (event, func) => controller.dispatch(event, func),
   };

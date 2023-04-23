@@ -42,39 +42,27 @@ for (let i = 0; i < 10; i += 1) {
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10;
 
 function handleTokenDrag(event, tokenOwnerIdx) {
-  if (event.view.index !== tokenOwnerIdx) {
+  if (event.view.index === tokenOwnerIdx) {
     WAMS.predefined.actions.drag(event);
   }
 }
 
 function spawnToken(x, y, userIdx, properties = {}) {
-  let imgUrl = null;
-  let type = null;
-  if (userIdx === 0) {
-    imgUrl = 'Green_border.png';
-    type = 'green-token';
-  } else if (userIdx === 1) {
-    imgUrl = 'Blue_border.png';
-    type = 'blue-token';
-  }
+  let imgUrl = userIdx === 0 ? 'Green_border.png' : 'Blue_border.png';
 
-  app.spawn(
-    WAMS.predefined.items.html(
-      `<div><img src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" /></div>`,
-      SQUARE_LENGTH,
-      SQUARE_LENGTH,
-      {
-        x,
-        y,
-        width: SQUARE_LENGTH,
-        height: SQUARE_LENGTH,
-        type,
-        ownerIdx: userIdx,
-        ondrag: (e) => handleTokenDrag(e, userIdx),
-        ...properties,
-      }
-    )
-  );
+  const radius = SQUARE_LENGTH / 2;
+  app.spawn({
+    x,
+    y,
+    width: SQUARE_LENGTH,
+    height: SQUARE_LENGTH,
+    hitbox: new WAMS.Circle(radius, radius, radius),
+    type: 'item/image',
+    src: imgUrl,
+    ownerIdx: userIdx,
+    ondrag: (e) => handleTokenDrag(e, userIdx),
+    ...properties,
+  });
 }
 
 for (let i = 0; i < 10; i += 1) {
@@ -100,7 +88,7 @@ function centerViewNormal(view) {
   );
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   if (view.index === 1) {
     view.rotateBy(Math.PI);
   }
@@ -112,5 +100,5 @@ function handleConnect(view) {
   view.onrotate = WAMS.predefined.actions.rotate;
 }
 
-app.onconnect(handleConnect);
+app.addEventListener('connect', handleConnect);
 app.listen(9012);

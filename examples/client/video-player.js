@@ -45,8 +45,8 @@ WAMS.on('initVideo', () => {
       },
     });
     setInterval(() => {
-      WAMS.dispatch('video-time-sync', Math.floor(window.player.getCurrentTime()));
       window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime());
+      WAMS.dispatch('video-time-sync', { currentVideoTime: window.controls.lastCurrentTime });
     }, 1000);
   } else {
     setTimeout(() => document.dispatchEvent(new CustomEvent('initVideo')), 100);
@@ -84,7 +84,7 @@ function handlePlayerStateChange({ data }) {
   //    -1         0        1         2         3           5
   // unstarted   ended   playing   paused   buffering   video cued
   const playing = data !== 2 && data !== 5;
-  WAMS.dispatch('play/pause', playing);
+  WAMS.dispatch('play/pause', { playing });
 }
 
 function updateTime({ detail }) {
@@ -103,13 +103,13 @@ function handleReplay() {
   let newTime = Math.floor(window.controls.lastCurrentTime) - 10;
   if (Math.sign(newTime) === -1) newTime = 0;
 
-  WAMS.dispatch('video-time-sync', newTime);
+  WAMS.dispatch('video-time-sync', { currentVideoTime: newTime });
 }
 
 function handleForward() {
   WAMS.dispatch('forward');
   const newTime = Math.floor(window.controls.lastCurrentTime) + 10;
-  WAMS.dispatch('video-time-sync', newTime);
+  WAMS.dispatch('video-time-sync', { currentVideoTime: newTime });
 }
 
 function secondsToMinSecs(totalSeconds) {

@@ -17,7 +17,7 @@ const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
-  attachListeners: Symbol('attachListeners'),
+  attachSocketIoListeners: Symbol('attachSocketIoListeners'),
   render: Symbol('render'),
 });
 
@@ -121,10 +121,10 @@ class ClientController {
    *
    * This internal routine should be called as part of socket establishment.
    *
-   * @alias [@@attachListeners]
+   * @alias [@@attachSocketIoListeners]
    * @memberof module:client.ClientController
    */
-  [symbols.attachListeners]() {
+  [symbols.attachSocketIoListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: (data) => this.handle('addElement', data),
@@ -195,7 +195,7 @@ class ClientController {
       reconnection: false,
       transports: ['websocket', 'polling'],
     });
-    this[symbols.attachListeners]();
+    this[symbols.attachSocketIoListeners]();
     window.requestAnimationFrame(this.render_fn);
     this.socket.connect();
   }

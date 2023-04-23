@@ -43,36 +43,31 @@ function spawnSquare(event, color) {
   else app.spawn(square(event.x, event.y, event.view, color));
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;
   // view.onclick = spawnSquare;
 }
 
-app.on('mousedown', (event, view) => {
+app.on('mousedown', (event) => {
   const item = app.workspace.findItemByCoordinates(event.x, event.y);
   if (item) {
     event.x = item.x;
     event.y = item.y;
     app.workspace.removeItem(item);
   }
-
-  event.view = view;
   spawnSquare(event, '#FFBF00');
 });
 
-app.on('mouseup', (event, view) => {
+app.on('mouseup', (event) => {
   const item = app.workspace.findItemByCoordinates(event.x, event.y);
-
   if (item) {
     event.x = item.x;
     event.y = item.y;
     app.workspace.removeItem(item);
   }
-
-  event.view = view;
   spawnSquare(event);
 });
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9013);

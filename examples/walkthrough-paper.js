@@ -15,10 +15,10 @@ function spawnSquare(event) {
 }
 
 const linelayout = line();
-function handleConnect(view, device) {
+function handleConnect({ view, device }) {
   view.onclick = spawnSquare;
   linelayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(3600);

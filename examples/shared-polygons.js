@@ -37,7 +37,7 @@ function spawnItem(event) {
 
 // use predefined "line layout"
 const linelayout = WAMS.predefined.layouts.line(200);
-function handleConnect(view, device, group) {
+function handleConnect({ view, device, group }) {
   group.onclick = spawnItem;
   group.onpinch = WAMS.predefined.actions.pinch;
   group.onrotate = WAMS.predefined.actions.rotate;
@@ -45,5 +45,5 @@ function handleConnect(view, device, group) {
   linelayout(view, device);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9500);

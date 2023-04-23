@@ -1,13 +1,9 @@
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- */
-
 'use strict';
 
 const { Message, DataReporter } = require('../shared.js');
 const { actions } = require('../predefined');
+
+const EVENTS = Object.freeze(['connect', 'disconnect']);
 
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
@@ -19,27 +15,21 @@ const { actions } = require('../predefined');
  * to messages.
  */
 class MessageHandler {
-  constructor(workspace) {
+  constructor(application, workspace) {
+    /**
+     * The Application to which this MessageHandler belongs.
+     * @type {module:server.Application}
+     * @private
+     * @readonly
+     */
+    this.application = application;
+
     /**
      * The model to access when responding to messages.
      *
      * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
-
-    /**
-     * Layout handler, for when clients connect to the application.
-     *
-     * @type {function}
-     */
-    this.onconnect = null;
-
-    /**
-     * Custom event listeners and handlers.
-     *
-     * @type {object}
-     */
-    this.listeners = {};
   }
 
   /**
@@ -61,6 +51,16 @@ class MessageHandler {
   }
 
   /**
+   * Send an event to the application
+   *
+   * @param {string} name
+   * @param {object} data
+   */
+  send(name, data) {
+    this.application.dispatchEvent(name, data);
+  }
+
+  /**
    * Apply a click event
    *
    * @param {object} event
@@ -69,10 +69,10 @@ class MessageHandler {
     const { target, x, y } = event;
 
     if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
-      if (target.onclick) target.onclick(event);
+      target.dispatchEvent('click', event);
     } else {
       const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
-      if (target.onclick) target.onclick({ ...event, target });
+      target.dispatchEvent('click', { ...event, target });
     }
   }
 
@@ -126,7 +126,7 @@ class MessageHandler {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    if (event.target.onpinch) event.target.onpinch({ ...event, scale });
+    event.target.dispatchEvent('pinch', { ...event, scale });
   }
 
   /**
@@ -136,7 +136,7 @@ class MessageHandler {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    if (event.target.onrotate) event.target.onrotate({ ...event, rotation });
+    event.target.dispatchEvent('rotate', { ...event, rotation });
   }
 
   /**
@@ -146,14 +146,8 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    if (event.target.ondrag) {
-      const d = event.view.transformPointChange(translation.x, translation.y);
-      event.target.ondrag({
-        ...event,
-        dx: d.x,
-        dy: d.y,
-      });
-    }
+    const d = event.view.transformPointChange(translation.x, translation.y);
+    event.target.dispatchEvent('drag', { ...event, dx: d.x, dy: d.y });
   }
 
   /**
@@ -165,33 +159,7 @@ class MessageHandler {
   swipe(event, data) {
     const { target } = event;
     const { velocity, direction } = data;
-    if (target.onswipe) target.onswipe({ ...event, velocity, direction });
-  }
-
-  /**
-   * Send Message to clients to dispatch custom Client event.
-   *
-   * @param {string} event name of the user-defined event.
-   * @param {object} payload argument to pass to the event handler.
-   */
-  dispatch(action, payload) {
-    const dreport = new DataReporter({
-      data: { action, payload },
-    });
-    new Message(Message.DISPATCH, dreport).emitWith(this.workspace.namespace);
-  }
-
-  /**
-   * Handle custom Server event dispatched by a client.
-   *
-   * @param {string} event name of the event.
-   * @param {any} payload argument to pass to the event handler.
-   */
-  handleCustomEvent(event, payload, view) {
-    if (!this.listeners[event]) {
-      return console.warn(`Server is not listening for custom event "${event}"`);
-    }
-    this.listeners[event](payload, view);
+    event.target.dispatchEvent('swipe', { ...event, velocity, direction });
   }
 }
 

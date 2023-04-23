@@ -33,11 +33,11 @@ app.spawn(
 
 const jumbotronLayout = jumbotron(1200 * scale);
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   jumbotronLayout(view);
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9010);
 
 /**

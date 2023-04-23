@@ -31,12 +31,12 @@ function spawnSquare(event) {
   app.spawn(square(event.x, event.y, event.view));
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onpinch = WAMS.predefined.actions.pinch;
   view.ondrag = WAMS.predefined.actions.drag;
   view.onrotate = WAMS.predefined.actions.rotate;
   view.onclick = spawnSquare;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9013);

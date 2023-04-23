@@ -24,7 +24,7 @@ app.spawn(
   })
 );
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onrotate = WAMS.predefined.actions.rotate;
   if (view.index > 0) {
     view.scale = 2.5;
@@ -33,5 +33,5 @@ function handleConnect(view) {
   }
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9011);

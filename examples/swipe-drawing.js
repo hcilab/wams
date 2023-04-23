@@ -37,10 +37,10 @@ function handleDrag({ x, y, dx, dy }) {
   setTimeout(() => app.removeItem(line), 3000);
 }
 
-function handleConnect(view) {
+function handleConnect({ view }) {
   view.onswipe = handleSwipe;
   view.ondrag = handleDrag;
 }
 
-app.onconnect(handleConnect);
+app.onconnect = handleConnect;
 app.listen(9002);
