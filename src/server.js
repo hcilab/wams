@@ -1,10 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- */
-
 /**
  * Bundles together the server API endpoint, the Application class, with the
  * Router class for custom route generation.

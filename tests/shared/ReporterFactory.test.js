@@ -1,7 +1,3 @@
-/*
- * Test suite for the Reporters.js module.
- */
-
 'use strict';
 
 const ReporterFactory = require('shared/ReporterFactory.js');

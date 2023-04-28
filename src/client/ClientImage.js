@@ -1,9 +1,3 @@
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- */
-
 'use strict';
 
 const { IdStamper, WamsImage, Message } = require('../shared.js');

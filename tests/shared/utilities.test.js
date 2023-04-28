@@ -1,7 +1,3 @@
-/*
- * Test suite for shared/utilities.js
- */
-
 'use strict';
 
 const { defineOwnImmutableEnumerableProperty, removeById } = require('shared/utilities.js');

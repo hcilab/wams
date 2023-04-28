@@ -1,10 +1,3 @@
-/*
- * Reporters for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
 'use strict';
 
 const ReporterFactory = require('./ReporterFactory.js');

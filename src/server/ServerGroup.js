@@ -1,9 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Mykyta Baliesnyi
- */
-
 'use strict';
 
 const { DataReporter, Message, Item } = require('../shared.js');

@@ -1,10 +1,3 @@
-/*
- * Defines a set of general utilities for use across the project.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
 'use strict';
 
 /**

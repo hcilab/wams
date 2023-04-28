@@ -1,7 +1,3 @@
-/*
- * Test suite for the IdStamper class.
- */
-
 'use strict';
 
 const IdStamper = require('shared/IdStamper.js');

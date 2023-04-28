@@ -1,13 +1,5 @@
 'use strict';
 
-/*
- * This file is intended to be used for testing the WamsShared module. It will
- * test the module on the server side.
- *
- * TODO: Open up a server once tests are complete for testing code on the
- *  client side.
- */
-
 const WamsShared = require('shared.js');
 
 const reporters = Object.keys(require('shared/Reporters.js'));

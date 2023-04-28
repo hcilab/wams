@@ -1,12 +1,3 @@
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- */
-
 'use strict';
 
 const ClientElement = require('./ClientElement.js');

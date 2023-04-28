@@ -1,10 +1,3 @@
-/*
- * Utilities for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
 /**
  * This module contains classes and functions intended for use by both the
  * client and the server, in order to provide a common interface.
