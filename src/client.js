@@ -8,8 +8,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
- * client.png"
+ * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/client.png"
  * style = "max-height: 200px;"
  * >
  *

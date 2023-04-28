@@ -7,8 +7,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
- * gestures.png"
+ * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/gestures.png"
  * style = "max-height: 300px;"
  * >
  *
