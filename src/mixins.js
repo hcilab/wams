@@ -4,8 +4,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams/master/graphs/
- * mixins.png"
+ * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/mixins.png"
  * style = "max-height: 200px;"
  * >
  * <p>
