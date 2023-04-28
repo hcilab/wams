@@ -52,28 +52,13 @@ class GestureController {
     const tap = new Gestures.Tap();
     const track = new Gestures.Track(['start', 'end']);
 
-    const mh = this.messageHandler;
-    this.region.addGesture(pan, mh.handle('drag', this.group));
-    this.region.addGesture(tap, mh.handle('click', this.group));
-    this.region.addGesture(pinch, mh.handle('scale', this.group));
-    this.region.addGesture(rotate, mh.handle('rotate', this.group));
-    this.region.addGesture(swipe, mh.handle('swipe', this.group));
-    this.region.addGesture(track, ({ data }) => mh.track(data, this.group));
-  }
-
-  /**
-   * Generates a function that handles the appropriate gesture and data.
-   *
-   * @param {string} message - name of a gesture to handle.
-   *
-   * @return {Function} Handler for westures that receives a data object and
-   * handles it according to the given gesture name.
-   */
-  handle(message) {
-    function doHandle(data) {
-      this.messageHandler.handle(message, this.group, data);
-    }
-    return doHandle.bind(this);
+    const handleGesture = this.messageHandler.handleGesture;
+    this.region.addGesture(pan, handleGesture.bind(this.messageHandler, 'drag', this.group));
+    this.region.addGesture(tap, handleGesture.bind(this.messageHandler, 'click', this.group));
+    this.region.addGesture(pinch, handleGesture.bind(this.messageHandler, 'scale', this.group));
+    this.region.addGesture(rotate, handleGesture.bind(this.messageHandler, 'rotate', this.group));
+    this.region.addGesture(swipe, handleGesture.bind(this.messageHandler, 'swipe', this.group));
+    this.region.addGesture(track, ({ data }) => this.messageHandler.track(data, this.group));
   }
 
   /**
