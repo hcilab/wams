@@ -127,14 +127,19 @@ class Application extends EventTarget(Object) {
    * listen.
    * @see module:server.Application~getLocalIP
    */
-  listen(port = Switchboard.DEFAULTS.port, host = getLocalIP()) {
-    this.server.listen(port, '0.0.0.0', () => {
-      const createAddress = (host, port) => `http://${host}:${port}`;
+  listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
+    this.server.listen(port, host, () => {
+      const formatAddress = (_host, port) => `http://${_host}:${port}`;
       const { address, port } = this.server.address();
 
       console.log('🚀 WAMS server listening on:');
-      console.log(`🔗 ${createAddress(address, port)}`);
-      console.log(`🔗 ${createAddress(host, port)}`);
+      console.log(`🔗 ${formatAddress(address, port)}`);
+
+      // if host is localhost or '0.0.0.0', assume local ipv4 also available
+      if (host === '0.0.0.0' || host == 'localhost') {
+        const localIPv4 = getLocalIP()
+        console.log(`🔗 ${formatAddress(localIPv4, port)}`);
+      }
     });
   }
 
