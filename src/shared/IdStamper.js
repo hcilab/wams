@@ -1,9 +1,3 @@
-/*
- * IdStamper utility for the WAMS application.
- *
- * Author: Michael van der Kamp
- */
-
 'use strict';
 
 const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');

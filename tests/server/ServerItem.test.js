@@ -1,7 +1,3 @@
-/*
- * Test suite for ServerItem class
- */
-
 'use strict';
 
 const { Item, Rectangle } = require('shared.js');

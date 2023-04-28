@@ -1,10 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- *  |-> Date: February 2019
- */
-
 'use strict';
 
 /**

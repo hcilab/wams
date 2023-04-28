@@ -1,13 +1,3 @@
-/*
- * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- */
-
 'use strict';
 
 // const Westures = require('../../../westures');

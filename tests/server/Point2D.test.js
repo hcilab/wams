@@ -1,10 +1,3 @@
-/*
- * Test suite for Point2D class.
- *
- * Author: Michael van der Kamp
- * Date: November 2018
- */
-
 'use strict';
 
 const Point2D = require('shared/Point2D.js');

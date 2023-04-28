@@ -1,10 +1,3 @@
-/*
- * Test suite for Polygon2D class.
- *
- * Author: Michael van der Kamp
- * Date: November 2018
- */
-
 'use strict';
 
 const Polygon2D = require('shared/Polygon2D.js');

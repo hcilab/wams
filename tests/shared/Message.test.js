@@ -1,7 +1,3 @@
-/*
- * Test suite for the Message class.
- */
-
 const Message = require('shared/Message.js');
 
 describe('Message', () => {

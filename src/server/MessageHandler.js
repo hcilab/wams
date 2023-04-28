@@ -37,17 +37,14 @@ class MessageHandler {
    *
    * @param {string} gesture
    */
-  handle(gesture, view) {
-    function doGesture({ data }) {
-      const target = view.lockedItem;
-      if (target != null) {
-        const { centroid } = data;
-        const { x, y } = view.transformPoint(centroid.x, centroid.y);
-        const event = { view, target, x, y };
-        this[gesture](event, data);
-      }
+  handleGesture(gesture, view, { data }) {
+    const target = view.lockedItem;
+    if (target != null) {
+      const { centroid } = data;
+      const { x, y } = view.transformPoint(centroid.x, centroid.y);
+      const event = { view, target, x, y };
+      this[gesture](event, data);
     }
-    return doGesture.bind(this);
   }
 
   /**

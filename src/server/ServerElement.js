@@ -1,9 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- */
-
 'use strict';
 
 const { DataReporter, Message, WamsElement } = require('../shared.js');

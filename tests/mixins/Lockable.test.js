@@ -1,10 +1,3 @@
-/*
- * Test suite for the Lockable mixin.
- *
- * Author: Michael van der Kamp
- * Date: July/August 2018
- */
-
 'use strict';
 
 const Lockable = require('mixins/Lockable.js');

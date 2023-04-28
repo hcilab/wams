@@ -1,11 +1,5 @@
 /*
  * WAMS code to be executed in the client browser.
- *
- * Author: Michael van der Kamp
- * Date: July 2018 - Jan 2019
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
  */
 
 /**
@@ -28,26 +22,30 @@ const ClientController = require('./client/ClientController.js');
 const ClientModel = require('./client/ClientModel.js');
 const ClientView = require('./client/ClientView.js');
 
-function ClientApplication(controller) {
-  return {
-    on: (event, func) => {
-      // listen for this DOM event
-      document.addEventListener(event, func);
-      controller.eventListeners.push(event);
+class ClientApplication {
+  constructor(controller) {
+    this.controller = controller;
+  }
 
-      // if this event was called before this code executed,
-      // dispatch it again
-      controller.eventQueue.forEach((ev) => {
-        if (ev.action === event) {
-          document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
-        }
-      });
+  on(event, func) {
+    // listen for this DOM event
+    document.addEventListener(event, func);
+    this.controller.eventListeners.push(event);
 
-      // Remove events from the queue that have been dispatched.
-      controller.eventQueue = controller.eventQueue.filter((ev) => ev.action !== event);
-    },
-    dispatch: (event, func) => controller.dispatch(event, func),
-  };
+    // if this event was called before this code executed, dispatch it again
+    this.controller.eventQueue.forEach((ev) => {
+      if (ev.action === event) {
+        document.dispatchEvent(new CustomEvent(event, { detail: ev.payload }));
+      }
+    });
+
+    // Remove events from the queue that have been dispatched.
+    this.controller.eventQueue = this.controller.eventQueue.filter((ev) => ev.action !== event);
+  }
+
+  dispatch(event, func) {
+    this.controller.dispatch(event, func);
+  }
 }
 
 function run() {

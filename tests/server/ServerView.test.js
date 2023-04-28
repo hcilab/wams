@@ -1,7 +1,3 @@
-/*
- * Test suite for ServerView class.
- */
-
 'use strict';
 
 const { View } = require('shared.js');

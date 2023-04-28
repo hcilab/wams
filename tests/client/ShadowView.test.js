@@ -1,10 +1,3 @@
-/*
- * Test suite for the ShadowView class.
- *
- * Author: Michael van der Kamp
- * Date: July/August 2018
- */
-
 'use strict';
 
 const ShadowView = require('client/ShadowView.js');

@@ -1,10 +1,3 @@
-/*
- * Test suite for Reporters for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
 'use strict';
 
 const Reporters = require('shared/Reporters.js');

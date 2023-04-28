@@ -1,7 +1,3 @@
-/*
- * Contains the Binding class.
- */
-
 'use strict';
 
 /**

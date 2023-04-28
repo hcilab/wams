@@ -1,10 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- */
-
 /**
  * Bundles together the predefined callback factories.
  *

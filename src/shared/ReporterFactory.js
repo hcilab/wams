@@ -1,10 +1,3 @@
-/*
- * Builds Reporter classes for the WAMS application.
- *
- * Author: Michael van der Kamp
- * Date: July / August 2018
- */
-
 'use strict';
 
 const IdStamper = require('./IdStamper.js');

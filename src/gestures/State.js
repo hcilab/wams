@@ -1,7 +1,3 @@
-/*
- * Contains the {@link State} class
- */
-
 'use strict';
 
 const Input = require('./Input.js');

@@ -1,13 +1,3 @@
-/*
- * WAMS - An API for Multi-Surface Environments
- *
- * Author: Michael van der Kamp
- *  |-> Date: July/August 2018
- *
- * Original author: Jesse Rolheiser
- * Other revisions and supervision: Scott Bateman
- */
-
 'use strict';
 
 const { FullStateReporter, Message, NOP } = require('../shared.js');
@@ -106,6 +96,7 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.attachSocketIoListeners]() {
+    const handleGesture = this.messageHandler.handleGesture;
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
@@ -127,17 +118,17 @@ class ServerController {
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: NOP,
-      [Message.LAYOUT]: (...args) => this.layout(...args),
+      [Message.LAYOUT]: this.layout.bind(this),
 
       // User event related
-      [Message.CLICK]: this.messageHandler.handle('click', this.view),
-      [Message.SWIPE]: this.messageHandler.handle('swipe', this.view),
-      [Message.TRANSFORM]: this.messageHandler.handle('transform', this.view),
-      [Message.RESIZE]: (data) => this.resize(data),
+      [Message.CLICK]: handleGesture.bind(this.messageHandler, 'click', this.view),
+      [Message.SWIPE]: handleGesture.bind(this.messageHandler, 'swipe', this.view),
+      [Message.TRANSFORM]: handleGesture.bind(this.messageHandler, 'transform', this.view),
+      [Message.RESIZE]: this.resize.bind(this),
       [Message.TRACK]: ({ data }) => this.messageHandler.track(data, this.view),
 
       // Multi-device gesture related
-      [Message.POINTER]: (event) => this.pointerEvent(event),
+      [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: ({ data }) => {

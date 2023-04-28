@@ -1,10 +1,3 @@
-/*
- * Test suite for src/server.js
- *
- * Author: Michael van der Kamp
- * Date: July/August 2018
- */
-
 'use strict';
 
 const Api = require('server.js');
