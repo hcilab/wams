@@ -127,7 +127,7 @@ class Application extends EventTarget(Object) {
 
       // if host is localhost or '0.0.0.0', assume local ipv4 also available
       if (host === '0.0.0.0' || host == 'localhost') {
-        const localIPv4 = getLocalIP()
+        const localIPv4 = getLocalIP();
         console.log(`🔗 ${formatAddress(localIPv4, port)}`);
       }
     });
