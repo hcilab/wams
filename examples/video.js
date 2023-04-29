@@ -15,7 +15,7 @@ const topbarred = (html) =>
     <div 
       width="560" 
       height="50"
-      style="background-color:green; height:50px;"
+      style="background-color:green; height:50px; border: solid black;"
     ></div>
     ${html}
   </div>`;
