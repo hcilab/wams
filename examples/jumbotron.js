@@ -38,7 +38,7 @@ function handleConnect({ view }) {
 }
 
 app.onconnect = handleConnect;
-app.listen(9010);
+app.listen(9000);
 
 /**
  * Generates a handler that places devices in a jumbotron.

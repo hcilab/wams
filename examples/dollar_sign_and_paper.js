@@ -23,4 +23,4 @@ function handleConnect({ view }) {
   view.onrotate = WAMS.predefined.actions.rotate;
 }
 app.onconnect = handleConnect;
-app.listen(9013);
+app.listen(9000);

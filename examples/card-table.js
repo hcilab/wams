@@ -198,7 +198,7 @@ function handleConnect({ view, device }) {
 }
 
 app.onconnect = handleConnect;
-app.listen(9700);
+app.listen(9000);
 
 /**
  * Draws a rounded rectangle using the current state of the canvas.

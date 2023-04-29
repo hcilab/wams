@@ -41,7 +41,7 @@ function handleConnect({ view, device, group }) {
 }
 
 app.onconnect = handleConnect;
-app.listen(9700);
+app.listen(9000);
 
 function moveScreenToScreen(currentView, targetView) {
   const centeredBelowPosX = targetView.x + targetView.width / 2 - currentView.width / 2;

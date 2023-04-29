@@ -59,7 +59,7 @@ class DrawingApp {
     this.app.on('set-color', this.setColor.bind(this));
     this.app.on('set-width', this.setWidth.bind(this));
     this.app.onconnect = this.handleConnect.bind(this);
-    this.app.listen(3000);
+    this.app.listen(9000);
   }
 
   draw(event) {

@@ -46,4 +46,4 @@ function handleConnect({ view, device, group }) {
 }
 
 app.onconnect = handleConnect;
-app.listen(9500);
+app.listen(9000);
