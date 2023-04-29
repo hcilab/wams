@@ -69,7 +69,6 @@ class DrawingApp {
     // const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    console.log('draw', color, width, toX, toY);
     const line = new CanvasSequence();
     // line.beginPath()
     // line.moveTo(fromX, fromY);
