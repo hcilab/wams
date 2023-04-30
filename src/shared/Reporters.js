@@ -546,32 +546,54 @@ const FullStateReporter = ReporterFactory({
 /**
  * Enables forwarding of TouchEvents from the client to the server.
  *
- * @class TouchReporter
+ * @class PointerReporter
  * @memberof module:shared
  * @extends module:shared.Reporter
  */
-const TouchReporter = ReporterFactory({
+const PointerReporter = ReporterFactory({
   /**
    * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
    *
    * @name type
    * @type {string}
    * @default null
-   * @memberof module:shared.TouchReporter
+   * @memberof module:shared.PointerReporter
    * @instance
    */
   type: null,
 
   /**
-   * Array of changed touches.
+   * The pointer ID.
    *
-   * @name changedTouches
-   * @type {Touch[]}
-   * @default []
-   * @memberof module:shared.TouchReporter
+   * @name pointerId
+   * @type {number}
+   * @default null
+   * @memberof module:shared.PointerReporter
    * @instance
    */
-  changedTouches: [],
+  pointerId: null,
+
+  /**
+   * The X coordinate of the pointer relative to the viewport.
+   *
+   * @name clientX
+   * @type {number}
+   * @default null
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  clientX: null,
+
+  /**
+   * The Y coordinate of the pointer relative to the viewport.
+   *
+   * @name clientY
+   * @type {number}
+   * @default null
+   * @memberof module:shared.PointerReporter
+   * @instance
+   */
+  clientY: null,
 
   /**
    * Whether the CTRL key was pressed at the time of the event.
@@ -579,7 +601,7 @@ const TouchReporter = ReporterFactory({
    * @name ctrlKey
    * @type {boolean}
    * @default false
-   * @memberof module:shared.TouchReporter
+   * @memberof module:shared.PointerReporter
    * @instance
    */
   ctrlKey: false,
@@ -590,7 +612,7 @@ const TouchReporter = ReporterFactory({
    * @name altKey
    * @type {boolean}
    * @default false
-   * @memberof module:shared.TouchReporter
+   * @memberof module:shared.PointerReporter
    * @instance
    */
   altKey: false,
@@ -601,7 +623,7 @@ const TouchReporter = ReporterFactory({
    * @name shiftKey
    * @type {boolean}
    * @default false
-   * @memberof module:shared.TouchReporter
+   * @memberof module:shared.PointerReporter
    * @instance
    */
   shiftKey: false,
@@ -612,7 +634,7 @@ const TouchReporter = ReporterFactory({
    * @name metaKey
    * @type {boolean}
    * @default false
-   * @memberof module:shared.TouchReporter
+   * @memberof module:shared.PointerReporter
    * @instance
    */
   metaKey: false,
@@ -623,7 +645,7 @@ module.exports = {
   View,
   DataReporter,
   FullStateReporter,
-  TouchReporter,
+  PointerReporter,
   WamsElement,
   WamsImage,
 };

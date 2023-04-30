@@ -57,7 +57,7 @@ class Interactor {
    * Sets up gesture listeners via westures.
    */
   addGestures(root) {
-    const region = new Westures.Region(root);
+    const region = new Westures.Region(root, { preventDefault: false });
     region.addGesture(new Westures.Pan(root, this.coalesce.bind(this), { disableKeys: ['ctrlKey'] }));
     region.addGesture(new Westures.Pinch(root, this.coalesce.bind(this)));
     region.addGesture(new Westures.Rotate(root, this.coalesce.bind(this)));
