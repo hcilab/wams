@@ -17,7 +17,7 @@ const app = new WAMS.Application({
 
 const scale = 2;
 
-app.spawn(
+const lisa = app.spawn(
   image('monaLisa.jpg', {
     width: 1200,
     height: 1815,
@@ -25,11 +25,11 @@ app.spawn(
     y: 0,
     type: 'mona',
     scale,
-    ondrag: WAMS.predefined.actions.drag,
-    onpinch: WAMS.predefined.actions.pinch,
-    onrotate: WAMS.predefined.actions.rotate,
   })
 );
+lisa.on('drag', WAMS.predefined.actions.drag);
+lisa.on('pinch', WAMS.predefined.actions.pinch);
+lisa.on('rotate', WAMS.predefined.actions.rotate);
 
 const jumbotronLayout = jumbotron(1200 * scale);
 
@@ -37,7 +37,7 @@ function handleConnect({ view }) {
   jumbotronLayout(view);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
 app.listen(9000);
 
 /**

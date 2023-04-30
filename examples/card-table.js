@@ -47,7 +47,7 @@ const STYLES = {
   },
 };
 
-function shuffleButton(x, y) {
+function defineShuffleButton(x, y) {
   const width = STYLES.button.width;
   const height = STYLES.button.height;
   const button = new WAMS.CanvasSequence();
@@ -73,11 +73,10 @@ function shuffleButton(x, y) {
     hitbox,
     type: 'item',
     sequence: button,
-    onclick: dealCards,
   };
 }
 
-function chip(chipName, x, y) {
+function defineChip(chipName, x, y) {
   const radius = 40;
   return {
     x,
@@ -87,7 +86,6 @@ function chip(chipName, x, y) {
     // Yes: need to offset hitbox (x, y) to center of circle
     hitbox: new Circle(radius, radius, radius),
 
-    ondrag: WAMS.predefined.actions.drag,
     type: 'item/image',
     src: `Chips/${chipName}.png`,
 
@@ -97,11 +95,13 @@ function chip(chipName, x, y) {
   };
 }
 
-function spawnChip(chipName, x, y) {
-  app.spawn(chip(chipName, x, y));
+function spawnChip(button) {
+  const { chipName, x, y, height } = button;
+  const chip = app.spawn(defineChip(chipName, x + 250, y - height / 4));
+  chip.on('drag', WAMS.predefined.actions.drag);
 }
 
-function chipButton(chipLabel, chipName, x, y) {
+function defineChipButton(chipLabel, chipName, x, y) {
   const width = STYLES.button.width;
   const height = STYLES.button.height;
   const button = new WAMS.CanvasSequence();
@@ -126,14 +126,20 @@ function chipButton(chipLabel, chipName, x, y) {
     hitbox,
     type: 'item',
     sequence: button,
-    onclick: () => spawnChip(chipName, x + 250, y - height / 4),
+    chipName,
   };
 }
 
-app.spawn(shuffleButton(525, 260));
-app.spawn(chipButton('Green', 'GreenWhite_border', 525, 360));
-app.spawn(chipButton('Blue', 'BlueWhite_border', 525, 440));
-app.spawn(chipButton('Red', 'RedWhite_border', 525, 520));
+const shuffleButton = app.spawn(defineShuffleButton(525, 260));
+shuffleButton.on('click', dealCards);
+
+const greenButton = app.spawn(defineChipButton('Green', 'GreenWhite_border', 525, 360));
+const blueButton = app.spawn(defineChipButton('Blue', 'BlueWhite_border', 525, 440));
+const redButton = app.spawn(defineChipButton('Red', 'RedWhite_border', 525, 520));
+
+greenButton.on('click', () => spawnChip(greenButton));
+blueButton.on('click', () => spawnChip(blueButton));
+redButton.on('click', () => spawnChip(redButton));
 
 // Generate a deck of cards, consisting solely of image source paths.
 const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'A', 'J', 'Q', 'K'];
@@ -158,23 +164,22 @@ function dealCards() {
   // Generate the cards in a random order.
   let offs = 0.0;
   shuffle(cardDescriptors).forEach((card) => {
-    cards.push(
-      app.spawn(
-        WAMS.predefined.items.image(cardBackImagePath, {
-          x: 345 - offs,
-          y: 300 - offs,
-          width: 140,
-          height: 190,
-          type: 'card',
-          scale: 1,
-          face: card,
-          isFaceUp: false,
-          onclick: flipCard,
-          ondrag: WAMS.predefined.actions.drag,
-          onrotate: WAMS.predefined.actions.rotate,
-        })
-      )
-    );
+    const cardItem = app.spawn(
+      WAMS.predefined.items.image(cardBackImagePath, {
+        x: 345 - offs,
+        y: 300 - offs,
+        width: 140,
+        height: 190,
+        type: 'card',
+        scale: 1,
+        face: card,
+        isFaceUp: false,
+      })
+    )
+    cardItem.on('click', flipCard);
+    cardItem.on('drag', WAMS.predefined.actions.drag);
+    cardItem.on('rotate', WAMS.predefined.actions.rotate);
+    cards.push(cardItem);
     offs += 0.2;
   });
 }
@@ -197,7 +202,7 @@ function handleConnect({ view, device }) {
   tableLayout(view, device);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
 app.listen(9000);
 
 /**

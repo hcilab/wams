@@ -38,9 +38,9 @@ function handleDrag({ x, y, dx, dy }) {
 }
 
 function handleConnect({ view }) {
-  view.onswipe = handleSwipe;
-  view.ondrag = handleDrag;
+  view.on('swipe', handleSwipe);
+  view.on('drag', handleDrag);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
 app.listen(9000);

@@ -30,39 +30,54 @@ const iframe = (src) =>
     allowfullscreen
   ></iframe>`;
 
-app.spawn(
+const moonTouchdownVideo = app.spawn(
   WAMS.predefined.items.html(topbarred(iframe('https://www.youtube.com/embed/RONIax0_1ec')), 560, 50, {
     x: X,
     y: 50,
     width: WIDTH,
     height: HEIGHT,
     type: 'video',
-    onpinch: WAMS.predefined.actions.pinch,
-    onrotate: WAMS.predefined.actions.rotate,
-    ondrag: WAMS.predefined.actions.drag,
+    lockZ: true,
   })
 );
+moonTouchdownVideo.on('pinch', WAMS.predefined.actions.pinch);
+moonTouchdownVideo.on('rotate', WAMS.predefined.actions.rotate);
+moonTouchdownVideo.on('drag', WAMS.predefined.actions.drag);
 
-app.spawn(
+const falconHeavyVideo = app.spawn(
   WAMS.predefined.items.html(topbarred(iframe('https://www.youtube.com/embed/l5I8jaMsHYk')), 560, 50, {
     x: X,
     y: 465,
     width: WIDTH,
     height: HEIGHT,
     type: 'video',
-    onpinch: WAMS.predefined.actions.pinch,
-    onrotate: WAMS.predefined.actions.rotate,
-    ondrag: WAMS.predefined.actions.drag,
+    lockZ: true,
   })
 );
+moonTouchdownVideo.on('pinch', WAMS.predefined.actions.pinch);
+moonTouchdownVideo.on('rotate', WAMS.predefined.actions.rotate);
+moonTouchdownVideo.on('drag', WAMS.predefined.actions.drag);
+
+const falconHeavyVideo = app.spawn(
+  WAMS.predefined.items.html(topbarred(iframe('https://www.youtube.com/embed/l5I8jaMsHYk')), 560, 50, {
+    x: X,
+    y: 465,
+    width: WIDTH,
+    height: HEIGHT,
+    type: 'video',
+  })
+);
+falconHeavyVideo.on('pinch', WAMS.predefined.actions.pinch);
+falconHeavyVideo.on('rotate', WAMS.predefined.actions.rotate);
+falconHeavyVideo.on('drag', WAMS.predefined.actions.drag);
 
 function handleConnect({ view }) {
   // allowing the whole view to
   // be moved around, rotated and scaled
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  view.ondrag = WAMS.predefined.actions.drag;
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('drag', WAMS.predefined.actions.drag);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
 app.listen(9000);

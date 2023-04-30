@@ -3,6 +3,6 @@
 const WAMS = require('..');
 const app = new WAMS.Application();
 
-app.onconnect = ({ view }) => {};
+app.on('connect', ({ view }) => {});
 
 app.listen(9000);

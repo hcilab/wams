@@ -21,7 +21,7 @@ function topbarred(html) {
     </div>`;
 }
 
-app.spawn(
+const gamefaqs = app.spawn(
   html(
     topbarred('<iframe width="560" height="315" src="https://www.gamefaqs.com" frameborder="0"></iframe>'),
     560,
@@ -32,31 +32,33 @@ app.spawn(
       width: 560,
       height: 365,
       type: 'video',
-      onpinch: WAMS.predefined.actions.pinch,
-      onrotate: WAMS.predefined.actions.rotate,
-      ondrag: WAMS.predefined.actions.drag,
+      lockZ: true,
     }
   )
 );
+gamefaqs.on('pinch', WAMS.predefined.actions.pinch);
+gamefaqs.on('rotate', WAMS.predefined.actions.rotate);
+gamefaqs.on('drag', WAMS.predefined.actions.drag);
 
-app.spawn(
+const xkcd = app.spawn(
   html(topbarred('<iframe width="560" height="315" src="https://www.xkcd.com" frameborder="0"></iframe>'), 560, 50, {
     x: 400,
     y: 465,
     width: 560,
     height: 365,
     type: 'video',
-    onpinch: WAMS.predefined.actions.pinch,
-    onrotate: WAMS.predefined.actions.rotate,
-    ondrag: WAMS.predefined.actions.drag,
+    lockZ: true,
   })
 );
+xkcd.on('pinch', WAMS.predefined.actions.pinch);
+xkcd.on('rotate', WAMS.predefined.actions.rotate);
+xkcd.on('drag', WAMS.predefined.actions.drag);
 
 function handleConnect({ view }) {
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  view.ondrag = WAMS.predefined.actions.drag;
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('drag', WAMS.predefined.actions.drag);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
 app.listen(9000);

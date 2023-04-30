@@ -36,14 +36,14 @@ function viewSetup({ view, device, group }) {
   if (view.index === 0) {
     view.scaleBy(0.6);
   } else if (view.index === 1) {
-    group.ondrag = WAMS.predefined.actions.drag;
+    group.on('drag', WAMS.predefined.actions.drag);
     view.scaleBy(3.4);
     view.moveTo(1615, 2800);
   } else {
     view.scaleBy(1.7);
-    view.ondrag = WAMS.predefined.actions.drag;
+    view.on('drag', WAMS.predefined.actions.drag);
   }
 }
 
-app.onconnect = viewSetup;
+app.on('connect', viewSetup);
 app.listen(9000);

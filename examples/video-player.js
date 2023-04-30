@@ -50,8 +50,8 @@ class VideoPlayer {
     this.app.on('forward', this.handleForward.bind(this));
     this.app.on('replay', this.handleReplay.bind(this));
     this.app.on('video-time-sync', this.handleVideoTimeSync.bind(this));
-    this.app.onconnect = this.handleConnect.bind(this);
-    this.app.ondisconnect = this.handleDisconnect.bind(this);
+    this.app.on('connect', this.handleConnect.bind(this));
+    this.app.on('disconnect', this.handleDisconnect.bind(this));
     this.app.listen(9000);
   }
 
@@ -110,10 +110,10 @@ class VideoPlayer {
         height,
         playing,
         type: 'controls',
-        ondrag: WAMS.predefined.actions.drag,
-        onpinch: WAMS.predefined.actions.pinch,
       })
     );
+    this.controls.on('drag', WAMS.predefined.actions.drag);
+    this.controls.on('pinch', WAMS.predefined.actions.pinch);
 
     console.log(this.controls);
   }
