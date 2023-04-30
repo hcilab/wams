@@ -1,6 +1,6 @@
 'use strict';
 
-const Westures = require('westures');
+const wes = require('westures');
 
 /**
  * The Transform class is a custom Westures gestures that combines Pan, Rotate,
@@ -9,7 +9,7 @@ const Westures = require('westures');
  *
  * @memberof module:client
  */
-class Transform extends Westures.Gesture {
+class Transform extends wes.Gesture {
   constructor(element, handler, options = {}) {
     super('transform', element, handler, { ...Transform.DEFAULTS, ...options });
 
@@ -18,21 +18,21 @@ class Transform extends Westures.Gesture {
      *
      * @type {Pinch}
      */
-    this.pinch = new Westures.Pinch();
+    this.pinch = new wes.Pinch(element, null);
 
     /**
      * The Rotate gesture.
      *
      * @type {Rotate}
      */
-    this.rotate = new Westures.Rotate();
+    this.rotate = new wes.Rotate(element, null);
 
     /**
      * The Pan gesture.
      *
      * @type {Pan}
      */
-    this.pan = new Westures.Pan({ muteKey: 'ctrlKey' });
+    this.pan = new wes.Pan(element, null, { disableKeys: ['ctrlKey'] });
   }
 
   /**
@@ -41,9 +41,15 @@ class Transform extends Westures.Gesture {
    * @param {State} state
    */
   start(state) {
-    this.pinch.start(state);
-    this.rotate.start(state);
-    this.pan.start(state);
+    if (this.pinch.isEnabled(state)) {
+      this.pinch.start(state);
+    }
+    if (this.rotate.isEnabled(state)) {
+      this.rotate.start(state);
+    }
+    if (this.pan.isEnabled(state)) {
+      this.pan.start(state);
+    }
   }
 
   /**
@@ -57,24 +63,30 @@ class Transform extends Westures.Gesture {
       delta: {},
     };
 
-    const pinchData = this.pinch.move(state);
-    const rotateData = this.rotate.move(state);
-    const panData = this.pan.move(state);
     let emit = false;
 
-    if (pinchData) {
-      result.delta.scale = pinchData.scale;
-      emit = true;
+    if (this.pinch.isEnabled(state)) {
+      const pinchData = this.pinch.move(state);
+      if (pinchData) {
+        result.delta.scale = pinchData.scale;
+        emit = true;
+      }
     }
 
-    if (rotateData) {
-      result.delta.rotation = rotateData.rotation;
-      emit = true;
+    if (this.rotate.isEnabled(state)) {
+      const rotateData = this.rotate.move(state);
+      if (rotateData) {
+        result.delta.rotation = rotateData.rotation;
+        emit = true;
+      }
     }
 
-    if (panData) {
-      result.delta.translation = panData.translation;
-      emit = true;
+    if (this.pan.isEnabled(state)) {
+      const panData = this.pan.move(state);
+      if (panData) {
+        result.delta.translation = panData.translation;
+        emit = true;
+      }
     }
 
     return emit ? result : null;
@@ -86,9 +98,15 @@ class Transform extends Westures.Gesture {
    * @param {State} state
    */
   end(state) {
-    this.pinch.end(state);
-    this.rotate.end(state);
-    this.pan.end(state);
+    if (this.pinch.isEnabled(state)) {
+      this.pinch.end(state);
+    }
+    if (this.rotate.isEnabled(state)) {
+      this.rotate.end(state);
+    }
+    if (this.pan.isEnabled(state)) {
+      this.pan.end(state);
+    }
   }
 
   /**
@@ -97,9 +115,15 @@ class Transform extends Westures.Gesture {
    * @param {State} state
    */
   cancel(state) {
-    this.pinch.cancel(state);
-    this.rotate.cancel(state);
-    this.pan.cancel(state);
+    if (this.pinch.isEnabled(state)) {
+      this.pinch.cancel(state);
+    }
+    if (this.rotate.isEnabled(state)) {
+      this.rotate.cancel(state);
+    }
+    if (this.pan.isEnabled(state)) {
+      this.pan.cancel(state);
+    }
   }
 }
 
