@@ -214,16 +214,6 @@ class Application extends EventTarget(Object) {
     });
     new Message(Message.DISPATCH, dreport).emitWith(this.workspace.namespace);
   }
-
-  /**
-   * Set up a custom Server event listener.
-   *
-   * @param {*} event name of the custom Server event.
-   * @param {*} handler handler of the custom event.
-   */
-  on(event, handler) {
-    this.addEventListener(event, handler);
-  }
 }
 
 module.exports = Application;
