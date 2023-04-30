@@ -503,7 +503,7 @@ function smileFace(args) {
   return { ...args, sequence };
 }
 
-app.spawn(smileFace(900, 300));
+app.spawn(smileFace({ x: 900, y: 300 }));
 ```
 
 You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item. This can be a bit confusing, since the hitbox will always be given (x, y) values as if its item is located a (0, 0). Put another way, the hitbox doesn't need to know anything about how the item is positioned or oriented in the WAMS workspace:
