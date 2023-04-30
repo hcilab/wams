@@ -114,7 +114,7 @@ const { square } = WAMS.predefined.items;
 app.spawn(square(200, 200, 100, "green"));
 ```
 
-This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a side of `100`.
+This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100`.
 
 ### Hello world: Multi-Screen
 
@@ -310,32 +310,25 @@ app.spawn(
 To make an item **draggable**, it's enough to attach the predefined drag action to the drag event:
 
 ```javascript
-...
 const item = app.spawn(items.square(200, 200, 100, 'green'));
 item.on('drag', actions.drag);
-...
 ```
 
 This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
-...
 item.on('click', () => app.removeItem(item));
-...
 ```
 
 Another cool interactive feature is **rotation**. To rotate an item, first add a `rotate` listener, (the predefined action will do the trick), and then grab the item with your mouse and hold **Control** key.
 
 ```js
-...
 item.on('rotate', actions.rotate);
-...
 ```
 
 You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add a `swipe` handler.
 
 ```js
-...
 function handleSwipe(event) {
   console.log(`Swipe registered!`);
   console.log(`Velocity: ${event.velocity}`);
@@ -343,16 +336,13 @@ function handleSwipe(event) {
   console.log(`X, Y: ${event.x}, ${event.y}`);
 }
 item.on('swipe', handleSwipe);
-...
 ```
 
 To move an item, you can use `moveBy` and `moveTo` item methods:
 
 ```js
-...
 // do this on a different item than the one that uses removeItem
 item.on('click', () => item.moveBy(100, -50));
-...
 ```
 
 Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) or the final position (for `moveTo`).
