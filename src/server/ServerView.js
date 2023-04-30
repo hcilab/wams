@@ -1,7 +1,7 @@
 'use strict';
 
 const { DataReporter, IdStamper, Message, View } = require('../shared.js');
-const { Interactable, Locker } = require('../mixins.js');
+const { Interactable, Locker, EventTarget } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
 
@@ -18,7 +18,7 @@ const STAMPER = new IdStamper();
  * @param {Object} [ values ] - Object with user supplied values describing the
  * view.
  */
-class ServerView extends Locker(Interactable(View)) {
+class ServerView extends Locker(Interactable(EventTarget(View))) {
   constructor(socket, values = {}) {
     super(values);
 
