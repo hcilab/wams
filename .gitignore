@@ -9,4 +9,4 @@ graphs/*.sh
 coverage
 tags
 .cache
-
+.parcel-cache

@@ -8,6 +8,8 @@
     "url": "https://github.com/hcilab/wams"
   },
   "scripts": {
+    "build": "parcel build",
+    "build:debug": "parcel build --no-optimize",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write src tests examples",
@@ -27,6 +29,7 @@
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
     "arkit": "^1.6.4",
+    "buffer": "^6.0.3",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.26.0",
@@ -37,6 +40,13 @@
     "jsdoc": "^4.0.2",
     "jsdom": "^21.1.1",
     "parcel": "^2.0.0",
-    "prettier": "^2.8.7"
+    "prettier": "^2.8.7",
+    "process": "^0.11.10"
+  },
+  "targets": {
+    "client": {
+      "source": "src/client.js",
+      "distDir": "dist/wams"
+    }
   }
 }
