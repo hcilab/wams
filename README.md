@@ -443,11 +443,11 @@ const { table } = WAMS.predefined.layouts;
 const overlap = 200; // 200px overlap between screens
 const setTableLayout = table(overlap);
 
-function handleLayout({ view, device }) {  // note the {} brackets to destructure the event object
+function handleConnect({ view, device }) {  // note the {} brackets to destructure the event object
   setTableLayout(view, device);
 }
 
-app.on('connect', setTableLayout);
+app.on('connect', handleConnect);
 ```
 
 To see this layout in action, check out the `card-table.js` example.
@@ -465,11 +465,11 @@ const { line } = WAMS.predefined.layouts;
 const overlap = 200; // 200px overlap between screens
 const setLineLayout = line(overlap);
 
-function handleLayout(view, device) {
+function handleConnect(view, device) {
   setLineLayout(view, device);
 }
 
-app.onconnect = handleLayout;
+app.onconnect = handleConnect;
 ```
 
 To see this layout in action with multi-screen gestures, check out the `shared-polygons.js` example.
