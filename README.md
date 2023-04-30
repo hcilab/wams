@@ -47,7 +47,7 @@ npm install
 
 ## Getting started
 
-The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://hcilab.github.io/wams/) and the [examples](#examples). For a taste on how WAMS works, check the [live demo section](#live-demo).
+The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://hcilab.github.io/wams/) and the [examples](#examples). ~For a taste on how WAMS works, check the [live demo section](#live-demo).~ (The live demo is currently broken).
 
 ## Examples
 
@@ -62,6 +62,8 @@ node examples/polygons.js
 ```
 
 ## Live Demo
+
+* (Currently broken)
 
 The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view.
 
