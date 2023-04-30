@@ -216,7 +216,6 @@ class ClientController {
    * the server with the given message type label.
    */
   forward(message, data) {
-    console.dir('forwarding', message, data.delta);
     const dreport = new DataReporter({ data });
     new Message(message, dreport).emitWith(this.socket);
   }
