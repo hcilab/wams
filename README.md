@@ -37,12 +37,10 @@ We use browser windows to represent screens because browsers are extremely flexi
 ## Installation
 
 You will need to install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
-Once they are installed, go to your app folder, where you want to install `wams` and run the following commands:
 
+Then you can install this repo directly as a node module:
 ```bash
-git clone https://github.com/hcilab/wams.git
-cd wams
-npm install
+npm install https://github.com/hcilab/wams.git
 ```
 
 ## Getting started
@@ -77,12 +75,18 @@ This walkthrough is a friendly guide on how to use most WAMS features. For more 
 
 ### Set up your application
 
-1. In the app folder, [install](#installation) WAMS, if you haven't already
-2. Create an **app.js** file
-3. In this file, include WAMS and initialize the application
+First, let's set up a new directory for our demo application, and install WAMS into it:
+
+```bash
+mkdir demo
+cd demo
+npm install https://github.com/hcilab/wams.git
+```
+
+Now, create an **app.js** file. In this file, include WAMS and initialize the application:
 
 ```javascript
-const WAMS = require("./wams");
+const WAMS = require("wams");
 const app = new WAMS.Application();
 app.listen(3500); // this starts the app on port 3500, you can use any port
 ```
@@ -94,6 +98,7 @@ node app.js
 ```
 
 And you can connect to the app using the address in the output.
+- Many terminal emulators let you control+click on an address to visit it in your browser.
 
 ### Hello world
 
@@ -118,27 +123,25 @@ This example will spawn a draggable square and position connected screens in a l
 Put this code in your **app.js** file:
 
 ```javascript
-const WAMS = require("./wams");
+const WAMS = require("wams");
 const app = new WAMS.Application();
 
-const { items, actions } = WAMS.predefined;
-const { line } = WAMS.predefined.layouts;
+const { actions, items, layouts } = WAMS.predefined;
 
 function spawnSquare() {
-  app.spawn(
-    items.square(200, 200, 100, "green", {
-      ondrag: actions.drag,
-    })
-  );
+  const greenSquare = app.spawn(items.square(200, 200, 100, "green"));
+  greenSquare.on('drag', actions.drag);
 }
 
-const linelayout = line(300); // 300px overlap betweens views
-function handleConnect(view, device) {
-  view.onclick = spawnSquare;
+const linelayout = layouts.line(300); // 300px overlap betweens views
+
+function handleConnect({ view, device }) {
+  view.on('click', spawnSquare);
   linelayout(view, device);
 }
 
-app.onconnect = handleConnect;
+app.on('connect', handleConnect);
+
 app.listen(3500);
 ```
 
@@ -156,7 +159,7 @@ To test this on a single computer you could:
 
 ![Screenshot of first multiscreen app](./img/multiscreen.png)
 
-> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js`
+> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js`. (Currently broken).
 
 ### General Configuration of your app
 
@@ -175,7 +178,7 @@ const app = new WAMS.Application({
   staticDir: path.join(__dirname, "static"), // path to directory for static files, will be accessible at app's root
   status: true, // show information on current view, useful for debugging
   title: "Awesome App", // page title
-  useMultiScreenGestures: true, // enable multi-screen gestures
+  useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
 });
 ```
 
@@ -244,6 +247,7 @@ For this example, create an `images` directory in the app folder and use it as y
 Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
+const path = require("node:path");
 const app = WAMS.Application({
   staticDir: path.join(__dirname, "./images"),
 });
@@ -301,71 +305,52 @@ app.spawn(
 
 > **Note** An item must have its coordinates, width and height defined to be interactive
 
-Let's get back to our Hello world example with a green square. Just a static square is not that interesting, though. Let's make it **draggable**:
+To make an item **draggable**, it's enough to attach the predefined drag action to the drag event:
 
 ```javascript
 ...
-app.spawn(items.square(200, 200, 100, 'green', {
-  ondrag: actions.drag,
-}));
+const item = app.spawn(items.square(200, 200, 100, 'green'));
+item.on('drag', actions.drag);
 ...
 ```
 
 This looks much better. Now let's remove the square when you **click** on it. _To remove an item, use WAMS' `removeItem` method._
 
 ```js
-function handleClick(event) {
-  app.removeItem(event.target)
-}
-
-app.spawn(items.square(200, 200, 100, 'green', {
-  ondrag: actions.drag,
-  onclick: handleClick,
-}));
+...
+item.on('click', () => app.removeItem(item));
 ...
 ```
 
-Another cool interactive feature is **rotation**. To rotate an item, first set the `onrotate` property and then grab the item with your mouse and hold **Control** key.
+Another cool interactive feature is **rotation**. To rotate an item, first add a `rotate` listener, (the predefined action will do the trick), and then grab the item with your mouse and hold **Control** key.
 
 ```js
 ...
-  ondrag: actions.drag,
-  onclick: handleClick,
-  onrotate: actions.rotate,
-}));
+item.on('rotate', actions.rotate);
 ...
 ```
 
-You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add the `onswipe` handler.
+You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add a `swipe` handler.
 
 ```js
 ...
-  onswipe: handleSwipe,
-}));
-
 function handleSwipe(event) {
   console.log(`Swipe registered!`);
   console.log(`Velocity: ${event.velocity}`);
   console.log(`Direction: ${event.direction}`);
   console.log(`X, Y: ${event.x}, ${event.y}`);
 }
+item.on('swipe', handleSwipe);
 ...
 ```
 
 To move an item, you can use `moveBy` and `moveTo` item methods:
 
 ```js
-app.spawn(
-  image("images/monaLisa.jpg", {
-    width: 200,
-    height: 300,
-    onclick: handleClick,
-  })
-);
-
-function handleClick(event) {
-  event.target.moveBy(100, -50);
-}
+...
+// do this on a different item than the one that uses removeItem
+item.on('click', () => item.moveBy(100, -50));
+...
 ```
 
 Both methods accept `x` and `y` numbers that represent a vector (for `moveBy`) or the final position (for `moveTo`).
@@ -379,10 +364,10 @@ Often times, you want to use images, run custom code in the browser, or add CSS 
 To do that, first **set up a path to the static directory:**
 
 ```javascript
-const path = require("path");
+const path = require("node:path");
 
 const app = new WAMS.Application({
-  staticDir: path.join(__dirname, "./assets"),
+  staticDir: path.join(__dirname, "assets"),
 });
 ```
 
@@ -414,10 +399,10 @@ The stylesheets will be automatically loaded by the browsers.
 
 WAMS manages all connections under the hood, and provides helpful ways to react on **connection-related events**:
 
-- `onconnect` – called each time a screen connects to a WAMS application
-- `ondisconnect` – called when a screen disconnects
+- `connect` – emitted each time a screen connects to a WAMS application
+- `disconnect` – emitted when a screen disconnects
 
-Both properties can be assigned a callback function, where you can act on the event. The callback function gets an event object with these properties:
+You can listen for both events on the Application instance. The handler function gets an event object with these properties:
 
 1. `view`
 2. `device`
@@ -439,16 +424,16 @@ It also provides **methods** to transform the current screen's view:
 - `rotateBy`
 - `scaleBy`
 
-And you can set up **interactions and event listeners** for the view itself:
+And you can set up **event listeners** for the view itself, such as:
 
-- `ondrag`
-- `onrotate`
-- `onpinch`
-- `onclick`
+- `drag`
+- `rotate`
+- `pinch`
+- `click`
 
 **`Device`** stores dimensions of the screen and its original position when connected.
 
-**`Group`** is a group of views and should be used instead of **View** _when multi-screen gestures are enabled_.
+**`Group`** is a group of views and should be used instead of **View** _when multi-screen gestures are enabled_. (Multi-screen gestures are currently broken).
 
 ### Multi-Screen Layouts
 
@@ -466,11 +451,11 @@ const { table } = WAMS.predefined.layouts;
 const overlap = 200; // 200px overlap between screens
 const setTableLayout = table(overlap);
 
-function handleLayout(view) {
-  setTableLayout(view);
+function handleLayout({ view, device }) {  // note the {} brackets to destructure the event object
+  setTableLayout(view, device);
 }
 
-app.onconnect = handleLayout;
+app.on('connect', setTableLayout);
 ```
 
 To see this layout in action, check out the `card-table.js` example.
@@ -510,7 +495,7 @@ To spawn a custom item, use `CanvasSequence`. It allows to create a custom seque
 The following sequence draws a smiling face item:
 
 ```js
-function smileFace(x, y) {
+function smileFace(args) {
   const sequence = new WAMS.CanvasSequence();
 
   sequence.beginPath();
@@ -523,25 +508,27 @@ function smileFace(x, y) {
   sequence.arc(90, 65, 5, 0, Math.PI * 2, true); // Right eye
   sequence.stroke();
 
-  return { sequence };
+  return { ...args, sequence };
 }
 
 app.spawn(smileFace(900, 300));
 ```
 
-You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item:
+You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item. This can be a bit confusing, since the hitbox will always be given (x, y) values as if its item is located a (0, 0). Put another way, the hitbox doesn't need to know anything about how the item is positioned or oriented in the WAMS workspace:
 
 ```javascript
-function customItem(x, y, width, height) {
-  const hitbox = new WAMS.Rectangle(width, height, x, y);
-  const ondrag = actions.drag;
-
-  const sequence = new WAMS.CanvasSequence();
-  sequence.fillStyle = "green";
-  sequence.fillRect(x, y, width, height);
-
-  return { hitbox, sequence, ondrag };
+function interactableSmileFace(args) {
+  const hitbox = new WAMS.Circle(
+    50,  // 50 is the radius of the outer circle of the smiley
+    75,  // the smiley is centered at (75, 75)
+    75,
+  );
+  return smileFace({ ...args, hitbox });
 }
+
+// The Circle doesn't need to know that we're creating the smiley at (900, 300) in the workspace
+const item = app.spawn(interactableSmileFace({ x: 900, y: 300 }));
+item.on('drag', actions.drag);
 ```
 
 A hitbox can be made from `WAMS.Rectangle` or `WAMS.Polygon2D` or `WAMS.Circle`
@@ -614,7 +601,7 @@ To do that, first we'll add an index to the card item to show who its owner is.
 
 ```javascript
 // during creation
-let card = app.spawn(
+const card = app.spawn(
   image(url, {
     /* ... */
     owner: 1,
@@ -634,7 +621,8 @@ function flipCard(event) {
   if (event.view.index !== event.target.owner) return;
 
   const card = event.target;
-  const imgsrc = card.isFaceUp ? card_back_path : card.face;
+  // assume we've attach 'back' and 'face' properties to the card with paths to images
+  const imgsrc = card.isFaceUp ? card.back : card.face;
   card.setImage(imgsrc);
   card.isFaceUp = !card.isFaceUp;
 }
@@ -660,13 +648,13 @@ items.push(app.spawn(square(100, 100, 200, "yellow")));
 
 items.push(app.spawn(square(150, 150, 200, "blue")));
 
-const group = app.createGroup({
-  items,
-  ondrag: actions.drag,
-});
+const group = app.createGroup({ items });
+group.on('drag', actions.drag);
 
 group.moveTo(500, 300);
 ```
+
+Groups can only be moved together- rotation and scaling are not supported.
 
 ---
 
