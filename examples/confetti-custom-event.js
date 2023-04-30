@@ -38,7 +38,7 @@ function square(x, y, view, color) {
 }
 
 function spawnSquare(event, color) {
-  const item = app.spawn(square(event.x, event.y, event.view, color))
+  const item = app.spawn(square(event.x, event.y, event.view, color));
   item.on('drag', WAMS.predefined.actions.drag);
 }
 

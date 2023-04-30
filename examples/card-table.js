@@ -175,7 +175,7 @@ function dealCards() {
         face: card,
         isFaceUp: false,
       })
-    )
+    );
     cardItem.on('click', flipCard);
     cardItem.on('drag', WAMS.predefined.actions.drag);
     cardItem.on('rotate', WAMS.predefined.actions.rotate);

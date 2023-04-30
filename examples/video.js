@@ -54,19 +54,6 @@ const falconHeavyVideo = app.spawn(
     lockZ: true,
   })
 );
-moonTouchdownVideo.on('pinch', WAMS.predefined.actions.pinch);
-moonTouchdownVideo.on('rotate', WAMS.predefined.actions.rotate);
-moonTouchdownVideo.on('drag', WAMS.predefined.actions.drag);
-
-const falconHeavyVideo = app.spawn(
-  WAMS.predefined.items.html(topbarred(iframe('https://www.youtube.com/embed/l5I8jaMsHYk')), 560, 50, {
-    x: X,
-    y: 465,
-    width: WIDTH,
-    height: HEIGHT,
-    type: 'video',
-  })
-);
 falconHeavyVideo.on('pinch', WAMS.predefined.actions.pinch);
 falconHeavyVideo.on('rotate', WAMS.predefined.actions.rotate);
 falconHeavyVideo.on('drag', WAMS.predefined.actions.drag);
