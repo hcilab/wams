@@ -107,10 +107,12 @@ class WorkSpace {
     return (
       item.ondrag
       || item.onpinch
-      || item.onrotate 
+      || item.onrotate
+      || item.onswipe
       || eventNames.includes('drag')
       || eventNames.includes('pinch')
       || eventNames.includes('rotate')
+      || eventNames.includes('swipe')
     );
   }
 
