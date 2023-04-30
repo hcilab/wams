@@ -45,7 +45,7 @@ class Interactor {
      *
      * @type {Object}
      */
-    this._changes = this._resetChanges()
+    this._changes = this._resetChanges();
     this._scheduled = false;
 
     // Begin listening activities immediately.
@@ -85,7 +85,7 @@ class Interactor {
         rotation: 0,
         translation: { x: 0, y: 0 },
       },
-    }
+    };
   }
 
   /**
@@ -114,7 +114,7 @@ class Interactor {
    */
   _emit() {
     this.handlers.transform(this._changes);
-    this._changes = this._resetChanges()
+    this._changes = this._resetChanges();
     this._scheduled = false;
   }
 
