@@ -53,9 +53,11 @@ To try out the examples, go to `examples/` and run as follows:
 
 ```bash
 node examples/[EXAMPLE_FILENAME]
+```
 
 ## For example:
 
+```bash
 node examples/polygons.js
 ```
 
