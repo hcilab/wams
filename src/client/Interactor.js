@@ -112,10 +112,7 @@ class Interactor {
    * Send a swivel event through as a transformation.
    */
   swivel({ rotation, pivot }) {
-    this.handlers.transform({
-      centroid: pivot,
-      delta: { rotation },
-    });
+    this.coalesce({ rotation, centroid: pivot });
   }
 
   /**
