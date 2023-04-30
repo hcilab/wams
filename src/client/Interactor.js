@@ -52,11 +52,11 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions(root) {
-    const swipe = new Westures.Swipe(root, this.forward('swipe'));
-    const swivel = new Westures.Swivel(root, this.swivel(), { enableKey: 'ctrlKey' });
-    const tap = new Westures.Tap(root, this.forward('tap'));
-    const track = new Westures.Track(root, this.forward('track'), { phases: ['start', 'end'] });
-    const transform = new Transform(root, this.forward('transform'));
+    const swipe = new Westures.Swipe(root, this.handlers.swipe);
+    const swivel = new Westures.Swivel(root, this.swivel.bind(this), { enableKeys: ['ctrlKey'] });
+    const tap = new Westures.Tap(root, this.handlers.tap);
+    const track = new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] });
+    const transform = new Transform(root, this.handlers.transform);
 
     const region = new Westures.Region(root);
     region.addGesture(tap);
@@ -69,29 +69,11 @@ class Interactor {
   /**
    * Send a swivel event through as a transformation.
    */
-  swivel() {
-    function doSwivel({ rotation, pivot }) {
-      this.handlers.transform({
-        centroid: pivot,
-        delta: { rotation },
-      });
-    }
-    return doSwivel.bind(this);
-  }
-
-  /**
-   * Generates a function that forwards the appropriate gesture and data.
-   *
-   * @param {string} gesture - name of a gesture to forward.
-   *
-   * @return {Function} Handler for westures that receives a data object and
-   * forwards it according to the given gesture name.
-   */
-  forward(gesture) {
-    function doForward(data) {
-      this.handlers[gesture](data);
-    }
-    return doForward.bind(this);
+  swivel({ rotation, pivot }) {
+    this.handlers.transform({
+      centroid: pivot,
+      delta: { rotation },
+    });
   }
 
   /**
