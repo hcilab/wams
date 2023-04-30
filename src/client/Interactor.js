@@ -63,7 +63,7 @@ class Interactor {
     const pinch = new Westures.Pinch(root, this.coalesce.bind(this));
     const rotate = new Westures.Rotate(root, this.coalesce.bind(this));
     const swipe = new Westures.Swipe(root, this.handlers.swipe);
-    const swivel = new Westures.Swivel(root, this.swivel.bind(this), { enableKeys: ['ctrlKey'] });
+    const swivel = new Westures.Swivel(root, this.swivel.bind(this), { enableKeys: ['ctrlKey'], dynamicPivot: true });
     const tap = new Westures.Tap(root, this.handlers.tap);
     const track = new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] });
 
