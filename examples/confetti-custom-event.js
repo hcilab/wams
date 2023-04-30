@@ -68,7 +68,7 @@ function release(event) {
     app.workspace.removeItem(item);
   }
   spawnSquare(event);
-};
+}
 
 app.on('connect', handleConnect);
 app.listen(9000);

@@ -62,11 +62,13 @@ class Interactor {
     region.addGesture(new Westures.Pinch(root, this.coalesce.bind(this)));
     region.addGesture(new Westures.Rotate(root, this.coalesce.bind(this)));
     region.addGesture(new Westures.Swipe(root, this.handlers.swipe));
-    region.addGesture(new Westures.Swivel(root, this.swivel.bind(this), {
-      enableKeys: ['ctrlKey'],
-      dynamicPivot: true,
-      maxInputs: 1,
-    }));
+    region.addGesture(
+      new Westures.Swivel(root, this.swivel.bind(this), {
+        enableKeys: ['ctrlKey'],
+        dynamicPivot: true,
+        maxInputs: 1,
+      })
+    );
     region.addGesture(new Westures.Tap(root, this.handlers.tap));
     region.addGesture(new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] }));
   }

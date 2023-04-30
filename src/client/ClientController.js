@@ -348,7 +348,7 @@ class ClientController {
     // if (useMultiScreenGestures) {
     //   this.setupInputForwarding();
     // } else {
-      // eslint-disable-next-line
+    // eslint-disable-next-line
     this.setupInputForwarding();
     return new Interactor(this.rootElement, {
       swipe: this.forward.bind(this, Message.SWIPE),
