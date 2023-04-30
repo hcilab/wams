@@ -58,6 +58,19 @@ const EventTarget = (superclass) => {
     }
 
     /**
+     * Remove all listeners, or those of the specified `eventName`
+     *
+     * @param {string} eventName optional
+     */
+    removeAllListeners(eventName) {
+      if (eventName === undefined) {
+        this.listeners = {};
+      } else {
+        delete this.listeners[eventName];
+      }
+    }
+
+    /**
      * @returns {string[]} an array listing the events for which the target has registered listeners.
      */
     eventNames() {
