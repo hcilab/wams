@@ -49,32 +49,28 @@ class Interactor {
     this._scheduled = false;
 
     // Begin listening activities immediately.
-    this.bindRegions(root);
+    this.addGestures(root);
     window.addEventListener('wheel', this.wheel.bind(this), false);
   }
 
   /**
-   * Westures uses Gesture objects, and expects those objects to be bound to an
-   * element, along with a handler for responding to that gesture. This method
-   * takes care of those activities.
+   * Sets up gesture listeners via westures.
    */
-  bindRegions(root) {
-    const pan = new Westures.Pan(root, this.coalesce.bind(this), { disableKeys: ['ctrlKey'] });
-    const pinch = new Westures.Pinch(root, this.coalesce.bind(this));
-    const rotate = new Westures.Rotate(root, this.coalesce.bind(this));
-    const swipe = new Westures.Swipe(root, this.handlers.swipe);
-    const swivel = new Westures.Swivel(root, this.swivel.bind(this), { enableKeys: ['ctrlKey'] });
-    const tap = new Westures.Tap(root, this.handlers.tap);
-    const track = new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] });
-
-    const region = new Westures.Region(root);
-    region.addGesture(pan);
-    region.addGesture(pinch);
-    region.addGesture(rotate);
-    region.addGesture(tap);
-    region.addGesture(swipe);
-    region.addGesture(swivel);
-    region.addGesture(track);
+  addGestures(root) {
+    const region = new Westures.Region(root, { preventDefault: false });
+    region.addGesture(new Westures.Pan(root, this.coalesce.bind(this), { disableKeys: ['ctrlKey'] }));
+    region.addGesture(new Westures.Pinch(root, this.coalesce.bind(this)));
+    region.addGesture(new Westures.Rotate(root, this.coalesce.bind(this)));
+    region.addGesture(new Westures.Swipe(root, this.handlers.swipe));
+    region.addGesture(
+      new Westures.Swivel(root, this.swivel.bind(this), {
+        enableKeys: ['ctrlKey'],
+        dynamicPivot: true,
+        maxInputs: 1,
+      })
+    );
+    region.addGesture(new Westures.Tap(root, this.handlers.tap));
+    region.addGesture(new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] }));
   }
 
   _resetChanges() {
@@ -122,10 +118,7 @@ class Interactor {
    * Send a swivel event through as a transformation.
    */
   swivel({ rotation, pivot }) {
-    this.handlers.transform({
-      centroid: pivot,
-      delta: { rotation },
-    });
+    this.coalesce({ rotation, centroid: pivot });
   }
 
   /**

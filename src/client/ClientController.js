@@ -2,7 +2,7 @@
 
 const io = require('socket.io-client');
 
-const { constants, DataReporter, TouchReporter, IdStamper, Message, NOP } = require('../shared.js');
+const { constants, DataReporter, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
@@ -345,29 +345,24 @@ class ClientController {
    * gestures. Default is to use client-side gestures.
    */
   setupInteractor(useMultiScreenGestures = false) {
-    if (useMultiScreenGestures) {
-      this.setupInputForwarding();
-    } else {
-      // eslint-disable-next-line
-      new Interactor(this.rootElement, {
-        swipe: this.forward.bind(this, Message.SWIPE),
-        tap: this.forward.bind(this, Message.CLICK),
-        track: this.forward.bind(this, Message.TRACK),
-        transform: this.forward.bind(this, Message.TRANSFORM),
-      });
-    }
+    // if (useMultiScreenGestures) {
+    //   this.setupInputForwarding();
+    // } else {
+    // eslint-disable-next-line
+    this.setupInputForwarding();
+    return new Interactor(this.rootElement, {
+      swipe: this.forward.bind(this, Message.SWIPE),
+      tap: this.forward.bind(this, Message.CLICK),
+      track: this.forward.bind(this, Message.TRACK),
+      transform: this.forward.bind(this, Message.TRANSFORM),
+    });
   }
 
   /**
    * Set up input event forwarding.
    */
   setupInputForwarding() {
-    if (window.MouseEvent || window.TouchEvent) {
-      this.forwardTouchEvents();
-      this.forwardMouseEvents();
-    } else {
-      this.forwardPointerEvents();
-    }
+    this.forwardPointerEvents();
     this.forwardBlurEvents();
   }
 
@@ -391,8 +386,7 @@ class ClientController {
    * Forward blur and cancel events.
    */
   forwardBlurEvents() {
-    this.forwardEvents(['touchcancel', 'pointercancel', 'blur'], (event) => {
-      event.preventDefault();
+    this.forwardEvents(['pointercancel', 'blur'], (event) => {
       const breport = new DataReporter();
       new Message(Message.BLUR, breport).emitWith(this.socket);
     });
@@ -403,53 +397,7 @@ class ClientController {
    */
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      event.preventDefault();
-      const treport = new TouchReporter(event);
-      treport.changedTouches = [
-        {
-          identifier: event.pointerId,
-          clientX: event.clientX,
-          clientY: event.clientY,
-        },
-      ];
-      new Message(Message.POINTER, treport).emitWith(this.socket);
-    });
-  }
-
-  /**
-   * Forward mouse events.
-   */
-  forwardMouseEvents() {
-    this.forwardEvents(['mousedown', 'mousemove', 'mouseup'], (event) => {
-      event.preventDefault();
-      if (event.button === 0) {
-        const treport = new TouchReporter(event);
-        treport.changedTouches = [
-          {
-            identifier: 0,
-            clientX: event.clientX,
-            clientY: event.clientY,
-          },
-        ];
-        new Message(Message.POINTER, treport).emitWith(this.socket);
-      }
-    });
-  }
-
-  /**
-   * Forward touch events.
-   */
-  forwardTouchEvents() {
-    this.forwardEvents(['touchstart', 'touchmove', 'touchend'], (event) => {
-      event.preventDefault();
-      const treport = new TouchReporter(event);
-      treport.changedTouches = Array.from(event.changedTouches).map((touch) => {
-        return {
-          identifier: touch.identifier,
-          clientX: touch.clientX,
-          clientY: touch.clientY,
-        };
-      });
+      const treport = new PointerReporter(event);
       new Message(Message.POINTER, treport).emitWith(this.socket);
     });
   }

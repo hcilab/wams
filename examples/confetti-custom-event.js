@@ -9,10 +9,7 @@
 
 const WAMS = require('..');
 const path = require('path');
-const app = new WAMS.Application({
-  clientScripts: ['confetti-custom-event.js'],
-  staticDir: path.join(__dirname, './client'),
-});
+const app = new WAMS.Application();
 
 // create a custom square
 // with a random color
@@ -40,6 +37,7 @@ function square(x, y, view, color) {
 function spawnSquare(event, color) {
   const item = app.spawn(square(event.x, event.y, event.view, color));
   item.on('drag', WAMS.predefined.actions.drag);
+  return item;
 }
 
 function handleConnect({ view }) {
@@ -47,26 +45,30 @@ function handleConnect({ view }) {
   view.on('drag', WAMS.predefined.actions.drag);
   view.on('rotate', WAMS.predefined.actions.rotate);
   // view.on('click', spawnSquare);
+  view.on('pointerdown', lock);
+  view.on('pointerup', release);
 }
 
-app.on('mousedown', (event) => {
+function lock(event) {
   const item = app.workspace.findItemByCoordinates(event.x, event.y);
   if (item) {
     event.x = item.x;
     event.y = item.y;
     app.workspace.removeItem(item);
   }
-  spawnSquare(event, '#FFBF00');
-});
+  const newItem = spawnSquare(event, '#FFBF00');
+  event.view.obtainLockOnItem(newItem);
+}
 
-app.on('mouseup', (event) => {
-  const item = app.workspace.findItemByCoordinates(event.x, event.y);
+function release(event) {
+  const item = event.view.lockedItem;
   if (item) {
     event.x = item.x;
     event.y = item.y;
     app.workspace.removeItem(item);
   }
   spawnSquare(event);
-});
+}
+
 app.on('connect', handleConnect);
 app.listen(9000);

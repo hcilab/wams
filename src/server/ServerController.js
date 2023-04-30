@@ -197,13 +197,15 @@ class ServerController {
    * @param {TouchEvent} event - The event to forward.
    */
   pointerEvent(event) {
+    event.view = this.view;
     event.source = this.view.id;
-    event.changedTouches.forEach((touch) => {
-      touch.identifier = `${String(this.view.id)}-${touch.identifier}`;
-      const { x, y } = this.device.transformPoint(touch.clientX, touch.clientY);
-      touch.clientX = x;
-      touch.clientY = y;
-    });
+    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
+    const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
+    event.clientX = x;
+    event.clientY = y;
+    event.x = x;
+    event.y = y;
+    this.view.dispatchEvent(event.type, event);
     // FIXME TODO: reinstate support for server-side gestures
     // this.group.gestureController.process(event);
   }
