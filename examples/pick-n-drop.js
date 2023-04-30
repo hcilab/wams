@@ -40,8 +40,8 @@ function handleConnect({ view, device, group }) {
   dimensions[view.index] = { x: device.x, y: device.y, width: device.width, height: device.height };
 }
 
-app.onconnect = handleConnect;
-app.listen(9700);
+app.on('connect', handleConnect);
+app.listen(9000);
 
 function moveScreenToScreen(currentView, targetView) {
   const centeredBelowPosX = targetView.x + targetView.width / 2 - currentView.width / 2;
@@ -69,10 +69,8 @@ function viewContainsItem(view, item) {
 }
 
 function spawnImage(x, y) {
-  return app.spawn(
+  const item = app.spawn(
     image('dribble.png', {
-      ondrag: WAMS.predefined.actions.drag,
-      onrotate: WAMS.predefined.actions.rotate,
       width: 1600,
       height: 1200,
       scale: 1 / 4,
@@ -80,4 +78,7 @@ function spawnImage(x, y) {
       y,
     })
   );
+  item.on('drag', WAMS.predefined.actions.drag);
+  item.on('rotate', WAMS.predefined.actions.rotate);
+  return item;
 }

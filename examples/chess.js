@@ -103,7 +103,7 @@ function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
     }
   }
 
-  app.spawn(
+  const token = app.spawn(
     WAMS.predefined.items.html(
       `<div><img src="${imgUrl}" width="${SQUARE_LENGTH}" height="${SQUARE_LENGTH}" /></div>`,
       SQUARE_LENGTH,
@@ -115,12 +115,12 @@ function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
         height: SQUARE_LENGTH,
         type,
         ownerIdx: userIdx,
-        ondrag: (e) => handleTokenDrag(e, userIdx),
         // rotation: event => handleRotate(event),
         ...properties,
       }
     )
   );
+  token.on('drag', (e) => handleTokenDrag(e, userIdx));
 }
 
 // Spawning all pieces iteratively
@@ -168,10 +168,10 @@ function handleConnect({ view }) {
 
   centerViewNormal(view);
 
-  view.ondrag = WAMS.predefined.actions.drag;
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.onrotate = WAMS.predefined.actions.rotate;
+  view.on('drag', WAMS.predefined.actions.drag);
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('rotate', WAMS.predefined.actions.rotate);
 }
 
-app.onconnect = handleConnect;
-app.listen(4000);
+app.on('connect', handleConnect);
+app.listen(9000);

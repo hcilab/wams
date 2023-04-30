@@ -58,8 +58,8 @@ class DrawingApp {
     this.app.on('set-control', this.updateControlType.bind(this));
     this.app.on('set-color', this.setColor.bind(this));
     this.app.on('set-width', this.setWidth.bind(this));
-    this.app.onconnect = this.handleConnect.bind(this);
-    this.app.listen(3000);
+    this.app.on('connect', this.handleConnect.bind(this));
+    this.app.listen(9000);
   }
 
   draw(event) {
@@ -69,7 +69,6 @@ class DrawingApp {
     // const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    console.log('draw', color, width, toX, toY);
     const line = new CanvasSequence();
     // line.beginPath()
     // line.moveTo(fromX, fromY);
@@ -86,12 +85,13 @@ class DrawingApp {
 
   updateControlType({ type, view }) {
     this.controlType = type;
-    view.ondrag = type === 'pan' ? actions.drag : this.draw.bind(this);
+    view.removeAllListeners('drag');
+    view.on('drag', type === 'pan' ? actions.drag : this.draw.bind(this));
   }
 
   handleConnect({ view }) {
-    view.ondrag = WAMS.predefined.actions.drag;
-    view.onpinch = WAMS.predefined.actions.zoom;
+    view.on('drag', WAMS.predefined.actions.drag);
+    view.on('pinch', WAMS.predefined.actions.zoom);
   }
 }
 

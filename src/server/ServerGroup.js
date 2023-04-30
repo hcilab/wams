@@ -35,17 +35,15 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     this.setMeasures();
 
     this.setParentForItems();
-
-    this.setupInteractions();
   }
 
-  setupInteractions() {
-    if (this.ondrag) {
-      this.items.forEach((item) => {
-        // trying to drag any of the items will drag the whole group
-        item.ondrag = this.ondrag;
+  on(eventName, listener) {
+    this.items.forEach((item) => {
+      item.on(eventName, (event) => {
+        event.target = this;
+        return listener(event);
       });
-    }
+    });
   }
 
   /*

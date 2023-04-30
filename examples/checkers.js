@@ -51,7 +51,7 @@ function spawnToken(x, y, userIdx, properties = {}) {
   let imgUrl = userIdx === 0 ? 'Green_border.png' : 'Blue_border.png';
 
   const radius = SQUARE_LENGTH / 2;
-  app.spawn({
+  const token = app.spawn({
     x,
     y,
     width: SQUARE_LENGTH,
@@ -60,9 +60,9 @@ function spawnToken(x, y, userIdx, properties = {}) {
     type: 'item/image',
     src: imgUrl,
     ownerIdx: userIdx,
-    ondrag: (e) => handleTokenDrag(e, userIdx),
     ...properties,
   });
+  token.on('drag', (e) => handleTokenDrag(e, userIdx));
 }
 
 for (let i = 0; i < 10; i += 1) {
@@ -95,10 +95,10 @@ function handleConnect({ view }) {
 
   centerViewNormal(view);
 
-  view.ondrag = WAMS.predefined.actions.drag;
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.onrotate = WAMS.predefined.actions.rotate;
+  view.on('drag', WAMS.predefined.actions.drag);
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('rotate', WAMS.predefined.actions.rotate);
 }
 
-app.addEventListener('connect', handleConnect);
-app.listen(9012);
+app.on('connect', handleConnect);
+app.listen(9000);

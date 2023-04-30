@@ -92,7 +92,7 @@ class WorkSpace {
     const itemClass = item.constructor.name;
     if (itemClass !== 'ServerView' && itemClass !== 'ServerViewGroup') {
       if (!item.lockZ) this.raiseItem(item);
-      if (item.ondrag || item.onpinch || item.onrotate) {
+      if (this._canLock(item)) {
         view.obtainLockOnItem(item);
       } else {
         view.obtainLockOnItem(view);
@@ -100,6 +100,20 @@ class WorkSpace {
     } else {
       view.obtainLockOnItem(view);
     }
+  }
+
+  _canLock(item) {
+    const eventNames = item.eventNames();
+    return (
+      item.ondrag ||
+      item.onpinch ||
+      item.onrotate ||
+      item.onswipe ||
+      eventNames.includes('drag') ||
+      eventNames.includes('pinch') ||
+      eventNames.includes('rotate') ||
+      eventNames.includes('swipe')
+    );
   }
 
   /**

@@ -14,30 +14,30 @@ const app = new WAMS.Application({
   staticDir: path.join(__dirname, './img'),
 });
 
-app.spawn(
+const scream = app.spawn(
   image('scream.png', {
     x: 400,
     y: 400,
     width: 800,
     height: 1013,
     scale: 0.25,
-    ondrag: WAMS.predefined.actions.drag,
-    onrotate: WAMS.predefined.actions.rotate,
-    onpinch: WAMS.predefined.actions.pinch,
   })
 );
+scream.on('drag', WAMS.predefined.actions.drag);
+scream.on('rotate', WAMS.predefined.actions.rotate);
+scream.on('pinch', WAMS.predefined.actions.pinch);
 
-app.spawn(
+const lisa = app.spawn(
   image('monaLisa.jpg', {
     x: 200,
     y: 200,
     width: 1200,
     height: 1815,
     scale: 0.2,
-    ondrag: WAMS.predefined.actions.drag,
-    onrotate: WAMS.predefined.actions.rotate,
-    onpinch: WAMS.predefined.actions.pinch,
   })
 );
+lisa.on('drag', WAMS.predefined.actions.drag);
+lisa.on('rotate', WAMS.predefined.actions.rotate);
+lisa.on('pinch', WAMS.predefined.actions.pinch);
 
-app.listen(9003);
+app.listen(9000);

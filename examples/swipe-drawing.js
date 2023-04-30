@@ -14,8 +14,8 @@ const app = new WAMS.Application();
  */
 function handleSwipe({ x, y, velocity, direction }) {
   const cidx = Math.ceil(velocity * 10) % WAMS.colours.length;
-  console.count('swipes');
-  console.dir({ msg: 'Swipe registered', x, y, velocity, direction });
+  // console.count('swipes');
+  // console.dir({ msg: 'Swipe registered', x, y, velocity, direction });
   app.spawn(
     WAMS.predefined.items.rectangle(x, y, velocity * 25, 32, WAMS.colours[cidx], {
       rotation: -direction,
@@ -33,14 +33,14 @@ function handleDrag({ x, y, dx, dy }) {
       rotation: Math.atan2(dx, dy),
     })
   );
-  console.log('Line: { x: %s, y: %s, length: %s, rotation: %s }', line.x, line.y, length, line.rotation);
+  // console.log('Line: { x: %s, y: %s, length: %s, rotation: %s }', line.x, line.y, length, line.rotation);
   setTimeout(() => app.removeItem(line), 3000);
 }
 
 function handleConnect({ view }) {
-  view.onswipe = handleSwipe;
-  view.ondrag = handleDrag;
+  view.on('swipe', handleSwipe);
+  view.on('drag', handleDrag);
 }
 
-app.onconnect = handleConnect;
-app.listen(9002);
+app.on('connect', handleConnect);
+app.listen(9000);

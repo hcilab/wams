@@ -25,13 +25,13 @@ app.spawn(
 );
 
 function handleConnect({ view }) {
-  view.onrotate = WAMS.predefined.actions.rotate;
+  view.on('rotate', WAMS.predefined.actions.rotate);
   if (view.index > 0) {
     view.scale = 2.5;
-    view.ondrag = WAMS.predefined.actions.drag;
-    view.onpinch = WAMS.predefined.actions.pinch;
+    view.on('drag', WAMS.predefined.actions.drag);
+    view.on('pinch', WAMS.predefined.actions.pinch);
   }
 }
 
-app.onconnect = handleConnect;
-app.listen(9011);
+app.on('connect', handleConnect);
+app.listen(9000);

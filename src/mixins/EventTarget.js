@@ -1,6 +1,6 @@
 'use strict';
 
-const EventTarget = (superclass) =>
+const EventTarget = (superclass) => {
   class EventTarget extends superclass {
     constructor(...args) {
       super(...args);
@@ -56,6 +56,30 @@ const EventTarget = (superclass) =>
       this.listeners[event].splice(index, 1);
       return true;
     }
-  };
+
+    /**
+     * Remove all listeners, or those of the specified `eventName`
+     *
+     * @param {string} eventName optional
+     */
+    removeAllListeners(eventName) {
+      if (eventName === undefined) {
+        this.listeners = {};
+      } else {
+        delete this.listeners[eventName];
+      }
+    }
+
+    /**
+     * @returns {string[]} an array listing the events for which the target has registered listeners.
+     */
+    eventNames() {
+      return Object.keys(this.listeners);
+    }
+  }
+  EventTarget.prototype.on = EventTarget.prototype.addEventListener;
+  EventTarget.prototype.off = EventTarget.prototype.removeEventListener;
+  return EventTarget;
+};
 
 module.exports = EventTarget;

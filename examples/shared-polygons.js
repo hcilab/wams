@@ -19,10 +19,6 @@ function polygon(x, y, view) {
       y,
       type: 'colour',
       scale: 1 / view.scale,
-      onclick: removeItem,
-      onpinch: WAMS.predefined.actions.pinch,
-      onrotate: WAMS.predefined.actions.rotate,
-      ondrag: WAMS.predefined.actions.drag,
     }
   );
 }
@@ -32,18 +28,22 @@ function removeItem(event) {
 }
 
 function spawnItem(event) {
-  app.spawn(polygon(event.x, event.y, event.view));
+  const item = app.spawn(polygon(event.x, event.y, event.view));
+  item.on('click', removeItem);
+  item.on('pinch', WAMS.predefined.actions.pinch);
+  item.on('rotate', WAMS.predefined.actions.rotate);
+  item.on('drag', WAMS.predefined.actions.drag);
 }
 
 // use predefined "line layout"
 const linelayout = WAMS.predefined.layouts.line(200);
 function handleConnect({ view, device, group }) {
-  group.onclick = spawnItem;
-  group.onpinch = WAMS.predefined.actions.pinch;
-  group.onrotate = WAMS.predefined.actions.rotate;
-  group.ondrag = WAMS.predefined.actions.drag;
+  group.on('click', spawnItem);
+  group.on('pinch', WAMS.predefined.actions.pinch);
+  group.on('rotate', WAMS.predefined.actions.rotate);
+  group.on('drag', WAMS.predefined.actions.drag);
   linelayout(view, device);
 }
 
-app.onconnect = handleConnect;
-app.listen(9500);
+app.on('connect', handleConnect);
+app.listen(9000);

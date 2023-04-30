@@ -34,20 +34,19 @@ function square(x, y, view, color) {
     type: 'colour',
     scale: 1 / view.scale,
     rotation: view.rotation,
-    ondrag: WAMS.predefined.actions.drag,
   };
 }
 
 function spawnSquare(event, color) {
-  if (!color) app.spawn(square(event.x, event.y, event.view));
-  else app.spawn(square(event.x, event.y, event.view, color));
+  const item = app.spawn(square(event.x, event.y, event.view, color));
+  item.on('drag', WAMS.predefined.actions.drag);
 }
 
 function handleConnect({ view }) {
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.ondrag = WAMS.predefined.actions.drag;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  // view.onclick = spawnSquare;
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('drag', WAMS.predefined.actions.drag);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  // view.on('click', spawnSquare);
 }
 
 app.on('mousedown', (event) => {
@@ -69,5 +68,5 @@ app.on('mouseup', (event) => {
   }
   spawnSquare(event);
 });
-app.onconnect = handleConnect;
-app.listen(9013);
+app.on('connect', handleConnect);
+app.listen(9000);

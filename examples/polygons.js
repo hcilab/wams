@@ -17,10 +17,6 @@ function polygon(x, y, view) {
       y,
       type: 'colour',
       scale: 1 / view.scale,
-      onclick: removeItem,
-      onpinch: WAMS.predefined.actions.pinch,
-      onrotate: WAMS.predefined.actions.rotate,
-      ondrag: WAMS.predefined.actions.drag,
     }
   );
 }
@@ -30,15 +26,19 @@ function removeItem(event) {
 }
 
 function spawnItem(event) {
-  app.spawn(polygon(event.x, event.y, event.view));
+  const item = app.spawn(polygon(event.x, event.y, event.view));
+  item.on('click', removeItem);
+  item.on('pinch', WAMS.predefined.actions.pinch);
+  item.on('rotate', WAMS.predefined.actions.rotate);
+  item.on('drag', WAMS.predefined.actions.drag);
 }
 
 function handleConnect({ view }) {
-  view.onclick = spawnItem;
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  view.ondrag = WAMS.predefined.actions.drag;
+  view.on('click', spawnItem);
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('drag', WAMS.predefined.actions.drag);
 }
 
-app.onconnect = handleConnect;
-app.listen(9014);
+app.on('connect', handleConnect);
+app.listen(9000);

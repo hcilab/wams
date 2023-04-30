@@ -17,10 +17,6 @@ function element(x, y, view) {
     type: 'button',
     scale: 1 / view.scale,
     rotation: view.rotation,
-    onpinch: WAMS.predefined.actions.pinch,
-    ondrag: WAMS.predefined.actions.drag,
-    onrotate: WAMS.predefined.actions.rotate,
-    onclick: removeElement,
   });
 }
 
@@ -29,15 +25,19 @@ function removeElement(event) {
 }
 
 function spawnElement(event) {
-  app.spawn(element(event.x, event.y, event.view));
+  const item = app.spawn(element(event.x, event.y, event.view));
+  item.on('pinch', WAMS.predefined.actions.pinch);
+  item.on('drag', WAMS.predefined.actions.drag);
+  item.on('rotate', WAMS.predefined.actions.rotate);
+  item.on('click', removeElement);
 }
 
 function handleConnect({ view }) {
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.ondrag = WAMS.predefined.actions.drag;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  view.onclick = spawnElement;
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('drag', WAMS.predefined.actions.drag);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('click', spawnElement);
 }
 
-app.onconnect = handleConnect;
-app.listen(9002);
+app.on('connect', handleConnect);
+app.listen(9000);

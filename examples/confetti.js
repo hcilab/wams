@@ -32,11 +32,11 @@ function spawnSquare(event) {
 }
 
 function handleConnect({ view }) {
-  view.onpinch = WAMS.predefined.actions.pinch;
-  view.ondrag = WAMS.predefined.actions.drag;
-  view.onrotate = WAMS.predefined.actions.rotate;
-  view.onclick = spawnSquare;
+  view.on('pinch', WAMS.predefined.actions.pinch);
+  view.on('drag', WAMS.predefined.actions.drag);
+  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('click', spawnSquare);
 }
 
-app.onconnect = handleConnect;
-app.listen(9013);
+app.on('connect', handleConnect);
+app.listen(9000);

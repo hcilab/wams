@@ -36,16 +36,16 @@ function bottomBarred(html) {
 }
 
 function spawnIframe(event, url) {
-  app.spawn(
+  const iframe = app.spawn(
     html(bottomBarred(`<iframe width="560" height="315" src="${url}" frameborder="0"></iframe>`), 560, 365, {
       x: event.x,
       y: event.y,
       width: 560,
       height: 365,
-      ondrag: handleIframeDrag,
-      onclick: (e) => app.removeItem(e.target),
     })
   );
+  iframe.on('drag', handleIframeDrag);
+  iframe.on('click', (e) => app.removeItem(e.target));
 }
 
 function setLayout(view) {
@@ -61,11 +61,11 @@ function handleConnect({ view }) {
 
   setLayout(view);
 
-  view.onclick = (ev) => spawnIframe(ev, 'http://www.example.com');
+  view.on('click', (ev) => spawnIframe(ev, 'http://www.example.com'));
 }
 
-app.onconnect = handleConnect;
-app.listen(9021);
+app.on('connect', handleConnect);
+app.listen(9000);
 
 function handleIframeDrag(event) {
   if (event.view.index !== 0 && event.target.y <= 0) {
