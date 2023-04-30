@@ -38,9 +38,9 @@ We use browser windows to represent screens because browsers are extremely flexi
 
 You will need to install [node.js and npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
-Then you can install this repo directly as a node module:
+Then you can install this repo directly as a node module. For example, to install the stable `hello-world-test` release:
 ```bash
-npm install https://github.com/hcilab/wams.git
+npm install hcilab/wams#hello-world-test
 ```
 
 ## Getting started
@@ -82,7 +82,7 @@ First, let's set up a new directory for our demo application, and install WAMS i
 ```bash
 mkdir demo
 cd demo
-npm install https://github.com/hcilab/wams.git
+npm install hcilab/wams#hello-world-test
 ```
 
 Now, create an **app.js** file. In this file, include WAMS and initialize the application:
