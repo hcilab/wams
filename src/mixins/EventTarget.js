@@ -63,10 +63,10 @@ const EventTarget = (superclass) => {
     eventNames() {
       return Object.keys(this.listeners);
     }
-  };
+  }
   EventTarget.prototype.on = EventTarget.prototype.addEventListener;
   EventTarget.prototype.off = EventTarget.prototype.removeEventListener;
   return EventTarget;
-}
+};
 
 module.exports = EventTarget;
