@@ -4,7 +4,6 @@
 const Westures = require('westures');
 
 const { NOP } = require('../shared.js');
-const Transform = require('./Transform.js');
 
 /**
  * The Interactor class provides a layer of abstraction between the
@@ -41,6 +40,14 @@ class Interactor {
      */
     this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
 
+    /**
+     * Object to coalesce state from multiple gestures during one event cycle.
+     *
+     * @type {Object}
+     */
+    this._changes = this._resetChanges();
+    this._scheduled = false;
+
     // Begin listening activities immediately.
     this.bindRegions(root);
     window.addEventListener('wheel', this.wheel.bind(this), false);
@@ -52,46 +59,73 @@ class Interactor {
    * takes care of those activities.
    */
   bindRegions(root) {
-    const swipe = new Westures.Swipe(root, this.forward('swipe'));
-    const swivel = new Westures.Swivel(root, this.swivel(), { enableKey: 'ctrlKey' });
-    const tap = new Westures.Tap(root, this.forward('tap'));
-    const track = new Westures.Track(root, this.forward('track'), { phases: ['start', 'end'] });
-    const transform = new Transform(root, this.forward('transform'));
+    const pan = new Westures.Pan(root, this.coalesce.bind(this), { disableKeys: ['ctrlKey'] });
+    const pinch = new Westures.Pinch(root, this.coalesce.bind(this));
+    const rotate = new Westures.Rotate(root, this.coalesce.bind(this));
+    const swipe = new Westures.Swipe(root, this.handlers.swipe);
+    const swivel = new Westures.Swivel(root, this.swivel.bind(this), { enableKeys: ['ctrlKey'] });
+    const tap = new Westures.Tap(root, this.handlers.tap);
+    const track = new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] });
 
     const region = new Westures.Region(root);
+    region.addGesture(pan);
+    region.addGesture(pinch);
+    region.addGesture(rotate);
     region.addGesture(tap);
     region.addGesture(swipe);
     region.addGesture(swivel);
-    region.addGesture(transform);
     region.addGesture(track);
+  }
+
+  _resetChanges() {
+    return {
+      centroid: { x: 0, y: 0 },
+      delta: {
+        scale: 1,
+        rotation: 0,
+        translation: { x: 0, y: 0 },
+      },
+    };
+  }
+
+  /**
+   * Coalesce state changes for this event cycle.
+   */
+  coalesce(data) {
+    this._changes.centroid = data.centroid;
+    if (data.scale) {
+      this._changes.delta.scale *= data.scale;
+    }
+    if (data.rotation) {
+      this._changes.delta.rotation += data.rotation;
+    }
+    if (data.translation) {
+      this._changes.delta.translation.x += data.translation.x;
+      this._changes.delta.translation.y += data.translation.y;
+    }
+    if (!this._scheduled) {
+      window.setTimeout(this._emit.bind(this), 0);
+      this._scheduled = true;
+    }
+  }
+
+  /**
+   * Emit a transform event with the coalesced state changes.
+   */
+  _emit() {
+    this.handlers.transform(this._changes);
+    this._changes = this._resetChanges();
+    this._scheduled = false;
   }
 
   /**
    * Send a swivel event through as a transformation.
    */
-  swivel() {
-    function doSwivel({ rotation, pivot }) {
-      this.handlers.transform({
-        centroid: pivot,
-        delta: { rotation },
-      });
-    }
-    return doSwivel.bind(this);
-  }
-
-  /**
-   * Generates a function that forwards the appropriate gesture and data.
-   *
-   * @param {string} gesture - name of a gesture to forward.
-   *
-   * @return {Function} Handler for westures that receives a data object and
-   * forwards it according to the given gesture name.
-   */
-  forward(gesture) {
-    function doForward(data) {
-      this.handlers[gesture](data);
-    }
-    return doForward.bind(this);
+  swivel({ rotation, pivot }) {
+    this.handlers.transform({
+      centroid: pivot,
+      delta: { rotation },
+    });
   }
 
   /**

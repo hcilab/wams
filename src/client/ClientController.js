@@ -215,12 +215,9 @@ class ClientController {
    * @return {Function} A function bound to this instance for forwarding data to
    * the server with the given message type label.
    */
-  forward(message) {
-    function doForward(data) {
-      const dreport = new DataReporter({ data });
-      new Message(message, dreport).emitWith(this.socket);
-    }
-    return doForward.bind(this);
+  forward(message, data) {
+    const dreport = new DataReporter({ data });
+    new Message(message, dreport).emitWith(this.socket);
   }
 
   /**
@@ -353,10 +350,10 @@ class ClientController {
     } else {
       // eslint-disable-next-line
       new Interactor(this.rootElement, {
-        swipe: this.forward(Message.SWIPE),
-        tap: this.forward(Message.CLICK),
-        track: this.forward(Message.TRACK),
-        transform: this.forward(Message.TRANSFORM),
+        swipe: this.forward.bind(this, Message.SWIPE),
+        tap: this.forward.bind(this, Message.CLICK),
+        track: this.forward.bind(this, Message.TRACK),
+        transform: this.forward.bind(this, Message.TRANSFORM),
       });
     }
   }

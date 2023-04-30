@@ -2,5 +2,6 @@ dist
 docs
 package-lock.json
 node_modules
+.parcel-cache
 
 *.svg
