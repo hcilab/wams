@@ -12,7 +12,7 @@ const { html } = WAMS.predefined.items;
 // function that returns input html wrapped with a top bar
 function topbarred(html) {
   return `${
-    '<div>' + '<div width="560" height="50" ' + 'style="background-color:green; height:50px;"></div>'
+    '<div>' + '<div width="560" height="50" ' + 'style="background-color:green; height:50px; border: solid black;"></div>'
   }${html}</div>`;
 }
 
