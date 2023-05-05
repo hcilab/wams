@@ -8419,6 +8419,13 @@ const $e307541a347955a1$var$symbols = Object.freeze({
    * @return {Function} A function bound to this instance for forwarding data to
    * the server with the given message type label.
    */ forward(message, data) {
+        const rect = this.canvas.getBoundingClientRect();
+        if (data.centroid) {
+            centroid.x -= rect.x;
+            centroid.y -= rect.y;
+        }
+        if (data.x) data.x -= rect.x;
+        if (data.y) data.y -= rect.y;
         const dreport = new $e307541a347955a1$require$DataReporter({
             data: data
         });
