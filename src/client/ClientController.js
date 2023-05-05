@@ -1,6 +1,6 @@
 'use strict';
 
-const io = require('socket.io-client');
+const { io } = require('socket.io-client');
 
 const { constants, DataReporter, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
@@ -128,7 +128,7 @@ class ClientController {
       [Message.SET_PARENT]: ({ data }) => this.handle('setParent', data),
 
       // Connection establishment related (disconnect, initial setup)
-      [Message.INITIALIZE]: (data) => this.setup(data),
+      [Message.INITIALIZE]: this.setup.bind(this),
       [Message.LAYOUT]: NOP,
 
       // User event related

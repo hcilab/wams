@@ -3,7 +3,7 @@
 // External modules
 const http = require('http');
 const os = require('os');
-const IO = require('socket.io');
+const { Server } = require('socket.io');
 
 // Local classes, etc
 const { constants, DataReporter, Message } = require('../shared.js');
@@ -28,7 +28,7 @@ class Application extends EventTarget(Object) {
     /**
      * Socket.io instance using http server.
      */
-    this.socket_io = IO(server);
+    this.socket_io = new Server(server);
 
     /**
      * Socket.io namespace in which to operate.
