@@ -56,21 +56,18 @@ app.on('connect', handleConnect);
  * @returns {string} The first valid local IPv4 address it finds.
  */
 function getLocalIP() {
-  let ipaddr = null;
-  Object.values(os.networkInterfaces()).some((f) => {
-    return f.some((a) => {
-      if (a.family === 'IPv4' && a.internal === false) {
-        ipaddr = a.address;
-        return true;
+  for (const netInterface of Object.values(os.networkInterfaces())) {
+    for (const netAddress of netInterface) {
+      if (netAddress.family === 'IPv4' && netAddress.internal === false) {
+        return netAddress.address;
       }
-      return false;
-    });
-  });
-  return ipaddr;
+    }
+  }
+  return null;
 }
 
 
-server.listen(9000, () => {
+server.listen(9000, 'localhost', () => {
   const formatAddress = (_host, port) => `http://${_host}:${port}`;
   const { address, port } = server.address();
   console.log('🚀 WAMS server listening on:');
