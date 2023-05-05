@@ -215,7 +215,7 @@ class ClientController {
       data.centroid = {
         x: data.centroid.x - rect.x,
         y: data.centroid.y - rect.y,
-      }
+      };
     }
     // okay to use -= here
     if (data.x) {

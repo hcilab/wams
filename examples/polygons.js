@@ -66,7 +66,6 @@ function getLocalIP() {
   return null;
 }
 
-
 server.listen(9000, 'localhost', () => {
   const formatAddress = (_host, port) => `http://${_host}:${port}`;
   const { address, port } = server.address();
