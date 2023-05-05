@@ -7,7 +7,6 @@ const IO = require('socket.io');
 
 // Local classes, etc
 const { constants, DataReporter, Message } = require('../shared.js');
-const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
@@ -15,50 +14,21 @@ const ServerViewGroup = require('./ServerViewGroup.js');
 const { EventTarget } = require('../mixins.js');
 
 /**
- * @inner
- * @memberof module:server.Application
- *
- * @returns {string} The first valid local IPv4 address it finds.
- */
-function getLocalIP() {
-  let ipaddr = null;
-  Object.values(os.networkInterfaces()).some((f) => {
-    return f.some((a) => {
-      if (a.family === 'IPv4' && a.internal === false) {
-        ipaddr = a.address;
-        return true;
-      }
-      return false;
-    });
-  });
-  return ipaddr;
-}
-
-/**
  * This module defines the API endpoint.
  *
  * @memberof module:server
  *
+ * @param {http.Server} server
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
- * @param {module:server.Router} [router=Router()] - Route handler to use.
  */
 class Application extends EventTarget(Object) {
-  constructor(settings = {}, router = Router(), ...args) {
+  constructor(server, settings = {}, ...args) {
     super(...args);
-
-    this.setupStaticRoute(settings, router);
-
-    /**
-     * HTTP server for sending and receiving data.
-     *
-     * @type {http.Server}
-     */
-    this.server = http.createServer(router);
 
     /**
      * Socket.io instance using http server.
      */
-    this.IOserver = IO(this.server);
+    this.socket_io = IO(server);
 
     /**
      * Socket.io namespace in which to operate.
@@ -66,7 +36,7 @@ class Application extends EventTarget(Object) {
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = this.IOserver.of(constants.NS_WAMS);
+    this.namespace = this.socket_io.of(constants.NS_WAMS);
 
     /**
      * The main model. The buck stops here.
@@ -95,42 +65,6 @@ class Application extends EventTarget(Object) {
      * @type {module:server.Switchboard}
      */
     this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, this.group, settings);
-  }
-
-  /**
-   * Setup the route to the static files directory,
-   * if included in application configuration.
-   *
-   * @param {object} settings
-   * @param {module:server.Router} router
-   */
-  setupStaticRoute(settings, router) {
-    const staticDir = settings.staticDir;
-    if (staticDir) router.use(router.express.static(staticDir));
-  }
-
-  /**
-   * Start the server on the given hostname and port.
-   *
-   * @param {number} [port=9000] - Valid port number on which to listen.
-   * @param {string} [host=getLocalIP()] - IP address or hostname on which to
-   * listen.
-   * @see module:server.Application~getLocalIP
-   */
-  listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
-    this.server.listen(port, host, () => {
-      const formatAddress = (_host, port) => `http://${_host}:${port}`;
-      const { address, port } = this.server.address();
-
-      console.log('🚀 WAMS server listening on:');
-      console.log(`🔗 ${formatAddress(address, port)}`);
-
-      // if host is localhost or '0.0.0.0', assume local ipv4 also available
-      if (host === '0.0.0.0' || host == 'localhost') {
-        const localIPv4 = getLocalIP();
-        console.log(`🔗 ${formatAddress(localIPv4, port)}`);
-      }
-    });
   }
 
   /**
