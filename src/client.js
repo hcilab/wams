@@ -56,9 +56,12 @@ function run() {
   if (!canvas) throw Error('No canvas element was found on the page.');
 
   const context = canvas.getContext('2d');
+  const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
+  const dpr = iOS ? 1 : window.devicePixelRatio || 1;
+  if (!iOS) context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const model = new ClientModel(root);
-  const view = new ClientView(context);
+  const view = new ClientView(context, dpr);
   const controller = new ClientController(root, canvas, view, model);
   window.WAMS = new ClientApplication(controller);
 

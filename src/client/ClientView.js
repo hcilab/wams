@@ -33,7 +33,7 @@ const DEFAULT_CONFIG = Object.freeze({
  * render the model.
  */
 class ClientView extends View {
-  constructor(context) {
+  constructor(context, dpr) {
     super(ClientView.DEFAULTS);
 
     /**
@@ -63,6 +63,13 @@ class ClientView extends View {
      * @memberof module:client.ClientView
      */
     this.id = null;
+
+    /**
+     * Device pixel ratio. Should be window.devicePixelRatio or 1.
+     *
+     * @type {number}
+     */
+    this.dpr = dpr || 1;
 
     /**
      * Configuration of ClientView that can be
@@ -125,7 +132,7 @@ class ClientView extends View {
     const tx = 20;
 
     this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.context.font = '18px Georgia';
     messages.forEach((m) => {
       this.context.fillText(m, tx, ty);
@@ -161,10 +168,9 @@ class ClientView extends View {
   /**
    * Fill all available space in the window.
    */
-  resizeToFillWindow(dpr, iOS) {
+  resizeToFillWindow() {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    if (!iOS) this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 }
 

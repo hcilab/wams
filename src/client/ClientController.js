@@ -267,15 +267,14 @@ class ClientController {
    * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
-    const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
-    const dpr = iOS ? 1 : window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
+    const dpr = this.view.dpr;
     this.canvas.width = w * dpr;
     this.canvas.height = h * dpr;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow(dpr, iOS);
+    this.view.resizeToFillWindow();
   }
 
   /**
