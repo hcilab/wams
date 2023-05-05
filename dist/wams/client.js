@@ -8420,10 +8420,12 @@ const $e307541a347955a1$var$symbols = Object.freeze({
    * the server with the given message type label.
    */ forward(message, data) {
         const rect = this.canvas.getBoundingClientRect();
-        if (data.centroid) {
-            data.centroid.x -= rect.x;
-            data.centroid.y -= rect.y;
-        }
+        if (data.centroid) // careful to make a copy, don't overwrite!
+        data.centroid = {
+            x: data.centroid.x - rect.x,
+            y: data.centroid.y - rect.y
+        };
+        // okay to use -= here
         if (data.x) data.x -= rect.x;
         if (data.y) data.y -= rect.y;
         const dreport = new $e307541a347955a1$require$DataReporter({
