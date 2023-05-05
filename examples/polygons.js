@@ -5,8 +5,13 @@
 
 'use strict';
 
+const http = require('http');
+const Router = require('./Router.js');
 const WAMS = require('..');
-const app = new WAMS.Application();
+
+const expressApp = Router()
+const server = http.Server(expressApp);
+const app = new WAMS.Application(server, { shadows: true });
 
 function polygon(x, y, view) {
   return WAMS.predefined.items.polygon(
@@ -41,4 +46,17 @@ function handleConnect({ view }) {
 }
 
 app.on('connect', handleConnect);
-app.listen(9000);
+server.listen(9000, () => {
+  console.log(server);
+  const formatAddress = (_host, port) => `http://${_host}:${port}`;
+  const { address, port } = server.address();
+
+  console.log('🚀 WAMS server listening on:');
+  console.log(`🔗 ${formatAddress(address, port)}`);
+
+  // if host is localhost or '0.0.0.0', assume local ipv4 also available
+  // if (host === '0.0.0.0' || host == 'localhost') {
+  //   const localIPv4 = getLocalIP();
+  //   console.log(`🔗 ${formatAddress(localIPv4, port)}`);
+  // }
+});
