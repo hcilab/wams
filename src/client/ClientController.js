@@ -211,8 +211,8 @@ class ClientController {
   forward(message, data) {
     const rect = this.canvas.getBoundingClientRect();
     if (data.centroid) {
-      centroid.x -= rect.x;
-      centroid.y -= rect.y;
+      data.centroid.x -= rect.x;
+      data.centroid.y -= rect.y;
     }
     if (data.x) {
       data.x -= rect.x;

@@ -8421,8 +8421,8 @@ const $e307541a347955a1$var$symbols = Object.freeze({
    */ forward(message, data) {
         const rect = this.canvas.getBoundingClientRect();
         if (data.centroid) {
-            centroid.x -= rect.x;
-            centroid.y -= rect.y;
+            data.centroid.x -= rect.x;
+            data.centroid.y -= rect.y;
         }
         if (data.x) data.x -= rect.x;
         if (data.y) data.y -= rect.y;
