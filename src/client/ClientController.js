@@ -209,6 +209,17 @@ class ClientController {
    * the server with the given message type label.
    */
   forward(message, data) {
+    const rect = this.canvas.getBoundingClientRect();
+    if (data.centroid) {
+      centroid.x -= rect.x;
+      centroid.y -= rect.y;
+    }
+    if (data.x) {
+      data.x -= rect.x;
+    }
+    if (data.y) {
+      data.y -= rect.y;
+    }
     const dreport = new DataReporter({ data });
     new Message(message, dreport).emitWith(this.socket);
   }
