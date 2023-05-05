@@ -276,12 +276,6 @@ class ClientController {
 
     IdStamper.cloneId(this.view, data.id);
 
-    if (data.backgroundImage) {
-      this.canvas.style.backgroundColor = 'transparent';
-      document.body.style.backgroundImage = `url("${data.backgroundImage}")`;
-    } else {
-      this.canvas.style.backgroundColor = data.color;
-    }
     this.model.setup(data);
     this.setupInteractor(data.useMultiScreenGestures);
 
