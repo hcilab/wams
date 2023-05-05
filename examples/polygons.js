@@ -9,7 +9,7 @@ const http = require('http');
 const Router = require('./Router.js');
 const WAMS = require('..');
 
-const expressApp = Router()
+const expressApp = Router();
 const server = http.Server(expressApp);
 const app = new WAMS.Application(server, { shadows: true });
 

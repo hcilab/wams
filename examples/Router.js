@@ -16,4 +16,4 @@ function Router() {
   return app;
 }
 
-module.exports = Router
+module.exports = Router;
