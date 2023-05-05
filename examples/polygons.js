@@ -5,12 +5,17 @@
 
 'use strict';
 
-const http = require('http');
-const Router = require('./Router.js');
 const WAMS = require('..');
+const express = require('express');
+const http = require('http');
+const path = require('path');
+const os = require('os');
 
-const expressApp = Router();
+// Establish server and routing using express
+const expressApp = express();
+expressApp.use('/', express.static(path.join(__dirname, '../dist')));
 const server = http.Server(expressApp);
+
 const app = new WAMS.Application(server, { shadows: true });
 
 function polygon(x, y, view) {
@@ -46,17 +51,29 @@ function handleConnect({ view }) {
 }
 
 app.on('connect', handleConnect);
+
+/**
+ * @returns {string} The first valid local IPv4 address it finds.
+ */
+function getLocalIP() {
+  let ipaddr = null;
+  Object.values(os.networkInterfaces()).some((f) => {
+    return f.some((a) => {
+      if (a.family === 'IPv4' && a.internal === false) {
+        ipaddr = a.address;
+        return true;
+      }
+      return false;
+    });
+  });
+  return ipaddr;
+}
+
+
 server.listen(9000, () => {
-  console.log(server);
   const formatAddress = (_host, port) => `http://${_host}:${port}`;
   const { address, port } = server.address();
-
   console.log('🚀 WAMS server listening on:');
   console.log(`🔗 ${formatAddress(address, port)}`);
-
-  // if host is localhost or '0.0.0.0', assume local ipv4 also available
-  // if (host === '0.0.0.0' || host == 'localhost') {
-  //   const localIPv4 = getLocalIP();
-  //   console.log(`🔗 ${formatAddress(localIPv4, port)}`);
-  // }
+  console.log(`🔗 ${formatAddress(getLocalIP(), port)}`);
 });
