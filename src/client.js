@@ -61,7 +61,7 @@ function run() {
   if (!iOS) context.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const model = new ClientModel(root);
-  const view = new ClientView(context, dpr);
+  const view = new ClientView(context, dpr, { width: canvas.width, height: canvas.height });
   const controller = new ClientController(root, canvas, view, model);
   window.WAMS = new ClientApplication(controller);
 

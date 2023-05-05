@@ -95,13 +95,6 @@ class ClientController {
      * @type {function}
      */
     this.render_fn = this[symbols.render].bind(this);
-
-    /*
-     * For proper function, we need to make sure that the canvas is as large as
-     * it can be at all times, and that at all times we know how big the canvas
-     * is.
-     */
-    this.resizeCanvasToFillWindow();
   }
 
   /**
@@ -161,7 +154,7 @@ class ClientController {
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
 
     // Keep the view size up to date.
-    window.addEventListener('resize', this.resize.bind(this), false);
+    this.canvas.addEventListener('resize', this.handleResize.bind(this), false);
 
     /*
      * As no automatic draw loop is used, (there are no animations), need to
@@ -252,29 +245,10 @@ class ClientController {
    * the new window size, and reports the change to the server so it can be
    * reflected in the model.
    */
-  resize() {
-    this.resizeCanvasToFillWindow();
+  handleResize() {
+    this.view.resize(this.canvas.width, this.canvas.height);
     new Message(Message.RESIZE, this.view).emitWith(this.socket);
     this.view.draw();
-  }
-
-  /**
-   * Stretches the canvas to fit the available window space, and updates the
-   * view accordingly.
-   *
-   * Note: Scaling to account for device pixel ratio is disabled for iOS
-   * as a workaround for a bug with Safari and Chrome, where `context.setTransform`
-   * would make the page unresponsive.
-   */
-  resizeCanvasToFillWindow() {
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    const dpr = this.view.dpr;
-    this.canvas.width = w * dpr;
-    this.canvas.height = h * dpr;
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow();
   }
 
   /**

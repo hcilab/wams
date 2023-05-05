@@ -70,15 +70,5 @@ describe('ClientView', () => {
         } else return undefined;
       });
     });
-
-    describe('resizeToFillWindow()', () => {
-      test('Adjusts size of client view to the window size', () => {
-        expect(cv.width).not.toBe(window.innerWidth);
-        expect(cv.height).not.toBe(window.innerHeight);
-        cv.resizeToFillWindow();
-        expect(cv.width).toBe(window.innerWidth);
-        expect(cv.height).toBe(window.innerHeight);
-      });
-    });
   });
 });

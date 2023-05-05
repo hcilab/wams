@@ -33,8 +33,8 @@ const DEFAULT_CONFIG = Object.freeze({
  * render the model.
  */
 class ClientView extends View {
-  constructor(context, dpr) {
-    super(ClientView.DEFAULTS);
+  constructor(context, dpr, properties = {}) {
+    super({ ...ClientView.DEFAULTS, ...properties });
 
     /**
      * The CanvasRenderingContext2D is required for drawing (rendering) to take
@@ -166,11 +166,11 @@ class ClientView extends View {
   }
 
   /**
-   * Fill all available space in the window.
+   * Specify the width and height of the view.
    */
-  resizeToFillWindow() {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
+  resize(width, height) {
+    this.width = width;
+    this.height = height;
   }
 }
 
