@@ -1,83 +1,121 @@
 'use strict';
 
-const ReporterFactory = require('./ReporterFactory.js');
-
 /**
  * This Item class provides a common interface between the client and the server
  * by which the Items can interact safely.
  *
  * @class Item
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const Item = ReporterFactory({
-  /**
-   * X coordinate of the Item.
-   *
-   * @name x
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.Item
-   * @instance
-   */
-  x: 0,
+class Item {
+  constructor({ x = 0, y = 0, rotation = 0, scale = 1, type = 'item/polygonal', lockZ = false } = {}) {
+    /**
+     * X coordinate of the Item.
+     *
+     * @type {number}
+     * @default 0
+     */
+    this.x = x;
+
+    /**
+     * Y coordinate of the Item.
+     *
+     * @type {number}
+     * @default 0
+     */
+    this.y = y;
+
+    /**
+     * Rotation of the Item.
+     *
+     * @type {number}
+     * @default 0
+     */
+    this.rotation = rotation;
+
+    /**
+     * Scale of the Item.
+     *
+     * @type {number}
+     * @default 1
+     */
+    this.scale = scale;
+
+    /**
+     * Type description of the Item.
+     *
+     * @type {string}
+     * @default 'item/polygonal'
+     */
+    this.type = type;
+
+    /**
+     * Whether to raise item upon interaction or
+     * lock Z position instead.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    this.lockZ = lockZ;
+  }
 
   /**
-   * Y coordinate of the Item.
-   *
-   * @name y
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.Item
-   * @instance
+   * @return object A serialized version of the item, ready for transmission.
    */
-  y: 0,
+  toJSON() {
+    return {
+      x: this.x,
+      y: this.y,
+      rotation: this.rotation,
+      scale: this.scale,
+      type: this.type,
+      lockZ: this.lockZ,
+    };
+  }
+}
+
+class RectangularItem extends Item {
+  constructor({
+    x = 0,
+    y = 0,
+    width = 400,
+    height = 300,
+    rotation = 0,
+    scale = 1,
+    type = 'item/rectangular',
+    lockZ = false,
+  } = {}) {
+    super({ x, y, rotation, scale, type, lockZ });
+
+    /**
+     * Width of the WamsElement.
+     *
+     * @type {number}
+     * @default 400
+     */
+    width = width;
+
+    /**
+     * Height of the WamsElement.
+     *
+     * @type {number}
+     * @default 300
+     */
+    height = height;
+  }
 
   /**
-   * Rotation of the Item.
-   *
-   * @name rotation
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.Item
-   * @instance
+   * @return object A serialized version of the item, ready for transmission.
+   * @override
    */
-  rotation: 0,
-
-  /**
-   * Scale of the Item.
-   *
-   * @name scale
-   * @type {number}
-   * @default 1
-   * @memberof module:shared.Item
-   * @instance
-   */
-  scale: 1,
-
-  /**
-   * Type description of the Item.
-   *
-   * @name type
-   * @type {string}
-   * @default 'item/polygonal'
-   * @memberof module:shared.Item
-   * @instance
-   */
-  type: 'item/polygonal',
-
-  /**
-   * Whether to raise item upon interaction or
-   * lock Z position instead.
-   *
-   * @name lockZ
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.Item
-   * @instance
-   */
-  lockZ: false,
-});
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      width: this.width,
+      height: this.height,
+    };
+  }
+}
 
 /**
  * This WamsElement class provides a common interface between the client and the
@@ -85,109 +123,40 @@ const Item = ReporterFactory({
  *
  * @class WamsElement
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const WamsElement = ReporterFactory({
-  /**
-   * X coordinate of the WamsElement.
-   *
-   * @name x
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  x: 0,
+class WamsElement extends RectangularItem {
+  constructor({
+    x = 0,
+    y = 0,
+    width = 400,
+    height = 300,
+    rotation = 0,
+    scale = 1,
+    type = 'item/element',
+    tagname = 'div',
+    lockZ = false,
+  } = {}) {
+    super({ x, y, width, height, rotation, scale, type, lockZ });
+
+    /**
+     * Tag name of the WamsElement.
+     *
+     * @type {string}
+     * @default 'div'
+     */
+    tagname = tagname;
+  }
 
   /**
-   * Y coordinate of the WamsElement.
-   *
-   * @name y
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsElement
-   * @instance
+   * @return object A serialized version of the item, ready for transmission.
    */
-  y: 0,
-
-  /**
-   * Width of the WamsElement.
-   *
-   * @name width
-   * @type {number}
-   * @default 400
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  width: 400,
-
-  /**
-   * Height of the WamsElement.
-   *
-   * @name height
-   * @type {number}
-   * @default 300
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  height: 300,
-
-  /**
-   * Rotation of the WamsElement.
-   *
-   * @name rotation
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  rotation: 0,
-
-  /**
-   * Scale of the WamsElement.
-   *
-   * @name scale
-   * @type {number}
-   * @default 1
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  scale: 1,
-
-  /**
-   * Type description of the WamsElement.
-   *
-   * @name type
-   * @type {string}
-   * @default 'item/element'
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  type: 'item/element',
-
-  /**
-   * Tag name of the WamsElement.
-   *
-   * @name tagname
-   * @type {string}
-   * @default 'div'
-   * @memberof module:shared.WamsElement
-   * @instance
-   */
-  tagname: 'div',
-
-  /**
-   * Whether to raise item upon interaction or
-   * lock Z position instead.
-   *
-   * @name lockZ
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.Item
-   * @instance
-   */
-  lockZ: false,
-});
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      tagname: this.tagname,
+    };
+  }
+}
 
 /**
  * This WamsImage class provides a common interface between the client and the
@@ -195,98 +164,21 @@ const WamsElement = ReporterFactory({
  *
  * @class WamsImage
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const WamsImage = ReporterFactory({
-  /**
-   * X coordinate of the WamsImage.
-   *
-   * @name x
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  x: 0,
-
-  /**
-   * Y coordinate of the WamsImage.
-   *
-   * @name y
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  y: 0,
-
-  /**
-   * Width of the WamsImage.
-   *
-   * @name width
-   * @type {number}
-   * @default 400
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  width: 400,
-
-  /**
-   * Height of the WamsImage.
-   *
-   * @name height
-   * @type {number}
-   * @default 300
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  height: 300,
-
-  /**
-   * Rotation of the WamsImage.
-   *
-   * @name rotation
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  rotation: 0,
-
-  /**
-   * Scale of the WamsImage.
-   *
-   * @name scale
-   * @type {number}
-   * @default 1
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  scale: 1,
-
-  /**
-   * Type description of the WamsImage.
-   *
-   * @name type
-   * @type {string}
-   * @default 'item/image'
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  type: 'item/image',
-
-  /**
-   * Whether to raise image upon interaction or
-   * lock Z position instead.
-   *
-   * @name lockZ
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.WamsImage
-   * @instance
-   */
-  lockZ: false,
-});
+class WamsImage extends RectangularItem {
+  constructor({
+    x = 0,
+    y = 0,
+    width = 400,
+    height = 300,
+    rotation = 0,
+    scale = 1,
+    type = 'item/image',
+    lockZ = false,
+  } = {}) {
+    super({ x, y, width, height, rotation, scale, type, lockZ });
+  }
+}
 
 /**
  * This View class provides a common interface between the client and
@@ -294,121 +186,44 @@ const WamsImage = ReporterFactory({
  *
  * @class View
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const View = ReporterFactory({
-  /**
-   * X coordinate of the View.
-   *
-   * @name x
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.View
-   * @instance
-   */
-  x: 0,
+class View extends RectangularItem {
+  constructor({
+    x = 0,
+    y = 0,
+    width = 1600,
+    height = 900,
+    rotation = 0,
+    scale = 1,
+    type = 'view/background',
+    lockZ = false,
+    index = undefined,
+  } = {}) {
+    super({ x, y, width, height, rotation, scale, type, lockZ });
+
+    /**
+     * The index is an integer identifying the View, coming from ServerController.
+     *
+     * @name index
+     * @type {number}
+     * @default undefined
+     * @memberof module:shared.View
+     * @instance
+     */
+    index = undefined;
+  }
 
   /**
-   * Y coordinate of the View.
-   *
-   * @name y
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.View
-   * @instance
+   * @return object A serialized version of the view, ready for transmission.
+   * @override
    */
-  y: 0,
-
-  /**
-   * Width of the View.
-   *
-   * @name width
-   * @type {number}
-   * @default 1600
-   * @memberof module:shared.View
-   * @instance
-   */
-  width: 1600,
-
-  /**
-   * Height of the View.
-   *
-   * @name height
-   * @type {number}
-   * @default 900
-   * @memberof module:shared.View
-   * @instance
-   */
-  height: 900,
-
-  /**
-   * Type of object.
-   *
-   * @name type
-   * @type {string}
-   * @default 'view/background'
-   * @memberof module:shared.View
-   * @instance
-   */
-  type: 'view/background',
-
-  /**
-   * Scale of the View.
-   *
-   * @name scale
-   * @type {number}
-   * @default 1
-   * @memberof module:shared.View
-   * @instance
-   */
-  scale: 1,
-
-  /**
-   * Rotation of the View.
-   *
-   * @name rotation
-   * @type {number}
-   * @default 0
-   * @memberof module:shared.View
-   * @instance
-   */
-  rotation: 0,
-
-  /**
-   * The index is an integer identifying the View, coming from ServerController.
-   *
-   * @name index
-   * @type {number}
-   * @default undefined
-   * @memberof module:shared.View
-   * @instance
-   */
-  index: undefined,
-});
-
-/**
- * This class allows generic Input data reporting between client and server.
- * Honestly it's a bit of a cheaty hack around the Message / Reporter protocol,
- * but it simplifies the code and makes things easier to maintain. And honestly
- * the Message / Reporter protocol is mostly focused on protecting Views and
- * Items anyway.
- *
- * @class DataReporter
- * @memberof module:shared
- * @extends module:shared.Reporter
- */
-const DataReporter = ReporterFactory({
-  /**
-   * Generic data pass-through.
-   *
-   * @name data
-   * @type {Object}
-   * @default null
-   * @memberof module:shared.DataReporter
-   * @instance
-   */
-  data: null,
-});
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      index: this.index,
+    };
+  }
+}
 
 /**
  * This class allows reporting of the full state of the model, for bringing
@@ -417,233 +232,239 @@ const DataReporter = ReporterFactory({
  *
  * @class FullStateReporter
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const FullStateReporter = ReporterFactory({
-  /**
-   * All currently active views.
-   *
-   * @name views
-   * @type {View[]}
-   * @default []
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  views: [],
+class FullStateReporter {
+  constructor({
+    views = [],
+    items = [],
+    clientScripts = [],
+    stylesheets = [],
+    shadows = false,
+    status = false,
+    color = '#dad1e3',
+    backgroundImage = null,
+    title = 'WAMS: Workspaces Across Multiple Surfaces',
+    id = null,
+    useMultiScreenGestures = false,
+  } = {}) {
+    /**
+     * All currently active views.
+     *
+     * @type {View[]}
+     * @default []
+     */
+    views = views;
+
+    /**
+     * All current items.
+     *
+     * @type {Item[]}
+     * @default []
+     */
+    items = items;
+
+    /**
+     * Paths to client scripts to include by browsers.
+     *
+     * @type {string[]}
+     * @default []
+     */
+    clientScripts = clientScripts;
+
+    /**
+     * Paths to stylesheets to include by browsers.
+     *
+     * @type {string[]}
+     * @default []
+     */
+    stylesheets = stylesheets;
+
+    /**
+     * Toggle to show/hide client shadows.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    shadows = shadows;
+
+    /**
+     * Toggle to show/hide current view status.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    status = status;
+
+    /**
+     * The background colour of the workspace.
+     *
+     * @type {string}
+     * @default '#dad1e3'
+     */
+    color = color;
+
+    /**
+     * The background colour of the workspace.
+     *
+     * @type {string}
+     * @default null
+     */
+    backgroundImage = backgroundImage;
+
+    /**
+     * The title of the page.
+     *
+     * @type {string}
+     * @default 'WAMS = Workspaces Across Multiple Surfaces'
+     */
+    title = title;
+
+    /**
+     * The id assigned to this view.
+     *
+     * @type {number}
+     * @default null
+     */
+    id = id;
+
+    /**
+     * Whether to enable multi-screen gestures
+     * by processing gestures on the server side.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    useMultiScreenGestures = useMultiScreenGestures;
+  }
 
   /**
-   * All current items.
-   *
-   * @name items
-   * @type {Item[]}
-   * @default []
-   * @memberof module:shared.FullStateReporter
-   * @instance
+   * @return object A serialized version of the full state, ready for
+   * transmission.
+   * @override
    */
-  items: [],
-
-  /**
-   * Paths to client scripts to include by browsers.
-   *
-   * @name clientScripts
-   * @type {string[]}
-   * @default []
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  clientScripts: [],
-
-  /**
-   * Paths to stylesheets to include by browsers.
-   *
-   * @name stylesheets
-   * @type {string[]}
-   * @default []
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  stylesheets: [],
-
-  /**
-   * Toggle to show/hide client shadows.
-   *
-   * @name shadows
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  shadows: false,
-
-  /**
-   * Toggle to show/hide current view status.
-   *
-   * @name status
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  status: false,
-
-  /**
-   * The background colour of the workspace.
-   *
-   * @name color
-   * @type {string}
-   * @default '#dad1e3'
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  color: '#dad1e3',
-
-  /**
-   * The background colour of the workspace.
-   *
-   * @name backgroundImage
-   * @type {string}
-   * @default null
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  backgroundImage: null,
-
-  /**
-   * The title of the page.
-   *
-   * @name title
-   * @type {string}
-   * @default 'WAMS: Workspaces Across Multiple Surfaces'
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  title: 'WAMS: Workspaces Across Multiple Surfaces',
-
-  /**
-   * The id assigned to this view.
-   *
-   * @name id
-   * @type {number}
-   * @default null
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  id: null,
-
-  /**
-   * Whether to enable multi-screen gestures
-   * by processing gestures on the server side.
-   *
-   * @name useMultiScreenGestures
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.FullStateReporter
-   * @instance
-   */
-  useMultiScreenGestures: false,
-});
+  toJSON() {
+    return {
+      views: this.views.map((view) => view.toJSON()),
+      items: this.items.map((item) => item.toJSON()),
+      clientScripts: this.clientScripts,
+      stylesheets: this.stylesheets,
+      shadows: this.shadows,
+      status: this.status,
+      color: this.color,
+      backgroundImage: this.backgroundImage,
+      title: this.title,
+      id: this.id,
+      useMultiScreenGestures: this.useMultiScreenGestures,
+    };
+  }
+}
 
 /**
- * Enables forwarding of TouchEvents from the client to the server.
+ * Enables forwarding of PointerEvents from the client to the server.
  *
  * @class PointerReporter
  * @memberof module:shared
- * @extends module:shared.Reporter
  */
-const PointerReporter = ReporterFactory({
-  /**
-   * The type of event. (e.g. 'pointerdown', 'pointermove', etc.)
-   *
-   * @name type
-   * @type {string}
-   * @default null
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  type: null,
+class PointerReporter {
+  constructor({
+    type = null,
+    pointerId = null,
+    clientX = null,
+    clientY = null,
+    target = null,
+    altKey = null,
+    ctrlKey = null,
+    metaKey = null,
+    shiftKey = null,
+  } = {}) {
+    /**
+     * The type of event. (e.g. 'pointerdown'; 'pointermove', etc.)
+     *
+     * @type {string}
+     * @default null
+     */
+    type = type;
+
+    /**
+     * The pointer ID.
+     *
+     * @type {number}
+     * @default null
+     */
+    pointerId = pointerId;
+
+    /**
+     * The X coordinate of the pointer relative to the viewport.
+     *
+     * @type {number}
+     * @default null
+     */
+    clientX = clientX;
+
+    /**
+     * The Y coordinate of the pointer relative to the viewport.
+     *
+     * @type {number}
+     * @default null
+     */
+    clientY = clientY;
+
+    /**
+     * Whether the CTRL key was pressed at the time of the event.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    ctrlKey = ctrlKey;
+
+    /**
+     * Whether the ALT key was pressed at the time of the event.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    altKey = altKey;
+
+    /**
+     * Whether the SHIFT key was pressed at the time of the event.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    shiftKey = shiftKey;
+
+    /**
+     * Whether the META key was pressed at the time of the event.
+     *
+     * @type {boolean}
+     * @default false
+     */
+    metaKey = metaKey;
+  }
 
   /**
-   * The pointer ID.
-   *
-   * @name pointerId
-   * @type {number}
-   * @default null
-   * @memberof module:shared.PointerReporter
-   * @instance
+   * @return object A serialized version of the pointer event, ready for
+   * transmission.
+   * @override
    */
-  pointerId: null,
-
-  /**
-   * The X coordinate of the pointer relative to the viewport.
-   *
-   * @name clientX
-   * @type {number}
-   * @default null
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  clientX: null,
-
-  /**
-   * The Y coordinate of the pointer relative to the viewport.
-   *
-   * @name clientY
-   * @type {number}
-   * @default null
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  clientY: null,
-
-  /**
-   * Whether the CTRL key was pressed at the time of the event.
-   *
-   * @name ctrlKey
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  ctrlKey: false,
-
-  /**
-   * Whether the ALT key was pressed at the time of the event.
-   *
-   * @name altKey
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  altKey: false,
-
-  /**
-   * Whether the SHIFT key was pressed at the time of the event.
-   *
-   * @name shiftKey
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  shiftKey: false,
-
-  /**
-   * Whether the META key was pressed at the time of the event.
-   *
-   * @name metaKey
-   * @type {boolean}
-   * @default false
-   * @memberof module:shared.PointerReporter
-   * @instance
-   */
-  metaKey: false,
-});
+  toJSON() {
+    return {
+      type: this.type,
+      pointerId: this.pointerId,
+      clientX: this.clientX,
+      clientY: this.clientY,
+      target: this.target,
+      altKey: this.altKey,
+      ctrlKey: this.ctrlKey,
+      metaKey: this.metaKey,
+      shiftKey: this.shiftKey,
+    };
+  }
+}
 
 module.exports = {
   Item,
   View,
-  DataReporter,
   FullStateReporter,
   PointerReporter,
   WamsElement,
