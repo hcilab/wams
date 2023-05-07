@@ -160,7 +160,6 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.fullStateReport]() {
-    console.log('report:', this.socket);
     new Message(Message.INITIALIZE, this).emitWith(this.socket);
   }
 

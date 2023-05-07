@@ -159,7 +159,6 @@ class ClientController {
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
-    this.socket.onAny((event, data) => console.log('Received:', event, data));
 
     // Keep the view size up to date.
     window.addEventListener('resize', this.resize.bind(this), false);
@@ -181,7 +180,7 @@ class ClientController {
    * instantiation.
    */
   connect() {
-    this.socket = io.connect(constants.NS_WAMS, {
+    this.socket = io(constants.NS_WAMS, {
       autoConnect: false,
       reconnection: false,
       transports: ['websocket', 'polling'],

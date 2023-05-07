@@ -124,7 +124,6 @@ class Switchboard {
     socket.on('disconnect', () => this.disconnect(controller));
 
     logConnection(controller.view.id, true);
-    console.log('connected:', socket);
   }
 
   /**
@@ -133,7 +132,6 @@ class Switchboard {
    * @param {Socket} socket - socket.io socket instance for the new connection.
    */
   connect(socket) {
-    console.log(this.namespace.sockets.size);
     if (this.namespace.sockets.size <= this.clientLimit) {
       this.accept(socket);
     } else {

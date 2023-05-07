@@ -119,14 +119,10 @@ class Message {
    * have an 'emit()' function.
    */
   emitWith(emitter) {
-    console.log('Emitting', this.type, this.data.toJSON());
+    const json = Object.hasOwn('toJSON', this.data) ? this.data.toJSON() : this.data;
     emitter.emit(this.type, this.data);
   }
 }
-
-Object.prototype.toJSON = function toJSON() {
-  return Object.assign({}, this);
-};
 
 /*
  * Only define the messages once, above, and now attach them to the Message
