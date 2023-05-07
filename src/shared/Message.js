@@ -119,7 +119,6 @@ class Message {
    * have an 'emit()' function.
    */
   emitWith(emitter) {
-    const json = Object.hasOwn('toJSON', this.data) ? this.data.toJSON() : this.data;
     emitter.emit(this.type, this.data);
   }
 }

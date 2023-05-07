@@ -8,63 +8,8 @@
  * @memberof module:shared
  */
 class Item {
-  constructor({ x = 0, y = 0, rotation = 0, scale = 1, type = 'item/polygonal', lockZ = false } = {}) {
-    /**
-     * Id to make Identifiables uniquely identifiable.
-     *
-     * @type {number}
-     * @constant
-     */
-    this.id = null;
-
-    /**
-     * X coordinate of the Item.
-     *
-     * @type {number}
-     * @default 0
-     */
-    this.x = x;
-
-    /**
-     * Y coordinate of the Item.
-     *
-     * @type {number}
-     * @default 0
-     */
-    this.y = y;
-
-    /**
-     * Rotation of the Item.
-     *
-     * @type {number}
-     * @default 0
-     */
-    this.rotation = rotation;
-
-    /**
-     * Scale of the Item.
-     *
-     * @type {number}
-     * @default 1
-     */
-    this.scale = scale;
-
-    /**
-     * Type description of the Item.
-     *
-     * @type {string}
-     * @default 'item/polygonal'
-     */
-    this.type = type;
-
-    /**
-     * Whether to raise item upon interaction or
-     * lock Z position instead.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    this.lockZ = lockZ;
+  constructor(values = {}) {
+    Object.assign(this, { ...Item.DEFAULTS, ...values });
   }
 
   /**
@@ -82,35 +27,20 @@ class Item {
     };
   }
 }
+Item.DEFAULTS = {
+  id: -1,
+  x: 0,
+  y: 0,
+  rotation: 0,
+  scale: 1,
+  type: 'item/polygonal',
+  lockZ: false,
+};
+
 
 class RectangularItem extends Item {
-  constructor({
-    x = 0,
-    y = 0,
-    width = 400,
-    height = 300,
-    rotation = 0,
-    scale = 1,
-    type = 'item/rectangular',
-    lockZ = false,
-  } = {}) {
-    super({ x, y, rotation, scale, type, lockZ });
-
-    /**
-     * Width of the WamsElement.
-     *
-     * @type {number}
-     * @default 400
-     */
-    width = width;
-
-    /**
-     * Height of the WamsElement.
-     *
-     * @type {number}
-     * @default 300
-     */
-    height = height;
+  constructor(values = {}) {
+    super({ ...RectangularItem.DEFAULTS, ...values });
   }
 
   /**
@@ -125,6 +55,17 @@ class RectangularItem extends Item {
     };
   }
 }
+RectangularItem.DEFAULTS = {
+  id: -1,
+  x: 0,
+  y: 0,
+  width: 400,
+  height: 300,
+  rotation: 0,
+  scale: 1,
+  type: 'item/rectangular',
+  lockZ: false,
+};
 
 /**
  * This WamsElement class provides a common interface between the client and the
@@ -134,26 +75,8 @@ class RectangularItem extends Item {
  * @memberof module:shared
  */
 class WamsElement extends RectangularItem {
-  constructor({
-    x = 0,
-    y = 0,
-    width = 400,
-    height = 300,
-    rotation = 0,
-    scale = 1,
-    type = 'item/element',
-    tagname = 'div',
-    lockZ = false,
-  } = {}) {
-    super({ x, y, width, height, rotation, scale, type, lockZ });
-
-    /**
-     * Tag name of the WamsElement.
-     *
-     * @type {string}
-     * @default 'div'
-     */
-    tagname = tagname;
+  constructor(values = {}) {
+    super({ ...WamsElement.DEFAULTS, ...values });
   }
 
   /**
@@ -166,6 +89,18 @@ class WamsElement extends RectangularItem {
     };
   }
 }
+WamsElement.DEFAULTS = {
+  id: -1,
+  x: 0,
+  y: 0,
+  width: 400,
+  height: 300,
+  rotation: 0,
+  scale: 1,
+  type: 'item/element',
+  tagname: 'div',
+  lockZ: false,
+};
 
 /**
  * This WamsImage class provides a common interface between the client and the
@@ -175,19 +110,21 @@ class WamsElement extends RectangularItem {
  * @memberof module:shared
  */
 class WamsImage extends RectangularItem {
-  constructor({
-    x = 0,
-    y = 0,
-    width = 400,
-    height = 300,
-    rotation = 0,
-    scale = 1,
-    type = 'item/image',
-    lockZ = false,
-  } = {}) {
-    super({ x, y, width, height, rotation, scale, type, lockZ });
+  constructor(values = {}) {
+    super({ ...DEFAULTS, ...values });
   }
 }
+WamsImage.DEFAULTS = {
+  id: -1,
+  x: 0,
+  y: 0,
+  width: 400,
+  height: 300,
+  rotation: 0,
+  scale: 1,
+  type: 'item/image',
+  lockZ: false,
+};
 
 /**
  * This View class provides a common interface between the client and
@@ -197,29 +134,8 @@ class WamsImage extends RectangularItem {
  * @memberof module:shared
  */
 class View extends RectangularItem {
-  constructor({
-    x = 0,
-    y = 0,
-    width = 1600,
-    height = 900,
-    rotation = 0,
-    scale = 1,
-    type = 'view/background',
-    lockZ = false,
-    index = undefined,
-  } = {}) {
-    super({ x, y, width, height, rotation, scale, type, lockZ });
-
-    /**
-     * The index is an integer identifying the View, coming from ServerController.
-     *
-     * @name index
-     * @type {number}
-     * @default undefined
-     * @memberof module:shared.View
-     * @instance
-     */
-    index = undefined;
+  constructor(values = {}) {
+    super({ ...View.DEFAULTS, ...values });
   }
 
   /**
@@ -233,6 +149,18 @@ class View extends RectangularItem {
     };
   }
 }
+View.DEFAULTS = {
+  id: -1,
+  x: 0,
+  y: 0,
+  width: 1600,
+  height: 900,
+  rotation: 0,
+  scale: 1,
+  type: 'view/background',
+  lockZ: false,
+  index: undefined,
+};
 
 /**
  * Enables forwarding of PointerEvents from the client to the server.
@@ -241,80 +169,8 @@ class View extends RectangularItem {
  * @memberof module:shared
  */
 class PointerReporter {
-  constructor({
-    type = null,
-    pointerId = null,
-    clientX = null,
-    clientY = null,
-    target = null,
-    altKey = null,
-    ctrlKey = null,
-    metaKey = null,
-    shiftKey = null,
-  } = {}) {
-    /**
-     * The type of event. (e.g. 'pointerdown'; 'pointermove', etc.)
-     *
-     * @type {string}
-     * @default null
-     */
-    type = type;
-
-    /**
-     * The pointer ID.
-     *
-     * @type {number}
-     * @default null
-     */
-    pointerId = pointerId;
-
-    /**
-     * The X coordinate of the pointer relative to the viewport.
-     *
-     * @type {number}
-     * @default null
-     */
-    clientX = clientX;
-
-    /**
-     * The Y coordinate of the pointer relative to the viewport.
-     *
-     * @type {number}
-     * @default null
-     */
-    clientY = clientY;
-
-    /**
-     * Whether the CTRL key was pressed at the time of the event.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    ctrlKey = ctrlKey;
-
-    /**
-     * Whether the ALT key was pressed at the time of the event.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    altKey = altKey;
-
-    /**
-     * Whether the SHIFT key was pressed at the time of the event.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    shiftKey = shiftKey;
-
-    /**
-     * Whether the META key was pressed at the time of the event.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    metaKey = metaKey;
+  constructor(values = {}) {
+    Object.assign(this, { ...PointerReporter.DEFAULTS, ...values });
   }
 
   /**
@@ -336,6 +192,17 @@ class PointerReporter {
     };
   }
 }
+PointerReporter.DEFAULTS = {
+  type: null,
+  pointerId: null,
+  clientX: null,
+  clientY: null,
+  target: null,
+  altKey: null,
+  ctrlKey: null,
+  metaKey: null,
+  shiftKey: null,
+};
 
 module.exports = {
   Item,
