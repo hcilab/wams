@@ -3,7 +3,7 @@
 // External modules
 const http = require('http');
 const os = require('os');
-const IO = require('socket.io');
+const socket_io = require('socket.io');
 
 // Local classes, etc
 const { constants, DataReporter, Message } = require('../shared.js');
@@ -53,12 +53,12 @@ class Application extends EventTarget(Object) {
      *
      * @type {http.Server}
      */
-    this.server = http.createServer(router);
+    this.httpServer = http.createServer(router);
 
     /**
      * Socket.io instance using http server.
      */
-    this.IOserver = IO(this.server);
+    this.io_server = new socket_io.Server(this.httpServer);
 
     /**
      * Socket.io namespace in which to operate.
@@ -66,7 +66,7 @@ class Application extends EventTarget(Object) {
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = this.IOserver.of(constants.NS_WAMS);
+    this.namespace = this.io_server.of(constants.NS_WAMS);
 
     /**
      * The main model. The buck stops here.
@@ -118,9 +118,9 @@ class Application extends EventTarget(Object) {
    * @see module:server.Application~getLocalIP
    */
   listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
-    this.server.listen(port, host, () => {
+    this.httpServer.listen(port, host, () => {
       const formatAddress = (_host, port) => `http://${_host}:${port}`;
-      const { address, port } = this.server.address();
+      const { address, port } = this.httpServer.address();
 
       console.log('🚀 WAMS server listening on:');
       console.log(`🔗 ${formatAddress(address, port)}`);

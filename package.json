@@ -22,7 +22,8 @@
     "canvas-sequencer": "^3.0.6",
     "core-js": "^3",
     "express": "^4.17.1",
-    "socket.io": "^2.4.1",
+    "socket.io": "^4.6.1",
+    "socket.io-client": "^4.6.1",
     "westures": "^1.0.0"
   },
   "devDependencies": {

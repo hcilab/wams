@@ -132,14 +132,11 @@ class Switchboard {
    * @param {Socket} socket - socket.io socket instance for the new connection.
    */
   connect(socket) {
-    this.namespace.clients((error, clients) => {
-      if (error) throw error;
-      if (clients.length <= this.clientLimit) {
-        this.accept(socket);
-      } else {
-        this.reject(socket);
-      }
-    });
+    if (this.namespace.sockets.size <= this.clientLimit) {
+      this.accept(socket);
+    } else {
+      this.reject(socket);
+    }
   }
 
   /**
