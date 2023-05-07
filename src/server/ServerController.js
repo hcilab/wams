@@ -1,6 +1,6 @@
 'use strict';
 
-const { FullStateReporter, Message, NOP } = require('../shared.js');
+const { Message, NOP } = require('../shared.js');
 const Device = require('./Device.js');
 
 // Symbols to mark these methods as intended for internal use only.
@@ -125,18 +125,32 @@ class ServerController {
       [Message.SWIPE]: handleGesture.bind(this.messageHandler, 'swipe', this.view),
       [Message.TRANSFORM]: handleGesture.bind(this.messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
-      [Message.TRACK]: ({ data }) => this.messageHandler.track(data, this.view),
+      [Message.TRACK]: (data) => this.messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
-      [Message.DISPATCH]: ({ data }) => {
+      [Message.DISPATCH]: (data) => {
         this.messageHandler.send(data.action, { ...data.payload, view: this.view });
       },
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+  }
+
+  /**
+   * Serialize the state of the application.
+   *
+   * @returns {object} The state of the application.
+   */
+  toJSON() {
+    return {
+      settings: this.workspace.settings,
+      views: this.group.toJSON(),
+      items: this.workspace.toJSON(),
+      viewId: this.view.id,
+    };
   }
 
   /**
@@ -146,13 +160,8 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.fullStateReport]() {
-    const fsreport = new FullStateReporter({
-      ...this.workspace.settings,
-      views: this.group.reportViews(),
-      items: this.workspace.reportItems(),
-      id: this.view.id,
-    });
-    new Message(Message.INITIALIZE, fsreport).emitWith(this.socket);
+    console.log('report:', this.socket);
+    new Message(Message.INITIALIZE, this).emitWith(this.socket);
   }
 
   /**
@@ -229,8 +238,8 @@ class ServerController {
    * @param {number} height
    */
   setSize(width, height) {
-    this.view.assign({ width, height });
-    this.device.assign({ width, height });
+    Object.assign(this.view, { width, height });
+    Object.assign(this.device, { width, height });
   }
 }
 

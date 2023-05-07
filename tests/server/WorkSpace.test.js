@@ -62,7 +62,7 @@ describe('WorkSpace', () => {
       });
     });
 
-    describe('reportItems()', () => {
+    describe('toJSON()', () => {
       let expectedProperties;
 
       beforeAll(() => {
@@ -73,25 +73,25 @@ describe('WorkSpace', () => {
       });
 
       test('Returns an array', () => {
-        expect(ws.reportItems()).toBeInstanceOf(Array);
+        expect(ws.toJSON()).toBeInstanceOf(Array);
       });
 
       test('Does not return the actual items, but simple Objects', () => {
-        ws.reportItems().forEach((i) => {
+        ws.toJSON().forEach((i) => {
           expect(i).not.toBeInstanceOf(ServerItem);
           expect(i).toBeInstanceOf(Object);
         });
       });
 
       test('Objects returned contain the expected data', () => {
-        const r = ws.reportItems();
+        const r = ws.toJSON();
         r.forEach((i) => {
           expect(Object.getOwnPropertyNames(i)).toEqual(expectedProperties);
         });
       });
 
       test('Returns data for each item that exists in the workspace', () => {
-        expect(ws.reportItems().length).toBe(ws.items.length);
+        expect(ws.toJSON().length).toBe(ws.items.length);
       });
     });
 

@@ -6,7 +6,7 @@ const os = require('os');
 const socket_io = require('socket.io');
 
 // Local classes, etc
-const { constants, DataReporter, Message } = require('../shared.js');
+const { constants, Message } = require('../shared.js');
 const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
@@ -209,10 +209,7 @@ class Application extends EventTarget(Object) {
    * @param {object} payload argument of the user-defined action function.
    */
   dispatch(action, payload) {
-    const dreport = new DataReporter({
-      data: { action, payload },
-    });
-    new Message(Message.DISPATCH, dreport).emitWith(this.workspace.namespace);
+    new Message(Message.DISPATCH, { action, payload }).emitWith(this.workspace.namespace);
   }
 }
 

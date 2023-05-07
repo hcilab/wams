@@ -40,31 +40,31 @@ describe('ServerViewGroup', () => {
       });
     });
 
-    describe('reportViews()', () => {
+    describe('toJSON()', () => {
       let expectedProperties;
       beforeAll(() => {
         expectedProperties = expect.arrayContaining(Object.keys(View.DEFAULTS));
       });
 
       test('Returns an array', () => {
-        expect(svg.reportViews()).toBeInstanceOf(Array);
+        expect(svg.toJSON()).toBeInstanceOf(Array);
       });
 
       test('Does not return the actual Views, but simple Objects', () => {
-        svg.reportViews().forEach((v) => {
+        svg.toJSON().forEach((v) => {
           expect(v).not.toBeInstanceOf(ServerView);
           expect(v).toBeInstanceOf(Object);
         });
       });
 
       test('Objects returned contain only the expected data', () => {
-        svg.reportViews().forEach((v) => {
+        svg.toJSON().forEach((v) => {
           expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
         });
       });
 
       test('Returns data for each View in the workspace', () => {
-        expect(svg.reportViews().length).toBe(svg.views.length);
+        expect(svg.toJSON().length).toBe(svg.views.length);
       });
     });
 

@@ -53,17 +53,6 @@ class ClientImage extends WamsImage {
      */
     this.image = {};
     if (data.src) this.setImage(data.src);
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientImage
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**

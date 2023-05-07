@@ -2,7 +2,7 @@
 
 const { io } = require('socket.io-client');
 
-const { constants, DataReporter, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
+const { constants, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
@@ -128,11 +128,11 @@ class ClientController {
       [Message.UD_VIEW]: (data) => this.handle('updateView', data),
 
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]: ({ data }) => this.handle('removeAttributes', data),
-      [Message.SET_ATTRS]: ({ data }) => this.handle('setAttributes', data),
-      [Message.SET_IMAGE]: ({ data }) => this.handle('setImage', data),
-      [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
-      [Message.SET_PARENT]: ({ data }) => this.handle('setParent', data),
+      [Message.RM_ATTRS]: (data) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]: (data) => this.handle('setAttributes', data),
+      [Message.SET_IMAGE]: (data) => this.handle('setImage', data),
+      [Message.SET_RENDER]: (data) => this.handle('setRender', data),
+      [Message.SET_PARENT]: (data) => this.handle('setParent', data),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: this.setup.bind(this),
@@ -155,10 +155,11 @@ class ClientController {
       },
 
       // For user-defined behavior
-      [Message.DISPATCH]: ({ data }) => this.handleCustomEvent(data),
+      [Message.DISPATCH]: this.handleCustomEvent.bind(this),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+    this.socket.onAny((event, data) => console.log('Received:', event, data));
 
     // Keep the view size up to date.
     window.addEventListener('resize', this.resize.bind(this), false);
@@ -216,8 +217,7 @@ class ClientController {
    * the server with the given message type label.
    */
   forward(message, data) {
-    const dreport = new DataReporter({ data });
-    new Message(message, dreport).emitWith(this.socket);
+    new Message(message, data).emitWith(this.socket);
   }
 
   /**
@@ -291,26 +291,23 @@ class ClientController {
    * not reflect the model automatically. This function responds to a message
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
-   *
-   * @param {module:shared.FullStateReporter} data - All the information
-   * necessary to initially synchronize this client's model with the server's
-   * model.
    */
   setup(data) {
-    if (data.clientScripts) this.loadClientScripts(data.clientScripts);
-    if (data.stylesheets) this.loadStylesheets(data.stylesheets);
-    document.title = data.title;
+    const { clientScripts, stylesheets, title, backgroundImage, color, useMultiScreenGestures } = data.settings;
+    if (clientScripts) this.loadClientScripts(clientScripts);
+    if (stylesheets) this.loadStylesheets(stylesheets);
+    document.title = title;
 
-    IdStamper.cloneId(this.view, data.id);
+    this.view.id = data.viewId;
 
-    if (data.backgroundImage) {
+    if (backgroundImage) {
       this.canvas.style.backgroundColor = 'transparent';
-      document.body.style.backgroundImage = `url("${data.backgroundImage}")`;
+      document.body.style.backgroundImage = `url("${backgroundImage}")`;
     } else {
-      this.canvas.style.backgroundColor = data.color;
+      this.canvas.style.backgroundColor = color;
     }
     this.model.setup(data);
-    this.setupInteractor(data.useMultiScreenGestures);
+    this.setupInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     new Message(Message.LAYOUT, this.view).emitWith(this.socket);
@@ -387,8 +384,7 @@ class ClientController {
    */
   forwardBlurEvents() {
     this.forwardEvents(['pointercancel', 'blur'], (event) => {
-      const breport = new DataReporter();
-      new Message(Message.BLUR, breport).emitWith(this.socket);
+      new Message(Message.BLUR, {}).emitWith(this.socket);
     });
   }
 
@@ -397,8 +393,8 @@ class ClientController {
    */
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      const treport = new PointerReporter(event);
-      new Message(Message.POINTER, treport).emitWith(this.socket);
+      const report = new PointerReporter(event);
+      new Message(Message.POINTER, report).emitWith(this.socket);
     });
   }
 
@@ -409,10 +405,7 @@ class ClientController {
    * @param {object} payload
    */
   dispatch(action, payload) {
-    const dreport = new DataReporter({
-      data: { action, payload },
-    });
-    new Message(Message.DISPATCH, dreport).emitWith(this.socket);
+    new Message(Message.DISPATCH, { action, payload }).emitWith(this.socket);
   }
 }
 

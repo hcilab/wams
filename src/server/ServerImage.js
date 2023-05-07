@@ -1,6 +1,6 @@
 'use strict';
 
-const { DataReporter, Message, WamsImage } = require('../shared.js');
+const { Message, WamsImage } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -49,13 +49,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    */
   setImage(path) {
     this.src = path;
-    const dreport = new DataReporter({
-      data: {
-        id: this.id,
-        src: path,
-      },
-    });
-    new Message(Message.SET_IMAGE, dreport).emitWith(this.namespace);
+    new Message(Message.SET_IMAGE, { id: this.id, src: path }).emitWith(this.namespace);
   }
 }
 

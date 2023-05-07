@@ -1,6 +1,6 @@
 'use strict';
 
-const { Message, DataReporter } = require('../shared.js');
+const { Message } = require('../shared.js');
 const { actions } = require('../predefined');
 
 const EVENTS = Object.freeze(['connect', 'disconnect']);
@@ -37,7 +37,7 @@ class MessageHandler {
    *
    * @param {string} gesture
    */
-  handleGesture(gesture, view, { data }) {
+  handleGesture(gesture, view, data) {
     const target = view.lockedItem;
     if (target != null) {
       const { centroid } = data;

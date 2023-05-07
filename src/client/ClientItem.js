@@ -24,17 +24,6 @@ class ClientItem extends Item {
      */
     this.render = null;
     if (data.sequence) this.setRender(data.sequence);
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientItem
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**

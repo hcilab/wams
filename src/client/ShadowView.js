@@ -26,11 +26,6 @@ const symbols = Object.freeze({
  * view.
  */
 class ShadowView extends View {
-  constructor(values) {
-    super(values);
-    IdStamper.cloneId(this, values.id);
-  }
-
   /**
    * Render an outline of this view.
    *

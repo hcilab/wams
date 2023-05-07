@@ -87,11 +87,11 @@ const TYPE_VALUES = Object.freeze(Object.values(TYPES));
  *
  * @param {string} type - The message type. Must be one of the explicitly listed
  * message types available on the Message object.
- * @param {module:shared.Reporter} reporter - A Reporter instance, containing
+ * @param {object} data - The data to be sent.
  * the data to be emitted.
  */
 class Message {
-  constructor(type, reporter) {
+  constructor(type, data) {
     if (!TYPE_VALUES.includes(type)) {
       throw new TypeError('Invalid message type!');
     }
@@ -105,24 +105,28 @@ class Message {
     this.type = type;
 
     /**
-     * The Reporter which holds the data to send in the Message.
+     * The data to be sent.
      *
-     * @type {module:shared.Reporter}
+     * @type {object}
      */
-    this.reporter = reporter;
+    this.data = data;
   }
 
   /**
-   * Emits the data contained in the reporter along the channel defined by
-   * emitter.
+   * Emits the data contained along the channel defined by the emitter.
    *
    * @param {Emitter} emitter - An object capable of emitting data packets. Must
    * have an 'emit()' function.
    */
   emitWith(emitter) {
-    emitter.emit(this.type, this.reporter.report());
+    console.log('Emitting', this.type, this.data.toJSON());
+    emitter.emit(this.type, this.data);
   }
 }
+
+Object.prototype.toJSON = function toJSON() {
+  return Object.assign({}, this);
+};
 
 /*
  * Only define the messages once, above, and now attach them to the Message

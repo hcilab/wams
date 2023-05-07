@@ -10,6 +10,14 @@
 class Item {
   constructor({ x = 0, y = 0, rotation = 0, scale = 1, type = 'item/polygonal', lockZ = false } = {}) {
     /**
+     * Id to make Identifiables uniquely identifiable.
+     *
+     * @type {number}
+     * @constant
+     */
+    this.id = null;
+
+    /**
      * X coordinate of the Item.
      *
      * @type {number}
@@ -64,6 +72,7 @@ class Item {
    */
   toJSON() {
     return {
+      id: this.id,
       x: this.x,
       y: this.y,
       rotation: this.rotation,
@@ -226,140 +235,6 @@ class View extends RectangularItem {
 }
 
 /**
- * This class allows reporting of the full state of the model, for bringing
- * new clients up to speed (or potentially also for recovering a client, if
- * need be).
- *
- * @class FullStateReporter
- * @memberof module:shared
- */
-class FullStateReporter {
-  constructor({
-    views = [],
-    items = [],
-    clientScripts = [],
-    stylesheets = [],
-    shadows = false,
-    status = false,
-    color = '#dad1e3',
-    backgroundImage = null,
-    title = 'WAMS: Workspaces Across Multiple Surfaces',
-    id = null,
-    useMultiScreenGestures = false,
-  } = {}) {
-    /**
-     * All currently active views.
-     *
-     * @type {View[]}
-     * @default []
-     */
-    views = views;
-
-    /**
-     * All current items.
-     *
-     * @type {Item[]}
-     * @default []
-     */
-    items = items;
-
-    /**
-     * Paths to client scripts to include by browsers.
-     *
-     * @type {string[]}
-     * @default []
-     */
-    clientScripts = clientScripts;
-
-    /**
-     * Paths to stylesheets to include by browsers.
-     *
-     * @type {string[]}
-     * @default []
-     */
-    stylesheets = stylesheets;
-
-    /**
-     * Toggle to show/hide client shadows.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    shadows = shadows;
-
-    /**
-     * Toggle to show/hide current view status.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    status = status;
-
-    /**
-     * The background colour of the workspace.
-     *
-     * @type {string}
-     * @default '#dad1e3'
-     */
-    color = color;
-
-    /**
-     * The background colour of the workspace.
-     *
-     * @type {string}
-     * @default null
-     */
-    backgroundImage = backgroundImage;
-
-    /**
-     * The title of the page.
-     *
-     * @type {string}
-     * @default 'WAMS = Workspaces Across Multiple Surfaces'
-     */
-    title = title;
-
-    /**
-     * The id assigned to this view.
-     *
-     * @type {number}
-     * @default null
-     */
-    id = id;
-
-    /**
-     * Whether to enable multi-screen gestures
-     * by processing gestures on the server side.
-     *
-     * @type {boolean}
-     * @default false
-     */
-    useMultiScreenGestures = useMultiScreenGestures;
-  }
-
-  /**
-   * @return object A serialized version of the full state, ready for
-   * transmission.
-   * @override
-   */
-  toJSON() {
-    return {
-      views: this.views.map((view) => view.toJSON()),
-      items: this.items.map((item) => item.toJSON()),
-      clientScripts: this.clientScripts,
-      stylesheets: this.stylesheets,
-      shadows: this.shadows,
-      status: this.status,
-      color: this.color,
-      backgroundImage: this.backgroundImage,
-      title: this.title,
-      id: this.id,
-      useMultiScreenGestures: this.useMultiScreenGestures,
-    };
-  }
-}
-
-/**
  * Enables forwarding of PointerEvents from the client to the server.
  *
  * @class PointerReporter
@@ -465,7 +340,6 @@ class PointerReporter {
 module.exports = {
   Item,
   View,
-  FullStateReporter,
   PointerReporter,
   WamsElement,
   WamsImage,

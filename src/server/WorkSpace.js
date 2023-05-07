@@ -156,19 +156,19 @@ class WorkSpace {
   }
 
   /**
-   * @return {module:shared.Item[]} Reports of the currently active items.
+   * @return {module:shared.Item[]} Serialize the workspace items.
    */
-  reportItems() {
+  toJSON() {
     return this.items.map((o) => {
-      const report = o.report();
+      const json = o.toJSON();
       if (o instanceof ServerImage) {
-        report.src = o.src;
+        json.src = o.src;
       } else if (o instanceof ServerElement) {
-        report.attributes = o.attributes;
+        json.attributes = o.attributes;
       } else {
-        report.sequence = o.sequence;
+        json.sequence = o.sequence;
       }
-      return report;
+      return json;
     });
   }
 

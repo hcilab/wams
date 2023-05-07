@@ -1,6 +1,6 @@
 'use strict';
 
-const { DataReporter, IdStamper, Message, View } = require('../shared.js');
+const { IdStamper, Message, View } = require('../shared.js');
 const { Interactable, Locker, EventTarget } = require('../mixins.js');
 
 const STAMPER = new IdStamper();
@@ -100,10 +100,7 @@ class ServerView extends Locker(Interactable(EventTarget(View))) {
    */
   dispatch(action, payload) {
     console.debug(`dispatch: ${action} to View ${this.id}`);
-    const dreport = new DataReporter({
-      data: { action, payload },
-    });
-    new Message(Message.DISPATCH, dreport).emitWith(this.socket);
+    new Message(Message.DISPATCH, { action, payload }).emitWith(this.socket);
   }
 
   /*

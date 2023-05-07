@@ -1,6 +1,6 @@
 'use strict';
 
-const { DataReporter, Item, Message } = require('../shared.js');
+const { Item, Message } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -58,13 +58,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    */
   setSequence(sequence) {
     this.sequence = sequence;
-    const dreport = new DataReporter({
-      data: {
-        id: this.id,
-        sequence,
-      },
-    });
-    new Message(Message.SET_RENDER, dreport).emitWith(this.namespace);
+    new Message(Message.SET_RENDER, { id: this.id, sequence }).emitWith(this.namespace);
   }
 }
 

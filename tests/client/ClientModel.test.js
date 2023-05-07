@@ -86,7 +86,7 @@ describe('ClientModel', () => {
 
       test('Removes the item', () => {
         const i = cm.items.get(item.id);
-        expect(() => cm.removeItem(i.report())).not.toThrow();
+        expect(() => cm.removeItem(i.toJSON())).not.toThrow();
         expect(cm.items.size).toBe(2);
         expect(cm.items).not.toContain(i);
       });
@@ -107,7 +107,7 @@ describe('ClientModel', () => {
 
       test('Removes the shadow', () => {
         const s = cm.shadows.get(shadow.id);
-        expect(() => cm.removeShadow(s.report())).not.toThrow();
+        expect(() => cm.removeShadow(s.toJSON())).not.toThrow();
         expect(cm.shadows.size).toBe(2);
         expect(cm.shadows).not.toContain(s);
       });

@@ -1,6 +1,6 @@
 'use strict';
 
-const { DataReporter, Message, WamsElement } = require('../shared.js');
+const { Message, WamsElement } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -51,13 +51,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     attributes.forEach((attr) => {
       delete this.attributes[attr];
     });
-    const dreport = new DataReporter({
-      data: {
-        id: this.id,
-        attributes,
-      },
-    });
-    new Message(Message.RM_ATTRS, dreport).emitWith(this.namespace);
+    new Message(Message.RM_ATTRS, { id: this.id, attributes }).emitWith(this.namespace);
   }
 
   /**
@@ -67,13 +61,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
    */
   setAttributes(attributes) {
     this.attributes = Object.assign(this.attributes, attributes);
-    const dreport = new DataReporter({
-      data: {
-        id: this.id,
-        attributes,
-      },
-    });
-    new Message(Message.SET_ATTRS, dreport).emitWith(this.namespace);
+    new Message(Message.SET_ATTRS, { id: this.id, attributes }).emitWith(this.namespace);
   }
 }
 

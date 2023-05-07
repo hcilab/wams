@@ -73,10 +73,10 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   }
 
   /**
-   * @return {module:shared.View[]} Reports of the views in this group.
+   * @return {module:shared.View[]} Serialize the views in this group.
    */
-  reportViews() {
-    return this.views.map((v) => v.report());
+  toJSON() {
+    return this.views.map((v) => v.toJSON());
   }
 
   /*

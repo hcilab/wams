@@ -38,17 +38,6 @@ class ClientElement extends WamsElement {
     if (Object.prototype.hasOwnProperty.call(data, 'attributes')) {
       this.setAttributes(data.attributes);
     }
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientElement
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**
