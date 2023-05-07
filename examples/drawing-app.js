@@ -91,7 +91,7 @@ class DrawingApp {
 
   handleConnect({ view }) {
     view.on('drag', WAMS.predefined.actions.drag);
-    view.on('pinch', WAMS.predefined.actions.zoom);
+    view.on('pinch', WAMS.predefined.actions.pinch);
   }
 }
 
