@@ -1,25 +1,6 @@
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty, removeById } = require('shared/utilities.js');
-
-describe('defineOwnImmutableEnumerableProperty(obj, prop, val)', () => {
-  const x = {};
-  test('throws if obj is not a valid object', () => {
-    expect(() => defineOwnImmutableEnumerableProperty(undefined, 'a', 1)).toThrow();
-  });
-
-  test('Does not throw if obj is valid', () => {
-    expect(() => defineOwnImmutableEnumerableProperty(x, 'a', 1)).not.toThrow();
-  });
-
-  test('defines an immutable property on an object', () => {
-    expect(x).toHaveImmutableProperty('a');
-  });
-
-  test('defines an enumerable property on an object', () => {
-    expect(Object.keys(x)).toContain('a');
-  });
-});
+const { removeById } = require('shared/utilities.js');
 
 describe('removeById(array, item)', () => {
   function A(id) {

@@ -2,7 +2,7 @@
 
 const { io } = require('socket.io-client');
 
-const { constants, IdStamper, Message, NOP } = require('../shared.js');
+const { constants, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use

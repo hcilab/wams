@@ -1,6 +1,6 @@
 'use strict';
 
-const { IdStamper, Item } = require('../shared.js');
+const { Item } = require('../shared.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
 /**

@@ -5,7 +5,7 @@
 
 'use strict';
 
-const { colours, IdStamper, View } = require('../shared.js');
+const { colours, View } = require('../shared.js');
 
 // Symbols to mark these methods as intended for internal use only.
 const symbols = Object.freeze({

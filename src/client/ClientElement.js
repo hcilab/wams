@@ -1,6 +1,6 @@
 'use strict';
 
-const { Point2D, IdStamper, WamsElement } = require('../shared.js');
+const { Point2D, WamsElement } = require('../shared.js');
 
 /**
  * The ClientElement class exposes the draw() funcitonality of wams elements.

@@ -1,6 +1,6 @@
 'use strict';
 
-const { IdStamper, WamsImage, Message } = require('../shared.js');
+const { WamsImage, Message } = require('../shared.js');
 
 /**
  * Abstraction of the requisite logic for generating an image object which will
