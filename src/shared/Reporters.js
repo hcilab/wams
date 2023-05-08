@@ -9,7 +9,67 @@
  */
 class Item {
   constructor(values = {}) {
-    Object.assign(this, { ...Item.DEFAULTS, ...values });
+    Object.assign(this, {
+      id: null,
+
+      /**
+       * @name x
+       * @type {number}
+       * @default 0
+       * @memberof module:shared.Item
+       * @instance
+       */
+      x: 0,
+
+      /**
+       * @name y
+       * @type {number}
+       * @default 0
+       * @memberof module:shared.Item
+       * @instance
+       */
+      y: 0,
+
+      /**
+       * @name rotation
+       * @type {number}
+       * @default 0
+       * @memberof module:shared.Item
+       * @instance
+       */
+      rotation: 0,
+
+      /**
+       * @name scale
+       * @type {number}
+       * @default 1
+       * @memberof module:shared.Item
+       * @instance
+       */
+      scale: 1,
+
+      /**
+       * @name type
+       * @type {string}
+       * @default 'item/polygonal'
+       * @memberof module:shared.Item
+       * @instance
+       */
+      type: 'item/polygonal',
+
+      /**
+       * Whether to raise item upon interaction or lock Z position instead.
+       *
+       * @name lockZ
+       * @type {boolean}
+       * @default false
+       * @memberof module:shared.Item
+       * @instance
+       */
+      lockZ: false,
+
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 
   /**
@@ -27,20 +87,32 @@ class Item {
     };
   }
 }
-Item.DEFAULTS = {
-  id: -1,
-  x: 0,
-  y: 0,
-  rotation: 0,
-  scale: 1,
-  type: 'item/polygonal',
-  lockZ: false,
-};
 
 
 class RectangularItem extends Item {
   constructor(values = {}) {
-    super({ ...RectangularItem.DEFAULTS, ...values });
+    super({
+      /**
+       * @name width
+       * @type {number}
+       * @default 400
+       * @memberof module:shared.WamsElement
+       * @instance
+       */
+      width: 400,
+
+      /**
+       * @name height
+       * @type {number}
+       * @default 300
+       * @memberof module:shared.WamsElement
+       * @instance
+       */
+      height: 300,
+
+      type: 'item/rectangular',
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 
   /**
@@ -55,17 +127,6 @@ class RectangularItem extends Item {
     };
   }
 }
-RectangularItem.DEFAULTS = {
-  id: -1,
-  x: 0,
-  y: 0,
-  width: 400,
-  height: 300,
-  rotation: 0,
-  scale: 1,
-  type: 'item/rectangular',
-  lockZ: false,
-};
 
 /**
  * This WamsElement class provides a common interface between the client and the
@@ -76,7 +137,22 @@ RectangularItem.DEFAULTS = {
  */
 class WamsElement extends RectangularItem {
   constructor(values = {}) {
-    super({ ...WamsElement.DEFAULTS, ...values });
+    super({
+
+      /**
+       * Type of DOM element this represents.
+       *
+       * @name tagname
+       * @type {string}
+       * @default 'div'
+       * @memberof module:shared.WamsElement
+       * @instance
+       */
+      tagname: 'div',
+
+      type: 'item/element',
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 
   /**
@@ -89,18 +165,6 @@ class WamsElement extends RectangularItem {
     };
   }
 }
-WamsElement.DEFAULTS = {
-  id: -1,
-  x: 0,
-  y: 0,
-  width: 400,
-  height: 300,
-  rotation: 0,
-  scale: 1,
-  type: 'item/element',
-  tagname: 'div',
-  lockZ: false,
-};
 
 /**
  * This WamsImage class provides a common interface between the client and the
@@ -111,20 +175,12 @@ WamsElement.DEFAULTS = {
  */
 class WamsImage extends RectangularItem {
   constructor(values = {}) {
-    super({ ...DEFAULTS, ...values });
+    super({
+      type: 'item/image',
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 }
-WamsImage.DEFAULTS = {
-  id: -1,
-  x: 0,
-  y: 0,
-  width: 400,
-  height: 300,
-  rotation: 0,
-  scale: 1,
-  type: 'item/image',
-  lockZ: false,
-};
 
 /**
  * This View class provides a common interface between the client and
@@ -135,7 +191,24 @@ WamsImage.DEFAULTS = {
  */
 class View extends RectangularItem {
   constructor(values = {}) {
-    super({ ...View.DEFAULTS, ...values });
+    super({
+      width: 1600,
+      height: 900,
+
+      /**
+       * The index is an integer identifying the View, coming from ServerController.
+       *
+       * @name index
+       * @type {number}
+       * @default undefined
+       * @memberof module:shared.View
+       * @instance
+       */
+      index: undefined,
+
+      type: 'view/background',
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 
   /**
@@ -149,18 +222,6 @@ class View extends RectangularItem {
     };
   }
 }
-View.DEFAULTS = {
-  id: -1,
-  x: 0,
-  y: 0,
-  width: 1600,
-  height: 900,
-  rotation: 0,
-  scale: 1,
-  type: 'view/background',
-  lockZ: false,
-  index: undefined,
-};
 
 /**
  * Enables forwarding of PointerEvents from the client to the server.
@@ -170,7 +231,18 @@ View.DEFAULTS = {
  */
 class PointerReporter {
   constructor(values = {}) {
-    Object.assign(this, { ...PointerReporter.DEFAULTS, ...values });
+    Object.assign(this, {
+      type: null,
+      pointerId: null,
+      clientX: null,
+      clientY: null,
+      target: null,
+      altKey: null,
+      ctrlKey: null,
+      metaKey: null,
+      shiftKey: null,
+      ...values,  // Assigns additional attributes to the object
+    });
   }
 
   /**
@@ -192,17 +264,6 @@ class PointerReporter {
     };
   }
 }
-PointerReporter.DEFAULTS = {
-  type: null,
-  pointerId: null,
-  clientX: null,
-  clientY: null,
-  target: null,
-  altKey: null,
-  ctrlKey: null,
-  metaKey: null,
-  shiftKey: null,
-};
 
 module.exports = {
   Item,
