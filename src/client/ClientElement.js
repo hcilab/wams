@@ -8,9 +8,7 @@ const { Point2D, IdStamper, WamsElement } = require('../shared.js');
  * @extends module:shared.WamsElement
  * @memberof module:client
  *
- * @param {module:shared.WamsElement} data - The data from the server describing
- * this item. Only properties explicity listed in the array passed to the
- * ReporterFactory when the WamsElement class was defined will be accepted.
+ * @param {module:shared.WamsElement} data - The data from the server describing this item.
  */
 class ClientElement extends WamsElement {
   constructor(data) {

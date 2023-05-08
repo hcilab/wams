@@ -9,9 +9,7 @@ const { CanvasSequence } = require('canvas-sequencer');
  * @extends module:shared.Item
  * @memberof module:client
  *
- * @param {module:shared.Item} data - The data from the server describing this
- * item. Only properties explicity listed in the array passed to the
- * ReporterFactory when the Item class was defined will be accepted.
+ * @param {module:shared.Item} data - The data from the server describing this item.
  */
 class ClientItem extends Item {
   constructor(data) {
