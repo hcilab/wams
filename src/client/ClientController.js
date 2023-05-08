@@ -205,21 +205,6 @@ class ClientController {
   }
 
   /**
-   * Generates a function for forwarding the given message to the server.
-   *
-   * @see {@link module:shared.Message}
-   *
-   * @param {string} message - The type of message to forward. One of the static
-   * members of the Message class.
-   *
-   * @return {Function} A function bound to this instance for forwarding data to
-   * the server with the given message type label.
-   */
-  forward(message, data) {
-    this.socket.emit(message, data);
-  }
-
-  /**
    * Passes messages to the View, and schedules a render.
    *
    * @see {@link module:shared.Message}
@@ -347,10 +332,10 @@ class ClientController {
     // eslint-disable-next-line
     this.setupInputForwarding();
     return new Interactor(this.rootElement, {
-      swipe: this.forward.bind(this, Message.SWIPE),
-      tap: this.forward.bind(this, Message.CLICK),
-      track: this.forward.bind(this, Message.TRACK),
-      transform: this.forward.bind(this, Message.TRANSFORM),
+      swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
+      tap: this.socket.emit.bind(this.socket, Message.CLICK),
+      track: this.socket.emit.bind(this.socket, Message.TRACK),
+      transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
     });
   }
 
