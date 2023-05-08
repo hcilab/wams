@@ -378,7 +378,7 @@ class ClientController {
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
       // Extract only the properties we care about
-      const {type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey} = event;
+      const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
       this.socket.emit(Message.POINTER, {
         type,
         pointerId,

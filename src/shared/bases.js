@@ -68,7 +68,7 @@ class Item {
        */
       lockZ: false,
 
-      ...values,  // Assigns additional attributes to the object
+      ...values, // Assigns additional attributes to the object
     });
   }
 
@@ -87,7 +87,6 @@ class Item {
     };
   }
 }
-
 
 class RectangularItem extends Item {
   constructor(values = {}) {
@@ -111,7 +110,7 @@ class RectangularItem extends Item {
       height: 300,
 
       type: 'item/rectangular',
-      ...values,  // Assigns additional attributes to the object
+      ...values, // Assigns additional attributes to the object
     });
   }
 
@@ -138,7 +137,6 @@ class RectangularItem extends Item {
 class WamsElement extends RectangularItem {
   constructor(values = {}) {
     super({
-
       /**
        * Type of DOM element this represents.
        *
@@ -151,7 +149,7 @@ class WamsElement extends RectangularItem {
       tagname: 'div',
 
       type: 'item/element',
-      ...values,  // Assigns additional attributes to the object
+      ...values, // Assigns additional attributes to the object
     });
   }
 
@@ -177,7 +175,7 @@ class WamsImage extends RectangularItem {
   constructor(values = {}) {
     super({
       type: 'item/image',
-      ...values,  // Assigns additional attributes to the object
+      ...values, // Assigns additional attributes to the object
     });
   }
 }
@@ -207,7 +205,7 @@ class View extends RectangularItem {
       index: undefined,
 
       type: 'view/background',
-      ...values,  // Assigns additional attributes to the object
+      ...values, // Assigns additional attributes to the object
     });
   }
 
