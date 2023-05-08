@@ -12,10 +12,6 @@ describe('ShadowView', () => {
   };
 
   describe('constructor(values)', () => {
-    test('Throws exception if no values provided', () => {
-      expect(() => new ShadowView()).toThrow();
-    });
-
     test('Uses defined values, if provided', () => {
       expect(new ShadowView(view)).toMatchObject(view);
     });

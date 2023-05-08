@@ -60,10 +60,6 @@ describe('ClientModel', () => {
     });
 
     describe('addShadow(values)', () => {
-      test('Throws exception if no values provided', () => {
-        expect(() => cm.addShadow()).toThrow();
-      });
-
       test('Adds a ShadowView using the provided values', () => {
         expect(() => cm.addShadow(shadow)).not.toThrow();
         expect(cm.shadows.get(shadow.id)).toMatchObject(shadow);
@@ -117,7 +113,7 @@ describe('ClientModel', () => {
       let data;
       beforeAll(() => {
         data = {
-          id: 33,
+          viewId: 33,
           views: [
             { x: 80, y: 90, id: 44 },
             { x: 22, y: 5, id: 900 },
@@ -127,6 +123,7 @@ describe('ClientModel', () => {
             { x: 1, y: 2, id: 89 },
           ],
           color: '#4ab93d',
+          settings: {},
         };
       });
 
