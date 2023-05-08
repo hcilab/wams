@@ -1,6 +1,6 @@
 'use strict';
 
-const { IdStamper, Item } = require('../shared.js');
+const { Item } = require('../shared.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
 /**
@@ -9,9 +9,7 @@ const { CanvasSequence } = require('canvas-sequencer');
  * @extends module:shared.Item
  * @memberof module:client
  *
- * @param {module:shared.Item} data - The data from the server describing this
- * item. Only properties explicity listed in the array passed to the
- * ReporterFactory when the Item class was defined will be accepted.
+ * @param {module:shared.Item} data - The data from the server describing this item.
  */
 class ClientItem extends Item {
   constructor(data) {
@@ -24,17 +22,6 @@ class ClientItem extends Item {
      */
     this.render = null;
     if (data.sequence) this.setRender(data.sequence);
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientItem
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**

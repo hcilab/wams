@@ -1,7 +1,5 @@
 'use strict';
 
-const { defineOwnImmutableEnumerableProperty } = require('./utilities.js');
-
 /**
  * Given a previous ID, returns the next unique ID in the sequence.
  *
@@ -20,11 +18,6 @@ function getUniqueId(previous) {
   }
   throw new Error('Ran out of unique IDs!');
 }
-
-// Mark these fields as intended for internal use.
-const symbols = Object.freeze({
-  prevId: Symbol('prevId'),
-});
 
 /**
  * Class for stamping and cloning integer IDs. Stamped IDs are unique on a
@@ -50,10 +43,9 @@ class IdStamper {
      * The value of the previously assigned ID.
      *
      * @type {number}
-     * @alias [@@prevId]
      * @memberof module:shared.IdStamper
      */
-    this[symbols.prevId] = 0;
+    this.previousId = 0;
   }
 
   /**
@@ -66,8 +58,13 @@ class IdStamper {
    * @param {Object} obj - An object onto which an ID will be stamped.
    */
   stampNewId(obj) {
-    this[symbols.prevId] = getUniqueId(this[symbols.prevId]);
-    defineOwnImmutableEnumerableProperty(obj, 'id', this[symbols.prevId]);
+    this.previousId = getUniqueId(this.previousId);
+    Object.defineProperty(obj, 'id', {
+      value: this.previousId,
+      configurable: false,
+      enumerable: true,
+      writable: false,
+    });
   }
 
   /**
@@ -78,7 +75,12 @@ class IdStamper {
    */
   static cloneId(obj, id) {
     if (Number.isSafeInteger(id)) {
-      defineOwnImmutableEnumerableProperty(obj, 'id', id);
+      Object.defineProperty(obj, 'id', {
+        value: id,
+        configurable: false,
+        enumerable: true,
+        writable: false,
+      });
     }
   }
 }

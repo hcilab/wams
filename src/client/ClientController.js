@@ -2,7 +2,7 @@
 
 const { io } = require('socket.io-client');
 
-const { constants, DataReporter, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
+const { constants, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
@@ -128,11 +128,11 @@ class ClientController {
       [Message.UD_VIEW]: (data) => this.handle('updateView', data),
 
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]: ({ data }) => this.handle('removeAttributes', data),
-      [Message.SET_ATTRS]: ({ data }) => this.handle('setAttributes', data),
-      [Message.SET_IMAGE]: ({ data }) => this.handle('setImage', data),
-      [Message.SET_RENDER]: ({ data }) => this.handle('setRender', data),
-      [Message.SET_PARENT]: ({ data }) => this.handle('setParent', data),
+      [Message.RM_ATTRS]: (data) => this.handle('removeAttributes', data),
+      [Message.SET_ATTRS]: (data) => this.handle('setAttributes', data),
+      [Message.SET_IMAGE]: (data) => this.handle('setImage', data),
+      [Message.SET_RENDER]: (data) => this.handle('setRender', data),
+      [Message.SET_PARENT]: (data) => this.handle('setParent', data),
 
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: this.setup.bind(this),
@@ -155,7 +155,7 @@ class ClientController {
       },
 
       // For user-defined behavior
-      [Message.DISPATCH]: ({ data }) => this.handleCustomEvent(data),
+      [Message.DISPATCH]: this.handleCustomEvent.bind(this),
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
@@ -180,7 +180,7 @@ class ClientController {
    * instantiation.
    */
   connect() {
-    this.socket = io.connect(constants.NS_WAMS, {
+    this.socket = io(constants.NS_WAMS, {
       autoConnect: false,
       reconnection: false,
       transports: ['websocket', 'polling'],
@@ -202,22 +202,6 @@ class ClientController {
       this.renderScheduled = false;
     }
     window.requestAnimationFrame(this.render_fn);
-  }
-
-  /**
-   * Generates a function for forwarding the given message to the server.
-   *
-   * @see {@link module:shared.Message}
-   *
-   * @param {string} message - The type of message to forward. One of the static
-   * members of the Message class.
-   *
-   * @return {Function} A function bound to this instance for forwarding data to
-   * the server with the given message type label.
-   */
-  forward(message, data) {
-    const dreport = new DataReporter({ data });
-    new Message(message, dreport).emitWith(this.socket);
   }
 
   /**
@@ -254,7 +238,7 @@ class ClientController {
    */
   resize() {
     this.resizeCanvasToFillWindow();
-    new Message(Message.RESIZE, this.view).emitWith(this.socket);
+    this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
   }
 
@@ -291,29 +275,26 @@ class ClientController {
    * not reflect the model automatically. This function responds to a message
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
-   *
-   * @param {module:shared.FullStateReporter} data - All the information
-   * necessary to initially synchronize this client's model with the server's
-   * model.
    */
   setup(data) {
-    if (data.clientScripts) this.loadClientScripts(data.clientScripts);
-    if (data.stylesheets) this.loadStylesheets(data.stylesheets);
-    document.title = data.title;
+    const { clientScripts, stylesheets, title, backgroundImage, color, useMultiScreenGestures } = data.settings;
+    if (clientScripts) this.loadClientScripts(clientScripts);
+    if (stylesheets) this.loadStylesheets(stylesheets);
+    document.title = title;
 
-    IdStamper.cloneId(this.view, data.id);
+    this.view.id = data.viewId;
 
-    if (data.backgroundImage) {
+    if (backgroundImage) {
       this.canvas.style.backgroundColor = 'transparent';
-      document.body.style.backgroundImage = `url("${data.backgroundImage}")`;
+      document.body.style.backgroundImage = `url("${backgroundImage}")`;
     } else {
-      this.canvas.style.backgroundColor = data.color;
+      this.canvas.style.backgroundColor = color;
     }
     this.model.setup(data);
-    this.setupInteractor(data.useMultiScreenGestures);
+    this.setupInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
-    new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+    this.socket.emit(Message.LAYOUT, this.view);
   }
 
   loadClientScripts(scripts) {
@@ -351,10 +332,10 @@ class ClientController {
     // eslint-disable-next-line
     this.setupInputForwarding();
     return new Interactor(this.rootElement, {
-      swipe: this.forward.bind(this, Message.SWIPE),
-      tap: this.forward.bind(this, Message.CLICK),
-      track: this.forward.bind(this, Message.TRACK),
-      transform: this.forward.bind(this, Message.TRANSFORM),
+      swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
+      tap: this.socket.emit.bind(this.socket, Message.CLICK),
+      track: this.socket.emit.bind(this.socket, Message.TRACK),
+      transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
     });
   }
 
@@ -387,8 +368,7 @@ class ClientController {
    */
   forwardBlurEvents() {
     this.forwardEvents(['pointercancel', 'blur'], (event) => {
-      const breport = new DataReporter();
-      new Message(Message.BLUR, breport).emitWith(this.socket);
+      this.socket.emit(Message.BLUR, {});
     });
   }
 
@@ -397,8 +377,19 @@ class ClientController {
    */
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      const treport = new PointerReporter(event);
-      new Message(Message.POINTER, treport).emitWith(this.socket);
+      // Extract only the properties we care about
+      const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
+      this.socket.emit(Message.POINTER, {
+        type,
+        pointerId,
+        clientX,
+        clientY,
+        target,
+        altKey,
+        ctrlKey,
+        metaKey,
+        shiftKey,
+      });
     });
   }
 
@@ -409,10 +400,7 @@ class ClientController {
    * @param {object} payload
    */
   dispatch(action, payload) {
-    const dreport = new DataReporter({
-      data: { action, payload },
-    });
-    new Message(Message.DISPATCH, dreport).emitWith(this.socket);
+    this.socket.emit(Message.DISPATCH, { action, payload });
   }
 }
 

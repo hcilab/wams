@@ -6,25 +6,6 @@
  */
 
 /**
- * Defines the given property on the given object with the given value, and sets
- * the property to unconfigurable, unwritable, but enumerable.
- *
- * @param {object} obj - The object on which the property will be defined.
- * @param {string} prop - The property to define on obj.
- * @param {any} val - The value to assign to the property.
- *
- * @memberof module:shared.utilities
- */
-function defineOwnImmutableEnumerableProperty(obj, prop, val) {
-  Object.defineProperty(obj, prop, {
-    value: val,
-    configurable: false,
-    enumerable: true,
-    writable: false,
-  });
-}
-
-/**
  * Plain, simple NOP definition. If there's a faster NOP, redefine it here.
  *
  * @memberof module:shared.utilities
@@ -51,7 +32,6 @@ function removeById(array, item) {
 }
 
 module.exports = Object.freeze({
-  defineOwnImmutableEnumerableProperty,
   NOP,
   removeById,
 });

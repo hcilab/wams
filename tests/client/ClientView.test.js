@@ -20,7 +20,17 @@ describe('ClientView', () => {
     });
 
     test('Uses View defaults', () => {
-      expect(new ClientView(context)).toMatchObject(View.DEFAULTS);
+      expect(new ClientView(context)).toMatchObject({
+        id: null,
+        width: 1600,
+        height: 900,
+        index: undefined,
+        type: 'view/background',
+        x: 0,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+      });
     });
   });
 

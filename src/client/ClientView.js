@@ -53,18 +53,6 @@ class ClientView extends View {
     this.model = null;
 
     /**
-     * Id to make the views uniquely identifiable. Will be assigned when setup
-     * message is received from server.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientView
-     */
-    this.id = null;
-
-    /**
      * Configuration of ClientView that can be
      * modified in user-defined `window.WAMS_CONFIG`.
      *

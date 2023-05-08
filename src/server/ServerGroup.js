@@ -1,6 +1,6 @@
 'use strict';
 
-const { DataReporter, Message, Item } = require('../shared.js');
+const { Message, Item } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -50,7 +50,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
    * Publish a general notification about the status of the group.
    */
   _emitPublication() {
-    new Message(Message.UD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.UD_ITEM, this);
   }
 
   moveTo(x, y) {
@@ -74,10 +74,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   setParentForItems() {
     this.items.forEach((item) => {
       item.parent = this;
-      const dreport = new DataReporter({
-        data: { id: item.id, parent: this.id },
-      });
-      new Message(Message.SET_PARENT, dreport).emitWith(this.namespace);
+      this.namespace.emit(Message.SET_PARENT, { id: item.id, parent: this.id });
     });
   }
 

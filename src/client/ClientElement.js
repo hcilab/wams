@@ -1,6 +1,6 @@
 'use strict';
 
-const { Point2D, IdStamper, WamsElement } = require('../shared.js');
+const { Point2D, WamsElement } = require('../shared.js');
 
 /**
  * The ClientElement class exposes the draw() funcitonality of wams elements.
@@ -8,9 +8,7 @@ const { Point2D, IdStamper, WamsElement } = require('../shared.js');
  * @extends module:shared.WamsElement
  * @memberof module:client
  *
- * @param {module:shared.WamsElement} data - The data from the server describing
- * this item. Only properties explicity listed in the array passed to the
- * ReporterFactory when the WamsElement class was defined will be accepted.
+ * @param {module:shared.WamsElement} data - The data from the server describing this item.
  */
 class ClientElement extends WamsElement {
   constructor(data) {
@@ -38,17 +36,6 @@ class ClientElement extends WamsElement {
     if (Object.prototype.hasOwnProperty.call(data, 'attributes')) {
       this.setAttributes(data.attributes);
     }
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientElement
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**

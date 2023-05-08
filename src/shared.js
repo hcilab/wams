@@ -16,8 +16,8 @@
 
 const IdStamper = require('./shared/IdStamper.js');
 const Message = require('./shared/Message.js');
-const Reporters = require('./shared/Reporters.js');
-const Utils = require('./shared/utilities.js');
+const bases = require('./shared/bases.js');
+const utilities = require('./shared/utilities.js');
 const Polygon2D = require('./shared/Polygon2D.js');
 const Point2D = require('./shared/Point2D.js');
 const Rectangle = require('./shared/Rectangle.js');
@@ -76,6 +76,6 @@ module.exports = Object.freeze({
   Point2D,
   Polygon2D,
   Rectangle,
-  ...Reporters,
-  ...Utils,
+  ...bases,
+  ...utilities,
 });

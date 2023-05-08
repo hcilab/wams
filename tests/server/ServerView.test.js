@@ -31,7 +31,16 @@ describe('ServerView', () => {
     });
 
     test('Uses default values if none provided', () => {
-      expect(new ServerView(socket)).toMatchObject(View.DEFAULTS);
+      expect(new ServerView(socket)).toMatchObject({
+        x: 0,
+        y: 0,
+        width: 1600,
+        height: 900,
+        rotation: 0,
+        scale: 1,
+        type: 'view/background',
+        index: undefined,
+      });
     });
 
     test('Uses user-defined values, if provided', () => {

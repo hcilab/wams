@@ -6,7 +6,7 @@ const ClientItem = require('./ClientItem.js');
 const ShadowView = require('./ShadowView.js');
 const { removeById } = require('../shared.js');
 
-const REQUIRED_DATA = Object.freeze(['id', 'items', 'views']);
+const REQUIRED_DATA = Object.freeze(['viewId', 'items', 'views']);
 
 /**
  * The ClientModel is a client-side copy of those aspects of the model that are
@@ -136,11 +136,6 @@ class ClientModel {
   /**
    * Set up the internal copy of the model according to the data provided by the
    * server.
-   *
-   * @param {module:shared.FullStateReporter} data - The data from the server
-   *       detailing the current state of the model.  See REQUIRED_DATA. If any
-   *       is missing, something has gone terribly wrong, and an exception will
-   *       be thrown.
    */
   setup(data) {
     REQUIRED_DATA.forEach((d) => {
@@ -157,8 +152,8 @@ class ClientModel {
       }
     });
     this.view.config.shadows = data.shadows;
-    this.view.config.status = data.status;
-    this.view.config.backgroundImage = data.backgroundImage;
+    this.view.config.status = data.settings.status;
+    this.view.config.backgroundImage = data.settings.backgroundImage;
   }
 
   /**
@@ -227,10 +222,10 @@ class ClientModel {
    */
   update(container, data) {
     if (this[container].has(data.id)) {
-      this[container].get(data.id).assign(data);
+      const itemOrView = this[container].get(data.id);
+      Object.assign(itemOrView, data);
       if (container === 'items') {
-        const item = this[container].get(data.id);
-        if (!item.lockZ) {
+        if (!itemOrView.lockZ) {
           this.bringItemToTop(data.id);
         }
       }
@@ -266,7 +261,7 @@ class ClientModel {
    * pertaining to this client's view.
    */
   updateView(data) {
-    this.view.assign(data);
+    Object.assign(this.view, data);
   }
 
   /**

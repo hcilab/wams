@@ -1,6 +1,6 @@
 'use strict';
 
-const { IdStamper, WamsImage, Message } = require('../shared.js');
+const { WamsImage, Message } = require('../shared.js');
 
 /**
  * Abstraction of the requisite logic for generating an image object which will
@@ -38,9 +38,7 @@ function createImage(src) {
  * @extends module:shared.WamsImage
  * @memberof module:client
  *
- * @param {module:shared.Item} data - The data from the server describing this
- * item. Only properties explicity listed in the array passed to the
- * ReporterFactory when the Item class was defined will be accepted.
+ * @param {module:shared.Item} data - The data from the server describing this item.
  */
 class ClientImage extends WamsImage {
   constructor(data) {
@@ -53,17 +51,6 @@ class ClientImage extends WamsImage {
      */
     this.image = {};
     if (data.src) this.setImage(data.src);
-
-    /**
-     * Id to make the items uniquely identifiable.
-     *
-     * @name id
-     * @type {number}
-     * @constant
-     * @instance
-     * @memberof module:client.ClientImage
-     */
-    IdStamper.cloneId(this, data.id);
   }
 
   /**

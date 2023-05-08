@@ -16,7 +16,14 @@ describe('ServerItem', () => {
 
     test('Uses defaults if no values provided', () => {
       expect(() => (item = new ServerItem(namespace))).not.toThrow();
-      expect(item).toMatchObject(Item.DEFAULTS);
+      expect(item).toMatchObject({
+        x: 0,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        type: 'item/polygonal',
+        lockZ: false,
+      });
     });
 
     test('Creates correct type of item', () => {
@@ -25,10 +32,15 @@ describe('ServerItem', () => {
 
     test('Uses user-defined values, if provided', () => {
       const props = { y: 75, type: 'joker' };
-      const result = { ...Item.DEFAULTS, ...props };
       expect(() => (item = new ServerItem(namespace, props))).not.toThrow();
-      expect(item).toMatchObject(props);
-      expect(item).toMatchObject(result);
+      expect(item).toMatchObject({
+        x: 0,
+        y: 75,
+        rotation: 0,
+        scale: 1,
+        type: 'joker',
+        lockZ: false,
+      });
     });
 
     test('Stamps the item with an immutable Id', () => {
@@ -39,16 +51,16 @@ describe('ServerItem', () => {
   });
 
   describe('Methods', () => {
-    const props = {
-      x: 50,
-      y: 50,
-      hitbox: new Rectangle(100, 100),
-    };
-    beforeAll(() => {
-      item = new ServerItem(namespace, props);
-    });
-
     describe('containsPoint(x,y)', () => {
+      const props = {
+        x: 50,
+        y: 50,
+        hitbox: new Rectangle(100, 100),
+      };
+      beforeEach(() => {
+        item = new ServerItem(namespace, props);
+      });
+
       test('Accepts points completely inside square', () => {
         expect(item.containsPoint(75, 75)).toBe(true);
         expect(item.containsPoint(51, 51)).toBe(true);
@@ -83,12 +95,16 @@ describe('ServerItem', () => {
     });
 
     describe('moveTo(x, y)', () => {
+      beforeEach(() => {
+        item = new ServerItem(namespace);
+      });
+
       test('Has no effect if parameters left out', () => {
-        expect(item.x).toBe(50);
-        expect(item.y).toBe(50);
+        expect(item.x).toBe(0);
+        expect(item.y).toBe(0);
         expect(() => item.moveTo()).not.toThrow();
-        expect(item.x).toBe(50);
-        expect(item.y).toBe(50);
+        expect(item.x).toBe(0);
+        expect(item.y).toBe(0);
       });
 
       test('Moves the item to the given coordinates.', () => {
@@ -104,12 +120,52 @@ describe('ServerItem', () => {
       });
 
       test('Does not affect other values', () => {
-        expect(() => item.moveTo(Item.DEFAULTS.x, Item.DEFAULTS.y)).not.toThrow();
-        expect(item).toMatchObject(Item.DEFAULTS);
+        expect(() => item.moveTo(57, 59)).not.toThrow();
+        expect(item).toMatchObject({
+          x: 57,
+          y: 59,
+          rotation: 0,
+          scale: 1,
+          type: 'item/polygonal',
+        });
       });
     });
 
     describe('moveBy(dx, dy)', () => {
+      beforeEach(() => {
+        item = new ServerItem(namespace);
+      });
+
+      test('Has no effect if parameters left out', () => {
+        expect(item.x).toBe(0);
+        expect(item.y).toBe(0);
+        expect(() => item.moveTo()).not.toThrow();
+        expect(item.x).toBe(0);
+        expect(item.y).toBe(0);
+      });
+
+      test('Moves the item to the given coordinates.', () => {
+        expect(() => item.moveTo(1000, 9999)).not.toThrow();
+        expect(item.x).toBe(1000);
+        expect(item.y).toBe(9999);
+      });
+
+      test('Works with negative values', () => {
+        expect(() => item.moveTo(-50, -1000)).not.toThrow();
+        expect(item.x).toBe(-50);
+        expect(item.y).toBe(-1000);
+      });
+
+      test('Does not affect other values', () => {
+        expect(() => item.moveTo(57, 59)).not.toThrow();
+        expect(item).toMatchObject({
+          x: 57,
+          y: 59,
+          rotation: 0,
+          scale: 1,
+          type: 'item/polygonal',
+        });
+      });
       test('Has no effect if parameters left out', () => {
         expect(item.x).toBe(0);
         expect(item.y).toBe(0);
@@ -129,17 +185,21 @@ describe('ServerItem', () => {
 
       test('Works with negative values', () => {
         expect(() => item.moveBy(-5, -8)).not.toThrow();
-        expect(item.x).toBe(18);
-        expect(item.y).toBe(39);
+        expect(item.x).toBe(-5);
+        expect(item.y).toBe(-8);
         expect(() => item.moveBy(-25, -48)).not.toThrow();
-        expect(item.x).toBe(-7);
-        expect(item.y).toBe(-9);
+        expect(item.x).toBe(-30);
+        expect(item.y).toBe(-56);
       });
 
       test('Has no effect on other values', () => {
         expect(() => item.moveBy(7, 9)).not.toThrow();
-        Object.entries(ServerItem.DEFAULTS).forEach(([p, v]) => {
-          expect(item[p]).toEqual(v);
+        expect(item).toMatchObject({
+          x: 7,
+          y: 9,
+          rotation: 0,
+          scale: 1,
+          type: 'item/polygonal',
         });
       });
     });
