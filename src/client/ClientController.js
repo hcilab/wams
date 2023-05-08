@@ -216,7 +216,7 @@ class ClientController {
    * the server with the given message type label.
    */
   forward(message, data) {
-    new Message(message, data).emitWith(this.socket);
+    this.socket.emit(message, data);
   }
 
   /**
@@ -253,7 +253,7 @@ class ClientController {
    */
   resize() {
     this.resizeCanvasToFillWindow();
-    new Message(Message.RESIZE, this.view).emitWith(this.socket);
+    this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
   }
 
@@ -309,7 +309,7 @@ class ClientController {
     this.setupInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
-    new Message(Message.LAYOUT, this.view).emitWith(this.socket);
+    this.socket.emit(Message.LAYOUT, this.view);
   }
 
   loadClientScripts(scripts) {
@@ -383,7 +383,7 @@ class ClientController {
    */
   forwardBlurEvents() {
     this.forwardEvents(['pointercancel', 'blur'], (event) => {
-      new Message(Message.BLUR, {}).emitWith(this.socket);
+      this.socket.emit(Message.BLUR, {});
     });
   }
 
@@ -393,7 +393,7 @@ class ClientController {
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
       const report = new PointerReporter(event);
-      new Message(Message.POINTER, report).emitWith(this.socket);
+      this.socket.emit(Message.POINTER, report);
     });
   }
 
@@ -404,7 +404,7 @@ class ClientController {
    * @param {object} payload
    */
   dispatch(action, payload) {
-    new Message(Message.DISPATCH, { action, payload }).emitWith(this.socket);
+    this.socket.emit(Message.DISPATCH, { action, payload });
   }
 }
 

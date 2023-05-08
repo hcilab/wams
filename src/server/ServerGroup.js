@@ -50,7 +50,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
    * Publish a general notification about the status of the group.
    */
   _emitPublication() {
-    new Message(Message.UD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.UD_ITEM, this);
   }
 
   moveTo(x, y) {
@@ -74,7 +74,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   setParentForItems() {
     this.items.forEach((item) => {
       item.parent = this;
-      new Message(Message.SET_PARENT, { id: item.id, parent: this.id }).emitWith(this.namespace);
+      this.namespace.emit(Message.SET_PARENT, { id: item.id, parent: this.id });
     });
   }
 

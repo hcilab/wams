@@ -88,8 +88,8 @@ class ServerView extends Locker(Interactable(EventTarget(View))) {
    * @override
    */
   _emitPublication() {
-    new Message(Message.UD_SHADOW, this).emitWith(this.socket.broadcast);
-    new Message(Message.UD_VIEW, this).emitWith(this.socket);
+    this.socket.broadcast.emit(Message.UD_SHADOW, this);
+    this.socket.emit(Message.UD_VIEW, this);
   }
 
   /**
@@ -100,7 +100,7 @@ class ServerView extends Locker(Interactable(EventTarget(View))) {
    */
   dispatch(action, payload) {
     console.debug(`dispatch: ${action} to View ${this.id}`);
-    new Message(Message.DISPATCH, { action, payload }).emitWith(this.socket);
+    this.socket.emit(Message.DISPATCH, { action, payload });
   }
 
   /*

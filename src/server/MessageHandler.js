@@ -1,10 +1,5 @@
 'use strict';
 
-const { Message } = require('../shared.js');
-const { actions } = require('../predefined');
-
-const EVENTS = Object.freeze(['connect', 'disconnect']);
-
 /**
  * The MessageHandler logs listeners that are attached by the user and receives
  * messages from clients, which it then uses to call the appropriate listener.

@@ -37,7 +37,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
     this.sequence = undefined;
 
     // Notify subscribers immediately.
-    new Message(Message.ADD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.ADD_ITEM, this);
     if (values.sequence) {
       this.setSequence(values.sequence);
     }
@@ -47,7 +47,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    * Publish a general notification about the status of the item.
    */
   _emitPublication() {
-    new Message(Message.UD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.UD_ITEM, this);
   }
 
   /**
@@ -58,7 +58,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
    */
   setSequence(sequence) {
     this.sequence = sequence;
-    new Message(Message.SET_RENDER, { id: this.id, sequence }).emitWith(this.namespace);
+    this.namespace.emit(Message.SET_RENDER, { id: this.id, sequence });
   }
 }
 

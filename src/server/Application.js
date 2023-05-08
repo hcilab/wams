@@ -209,7 +209,7 @@ class Application extends EventTarget(Object) {
    * @param {object} payload argument of the user-defined action function.
    */
   dispatch(action, payload) {
-    new Message(Message.DISPATCH, { action, payload }).emitWith(this.workspace.namespace);
+    this.workspace.namespace.emit(Message.DISPATCH, { action, payload });
   }
 }
 

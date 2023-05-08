@@ -151,7 +151,7 @@ class WorkSpace {
   removeItem(item) {
     if (removeById(this.items, item)) {
       item.unlock();
-      new Message(Message.RM_ITEM, item).emitWith(this.namespace);
+      this.namespace.emit(Message.RM_ITEM, item);
     }
   }
 

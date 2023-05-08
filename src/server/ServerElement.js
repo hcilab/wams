@@ -29,7 +29,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     this.namespace = namespace;
 
     // Notify subscribers immediately.
-    new Message(Message.ADD_ELEMENT, this).emitWith(this.namespace);
+    this.namespace.emit(Message.ADD_ELEMENT, this);
     if (values.attributes) {
       this.setAttributes(values.attributes);
     }
@@ -39,7 +39,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
    * Publish a general notification about the status of the image.
    */
   _emitPublication() {
-    new Message(Message.UD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.UD_ITEM, this);
   }
 
   /**
@@ -51,7 +51,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     attributes.forEach((attr) => {
       delete this.attributes[attr];
     });
-    new Message(Message.RM_ATTRS, { id: this.id, attributes }).emitWith(this.namespace);
+    this.namespace.emit(Message.RM_ATTRS, { id: this.id, attributes });
   }
 
   /**
@@ -61,7 +61,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
    */
   setAttributes(attributes) {
     this.attributes = Object.assign(this.attributes, attributes);
-    new Message(Message.SET_ATTRS, { id: this.id, attributes }).emitWith(this.namespace);
+    this.namespace.emit(Message.SET_ATTRS, { id: this.id, attributes });
   }
 }
 

@@ -147,7 +147,7 @@ class Switchboard {
   disconnect(controller) {
     if (controller.disconnect()) {
       this.connections[controller.index] = null;
-      new Message(Message.RM_SHADOW, controller.view).emitWith(this.namespace);
+      this.namespace.emit(Message.RM_SHADOW, controller.view);
       logConnection(controller.view.id, false);
     } else {
       console.error('Failed to disconnect:', this);

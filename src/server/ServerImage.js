@@ -29,7 +29,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
     this.namespace = namespace;
 
     // Notify subscribers immediately.
-    new Message(Message.ADD_IMAGE, this).emitWith(this.namespace);
+    this.namespace.emit(Message.ADD_IMAGE, this);
     if (values.src) {
       this.setImage(values.src);
     }
@@ -39,7 +39,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    * Publish a general notification about the status of the image.
    */
   _emitPublication() {
-    new Message(Message.UD_ITEM, this).emitWith(this.namespace);
+    this.namespace.emit(Message.UD_ITEM, this);
   }
 
   /**
@@ -49,7 +49,7 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
    */
   setImage(path) {
     this.src = path;
-    new Message(Message.SET_IMAGE, { id: this.id, src: path }).emitWith(this.namespace);
+    this.namespace.emit(Message.SET_IMAGE, { id: this.id, src: path });
   }
 }
 

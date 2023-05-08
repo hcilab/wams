@@ -160,7 +160,7 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.fullStateReport]() {
-    new Message(Message.INITIALIZE, this).emitWith(this.socket);
+    this.socket.emit(Message.INITIALIZE, this);
   }
 
   /**
@@ -195,8 +195,8 @@ class ServerController {
       device: this.device,
       group: this.group,
     });
-    new Message(Message.ADD_SHADOW, this.view).emitWith(this.socket.broadcast);
-    new Message(Message.UD_VIEW, this.view).emitWith(this.socket);
+    this.socket.broadcast.emit(Message.ADD_SHADOW, this.view);
+    this.socket.emit(Message.UD_VIEW, this.view);
   }
 
   /**
@@ -227,7 +227,7 @@ class ServerController {
    */
   resize({ width, height }) {
     this.setSize(width, height);
-    new Message(Message.UD_SHADOW, this.view).emitWith(this.socket.broadcast);
+    this.socket.broadcast.emit(Message.UD_SHADOW, this.view);
   }
 
   /**
