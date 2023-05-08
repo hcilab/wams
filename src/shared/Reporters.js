@@ -223,52 +223,9 @@ class View extends RectangularItem {
   }
 }
 
-/**
- * Enables forwarding of PointerEvents from the client to the server.
- *
- * @class PointerReporter
- * @memberof module:shared
- */
-class PointerReporter {
-  constructor(values = {}) {
-    Object.assign(this, {
-      type: null,
-      pointerId: null,
-      clientX: null,
-      clientY: null,
-      target: null,
-      altKey: null,
-      ctrlKey: null,
-      metaKey: null,
-      shiftKey: null,
-      ...values,  // Assigns additional attributes to the object
-    });
-  }
-
-  /**
-   * @return object A serialized version of the pointer event, ready for
-   * transmission.
-   * @override
-   */
-  toJSON() {
-    return {
-      type: this.type,
-      pointerId: this.pointerId,
-      clientX: this.clientX,
-      clientY: this.clientY,
-      target: this.target,
-      altKey: this.altKey,
-      ctrlKey: this.ctrlKey,
-      metaKey: this.metaKey,
-      shiftKey: this.shiftKey,
-    };
-  }
-}
-
 module.exports = {
   Item,
   View,
-  PointerReporter,
   WamsElement,
   WamsImage,
 };

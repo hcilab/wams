@@ -2,7 +2,7 @@
 
 const { io } = require('socket.io-client');
 
-const { constants, PointerReporter, IdStamper, Message, NOP } = require('../shared.js');
+const { constants, IdStamper, Message, NOP } = require('../shared.js');
 const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
@@ -377,8 +377,19 @@ class ClientController {
    */
   forwardPointerEvents() {
     this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      const report = new PointerReporter(event);
-      this.socket.emit(Message.POINTER, report);
+      // Extract only the properties we care about
+      const {type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey} = event;
+      this.socket.emit(Message.POINTER, {
+        type,
+        pointerId,
+        clientX,
+        clientY,
+        target,
+        altKey,
+        ctrlKey,
+        metaKey,
+        shiftKey,
+      });
     });
   }
 
