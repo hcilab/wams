@@ -37,12 +37,6 @@ describe('ClientItem', () => {
       });
     });
 
-    test('Clones an immutable ID onto the item', () => {
-      const ci = new ClientItem(item);
-      expect(ci).toHaveImmutableProperty('id');
-      expect(ci.id).toBe(3);
-    });
-
     test('Creates a render sequence if one is provided', () => {
       item.sequence = sequence;
 

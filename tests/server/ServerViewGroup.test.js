@@ -12,14 +12,24 @@ describe('ServerViewGroup', () => {
     });
 
     test('Uses defaults', () => {
-      expect(new ServerViewGroup(new MessageHandler())).toMatchObject(ServerViewGroup.DEFAULTS);
+      expect(new ServerViewGroup(new MessageHandler())).toMatchObject({
+        views: expect.any(Array),
+        x: 0,
+        y: 0,
+        width: 1600,
+        height: 900,
+        rotation: 0,
+        scale: 1,
+        type: 'view/background',
+        index: undefined,
+      });
     });
   });
 
   describe('Methods', () => {
-    let socket, svg, view;
+    let socket, viewGroup, view;
     beforeAll(() => {
-      svg = new ServerViewGroup(new MessageHandler());
+      viewGroup = new ServerViewGroup(new MessageHandler());
     });
     beforeEach(() => {
       socket = { emit: jest.fn() };
@@ -27,63 +37,69 @@ describe('ServerViewGroup', () => {
 
     describe('spawnView(socket)', () => {
       test('Returns a ServerView', () => {
-        expect(svg.spawnView(socket)).toBeInstanceOf(ServerView);
+        expect(viewGroup.spawnView(socket)).toBeInstanceOf(ServerView);
       });
 
       test('Uses default View values', () => {
-        expect(svg.spawnView(socket)).toMatchObject(ServerView.DEFAULTS);
+        expect(viewGroup.spawnView(socket)).toMatchObject({
+          x: 0,
+          y: 0,
+          width: 1600,
+          height: 900,
+          rotation: 0,
+          scale: 1,
+          type: 'view/background',
+          index: undefined,
+        });
       });
 
       test('Keeps track of View', () => {
-        view = svg.spawnView(socket);
-        expect(svg.views).toContain(view);
+        view = viewGroup.spawnView(socket);
+        expect(viewGroup.views).toContain(view);
       });
     });
 
     describe('toJSON()', () => {
-      let expectedProperties;
-      beforeAll(() => {
-        expectedProperties = expect.arrayContaining(Object.keys(View.DEFAULTS));
-      });
-
       test('Returns an array', () => {
-        expect(svg.toJSON()).toBeInstanceOf(Array);
+        expect(viewGroup.toJSON()).toBeInstanceOf(Array);
       });
 
       test('Does not return the actual Views, but simple Objects', () => {
-        svg.toJSON().forEach((v) => {
+        viewGroup.toJSON().forEach((v) => {
           expect(v).not.toBeInstanceOf(ServerView);
           expect(v).toBeInstanceOf(Object);
         });
       });
 
       test('Objects returned contain only the expected data', () => {
-        svg.toJSON().forEach((v) => {
-          expect(Object.getOwnPropertyNames(v)).toEqual(expectedProperties);
+        viewGroup.toJSON().forEach((v) => {
+          expect(Object.getOwnPropertyNames(v)).toEqual(
+            expect.arrayContaining(['x', 'y', 'width', 'height', 'rotation', 'scale', 'type', 'index'])
+          );
         });
       });
 
       test('Returns data for each View in the workspace', () => {
-        expect(svg.toJSON().length).toBe(svg.views.length);
+        expect(viewGroup.toJSON().length).toBe(viewGroup.views.length);
       });
     });
 
     describe('removeView(view)', () => {
       test('Removes a view if it is found', () => {
-        expect(svg.views).toContain(view);
-        expect(() => svg.removeView(view)).not.toThrow();
-        expect(svg.views).not.toContain(view);
+        expect(viewGroup.views).toContain(view);
+        expect(() => viewGroup.removeView(view)).not.toThrow();
+        expect(viewGroup.views).not.toContain(view);
       });
 
       test('Does not remove anything if view not found', () => {
         const v = new ServerView({ x: 200, y: 200 });
-        const curr = Array.from(svg.views);
-        expect(() => svg.removeView(v)).not.toThrow();
-        expect(svg.views).toEqual(curr);
+        const curr = Array.from(viewGroup.views);
+        expect(() => viewGroup.removeView(v)).not.toThrow();
+        expect(viewGroup.views).toEqual(curr);
       });
 
       test('Throws exception if not view provided', () => {
-        expect(() => svg.removeView()).toThrow();
+        expect(() => viewGroup.removeView()).toThrow();
       });
     });
   });

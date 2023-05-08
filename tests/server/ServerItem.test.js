@@ -32,10 +32,15 @@ describe('ServerItem', () => {
 
     test('Uses user-defined values, if provided', () => {
       const props = { y: 75, type: 'joker' };
-      const result = { ...Item.DEFAULTS, ...props };
       expect(() => (item = new ServerItem(namespace, props))).not.toThrow();
-      expect(item).toMatchObject(props);
-      expect(item).toMatchObject(result);
+      expect(item).toMatchObject({
+        x: 0,
+        y: 75,
+        rotation: 0,
+        scale: 1,
+        type: 'joker',
+        lockZ: false,
+      });
     });
 
     test('Stamps the item with an immutable Id', () => {
