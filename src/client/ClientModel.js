@@ -141,7 +141,11 @@ class ClientModel {
     REQUIRED_DATA.forEach((d) => {
       if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`setup requires: ${d}`);
     });
-    data.views.forEach((v) => v.id !== this.view.id && this.addShadow(v));
+    data.views.forEach((v) => {
+      if (v.id !== this.view.id) {
+        this.addShadow(v);
+      }
+    });
     data.items.reverse().forEach((o) => {
       if (Object.prototype.hasOwnProperty.call(o, 'src')) {
         this.addImage(o);
@@ -174,9 +178,11 @@ class ClientModel {
    * @param {object} data
    */
   setItemValue(fnName, property, data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id)[fnName](data[property]);
+    const item = this.items.get(data.id);
+    if (item === undefined) {
+      throw Error(`Unable to find item with id: ${data.id}`);
     }
+    item[fnName](data[property]);
   }
 
   /**
@@ -211,37 +217,20 @@ class ClientModel {
   }
 
   /**
-   * Intended for use as an internal helper function, so that this functionality
-   * does not need to be defined twice for both of the items and shadows arrays.
-   *
-   * @param {string} container - Name of the ClientView property defining the
-   * array which contains the object to update.
-   * @param {( module:shared.Item | module:shared.View )} data - Data with which
-   * an object in the container will be updated.  Note that the object is
-   * located using an 'id' field on this data object.
-   */
-  update(container, data) {
-    if (this[container].has(data.id)) {
-      const itemOrView = this[container].get(data.id);
-      Object.assign(itemOrView, data);
-      if (container === 'items') {
-        if (!itemOrView.lockZ) {
-          this.bringItemToTop(data.id);
-        }
-      }
-    } else {
-      console.warn(`Unable to find in ${container}: id: `, data.id);
-    }
-  }
-
-  /**
    * Update an item.
    *
    * @param {module:shared.Item} data - data from the server, has an 'id' field
    * with which the item will be located.
    */
   updateItem(data) {
-    this.update('items', data);
+    const item = this.items.get(data.id);
+    if (item === undefined) {
+      throw Error(`Unable to find item with id: ${data.id}`);
+    }
+    Object.assign(item, data);
+    if (!item.lockZ) {
+      this.bringItemToTop(data.id);
+    }
   }
 
   /**
@@ -251,7 +240,11 @@ class ClientModel {
    * with which the view will be located.
    */
   updateShadow(data) {
-    this.update('shadows', data);
+    const view = this.shadows.get(data.id);
+    if (view === undefined) {
+      throw Error(`Unable to find shadow with id: `, data.id);
+    }
+    Object.assign(view, data);
   }
 
   /**
