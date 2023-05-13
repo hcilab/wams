@@ -117,25 +117,25 @@ class ClientController {
   [symbols.attachSocketIoListeners]() {
     const listeners = {
       // For the server to inform about changes to the model
-      [Message.ADD_ELEMENT]: (data) => this.handle('addElement', data),
-      [Message.ADD_IMAGE]: (data) => this.handle('addImage', data),
-      [Message.ADD_ITEM]: (data) => this.handle('addItem', data),
-      [Message.ADD_SHADOW]: (data) => this.handle('addShadow', data),
-      [Message.RM_ITEM]: (data) => this.handle('removeItem', data),
-      [Message.RM_SHADOW]: (data) => this.handle('removeShadow', data),
-      [Message.UD_ITEM]: (data) => this.handle('updateItem', data),
-      [Message.UD_SHADOW]: (data) => this.handle('updateShadow', data),
-      [Message.UD_VIEW]: (data) => this.handle('updateView', data),
+      [Message.ADD_ELEMENT]: (data) => this.model.addElement(data),
+      [Message.ADD_IMAGE]: (data) => this.model.addImage(data),
+      [Message.ADD_ITEM]: (data) => this.model.addItem(data),
+      [Message.ADD_SHADOW]: (data) => this.model.addShadow(data),
+      [Message.RM_ITEM]: (data) => this.model.removeItem(data),
+      [Message.RM_SHADOW]: (data) => this.model.removeShadow(data),
+      [Message.UD_ITEM]: (data) => this.model.updateItem(data),
+      [Message.UD_SHADOW]: (data) => this.model.updateShadow(data),
+      [Message.UD_VIEW]: (data) => this.model.updateView(data),
 
       // For hopefully occasional extra adjustments to objects in the model.
-      [Message.RM_ATTRS]: (data) => this.handle('removeAttributes', data),
-      [Message.SET_ATTRS]: (data) => this.handle('setAttributes', data),
-      [Message.SET_IMAGE]: (data) => this.handle('setImage', data),
-      [Message.SET_RENDER]: (data) => this.handle('setRender', data),
-      [Message.SET_PARENT]: (data) => this.handle('setParent', data),
+      [Message.RM_ATTRS]: (data) => this.model.removeAttributes(data),
+      [Message.SET_ATTRS]: (data) => this.model.setAttributes(data),
+      [Message.SET_IMAGE]: (data) => this.model.setImage(data),
+      [Message.SET_RENDER]: (data) => this.model.setRender(data),
+      [Message.SET_PARENT]: (data) => this.model.setParent(data),
 
       // Connection establishment related (disconnect, initial setup)
-      [Message.INITIALIZE]: this.setup.bind(this),
+      [Message.INITIALIZE]: this.initialize.bind(this),
       [Message.LAYOUT]: NOP,
 
       // User event related
@@ -159,6 +159,7 @@ class ClientController {
     };
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
+    this.socket.onAny(this.scheduleRender.bind(this));
 
     // Keep the view size up to date.
     window.addEventListener('resize', this.resize.bind(this), false);
@@ -205,30 +206,13 @@ class ClientController {
   }
 
   /**
-   * Passes messages to the View, and schedules a render.
-   *
-   * @see {@link module:shared.Message}
-   *
-   * @param {string} message - The name of a ClientView method to run.
-   * @param {...*} data - The argument to pass to the ClientView method.
-   */
-  handle(message, data) {
-    this.model[message](data, this);
-    this.scheduleRender();
-  }
-
-  /**
-   * Helper function to ensure that only those events that
-   * have attached listeners will be dispatched by the ClientModel.
-   *
-   * @param {string} message - the name of the ClientModel method to run.
-   * @param {object} data - the argument to pass to `this.handle`.
+   * @param {object} data
    */
   handleCustomEvent(data) {
     if (this.eventListeners.indexOf(data.action) < 0) {
       this.eventQueue.push(data);
     }
-    this.handle('dispatch', data);
+    this.model.dispatch(data);
   }
 
   /**
@@ -276,7 +260,7 @@ class ClientController {
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
    */
-  setup(data) {
+  initialize(data) {
     const { clientScripts, stylesheets, title, backgroundImage, color, useMultiScreenGestures } = data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
@@ -290,8 +274,8 @@ class ClientController {
     } else {
       this.canvas.style.backgroundColor = color;
     }
-    this.model.setup(data);
-    this.setupInteractor(useMultiScreenGestures);
+    this.model.initialize(data);
+    this.setUpInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     this.socket.emit(Message.LAYOUT, this.view);
@@ -325,12 +309,12 @@ class ClientController {
    * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
    * gestures. Default is to use client-side gestures.
    */
-  setupInteractor(useMultiScreenGestures = false) {
+  setUpInteractor(useMultiScreenGestures = false) {
     // if (useMultiScreenGestures) {
-    //   this.setupInputForwarding();
+    //   this.setUpInputForwarding();
     // } else {
     // eslint-disable-next-line
-    this.setupInputForwarding();
+    this.setUpInputForwarding();
     return new Interactor(this.rootElement, {
       swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
       tap: this.socket.emit.bind(this.socket, Message.CLICK),
@@ -342,53 +326,30 @@ class ClientController {
   /**
    * Set up input event forwarding.
    */
-  setupInputForwarding() {
-    this.forwardPointerEvents();
-    this.forwardBlurEvents();
-  }
-
-  /**
-   * Forward the given events, by using the given callback.
-   *
-   * @param {string[]} eventnames
-   * @param {function} callback
-   */
-  forwardEvents(eventnames, callback) {
-    eventnames.forEach((eventname) => {
-      window.addEventListener(eventname, callback, {
-        capture: true,
-        once: false,
-        passive: false,
+  setUpInputForwarding() {
+    // Forward pointer events
+    ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        // Extract only the properties we care about
+        const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
+        this.socket.emit(Message.POINTER, {
+          type,
+          pointerId,
+          clientX,
+          clientY,
+          target,
+          altKey,
+          ctrlKey,
+          metaKey,
+          shiftKey,
+        });
       });
     });
-  }
 
-  /**
-   * Forward blur and cancel events.
-   */
-  forwardBlurEvents() {
-    this.forwardEvents(['pointercancel', 'blur'], (event) => {
-      this.socket.emit(Message.BLUR, {});
-    });
-  }
-
-  /**
-   * Forward pointer events.
-   */
-  forwardPointerEvents() {
-    this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      // Extract only the properties we care about
-      const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
-      this.socket.emit(Message.POINTER, {
-        type,
-        pointerId,
-        clientX,
-        clientY,
-        target,
-        altKey,
-        ctrlKey,
-        metaKey,
-        shiftKey,
+    // Forward blur and cancel events as "BLUR" messages
+    ['pointercancel', 'blur'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        this.socket.emit(Message.BLUR, {});
       });
     });
   }

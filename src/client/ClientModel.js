@@ -59,13 +59,11 @@ class ClientModel {
   /**
    * Generate and store an item of the given type.
    *
-   * @param {function} ClassFn
-   * @param {object} values
+   * @param {Item} item
    */
-  addObject(ClassFn, values) {
-    const object = new ClassFn(values);
-    this.itemOrder.push(object);
-    this.items.set(object.id, object);
+  _addItem(item) {
+    this.itemOrder.push(item);
+    this.items.set(item.id, item);
   }
 
   /**
@@ -74,7 +72,7 @@ class ClientModel {
    * @param {module:shared.WamsElement} values - State of the new Element
    */
   addElement(values) {
-    this.addObject(ClientElement, values);
+    this._addItem(new ClientElement(values));
   }
 
   /**
@@ -83,7 +81,7 @@ class ClientModel {
    * @param {module:shared.WamsImage} values - State of the new image.
    */
   addImage(values) {
-    this.addObject(ClientImage, values);
+    this._addItem(new ClientImage(values));
   }
 
   /**
@@ -92,7 +90,7 @@ class ClientModel {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    this.addObject(ClientItem, values);
+    this._addItem(new ClientItem(values));
   }
 
   /**
@@ -106,20 +104,45 @@ class ClientModel {
   }
 
   /**
+   * Retrieve an item by ID. Throw an Error if the item isn't found.
+   *
+   * @param {number} id - ID of the item to retrieve.
+   */
+  getItem(id) {
+    const item = this.items.get(id);
+    if (item === undefined) {
+      throw Error(`Unable to find item with id: ${id}`);
+    }
+    return item;
+  }
+
+  /**
+   * Retrieve a Shadow by ID. Throw an Error if the shadow isn't found.
+   *
+   * @param {number} id - ID of the shadow to retrieve.
+   */
+  getShadow(id) {
+    const shadow = this.shadows.get(id);
+    if (shadow === undefined) {
+      throw Error(`Unable to find shadow with id: ${id}`);
+    }
+    return shadow;
+  }
+
+  /**
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.
    *
    * @return {boolean} true if removal was successful, false otherwise.
    */
-  removeItem(item) {
-    const obj = this.items.get(item.id);
-    if (Object.prototype.hasOwnProperty.call(obj, 'tagname')) {
-      this.rootElement.removeChild(obj.element);
+  removeItem(data) {
+    const item = this.getItem(data.id);
+    if (Object.prototype.hasOwnProperty.call(item, 'tagname')) {
+      this.rootElement.removeChild(item.element);
     }
-
-    this.items.delete(item.id);
-    return removeById(this.itemOrder, item);
+    this.items.delete(data.id);
+    return removeById(this.itemOrder, data);
   }
 
   /**
@@ -137,11 +160,15 @@ class ClientModel {
    * Set up the internal copy of the model according to the data provided by the
    * server.
    */
-  setup(data) {
+  initialize(data) {
     REQUIRED_DATA.forEach((d) => {
-      if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`setup requires: ${d}`);
+      if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`initialize requires: ${d}`);
     });
-    data.views.forEach((v) => v.id !== this.view.id && this.addShadow(v));
+    data.views.forEach((v) => {
+      if (v.id !== this.view.id) {
+        this.addShadow(v);
+      }
+    });
     data.items.reverse().forEach((o) => {
       if (Object.prototype.hasOwnProperty.call(o, 'src')) {
         this.addImage(o);
@@ -166,30 +193,18 @@ class ClientModel {
   }
 
   /**
-   * Call the given method with the given property of 'data' on the item with id
-   * equal to data.id.
-   *
-   * @param {string} fnName
-   * @param {string} property
-   * @param {object} data
-   */
-  setItemValue(fnName, property, data) {
-    if (this.items.has(data.id)) {
-      this.items.get(data.id)[fnName](data[property]);
-    }
-  }
-
-  /**
    * Set the attributes for the appropriate item.
    *
    * @param {object} data
    */
   setAttributes(data) {
-    this.setItemValue('setAttributes', 'attributes', data);
+    const item = this.getItem(data.id);
+    item.setAttributes(data.attributes);
   }
 
   setParent(data) {
-    this.setItemValue('setParent', 'parent', data);
+    const item = this.getItem(data.id);
+    item.setParent(data.parent);
   }
 
   /**
@@ -198,7 +213,8 @@ class ClientModel {
    * @param {object} data
    */
   setImage(data) {
-    this.setItemValue('setImage', 'src', data);
+    const item = this.getItem(data.id);
+    item.setImage(data.src);
   }
 
   /**
@@ -207,31 +223,8 @@ class ClientModel {
    * @param {object} data
    */
   setRender(data) {
-    this.setItemValue('setRender', 'sequence', data);
-  }
-
-  /**
-   * Intended for use as an internal helper function, so that this functionality
-   * does not need to be defined twice for both of the items and shadows arrays.
-   *
-   * @param {string} container - Name of the ClientView property defining the
-   * array which contains the object to update.
-   * @param {( module:shared.Item | module:shared.View )} data - Data with which
-   * an object in the container will be updated.  Note that the object is
-   * located using an 'id' field on this data object.
-   */
-  update(container, data) {
-    if (this[container].has(data.id)) {
-      const itemOrView = this[container].get(data.id);
-      Object.assign(itemOrView, data);
-      if (container === 'items') {
-        if (!itemOrView.lockZ) {
-          this.bringItemToTop(data.id);
-        }
-      }
-    } else {
-      console.warn(`Unable to find in ${container}: id: `, data.id);
-    }
+    const item = this.getItem(data.id);
+    item.setRender(data.sequence);
   }
 
   /**
@@ -241,7 +234,11 @@ class ClientModel {
    * with which the item will be located.
    */
   updateItem(data) {
-    this.update('items', data);
+    const item = this.getItem(data.id);
+    Object.assign(item, data);
+    if (!item.lockZ) {
+      this.bringItemToTop(data.id);
+    }
   }
 
   /**
@@ -251,7 +248,8 @@ class ClientModel {
    * with which the view will be located.
    */
   updateShadow(data) {
-    this.update('shadows', data);
+    const shadow = this.getShadow(data.id);
+    Object.assign(shadow, data);
   }
 
   /**
