@@ -162,9 +162,9 @@ class ClientModel {
    * Set up the internal copy of the model according to the data provided by the
    * server.
    */
-  setup(data) {
+  initialize(data) {
     REQUIRED_DATA.forEach((d) => {
-      if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`setup requires: ${d}`);
+      if (!Object.prototype.hasOwnProperty.call(data, d)) throw Error(`initialize requires: ${d}`);
     });
     data.views.forEach((v) => {
       if (v.id !== this.view.id) {

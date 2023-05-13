@@ -135,7 +135,7 @@ class ClientController {
       [Message.SET_PARENT]: (data) => this.model.setParent(data),
 
       // Connection establishment related (disconnect, initial setup)
-      [Message.INITIALIZE]: this.setup.bind(this),
+      [Message.INITIALIZE]: this.initialize.bind(this),
       [Message.LAYOUT]: NOP,
 
       // User event related
@@ -260,7 +260,7 @@ class ClientController {
    * from the server which contains the current state of the model, and forwards
    * this data to the view so that it can correctly render the model.
    */
-  setup(data) {
+  initialize(data) {
     const { clientScripts, stylesheets, title, backgroundImage, color, useMultiScreenGestures } = data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
@@ -274,7 +274,7 @@ class ClientController {
     } else {
       this.canvas.style.backgroundColor = color;
     }
-    this.model.setup(data);
+    this.model.initialize(data);
     this.setupInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
