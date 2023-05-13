@@ -22,6 +22,7 @@ const Polygon2D = require('./shared/Polygon2D.js');
 const Point2D = require('./shared/Point2D.js');
 const Rectangle = require('./shared/Rectangle.js');
 const Circle = require('./shared/Circle.js');
+const Oval = require('./shared/Oval.js');
 
 /**
  * This object stores a set of core constants for use by both the client and
@@ -71,6 +72,7 @@ module.exports = Object.freeze({
   colours,
   constants,
   Circle,
+  Oval,
   IdStamper,
   Message,
   Point2D,
