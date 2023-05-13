@@ -124,7 +124,7 @@ class ClientModel {
    * @param {number} id - ID of the shadow to retrieve.
    */
   getShadow(id) {
-    const shadow = this.shadows.get(data.id);
+    const shadow = this.shadows.get(id);
     if (shadow === undefined) {
       throw Error(`Unable to find shadow with id: ${id}`);
     }
@@ -140,8 +140,8 @@ class ClientModel {
    */
   removeItem(data) {
     const item = this.getItem(data.id);
-    if (Object.prototype.hasOwnProperty.call(obj, 'tagname')) {
-      this.rootElement.removeChild(obj.element);
+    if (Object.prototype.hasOwnProperty.call(item, 'tagname')) {
+      this.rootElement.removeChild(item.element);
     }
     this.items.delete(data.id);
     return removeById(this.itemOrder, data);

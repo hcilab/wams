@@ -68,19 +68,16 @@ describe('ClientModel', () => {
     });
 
     describe('removeItem(item)', () => {
-      let bitem, citem;
-      beforeAll(() => {
-        bitem = { x: 555, y: 253, id: 50 };
-        citem = { x: 1, y: 2, id: 89 };
-        cm.addItem(bitem);
-        cm.addItem(citem);
-      });
-
       test('Throws exception if no item provided', () => {
         expect(() => cm.removeItem()).toThrow();
       });
 
       test('Removes the item', () => {
+        const bitem = { x: 555, y: 253, id: 50 };
+        const citem = { x: 1, y: 2, id: 89 };
+        cm.addItem(bitem);
+        cm.addItem(citem);
+
         const i = cm.items.get(item.id);
         expect(() => cm.removeItem(i.toJSON())).not.toThrow();
         expect(cm.items.size).toBe(2);
@@ -109,9 +106,9 @@ describe('ClientModel', () => {
       });
     });
 
-    describe('setup(data)', () => {
+    describe('initialize(data)', () => {
       let data;
-      beforeAll(() => {
+      beforeEach(() => {
         data = {
           viewId: 33,
           views: [
@@ -128,20 +125,17 @@ describe('ClientModel', () => {
       });
 
       test('Throws exception if no data provided', () => {
-        expect(() => cm.setup()).toThrow();
+        expect(() => cm.initialize()).toThrow();
       });
 
       test('Throws exception if data is missing parameters', () => {
-        expect(() => cm.setup({ id: 1, views: [] })).toThrow();
-        expect(() => cm.setup({ id: 1, items: [] })).toThrow();
-        expect(() => cm.setup({ items: [], views: [] })).toThrow();
-      });
-
-      test('Does not throw exception if data provided', () => {
-        expect(() => cm.setup(data)).not.toThrow();
+        expect(() => cm.initialize({ id: 1, views: [] })).toThrow();
+        expect(() => cm.initialize({ id: 1, items: [] })).toThrow();
+        expect(() => cm.initialize({ items: [], views: [] })).toThrow();
       });
 
       test('Adds all the views in the data as shadows', () => {
+        expect(() => cm.initialize(data)).not.toThrow();
         data.views.forEach((v) => {
           expect(cm.shadows.has(v.id)).toBe(true);
           const s = cm.shadows.get(v.id);
@@ -150,6 +144,7 @@ describe('ClientModel', () => {
       });
 
       test('Adds all the items in the data', () => {
+        expect(() => cm.initialize(data)).not.toThrow();
         data.items.forEach((i) => {
           expect(cm.items.has(i.id)).toBe(true);
           const t = cm.items.get(i.id);
@@ -160,7 +155,7 @@ describe('ClientModel', () => {
 
     describe('updateItem(data)', () => {
       let data;
-      beforeAll(() => {
+      beforeEach(() => {
         data = {
           id: item.id,
           x: item.x + 101,
@@ -173,12 +168,11 @@ describe('ClientModel', () => {
         expect(() => cm.updateItem()).toThrow();
       });
 
-      test('Does not throw exception when provided with valid data', () => {
-        expect(() => cm.updateItem(data)).not.toThrow();
-      });
-
       test('Updates item data to the provided values', () => {
         const i = cm.items.get(item.id);
+        expect(i.x).not.toBe(data.x);
+        expect(i.y).not.toBe(data.y);
+        expect(() => cm.updateItem(data)).not.toThrow();
         expect(i.x).toBe(data.x);
         expect(i.y).toBe(data.y);
       });
@@ -186,7 +180,7 @@ describe('ClientModel', () => {
 
     describe('updateShadow(data)', () => {
       let data;
-      beforeAll(() => {
+      beforeEach(() => {
         data = {
           id: shadow.id,
           x: shadow.x + 101,
@@ -199,12 +193,11 @@ describe('ClientModel', () => {
         expect(() => cm.updateShadow()).toThrow();
       });
 
-      test('Does not throw exception when provided with valid data', () => {
-        expect(() => cm.updateShadow(data)).not.toThrow();
-      });
-
       test('Updates shadow data to the provided values', () => {
         const s = cm.shadows.get(shadow.id);
+        expect(s.x).not.toBe(data.x);
+        expect(s.y).not.toBe(data.y);
+        expect(() => cm.updateShadow(data)).not.toThrow();
         expect(s.x).toBe(data.x);
         expect(s.y).toBe(data.y);
       });
