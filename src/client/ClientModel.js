@@ -106,20 +106,32 @@ class ClientModel {
   }
 
   /**
+   * Retrieve an item by ID. Throw an Error if the item isn't found.
+   *
+   * @param {number} id - ID of the item to retrieve.
+   */
+  getItem(id) {
+    const item = this.items.get(id);
+    if (item === undefined) {
+      throw Error(`Unable to find item with id: ${id}`);
+    }
+    return item;
+  }
+
+  /**
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.
    *
    * @return {boolean} true if removal was successful, false otherwise.
    */
-  removeItem(item) {
-    const obj = this.items.get(item.id);
+  removeItem(data) {
+    const item = this.getItem(data.id);
     if (Object.prototype.hasOwnProperty.call(obj, 'tagname')) {
       this.rootElement.removeChild(obj.element);
     }
-
-    this.items.delete(item.id);
-    return removeById(this.itemOrder, item);
+    this.items.delete(data.id);
+    return removeById(this.itemOrder, data);
   }
 
   /**
@@ -170,32 +182,18 @@ class ClientModel {
   }
 
   /**
-   * Call the given method with the given property of 'data' on the item with id
-   * equal to data.id.
-   *
-   * @param {string} fnName
-   * @param {string} property
-   * @param {object} data
-   */
-  setItemValue(fnName, property, data) {
-    const item = this.items.get(data.id);
-    if (item === undefined) {
-      throw Error(`Unable to find item with id: ${data.id}`);
-    }
-    item[fnName](data[property]);
-  }
-
-  /**
    * Set the attributes for the appropriate item.
    *
    * @param {object} data
    */
   setAttributes(data) {
-    this.setItemValue('setAttributes', 'attributes', data);
+    const item = this.getItem(data.id);
+    item.setAttributes(data.attributes);
   }
 
   setParent(data) {
-    this.setItemValue('setParent', 'parent', data);
+    const item = this.getItem(data.id);
+    item.setParent(data.parent);
   }
 
   /**
@@ -204,7 +202,8 @@ class ClientModel {
    * @param {object} data
    */
   setImage(data) {
-    this.setItemValue('setImage', 'src', data);
+    const item = this.getItem(data.id);
+    item.setImage(data.src);
   }
 
   /**
@@ -213,7 +212,8 @@ class ClientModel {
    * @param {object} data
    */
   setRender(data) {
-    this.setItemValue('setRender', 'sequence', data);
+    const item = this.getItem(data.id);
+    item.setRender(data.sequence);
   }
 
   /**
