@@ -275,7 +275,7 @@ class ClientController {
       this.canvas.style.backgroundColor = color;
     }
     this.model.initialize(data);
-    this.setupInteractor(useMultiScreenGestures);
+    this.setUpInteractor(useMultiScreenGestures);
 
     // Need to tell the model what the view looks like once setup is complete.
     this.socket.emit(Message.LAYOUT, this.view);
@@ -309,12 +309,12 @@ class ClientController {
    * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
    * gestures. Default is to use client-side gestures.
    */
-  setupInteractor(useMultiScreenGestures = false) {
+  setUpInteractor(useMultiScreenGestures = false) {
     // if (useMultiScreenGestures) {
-    //   this.setupInputForwarding();
+    //   this.setUpInputForwarding();
     // } else {
     // eslint-disable-next-line
-    this.setupInputForwarding();
+    this.setUpInputForwarding();
     return new Interactor(this.rootElement, {
       swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
       tap: this.socket.emit.bind(this.socket, Message.CLICK),
@@ -326,53 +326,30 @@ class ClientController {
   /**
    * Set up input event forwarding.
    */
-  setupInputForwarding() {
-    this.forwardPointerEvents();
-    this.forwardBlurEvents();
-  }
-
-  /**
-   * Forward the given events, by using the given callback.
-   *
-   * @param {string[]} eventnames
-   * @param {function} callback
-   */
-  forwardEvents(eventnames, callback) {
-    eventnames.forEach((eventname) => {
-      window.addEventListener(eventname, callback, {
-        capture: true,
-        once: false,
-        passive: false,
+  setUpInputForwarding() {
+    // Forward pointer events
+    ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        // Extract only the properties we care about
+        const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
+        this.socket.emit(Message.POINTER, {
+          type,
+          pointerId,
+          clientX,
+          clientY,
+          target,
+          altKey,
+          ctrlKey,
+          metaKey,
+          shiftKey,
+        });
       });
     });
-  }
 
-  /**
-   * Forward blur and cancel events.
-   */
-  forwardBlurEvents() {
-    this.forwardEvents(['pointercancel', 'blur'], (event) => {
-      this.socket.emit(Message.BLUR, {});
-    });
-  }
-
-  /**
-   * Forward pointer events.
-   */
-  forwardPointerEvents() {
-    this.forwardEvents(['pointerdown', 'pointermove', 'pointerup'], (event) => {
-      // Extract only the properties we care about
-      const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
-      this.socket.emit(Message.POINTER, {
-        type,
-        pointerId,
-        clientX,
-        clientY,
-        target,
-        altKey,
-        ctrlKey,
-        metaKey,
-        shiftKey,
+    // Forward blur and cancel events as "BLUR" messages
+    ['pointercancel', 'blur'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        this.socket.emit(Message.BLUR, {});
       });
     });
   }
