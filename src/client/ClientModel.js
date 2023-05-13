@@ -59,13 +59,11 @@ class ClientModel {
   /**
    * Generate and store an item of the given type.
    *
-   * @param {function} ClassFn
-   * @param {object} values
+   * @param {Item} item
    */
-  addObject(ClassFn, values) {
-    const object = new ClassFn(values);
-    this.itemOrder.push(object);
-    this.items.set(object.id, object);
+  _addItem(item) {
+    this.itemOrder.push(item);
+    this.items.set(item.id, item);
   }
 
   /**
@@ -74,7 +72,7 @@ class ClientModel {
    * @param {module:shared.WamsElement} values - State of the new Element
    */
   addElement(values) {
-    this.addObject(ClientElement, values);
+    this._addItem(new ClientElement(values));
   }
 
   /**
@@ -83,7 +81,7 @@ class ClientModel {
    * @param {module:shared.WamsImage} values - State of the new image.
    */
   addImage(values) {
-    this.addObject(ClientImage, values);
+    this._addItem(new ClientImage(values));
   }
 
   /**
@@ -92,7 +90,7 @@ class ClientModel {
    * @param {module:shared.Item} values - State of the new Item.
    */
   addItem(values) {
-    this.addObject(ClientItem, values);
+    this._addItem(new ClientItem(values));
   }
 
   /**
