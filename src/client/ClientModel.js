@@ -119,6 +119,19 @@ class ClientModel {
   }
 
   /**
+   * Retrieve a Shadow by ID. Throw an Error if the shadow isn't found.
+   *
+   * @param {number} id - ID of the shadow to retrieve.
+   */
+  getShadow(id) {
+    const shadow = this.shadows.get(data.id);
+    if (shadow === undefined) {
+      throw Error(`Unable to find shadow with id: ${id}`);
+    }
+    return shadow;
+  }
+
+  /**
    * Removes the given item.
    *
    * @param {module:shared.Item} item - The Item to remove.
@@ -223,10 +236,7 @@ class ClientModel {
    * with which the item will be located.
    */
   updateItem(data) {
-    const item = this.items.get(data.id);
-    if (item === undefined) {
-      throw Error(`Unable to find item with id: ${data.id}`);
-    }
+    const item = this.getItem(data.id);
     Object.assign(item, data);
     if (!item.lockZ) {
       this.bringItemToTop(data.id);
@@ -240,11 +250,8 @@ class ClientModel {
    * with which the view will be located.
    */
   updateShadow(data) {
-    const view = this.shadows.get(data.id);
-    if (view === undefined) {
-      throw Error(`Unable to find shadow with id: `, data.id);
-    }
-    Object.assign(view, data);
+    const shadow = this.getShadow(data.id);
+    Object.assign(shadow, data);
   }
 
   /**
