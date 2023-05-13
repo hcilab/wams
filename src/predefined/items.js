@@ -1,7 +1,7 @@
 'use strict';
 
 const { CanvasSequence } = require('canvas-sequencer');
-const { Circle, Polygon2D, Rectangle } = require('../shared.js');
+const { Circle, Oval, Polygon2D, Rectangle } = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -106,6 +106,43 @@ function circle(x, y, radius, colour = 'yellow', properties = {}) {
 }
 
 /**
+ * Generate an oval item.
+ *
+ * @memberof module:predefined.items
+ *
+ * @param {number} x
+ * @param {number} y
+ * @param {number} radiusX
+ * @param {number} radiusY
+ * @param {string} [colour='yellow'] - Fill colour for the oval.
+ * @param {Object} properties - Location and orientation options for the item.
+ * See {@link module:shared.Item} members for available parameters.
+ *
+ * @returns {Object} An object with the parameters for an oval item.
+ */
+function oval(radiusX, radiusY, colour = 'yellow', properties = {}) {
+  const hitbox = new Oval(radiusX, radiusY);
+
+  const sequence = new CanvasSequence();
+  sequence.fillStyle = colour;
+  sequence.strokeStyle = 'black';
+  sequence.beginPath();
+  sequence.ellipse(
+    0,  // x
+    0,  // y
+    radiusX,
+    radiusY,
+    0, // rotation
+    0, // startAngle
+    2 * Math.PI, // endAngle
+  );
+  sequence.fill();
+  sequence.stroke();
+
+  return { hitbox, sequence, ...properties };
+}
+
+/**
  * Generate a polygonal item.
  *
  * @memberof module:predefined.items
@@ -193,6 +230,7 @@ module.exports = {
   circle,
   element,
   image,
+  oval,
   polygon,
   rectangle,
   square,
