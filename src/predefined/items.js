@@ -83,8 +83,6 @@ function square(x, y, length, colour = 'red', properties = {}) {
  *
  * @memberof module:predefined.items
  *
- * @param {number} x
- * @param {number} y
  * @param {number} radius
  * @param {string} [colour='yellow'] - Fill colour for the circle.
  * @param {Object} properties - Location and orientation options for the item.
@@ -93,16 +91,24 @@ function square(x, y, length, colour = 'red', properties = {}) {
  * @returns {Object} An object with the parameters for a circle item with the
  * given radius, filled in with the given colour.
  */
-function circle(x, y, radius, colour = 'yellow', properties = {}) {
-  const hitbox = new Circle(radius, x, y);
+function circle(radius, colour = 'yellow', properties = {}) {
+  const hitbox = new Circle(radius, 0, 0);
+
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
+  sequence.strokeStyle = 'black';
   sequence.beginPath();
-  sequence.arc(0, 0, radius, 0, 2 * Math.PI);
+  sequence.arc(
+    0,  // x
+    0,  // y
+    radius,
+    0,  // startAngle
+    2 * Math.PI,  // endAngle
+  );
   sequence.fill();
-  const type = 'item';
+  sequence.stroke();
 
-  return { ...properties, x, y, hitbox, sequence, type };
+  return { hitbox, sequence, ...properties };
 }
 
 /**
