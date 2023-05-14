@@ -10,6 +10,7 @@ module.exports = {
   predefined,
   colours,
   Circle,
+  Oval,
   Rectangle,
   Polygon2D,
   Router,
