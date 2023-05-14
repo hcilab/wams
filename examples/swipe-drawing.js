@@ -17,7 +17,9 @@ function handleSwipe({ x, y, velocity, direction }) {
   // console.count('swipes');
   // console.dir({ msg: 'Swipe registered', x, y, velocity, direction });
   app.spawn(
-    WAMS.predefined.items.rectangle(x, y, velocity * 25, 32, WAMS.colours[cidx], {
+    WAMS.predefined.items.oval(velocity * 10, 16, WAMS.colours[cidx], {
+      x,
+      y,
       rotation: -direction,
     })
   );
