@@ -99,11 +99,11 @@ function circle(radius, colour = 'yellow', properties = {}) {
   sequence.strokeStyle = 'black';
   sequence.beginPath();
   sequence.arc(
-    0,  // x
-    0,  // y
+    0,  // x  -- WAMS handles positioning
+    0,  // y  -- WAMS handles positioning
     radius,
     0,  // startAngle
-    2 * Math.PI,  // endAngle
+    2 * Math.PI,  // endAngle  -- WAMS handles rotation
   );
   sequence.fill();
   sequence.stroke();
@@ -134,11 +134,11 @@ function oval(radiusX, radiusY, colour = 'yellow', properties = {}) {
   sequence.strokeStyle = 'black';
   sequence.beginPath();
   sequence.ellipse(
-    0,  // x
-    0,  // y
+    0,  // x  -- WAMS handles positioning
+    0,  // y  -- WAMS handles positioning
     radiusX,
     radiusY,
-    0, // rotation
+    0, // rotation -- WAMS handles rotation
     0, // startAngle
     2 * Math.PI, // endAngle
   );
