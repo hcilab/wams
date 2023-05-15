@@ -63,6 +63,19 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     this.attributes = Object.assign(this.attributes, attributes);
     this.namespace.emit(Message.SET_ATTRS, { id: this.id, attributes });
   }
+
+  /**
+   * Serialize the element as a JSON object.
+   *
+   * @returns {Object} The element as a JSON object.
+   * @override
+   */
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      attributes: this.attributes,
+    };
+  }
 }
 
 module.exports = ServerElement;

@@ -60,6 +60,19 @@ class ServerItem extends Identifiable(Hittable(Item)) {
     this.sequence = sequence;
     this.namespace.emit(Message.SET_RENDER, { id: this.id, sequence });
   }
+
+  /**
+   * Serialize the item as a JSON object.
+   *
+   * @returns {Object} The item as a JSON object.
+   * @override
+   */
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      sequence: this.sequence,
+    };
+  }
 }
 
 module.exports = ServerItem;

@@ -159,17 +159,7 @@ class WorkSpace {
    * @return {module:shared.Item[]} Serialize the workspace items.
    */
   toJSON() {
-    return this.items.map((o) => {
-      const json = o.toJSON();
-      if (o instanceof ServerImage) {
-        json.src = o.src;
-      } else if (o instanceof ServerElement) {
-        json.attributes = o.attributes;
-      } else {
-        json.sequence = o.sequence;
-      }
-      return json;
-    });
+    return this.items.map((o) => o.toJSON());
   }
 
   /**
