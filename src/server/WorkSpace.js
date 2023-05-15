@@ -175,15 +175,13 @@ class WorkSpace {
   /**
    * Spawn a new workspace object of the given type, with the given values.
    *
-   * @param {function} ClassFn
-   * @param {object} values
+   * @param {object} item - the item to add.
    *
-   * @return {object} The newly spawned object.
+   * @return {object} The object.
    */
-  spawnObject(ClassFn, values) {
-    const object = new ClassFn(this.namespace, values);
-    this.items.unshift(object);
-    return object;
+  addItem(item) {
+    this.items.unshift(item);
+    return item;
   }
 
   /**
@@ -194,7 +192,8 @@ class WorkSpace {
    * @return {module:server.ServerElement} The newly spawned element.
    */
   spawnElement(values = {}) {
-    return this.spawnObject(ServerElement, values);
+    const item = new ServerElement(this.namespace, values);
+    return this.addItem(item);
   }
 
   /**
@@ -205,7 +204,8 @@ class WorkSpace {
    * @return {module:server.ServerImage} The newly spawned image.
    */
   spawnImage(values = {}) {
-    return this.spawnObject(ServerImage, values);
+    const item = new ServerImage(this.namespace, values);
+    return this.addItem(item);
   }
 
   /**
@@ -216,7 +216,8 @@ class WorkSpace {
    * @return {module:server.ServerItem} The newly spawned item.
    */
   spawnItem(values = {}) {
-    return this.spawnObject(ServerItem, values);
+    const item = new ServerItem(this.namespace, values);
+    return this.addItem(item);
   }
 
   /**
@@ -225,7 +226,8 @@ class WorkSpace {
    * @param {any} values properties for the group
    */
   createGroup(values) {
-    return this.spawnObject(ServerGroup, values);
+    const group = new ServerGroup(this.namespace, values);
+    return this.addItem(group);
   }
 }
 
