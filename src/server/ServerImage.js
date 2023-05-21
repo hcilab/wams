@@ -51,6 +51,19 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
     this.src = path;
     this.namespace.emit(Message.SET_IMAGE, { id: this.id, src: path });
   }
+
+  /**
+   * Serialize the image as a JSON object.
+   *
+   * @returns {Object} The image as a JSON object.
+   * @override
+   */
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      src: this.src,
+    };
+  }
 }
 
 module.exports = ServerImage;
