@@ -69,7 +69,7 @@ class Region {
    * initial position of the inputs, calls the relevant gesture hooks, and
    * dispatches gesture data.
    *
-   * @param {TouchEvent} event - The event received from a client.
+   * @param {PointerEvent} event - The event received from a client.
    */
   arbitrate(event) {
     const phase = PHASE[event.type];

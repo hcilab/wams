@@ -8,15 +8,14 @@ const PointerData = require('./PointerData.js');
  *
  * @memberof module:gestures
  *
- * @param {TouchEvent} event - The input event which will initialize this Input
+ * @param {PointerEvent} event - The input event which will initialize this Input
  * object.
- * @param {Touch} touch - The touch point data.
  * @param {string} identifier - The identifier for this input, so that it can be
  * located in subsequent Event objects.
  */
 class Input {
-  constructor(event, touch, identifier) {
-    const currentData = new PointerData(event, touch);
+  constructor(event, identifier) {
+    const currentData = new PointerData(event);
 
     /**
      * Holds the initial data from the mousedown / touchstart / pointerdown that
@@ -34,8 +33,7 @@ class Input {
     this.current = currentData;
 
     /**
-     * The identifier for the pointer / touch / mouse button associated with
-     * this input.
+     * The identifier for the pointer associated with this input.
      *
      * @type {number}
      */
@@ -80,11 +78,10 @@ class Input {
    * input, pushing the old current data into the previous slot, and tossing
    * out the old previous data.
    *
-   * @param {TouchEvent} event - The event object to wrap with a PointerData.
-   * @param {Touch} touch - The touch point data.
+   * @param {PointerEvent} event - The event object to wrap with a PointerData.
    */
-  update(event, touch) {
-    this.current = new PointerData(event, touch);
+  update(event) {
+    this.current = new PointerData(event);
   }
 }
 

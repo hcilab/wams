@@ -1,6 +1,6 @@
 'use strict';
 
-const { Point2D } = require('../shared.js');
+const { Point2D } = require('westures');
 const PHASE = require('./PHASE.js');
 
 /**
@@ -9,11 +9,10 @@ const PHASE = require('./PHASE.js');
  *
  * @memberof module:gestures
  *
- * @param {TouchEvent} event - The event object being wrapped.
- * @param {Touch} touch - The touch point data.
+ * @param {PointerEvent} event - The event object being wrapped.
  */
 class PointerData {
-  constructor(event, touch) {
+  constructor(event) {
     /**
      * The type or 'phase' of this batch of pointer data. 'start' or 'move' or
      * 'end'.
@@ -33,9 +32,9 @@ class PointerData {
     /**
      * The (x,y) coordinate of the event, wrapped in a Point2D.
      *
-     * @type {module:gestures.Point2D}
+     * @type {module:westures.Point2D}
      */
-    this.point = new Point2D(touch.clientX, touch.clientY);
+    this.point = new Point2D(event.clientX, event.clientY);
   }
 
   /**
