@@ -40,7 +40,7 @@ module.exports = {
  *
  * @typedef {Object} BaseData
  *
- * @property {module:shared.Point2D} centroid - The current centroid of the
+ * @property {module:westures.Point2D} centroid - The current centroid of the
  * inputs.
  * @property {Event} event - The input event which caused the gesture to be
  * recognized.

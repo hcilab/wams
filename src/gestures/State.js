@@ -2,7 +2,7 @@
 
 const Input = require('./Input.js');
 const PHASE = require('./PHASE.js');
-const { Point2D } = require('../shared.js');
+const { Point2D } = require('westures');
 
 const symbols = Object.freeze({
   inputs: Symbol.for('inputs'),
@@ -59,16 +59,16 @@ class State {
      * The array of latest point data for the currently active inputs, sourced
      * from this.active.
      *
-     * @type {module:gestures.Point2D[]}
+     * @type {module:westures.Point2D[]}
      */
     this.activePoints = [];
 
     /**
      * The centroid of the currently active points.
      *
-     * @type {module:gestures.Point2D}
+     * @type {module:westures.Point2D}
      */
-    this.centroid = {};
+    this.centroid = new Point2D();
 
     /**
      * The latest event that the state processed.
@@ -151,7 +151,7 @@ class State {
     this.inputs = Array.from(this[symbols.inputs].values());
     this.active = this.getInputsNotInPhase('end');
     this.activePoints = this.active.map((i) => i.current.point);
-    this.centroid = Point2D.midpoint(this.activePoints) || {};
+    this.centroid = Point2D.centroid(this.activePoints) || new Point2D();
   }
 }
 
