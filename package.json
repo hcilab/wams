@@ -30,7 +30,7 @@
     "@babel/core": "^7.14.6",
     "@babel/preset-env": "^7.14.7",
     "arkit": "^1.6.4",
-    "buffer": "^6.0.3",
+    "buffer": "^5.7.1",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.26.0",
@@ -40,7 +40,7 @@
     "jest-environment-jsdom": "^29.5.0",
     "jsdoc": "^4.0.2",
     "jsdom": "^21.1.1",
-    "parcel": "^2.0.0",
+    "parcel": "^2.8.3",
     "prettier": "^2.8.7",
     "process": "^0.11.10"
   },
