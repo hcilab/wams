@@ -214,8 +214,7 @@ class ServerController {
     event.x = x;
     event.y = y;
     this.view.dispatchEvent(event.type, event);
-    // FIXME TODO: reinstate support for server-side gestures
-    // this.group.gestureController.process(event);
+    this.group.gestureController.process(event);
   }
 
   /**

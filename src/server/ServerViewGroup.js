@@ -44,8 +44,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {number} id - Id of the view whose inputs should be cleared.
    */
   clearInputsFromView(id) {
-    // FIXME TODO: reinstate support for server-side gestures
-    // this.gestureController.clearOutView(id);
+    this.gestureController.clearOutView(id);
   }
 
   /*

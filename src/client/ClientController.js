@@ -310,17 +310,15 @@ class ClientController {
    * gestures. Default is to use client-side gestures.
    */
   setUpInteractor(useMultiScreenGestures = false) {
-    // if (useMultiScreenGestures) {
-    //   this.setUpInputForwarding();
-    // } else {
-    // eslint-disable-next-line
     this.setUpInputForwarding();
-    return new Interactor(this.rootElement, {
-      swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
-      tap: this.socket.emit.bind(this.socket, Message.CLICK),
-      track: this.socket.emit.bind(this.socket, Message.TRACK),
-      transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
-    });
+    if (!useMultiScreenGestures) {
+      return new Interactor(this.rootElement, {
+        swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
+        tap: this.socket.emit.bind(this.socket, Message.CLICK),
+        track: this.socket.emit.bind(this.socket, Message.TRACK),
+        transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
+      });
+    }
   }
 
   /**
