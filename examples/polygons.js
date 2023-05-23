@@ -6,7 +6,10 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({
+  shadows: true,
+  status: true,
+});
 
 function polygon(x, y, view) {
   return WAMS.predefined.items.polygon(
