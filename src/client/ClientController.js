@@ -330,17 +330,8 @@ class ClientController {
       window.addEventListener(eventname, (event) => {
         // Extract only the properties we care about
         const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
-        this.socket.emit(Message.POINTER, {
-          type,
-          pointerId,
-          clientX,
-          clientY,
-          target,
-          altKey,
-          ctrlKey,
-          metaKey,
-          shiftKey,
-        });
+        const data = { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey };
+        this.socket.emit(Message.POINTER, data);
       });
     });
 
