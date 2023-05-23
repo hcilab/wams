@@ -17,7 +17,7 @@ const symbols = Object.freeze({
 
 // Default ClientView configuration.
 const DEFAULT_CONFIG = Object.freeze({
-  showStatus: false,
+  status: false,
   shadows: false,
 });
 
@@ -102,7 +102,7 @@ class ClientView extends View {
    * Renders text describing the status of the view to the upper left corner of
    * the view, to assist with debugging.
    *
-   * @alias [@@drawShadows]
+   * @alias [@@drawStatus]
    * @memberof module:client.ClientView
    */
   [symbols.drawStatus]() {

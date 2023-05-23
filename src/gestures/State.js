@@ -73,7 +73,7 @@ class State {
     /**
      * The latest event that the state processed.
      *
-     * @type {TouchEvent}
+     * @type {PointerEvent}
      */
     this.event = null;
   }
