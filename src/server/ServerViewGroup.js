@@ -56,7 +56,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {number} [ dy=0 ] - Movement along the y ayis.
    */
   moveBy(dx = 0, dy = 0) {
-    super.moveBy(-dx, -dy);
+    super.moveBy(dx, dy);
     this.views.forEach((v) => v.moveBy(dx, dy));
   }
 
@@ -91,7 +91,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * to rotate.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
-    super.rotateBy(-radians, px, py);
+    super.rotateBy(radians, px, py);
     this.views.forEach((v) => v.rotateBy(radians, px, py));
   }
 
