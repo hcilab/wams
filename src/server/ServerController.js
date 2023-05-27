@@ -215,7 +215,9 @@ class ServerController {
     event.x = x;
     event.y = y;
     this.view.dispatchEvent(event.type, event);
-    this.group.gestureController.process(event);
+    if (this.workspace.settings.useMultiScreenGestures) {
+      this.group.gestureController.process(event);
+    }
   }
 
   /**
