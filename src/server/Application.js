@@ -11,7 +11,6 @@ const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 const { EventTarget } = require('../mixins.js');
 
 /**
@@ -83,18 +82,11 @@ class Application extends EventTarget(Object) {
     this.messageHandler = new MessageHandler(this, this.workspace);
 
     /**
-     * Track the active group.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = new ServerViewGroup(this.messageHandler);
-
-    /**
      * The switchboard allows communication with clients
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, this.group, settings);
+    this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, settings);
   }
 
   /**

@@ -5,6 +5,7 @@ const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const ServerController = require('./ServerController.js');
+const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
  * Finds the first null or undefined index in the given array, and returns that
@@ -61,7 +62,7 @@ function logConnection(id, status) {
  * and workspace settings.
  */
 class Switchboard {
-  constructor(workspace, messageHandler, namespace, group, settings = {}) {
+  constructor(workspace, messageHandler, namespace, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -104,7 +105,7 @@ class Switchboard {
      *
      * @type {module:server.ServerViewGroup}
      */
-    this.group = group;
+    this.group = new ServerViewGroup(this.messageHandler);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
