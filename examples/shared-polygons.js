@@ -43,7 +43,6 @@ viewGroup.on('pinch', WAMS.predefined.actions.pinch);
 viewGroup.on('rotate', WAMS.predefined.actions.rotate);
 viewGroup.on('drag', WAMS.predefined.actions.drag);
 
-
 const linelayout = WAMS.predefined.layouts.line(200);
 function handleConnect({ view, device }) {
   linelayout(view, device);

@@ -108,7 +108,8 @@ function table(overlap) {
  * function that places users in a line.
  */
 function line(overlap) {
-  if (overlap == undefined) {  // or null, since using == instead of ===
+  if (overlap == undefined) {
+    // or if overalap is null, since using == instead of ===
     throw new Error('overlap must be defined for line layout');
   }
   const views = [];
