@@ -24,7 +24,7 @@
     "express": "^4.17.1",
     "socket.io": "^4.2.0",
     "socket.io-client": "^4.2.0",
-    "westures": "^1.0.0"
+    "westures": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

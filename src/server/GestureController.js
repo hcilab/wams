@@ -1,6 +1,6 @@
 'use strict';
 
-const { Region, Pan, Rotate, Pinch, Swipe, Tap, Track } = require('westures');
+const { Region, Pan, Rotate, Pinch, Swipe, Tap, Track } = require('westures/index');
 
 /**
  * The GestureController is in charge of processing server-side gestures for the
