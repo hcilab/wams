@@ -39,11 +39,6 @@ class WorkSpace {
     this.namespace = namespace;
 
     /**
-     * A place for user to store workspace state.
-     */
-    this.state = {};
-
-    /**
      * Track all items in the workspace.
      *
      * @type {module:server.ServerItem[]}
