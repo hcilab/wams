@@ -44,8 +44,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {number} id - Id of the view whose inputs should be cleared.
    */
   clearInputsFromView(id) {
-    // FIXME TODO: reinstate support for server-side gestures
-    // this.gestureController.clearOutView(id);
+    this.gestureController.clearOutView(id);
   }
 
   /*
@@ -57,7 +56,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * @param {number} [ dy=0 ] - Movement along the y ayis.
    */
   moveBy(dx = 0, dy = 0) {
-    super.moveBy(-dx, -dy);
+    super.moveBy(dx, dy);
     this.views.forEach((v) => v.moveBy(dx, dy));
   }
 
@@ -68,8 +67,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    */
   removeView(view) {
     removeById(this.views, view);
-    // FIXME TODO: reinstate support for server-side gestures
-    // this.clearInputsFromView(view.id);
+    this.clearInputsFromView(view.id);
   }
 
   /**
@@ -92,7 +90,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
    * to rotate.
    */
   rotateBy(radians = 0, px = this.x, py = this.y) {
-    super.rotateBy(-radians, px, py);
+    super.rotateBy(radians, px, py);
     this.views.forEach((v) => v.rotateBy(radians, px, py));
   }
 

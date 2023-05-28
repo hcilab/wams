@@ -202,9 +202,10 @@ class ServerController {
   /**
    * Forwards a PointerEvent to the gesture controller.
    *
-   * @param {TouchEvent} event - The event to forward.
+   * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
+    event.target = this.group;
     event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
@@ -214,8 +215,9 @@ class ServerController {
     event.x = x;
     event.y = y;
     this.view.dispatchEvent(event.type, event);
-    // FIXME TODO: reinstate support for server-side gestures
-    // this.group.gestureController.process(event);
+    if (this.workspace.settings.useMultiScreenGestures) {
+      this.group.gestureController.process(event);
+    }
   }
 
   /**

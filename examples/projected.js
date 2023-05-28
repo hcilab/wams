@@ -7,7 +7,11 @@ const TOTAL_HEIGHT = 6053;
 const app = new WAMS.Application({
   shadows: true,
   staticDir: path.join(__dirname, './img'),
-  useMultiScreenGestures: true,
+  /*
+   * Mult-screen gestures are currently incomplatible with targetting different
+   * drag events at different screens- all screens/views move together.
+   */
+  // useMultiScreenGestures: true,
 });
 
 const { image } = WAMS.predefined.items;
@@ -36,7 +40,7 @@ function viewSetup({ view, device, group }) {
   if (view.index === 0) {
     view.scaleBy(0.6);
   } else if (view.index === 1) {
-    group.on('drag', WAMS.predefined.actions.drag);
+    view.on('drag', WAMS.predefined.actions.drag);
     view.scaleBy(3.4);
     view.moveTo(1615, 2800);
   } else {

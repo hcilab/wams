@@ -1,6 +1,6 @@
 'use strict';
 
-const Gestures = require('../gestures.js');
+const { Region, Pan, Rotate, Pinch, Swipe, Tap, Track } = require('westures/index');
 
 /**
  * The GestureController is in charge of processing server-side gestures for the
@@ -32,9 +32,9 @@ class GestureController {
     /**
      * The "region" which takes care of gesture processing.
      *
-     * @type {module:server.Gestures.Region}
+     * @type {module:westures.Region}
      */
-    this.region = new Gestures.Region();
+    this.region = new Region(null, { headless: true });
 
     this.begin();
   }
@@ -45,26 +45,29 @@ class GestureController {
    * care of those activities.
    */
   begin() {
-    const pan = new Gestures.Pan();
-    const rotate = new Gestures.Rotate();
-    const pinch = new Gestures.Pinch();
-    const swipe = new Gestures.Swipe();
-    const tap = new Gestures.Tap();
-    const track = new Gestures.Track(['start', 'end']);
-
     const handleGesture = this.messageHandler.handleGesture;
-    this.region.addGesture(pan, handleGesture.bind(this.messageHandler, 'drag', this.group));
-    this.region.addGesture(tap, handleGesture.bind(this.messageHandler, 'click', this.group));
-    this.region.addGesture(pinch, handleGesture.bind(this.messageHandler, 'scale', this.group));
-    this.region.addGesture(rotate, handleGesture.bind(this.messageHandler, 'rotate', this.group));
-    this.region.addGesture(swipe, handleGesture.bind(this.messageHandler, 'swipe', this.group));
-    this.region.addGesture(track, ({ data }) => this.messageHandler.track(data, this.group));
+
+    const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag', this.group));
+    const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate', this.group));
+    const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group));
+    const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group));
+    const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group));
+    const track = new Track(this.group, (data) => this.messageHandler.track(data, this.group), {
+      phases: ['start', 'end'],
+    });
+
+    this.region.addGesture(pan);
+    this.region.addGesture(tap);
+    this.region.addGesture(pinch);
+    this.region.addGesture(rotate);
+    this.region.addGesture(swipe);
+    this.region.addGesture(track);
   }
 
   /**
    * Processes a PointerEvent that has been forwarded from a client.
    *
-   * @param {TouchEvent} event - The event from the client.
+   * @param {PointerEvent} event - The event from the client.
    */
   process(event) {
     this.region.arbitrate(event);
@@ -76,7 +79,7 @@ class GestureController {
    * @param {number} id - id of the view to clear our.
    */
   clearOutView(id) {
-    this.region.clearInputsFromSource(id);
+    this.region.cancel({ type: 'blur' });
   }
 }
 

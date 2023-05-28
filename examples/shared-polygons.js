@@ -7,7 +7,9 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
-  // useMultiScreenGestures: true, // enables multi-screen gestures
+  useMultiScreenGestures: true, // enables multi-screen gestures
+  shadows: true,
+  status: true,
 });
 
 function polygon(x, y, view) {
@@ -35,13 +37,14 @@ function spawnItem(event) {
   item.on('drag', WAMS.predefined.actions.drag);
 }
 
-// use predefined "line layout"
+const viewGroup = app.switchboard.group;
+viewGroup.on('click', spawnItem);
+viewGroup.on('pinch', WAMS.predefined.actions.pinch);
+viewGroup.on('rotate', WAMS.predefined.actions.rotate);
+viewGroup.on('drag', WAMS.predefined.actions.drag);
+
 const linelayout = WAMS.predefined.layouts.line(200);
-function handleConnect({ view, device, group }) {
-  group.on('click', spawnItem);
-  group.on('pinch', WAMS.predefined.actions.pinch);
-  group.on('rotate', WAMS.predefined.actions.rotate);
-  group.on('drag', WAMS.predefined.actions.drag);
+function handleConnect({ view, device }) {
   linelayout(view, device);
 }
 
