@@ -1,6 +1,6 @@
 # Per-device
 ```mermaid
-sequenceDiagram:
+sequenceDiagram
     participant cg as ClientGestureLibrary
     participant ci as Interactor
     participant cc as ClientController
@@ -10,20 +10,20 @@ sequenceDiagram:
     participant svg as ServerViewGroup
     participant item
 
-    cg --> ci : recognize gesture
-    ci --> cc : call handler received from controller
-    cc --> sc : emit message with gesture data
-    sc --> mh : handle the gesture
-    mh --> sv : transform x,y from view coordinates to workspace coordinates
-    sv --> mh : (x, y) point
-    mh --> item : emit gesture event
+    cg ->> ci : recognize gesture
+    ci ->> cc : call handler received from controller
+    cc ->> sc : emit message with gesture data
+    sc ->> mh : handle the gesture
+    mh ->> sv : transform x,y from view coordinates to workspace coordinates
+    sv ->> mh : (x, y) point
+    mh ->> item : emit gesture event
 
     note over sc, item: item is selected using the Track gesture,<br>first point down finds an item to lock, or the view
 ```
 
 # Multi-device:
 ```mermaid
-sequenceDiagram:
+sequenceDiagram
     participant cc as ClientController
     participant sc as ServerController
     participant dv as Device
@@ -34,16 +34,16 @@ sequenceDiagram:
     participant svg as ServerViewGroup
     participant item
 
-    cc --> sc : emit pointer event
-    sc --> dv : transform x,y from view coordinates to device coordinates
-    dv --> sc : (x, y) point
-    sc --> gc : process pointer event
-    gc --> sg : process pointer event
-    sg --> mh : recognize gesture
-    mh --> svg : transform x,y point from device coordinates to workspace coordinates
+    cc ->> sc : emit pointer event
+    sc ->> dv : transform x,y from view coordinates to device coordinates
+    dv ->> sc : (x, y) point
+    sc ->> gc : process pointer event
+    gc ->> sg : process pointer event
+    sg ->> mh : recognize gesture
+    mh ->> svg : transform x,y point from device coordinates to workspace coordinates
 
-    svg --> mh : (x, y) point
-    mh --> item : emit gesture event
+    svg ->> mh : (x, y) point
+    mh ->> item : emit gesture event
 
     note over sc, item: item is selected using the Track gesture,<br>first point down finds an item to lock, or the view
 ```
