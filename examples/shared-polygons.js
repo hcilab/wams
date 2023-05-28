@@ -44,9 +44,8 @@ viewGroup.on('rotate', WAMS.predefined.actions.rotate);
 viewGroup.on('drag', WAMS.predefined.actions.drag);
 
 
-// use predefined "line layout"
 const linelayout = WAMS.predefined.layouts.line(200);
-function handleConnect({ view, device, group }) {
+function handleConnect({ view, device }) {
   linelayout(view, device);
 }
 

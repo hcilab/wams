@@ -1,5 +1,9 @@
 const WAMS = require('..');
-const app = new WAMS.Application({ useMultiScreenGestures: true });
+const app = new WAMS.Application({
+  useMultiScreenGestures: true,
+  shadows: true,
+  status: true,
+});
 
 const { square } = WAMS.predefined.items;
 const { line } = WAMS.predefined.layouts;
@@ -12,9 +16,10 @@ function spawnSquare(event) {
   return item;
 }
 
-const linelayout = line();
+app.switchboard.group.on('click', spawnSquare);
+
+const linelayout = line(200);
 function handleConnect({ view, device }) {
-  view.on('click', spawnSquare);
   linelayout(view, device);
 }
 
