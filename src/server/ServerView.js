@@ -104,24 +104,6 @@ class ServerView extends Locker(Interactable(EventTarget(View))) {
   }
 
   /*
-   * Move by the given amount.
-   *
-   * @override
-   */
-  moveBy(dx = 0, dy = 0) {
-    super.moveBy(dx, dy);
-  }
-
-  /*
-   * Rotate the view by the given amount.
-   *
-   * @override
-   */
-  rotateBy(radians = 0, px, py) {
-    super.rotateBy(radians, px, py);
-  }
-
-  /*
    * Scale the view by the given amount.
    *
    * @override
