@@ -10,88 +10,101 @@ const { constants } = require('../shared.js');
  */
 
 /**
- * Generates a handler that places users around a table, with the given amount
- * of overlap. The first user will be the "table", and their position when they
- * join is stamped as the outline of the table. The next four users are
- * positioned, facing inwards, around the four sides of the table.
+ * Places users around a table, with the given amount of overlap. The first user
+ * will be the "table", and their position when they join is stamped as the
+ * outline of the table. The next four users are positioned, facing inwards,
+ * around the four sides of the table.
  *
  * @memberof module:predefined.layouts
  *
  * @param {number} overlap
- *
- * @returns {module:server.ListenerTypes.LayoutListener} A WAMS layout handler
- * function that places users around a table.
  */
-function table(overlap) {
-  let table = null;
-  let bottomLeft = null;
-  let bottomRight = null;
-  let topLeft = null;
-  let topRight = null;
+class Table {
+  TABLE = 0;
+  BOTTOM = 1;
+  LEFT = 2;
+  TOP = 3;
+  RIGHT = 4;
 
-  const TABLE = 0;
-  const BOTTOM = 1;
-  const LEFT = 2;
-  const TOP = 3;
-  const RIGHT = 4;
-
-  function layoutTable(view, device) {
-    table = view;
-    bottomLeft = view.bottomLeft;
-    bottomRight = view.bottomRight;
-    topLeft = view.topLeft;
-    topRight = view.topRight;
+  constructor(overlap) {
+    if (overlap == undefined) {
+      // or if overalap is null, since using == instead of ===
+      throw new Error('overlap must be defined for Table layout');
+    }
+    this.overlap = overlap;
+    this.table = null;
+    this.bottomLeft = null;
+    this.bottomRight = null;
+    this.topLeft = null;
+    this.topRight = null;
   }
 
-  function layoutBottom(view, device) {
-    view.moveTo(bottomLeft.x, bottomLeft.y - overlap);
-    device.moveTo(bottomLeft.x, bottomLeft.y - overlap);
+  layoutTable(view, device) {
+    this.table = view;
+    this.bottomLeft = view.bottomLeft;
+    this.bottomRight = view.bottomRight;
+    this.topLeft = view.topLeft;
+    this.topRight = view.topRight;
   }
 
-  function layoutLeft(view, device) {
-    view.moveTo(topLeft.x + overlap, topLeft.y);
+  layoutBottom(view, device) {
+    view.moveTo(this.bottomLeft.x, this.bottomLeft.y - this.overlap);
+    device.moveTo(this.bottomLeft.x, this.bottomLeft.y - this.overlap);
+  }
+
+  layoutLeft(view, device) {
+    view.moveTo(this.topLeft.x + this.overlap, this.topLeft.y);
     view.rotateBy(constants.ROTATE_90);
-    device.moveTo(topLeft.x + overlap, topLeft.y);
+    device.moveTo(this.topLeft.x + this.overlap, this.topLeft.y);
     device.rotateBy(constants.ROTATE_90);
   }
 
-  function layoutTop(view, device) {
-    view.moveTo(topRight.x, topRight.y + overlap);
+  layoutTop(view, device) {
+    view.moveTo(this.topRight.x, this.topRight.y + this.overlap);
     view.rotateBy(constants.ROTATE_180);
-    device.moveTo(topRight.x, topRight.y + overlap);
+    device.moveTo(this.topRight.x, this.topRight.y + this.overlap);
     device.rotateBy(constants.ROTATE_180);
   }
 
-  function layoutRight(view, device) {
-    view.moveTo(bottomRight.x - overlap, bottomRight.y);
+  layoutRight(view, device) {
+    view.moveTo(this.bottomRight.x - this.overlap, this.bottomRight.y);
     view.rotateBy(-constants.ROTATE_90);
-    device.moveTo(bottomRight.x - overlap, bottomRight.y);
+    device.moveTo(this.bottomRight.x - this.overlap, this.bottomRight.y);
     device.rotateBy(-constants.ROTATE_90);
   }
 
-  function dependOnTable(fn) {
-    return function layoutDepender(view, device) {
-      if (table == null) {
-        setTimeout(() => layoutDepender(view, device), 0);
-      } else {
-        fn(view, device);
-      }
-    };
-  }
-
-  const userFns = [];
-  userFns[TABLE] = layoutTable;
-  userFns[BOTTOM] = dependOnTable(layoutBottom);
-  userFns[LEFT] = dependOnTable(layoutLeft);
-  userFns[TOP] = dependOnTable(layoutTop);
-  userFns[RIGHT] = dependOnTable(layoutRight);
-
-  function handleLayout(view, device) {
+  layout(view, device) {
     const index = view.index > 0 ? (view.index % 4) + 1 : 0;
-    userFns[index](view, device);
+    console.log('INDEX', index);
+    if (index == this.TABLE) {
+      console.log('TABLE', view.index);
+      this.layoutTable(view, device);
+      return;
+    }
+    if (this.table == null) {
+      // console.log('TABLE NOT SET', view.index);
+      setTimeout(this.layout.bind(this, view, device), 0);
+      return;
+    }
+    switch (index) {
+      case this.BOTTOM:
+        console.log('BOTTOM', view.index);
+        this.layoutBottom(view, device);
+        break;
+      case this.LEFT:
+        console.log('LEFT', view.index);
+        this.layoutLeft(view, device);
+        break;
+      case this.TOP:
+        console.log('TOP', view.index);
+        this.layoutTop(view, device);
+        break;
+      case this.RIGHT:
+        console.log('RIGHT', view.index);
+        this.layoutRight(view, device);
+        break;
+    }
   }
-
-  return handleLayout;
 }
 
 /**
@@ -141,5 +154,5 @@ function line(overlap) {
 
 module.exports = {
   line,
-  table,
+  Table,
 };

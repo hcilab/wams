@@ -34,6 +34,7 @@ const app = new WAMS.Application({
   color: 'green',
   backgroundImage: 'green-table.jpeg',
   shadows: true,
+  status: true,
   clientLimit: 5,
   staticDir: path.join(__dirname, '/img'),
 });
@@ -197,12 +198,8 @@ function flipCard(event) {
   card.isFaceUp = !card.isFaceUp;
 }
 
-const tableLayout = WAMS.predefined.layouts.table(20);
-function handleConnect({ view, device }) {
-  tableLayout(view, device);
-}
-
-app.on('connect', handleConnect);
+const table = new WAMS.predefined.layouts.Table(20);
+app.on('connect', ({ view, device }) => table.layout(view, device));
 app.listen(9000);
 
 /**
