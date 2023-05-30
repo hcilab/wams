@@ -108,51 +108,49 @@ class Table {
 }
 
 /**
- * Generates a handler that places users in a line, with the given amount of
- * overlap. Best used with either server-side gestures or when users are unable
- * to manipulate their views.
+ * Places users in a line, with the given amount of overlap. Best used with
+ * either server-side gestures or when users are unable to manipulate their
+ * views.
  * - Valid for use with server-side gestures.
  *
  * @memberof module:predefined.layouts
  *
  * @param {number} overlap
- *
- * @returns {module:server.ListenerTypes.LayoutListener} A WAMS layout handler
- * function that places users in a line.
  */
-function line(overlap) {
-  if (overlap == undefined) {
-    // or if overalap is null, since using == instead of ===
-    throw new Error('overlap must be defined for line layout');
+class Line {
+  constructor(overlap) {
+    if (overlap == undefined) {
+      // or if overalap is null, since using == instead of ===
+      throw new Error('overlap must be defined for Line layout');
+    }
+    this.overlap = overlap;
+    this.views = [];
+    this.deviceRights = [];
   }
-  const views = [];
-  const rights = [];
 
-  function layout(view, device) {
+  layout(view, device) {
     if (view.index > 0) {
-      if (views[view.index - 1] == null) {
-        setTimeout(() => layout(view, device), 0);
+      if (this.views[view.index - 1] == null) {
+        setTimeout(this.layout.bind(this, view, device), 0);
       } else {
-        const prev = views[view.index - 1];
-        const change = prev.transformPointChange(overlap, 0);
+        const prev = this.views[view.index - 1];
+        const change = prev.transformPointChange(this.overlap, 0);
         const anchor = prev.topRight.minus(change);
         view.moveTo(anchor.x, anchor.y);
 
-        const side = rights[view.index - 1] - overlap;
+        const side = this.deviceRights[view.index - 1] - this.overlap;
         device.moveTo(side, 0);
-        rights[view.index] = side + device.width;
-        views[view.index] = view;
+        this.deviceRights[view.index] = side + device.width;
+        this.views[view.index] = view;
       }
     } else {
-      rights[0] = device.width;
-      views[0] = view;
+      this.deviceRights[0] = device.width;
+      this.views[0] = view;
     }
   }
-
-  return layout;
 }
 
 module.exports = {
-  line,
+  Line,
   Table,
 };

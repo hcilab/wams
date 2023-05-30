@@ -1,7 +1,7 @@
 const WAMS = require('..');
 const path = require('path');
 const { image } = WAMS.predefined.items;
-const { line } = WAMS.predefined.layouts;
+const { Line } = WAMS.predefined.layouts;
 
 const dimensions = [];
 const deepSpace = { x: 99999, y: 99999 };
@@ -29,13 +29,13 @@ app.on('deviceFarFromScreens', (data) => {
   if (currentView) moveScreenWithItems(currentView, deepSpace.x, deepSpace.y);
 });
 
-const setLayout = line(0);
+const line = new Line(0);
 function handleConnect({ view, device, group }) {
   if (view.index >= 2) {
     // send to deep space :)
     view.moveTo(deepSpace.x, deepSpace.y);
   } else {
-    setLayout(view, device);
+    line.layout(view, device);
   }
   dimensions[view.index] = { x: device.x, y: device.y, width: device.width, height: device.height };
 }

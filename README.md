@@ -135,11 +135,11 @@ function spawnSquare() {
   greenSquare.on('drag', actions.drag);
 }
 
-const linelayout = layouts.line(300); // 300px overlap betweens views
+const line = new layouts.Line(300); // 300px overlap betweens views
 
 function handleConnect({ view, device }) {
   view.on('click', spawnSquare);
-  linelayout(view, device);
+  line.layout(view, device);
 }
 
 app.on('connect', handleConnect);
@@ -460,13 +460,13 @@ Places users in a line, with the given amount of overlap. Best used with either 
 // application config should include
 // "useMultiScreenGestures: true"
 
-const { line } = WAMS.predefined.layouts;
+const { Line } = WAMS.predefined.layouts;
 
 const overlap = 200; // 200px overlap between screens
-const setLineLayout = line(overlap);
+const line = new Line(overlap);
 
 function handleConnect({ view, device }) {  // note the {} brackets to destructure the event object
-  setLineLayout(view, device);
+  line.layout(view, device);
 }
 
 app.on('connect', handleConnect);
