@@ -6,7 +6,7 @@ const app = new WAMS.Application({
 });
 
 const { square } = WAMS.predefined.items;
-const { line } = WAMS.predefined.layouts;
+const { Line } = WAMS.predefined.layouts;
 
 function spawnSquare(event) {
   const item = app.spawn(square(event.x - 50, event.y - 50, 100, 'green'));
@@ -18,9 +18,9 @@ function spawnSquare(event) {
 
 app.switchboard.group.on('click', spawnSquare);
 
-const linelayout = line(200);
+const line = new Line(200);
 function handleConnect({ view, device }) {
-  linelayout(view, device);
+  line.layout(view, device);
 }
 
 app.on('connect', handleConnect);
