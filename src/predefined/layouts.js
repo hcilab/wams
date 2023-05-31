@@ -28,7 +28,7 @@ class Table {
 
   constructor(overlap) {
     if (overlap == undefined) {
-      // or if overalap is null, since using == instead of ===
+      // or if overlap is null, since using == instead of ===
       throw new Error('overlap must be defined for Table layout');
     }
     this.overlap = overlap;
@@ -120,7 +120,7 @@ class Table {
 class Line {
   constructor(overlap) {
     if (overlap == undefined) {
-      // or if overalap is null, since using == instead of ===
+      // or if overlap is null, since using == instead of ===
       throw new Error('overlap must be defined for Line layout');
     }
     this.overlap = overlap;
@@ -150,7 +150,31 @@ class Line {
   }
 }
 
+/**
+ * @deprecated
+ * @param {number} overlap
+ * @returns {Table}
+ * @memberof module:predefined.layouts
+ */
+function table(overlap) {
+  console.warn('WARNING: `table(overlap)` is deprecated, use `new Table(overlap)` instead.');
+  return new Table(overlap);
+}
+
+/**
+ * @deprecated
+ * @param {number} overlap
+ * @returns {Line}
+ * @memberof module:predefined.layouts
+ */
+function line(overlap) {
+  console.warn('WARNING: `line(overlap)` is deprecated, use `new Line(overlap)` instead.');
+  return new Line(overlap);
+}
+
 module.exports = {
   Line,
   Table,
+  line,
+  table,
 };
