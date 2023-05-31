@@ -27,12 +27,6 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
      * @type {Namespace}
      */
     this.namespace = namespace;
-
-    // Notify subscribers immediately.
-    this.namespace.emit(Message.ADD_IMAGE, this);
-    if (values.src) {
-      this.setImage(values.src);
-    }
   }
 
   /*

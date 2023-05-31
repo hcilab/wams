@@ -27,12 +27,6 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
      * @type {Namespace}
      */
     this.namespace = namespace;
-
-    // Notify subscribers immediately.
-    this.namespace.emit(Message.ADD_ELEMENT, this);
-    if (values.attributes) {
-      this.setAttributes(values.attributes);
-    }
   }
 
   /*

@@ -35,12 +35,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
      * @default undefined
      */
     this.sequence = undefined;
-
-    // Notify subscribers immediately.
-    this.namespace.emit(Message.ADD_ITEM, this);
-    if (values.sequence) {
-      this.setSequence(values.sequence);
-    }
   }
 
   /*
