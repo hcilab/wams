@@ -1,22 +1,18 @@
 'use strict';
 
-const EventTarget = require('./EventTarget.js');
-
 const locked = Symbol.for('locked');
 const holder = Symbol.for('holder');
 
 /**
  * The Lockable mixin allows a class to enable itself to be locked and unlocked,
- * with the default being unlocked. Since locked items can be the targets of
- * events, (see Workspace.obtainLock and its use) this mixin also extends the
- * EventTarget mixin.
+ * with the default being unlocked.
  *
  * @memberof module:mixins
  *
  * @mixin
  */
 const Lockable = (superclass) =>
-  class Lockable extends EventTarget(superclass) {
+  class Lockable extends superclass {
     /**
      * Whether this Lockable is locked.
      *

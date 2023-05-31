@@ -1,5 +1,6 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
 const GestureController = require('./GestureController.js');
 const ServerView = require('./ServerView.js');
 const { removeById, View } = require('../shared.js');
@@ -121,5 +122,7 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     return view;
   }
 }
+
+Object.assign(ServerViewGroup.prototype, EventEmitter.prototype);
 
 module.exports = ServerViewGroup;

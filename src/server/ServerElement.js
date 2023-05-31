@@ -1,5 +1,6 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
 const { Message, WamsElement } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
@@ -71,5 +72,7 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
     };
   }
 }
+
+Object.assign(ServerElement.prototype, EventEmitter.prototype);
 
 module.exports = ServerElement;
