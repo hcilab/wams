@@ -14,7 +14,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write src tests examples",
     "format:check": "prettier --check src tests examples",
-    "docs": "npx jsdoc -c .jsdocrc.json",
+    "docs": "jsdoc -c .jsdocrc.json",
     "test": "jest",
     "test:debug": "node inspect $(npm bin)/jest --runInBand"
   },
@@ -31,6 +31,7 @@
     "@babel/preset-env": "^7.14.7",
     "arkit": "^1.6.4",
     "buffer": "^5.7.1",
+    "docdash": "^2.0.1",
     "eslint": "^8.38.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-import": "^2.26.0",

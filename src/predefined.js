@@ -4,7 +4,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/predefined.png"
+ * "https://raw.githubusercontent.com/wiki/hcilab/wams/graphs/predefined.png"
  * style = "max-height: 150px;"
  * >
  *

@@ -5,7 +5,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/server.png"
+ * "https://raw.githubusercontent.com/wiki/hcilab/wams/graphs/server.png"
  * style = "max-height: 260px;"
  * >
  *

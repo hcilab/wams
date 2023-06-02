@@ -3,17 +3,22 @@
     "idInHeadings": true
   },
   "opts": {
-    "destination": "docs",
+    "destination": "docs/",
+    "encoding": "utf8",
     "mainpagetitle": "Home | WAMS Documentation",
     "package": "package.json",
     "pedantic": true,
     "readme": "README.md",
-    "recurse": true
+    "recurse": true,
+    "template": "node_modules/docdash",
+    "verbose": true
   },
   "plugins": [],
   "recurseDepth": 10,
   "source": {
-    "include": ["src"],
+      "include": [
+        "src"
+      ],
     "includePattern": ".js$"
   },
   "sourceType": "module",
@@ -21,20 +26,33 @@
     "allowUnknownTags": true,
     "dictionaries": ["jsdoc"]
   },
-  "templates": {
-    "cleverLinks": false,
-    "css": ["styles/custom.css"],
-    "default": {
-      "outputSourceFiles": true,
-      "useLongnameInNav": true
-    },
-    "footerText": "Workspaces Across Multiple Surfaces",
-    "logo": {
-      "width": "0px",
-      "height": "0px"
-    },
-    "monospaceLinks": false,
-    "name": "WAMS Documentation",
-    "useCollapsibles": true
+  "docdash": {
+      "static": false,
+      "sort": true,
+      "sectionOrder": [
+          "Modules",
+          "Externals",
+          "Events",
+          "Namespaces",
+          "Classes",
+          "Mixins",
+          "Tutorials",
+          "Interfaces"
+      ],
+      "meta": {
+          "title": "WAMS Documentation",
+          "description": "Workspaces Across Multiple Surfaces",
+          "keyword": "javascript"
+      },
+      "search": true,
+      "wrap": true,
+      "collapse": true,
+      "typedefs": true,
+      "private": false,
+      "removeQuotes": "trim",
+      "ShortenTypes": false,
+      "scopeInOutputPath": false,
+      "nameInOutputPath": false,
+      "versionInOutputPath": false
   }
 }
