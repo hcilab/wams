@@ -7,14 +7,23 @@ const { removeById, View } = require('../shared.js');
 const { Lockable, Transformable2D, Locker } = require('../mixins.js');
 
 /**
+ * HACK to get around jsdoc bug that causes mixed methods and properties to be
+ * duplicated.
+ *
+ * @class __ServerViewGroup
+ * @private
+ * @mixes module:mixins.Locker
+ * @mixes module:mixins.Lockable
+ * @mixes module:mixins.Transformable2D
+ */
+
+/**
  * The ServerViewGroup groups a number of ServerViews together into a single
  * View, so that they can move together as one block.
  *
  * @memberof module:server
  * @extends module:server.View
- * @mixes module:mixins.Locker
- * @mixes module:mixins.Lockable
- * @mixes module:mixins.Transformable2D
+ * @extends __ServerViewGroup
  *
  * @param {module:server.MessageHandler} messageHandler - For responding to
  * messages from clients.

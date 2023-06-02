@@ -5,13 +5,22 @@ const { Message, WamsImage } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
+ * HACK to get around jsdoc bug that causes mixed methods and properties to be
+ * duplicated.
+ *
+ * @class __ServerImage
+ * @private
+ * @mixes module:mixins.Hittable
+ * @mixes module:mixins.Identifiable
+ */
+
+/**
  * The ServerImage provides operations for the server to locate and move images
  * around.
  *
  * @memberof module:server
  * @extends module:shared.WamsImage
- * @mixes module:mixins.Hittable
- * @mixes module:mixins.Identifiable
+ * @extends __ServerImage
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  * @param {Object} values - User-supplied data detailing the image. Properties

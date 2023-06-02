@@ -7,13 +7,22 @@ const { Interactable, Locker } = require('../mixins.js');
 const STAMPER = new IdStamper();
 
 /**
+ * HACK to get around jsdoc bug that causes mixed methods and properties to be
+ * duplicated.
+ *
+ * @class __ServerView
+ * @private
+ * @mixes module:mixins.Interactable
+ * @mixes module:mixins.Locker
+ */
+
+/**
  * The ServerView provides operations for the server to locate, move, and
  * rescale views.
  *
  * @memberof module:server
  * @extends module:shared.View
- * @mixes module:mixins.Interactable
- * @mixes module:mixins.Locker
+ * @extends __ServerView
  *
  * @param {Namespace} socket - Socket.io socket for publishing changes.
  * @param {Object} [ values ] - Object with user supplied values describing the

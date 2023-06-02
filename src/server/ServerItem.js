@@ -5,13 +5,22 @@ const { Item, Message } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
+ * HACK to get around jsdoc bug that causes mixed methods and properties to be
+ * duplicated.
+ *
+ * @class __ServerItem
+ * @private
+ * @mixes module:mixins.Hittable
+ * @mixes module:mixins.Identifiable
+ */
+
+/**
  * The ServerItem provides operations for the server to locate and move items
  * around.
  *
  * @memberof module:server
  * @extends module:shared.Item
- * @mixes module:mixins.Hittable
- * @mixes module:mixins.Identifiable
+ * @extends __ServerItem
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  * @param {Object} values - User-supplied data detailing the item. Properties on
