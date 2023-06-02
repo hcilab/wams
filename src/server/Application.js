@@ -2,6 +2,7 @@
 
 // External modules
 const http = require('http');
+const { EventEmitter } = require('node:events');
 const os = require('os');
 const socket_io = require('socket.io');
 
@@ -11,7 +12,6 @@ const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
-const { EventTarget } = require('../mixins.js');
 
 /**
  * @inner
@@ -41,10 +41,8 @@ function getLocalIP() {
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
  * @param {module:server.Router} [router=Router()] - Route handler to use.
  */
-class Application extends EventTarget(Object) {
+class Application {
   constructor(settings = {}, router = Router(), ...args) {
-    super(...args);
-
     this.setupStaticRoute(settings, router);
 
     /**
@@ -204,5 +202,7 @@ class Application extends EventTarget(Object) {
     this.workspace.namespace.emit(Message.DISPATCH, { action, payload });
   }
 }
+
+Object.assign(Application.prototype, EventEmitter.prototype);
 
 module.exports = Application;

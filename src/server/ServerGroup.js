@@ -1,5 +1,6 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
 const { Message, Item } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
@@ -97,5 +98,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     this.height = maxY - minY;
   }
 }
+
+Object.assign(ServerGroup.prototype, EventEmitter.prototype);
 
 module.exports = ServerGroup;

@@ -49,7 +49,7 @@ class MessageHandler {
    * @param {object} data
    */
   send(name, data) {
-    this.application.dispatchEvent(name, data);
+    this.application.emit(name, data);
   }
 
   /**
@@ -61,10 +61,10 @@ class MessageHandler {
     const { target, x, y } = event;
 
     if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
-      target.dispatchEvent('click', event);
+      target.emit('click', event);
     } else {
       const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
-      target.dispatchEvent('click', { ...event, target });
+      target.emit('click', { ...event, target });
     }
   }
 
@@ -118,7 +118,7 @@ class MessageHandler {
    * @param {object} scale
    */
   scale(event, { scale }) {
-    event.target.dispatchEvent('pinch', { ...event, scale });
+    event.target.emit('pinch', { ...event, scale });
   }
 
   /**
@@ -128,7 +128,7 @@ class MessageHandler {
    * @param {object} rotation
    */
   rotate(event, { rotation }) {
-    event.target.dispatchEvent('rotate', { ...event, rotation });
+    event.target.emit('rotate', { ...event, rotation });
   }
 
   /**
@@ -139,7 +139,7 @@ class MessageHandler {
    */
   drag(event, { translation }) {
     const d = event.view.transformPointChange(translation.x, translation.y);
-    event.target.dispatchEvent('drag', { ...event, dx: d.x, dy: d.y });
+    event.target.emit('drag', { ...event, dx: d.x, dy: d.y });
   }
 
   /**
@@ -151,7 +151,7 @@ class MessageHandler {
   swipe(event, data) {
     const { target } = event;
     const { velocity, direction } = data;
-    event.target.dispatchEvent('swipe', { ...event, velocity, direction });
+    event.target.emit('swipe', { ...event, velocity, direction });
   }
 }
 

@@ -10,10 +10,6 @@ beforeEach(() => {
 
 describe('ServerItem', () => {
   describe('constructor(namespace, values)', () => {
-    test('Throws exception if no namespace provided', () => {
-      expect(() => (item = new ServerItem())).toThrow();
-    });
-
     test('Uses defaults if no values provided', () => {
       expect(() => (item = new ServerItem(namespace))).not.toThrow();
       expect(item).toMatchObject({

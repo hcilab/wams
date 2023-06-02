@@ -1,5 +1,6 @@
 'use strict';
 
+const { EventEmitter } = require('node:events');
 const { Item, Message } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
@@ -35,12 +36,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
      * @default undefined
      */
     this.sequence = undefined;
-
-    // Notify subscribers immediately.
-    this.namespace.emit(Message.ADD_ITEM, this);
-    if (values.sequence) {
-      this.setSequence(values.sequence);
-    }
   }
 
   /*
@@ -74,5 +69,7 @@ class ServerItem extends Identifiable(Hittable(Item)) {
     };
   }
 }
+
+Object.assign(ServerItem.prototype, EventEmitter.prototype);
 
 module.exports = ServerItem;

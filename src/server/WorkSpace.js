@@ -178,6 +178,12 @@ class WorkSpace {
    */
   spawnElement(values = {}) {
     const item = new ServerElement(this.namespace, values);
+    // Notify subscribers immediately.
+    this.namespace.emit(Message.ADD_ELEMENT, item);
+    if (values.attributes) {
+      // Must be called _after_ the "ADD" message is emitted
+      item.setAttributes(values.attributes);
+    }
     return this.addItem(item);
   }
 
@@ -190,6 +196,12 @@ class WorkSpace {
    */
   spawnImage(values = {}) {
     const item = new ServerImage(this.namespace, values);
+    // Notify subscribers immediately.
+    this.namespace.emit(Message.ADD_ITEM, item);
+    if (values.src) {
+      // Must be called _after_ the "ADD" message is emitted
+      item.setImage(values.src);
+    }
     return this.addItem(item);
   }
 
@@ -202,6 +214,12 @@ class WorkSpace {
    */
   spawnItem(values = {}) {
     const item = new ServerItem(this.namespace, values);
+    // Notify subscribers immediately.
+    this.namespace.emit(Message.ADD_ITEM, item);
+    if (values.sequence) {
+      // Must be called _after_ the "ADD" message is emitted
+      item.setSequence(values.sequence);
+    }
     return this.addItem(item);
   }
 
