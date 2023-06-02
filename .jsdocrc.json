@@ -17,8 +17,7 @@
   "recurseDepth": 10,
   "source": {
       "include": [
-        "src",
-        "index.js"
+        "src"
       ],
     "includePattern": ".js$"
   },
