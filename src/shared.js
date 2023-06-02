@@ -5,7 +5,7 @@
  * <br>
  * <img
  * src =
- * "https://raw.githubusercontent.com/mvanderkamp/wams.wiki/master/graphs/shared.png"
+ * "https://raw.githubusercontent.com/wiki/hcilab/wams/graphs/shared.png"
  * style = "max-height: 250px;"
  * >
  *
