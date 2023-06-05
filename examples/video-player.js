@@ -46,7 +46,8 @@ class VideoPlayer {
   }
 
   initListeners() {
-    this.app.on('play/pause', this.handlePlayerStateChange.bind(this));
+    this.app.on('play-state-changed', this.handlePlayerStateChange.bind(this));
+    this.app.on('toggle-play-state', this.handlePlayerStateToggleRequest.bind(this));
     this.app.on('forward', this.handleForward.bind(this));
     this.app.on('replay', this.handleReplay.bind(this));
     this.app.on('video-time-sync', this.handleVideoTimeSync.bind(this));
@@ -56,15 +57,17 @@ class VideoPlayer {
   }
 
   handlePlayerStateChange({ playing }) {
-    console.log('handlePlayerStateChange: ', playing);
-    if (playing === undefined) {
-      this.player.playing = !this.player.playing;
-      this.app.dispatch('setPlayingState', { playing: this.player.playing });
-    } else {
-      if (playing === this.player.playing) return;
-      this.player.playing = playing;
-      this.app.dispatch('setPlayingState', { playing });
+    if (playing == undefined) {
+      throw new Error('Undefined playing state received!');
     }
+    if (playing === this.player.playing) return;
+    this.player.playing = playing;
+    this.app.dispatch('setPlayingState', { playing });
+  }
+
+  handlePlayerStateToggleRequest() {
+    this.player.playing = !this.player.playing;
+    this.app.dispatch('setPlayingState', { playing: this.player.playing });
   }
 
   handleVideoTimeSync({ currentVideoTime }) {
@@ -114,8 +117,6 @@ class VideoPlayer {
     );
     this.controls.on('drag', WAMS.predefined.actions.drag);
     this.controls.on('pinch', WAMS.predefined.actions.pinch);
-
-    console.log(this.controls);
   }
 
   handleConnect({ view }) {
@@ -127,7 +128,6 @@ class VideoPlayer {
     // to show current play/pause btn status
     // for newly connected device
     if (this.controls) {
-      console.log('removing item');
       this.app.removeItem(this.controls);
     }
     this.spawnControls({

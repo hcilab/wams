@@ -31,7 +31,7 @@ WAMS.on('controlsSpawned', () => {
 WAMS.on('initVideo', () => {
   // if YouTube iframe API is not ready yet,
   // re-dispatch the `init` custom DOM event later
-  if (window.youTubeIframeAPIReady) {
+  if (window.youTubeIframeAPIReady && window.player == undefined) {
     window.player = new YT.Player('player-wrapper', {
       height: '100%',
       width: '100%',
@@ -42,8 +42,10 @@ WAMS.on('initVideo', () => {
       },
     });
     setInterval(() => {
-      window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime());
-      WAMS.dispatch('video-time-sync', { currentVideoTime: window.controls.lastCurrentTime });
+      if (window.player.getCurrentTime) {
+        window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime());
+        WAMS.dispatch('video-time-sync', { currentVideoTime: window.controls.lastCurrentTime });
+      }
     }, 1000);
   } else {
     setTimeout(() => document.dispatchEvent(new CustomEvent('initVideo')), 100);
@@ -54,21 +56,19 @@ WAMS.on('setPlayingState', ({ detail }) => {
   const controlBtn = document.querySelector('.control-btn-icon');
   if (detail.playing) {
     controlBtn.classList.replace('fa-play', 'fa-pause');
-    window.player.playVideo();
+    window.player && window.player.playVideo();
   } else {
     controlBtn.classList.replace('fa-pause', 'fa-play');
-    window.player.pauseVideo();
+    window.player && window.player.pauseVideo();
   }
 });
 
 WAMS.on('replay', () => {
-  window.player.seekTo(window.player.getCurrentTime() - 10);
-  console.log(window.player);
+  window.player && window.player.seekTo(window.player.getCurrentTime() - 10);
 });
 
 WAMS.on('forward', () => {
-  window.player.seekTo(window.player.getCurrentTime() + 10);
-  console.log(window.player);
+  window.player && window.player.seekTo(window.player.getCurrentTime() + 10);
 });
 
 /**
@@ -81,7 +81,7 @@ function handlePlayerStateChange({ data }) {
   //    -1         0        1         2         3           5
   // unstarted   ended   playing   paused   buffering   video cued
   const playing = data !== 2 && data !== 5;
-  WAMS.dispatch('play/pause', { playing });
+  WAMS.dispatch('play-state-changed', { playing });
 }
 
 function updateTime({ detail }) {
@@ -90,7 +90,7 @@ function updateTime({ detail }) {
 }
 
 function handlePlayToggle() {
-  WAMS.dispatch('play/pause');
+  WAMS.dispatch('toggle-play-state');
 }
 
 function handleReplay() {
