@@ -137,7 +137,7 @@ class VideoPlayer {
     // notify clients that controls are spawned
     this.app.dispatch('controlsSpawned');
 
-    if (view.index === 0) this.app.dispatch('initVideo');
+    if (view.index === 0) view.dispatch('initVideo');
     if (view.index === 1) {
       const initialOffset = [-(this.mainScreen.width * 2), 0];
       view.moveBy(...initialOffset);
