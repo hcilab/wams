@@ -23,16 +23,9 @@ WAMS.on('controlsSpawned', () => {
 
   WAMS.on('video-time-sync', updateTime);
 
-  // need to listen for touch events separately from clicks
-  // due to wams event forwarding
   playBtn.addEventListener('click', handlePlayToggle);
-  playBtn.addEventListener('touchstart', handlePlayToggle);
-
   backBtn.addEventListener('click', handleReplay);
-  backBtn.addEventListener('touchstart', handleReplay);
-
   frwdBtn.addEventListener('click', handleForward);
-  frwdBtn.addEventListener('touchstart', handleForward);
 });
 
 WAMS.on('initVideo', () => {
