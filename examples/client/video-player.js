@@ -2,6 +2,10 @@
 // flag to know when iframe is ready to be initialized
 window.youTubeIframeAPIReady = false;
 
+function onYouTubeIframeAPIReady() {
+  window.youTubeIframeAPIReady = true;
+}
+
 /**
  *
  * Setting multiple WAMS event listeners to control the player,
@@ -19,22 +23,15 @@ WAMS.on('controlsSpawned', () => {
 
   WAMS.on('video-time-sync', updateTime);
 
-  // need to listen for touch events separately from clicks
-  // due to wams event forwarding
   playBtn.addEventListener('click', handlePlayToggle);
-  playBtn.addEventListener('touchstart', handlePlayToggle);
-
   backBtn.addEventListener('click', handleReplay);
-  backBtn.addEventListener('touchstart', handleReplay);
-
   frwdBtn.addEventListener('click', handleForward);
-  frwdBtn.addEventListener('touchstart', handleForward);
 });
 
 WAMS.on('initVideo', () => {
   // if YouTube iframe API is not ready yet,
   // re-dispatch the `init` custom DOM event later
-  if (window.youTubeIframeAPIReady) {
+  if (window.youTubeIframeAPIReady && window.player == undefined) {
     window.player = new YT.Player('player-wrapper', {
       height: '100%',
       width: '100%',
@@ -43,10 +40,15 @@ WAMS.on('initVideo', () => {
       events: {
         onStateChange: handlePlayerStateChange,
       },
+      playerVars: {
+        rel: 0,
+      },
     });
     setInterval(() => {
-      window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime());
-      WAMS.dispatch('video-time-sync', { currentVideoTime: window.controls.lastCurrentTime });
+      if (window.player.getCurrentTime) {
+        window.controls.lastCurrentTime = Math.floor(window.player.getCurrentTime());
+        WAMS.dispatch('video-time-sync', { currentVideoTime: window.controls.lastCurrentTime });
+      }
     }, 1000);
   } else {
     setTimeout(() => document.dispatchEvent(new CustomEvent('initVideo')), 100);
@@ -55,23 +57,38 @@ WAMS.on('initVideo', () => {
 
 WAMS.on('setPlayingState', ({ detail }) => {
   const controlBtn = document.querySelector('.control-btn-icon');
+  if (window.player && detail.origin === 'state-change') {
+    // This request originated from this page responding to the onStateChange
+    // event. Since there is a brief delay between us using the playVideo or
+    // pauseVideo commands and the onStateChange event being emitted by the
+    // YouTube player, then again between that event and this WAMS event
+    // arriving back to this browser, it's possible that the player's state has
+    // been changed again (perhaps a user accidentally double or triple
+    // clicked). This can cause an infinite loop as this function would change
+    // the player state, triggering another round trip of WAMS events, while the
+    // event that changed the state again also propagates with an inverse
+    // playing state, and they end up fighting each other ad infinitum.
+    //
+    // Thankfully, there's a simple solution: since our player triggered the
+    // event, we can assume that it's already in the "right" state.
+    // So do nothing.
+    return;
+  }
   if (detail.playing) {
     controlBtn.classList.replace('fa-play', 'fa-pause');
-    window.player.playVideo();
+    window.player && window.player.playVideo();
   } else {
     controlBtn.classList.replace('fa-pause', 'fa-play');
-    window.player.pauseVideo();
+    window.player && window.player.pauseVideo();
   }
 });
 
 WAMS.on('replay', () => {
-  window.player.seekTo(window.player.getCurrentTime() - 10);
-  console.log(window.player);
+  window.player && window.player.seekTo(window.player.getCurrentTime() - 10);
 });
 
 WAMS.on('forward', () => {
-  window.player.seekTo(window.player.getCurrentTime() + 10);
-  console.log(window.player);
+  window.player && window.player.seekTo(window.player.getCurrentTime() + 10);
 });
 
 /**
@@ -84,7 +101,7 @@ function handlePlayerStateChange({ data }) {
   //    -1         0        1         2         3           5
   // unstarted   ended   playing   paused   buffering   video cued
   const playing = data !== 2 && data !== 5;
-  WAMS.dispatch('play/pause', { playing });
+  WAMS.dispatch('play-state-changed', { playing });
 }
 
 function updateTime({ detail }) {
@@ -93,7 +110,7 @@ function updateTime({ detail }) {
 }
 
 function handlePlayToggle() {
-  WAMS.dispatch('play/pause');
+  WAMS.dispatch('toggle-play-state');
 }
 
 function handleReplay() {
