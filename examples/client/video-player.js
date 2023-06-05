@@ -40,6 +40,9 @@ WAMS.on('initVideo', () => {
       events: {
         onStateChange: handlePlayerStateChange,
       },
+      playerVars: {
+        rel: 0,
+      },
     });
     setInterval(() => {
       if (window.player.getCurrentTime) {
