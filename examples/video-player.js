@@ -62,12 +62,12 @@ class VideoPlayer {
     }
     if (playing === this.player.playing) return;
     this.player.playing = playing;
-    this.app.dispatch('setPlayingState', { playing });
+    this.app.dispatch('setPlayingState', { playing, origin: 'state-change' });
   }
 
   handlePlayerStateToggleRequest() {
     this.player.playing = !this.player.playing;
-    this.app.dispatch('setPlayingState', { playing: this.player.playing });
+    this.app.dispatch('setPlayingState', { playing: this.player.playing, origin: 'toggle' });
   }
 
   handleVideoTimeSync({ currentVideoTime }) {

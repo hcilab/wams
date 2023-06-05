@@ -57,6 +57,23 @@ WAMS.on('initVideo', () => {
 
 WAMS.on('setPlayingState', ({ detail }) => {
   const controlBtn = document.querySelector('.control-btn-icon');
+  if (window.player && detail.origin === 'state-change') {
+    // This request originated from this page responding to the onStateChange
+    // event. Since there is a brief delay between us using the playVideo or
+    // pauseVideo commands and the onStateChange event being emitted by the
+    // YouTube player, then again between that event and this WAMS event
+    // arriving back to this browser, it's possible that the player's state has
+    // been changed again (perhaps a user accidentally double or triple
+    // clicked). This can cause an infinite loop as this function would change
+    // the player state, triggering another round trip of WAMS events, while the
+    // event that changed the state again also propagates with an inverse
+    // playing state, and they end up fighting each other ad infinitum.
+    //
+    // Thankfully, there's a simple solution: since our player triggered the
+    // event, we can assume that it's already in the "right" state.
+    // So do nothing.
+    return;
+  }
   if (detail.playing) {
     controlBtn.classList.replace('fa-play', 'fa-pause');
     window.player && window.player.playVideo();
