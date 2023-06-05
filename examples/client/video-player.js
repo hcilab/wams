@@ -2,6 +2,10 @@
 // flag to know when iframe is ready to be initialized
 window.youTubeIframeAPIReady = false;
 
+function onYouTubeIframeAPIReady() {
+  window.youTubeIframeAPIReady = true;
+}
+
 /**
  *
  * Setting multiple WAMS event listeners to control the player,
