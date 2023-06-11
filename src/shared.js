@@ -21,6 +21,7 @@ const utilities = require('./shared/utilities.js');
 const Polygon2D = require('./shared/Polygon2D.js');
 const Point2D = require('./shared/Point2D.js');
 const Rectangle = require('./shared/Rectangle.js');
+const RoundedLine = require('./shared/RoundedLine.js');
 const Circle = require('./shared/Circle.js');
 const Oval = require('./shared/Oval.js');
 
@@ -78,6 +79,7 @@ module.exports = Object.freeze({
   Point2D,
   Polygon2D,
   Rectangle,
+  RoundedLine,
   ...bases,
   ...utilities,
 });
