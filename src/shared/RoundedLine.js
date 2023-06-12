@@ -79,7 +79,8 @@ class RoundedLine {
 
     // Find the nearest point along the line
     let param = -1;
-    if (lengthSquared !== 0) // in case of 0-length line
+    if (lengthSquared !== 0)
+      // in case of 0-length line
       param = dot / lengthSquared;
     let xx, yy;
     if (param < 0) {
