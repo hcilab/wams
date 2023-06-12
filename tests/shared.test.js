@@ -5,7 +5,7 @@ const WamsShared = require('shared.js');
 const bases = Object.keys(require('shared/bases.js'));
 const utilities = Object.keys(require('shared/utilities.js'));
 
-const other = ['colours', 'Circle', 'constants', 'IdStamper', 'Message', 'Oval', 'Polygon2D', 'Point2D', 'Rectangle'];
+const other = ['colours', 'Circle', 'constants', 'IdStamper', 'Message', 'Oval', 'Polygon2D', 'Point2D', 'Rectangle', 'RoundedLine'];
 
 const expected = bases.concat(utilities).concat(other);
 
