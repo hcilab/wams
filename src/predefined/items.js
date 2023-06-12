@@ -1,7 +1,7 @@
 'use strict';
 
 const { CanvasSequence } = require('canvas-sequencer');
-const { Circle, Oval, Polygon2D, Rectangle } = require('../shared.js');
+const { Circle, Oval, Polygon2D, Rectangle, RoundedLine } = require('../shared.js');
 
 /**
  * Factories for predefined items.
@@ -31,6 +31,36 @@ function image(src, properties = {}) {
   }
   const type = 'item/image';
   return { ...properties, src, hitbox, type };
+}
+
+/**
+ * Generate a line segment item.
+ *
+ * @memberof module:predefined.items
+ *
+ * @param {number} dx - length of the x portion of the line
+ * @param {number} dy - length of the y portion of the line
+ * @param {number} [width=1] - The width of the line.
+ * @param {string} [colour='black'] - The colour of the line.
+ * @param {Object} properties - Location and orientation options for the item.
+ * See {@link module:shared.Item} members for available parameters.
+ *
+ * @returns {Object} An object with the parameters for a line item with the
+ * given endpoints, width, and colour.
+ */
+function line(dx, dy, width = 1, colour = 'black', properties = {}) {
+  const hitbox = new RoundedLine(0, 0, dx, dy, width);
+  const sequence = new CanvasSequence();
+  sequence.strokeStyle = colour;
+  sequence.lineWidth = width;
+  sequence.lineCap = 'round';
+  sequence.beginPath();
+  sequence.moveTo(0, 0);
+  sequence.lineTo(dx, dy);
+  sequence.stroke();
+  const type = 'item';
+
+  return { hitbox, sequence, type, ...properties };
 }
 
 /**
@@ -236,6 +266,7 @@ module.exports = {
   circle,
   element,
   image,
+  line,
   oval,
   polygon,
   rectangle,

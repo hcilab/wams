@@ -31,7 +31,9 @@ function handleSwipe({ x, y, velocity, direction }) {
 function handleDrag({ x, y, dx, dy }) {
   const length = Math.sqrt(dx * dx + dy * dy);
   const line = app.spawn(
-    WAMS.predefined.items.rectangle(x, y, 10, length, 'gray', {
+    WAMS.predefined.items.line(0, length, 10, 'gray', {
+      x,
+      y,
       rotation: Math.atan2(dx, dy),
     })
   );
