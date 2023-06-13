@@ -30,7 +30,7 @@ function image(src, properties = {}) {
     hitbox = new Rectangle(properties.width, properties.height);
   }
   const type = 'item/image';
-  return { ...properties, src, hitbox, type };
+  return { src, hitbox, type, ...properties };
 }
 
 /**
@@ -68,8 +68,6 @@ function line(dx, dy, width = 1, colour = 'black', properties = {}) {
  *
  * @memberof module:predefined.items
  *
- * @param {number} x
- * @param {number} y
  * @param {number} width
  * @param {number} height
  * @param {string} [colour='blue'] - Fill colour for the rectangle.
@@ -79,14 +77,24 @@ function line(dx, dy, width = 1, colour = 'black', properties = {}) {
  * @returns {Object} An object with the parameters for a rectangular item with
  * the given width and height, filled in with the given colour.
  */
-function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
+function rectangle(width, height, colour = 'blue', properties = {}) {
   const hitbox = new Rectangle(width, height, 0, 0);
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
-  sequence.fillRect(0, 0, width, height);
+  sequence.strokeStyle = 'black';
+  sequence.beginPath();
+  sequence.rect(
+    0, // x  -- WAMS handles positioning
+    0, // y  -- WAMS handles positioning
+    width,
+    height
+  );
+  sequence.fill();
+  sequence.stroke();
+
   const type = 'item';
 
-  return { ...properties, x, y, hitbox, sequence, type };
+  return { hitbox, sequence, type, ...properties };
 }
 
 /**
@@ -105,7 +113,7 @@ function rectangle(x, y, width, height, colour = 'blue', properties = {}) {
  * given side length, filled in with the given colour.
  */
 function square(x, y, length, colour = 'red', properties = {}) {
-  return rectangle(x, y, length, length, colour, properties);
+  return rectangle(length, length, colour, { ...properties, x, y });
 }
 
 /**
@@ -146,8 +154,6 @@ function circle(radius, colour = 'yellow', properties = {}) {
  *
  * @memberof module:predefined.items
  *
- * @param {number} x
- * @param {number} y
  * @param {number} radiusX
  * @param {number} radiusY
  * @param {string} [colour='yellow'] - Fill colour for the oval.
