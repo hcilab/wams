@@ -61,37 +61,45 @@ class RoundedLine {
   /**
    * Determines if a point is inside the line.
    *
+   * @see {@link https://stackoverflow.com/a/6853926/20044396}
+   * @see {@link https://web.archive.org/web/20210507021429/https://geomalgorithms.com/a02-_lines.html}
+   *
    * @param {module:shared.Point2D} point - The point to test.
    *
    * @return {boolean} true if the point is inside the line, false otherwise.
    */
   contains(point) {
+    // This is blatantly ripped from the stack overflow response provided above
+    // with comments and renamed variables to try to clarify.
+
     // Distance to first endpoint
-    const A = point.x - this.x1;
-    const B = point.y - this.y1;
+    const dx1 = point.x - this.x1;
+    const dy1 = point.y - this.y1;
 
-    // Length of line
-    const C = this.x2 - this.x1;
-    const D = this.y2 - this.y1;
+    // Length of line components
+    const lengthX = this.x2 - this.x1;
+    const lengthY = this.y2 - this.y1;
 
-    const dot = A * C + B * D;
-    const lengthSquared = C * C + D * D;
-
-    // Find the nearest point along the line
-    let param = -1;
+    // Find the "projection distance" - the fraction along the line from (x1, y1) towards (x2, y2)
+    // that is closest to the point
+    const dot = dx1 * lengthX + dy1 * lengthY;
+    const lengthSquared = lengthX * lengthX + lengthY * lengthY;
+    let projectionDistance = -1;
     if (lengthSquared !== 0)
       // in case of 0-length line
-      param = dot / lengthSquared;
+      projectionDistance = dot / lengthSquared;
+
+    // Find the nearest point along the line
     let xx, yy;
-    if (param < 0) {
+    if (projectionDistance < 0) {
       xx = this.x1;
       yy = this.y1;
-    } else if (param > 1) {
+    } else if (projectionDistance > 1) {
       xx = this.x2;
       yy = this.y2;
     } else {
-      xx = this.x1 + param * C;
-      yy = this.y1 + param * D;
+      xx = this.x1 + projectionDistance * lengthX;
+      yy = this.y1 + projectionDistance * lengthY;
     }
 
     // Is the distance to the nearest point less than half the width?
