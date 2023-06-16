@@ -26,3 +26,6 @@ function getLocalIP() {
   return null;
 }
 
+module.exports = {
+  getLocalIP,
+};
