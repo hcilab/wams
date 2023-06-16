@@ -31,7 +31,7 @@ function getLocalIP() {
  * set up the main routes for a WAMS app before returning, so that those routes
  * will get priority.
  *
- * @memberof module:server
+ * @memberof module:predefined.routing
  *
  * @return {express.app} An express app with main WAMS routes established.
  */
@@ -43,7 +43,20 @@ function Router() {
   return app;
 }
 
+/**
+ * Add a static route to the router.
+ *
+ * @memberof module:predefined.routing
+ *
+ * @param {express.app} router - The router to add the route to.
+ * @param {string} staticDir - The path to the static directory to add
+ */
+function addStaticDirectory(router, staticDir) {
+    router.use(express.static(staticDir));
+}
+
 module.exports = {
+  addStaticDirectory,
   getLocalIP,
   Router,
 };
