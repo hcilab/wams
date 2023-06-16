@@ -1,7 +1,9 @@
 'use strict';
 
 // External modules
+const express = require('express');
 const os = require('os');
+const path = require('path');
 
 /**
  * Server routing utilities.
