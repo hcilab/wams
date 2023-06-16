@@ -37,7 +37,7 @@ function getLocalIP() {
  *
  * @return {express.app} An express app with main WAMS routes established.
  */
-function Router() {
+function router() {
   // Establish router for predefined staticfiles
   const app = express();
   app.use('/', express.static(path.join(__dirname, 'staticfiles')));
@@ -60,5 +60,5 @@ function addStaticDirectory(router, staticDir) {
 module.exports = {
   addStaticDirectory,
   getLocalIP,
-  Router,
+  router,
 };
