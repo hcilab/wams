@@ -42,7 +42,7 @@ function getLocalIP() {
  * @param {module:server.Router} [router=Router()] - Route handler to use.
  */
 class Application {
-  constructor(settings = {}, router = Router(), ...args) {
+  constructor(settings = {}, router = Router()) {
     this.setupStaticRoute(settings, router);
 
     /**
