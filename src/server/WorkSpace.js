@@ -197,7 +197,7 @@ class WorkSpace {
   spawnImage(values = {}) {
     const item = new ServerImage(this.namespace, values);
     // Notify subscribers immediately.
-    this.namespace.emit(Message.ADD_ITEM, item);
+    this.namespace.emit(Message.ADD_IMAGE, item);
     if (values.src) {
       // Must be called _after_ the "ADD" message is emitted
       item.setImage(values.src);
