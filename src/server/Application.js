@@ -9,7 +9,6 @@ const socket_io = require('socket.io');
 // Local classes, etc
 const { constants, Message } = require('../shared.js');
 const { getLocalIP, listen, router } = require('../predefined/routing.js');
-const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
