@@ -46,7 +46,7 @@ class Application {
     /**
      * Socket.io instance using http server.
      */
-    this.io_server = new socket_io.Server(this.httpServer);
+    this.ioServer = new socket_io.Server(this.httpServer);
 
     /**
      * Socket.io namespace in which to operate.
@@ -54,7 +54,7 @@ class Application {
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = this.io_server.of(constants.NS_WAMS);
+    this.namespace = this.ioServer.of(constants.NS_WAMS);
 
     /**
      * The main model. The buck stops here.
