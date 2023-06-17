@@ -8,7 +8,7 @@ const socket_io = require('socket.io');
 
 // Local classes, etc
 const { constants, Message } = require('../shared.js');
-const { getLocalIP, router } = require('../predefined/routing.js');
+const { getLocalIP, listen, router } = require('../predefined/routing.js');
 const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
@@ -21,9 +21,10 @@ const MessageHandler = require('./MessageHandler.js');
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
+ * @param {http.Server} [server=undefined] - HTTP server to use.
  */
 class Application {
-  constructor(settings = {}, appRouter = router()) {
+  constructor(settings = {}, appRouter = router(), server = undefined) {
     /**
      * Express app for routing.
      * @type {express.app}
@@ -36,7 +37,11 @@ class Application {
      *
      * @type {http.Server}
      */
-    this.httpServer = http.createServer(this.router);
+    if (server) {
+      this.httpServer = server;
+    } else {
+      this.httpServer = http.createServer(this.router);
+    }
 
     /**
      * Socket.io instance using http server.
@@ -82,19 +87,7 @@ class Application {
    * @see module:server.Application~getLocalIP
    */
   listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
-    this.httpServer.listen(port, host, () => {
-      const formatAddress = (_host, port) => `http://${_host}:${port}`;
-      const { address, port } = this.httpServer.address();
-
-      console.log('🚀 WAMS server listening on:');
-      console.log(`🔗 ${formatAddress(address, port)}`);
-
-      // if host is localhost or '0.0.0.0', assume local ipv4 also available
-      if (host === '0.0.0.0' || host == 'localhost') {
-        const localIPv4 = getLocalIP();
-        console.log(`🔗 ${formatAddress(localIPv4, port)}`);
-      }
-    });
+    listen(this.httpServer, host, port);
   }
 
   /**

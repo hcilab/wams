@@ -57,8 +57,36 @@ function addStaticDirectory(router, staticDir) {
   router.use(express.static(staticDir));
 }
 
+/**
+ * Start listening to the given host and port with the given server, and log
+ * some helpful information to the console.
+ *
+ * @memberof module:predefined.routing
+ *
+ * @param {http.Server} server - The server to start listening on.
+ * @param {string} [host='localhost'] - The host to listen on.
+ * @param {number} [port=9000] - The port to listen on.
+ */
+function listen(server, host = 'localhost', port = 9000) {
+  server.listen(port, host, () => {
+    const formatAddress = (_host, port) => `http://${_host}:${port}`;
+    const { address, port } = server.address();
+
+    console.log('🚀 WAMS server listening on:');
+    console.log(`🔗 ${formatAddress(address, port)}`);
+
+    // if host is localhost or '0.0.0.0', assume local ipv4 also available
+    if (host === '0.0.0.0' || host == 'localhost') {
+      const localIPv4 = getLocalIP();
+      console.log(`🔗 ${formatAddress(localIPv4, port)}`);
+    }
+  });
+}
+
+
 module.exports = {
   addStaticDirectory,
   getLocalIP,
+  listen,
   router,
 };
