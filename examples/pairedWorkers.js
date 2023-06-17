@@ -9,10 +9,8 @@ const path = require('path');
 const WAMS = require('..');
 const { image } = WAMS.predefined.items;
 
-const app = new WAMS.Application({
-  clientLimit: 2,
-  staticDir: path.join(__dirname, './img'),
-});
+const app = new WAMS.Application({ clientLimit: 2 });
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 const scream = app.spawn(
   image('scream.png', {

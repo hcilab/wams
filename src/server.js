@@ -1,6 +1,5 @@
 /**
- * Bundles together the server API endpoint, the Application class, with the
- * Router class for custom route generation.
+ * Exposes the server API endpoint: the Application class.
  *
  * <br>
  * <img
@@ -14,10 +13,6 @@
 
 'use strict';
 
-const Router = require('./server/Router.js');
-const Application = require('./server/Application.js');
-
 module.exports = {
-  Application,
-  Router,
+  Application: require('./server/Application.js'),
 };

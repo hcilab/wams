@@ -32,8 +32,8 @@ class DrawingApp {
       clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
       stylesheets: ['./drawing-app.css'],
       title: 'Collaborative Drawing',
-      staticDir: path.join(__dirname, './client'),
     });
+    app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
 

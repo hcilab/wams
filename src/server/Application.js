@@ -8,30 +8,10 @@ const socket_io = require('socket.io');
 
 // Local classes, etc
 const { constants, Message } = require('../shared.js');
-const Router = require('./Router.js');
+const { addStaticDirectory, getLocalIP, listen, router } = require('../predefined/routing.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
-
-/**
- * @inner
- * @memberof module:server.Application
- *
- * @returns {string} The first valid local IPv4 address it finds.
- */
-function getLocalIP() {
-  let ipaddr = null;
-  Object.values(os.networkInterfaces()).some((f) => {
-    return f.some((a) => {
-      if (a.family === 'IPv4' && a.internal === false) {
-        ipaddr = a.address;
-        return true;
-      }
-      return false;
-    });
-  });
-  return ipaddr;
-}
 
 /**
  * This module defines the API endpoint.
@@ -39,23 +19,33 @@ function getLocalIP() {
  * @memberof module:server
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
- * @param {module:server.Router} [router=Router()] - Route handler to use.
+ * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
+ * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
 class Application {
-  constructor(settings = {}, router = Router(), ...args) {
-    this.setupStaticRoute(settings, router);
+  constructor(settings = {}, appRouter = router(), server = undefined) {
+    /**
+     * Express app for routing.
+     * @type {express.app}
+     * @see {@link https://expressjs.com/en/4x/api.html#app}
+     */
+    this.router = appRouter;
 
     /**
      * HTTP server for sending and receiving data.
      *
      * @type {http.Server}
      */
-    this.httpServer = http.createServer(router);
+    if (server) {
+      this.httpServer = server;
+    } else {
+      this.httpServer = http.createServer(this.router);
+    }
 
     /**
      * Socket.io instance using http server.
      */
-    this.io_server = new socket_io.Server(this.httpServer);
+    this.ioServer = new socket_io.Server(this.httpServer);
 
     /**
      * Socket.io namespace in which to operate.
@@ -63,7 +53,7 @@ class Application {
      * @type {Namespace}
      * @see {@link https://socket.io/docs/server-api/}
      */
-    this.namespace = this.io_server.of(constants.NS_WAMS);
+    this.namespace = this.ioServer.of(constants.NS_WAMS);
 
     /**
      * The main model. The buck stops here.
@@ -88,19 +78,20 @@ class Application {
   }
 
   /**
-   * Setup the route to the static files directory,
-   * if included in application configuration.
+   * Add a static route to the router.
    *
-   * @param {object} settings
-   * @param {module:server.Router} router
+   * @memberof module:server.Application
+   *
+   * @param {string} staticDir - The path to the static directory to add
    */
-  setupStaticRoute(settings, router) {
-    const staticDir = settings.staticDir;
-    if (staticDir) router.use(router.express.static(staticDir));
+  addStaticDirectory(staticDir) {
+    addStaticDirectory(this.router, staticDir);
   }
 
   /**
    * Start the server on the given hostname and port.
+   *
+   * @memberof module:server.Application
    *
    * @param {number} [port=9000] - Valid port number on which to listen.
    * @param {string} [host=getLocalIP()] - IP address or hostname on which to
@@ -108,19 +99,7 @@ class Application {
    * @see module:server.Application~getLocalIP
    */
   listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
-    this.httpServer.listen(port, host, () => {
-      const formatAddress = (_host, port) => `http://${_host}:${port}`;
-      const { address, port } = this.httpServer.address();
-
-      console.log('🚀 WAMS server listening on:');
-      console.log(`🔗 ${formatAddress(address, port)}`);
-
-      // if host is localhost or '0.0.0.0', assume local ipv4 also available
-      if (host === '0.0.0.0' || host == 'localhost') {
-        const localIPv4 = getLocalIP();
-        console.log(`🔗 ${formatAddress(localIPv4, port)}`);
-      }
-    });
+    listen(this.httpServer, host, port);
   }
 
   /**

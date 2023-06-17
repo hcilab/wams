@@ -36,7 +36,7 @@ const moonTouchdownVideo = app.spawn(
     y: 50,
     width: WIDTH,
     height: HEIGHT,
-    type: 'video',
+    type: 'item/element',
     lockZ: true,
   })
 );
@@ -50,7 +50,7 @@ const falconHeavyVideo = app.spawn(
     y: 465,
     width: WIDTH,
     height: HEIGHT,
-    type: 'video',
+    type: 'item/element',
     lockZ: true,
   })
 );

@@ -7,6 +7,7 @@
 
 const WAMS = require('..');
 const path = require('path');
+
 const app = new WAMS.Application({
   clientScripts: [
     'https://code.jquery.com/jquery-1.12.4.js',
@@ -14,8 +15,8 @@ const app = new WAMS.Application({
     'dollar.js',
     'paper.js',
   ],
-  staticDir: path.join(__dirname, './client'),
 });
+app.addStaticDirectory(path.join(__dirname, 'client'));
 
 function handleConnect({ view }) {
   view.on('pinch', WAMS.predefined.actions.pinch);

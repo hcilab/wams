@@ -1,20 +1,20 @@
-const WAMS = require('..');
 const path = require('path');
+
+const WAMS = require('..');
+const { image } = WAMS.predefined.items;
 
 const TOTAL_WIDTH = 5650;
 const TOTAL_HEIGHT = 6053;
 
 const app = new WAMS.Application({
   shadows: true,
-  staticDir: path.join(__dirname, './img'),
   /*
    * Mult-screen gestures are currently incomplatible with targetting different
    * drag events at different screens- all screens/views move together.
    */
   // useMultiScreenGestures: true,
 });
-
-const { image } = WAMS.predefined.items;
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 app.on('position', (data) => {
   console.log(data);

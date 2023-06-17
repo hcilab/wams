@@ -35,8 +35,8 @@ class VideoPlayer {
       ],
       stylesheets: ['./video-player.css'],
       title: 'Video Player',
-      staticDir: path.join(__dirname, './client'),
     });
+    this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.player = {
       playing: false,
@@ -90,7 +90,7 @@ class VideoPlayer {
         y: 0,
         width: this.mainScreen.width,
         height: this.mainScreen.height,
-        type: 'player',
+        type: 'item/element',
       })
     );
 
@@ -112,7 +112,7 @@ class VideoPlayer {
         width,
         height,
         playing,
-        type: 'controls',
+        type: 'item/element',
       })
     );
     this.controls.on('drag', WAMS.predefined.actions.drag);

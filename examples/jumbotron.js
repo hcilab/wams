@@ -12,8 +12,8 @@ const { image } = WAMS.predefined.items;
 const app = new WAMS.Application({
   color: 'black',
   clientLimit: 1000,
-  staticDir: path.join(__dirname, './img'),
 });
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 const scale = 2;
 
@@ -23,7 +23,7 @@ const lisa = app.spawn(
     height: 1815,
     x: 0,
     y: 0,
-    type: 'mona',
+    type: 'item/image',
     scale,
   })
 );

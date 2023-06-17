@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Hitbox - WAMS Documentation</title>
+    <title>RoundedLine - WAMS Documentation</title>
     
     <meta name="description" content="Workspaces Across Multiple Surfaces" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Hitbox</h1>
+    <h1 class="page-title">RoundedLine</h1>
     
 
     
@@ -59,9 +59,14 @@
             <span class="ancestors"><a href="module-shared.html">shared</a>.</span>
         
         
-            Hitbox
+            RoundedLine
         
         </h2>
+        
+            <div class="class-description usertext">A simple line hitbox. Remember that this line describes the item as if
+its settings were x=0, y=0, scale=1, rotation=0.
+
+The hitbox supports a line whose enpoint is rounded with a radius of width/2.</div>
         
     
 </header>
@@ -72,24 +77,24 @@
         
             
 
-<dl class="details">
     
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
+    <h2>Constructor</h2>
+    
 
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul></dd>
+    <h4 class="name" id="RoundedLine"><span class="type-signature"></span>new RoundedLine<span class="signature">(x1<span class="signature-attributes">opt</span>, y1<span class="signature-attributes">opt</span>, x2<span class="signature-attributes">opt</span>, y2<span class="signature-attributes">opt</span>, width<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line6">line 6</a>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line18">line 18</a>
     </li></ul></dd>
     
 
@@ -103,6 +108,13 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul>
 
     
 
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="module-shared.Hitbox.html">module:shared.Hitbox</a></li>
+        
+    </ul></dd>
     
 
     
@@ -127,19 +139,262 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul>
 
 
 
-            
-                <div class="description usertext">The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
 
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</div>
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>x1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
             
 
             
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last">The x1 offset of the line.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y1</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>0</code>
+                
+                </td>
+            
+
+            <td class="description last">The y1 offset of the line.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>x2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>1</code>
+                
+                </td>
+            
+
+            <td class="description last">The x2 offset of the line.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>y2</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>1</code>
+                
+                </td>
+            
+
+            <td class="description last">The y2 offset of the line.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>width</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>1</code>
+                
+                </td>
+            
+
+            <td class="description last">The width of the line.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
         </div>
     
@@ -157,18 +412,12 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
     
 
     
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Members</h3>
 
         
             
+<h4 class="name" id="width"><span class="type-signature"></span>width<span class="type-signature"> :number</span></h4>
 
-    
-
-    <h4 class="name" id="contains"><span class="type-signature"></span>contains<span class="signature">(point)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
 
 
 
@@ -176,13 +425,13 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Report whether the given (x,y) point is contained within the shape.</li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li>The width of the line.</li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line21">line 21</a>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -209,9 +458,450 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
     
 
     
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>1</li>
+        </ul></dd>
+    
 
     
 
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    The width of the line.
+</div>
+
+
+
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="x1"><span class="type-signature"></span>x1<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>The x1 coordinate of the line.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line26">line 26</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>0</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    The x1 coordinate of the line.
+</div>
+
+
+
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="x2"><span class="type-signature"></span>x2<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>The x2 coordinate of the line.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>1</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    The x2 coordinate of the line.
+</div>
+
+
+
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="y1"><span class="type-signature"></span>y1<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>The y1 coordinate of the line.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>0</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    The y1 coordinate of the line.
+</div>
+
+
+
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+            
+<h4 class="name" id="y2"><span class="type-signature"></span>y2<span class="type-signature"> :number</span></h4>
+
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>The y1 coordinate of the line.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line50">line 50</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-default">Default Value:</dt>
+    <dd class="tag-default"><ul class="dummy">
+            <li>1</li>
+        </ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+<div class="description usertext">
+    The y1 coordinate of the line.
+</div>
+
+
+
+    <h5 class="h5-types">Type:</h5>
+    <ul>
+        <li>
+            
+<span class="param-type">number</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+
+        
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    <h4 class="name" id="contains"><span class="type-signature"></span>contains<span class="signature">(point)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>Determines if a point is inside the line.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="shared_RoundedLine.js.html">shared/RoundedLine.js</a>, <a href="shared_RoundedLine.js.html#line71">line 71</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="implements">Implements:</dt>
+    <dd class="implements"><ul>
+        
+            <li><a href="module-shared.Hitbox.html#contains">module:shared.Hitbox#contains</a></li>
+        
+    </ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="https://stackoverflow.com/a/6853926/20044396">https://stackoverflow.com/a/6853926/20044396</a></li>
+        
+            <li><a href="https://web.archive.org/web/20210507021429/https://geomalgorithms.com/a02-_lines.html">https://web.archive.org/web/20210507021429/https://geomalgorithms.com/a02-_lines.html</a></li>
+        </ul>
+    </dd>
     
 
     
@@ -297,8 +987,7 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 
         
 <div class="param-desc">
-    True if the given point is inside the shape, false
-otherwise.
+    true if the point is inside the line, false otherwise.
 </div>
 
 

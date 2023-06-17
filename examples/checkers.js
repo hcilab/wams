@@ -12,8 +12,8 @@ const WAMS = require('..');
 const app = new WAMS.Application({
   color: 'green',
   clientLimit: 2,
-  staticDir: path.join(__dirname, './img/Chips'),
 });
+app.addStaticDirectory(path.join(__dirname, 'img', 'Chips'));
 
 const SQUARE_LENGTH = 64;
 function squareSequence(x, y, colour) {
@@ -33,7 +33,7 @@ for (let i = 0; i < 10; i += 1) {
     app.spawn({
       x,
       y,
-      type: 'square',
+      type: 'item',
       sequence: squareSequence(x, y, colour),
     });
   }

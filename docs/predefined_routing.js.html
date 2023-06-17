@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Hitbox - WAMS Documentation</title>
+    <title>predefined/routing.js - WAMS Documentation</title>
     
     <meta name="description" content="Workspaces Across Multiple Surfaces" />
     
@@ -43,292 +43,110 @@
 
 <div id="main">
     
-    <h1 class="page-title">Hitbox</h1>
+    <h1 class="page-title">predefined/routing.js</h1>
     
 
     
 
 
 
-
-<section>
-
-<header>
     
-        <h2>
-            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>
-        
-        
-            Hitbox
-        
-        </h2>
-        
-    
-</header>
-
-<article>
-    
-        <div class="container-overview">
-        
-            
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
-
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line6">line 6</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-            
-                <div class="description usertext">The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
-
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</div>
-            
-
-            
-        
-        </div>
-    
-
-    
-
-    
-
-    
-    
-    
-
-     
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Methods</h3>
-
-        
-            
-
-    
-
-    <h4 class="name" id="contains"><span class="type-signature"></span>contains<span class="signature">(point)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Report whether the given (x,y) point is contained within the shape.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line21">line 21</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>point</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="module-shared.Point2D.html">module:shared.Point2D</a></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The point to test.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5 class="h5-returns">Returns:</h5>
-
-        
-<div class="param-desc">
-    True if the given point is inside the shape, false
-otherwise.
-</div>
-
-
-
-<dl class="param-type">
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-        
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>'use strict';
+
+// External modules
+const express = require('express');
+const os = require('os');
+const path = require('path');
+
+/**
+ * Server routing utilities.
+ *
+ * @namespace routing
+ * @memberof module:predefined
+ */
+
+/**
+ * @memberof module:predefined.routing
+ *
+ * @returns {string} The first valid local non-internal IPv4 address it finds.
+ */
+function getLocalIP() {
+  for (const networkInterface of Object.values(os.networkInterfaces())) {
+    for (const networkAddress of networkInterface) {
+      if (networkAddress.family === 'IPv4' &amp;&amp; networkAddress.internal === false) {
+        return networkAddress.address;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * This function wraps a layer of abstraction around the route handler. It will
+ * set up the main routes for a WAMS app before returning, so that those routes
+ * will get priority.
+ *
+ * @memberof module:predefined.routing
+ *
+ * @return {express.app} An express app with main WAMS routes established.
+ */
+function router() {
+  // Establish router for predefined staticfiles
+  const app = express();
+  app.use('/', express.static(path.join(__dirname, 'staticfiles')));
+  app.use('/', express.static(path.join(__dirname, '..', '..', 'dist')));
+  return app;
+}
+
+/**
+ * Add a static route to the router.
+ *
+ * @memberof module:predefined.routing
+ *
+ * @param {express.app} router - The router to add the route to.
+ * @param {string} staticDir - The path to the static directory to add
+ */
+function addStaticDirectory(router, staticDir) {
+  router.use(express.static(staticDir));
+}
+
+/**
+ * Start listening to the given host and port with the given server, and log
+ * some helpful information to the console.
+ *
+ * @memberof module:predefined.routing
+ *
+ * @param {http.Server} server - The server to start listening on.
+ * @param {string} [host='localhost'] - The host to listen on.
+ * @param {number} [port=9000] - The port to listen on.
+ */
+function listen(server, host = 'localhost', port = 9000) {
+  server.listen(port, host, () => {
+    const formatAddress = (_host, port) => `http://${_host}:${port}`;
+    const { address, port } = server.address();
+
+    console.log('🚀 WAMS server listening on:');
+    console.log(`🔗 ${formatAddress(address, port)}`);
+
+    // if host is localhost or '0.0.0.0', assume local ipv4 also available
+    if (host === '0.0.0.0' || host == 'localhost') {
+      const localIPv4 = getLocalIP();
+      console.log(`🔗 ${formatAddress(localIPv4, port)}`);
+    }
+  });
+}
+
+module.exports = {
+  addStaticDirectory,
+  getLocalIP,
+  listen,
+  router,
+};
+</code></pre>
+        </article>
+    </section>
 
 
 

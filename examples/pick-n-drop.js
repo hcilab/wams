@@ -9,8 +9,8 @@ const deepSpace = { x: 99999, y: 99999 };
 const app = new WAMS.Application({
   color: '#f4f4f4',
   shadows: true,
-  staticDir: path.join(__dirname, '/img'),
 });
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 spawnImage(200, 300);
 

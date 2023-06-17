@@ -12,8 +12,8 @@ const { image } = WAMS.predefined.items;
 const app = new WAMS.Application({
   shadows: true,
   color: 'white',
-  staticDir: path.join(__dirname, './img'),
 });
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 app.spawn(
   image('scream.png', {

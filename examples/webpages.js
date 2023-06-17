@@ -31,7 +31,7 @@ const gamefaqs = app.spawn(
       y: 50,
       width: 560,
       height: 365,
-      type: 'video',
+      type: 'item/element',
       lockZ: true,
     }
   )
@@ -46,7 +46,7 @@ const xkcd = app.spawn(
     y: 465,
     width: 560,
     height: 365,
-    type: 'video',
+    type: 'item/element',
     lockZ: true,
   })
 );

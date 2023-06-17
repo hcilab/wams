@@ -12,10 +12,10 @@ const path = require('path');
 const app = new WAMS.Application({
   color: 'peru', // background color of the app
   clientLimit: 2, // maximum number of devices that can connect to the app
-  staticDir: path.join(__dirname, './img/chess_pieces'), // path to directory for static files, will be accessible at app's root
   shadows: true, // show shadows of other devices
   title: 'Chess using Wams', // page title
 });
+app.addStaticDirectory(path.join(__dirname, 'img', 'chess_pieces'));
 
 const SQUARE_LENGTH = 64; // No. of squares required
 
@@ -37,7 +37,7 @@ for (let i = 0; i < 8; ++i) {
     app.spawn({
       x,
       y,
-      type: 'square',
+      type: 'item',
       sequence: squareSequence(x, y, colour),
     });
   }

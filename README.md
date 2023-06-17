@@ -177,7 +177,6 @@ const app = new WAMS.Application({
   clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
   stylesheets: ["styles.css"], // css styles to include by the browser
   shadows: true, // show shadows of other devices
-  staticDir: path.join(__dirname, "static"), // path to directory for static files, will be accessible at app's root
   status: true, // show information on current view, useful for debugging
   title: "Awesome App", // page title
   useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
@@ -250,9 +249,8 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const path = require("node:path");
-const app = WAMS.Application({
-  staticDir: path.join(__dirname, "./images"),
-});
+const app = WAMS.Application();
+app.addStaticDirectory(path.join(__dirname, "images"));
 
 const { image } = WAMS.predefined.items;
 app.spawn(
@@ -357,10 +355,8 @@ To do that, first **set up a path to the static directory:**
 
 ```javascript
 const path = require("node:path");
-
-const app = new WAMS.Application({
-  staticDir: path.join(__dirname, "assets"),
-});
+const app = new WAMS.Application();
+app.addStaticDirectory(path.join(__dirname, "assets"));
 ```
 
 This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
@@ -370,7 +366,6 @@ This makes files under the specified path available at the root URL of the appli
 ```javascript
 const app = new WAMS.Application({
   clientScripts: ["js/awesome-script.js"],
-  staticDir: path.join(__dirname, "assets"),
 });
 ```
 
@@ -381,7 +376,6 @@ The scripts will be automatically loaded by the browsers.
 ```javascript
 const app = new WAMS.Application({
   stylesheets: ["css/amazing-styles.css"],
-  staticDir: path.join(__dirname, "assets"),
 });
 ```
 

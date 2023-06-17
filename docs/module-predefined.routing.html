@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Hitbox - WAMS Documentation</title>
+    <title>routing - WAMS Documentation</title>
     
     <meta name="description" content="Workspaces Across Multiple Surfaces" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Hitbox</h1>
+    <h1 class="page-title">routing</h1>
     
 
     
@@ -56,10 +56,10 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-shared.html">shared</a>.</span>
+            <span class="ancestors"><a href="module-predefined.html">predefined</a>.</span>
         
         
-            Hitbox
+            Namespace
         
         </h2>
         
@@ -72,24 +72,26 @@
         
             
 
+
+    
+
+    <h4 class="name" id="routing">routing</h4>
+
+    
+
+
+
+
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
-
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li>Server routing utilities.</li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line6">line 6</a>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line8">line 8</a>
     </li></ul></dd>
     
 
@@ -127,19 +129,32 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</li></ul>
 
 
 
-            
-                <div class="description usertext">The Hitbox interface is used by the Hittable mixin. If a Hitbox is attached
-to a Hittable instance object, hit detection will be performed on the object
-when the user's first input in an interaction sequence touches down.
 
-Note that a class implementing the Hitbox interface should not worry about
-applying transformations to the points it receives. That will be taken care
-of by the Hittable mixin. To produce accurate results, a Hitbox should behave
-as if the object it is associated with is positioned at x = 0, y = 0, with
-scale = 1 and rotation = 0. That is, with the identity transformation.</div>
-            
 
-            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         
         </div>
     
@@ -166,7 +181,7 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 
     
 
-    <h4 class="name" id="contains"><span class="type-signature"></span>contains<span class="signature">(point)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id=".addStaticDirectory"><span class="type-signature type-signature-static">(static) </span>addStaticDirectory<span class="signature">(router, staticDir)</span><span class="type-signature"></span></h4>
 
     
 
@@ -176,13 +191,13 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Report whether the given (x,y) point is contained within the shape.</li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li>Add a static route to the router.</li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="mixins_Hittable.js.html">mixins/Hittable.js</a>, <a href="mixins_Hittable.js.html#line21">line 21</a>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -254,13 +269,13 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 
         <tr>
             
-                <td class="name"><code>point</code></td>
+                <td class="name"><code>router</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="module-shared.Point2D.html">module:shared.Point2D</a></span>
+<span class="param-type">express.app</span>
 
 
 
@@ -271,7 +286,31 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 
             
 
-            <td class="description last">The point to test.</td>
+            <td class="description last">The router to add the route to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>staticDir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The path to the static directory to add</td>
         </tr>
 
     
@@ -293,12 +332,93 @@ scale = 1 and rotation = 0. That is, with the identity transformation.</div>
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".getLocalIP"><span class="type-signature type-signature-static">(static) </span>getLocalIP<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line20">line 20</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <h5 class="h5-returns">Returns:</h5>
 
         
 <div class="param-desc">
-    True if the given point is inside the shape, false
-otherwise.
+    The first valid local non-internal IPv4 address it finds.
 </div>
 
 
@@ -309,7 +429,349 @@ otherwise.
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".listen"><span class="type-signature type-signature-static">(static) </span>listen<span class="signature">(server, host<span class="signature-attributes">opt</span>, port<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>Start listening to the given host and port with the given server, and log
+some helpful information to the console.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">http.Server</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The server to start listening on.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>host</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'localhost'</code>
+                
+                </td>
+            
+
+            <td class="description last">The host to listen on.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>port</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>9000</code>
+                
+                </td>
+            
+
+            <td class="description last">The port to listen on.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".router"><span class="type-signature type-signature-static">(static) </span>router<span class="signature">()</span><span class="type-signature"> &rarr; {express.app}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>This function wraps a layer of abstraction around the route handler. It will
+set up the main routes for a WAMS app before returning, so that those routes
+will get priority.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    An express app with main WAMS routes established.
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">express.app</span>
 
 
 

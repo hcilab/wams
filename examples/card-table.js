@@ -36,8 +36,8 @@ const app = new WAMS.Application({
   shadows: true,
   status: true,
   clientLimit: 5,
-  staticDir: path.join(__dirname, '/img'),
 });
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 const STYLES = {
   button: {
@@ -171,7 +171,7 @@ function dealCards() {
         y: 300 - offs,
         width: 140,
         height: 190,
-        type: 'card',
+        type: 'item/image',
         scale: 1,
         face: card,
         isFaceUp: false,

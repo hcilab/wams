@@ -19,7 +19,7 @@ function polygon(x, y, view) {
     {
       x,
       y,
-      type: 'colour',
+      type: 'item',
       scale: 1 / view.scale,
     }
   );
@@ -43,7 +43,7 @@ viewGroup.on('pinch', WAMS.predefined.actions.pinch);
 viewGroup.on('rotate', WAMS.predefined.actions.rotate);
 viewGroup.on('drag', WAMS.predefined.actions.drag);
 
-const line = new WAMS.predefined.layouts.Line(200);
+const line = new WAMS.predefined.layouts.Line(5);
 function handleConnect({ view, device }) {
   line.layout(view, device);
 }

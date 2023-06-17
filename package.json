@@ -48,7 +48,7 @@
   "targets": {
     "client": {
       "source": "src/client.js",
-      "distDir": "dist/wams"
+      "distDir": "dist"
     }
   }
 }
