@@ -96,7 +96,7 @@ class VideoPlayer {
         y: 0,
         width: this.mainScreen.width,
         height: this.mainScreen.height,
-        type: 'player',
+        type: 'item/element',
       })
     );
 
@@ -118,7 +118,7 @@ class VideoPlayer {
         width,
         height,
         playing,
-        type: 'controls',
+        type: 'item/element',
       })
     );
     this.controls.on('drag', WAMS.predefined.actions.drag);

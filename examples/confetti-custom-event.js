@@ -28,7 +28,7 @@ function square(x, y, view, color) {
     y,
     hitbox,
     sequence,
-    type: 'colour',
+    type: 'item',
     scale: 1 / view.scale,
     rotation: view.rotation,
   };

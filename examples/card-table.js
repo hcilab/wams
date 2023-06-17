@@ -175,7 +175,7 @@ function dealCards() {
         y: 300 - offs,
         width: 140,
         height: 190,
-        type: 'card',
+        type: 'item/image',
         scale: 1,
         face: card,
         isFaceUp: false,

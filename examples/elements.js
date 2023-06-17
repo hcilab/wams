@@ -14,7 +14,7 @@ function element(x, y, view) {
     y,
     width: 300,
     height: 50,
-    type: 'button',
+    type: 'item/element',
     scale: 1 / view.scale,
     rotation: view.rotation,
   });

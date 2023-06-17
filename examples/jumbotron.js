@@ -29,7 +29,7 @@ const lisa = app.spawn(
     height: 1815,
     x: 0,
     y: 0,
-    type: 'mona',
+    type: 'item/image',
     scale,
   })
 );

@@ -39,7 +39,7 @@ for (let i = 0; i < 10; i += 1) {
     app.spawn({
       x,
       y,
-      type: 'square',
+      type: 'item',
       sequence: squareSequence(x, y, colour),
     });
   }

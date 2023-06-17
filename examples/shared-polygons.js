@@ -19,7 +19,7 @@ function polygon(x, y, view) {
     {
       x,
       y,
-      type: 'colour',
+      type: 'item',
       scale: 1 / view.scale,
     }
   );
