@@ -20,7 +20,7 @@ const MessageHandler = require('./MessageHandler.js');
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
- * @param {http.Server} [server=undefined] - HTTP server to use.
+ * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
 class Application {
   constructor(settings = {}, appRouter = router(), server = undefined) {
