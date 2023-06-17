@@ -363,12 +363,17 @@ To do that, first **set up a path to the static directory:**
 
 ```javascript
 const path = require("node:path");
+const { router, addStaticDirectory } = WAMS.predefined.routing;
 
-const router = WAMS.predefined.routing.router();
-const staticDir = path.join(__dirname, "assets");
-WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+// We'll need to use our own router in order to add custom static routes. This
+// could be an Express app, or we could use the one provided by the WAMS
+// routing module.
+const router = router();
+addStaticDirectory(router, path.join(__dirname, "assets"));
 const app = new WAMS.Application({}, router);
 ```
+
+The `router` provided by WAMS is an Express app that comes with routes set up to deliver a basic predefined HTML page and the javascript needed to run WAMS in a client browser.
 
 This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
 
