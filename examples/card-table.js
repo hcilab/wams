@@ -29,6 +29,10 @@ function shuffle(inArray) {
   return array;
 }
 
+const router = WAMS.predefined.routing.router();
+const imagePath = path.join(__dirname, 'img');
+WAMS.predefined.routing.addStaticDirectory(router, imagePath);
+
 // Spawn application with a green background for that classic playing card look.
 const app = new WAMS.Application({
   color: 'green',
@@ -36,8 +40,8 @@ const app = new WAMS.Application({
   shadows: true,
   status: true,
   clientLimit: 5,
-  staticDir: path.join(__dirname, '/img'),
 });
+WAMS.predefined.routing.addStaticDirectory(app.router, imagePath);
 
 const STYLES = {
   button: {

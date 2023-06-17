@@ -170,18 +170,23 @@ The application can be configured through some options.
 Below is the full list of possible options with example values.
 
 ```javascript
-const app = new WAMS.Application({
-  backgroundImage: "./monaLisa", // background image of the app
-  color: "white", // background color of the app
-  clientLimit: 2, // maximum number of devices that can connect to the app
-  clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
-  stylesheets: ["styles.css"], // css styles to include by the browser
-  shadows: true, // show shadows of other devices
-  staticDir: path.join(__dirname, "static"), // path to directory for static files, will be accessible at app's root
-  status: true, // show information on current view, useful for debugging
-  title: "Awesome App", // page title
-  useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
-});
+const router = WAMS.predefined.routing.router();
+const staticDir = path.join(__dirname, "static");  // path to directory for static files, will be accessible at app's root
+WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+const app = new WAMS.Application(
+  {
+    backgroundImage: "./monaLisa", // background image of the app
+    color: "white", // background color of the app
+    clientLimit: 2, // maximum number of devices that can connect to the app
+    clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
+    stylesheets: ["styles.css"], // css styles to include by the browser
+    shadows: true, // show shadows of other devices
+    status: true, // show information on current view, useful for debugging
+    title: "Awesome App", // page title
+    useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
+  },
+  router
+);
 ```
 
 You can substitute `const app = new Wams.Application();` in your code with the code above to play with different options.
@@ -250,9 +255,10 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const path = require("node:path");
-const app = WAMS.Application({
-  staticDir: path.join(__dirname, "./images"),
-});
+const router = WAMS.predefined.routing.router();
+const staticDir = path.join(__dirname, "images");
+WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+const app = WAMS.Application({}, router);
 
 const { image } = WAMS.predefined.items;
 app.spawn(
@@ -358,9 +364,10 @@ To do that, first **set up a path to the static directory:**
 ```javascript
 const path = require("node:path");
 
-const app = new WAMS.Application({
-  staticDir: path.join(__dirname, "assets"),
-});
+const router = WAMS.predefined.routing.router();
+const staticDir = path.join(__dirname, "assets");
+WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+const app = new WAMS.Application({}, router);
 ```
 
 This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
@@ -368,10 +375,12 @@ This makes files under the specified path available at the root URL of the appli
 - To run code in the browsers that use your app, create a **.js** file in your app _static directory_ and include it in the application config:
 
 ```javascript
-const app = new WAMS.Application({
-  clientScripts: ["js/awesome-script.js"],
-  staticDir: path.join(__dirname, "assets"),
-});
+const app = new WAMS.Application(
+  {
+    clientScripts: ["js/awesome-script.js"],
+  },
+  router
+);
 ```
 
 The scripts will be automatically loaded by the browsers.
@@ -379,10 +388,12 @@ The scripts will be automatically loaded by the browsers.
 - To add CSS stylesheets:
 
 ```javascript
-const app = new WAMS.Application({
-  stylesheets: ["css/amazing-styles.css"],
-  staticDir: path.join(__dirname, "assets"),
-});
+const app = new WAMS.Application(
+  {
+    stylesheets: ["css/amazing-styles.css"],
+  },
+  router
+);
 ```
 
 The stylesheets will be automatically loaded by the browsers.

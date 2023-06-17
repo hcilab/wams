@@ -7,15 +7,22 @@
 
 const WAMS = require('..');
 const path = require('path');
-const app = new WAMS.Application({
-  clientScripts: [
-    'https://code.jquery.com/jquery-1.12.4.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js',
-    'dollar.js',
-    'paper.js',
-  ],
-  staticDir: path.join(__dirname, './client'),
-});
+
+const router = WAMS.predefined.routing.router();
+const staticDir = path.join(__dirname, 'client');
+WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+
+const app = new WAMS.Application(
+  {
+    clientScripts: [
+      'https://code.jquery.com/jquery-1.12.4.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/paper.js/0.12.17/paper-full.min.js',
+      'dollar.js',
+      'paper.js',
+    ],
+  },
+  router
+);
 
 function handleConnect({ view }) {
   view.on('pinch', WAMS.predefined.actions.pinch);

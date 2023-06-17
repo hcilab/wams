@@ -9,13 +9,19 @@
 const WAMS = require('..');
 const path = require('path');
 
-const app = new WAMS.Application({
-  color: 'peru', // background color of the app
-  clientLimit: 2, // maximum number of devices that can connect to the app
-  staticDir: path.join(__dirname, './img/chess_pieces'), // path to directory for static files, will be accessible at app's root
-  shadows: true, // show shadows of other devices
-  title: 'Chess using Wams', // page title
-});
+const router = WAMS.predefined.routing.router();
+const imagePath = path.join(__dirname, 'img', 'chess_pieces');
+WAMS.predefined.routing.addStaticDirectory(router, imagePath);
+
+const app = new WAMS.Application(
+  {
+    color: 'peru', // background color of the app
+    clientLimit: 2, // maximum number of devices that can connect to the app
+    shadows: true, // show shadows of other devices
+    title: 'Chess using Wams', // page title
+  },
+  router
+);
 
 const SQUARE_LENGTH = 64; // No. of squares required
 

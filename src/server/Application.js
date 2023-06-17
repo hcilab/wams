@@ -8,30 +8,11 @@ const socket_io = require('socket.io');
 
 // Local classes, etc
 const { constants, Message } = require('../shared.js');
+const { getLocalIP, router } = require('../predefined/routing.js');
 const Router = require('./Router.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
-
-/**
- * @inner
- * @memberof module:server.Application
- *
- * @returns {string} The first valid local IPv4 address it finds.
- */
-function getLocalIP() {
-  let ipaddr = null;
-  Object.values(os.networkInterfaces()).some((f) => {
-    return f.some((a) => {
-      if (a.family === 'IPv4' && a.internal === false) {
-        ipaddr = a.address;
-        return true;
-      }
-      return false;
-    });
-  });
-  return ipaddr;
-}
 
 /**
  * This module defines the API endpoint.
@@ -39,18 +20,23 @@ function getLocalIP() {
  * @memberof module:server
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
- * @param {module:server.Router} [router=Router()] - Route handler to use.
+ * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  */
 class Application {
-  constructor(settings = {}, router = Router()) {
-    this.setupStaticRoute(settings, router);
+  constructor(settings = {}, appRouter = router()) {
+    /**
+     * Express app for routing.
+     * @type {express.app}
+     * @see {@link https://expressjs.com/en/4x/api.html#app}
+     */
+    this.router = appRouter;
 
     /**
      * HTTP server for sending and receiving data.
      *
      * @type {http.Server}
      */
-    this.httpServer = http.createServer(router);
+    this.httpServer = http.createServer(this.router);
 
     /**
      * Socket.io instance using http server.
@@ -85,18 +71,6 @@ class Application {
      * @type {module:server.Switchboard}
      */
     this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, settings);
-  }
-
-  /**
-   * Setup the route to the static files directory,
-   * if included in application configuration.
-   *
-   * @param {object} settings
-   * @param {module:server.Router} router
-   */
-  setupStaticRoute(settings, router) {
-    const staticDir = settings.staticDir;
-    if (staticDir) router.use(router.express.static(staticDir));
   }
 
   /**

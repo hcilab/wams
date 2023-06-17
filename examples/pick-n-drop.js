@@ -6,11 +6,17 @@ const { Line } = WAMS.predefined.layouts;
 const dimensions = [];
 const deepSpace = { x: 99999, y: 99999 };
 
-const app = new WAMS.Application({
-  color: '#f4f4f4',
-  shadows: true,
-  staticDir: path.join(__dirname, '/img'),
-});
+const router = WAMS.predefined.routing.router();
+const imagePath = path.join(__dirname, 'img');
+WAMS.predefined.routing.addStaticDirectory(router, imagePath);
+
+const app = new WAMS.Application(
+  {
+    color: '#f4f4f4',
+    shadows: true,
+  },
+  router
+);
 
 spawnImage(200, 300);
 

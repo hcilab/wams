@@ -9,11 +9,17 @@ const WAMS = require('..');
 
 const { image } = WAMS.predefined.items;
 
-const app = new WAMS.Application({
-  color: 'black',
-  clientLimit: 1000,
-  staticDir: path.join(__dirname, './img'),
-});
+const router = WAMS.predefined.routing.router();
+const imagePath = path.join(__dirname, 'img');
+WAMS.predefined.routing.addStaticDirectory(router, imagePath);
+
+const app = new WAMS.Application(
+  {
+    color: 'black',
+    clientLimit: 1000,
+  },
+  router
+);
 
 const scale = 2;
 
