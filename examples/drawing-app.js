@@ -27,18 +27,13 @@ const WIDTHS = {
 
 class DrawingApp {
   constructor() {
-    this.router = WAMS.predefined.routing.router();
-    this.staticDir = path.join(__dirname, 'client');
-    WAMS.predefined.routing.addStaticDirectory(this.router, this.staticDir);
-    this.app = new WAMS.Application(
-      {
-        color: 'white',
-        clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
-        stylesheets: ['./drawing-app.css'],
-        title: 'Collaborative Drawing',
-      },
-      this.router
-    );
+    this.app = new WAMS.Application({
+      color: 'white',
+      clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
+      stylesheets: ['./drawing-app.css'],
+      title: 'Collaborative Drawing',
+    });
+    app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
 

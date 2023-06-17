@@ -8,7 +8,7 @@ const socket_io = require('socket.io');
 
 // Local classes, etc
 const { constants, Message } = require('../shared.js');
-const { getLocalIP, listen, router } = require('../predefined/routing.js');
+const { addStaticDirectory, getLocalIP, listen, router } = require('../predefined/routing.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
 const MessageHandler = require('./MessageHandler.js');
@@ -78,7 +78,20 @@ class Application {
   }
 
   /**
+   * Add a static route to the router.
+   *
+   * @memberof module:server.Application
+   *
+   * @param {string} staticDir - The path to the static directory to add
+   */
+  addStaticDirectory(staticDir) {
+    addStaticDirectory(this.router, staticDir);
+  }
+
+  /**
    * Start the server on the given hostname and port.
+   *
+   * @memberof module:server.Application
    *
    * @param {number} [port=9000] - Valid port number on which to listen.
    * @param {string} [host=getLocalIP()] - IP address or hostname on which to

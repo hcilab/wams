@@ -9,17 +9,11 @@
 const path = require('path');
 const WAMS = require('..');
 
-const router = WAMS.predefined.routing.router();
-const imagePath = path.join(__dirname, 'img', 'Chips');
-WAMS.predefined.routing.addStaticDirectory(router, imagePath);
-
-const app = new WAMS.Application(
-  {
-    color: 'green',
-    clientLimit: 2,
-  },
-  router
-);
+const app = new WAMS.Application({
+  color: 'green',
+  clientLimit: 2,
+});
+app.addStaticDirectory(path.join(__dirname, 'img', 'Chips'));
 
 const SQUARE_LENGTH = 64;
 function squareSequence(x, y, colour) {

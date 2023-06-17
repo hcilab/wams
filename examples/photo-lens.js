@@ -9,17 +9,11 @@ const WAMS = require('..');
 
 const { image } = WAMS.predefined.items;
 
-const router = WAMS.predefined.routing.router();
-const imagePath = path.join(__dirname, 'img');
-WAMS.predefined.routing.addStaticDirectory(router, imagePath);
-
-const app = new WAMS.Application(
-  {
-    shadows: true,
-    color: 'white',
-  },
-  router
-);
+const app = new WAMS.Application({
+  shadows: true,
+  color: 'white',
+});
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 app.spawn(
   image('scream.png', {

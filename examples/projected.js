@@ -6,21 +6,15 @@ const { image } = WAMS.predefined.items;
 const TOTAL_WIDTH = 5650;
 const TOTAL_HEIGHT = 6053;
 
-const router = WAMS.predefined.routing.router();
-const imagePath = path.join(__dirname, 'img');
-WAMS.predefined.routing.addStaticDirectory(router, imagePath);
-
-const app = new WAMS.Application(
-  {
-    shadows: true,
-    /*
-     * Mult-screen gestures are currently incomplatible with targetting different
-     * drag events at different screens- all screens/views move together.
-     */
-    // useMultiScreenGestures: true,
-  },
-  router
-);
+const app = new WAMS.Application({
+  shadows: true,
+  /*
+   * Mult-screen gestures are currently incomplatible with targetting different
+   * drag events at different screens- all screens/views move together.
+   */
+  // useMultiScreenGestures: true,
+});
+app.addStaticDirectory(path.join(__dirname, 'img'));
 
 app.on('position', (data) => {
   console.log(data);

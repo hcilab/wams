@@ -25,24 +25,18 @@ const controlsHtml = (videoTitle, playing) =>
 
 class VideoPlayer {
   constructor() {
-    this.router = WAMS.predefined.routing.router();
-    this.staticDir = path.join(__dirname, 'client');
-    WAMS.predefined.routing.addStaticDirectory(this.router, this.staticDir);
-
-    this.app = new WAMS.Application(
-      {
-        clientLimit: 2,
-        color: '#555',
-        clientScripts: [
-          'https://kit.fontawesome.com/3cc3d78fde.js',
-          'video-player.js',
-          'https://www.youtube.com/iframe_api',
-        ],
-        stylesheets: ['./video-player.css'],
-        title: 'Video Player',
-      },
-      this.router
-    );
+    this.app = new WAMS.Application({
+      clientLimit: 2,
+      color: '#555',
+      clientScripts: [
+        'https://kit.fontawesome.com/3cc3d78fde.js',
+        'video-player.js',
+        'https://www.youtube.com/iframe_api',
+      ],
+      stylesheets: ['./video-player.css'],
+      title: 'Video Player',
+    });
+    this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.player = {
       playing: false,

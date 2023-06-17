@@ -170,12 +170,7 @@ The application can be configured through some options.
 Below is the full list of possible options with example values.
 
 ```javascript
-const { router, addStaticDirectory } = WAMS.predefined.routing;
-const router = router();
-const staticDir = path.join(__dirname, "static");  // path to directory for static files, will be accessible at app's root
-addStaticDirectory(router, staticDir);
-const app = new WAMS.Application(
-  {
+const app = new WAMS.Application({
     backgroundImage: "./monaLisa", // background image of the app
     color: "white", // background color of the app
     clientLimit: 2, // maximum number of devices that can connect to the app
@@ -185,9 +180,7 @@ const app = new WAMS.Application(
     status: true, // show information on current view, useful for debugging
     title: "Awesome App", // page title
     useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
-  },
-  router
-);
+});
 ```
 
 You can substitute `const app = new Wams.Application();` in your code with the code above to play with different options.
@@ -256,10 +249,8 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const path = require("node:path");
-const { router, addStaticDirectory } = WAMS.predefined.routing;
-const router = router();
-addStaticDirectory(router, path.join(__dirname, "images"));
-const app = WAMS.Application({}, router);
+const app = WAMS.Application();
+app.addStaticDirectory(path.join(__dirname, "images"));
 
 const { image } = WAMS.predefined.items;
 app.spawn(
@@ -364,14 +355,8 @@ To do that, first **set up a path to the static directory:**
 
 ```javascript
 const path = require("node:path");
-const { router, addStaticDirectory } = WAMS.predefined.routing;
-
-// We'll need to use our own router in order to add custom static routes. This
-// could be an Express app, or we could use the one provided by the WAMS
-// routing module.
-const router = router();
-addStaticDirectory(router, path.join(__dirname, "assets"));
-const app = new WAMS.Application({}, router);
+const app = new WAMS.Application();
+app.addStaticDirectory(path.join(__dirname, "assets"));
 ```
 
 The `router` provided by WAMS is an Express app that comes with routes set up to deliver a basic predefined HTML page and the javascript needed to run WAMS in a client browser.
