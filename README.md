@@ -359,8 +359,6 @@ const app = new WAMS.Application();
 app.addStaticDirectory(path.join(__dirname, "assets"));
 ```
 
-The `router` provided by WAMS is an Express app that comes with routes set up to deliver a basic predefined HTML page and the javascript needed to run WAMS in a client browser.
-
 This makes files under the specified path available at the root URL of the application. For example, if you have the same configuration as above, and there is an `image.png` file in the `assets` folder, it will be available at `http(s)://<app-url>/image.png`
 
 - To run code in the browsers that use your app, create a **.js** file in your app _static directory_ and include it in the application config:
