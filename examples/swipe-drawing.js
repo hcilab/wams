@@ -32,8 +32,8 @@ function handleDrag({ x, y, dx, dy }) {
   const length = Math.sqrt(dx * dx + dy * dy);
   const line = app.spawn(
     WAMS.predefined.items.line(0, length, 10, 'gray', {
-      x,
-      y,
+      x: x - dx,
+      y: y - dy,
       rotation: Math.atan2(dx, dy),
     })
   );

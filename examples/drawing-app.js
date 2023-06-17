@@ -65,22 +65,15 @@ class DrawingApp {
   draw(event) {
     const color = event.view.state.color || 'black';
     const width = event.view.state.width || 20;
-    // const fromX = event.x - event.dx;
-    // const fromY = event.y - event.dy;
+    const fromX = event.x - event.dx;
+    const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    const line = new CanvasSequence();
-    // line.beginPath()
-    // line.moveTo(fromX, fromY);
-    // line.lineTo(toX, toY);
-    // line.strokeStyle = 'blue';
-    // line.stroke();
-
-    line.beginPath();
-    line.fillStyle = color;
-    line.ellipse(toX, toY, width / 2, width / 2, Math.PI / 2, 0, 2 * Math.PI);
-    line.fill();
-    this.app.workspace.spawnItem({ sequence: line });
+    const line = WAMS.predefined.items.line(event.dx, event.dy, width, color, {
+      x: fromX,
+      y: fromY,
+    });
+    this.app.workspace.spawnItem(line);
   }
 
   updateControlType({ type, view }) {
