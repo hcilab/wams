@@ -33,7 +33,7 @@ class DrawingApp {
       stylesheets: ['./drawing-app.css'],
       title: 'Collaborative Drawing',
     });
-    app.addStaticDirectory(path.join(__dirname, 'client'));
+    this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
 
