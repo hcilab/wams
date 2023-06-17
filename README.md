@@ -364,12 +364,9 @@ This makes files under the specified path available at the root URL of the appli
 - To run code in the browsers that use your app, create a **.js** file in your app _static directory_ and include it in the application config:
 
 ```javascript
-const app = new WAMS.Application(
-  {
-    clientScripts: ["js/awesome-script.js"],
-  },
-  router
-);
+const app = new WAMS.Application({
+  clientScripts: ["js/awesome-script.js"],
+});
 ```
 
 The scripts will be automatically loaded by the browsers.
@@ -377,12 +374,9 @@ The scripts will be automatically loaded by the browsers.
 - To add CSS stylesheets:
 
 ```javascript
-const app = new WAMS.Application(
-  {
-    stylesheets: ["css/amazing-styles.css"],
-  },
-  router
-);
+const app = new WAMS.Application({
+  stylesheets: ["css/amazing-styles.css"],
+});
 ```
 
 The stylesheets will be automatically loaded by the browsers.
