@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>Interactor - WAMS Documentation</title>
+    <title>routing - WAMS Documentation</title>
     
     <meta name="description" content="Workspaces Across Multiple Surfaces" />
     
@@ -43,7 +43,7 @@
 
 <div id="main">
     
-    <h1 class="page-title">Interactor</h1>
+    <h1 class="page-title">routing</h1>
     
 
     
@@ -56,20 +56,12 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-client.html">client</a>.</span>
+            <span class="ancestors"><a href="module-predefined.html">predefined</a>.</span>
         
         
-            Interactor
+            Namespace
         
         </h2>
-        
-            <div class="class-description usertext">The Interactor class provides a layer of abstraction between the
-ClientController and the code that processes user inputs.  Data from
-recognized gestures is reported directly through to the handlers. The
-handlers are initialized to NOPs so that the functions which call the
-handlers don't need to check whether the handler exists.
-
-Currently, the Interactor makes use of the Westures library.</div>
         
     
 </header>
@@ -80,11 +72,10 @@ Currently, the Interactor makes use of the Westures library.</div>
         
             
 
-    
-    <h2>Constructor</h2>
+
     
 
-    <h4 class="name" id="Interactor"><span class="type-signature"></span>new Interactor<span class="signature">(handlers)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="routing">routing</h4>
 
     
 
@@ -93,11 +84,14 @@ Currently, the Interactor makes use of the Westures library.</div>
 
 <dl class="details">
     
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>Server routing utilities.</li></ul></dd>
+    
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line29">line 29</a>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line8">line 8</a>
     </li></ul></dd>
     
 
@@ -128,13 +122,6 @@ Currently, the Interactor makes use of the Westures library.</div>
     
 
     
-    <dt class="tag-see">See:</dt>
-    <dd class="tag-see">
-        <ul>
-            <li><a href="https://mvanderkamp.github.io/westures/">https://mvanderkamp.github.io/westures/</a></li>
-        </ul>
-    </dd>
-    
 
     
 </dl>
@@ -149,248 +136,6 @@ Currently, the Interactor makes use of the Westures library.</div>
 
 
 
-
-
-    <h5 class="h5-parameters">Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>handlers</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Object with keys as the names gestures and values
-   as the corresponding function for handling that gesture when it is
-   recognized.
-                <h6>Properties</h6>
-                
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>swipe</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>tap</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>track</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>transform</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -427,431 +172,6 @@ Currently, the Interactor makes use of the Westures library.</div>
     
 
     
-        <h3 class="subsection-title">Members</h3>
-
-        
-            
-<h4 class="name" id="_changes"><span class="type-signature"></span>_changes<span class="type-signature"> :Object</span></h4>
-
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Object to coalesce state from multiple gestures during one event cycle.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line48">line 48</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    Object to coalesce state from multiple gestures during one event cycle.
-</div>
-
-
-
-    <h5 class="h5-types">Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Object</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id="handlers"><span class="type-signature"></span>handlers<span class="type-signature"> :Object</span></h4>
-
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Object holding the handlers, so they can be dynamically referenced by
-name.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line41">line 41</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>swipe</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>tap</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>track</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>transform</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    <code>NOP</code>
-                
-                </td>
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<div class="description usertext">
-    Object holding the handlers, so they can be dynamically referenced by
-name.
-</div>
-
-
-
-    <h5 class="h5-types">Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">Object</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-            
-<h4 class="name" id=".DEFAULT_HANDLERS"><span class="type-signature type-signature-static">(static) </span>DEFAULT_HANDLERS<span class="type-signature"> :object</span></h4>
-
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>The default handlers used by the Interactor.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line143">line 143</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-<div class="description usertext">
-    The default handlers used by the Interactor.
-</div>
-
-
-
-    <h5 class="h5-types">Type:</h5>
-    <ul>
-        <li>
-            
-<span class="param-type">object</span>
-
-
-
-        </li>
-    </ul>
-
-
-
-
-
-
-        
-    
 
     
         <h3 class="subsection-title">Methods</h3>
@@ -861,7 +181,7 @@ name.
 
     
 
-    <h4 class="name" id="_emit"><span class="type-signature"></span>_emit<span class="signature">()</span><span class="type-signature"></span></h4>
+    <h4 class="name" id=".addStaticDirectory"><span class="type-signature type-signature-static">(static) </span>addStaticDirectory<span class="signature">(router, staticDir)</span><span class="type-signature"></span></h4>
 
     
 
@@ -871,353 +191,13 @@ name.
 <dl class="details">
     
     <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Emit a transform event with the coalesced state changes.</li></ul></dd>
+    <dd class="tag-description"><ul class="dummy"><li>Add a static route to the router.</li></ul></dd>
     
 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line111">line 111</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="addGestures"><span class="type-signature"></span>addGestures<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Sets up gesture listeners via westures.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line59">line 59</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="coalesce"><span class="type-signature"></span>coalesce<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Coalesce state changes for this event cycle.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line90">line 90</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="swivel"><span class="type-signature"></span>swivel<span class="signature">()</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Send a swivel event through as a transformation.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line120">line 120</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-            
-
-    
-
-    <h4 class="name" id="wheel"><span class="type-signature"></span>wheel<span class="signature">(event)</span><span class="type-signature"></span></h4>
-
-    
-
-
-
-
-<dl class="details">
-    
-    <dt class="tag-description">Description:</dt>
-    <dd class="tag-description"><ul class="dummy"><li>Treat scrollwheel events as zoom events.</li></ul></dd>
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="client_Interactor.js.html">client/Interactor.js</a>, <a href="client_Interactor.js.html#line129">line 129</a>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line56">line 56</a>
     </li></ul></dd>
     
 
@@ -1289,13 +269,13 @@ name.
 
         <tr>
             
-                <td class="name"><code>event</code></td>
+                <td class="name"><code>router</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">WheelEvent</span>
+<span class="param-type">express.app</span>
 
 
 
@@ -1306,7 +286,31 @@ name.
 
             
 
-            <td class="description last">The wheel event from the window.</td>
+            <td class="description last">The router to add the route to.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>staticDir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The path to the static directory to add</td>
         </tr>
 
     
@@ -1328,6 +332,453 @@ name.
 
 
 
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".getLocalIP"><span class="type-signature type-signature-static">(static) </span>getLocalIP<span class="signature">()</span><span class="type-signature"> &rarr; {string}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line20">line 20</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    The first valid local non-internal IPv4 address it finds.
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".listen"><span class="type-signature type-signature-static">(static) </span>listen<span class="signature">(server, host<span class="signature-attributes">opt</span>, port<span class="signature-attributes">opt</span>)</span><span class="type-signature"></span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>Start listening to the given host and port with the given server, and log
+some helpful information to the console.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line70">line 70</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5 class="h5-parameters">Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Attributes</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>server</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">http.Server</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The server to start listening on.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>host</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>'localhost'</code>
+                
+                </td>
+            
+
+            <td class="description last">The host to listen on.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>port</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    <code>9000</code>
+                
+                </td>
+            
+
+            <td class="description last">The port to listen on.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    <h4 class="name" id=".router"><span class="type-signature type-signature-static">(static) </span>router<span class="signature">()</span><span class="type-signature"> &rarr; {express.app}</span></h4>
+
+    
+
+
+
+
+<dl class="details">
+    
+    <dt class="tag-description">Description:</dt>
+    <dd class="tag-description"><ul class="dummy"><li>This function wraps a layer of abstraction around the route handler. It will
+set up the main routes for a WAMS app before returning, so that those routes
+will get priority.</li></ul></dd>
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="predefined_routing.js.html">predefined/routing.js</a>, <a href="predefined_routing.js.html#line40">line 40</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5 class="h5-returns">Returns:</h5>
+
+        
+<div class="param-desc">
+    An express app with main WAMS routes established.
+</div>
+
+
+
+<dl class="param-type">
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">express.app</span>
+
+
+
+    </dd>
+</dl>
+
+    
 
 
 
