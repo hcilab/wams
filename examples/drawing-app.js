@@ -6,7 +6,7 @@
 
 const WAMS = require('..');
 const path = require('path');
-const { actions } = WAMS.predefined;
+const { actions, items } = WAMS.predefined;
 const { CanvasSequence } = require('canvas-sequencer');
 
 const COLORS = {
@@ -38,6 +38,8 @@ class DrawingApp {
     this.initialColor = 'red';
 
     this.initListeners();
+    this.pointers = {};
+    this.boundDraw = this.draw.bind(this);
   }
 
   setColor({ color, view }) {
@@ -63,28 +65,48 @@ class DrawingApp {
   }
 
   draw(event) {
+    const previousEvent = this.pointers[event.view];
+    this.pointers[event.view] = event;
     const color = event.view.state.color || 'black';
     const width = event.view.state.width || 20;
-    const fromX = event.x - event.dx;
-    const fromY = event.y - event.dy;
+    let fromX, fromY;
+    if (previousEvent) {
+      fromX = previousEvent.x;
+      fromY = previousEvent.y;
+    } else {
+      fromX = event.x - event.dx;
+      fromY = event.y - event.dy;
+    }
     const toX = event.x;
     const toY = event.y;
-    const line = WAMS.predefined.items.line(event.dx, event.dy, width, color, {
-      x: fromX,
-      y: fromY,
-    });
-    this.app.workspace.spawnItem(line);
+    this.app.workspace.spawnItem(items.line(
+      toX - fromX,  // X length of line
+      toY - fromY,  // Y length of line
+      width,
+      color,
+      {x: fromX, y: fromY},
+    ));
   }
 
   updateControlType({ type, view }) {
     this.controlType = type;
     view.removeAllListeners('drag');
-    view.on('drag', type === 'pan' ? actions.drag : this.draw.bind(this));
+    if (type === 'pan') {
+      view.off('drag', this.boundDraw);
+      view.on('drag', actions.drag);
+    } else {
+      view.off('drag', actions.drag);
+      view.on('drag', this.boundDraw);
+    }
+    // view.on('pointermove', type === 'pan' ? actions.drag : this.draw.bind(this));
   }
 
   handleConnect({ view }) {
-    view.on('drag', WAMS.predefined.actions.drag);
-    view.on('pinch', WAMS.predefined.actions.pinch);
+    view.on('drag', actions.drag);
+    view.on('pinch', actions.pinch);
+    view.on('pointerup', (event) => {
+      delete this.pointers[event.view];
+    });
   }
 }
 
