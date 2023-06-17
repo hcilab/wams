@@ -170,9 +170,10 @@ The application can be configured through some options.
 Below is the full list of possible options with example values.
 
 ```javascript
-const router = WAMS.predefined.routing.router();
+const { router, addStaticDirectory } = WAMS.predefined.routing;
+const router = router();
 const staticDir = path.join(__dirname, "static");  // path to directory for static files, will be accessible at app's root
-WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+addStaticDirectory(router, staticDir);
 const app = new WAMS.Application(
   {
     backgroundImage: "./monaLisa", // background image of the app
@@ -255,9 +256,9 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const path = require("node:path");
-const router = WAMS.predefined.routing.router();
-const staticDir = path.join(__dirname, "images");
-WAMS.predefined.routing.addStaticDirectory(router, staticDir);
+const { router, addStaticDirectory } = WAMS.predefined.routing;
+const router = router();
+addStaticDirectory(router, path.join(__dirname, "images"));
 const app = WAMS.Application({}, router);
 
 const { image } = WAMS.predefined.items;
