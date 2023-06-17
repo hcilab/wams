@@ -41,7 +41,7 @@ function router() {
   // Establish router for predefined staticfiles
   const app = express();
   app.use('/', express.static(path.join(__dirname, 'staticfiles')));
-  app.use('/', express.static(path.join(__dirname, '..', '..', 'dist', 'wams')));
+  app.use('/', express.static(path.join(__dirname, '..', '..', 'dist')));
   return app;
 }
 
@@ -82,7 +82,6 @@ function listen(server, host = 'localhost', port = 9000) {
     }
   });
 }
-
 
 module.exports = {
   addStaticDirectory,
