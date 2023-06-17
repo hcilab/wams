@@ -54,7 +54,7 @@ function router() {
  * @param {string} staticDir - The path to the static directory to add
  */
 function addStaticDirectory(router, staticDir) {
-    router.use(express.static(staticDir));
+  router.use(express.static(staticDir));
 }
 
 module.exports = {
