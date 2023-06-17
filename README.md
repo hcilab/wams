@@ -171,15 +171,15 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new WAMS.Application({
-    backgroundImage: "./monaLisa", // background image of the app
-    color: "white", // background color of the app
-    clientLimit: 2, // maximum number of devices that can connect to the app
-    clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
-    stylesheets: ["styles.css"], // css styles to include by the browser
-    shadows: true, // show shadows of other devices
-    status: true, // show information on current view, useful for debugging
-    title: "Awesome App", // page title
-    useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
+  backgroundImage: "./monaLisa", // background image of the app
+  color: "white", // background color of the app
+  clientLimit: 2, // maximum number of devices that can connect to the app
+  clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
+  stylesheets: ["styles.css"], // css styles to include by the browser
+  shadows: true, // show shadows of other devices
+  status: true, // show information on current view, useful for debugging
+  title: "Awesome App", // page title
+  useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
 });
 ```
 
