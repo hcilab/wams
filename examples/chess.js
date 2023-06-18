@@ -50,12 +50,12 @@ function board(x, y) {
   };
 }
 
-const BLACK_PLAYER_IDX = 0;
-const WHITE_PLAYER_IDX = 1;
+const BLACK_PLAYER_IDX = 1;
+const WHITE_PLAYER_IDX = 0;
 
 /* Function to handle interaction rights between devices to drag pieces on board */
 function handleTokenDrag(event, tokenOwnerIdx) {
-  if (event.view.index !== tokenOwnerIdx) {
+  if (event.view.index === tokenOwnerIdx) {
     actions.drag(event);
   }
 }
@@ -143,7 +143,7 @@ function centerViewNormal(view) {
 
 /* Function to place board at center of the view */
 function handleConnect({ view }) {
-  if (view.index === 1) {
+  if (view.index === BLACK_PLAYER_IDX) {
     view.rotateBy(Math.PI);
   }
 
