@@ -193,10 +193,18 @@ class Application {
    * Create a group for existing items in the workspace.
    * A group allows to interact with several elements simultaneously.
    *
-   * @param  {obj} values properties for the group
+   * @param  {object} values properties for the group
    */
   createItemGroup(values) {
     return this.workspace.createItemGroup(values);
+  }
+
+  /**
+   * Create a group for views in the viewspace. The views in a group will be
+   * able to perform multi-device gestures together.
+   */
+  createViewGroup() {
+    return this.viewspace.createViewGroup();
   }
 
   /**

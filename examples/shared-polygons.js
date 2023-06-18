@@ -37,7 +37,7 @@ function spawnItem(event) {
   item.on('drag', WAMS.predefined.actions.drag);
 }
 
-const viewGroup = app.switchboard.group;
+const viewGroup = app.createViewGroup();
 viewGroup.on('click', spawnItem);
 viewGroup.on('pinch', WAMS.predefined.actions.pinch);
 viewGroup.on('rotate', WAMS.predefined.actions.rotate);
@@ -45,6 +45,7 @@ viewGroup.on('drag', WAMS.predefined.actions.drag);
 
 const line = new WAMS.predefined.layouts.Line(5);
 function handleConnect({ view, device }) {
+  viewGroup.add(view);
   line.layout(view, device);
 }
 

@@ -37,6 +37,8 @@ class ViewSpace {
   }
 
   /**
+   * @memberof module:server.ViewSpace
+   *
    * @return {module:shared.View[]} Serialize the views in this group.
    */
   toJSON() {
@@ -45,6 +47,8 @@ class ViewSpace {
 
   /**
    * Remove a view from the viewspace.
+   *
+   * @memberof module:server.ViewSpace
    *
    * @param {module:server.ServerView} view - View to remove.
    */
@@ -62,6 +66,8 @@ class ViewSpace {
   /**
    * Spawn a view into the viewspace.
    *
+   * @memberof module:server.ViewSpace
+   *
    * @param {Namespace} socket - Socket.io socket for publishing changes.
    */
   spawnView(socket, index) {
@@ -71,6 +77,19 @@ class ViewSpace {
     this.views.push(view);
     group.add(view);
     return view;
+  }
+
+  /**
+   * Spawn a view group into the viewspace.
+   *
+   * @memberof module:server.ViewSpace
+   *
+   * @return {module:server.ServerViewGroup} The new view group.
+   */
+  createViewGroup() {
+    const group = new ServerViewGroup(this.messageHandler);
+    this.groups.push(group);
+    return group;
   }
 }
 

@@ -16,10 +16,12 @@ function spawnSquare(event) {
   return item;
 }
 
-app.switchboard.group.on('click', spawnSquare);
+const viewGroup = app.createViewGroup();
+viewGroup.on('click', spawnSquare);
 
 const line = new Line(200);
 function handleConnect({ view, device }) {
+  viewGroup.add(view);
   line.layout(view, device);
 }
 
