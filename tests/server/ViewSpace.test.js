@@ -8,7 +8,6 @@ const ServerView = require('server/ServerView.js');
 const ViewSpace = require('server/ViewSpace.js');
 
 describe('ViewSpace', () => {
-
   describe('Methods', () => {
     let socket, viewspace, view;
     beforeEach(() => {
