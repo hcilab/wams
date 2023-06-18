@@ -13,35 +13,40 @@ const app = new WAMS.Application({
   color: 'peru', // background color of the app
   clientLimit: 2, // maximum number of devices that can connect to the app
   shadows: true, // show shadows of other devices
+  status: true,
   title: 'Chess using Wams', // page title
 });
 app.addStaticDirectory(path.join(__dirname, 'img', 'chess_pieces'));
 
 const SQUARE_LENGTH = 64; // No. of squares required
 
-/* Function to black white & black squares on the board */
-function squareSequence(x, y, colour) {
-  const seq = new WAMS.CanvasSequence();
-  seq.fillStyle = colour;
-  seq.fillRect(0, 0, SQUARE_LENGTH, SQUARE_LENGTH);
-  return seq;
+/**
+ * Add a square to the canvas.
+ */
+function addSquare(canvas, x, y, colour) {
+  canvas.fillStyle = colour;
+  canvas.fillRect(x, y, SQUARE_LENGTH, SQUARE_LENGTH);
 }
 
-const BASE = 0;
-for (let i = 0; i < 8; ++i) {
-  for (let j = 0; j < 8; ++j) {
-    const colour = (i + j) % 2 === 0 ? 'white' : 'grey';
-    const x = BASE + j * SQUARE_LENGTH;
-    const y = BASE + i * SQUARE_LENGTH;
-
-    app.spawn({
-      x,
-      y,
-      type: 'item',
-      sequence: squareSequence(x, y, colour),
-    });
+function board(x, y) {
+  const sequence = new WAMS.CanvasSequence();
+  const base = 0;
+  for (let i = 0; i < 8; ++i) {
+    for (let j = 0; j < 8; ++j) {
+      const colour = (i + j) % 2 === 0 ? 'white' : 'grey';
+      const x = base + j * SQUARE_LENGTH;
+      const y = base + i * SQUARE_LENGTH;
+      addSquare(sequence, x, y, colour);
+    }
   }
+  return {
+    x: 0,
+    y: 0,
+    type: 'item',
+    sequence: sequence,
+  };
 }
+app.spawn(board(0, 0));
 
 const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 8;
 
