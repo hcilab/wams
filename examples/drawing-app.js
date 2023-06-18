@@ -28,6 +28,7 @@ const WIDTHS = {
 class DrawingApp {
   constructor() {
     this.app = new WAMS.Application({
+      applySmoothing: false,
       color: 'white',
       clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
       stylesheets: ['./drawing-app.css'],
@@ -74,6 +75,7 @@ class DrawingApp {
       fromX = previousEvent.x;
       fromY = previousEvent.y;
     } else {
+      // First line, since we can't capture a "dragstart" event
       fromX = event.x - event.dx;
       fromY = event.y - event.dy;
     }
@@ -94,8 +96,10 @@ class DrawingApp {
     if (type === 'pan') {
       view.off('drag', this.boundDraw);
       view.on('drag', actions.drag);
+      view.on('pinch', actions.pinch);
     } else {
       view.off('drag', actions.drag);
+      view.off('pinch', actions.pinch);
       view.on('drag', this.boundDraw);
     }
     // view.on('pointermove', type === 'pan' ? actions.drag : this.draw.bind(this));
