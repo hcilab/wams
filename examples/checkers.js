@@ -16,30 +16,35 @@ const app = new WAMS.Application({
 app.addStaticDirectory(path.join(__dirname, 'img', 'Chips'));
 
 const SQUARE_LENGTH = 64;
-function squareSequence(x, y, colour) {
-  const seq = new WAMS.CanvasSequence();
-  seq.fillStyle = colour;
-  seq.fillRect(0, 0, SQUARE_LENGTH, SQUARE_LENGTH);
-  return seq;
+const SQUARES_PER_SIDE = 10;
+const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * SQUARES_PER_SIDE;
+
+/**
+ * Add a square to the canvas.
+ */
+function addSquare(canvas, x, y, colour) {
+  canvas.fillStyle = colour;
+  canvas.fillRect(x, y, SQUARE_LENGTH, SQUARE_LENGTH);
 }
 
-const BASE = 0;
-for (let i = 0; i < 10; i += 1) {
-  for (let j = 0; j < 10; j += 1) {
-    const colour = (i + j) % 2 === 0 ? 'white' : 'black';
-    const x = BASE + j * SQUARE_LENGTH;
-    const y = BASE + i * SQUARE_LENGTH;
-
-    app.spawn({
-      x,
-      y,
-      type: 'item',
-      sequence: squareSequence(x, y, colour),
-    });
+function board(x, y) {
+  const sequence = new WAMS.CanvasSequence();
+  const base = 0;
+  for (let i = 0; i < SQUARES_PER_SIDE; ++i) {
+    for (let j = 0; j < SQUARES_PER_SIDE; ++j) {
+      const colour = (i + j) % 2 === 0 ? 'white' : 'grey';
+      const x = base + j * SQUARE_LENGTH;
+      const y = base + i * SQUARE_LENGTH;
+      addSquare(sequence, x, y, colour);
+    }
   }
+  return {
+    x: 0,
+    y: 0,
+    type: 'item',
+    sequence: sequence,
+  };
 }
-
-const TOTAL_BOARD_LENGTH = SQUARE_LENGTH * 10;
 
 function handleTokenDrag(event, tokenOwnerIdx) {
   if (event.view.index === tokenOwnerIdx) {
@@ -65,17 +70,19 @@ function spawnToken(x, y, userIdx, properties = {}) {
   token.on('drag', (e) => handleTokenDrag(e, userIdx));
 }
 
-for (let i = 0; i < 10; i += 1) {
-  for (let j = 0; j < 10; j += 1) {
-    const colour = (i + j) % 2 === 0 ? 'white' : 'black';
-    const x = BASE + j * SQUARE_LENGTH;
-    const y = BASE + i * SQUARE_LENGTH;
+function spawnTokens() {
+  for (let i = 0; i < 10; i += 1) {
+    for (let j = 0; j < 10; j += 1) {
+      const colour = (i + j) % 2 === 0 ? 'white' : 'black';
+      const x = j * SQUARE_LENGTH;
+      const y = i * SQUARE_LENGTH;
 
-    if (colour === 'black') {
-      if (i < 4) {
-        spawnToken(x, y, 1);
-      } else if (i > 5) {
-        spawnToken(x, y, 0);
+      if (colour === 'black') {
+        if (i < 4) {
+          spawnToken(x, y, 1);
+        } else if (i > 5) {
+          spawnToken(x, y, 0);
+        }
       }
     }
   }
@@ -100,5 +107,7 @@ function handleConnect({ view }) {
   view.on('rotate', WAMS.predefined.actions.rotate);
 }
 
+app.spawn(board(0, 0));
+spawnTokens();
 app.on('connect', handleConnect);
 app.listen(9000);
