@@ -8,26 +8,26 @@ const { Hittable, Identifiable } = require('../mixins.js');
  * HACK to get around jsdoc bug that causes mixed methods and properties to be
  * duplicated.
  *
- * @class __ServerGroup
+ * @class __ServerItemGroup
  * @private
  * @mixes module:mixins.Hittable
  * @mixes module:mixins.Identifiable
  */
 
 /**
- * The ServerGroup provides operations for the server to locate and move
+ * The ServerItemGroup provides operations for the server to locate and move
  * several different elements around.
  *
  * @memberof module:server
  * @extends module:shared.WamsElement
- * @extends __ServerGroup
+ * @extends __ServerItemGroup
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  * @param {Object} values - User-supplied data detailing the elements.
  * Properties on this object that line up with {@link module:shared.Element}
  * members will be stored. Any other properties will be ignored.
  */
-class ServerGroup extends Identifiable(Hittable(Item)) {
+class ServerItemGroup extends Identifiable(Hittable(Item)) {
   constructor(namespace, values = {}) {
     super(values);
 
@@ -39,7 +39,7 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
     this.namespace = namespace;
 
     // Notify subscribers immediately.
-    if (!this.items) throw Error('Items must be passed to ServerGroup.');
+    if (!this.items) throw Error('Items must be passed to ServerItemGroup.');
 
     // calculate based on elements positions;
     this.setMeasures();
@@ -108,6 +108,6 @@ class ServerGroup extends Identifiable(Hittable(Item)) {
   }
 }
 
-Object.assign(ServerGroup.prototype, EventEmitter.prototype);
+Object.assign(ServerItemGroup.prototype, EventEmitter.prototype);
 
-module.exports = ServerGroup;
+module.exports = ServerItemGroup;

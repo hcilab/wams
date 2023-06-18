@@ -5,7 +5,6 @@ const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const ServerController = require('./ServerController.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
  * Finds the first null or undefined index in the given array, and returns that
@@ -48,41 +47,30 @@ function logConnection(id, status) {
 /**
  * A Switchboard handles the core server operations of a Wams program, including
  * server establishment, and establishing connections when new clients connect
- * to the server, as well as tracking the workspace associated with the server
- * so that connections can be linked to the workspace.
+ * to the server.
  *
  * @memberof module:server
  *
- * @param {module:server.WorkSpace} workspace - The workspace associated with
- * this connection.
- * @param {module:server.MessageHandler} messageHandler - For responding to
- * messages from clients.
+ * @param {module:server.Application} application - The WAMS application for
+ * this handler.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
- * @param {Object} settings - User-supplied options, specifying a client limit
- * and workspace settings.
+ * @param {number} clientLimit - The number of active clients that are allowed
  */
 class Switchboard {
-  constructor(workspace, messageHandler, namespace, settings = {}) {
+  constructor(application, namespace, clientLimit) {
     /**
      * The number of active clients that are allowed at any given time.
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || Switchboard.DEFAULTS.clientLimit;
+    this.clientLimit = clientLimit;
 
     /**
-     * The principle workspace for this server.
+     * The WAMS application for this handler.
      *
-     * @type {module:server.WorkSpace}
+     * @type {module:server.Application}
      */
-    this.workspace = workspace;
-
-    /**
-     * The Message handler for responding to messages.
-     *
-     * @type {module:server.MessageHandler}
-     */
-    this.messageHandler = messageHandler;
+    this.application = application;
 
     /**
      * Socket.io namespace in which to operate.
@@ -100,13 +88,6 @@ class Switchboard {
      */
     this.connections = [];
 
-    /**
-     * Track the active group.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = new ServerViewGroup(this.messageHandler);
-
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
   }
@@ -119,7 +100,7 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(index, socket, this.workspace, this.messageHandler, this.group);
+    const controller = new ServerController(index, socket, this.application);
 
     this.connections[index] = controller;
     socket.on('disconnect', () => this.disconnect(controller));
@@ -167,15 +148,5 @@ class Switchboard {
     console.warn('Rejected incoming connection: client limit reached.');
   }
 }
-
-/**
- * The default values for the Switchboard.
- *
- * @type {object}
- */
-Switchboard.DEFAULTS = Object.freeze({
-  clientLimit: 1000,
-  port: 9000,
-});
 
 module.exports = Switchboard;

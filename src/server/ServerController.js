@@ -11,23 +11,18 @@ const symbols = Object.freeze({
 
 /**
  * A ServerController maintains a socket.io connection between a client and the
- * server. It tracks a view associated with the client, as well as the
- * associated workspace.
+ * server. It tracks a view associated with the client.
  *
  * @memberof module:server
  *
  * @param {number} index - The index of this ServerController in the workspace,
  * can be used as a unique identifier.
  * @param {Socket} socket - A socket.io connection with a client.
- * @param {module:server.WorkSpace} workspace - The workspace associated with
- * this connection.
- * @param {module:server.MessageHandler} messageHandler - For responding to
- * messages from clients.
- * @param {module:server.ServerViewGroup} group - The group to which this
- * connection will belong.
+ * @param {module:server.Application} application - The WAMS application for
+ * this controller.
  */
 class ServerController {
-  constructor(index, socket, workspace, messageHandler, group) {
+  constructor(index, socket, application) {
     /**
      * The index is an integer identifying the ServerController, which can also
      * be used for locating the ServerController in a collection.
@@ -44,26 +39,18 @@ class ServerController {
     this.socket = socket;
 
     /**
-     * This is a shared reference to the single principle WorkSpace. Think of it
-     * like a 'parent' reference in a tree node.
+     * The WAMS application for this controller.
      *
-     * @type {module:server.WorkSpace}
+     * @type {module:server.Application}
      */
-    this.workspace = workspace;
+    this.application = application;
 
     /**
-     * Responds to messages from clients.
+     * The viewspace that this controller is currently in.
      *
-     * @type {module:server.MessageHandler}
+     * @type {module:server.ViewSpace}
      */
-    this.messageHandler = messageHandler;
-
-    /**
-     * Track the group to which this connection belongs.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = group;
+    this.viewspace = application.viewspace;
 
     /**
      * The view corresponding to the client on the other end of this
@@ -71,7 +58,7 @@ class ServerController {
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.group.spawnView(this.socket, this.index);
+    this.view = this.viewspace.spawnView(this.socket, this.index);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -96,7 +83,8 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.attachSocketIoListeners]() {
-    const handleGesture = this.messageHandler.handleGesture;
+    const messageHandler = this.application.messageHandler;
+    const handleGesture = messageHandler.handleGesture;
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
@@ -121,18 +109,18 @@ class ServerController {
       [Message.LAYOUT]: this.layout.bind(this),
 
       // User event related
-      [Message.CLICK]: handleGesture.bind(this.messageHandler, 'click', this.view),
-      [Message.SWIPE]: handleGesture.bind(this.messageHandler, 'swipe', this.view),
-      [Message.TRANSFORM]: handleGesture.bind(this.messageHandler, 'transform', this.view),
+      [Message.CLICK]: handleGesture.bind(messageHandler, 'click', this.view),
+      [Message.SWIPE]: handleGesture.bind(messageHandler, 'swipe', this.view),
+      [Message.TRANSFORM]: handleGesture.bind(messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
-      [Message.TRACK]: (data) => this.messageHandler.track(data, this.view),
+      [Message.TRACK]: (data) => messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
-      [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
+      [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: (data) => {
-        this.messageHandler.send(data.action, { ...data.payload, view: this.view });
+        this.application.emit(data.action, { ...data.payload, view: this.view });
       },
     };
 
@@ -146,9 +134,9 @@ class ServerController {
    */
   toJSON() {
     return {
-      settings: this.workspace.settings,
-      views: this.group.toJSON(),
-      items: this.workspace.toJSON(),
+      settings: this.application.settings,
+      views: this.viewspace.toJSON(),
+      items: this.application.workspace.toJSON(),
       viewId: this.view.id,
     };
   }
@@ -169,13 +157,12 @@ class ServerController {
    * @returns {boolean} true if disconnection was successful, false otherwise.
    */
   disconnect() {
-    this.group.removeView(this.view);
+    this.viewspace.removeView(this.view);
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
-    this.messageHandler.send('disconnect', {
+    this.application.emit('disconnect', {
       view: this.view,
       device: this.device,
-      group: this.group,
     });
     return true;
   }
@@ -190,10 +177,9 @@ class ServerController {
    */
   layout({ width, height }) {
     this.setSize(width, height);
-    this.messageHandler.send('connect', {
+    this.application.emit('connect', {
       view: this.view,
       device: this.device,
-      group: this.group,
     });
     this.socket.broadcast.emit(Message.ADD_SHADOW, this.view);
     this.socket.emit(Message.UD_VIEW, this.view);
@@ -205,7 +191,7 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.target = this.group;
+    event.target = this.view.group;
     event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
@@ -215,8 +201,8 @@ class ServerController {
     event.x = x;
     event.y = y;
     this.view.emit(event.type, event);
-    if (this.workspace.settings.useMultiScreenGestures) {
-      this.group.gestureController.process(event);
+    if (this.application.settings.useMultiScreenGestures) {
+      this.view.group.gestureController.process(event);
     }
   }
 

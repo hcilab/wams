@@ -11,6 +11,7 @@ const { constants, Message } = require('../shared.js');
 const { addStaticDirectory, getLocalIP, listen, router } = require('../predefined/routing.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
+const ViewSpace = require('./ViewSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 
 /**
@@ -19,6 +20,19 @@ const MessageHandler = require('./MessageHandler.js');
  * @memberof module:server
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
+ * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing
+ * to gesture inputs on coarse pointer devices (e.g. touch screens).
+ * @param {boolean} [settings.shadows=false] - Whether to show shadows of other views.
+ * @param {boolean} [settings.status=false] - Whether to show debugging status information in the view.
+ * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
+ * @param {string} [settings.backgroundImage=undefined] - Optional background image for canvas.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
+ * @param {string} [settings.clientScripts=undefined] - Optional extra javascript to load in client.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
+ * @param {string} [settings.color='gray'] Background color for the workspace.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
+ * @param {number} [clientLimit=10] - The number of active clients that are allowed
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
@@ -56,25 +70,39 @@ class Application {
     this.namespace = this.ioServer.of(constants.NS_WAMS);
 
     /**
-     * The main model. The buck stops here.
+     * Settings for the application.
+     *
+     * @type {object}
+     */
+    this.settings = { ...Application.DEFAULTS, ...settings };
+
+    /**
+     * The main model for items.
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings, this.namespace);
+    this.workspace = new WorkSpace(this.namespace);
 
     /**
      * The MessageHandler responds to messages.
      *
      * @type {module:server.MessageHandler}
      */
-    this.messageHandler = new MessageHandler(this, this.workspace);
+    this.messageHandler = new MessageHandler(this);
+
+    /**
+     * The main model for views.
+     *
+     * @type {module:server.ViewSpace}
+     */
+    this.viewspace = new ViewSpace(this.messageHandler);
 
     /**
      * The switchboard allows communication with clients
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, settings);
+    this.switchboard = new Switchboard(this, this.namespace, this.settings.clientLimit);
   }
 
   /**
@@ -98,7 +126,7 @@ class Application {
    * listen.
    * @see module:server.Application~getLocalIP
    */
-  listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
+  listen(port = 9000, host = '0.0.0.0') {
     listen(this.httpServer, host, port);
   }
 
@@ -165,10 +193,18 @@ class Application {
    * Create a group for existing items in the workspace.
    * A group allows to interact with several elements simultaneously.
    *
-   * @param  {obj} values properties for the group
+   * @param  {object} values properties for the group
    */
-  createGroup(values) {
-    return this.workspace.createGroup(values);
+  createItemGroup(values) {
+    return this.workspace.createItemGroup(values);
+  }
+
+  /**
+   * Create a group for views in the viewspace. The views in a group will be
+   * able to perform multi-device gestures together.
+   */
+  createViewGroup() {
+    return this.viewspace.createViewGroup();
   }
 
   /**
@@ -183,5 +219,22 @@ class Application {
 }
 
 Object.assign(Application.prototype, EventEmitter.prototype);
+
+/**
+ * The default values for an Application.
+ *
+ * @type {object}
+ */
+Application.DEFAULTS = Object.freeze({
+  applySmoothing: true,
+  backgroundImage: undefined,
+  clientLimit: 10,
+  clientScripts: undefined,
+  color: '#dad1e3',
+  shadows: false,
+  status: false,
+  stylesheets: undefined,
+  useMultiScreenGestures: false,
+});
 
 module.exports = Application;

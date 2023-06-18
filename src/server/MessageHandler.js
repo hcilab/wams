@@ -6,11 +6,11 @@
  *
  * @memberof module:server
  *
- * @param {module:server.WorkSpace} workspace - the model used when responding
- * to messages.
+ * @param {module:server.Application} application - The WAMS application for
+ * this message handler.
  */
 class MessageHandler {
-  constructor(application, workspace) {
+  constructor(application) {
     /**
      * The Application to which this MessageHandler belongs.
      * @type {module:server.Application}
@@ -24,7 +24,7 @@ class MessageHandler {
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = workspace;
+    this.workspace = application.workspace;
   }
 
   /**
@@ -40,16 +40,6 @@ class MessageHandler {
       const event = { view, target, x, y };
       this[gesture](event, data);
     }
-  }
-
-  /**
-   * Send an event to the application
-   *
-   * @param {string} name
-   * @param {object} data
-   */
-  send(name, data) {
-    this.application.emit(name, data);
   }
 
   /**

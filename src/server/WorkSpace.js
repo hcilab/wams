@@ -1,36 +1,21 @@
 'use strict';
 
 const { removeById, Message } = require('../shared.js');
-const ServerGroup = require('./ServerGroup.js');
+const ServerItemGroup = require('./ServerItemGroup.js');
 const ServerElement = require('./ServerElement.js');
 const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
 
 /**
- * The WorkSpace keeps track of views and items, and can handle events on
- * those items and views which allow them to be interacted with.
+ * The WorkSpace keeps track of items, and can handle events on those items
+ * which allow them to be interacted with.
  *
  * @memberof module:server
  *
- * @param {object} [settings] Options received from user.
- * @param {string} [settings.color='gray'] Background color for the workspace.
- * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use
- * server-side gestures. Default is to use client-side gestures.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  */
 class WorkSpace {
-  constructor(settings, namespace) {
-    /**
-     * Configuration settings for the workspace.
-     *
-     * @type {object}
-     * @property {string} [color='gray'] Background color for the workspace.
-     * @property {boolean} [settings.useMultiScreenGestures=false] Whether
-     * to use
-     * server-side gestures. Default is to use client-side gestures.
-     */
-    this.settings = { ...WorkSpace.DEFAULTS, ...settings };
-
+  constructor(namespace) {
     /**
      * Socket.io namespace in which to operate.
      *
@@ -228,21 +213,10 @@ class WorkSpace {
    *
    * @param {any} values properties for the group
    */
-  createGroup(values) {
-    const group = new ServerGroup(this.namespace, values);
+  createItemGroup(values) {
+    const group = new ServerItemGroup(this.namespace, values);
     return this.addItem(group);
   }
 }
-
-/**
- * The default values for a WorkSpace.
- *
- * @type {object}
- */
-WorkSpace.DEFAULTS = Object.freeze({
-  color: '#dad1e3',
-  useMultiScreenGestures: false,
-  applySmoothing: true,
-});
 
 module.exports = WorkSpace;

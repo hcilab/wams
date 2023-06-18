@@ -41,9 +41,9 @@ class ClientItem extends Item {
   }
 
   /**
-   * Set parent ServerGroup for the item.
+   * Set parent ServerItemGroup for the item.
    *
-   * @param {module:server:ServerGroup} parent server group for this item
+   * @param {module:server:ServerItemGroup} parent server group for this item
    */
   setParent(parent) {
     this.parent = parent;
