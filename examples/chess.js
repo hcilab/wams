@@ -91,6 +91,9 @@ function spawnToken(x, y, userIdx, tokenIdx) {
   switch (userIdx) {
     case BLACK_PLAYER_IDX:
       imgUrl = BlackPieceImages[tokenIdx];
+      // Correct position for rotation
+      x += SQUARE_LENGTH;
+      y += SQUARE_LENGTH;
       break;
     case WHITE_PLAYER_IDX:
       imgUrl = WhitePieceImages[tokenIdx];
@@ -108,6 +111,7 @@ function spawnToken(x, y, userIdx, tokenIdx) {
         width: SQUARE_LENGTH,
         height: SQUARE_LENGTH,
         ownerIdx: userIdx,
+        rotation: userIdx === BLACK_PLAYER_IDX ? Math.PI : 0,
       }
     )
   );
