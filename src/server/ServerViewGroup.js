@@ -94,19 +94,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     this.views.forEach((v) => v.moveBy(dx, dy));
   }
 
-  /**
-   * Move the transformable to the given coordinates.
-   *
-   * @override
-   *
-   * @param {number} [ x=this.x ] - x coordinate to move to.
-   * @param {number} [ y=this.y ] - y coordinate to move to.
-   */
-  moveTo(x = this.x, y = this.y) {
-    super.moveTo(x, y);
-    this.views.forEach((v) => v.moveTo(x, y));
-  }
-
   /*
    * Rotate all the views by the given amount, in radians.
    *
