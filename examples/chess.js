@@ -103,17 +103,14 @@ function spawnToken(x, y, userIdx, tokenIdx) {
   }
 
   const token = app.spawn(
-    items.image(
-      imgUrl,
-      {
-        x,
-        y,
-        width: SQUARE_LENGTH,
-        height: SQUARE_LENGTH,
-        ownerIdx: userIdx,
-        rotation: userIdx === BLACK_PLAYER_IDX ? Math.PI : 0,
-      }
-    )
+    items.image(imgUrl, {
+      x,
+      y,
+      width: SQUARE_LENGTH,
+      height: SQUARE_LENGTH,
+      ownerIdx: userIdx,
+      rotation: userIdx === BLACK_PLAYER_IDX ? Math.PI : 0,
+    })
   );
   token.on('drag', (e) => handleTokenDrag(e, userIdx));
 }
