@@ -19,13 +19,19 @@ const MessageHandler = require('./MessageHandler.js');
  * @memberof module:server
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
- * @param {string} [settings.color='gray'] Background color for the workspace.
- * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
- * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing to gesture inputs on coarse pointer devices (e.g. touch screens).
+ * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing
+ * to gesture inputs on coarse pointer devices (e.g. touch screens).
  * @param {boolean} [settings.shadows=false] - Whether to show shadows of other views.
  * @param {boolean} [settings.status=false] - Whether to show debugging status information in the view.
- * @param {boolean} [settings.backgroundImage=undefined] - Optional background image for canvas.
+ * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
+ * @param {string} [settings.backgroundImage=undefined] - Optional background image for canvas.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
+ * @param {string} [settings.clientScripts=undefined] - Optional extra javascript to load in client.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
+ * @param {string} [settings.color='gray'] Background color for the workspace.
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {number} [clientLimit=10] - The number of active clients that are allowed
+ * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
@@ -204,13 +210,15 @@ Object.assign(Application.prototype, EventEmitter.prototype);
  * @type {object}
  */
 Application.DEFAULTS = Object.freeze({
-  color: '#dad1e3',
-  useMultiScreenGestures: false,
   applySmoothing: true,
+  backgroundImage: undefined,
   clientLimit: 10,
+  clientScripts: undefined,
+  color: '#dad1e3',
   shadows: false,
   status: false,
-  backgroundImage: undefined,
+  stylesheets: undefined,
+  useMultiScreenGestures: false,
 });
 
 module.exports = Application;
