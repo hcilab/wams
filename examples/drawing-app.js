@@ -94,7 +94,6 @@ class DrawingApp {
       view.off('pinch', actions.pinch);
       view.on('drag', this.boundDraw);
     }
-    // view.on('pointermove', type === 'pan' ? actions.drag : this.draw.bind(this));
   }
 
   handleConnect({ view }) {
