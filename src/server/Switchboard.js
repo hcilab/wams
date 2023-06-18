@@ -108,12 +108,7 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(
-      index,
-      socket,
-      this.application,
-      this.group
-    );
+    const controller = new ServerController(index, socket, this.application, this.group);
 
     this.connections[index] = controller;
     socket.on('disconnect', () => this.disconnect(controller));
