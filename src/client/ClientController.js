@@ -261,7 +261,15 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const { clientScripts, stylesheets, title, backgroundImage, color, useMultiScreenGestures } = data.settings;
+    const {
+      applySmoothing,
+      backgroundImage,
+      clientScripts,
+      color,
+      stylesheets,
+      title,
+      useMultiScreenGestures,
+    } = data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
     document.title = title;
@@ -275,7 +283,7 @@ class ClientController {
       this.canvas.style.backgroundColor = color;
     }
     this.model.initialize(data);
-    this.setUpInteractor(useMultiScreenGestures);
+    this.setUpInteractor(useMultiScreenGestures, applySmoothing);
 
     // Need to tell the model what the view looks like once setup is complete.
     this.socket.emit(Message.LAYOUT, this.view);
@@ -307,17 +315,23 @@ class ClientController {
    * gestures.
    *
    * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
-   * gestures. Default is to use client-side gestures.
+   * gestures.
+   * @param {boolean} [applySmoothing=true] Whether to apply smoothing to
+   * gestures.
    */
-  setUpInteractor(useMultiScreenGestures = false) {
+  setUpInteractor(useMultiScreenGestures = false, applySmoothing = true) {
     this.setUpInputForwarding();
     if (!useMultiScreenGestures) {
-      return new Interactor(this.rootElement, {
-        swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
-        tap: this.socket.emit.bind(this.socket, Message.CLICK),
-        track: this.socket.emit.bind(this.socket, Message.TRACK),
-        transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
-      });
+      return new Interactor(
+        this.rootElement,
+        {
+          swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
+          tap: this.socket.emit.bind(this.socket, Message.CLICK),
+          track: this.socket.emit.bind(this.socket, Message.TRACK),
+          transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
+        },
+        applySmoothing,
+      );
     }
   }
 
