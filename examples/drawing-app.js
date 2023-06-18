@@ -6,7 +6,7 @@
 
 const WAMS = require('..');
 const path = require('path');
-const { actions } = WAMS.predefined;
+const { actions, items } = WAMS.predefined;
 const { CanvasSequence } = require('canvas-sequencer');
 
 const COLORS = {
@@ -28,16 +28,18 @@ const WIDTHS = {
 class DrawingApp {
   constructor() {
     this.app = new WAMS.Application({
+      applySmoothing: false,
       color: 'white',
       clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
       stylesheets: ['./drawing-app.css'],
       title: 'Collaborative Drawing',
     });
-    app.addStaticDirectory(path.join(__dirname, 'client'));
+    this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
 
     this.initListeners();
+    this.boundDraw = this.draw.bind(this);
   }
 
   setColor({ color, view }) {
@@ -65,33 +67,39 @@ class DrawingApp {
   draw(event) {
     const color = event.view.state.color || 'black';
     const width = event.view.state.width || 20;
-    // const fromX = event.x - event.dx;
-    // const fromY = event.y - event.dy;
+    const fromX = event.x - event.dx;
+    const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    const line = new CanvasSequence();
-    // line.beginPath()
-    // line.moveTo(fromX, fromY);
-    // line.lineTo(toX, toY);
-    // line.strokeStyle = 'blue';
-    // line.stroke();
-
-    line.beginPath();
-    line.fillStyle = color;
-    line.ellipse(toX, toY, width / 2, width / 2, Math.PI / 2, 0, 2 * Math.PI);
-    line.fill();
-    this.app.workspace.spawnItem({ sequence: line });
+    this.app.workspace.spawnItem(
+      items.line(
+        toX - fromX, // X length of line
+        toY - fromY, // Y length of line
+        width,
+        color,
+        { x: fromX, y: fromY }
+      )
+    );
   }
 
   updateControlType({ type, view }) {
     this.controlType = type;
     view.removeAllListeners('drag');
-    view.on('drag', type === 'pan' ? actions.drag : this.draw.bind(this));
+    if (type === 'pan') {
+      view.on('drag', actions.drag);
+      view.on('pinch', actions.pinch);
+      view.off('drag', this.boundDraw);
+    } else {
+      view.off('drag', actions.drag);
+      view.off('pinch', actions.pinch);
+      view.on('drag', this.boundDraw);
+    }
+    // view.on('pointermove', type === 'pan' ? actions.drag : this.draw.bind(this));
   }
 
   handleConnect({ view }) {
-    view.on('drag', WAMS.predefined.actions.drag);
-    view.on('pinch', WAMS.predefined.actions.pinch);
+    view.on('drag', actions.drag);
+    view.on('pinch', actions.pinch);
   }
 }
 

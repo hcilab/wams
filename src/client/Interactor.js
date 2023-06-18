@@ -27,7 +27,7 @@ const { NOP } = require('../shared.js');
  * @param {Function} [handlers.transform=NOP]
  */
 class Interactor {
-  constructor(root, handlers = {}) {
+  constructor(root, handlers = {}, applySmoothing = true) {
     /**
      * Object holding the handlers, so they can be dynamically referenced by
      * name.
@@ -39,6 +39,14 @@ class Interactor {
      * @property {Function} [transform=NOP]
      */
     this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
+
+    /**
+     * Whether to apply smoothing to the gestures on coarse pointer devices.
+     *
+     * @type {boolean}
+     * @default true
+     */
+    this.applySmoothing = applySmoothing;
 
     /**
      * Object to coalesce state from multiple gestures during one event cycle.
@@ -58,10 +66,28 @@ class Interactor {
    */
   addGestures(root) {
     const region = new Westures.Region(root, { preventDefault: false });
-    region.addGesture(new Westures.Pan(root, this.coalesce.bind(this), { disableKeys: ['ctrlKey'] }));
-    region.addGesture(new Westures.Pinch(root, this.coalesce.bind(this)));
-    region.addGesture(new Westures.Rotate(root, this.coalesce.bind(this)));
-    region.addGesture(new Westures.Swipe(root, this.handlers.swipe));
+
+    region.addGesture(
+      new Westures.Pan(root, this.coalesce.bind(this), {
+        disableKeys: ['ctrlKey'],
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Pinch(root, this.coalesce.bind(this), {
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Rotate(root, this.coalesce.bind(this), {
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Swipe(root, this.handlers.swipe, {
+        applySmoothing: this.applySmoothing,
+      })
+    );
     region.addGesture(
       new Westures.Swivel(root, this.swivel.bind(this), {
         enableKeys: ['ctrlKey'],

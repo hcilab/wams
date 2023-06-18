@@ -6,7 +6,7 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({ applySmoothing: false });
 
 /*
  * Draw a thick line in the direction of the swipe, whose length is its
@@ -32,8 +32,8 @@ function handleDrag({ x, y, dx, dy }) {
   const length = Math.sqrt(dx * dx + dy * dy);
   const line = app.spawn(
     WAMS.predefined.items.line(0, length, 10, 'gray', {
-      x,
-      y,
+      x: x - dx,
+      y: y - dy,
       rotation: Math.atan2(dx, dy),
     })
   );

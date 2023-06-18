@@ -242,6 +242,7 @@ class WorkSpace {
 WorkSpace.DEFAULTS = Object.freeze({
   color: '#dad1e3',
   useMultiScreenGestures: false,
+  applySmoothing: true,
 });
 
 module.exports = WorkSpace;
