@@ -213,7 +213,7 @@ class WorkSpace {
    *
    * @param {any} values properties for the group
    */
-  createGroup(values) {
+  createItemGroup(values) {
     const group = new ServerItemGroup(this.namespace, values);
     return this.addItem(group);
   }

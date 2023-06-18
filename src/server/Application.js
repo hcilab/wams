@@ -187,8 +187,8 @@ class Application {
    *
    * @param  {obj} values properties for the group
    */
-  createGroup(values) {
-    return this.workspace.createGroup(values);
+  createItemGroup(values) {
+    return this.workspace.createItemGroup(values);
   }
 
   /**

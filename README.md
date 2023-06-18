@@ -616,7 +616,7 @@ function flipCard(event) {
 
 ### Grouped items
 
-Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createGroup` method (see in the [code documentation](https://hcilab.github.io/wams/module-server.Application.html#createGroup)):
+Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createItemGroup` method (see in the [code documentation](https://hcilab.github.io/wams/module-server.Application.html#createItemGroup)):
 
 ```javascript
 const items = [];
@@ -634,7 +634,7 @@ items.push(app.spawn(square(100, 100, 200, "yellow")));
 
 items.push(app.spawn(square(150, 150, 200, "blue")));
 
-const group = app.createGroup({ items });
+const group = app.createItemGroup({ items });
 group.on('drag', actions.drag);
 
 group.moveTo(500, 300);
