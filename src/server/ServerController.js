@@ -20,13 +20,11 @@ const symbols = Object.freeze({
  * @param {Socket} socket - A socket.io connection with a client.
  * @param {module:server.Application} application - The WAMS application for
  * this controller.
- * @param {module:server.MessageHandler} messageHandler - For responding to
- * messages from clients.
  * @param {module:server.ServerViewGroup} group - The group to which this
  * connection will belong.
  */
 class ServerController {
-  constructor(index, socket, application, messageHandler, group) {
+  constructor(index, socket, application, group) {
     /**
      * The index is an integer identifying the ServerController, which can also
      * be used for locating the ServerController in a collection.
@@ -48,13 +46,6 @@ class ServerController {
      * @type {module:server.Application}
      */
     this.application = application;
-
-    /**
-     * Responds to messages from clients.
-     *
-     * @type {module:server.MessageHandler}
-     */
-    this.messageHandler = messageHandler;
 
     /**
      * Track the group to which this connection belongs.
@@ -94,7 +85,8 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.attachSocketIoListeners]() {
-    const handleGesture = this.messageHandler.handleGesture;
+    const messageHandler = this.application.messageHandler;
+    const handleGesture = messageHandler.handleGesture;
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
@@ -119,11 +111,11 @@ class ServerController {
       [Message.LAYOUT]: this.layout.bind(this),
 
       // User event related
-      [Message.CLICK]: handleGesture.bind(this.messageHandler, 'click', this.view),
-      [Message.SWIPE]: handleGesture.bind(this.messageHandler, 'swipe', this.view),
-      [Message.TRANSFORM]: handleGesture.bind(this.messageHandler, 'transform', this.view),
+      [Message.CLICK]: handleGesture.bind(messageHandler, 'click', this.view),
+      [Message.SWIPE]: handleGesture.bind(messageHandler, 'swipe', this.view),
+      [Message.TRANSFORM]: handleGesture.bind(messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
-      [Message.TRACK]: (data) => this.messageHandler.track(data, this.view),
+      [Message.TRACK]: (data) => messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),

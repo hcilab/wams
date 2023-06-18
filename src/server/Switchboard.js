@@ -54,13 +54,11 @@ function logConnection(id, status) {
  *
  * @param {module:server.Application} application - The WAMS application for
  * this handler.
- * @param {module:server.MessageHandler} messageHandler - For responding to
- * messages from clients.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  * @param {Object} settings - User-supplied options, specifying a client limit
  */
 class Switchboard {
-  constructor(application, messageHandler, namespace, settings = {}) {
+  constructor(application, namespace, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -74,13 +72,6 @@ class Switchboard {
      * @type {module:server.Application}
      */
     this.application = application;
-
-    /**
-     * The Message handler for responding to messages.
-     *
-     * @type {module:server.MessageHandler}
-     */
-    this.messageHandler = messageHandler;
 
     /**
      * Socket.io namespace in which to operate.
@@ -103,7 +94,7 @@ class Switchboard {
      *
      * @type {module:server.ServerViewGroup}
      */
-    this.group = new ServerViewGroup(this.messageHandler);
+    this.group = new ServerViewGroup(this.application.messageHandler);
 
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
@@ -121,7 +112,6 @@ class Switchboard {
       index,
       socket,
       this.application,
-      this.messageHandler,
       this.group
     );
 
