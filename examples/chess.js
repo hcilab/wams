@@ -6,8 +6,9 @@
 
 'use strict';
 
-const WAMS = require('..');
 const path = require('path');
+const WAMS = require('..');
+const { actions, items } = WAMS.predefined;
 
 const app = new WAMS.Application({
   color: 'peru', // background color of the app
@@ -33,8 +34,8 @@ function addSquare(canvas, x, y, colour) {
 function board(x, y) {
   const sequence = new WAMS.CanvasSequence();
   const base = 0;
-  for (let i = 0; i < 8; ++i) {
-    for (let j = 0; j < 8; ++j) {
+  for (let i = 0; i < SQUARES_PER_SIDE; ++i) {
+    for (let j = 0; j < SQUARES_PER_SIDE; ++j) {
       const colour = (i + j) % 2 === 0 ? 'white' : 'grey';
       const x = base + j * SQUARE_LENGTH;
       const y = base + i * SQUARE_LENGTH;
@@ -48,15 +49,14 @@ function board(x, y) {
     sequence: sequence,
   };
 }
-app.spawn(board(0, 0));
 
 const BLACK_PLAYER_IDX = 0;
 const WHITE_PLAYER_IDX = 1;
 
 /* Function to handle interaction rights between devices to drag pieces on board */
-function handleTokenDrag(e, tokenOwnerIdx) {
-  if (e.view.index !== tokenOwnerIdx) {
-    WAMS.predefined.actions.drag(e);
+function handleTokenDrag(event, tokenOwnerIdx) {
+  if (event.view.index !== tokenOwnerIdx) {
+    actions.drag(event);
   }
 }
 
@@ -86,7 +86,7 @@ const BlackPieceImages = {
 };
 
 /* Function to spawn pieces at right place on board */
-function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
+function spawnToken(x, y, userIdx, tokenIdx) {
   let imgUrl = null;
   switch (userIdx) {
     case BLACK_PLAYER_IDX:
@@ -100,7 +100,7 @@ function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
   }
 
   const token = app.spawn(
-    WAMS.predefined.items.image(
+    items.image(
       imgUrl,
       {
         x,
@@ -108,7 +108,6 @@ function spawnToken(x, y, userIdx, tokenIdx, properties = {}) {
         width: SQUARE_LENGTH,
         height: SQUARE_LENGTH,
         ownerIdx: userIdx,
-        ...properties,
       }
     )
   );
@@ -134,15 +133,6 @@ function spawnPowerPieces(row, userIdx) {
   spawnToken(4 * SQUARE_LENGTH, y, userIdx, Pieces.KING);
 }
 
-function spawnPieces() {
-  spawnPawns(0, BLACK_PLAYER_IDX);
-  spawnPowerPieces(1, BLACK_PLAYER_IDX);
-  spawnPowerPieces(6, WHITE_PLAYER_IDX);
-  spawnPawns(7, WHITE_PLAYER_IDX);
-}
-
-spawnPieces();
-
 /* Function to place board at center of the view */
 function centerViewNormal(view) {
   view.moveTo(
@@ -159,10 +149,16 @@ function handleConnect({ view }) {
 
   centerViewNormal(view);
 
-  view.on('drag', WAMS.predefined.actions.drag);
-  view.on('pinch', WAMS.predefined.actions.pinch);
-  view.on('rotate', WAMS.predefined.actions.rotate);
+  view.on('drag', actions.drag);
+  view.on('pinch', actions.pinch);
+  view.on('rotate', actions.rotate);
 }
+
+app.spawn(board(0, 0));
+spawnPowerPieces(0, BLACK_PLAYER_IDX);
+spawnPawns(1, BLACK_PLAYER_IDX);
+spawnPawns(6, WHITE_PLAYER_IDX);
+spawnPowerPieces(7, WHITE_PLAYER_IDX);
 
 app.on('connect', handleConnect);
 app.listen(9000);
