@@ -94,7 +94,7 @@ class Application {
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this, this.namespace, settings.clientLimit);
+    this.switchboard = new Switchboard(this, this.namespace, this.settings.clientLimit);
   }
 
   /**
