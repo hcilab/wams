@@ -130,7 +130,7 @@ class ServerController {
       [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: (data) => {
-        this.messageHandler.send(data.action, { ...data.payload, view: this.view });
+        this.application.emit(data.action, { ...data.payload, view: this.view });
       },
     };
 
@@ -170,7 +170,7 @@ class ServerController {
     this.group.removeView(this.view);
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
-    this.messageHandler.send('disconnect', {
+    this.application.emit('disconnect', {
       view: this.view,
       device: this.device,
       group: this.group,
@@ -188,7 +188,7 @@ class ServerController {
    */
   layout({ width, height }) {
     this.setSize(width, height);
-    this.messageHandler.send('connect', {
+    this.application.emit('connect', {
       view: this.view,
       device: this.device,
       group: this.group,

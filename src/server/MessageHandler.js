@@ -43,16 +43,6 @@ class MessageHandler {
   }
 
   /**
-   * Send an event to the application
-   *
-   * @param {string} name
-   * @param {object} data
-   */
-  send(name, data) {
-    this.application.emit(name, data);
-  }
-
-  /**
    * Apply a click event
    *
    * @param {object} event
