@@ -67,9 +67,8 @@ class DrawingApp {
   draw(event) {
     const color = event.view.state.color || 'black';
     const width = event.view.state.width || 20;
-    let fromX, fromY;
-    fromX = event.x - event.dx;
-    fromY = event.y - event.dy;
+    const fromX = event.x - event.dx;
+    const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
     this.app.workspace.spawnItem(
