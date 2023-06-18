@@ -22,6 +22,9 @@ const MessageHandler = require('./MessageHandler.js');
  * @param {string} [settings.color='gray'] Background color for the workspace.
  * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
  * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing to gesture inputs on coarse pointer devices (e.g. touch screens).
+ * @param {boolean} [settings.shadows=false] - Whether to show shadows of other views.
+ * @param {boolean} [settings.status=false] - Whether to show debugging status information in the view.
+ * @param {boolean} [settings.backgroundImage=undefined] - Optional background image for canvas.
  * @param {number} [clientLimit=10] - The number of active clients that are allowed
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  * @param {http.Server} [server=http.createServer()] - HTTP server to use.
@@ -205,6 +208,9 @@ Application.DEFAULTS = Object.freeze({
   useMultiScreenGestures: false,
   applySmoothing: true,
   clientLimit: 10,
+  shadows: false,
+  status: false,
+  backgroundImage: undefined,
 });
 
 module.exports = Application;
