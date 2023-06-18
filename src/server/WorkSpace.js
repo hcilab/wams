@@ -12,25 +12,10 @@ const ServerItem = require('./ServerItem.js');
  *
  * @memberof module:server
  *
- * @param {object} [settings] Options received from user.
- * @param {string} [settings.color='gray'] Background color for the workspace.
- * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use
- * server-side gestures. Default is to use client-side gestures.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  */
 class WorkSpace {
-  constructor(settings, namespace) {
-    /**
-     * Configuration settings for the workspace.
-     *
-     * @type {object}
-     * @property {string} [color='gray'] Background color for the workspace.
-     * @property {boolean} [settings.useMultiScreenGestures=false] Whether
-     * to use
-     * server-side gestures. Default is to use client-side gestures.
-     */
-    this.settings = { ...WorkSpace.DEFAULTS, ...settings };
-
+  constructor(namespace) {
     /**
      * Socket.io namespace in which to operate.
      *
@@ -233,16 +218,5 @@ class WorkSpace {
     return this.addItem(group);
   }
 }
-
-/**
- * The default values for a WorkSpace.
- *
- * @type {object}
- */
-WorkSpace.DEFAULTS = Object.freeze({
-  color: '#dad1e3',
-  useMultiScreenGestures: false,
-  applySmoothing: true,
-});
 
 module.exports = WorkSpace;

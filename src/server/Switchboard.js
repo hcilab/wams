@@ -55,6 +55,8 @@ function logConnection(id, status) {
  *
  * @param {module:server.WorkSpace} workspace - The workspace associated with
  * this connection.
+ * @param {module:server.Application} application - The WAMS application for
+ * this handler.
  * @param {module:server.MessageHandler} messageHandler - For responding to
  * messages from clients.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
@@ -62,7 +64,7 @@ function logConnection(id, status) {
  * and workspace settings.
  */
 class Switchboard {
-  constructor(workspace, messageHandler, namespace, settings = {}) {
+  constructor(workspace, application, messageHandler, namespace, settings = {}) {
     /**
      * The number of active clients that are allowed at any given time.
      *
@@ -76,6 +78,13 @@ class Switchboard {
      * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
+
+    /**
+     * The WAMS application for this handler.
+     *
+     * @type {module:server.Application}
+     */
+    this.application = application;
 
     /**
      * The Message handler for responding to messages.
@@ -119,7 +128,14 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(index, socket, this.workspace, this.messageHandler, this.group);
+    const controller = new ServerController(
+      index,
+      socket,
+      this.workspace,
+      this.application,
+      this.messageHandler,
+      this.group
+    );
 
     this.connections[index] = controller;
     socket.on('disconnect', () => this.disconnect(controller));

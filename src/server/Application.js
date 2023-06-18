@@ -19,6 +19,11 @@ const MessageHandler = require('./MessageHandler.js');
  * @memberof module:server
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
+ * @param {string} [settings.color='gray'] Background color for the workspace.
+ * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use
+ * server-side gestures.
+ * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing
+ * to gesture inputs on coarse pointer devices (e.g. touch screens).
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
@@ -56,11 +61,18 @@ class Application {
     this.namespace = this.ioServer.of(constants.NS_WAMS);
 
     /**
+     * Settings for the application.
+     *
+     * @type {object}
+     */
+    this.settings = { ...Application.DEFAULTS, ...settings };
+
+    /**
      * The main model. The buck stops here.
      *
      * @type {module:server.WorkSpace}
      */
-    this.workspace = new WorkSpace(settings, this.namespace);
+    this.workspace = new WorkSpace(this.namespace);
 
     /**
      * The MessageHandler responds to messages.
@@ -74,7 +86,7 @@ class Application {
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this.workspace, this.messageHandler, this.namespace, settings);
+    this.switchboard = new Switchboard(this.workspace, this, this.messageHandler, this.namespace, settings);
   }
 
   /**
@@ -183,5 +195,16 @@ class Application {
 }
 
 Object.assign(Application.prototype, EventEmitter.prototype);
+
+/**
+ * The default values for an Application.
+ *
+ * @type {object}
+ */
+Application.DEFAULTS = Object.freeze({
+  color: '#dad1e3',
+  useMultiScreenGestures: false,
+  applySmoothing: true,
+});
 
 module.exports = Application;

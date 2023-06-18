@@ -21,13 +21,15 @@ const symbols = Object.freeze({
  * @param {Socket} socket - A socket.io connection with a client.
  * @param {module:server.WorkSpace} workspace - The workspace associated with
  * this connection.
+ * @param {module:server.Application} application - The WAMS application for
+ * this controller..
  * @param {module:server.MessageHandler} messageHandler - For responding to
  * messages from clients.
  * @param {module:server.ServerViewGroup} group - The group to which this
  * connection will belong.
  */
 class ServerController {
-  constructor(index, socket, workspace, messageHandler, group) {
+  constructor(index, socket, workspace, application, messageHandler, group) {
     /**
      * The index is an integer identifying the ServerController, which can also
      * be used for locating the ServerController in a collection.
@@ -50,6 +52,13 @@ class ServerController {
      * @type {module:server.WorkSpace}
      */
     this.workspace = workspace;
+
+    /**
+     * The WAMS application for this controller.
+     *
+     * @type {module:server.Application}
+     */
+    this.application = application;
 
     /**
      * Responds to messages from clients.
@@ -146,7 +155,7 @@ class ServerController {
    */
   toJSON() {
     return {
-      settings: this.workspace.settings,
+      settings: this.application.settings,
       views: this.group.toJSON(),
       items: this.workspace.toJSON(),
       viewId: this.view.id,
@@ -215,7 +224,7 @@ class ServerController {
     event.x = x;
     event.y = y;
     this.view.emit(event.type, event);
-    if (this.workspace.settings.useMultiScreenGestures) {
+    if (this.application.settings.useMultiScreenGestures) {
       this.group.gestureController.process(event);
     }
   }
