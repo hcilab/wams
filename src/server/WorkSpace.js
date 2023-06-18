@@ -1,7 +1,7 @@
 'use strict';
 
 const { removeById, Message } = require('../shared.js');
-const ServerGroup = require('./ServerGroup.js');
+const ServerItemGroup = require('./ServerItemGroup.js');
 const ServerElement = require('./ServerElement.js');
 const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
@@ -229,7 +229,7 @@ class WorkSpace {
    * @param {any} values properties for the group
    */
   createGroup(values) {
-    const group = new ServerGroup(this.namespace, values);
+    const group = new ServerItemGroup(this.namespace, values);
     return this.addItem(group);
   }
 }
