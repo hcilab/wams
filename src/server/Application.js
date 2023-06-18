@@ -20,10 +20,9 @@ const MessageHandler = require('./MessageHandler.js');
  *
  * @param {object} [settings={}] - Settings data to be forwarded to the server.
  * @param {string} [settings.color='gray'] Background color for the workspace.
- * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use
- * server-side gestures.
- * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing
- * to gesture inputs on coarse pointer devices (e.g. touch screens).
+ * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
+ * @param {boolean} [settings.applySmoothing=true] - Whether to apply smoothing to gesture inputs on coarse pointer devices (e.g. touch screens).
+ * @param {number} [clientLimit=10] - The number of active clients that are allowed
  * @param {express.app} [appRouter=predefined.routing.router()] - Route handler to use.
  * @param {http.Server} [server=http.createServer()] - HTTP server to use.
  */
@@ -86,7 +85,7 @@ class Application {
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this, this.namespace, settings);
+    this.switchboard = new Switchboard(this, this.namespace, settings.clientLimit);
   }
 
   /**
@@ -110,7 +109,7 @@ class Application {
    * listen.
    * @see module:server.Application~getLocalIP
    */
-  listen(port = Switchboard.DEFAULTS.port, host = '0.0.0.0') {
+  listen(port = 9000, host = '0.0.0.0') {
     listen(this.httpServer, host, port);
   }
 
@@ -205,6 +204,7 @@ Application.DEFAULTS = Object.freeze({
   color: '#dad1e3',
   useMultiScreenGestures: false,
   applySmoothing: true,
+  clientLimit: 10,
 });
 
 module.exports = Application;

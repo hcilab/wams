@@ -55,16 +55,16 @@ function logConnection(id, status) {
  * @param {module:server.Application} application - The WAMS application for
  * this handler.
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
- * @param {Object} settings - User-supplied options, specifying a client limit
+ * @param {number} clientLimit - The number of active clients that are allowed
  */
 class Switchboard {
-  constructor(application, namespace, settings = {}) {
+  constructor(application, namespace, clientLimit) {
     /**
      * The number of active clients that are allowed at any given time.
      *
      * @type {number}
      */
-    this.clientLimit = settings.clientLimit || Switchboard.DEFAULTS.clientLimit;
+    this.clientLimit = clientLimit;
 
     /**
      * The WAMS application for this handler.
@@ -161,15 +161,5 @@ class Switchboard {
     console.warn('Rejected incoming connection: client limit reached.');
   }
 }
-
-/**
- * The default values for the Switchboard.
- *
- * @type {object}
- */
-Switchboard.DEFAULTS = Object.freeze({
-  clientLimit: 1000,
-  port: 9000,
-});
 
 module.exports = Switchboard;
