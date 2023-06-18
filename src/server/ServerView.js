@@ -40,6 +40,14 @@ class ServerView extends Locker(Interactable(View)) {
     this.socket = socket;
 
     /**
+     * The group that this view belongs to.
+     *
+     * @type {module:server.ServerViewGroup}
+     * @default null
+     */
+    this.group = null;
+
+    /**
      * A place for user to store view state.
      */
     this.state = {};

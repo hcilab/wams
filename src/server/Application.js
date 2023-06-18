@@ -11,6 +11,7 @@ const { constants, Message } = require('../shared.js');
 const { addStaticDirectory, getLocalIP, listen, router } = require('../predefined/routing.js');
 const Switchboard = require('./Switchboard.js');
 const WorkSpace = require('./WorkSpace.js');
+const ViewSpace = require('./ViewSpace.js');
 const MessageHandler = require('./MessageHandler.js');
 
 /**
@@ -76,7 +77,7 @@ class Application {
     this.settings = { ...Application.DEFAULTS, ...settings };
 
     /**
-     * The main model. The buck stops here.
+     * The main model for items.
      *
      * @type {module:server.WorkSpace}
      */
@@ -88,6 +89,13 @@ class Application {
      * @type {module:server.MessageHandler}
      */
     this.messageHandler = new MessageHandler(this);
+
+    /**
+     * The main model for views.
+     *
+     * @type {module:server.ViewSpace}
+     */
+    this.viewspace = new ViewSpace(this.messageHandler);
 
     /**
      * The switchboard allows communication with clients

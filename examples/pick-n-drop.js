@@ -17,20 +17,20 @@ spawnImage(200, 300);
 app.on('deviceNearScreen', (data) => {
   const { deviceIndex, nearIndex } = data;
   console.log(`[Tracker] View ${deviceIndex} is close to ${nearIndex}`);
-  const currentView = app.group.views[deviceIndex];
-  const nearView = app.group.views[nearIndex];
+  const currentView = app.viewspace.views[deviceIndex];
+  const nearView = app.viewspace.views[nearIndex];
   if (currentView) moveScreenToScreen(currentView, nearView);
 });
 
 app.on('deviceFarFromScreens', (data) => {
   const { deviceIndex } = data;
   console.log(`[Tracker] View ${deviceIndex} is far from screens`);
-  const currentView = app.group.views[deviceIndex];
+  const currentView = app.viewspace.views[deviceIndex];
   if (currentView) moveScreenWithItems(currentView, deepSpace.x, deepSpace.y);
 });
 
 const line = new Line(0);
-function handleConnect({ view, device, group }) {
+function handleConnect({ view, device }) {
   if (view.index >= 2) {
     // send to deep space :)
     view.moveTo(deepSpace.x, deepSpace.y);

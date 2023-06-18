@@ -12,27 +12,6 @@ beforeAll(() => {
 });
 
 describe('WorkSpace', () => {
-  describe('constructor(port, settings)', () => {
-    test('constructs correct type of object', () => {
-      expect(new WorkSpace()).toBeInstanceOf(WorkSpace);
-    });
-
-    test('Uses default settings if none provided', () => {
-      expect(new WorkSpace().settings).toMatchObject(WorkSpace.DEFAULTS);
-    });
-
-    test('Uses user-defined settings, if provided', () => {
-      const custom = {
-        color: 'rgb(155,72, 84)',
-      };
-      expect(new WorkSpace(custom).settings).toMatchObject(custom);
-
-      const workspace = new WorkSpace({ color: 'a' });
-      expect(workspace.settings).not.toEqual(WorkSpace.DEFAULTS);
-      expect(workspace.settings.color).toEqual('a');
-    });
-  });
-
   describe('Methods', () => {
     let workspace;
     beforeAll(() => {

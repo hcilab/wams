@@ -20,11 +20,9 @@ const symbols = Object.freeze({
  * @param {Socket} socket - A socket.io connection with a client.
  * @param {module:server.Application} application - The WAMS application for
  * this controller.
- * @param {module:server.ServerViewGroup} group - The group to which this
- * connection will belong.
  */
 class ServerController {
-  constructor(index, socket, application, group) {
+  constructor(index, socket, application) {
     /**
      * The index is an integer identifying the ServerController, which can also
      * be used for locating the ServerController in a collection.
@@ -48,11 +46,11 @@ class ServerController {
     this.application = application;
 
     /**
-     * Track the group to which this connection belongs.
+     * The viewspace that this controller is currently in.
      *
-     * @type {module:server.ServerViewGroup}
+     * @type {module:server.ViewSpace}
      */
-    this.group = group;
+    this.viewspace = application.viewspace;
 
     /**
      * The view corresponding to the client on the other end of this
@@ -60,7 +58,7 @@ class ServerController {
      *
      * @type {module:server.ServerView}
      */
-    this.view = this.group.spawnView(this.socket, this.index);
+    this.view = this.viewspace.spawnView(this.socket, this.index);
 
     /**
      * The device corresponding to the client's device's physical orientation.
@@ -119,7 +117,7 @@ class ServerController {
 
       // Multi-device gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
-      [Message.BLUR]: () => this.group.clearInputsFromView(this.view.id),
+      [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
 
       [Message.DISPATCH]: (data) => {
         this.application.emit(data.action, { ...data.payload, view: this.view });
@@ -137,7 +135,7 @@ class ServerController {
   toJSON() {
     return {
       settings: this.application.settings,
-      views: this.group.toJSON(),
+      views: this.viewspace.toJSON(),
       items: this.application.workspace.toJSON(),
       viewId: this.view.id,
     };
@@ -159,13 +157,12 @@ class ServerController {
    * @returns {boolean} true if disconnection was successful, false otherwise.
    */
   disconnect() {
-    this.group.removeView(this.view);
+    this.viewspace.removeView(this.view);
     this.view.releaseLockedItem();
     this.socket.disconnect(true);
     this.application.emit('disconnect', {
       view: this.view,
       device: this.device,
-      group: this.group,
     });
     return true;
   }
@@ -183,7 +180,6 @@ class ServerController {
     this.application.emit('connect', {
       view: this.view,
       device: this.device,
-      group: this.group,
     });
     this.socket.broadcast.emit(Message.ADD_SHADOW, this.view);
     this.socket.emit(Message.UD_VIEW, this.view);
@@ -195,7 +191,7 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.target = this.group;
+    event.target = this.view.group;
     event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
@@ -206,7 +202,7 @@ class ServerController {
     event.y = y;
     this.view.emit(event.type, event);
     if (this.application.settings.useMultiScreenGestures) {
-      this.group.gestureController.process(event);
+      this.view.group.gestureController.process(event);
     }
   }
 

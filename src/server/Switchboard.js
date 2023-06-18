@@ -5,7 +5,6 @@ const { Message } = require('../shared.js');
 
 // Local project packages for the server.
 const ServerController = require('./ServerController.js');
-const ServerViewGroup = require('./ServerViewGroup.js');
 
 /**
  * Finds the first null or undefined index in the given array, and returns that
@@ -89,13 +88,6 @@ class Switchboard {
      */
     this.connections = [];
 
-    /**
-     * Track the active group.
-     *
-     * @type {module:server.ServerViewGroup}
-     */
-    this.group = new ServerViewGroup(this.application.messageHandler);
-
     // Automatically register a connection handler with the socket.io namespace.
     this.namespace.on('connect', this.connect.bind(this));
   }
@@ -108,7 +100,7 @@ class Switchboard {
    */
   accept(socket) {
     const index = findEmptyIndex(this.connections);
-    const controller = new ServerController(index, socket, this.application, this.group);
+    const controller = new ServerController(index, socket, this.application);
 
     this.connections[index] = controller;
     socket.on('disconnect', () => this.disconnect(controller));

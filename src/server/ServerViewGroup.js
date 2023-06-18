@@ -48,6 +48,30 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   }
 
   /**
+   * Add a view to this group.
+   *
+   * @param {module:server.ServerView} view - View to add.
+   */
+  add(view) {
+    if (view.group) {
+      view.group.remove(view);
+    }
+    this.views.push(view);
+    view.group = this;
+  }
+
+  /**
+   * Remove a view from this group.
+   *
+   * @param {module:server.ServerView} view - View to remove.
+   */
+  remove(view) {
+    this.clearInputsFromView(view.id);
+    view.group = null;
+    removeById(this.views, view);
+  }
+
+  /**
    * Clear the inputs associated with the given view from the gesture
    * controller.
    *
@@ -68,23 +92,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   moveBy(dx = 0, dy = 0) {
     super.moveBy(dx, dy);
     this.views.forEach((v) => v.moveBy(dx, dy));
-  }
-
-  /**
-   * Remove a view from the group.
-   *
-   * @param {module:server.ServerView} view - View to remove from the group.
-   */
-  removeView(view) {
-    removeById(this.views, view);
-    this.clearInputsFromView(view.id);
-  }
-
-  /**
-   * @return {module:shared.View[]} Serialize the views in this group.
-   */
-  toJSON() {
-    return this.views.map((v) => v.toJSON());
   }
 
   /*
@@ -118,17 +125,6 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach((v) => v.scaleBy(ds, mx, my));
-  }
-
-  /**
-   * Spawn a view into the group.
-   *
-   * @param {Namespace} socket - Socket.io socket for publishing changes.
-   */
-  spawnView(socket, index) {
-    const view = new ServerView(socket, { ...this, index });
-    this.views.push(view);
-    return view;
   }
 }
 

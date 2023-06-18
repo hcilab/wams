@@ -7,8 +7,8 @@ const ServerImage = require('./ServerImage.js');
 const ServerItem = require('./ServerItem.js');
 
 /**
- * The WorkSpace keeps track of views and items, and can handle events on
- * those items and views which allow them to be interacted with.
+ * The WorkSpace keeps track of items, and can handle events on those items
+ * which allow them to be interacted with.
  *
  * @memberof module:server
  *

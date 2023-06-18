@@ -21,7 +21,7 @@ app.on('position', (data) => {
   // x and y are floats from 0 to 1, representing relative
   // position of the tracker in space on each dimension
   const { x, y } = data.position;
-  const trackedView = app.group.views[data.deviceIndex];
+  const trackedView = app.viewspace.views[data.deviceIndex];
   if (trackedView) {
     trackedView.moveTo(x * TOTAL_WIDTH, y * TOTAL_HEIGHT);
   }
@@ -36,7 +36,7 @@ app.spawn(
   })
 );
 
-function viewSetup({ view, device, group }) {
+function viewSetup({ view, device }) {
   if (view.index === 0) {
     view.scaleBy(0.6);
   } else if (view.index === 1) {
