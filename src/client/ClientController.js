@@ -261,15 +261,8 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const {
-      applySmoothing,
-      backgroundImage,
-      clientScripts,
-      color,
-      stylesheets,
-      title,
-      useMultiScreenGestures,
-    } = data.settings;
+    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title, useMultiScreenGestures } =
+      data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
     document.title = title;
@@ -330,7 +323,7 @@ class ClientController {
           track: this.socket.emit.bind(this.socket, Message.TRACK),
           transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
         },
-        applySmoothing,
+        applySmoothing
       );
     }
   }

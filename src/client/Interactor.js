@@ -67,19 +67,27 @@ class Interactor {
   addGestures(root) {
     const region = new Westures.Region(root, { preventDefault: false });
 
-    region.addGesture(new Westures.Pan(root, this.coalesce.bind(this), {
-      disableKeys: ['ctrlKey'],
-      applySmoothing: this.applySmoothing,
-    }));
-    region.addGesture(new Westures.Pinch(root, this.coalesce.bind(this), {
-      applySmoothing: this.applySmoothing,
-    }));
-    region.addGesture(new Westures.Rotate(root, this.coalesce.bind(this), {
-      applySmoothing: this.applySmoothing,
-    }));
-    region.addGesture(new Westures.Swipe(root, this.handlers.swipe, {
-      applySmoothing: this.applySmoothing,
-    }));
+    region.addGesture(
+      new Westures.Pan(root, this.coalesce.bind(this), {
+        disableKeys: ['ctrlKey'],
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Pinch(root, this.coalesce.bind(this), {
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Rotate(root, this.coalesce.bind(this), {
+        applySmoothing: this.applySmoothing,
+      })
+    );
+    region.addGesture(
+      new Westures.Swipe(root, this.handlers.swipe, {
+        applySmoothing: this.applySmoothing,
+      })
+    );
     region.addGesture(
       new Westures.Swivel(root, this.swivel.bind(this), {
         enableKeys: ['ctrlKey'],

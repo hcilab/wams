@@ -72,13 +72,15 @@ class DrawingApp {
     fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    this.app.workspace.spawnItem(items.line(
-      toX - fromX,  // X length of line
-      toY - fromY,  // Y length of line
-      width,
-      color,
-      {x: fromX, y: fromY},
-    ));
+    this.app.workspace.spawnItem(
+      items.line(
+        toX - fromX, // X length of line
+        toY - fromY, // Y length of line
+        width,
+        color,
+        { x: fromX, y: fromY }
+      )
+    );
   }
 
   updateControlType({ type, view }) {
