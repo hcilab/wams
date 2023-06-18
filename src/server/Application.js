@@ -79,7 +79,7 @@ class Application {
      *
      * @type {module:server.MessageHandler}
      */
-    this.messageHandler = new MessageHandler(this, this.workspace);
+    this.messageHandler = new MessageHandler(this);
 
     /**
      * The switchboard allows communication with clients
