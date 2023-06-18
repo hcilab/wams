@@ -6,7 +6,7 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({ applySmoothing: false });
 
 /*
  * Draw a thick line in the direction of the swipe, whose length is its
