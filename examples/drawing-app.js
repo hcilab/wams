@@ -39,7 +39,6 @@ class DrawingApp {
     this.initialColor = 'red';
 
     this.initListeners();
-    this.pointers = {};
     this.boundDraw = this.draw.bind(this);
   }
 
@@ -66,19 +65,11 @@ class DrawingApp {
   }
 
   draw(event) {
-    const previousEvent = this.pointers[event.view];
-    this.pointers[event.view] = event;
     const color = event.view.state.color || 'black';
     const width = event.view.state.width || 20;
     let fromX, fromY;
-    if (previousEvent) {
-      fromX = previousEvent.x;
-      fromY = previousEvent.y;
-    } else {
-      // First line, since we can't capture a "dragstart" event
-      fromX = event.x - event.dx;
-      fromY = event.y - event.dy;
-    }
+    fromX = event.x - event.dx;
+    fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
     this.app.workspace.spawnItem(items.line(
@@ -94,9 +85,9 @@ class DrawingApp {
     this.controlType = type;
     view.removeAllListeners('drag');
     if (type === 'pan') {
-      view.off('drag', this.boundDraw);
       view.on('drag', actions.drag);
       view.on('pinch', actions.pinch);
+      view.off('drag', this.boundDraw);
     } else {
       view.off('drag', actions.drag);
       view.off('pinch', actions.pinch);
@@ -108,9 +99,6 @@ class DrawingApp {
   handleConnect({ view }) {
     view.on('drag', actions.drag);
     view.on('pinch', actions.pinch);
-    view.on('pointerup', (event) => {
-      delete this.pointers[event.view];
-    });
   }
 }
 
