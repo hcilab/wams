@@ -11,25 +11,22 @@ const symbols = Object.freeze({
 
 /**
  * A ServerController maintains a socket.io connection between a client and the
- * server. It tracks a view associated with the client, as well as the
- * associated workspace.
+ * server. It tracks a view associated with the client.
  *
  * @memberof module:server
  *
  * @param {number} index - The index of this ServerController in the workspace,
  * can be used as a unique identifier.
  * @param {Socket} socket - A socket.io connection with a client.
- * @param {module:server.WorkSpace} workspace - The workspace associated with
- * this connection.
  * @param {module:server.Application} application - The WAMS application for
- * this controller..
+ * this controller.
  * @param {module:server.MessageHandler} messageHandler - For responding to
  * messages from clients.
  * @param {module:server.ServerViewGroup} group - The group to which this
  * connection will belong.
  */
 class ServerController {
-  constructor(index, socket, workspace, application, messageHandler, group) {
+  constructor(index, socket, application, messageHandler, group) {
     /**
      * The index is an integer identifying the ServerController, which can also
      * be used for locating the ServerController in a collection.
@@ -44,14 +41,6 @@ class ServerController {
      * @type {Socket}
      */
     this.socket = socket;
-
-    /**
-     * This is a shared reference to the single principle WorkSpace. Think of it
-     * like a 'parent' reference in a tree node.
-     *
-     * @type {module:server.WorkSpace}
-     */
-    this.workspace = workspace;
 
     /**
      * The WAMS application for this controller.
@@ -157,7 +146,7 @@ class ServerController {
     return {
       settings: this.application.settings,
       views: this.group.toJSON(),
-      items: this.workspace.toJSON(),
+      items: this.application.workspace.toJSON(),
       viewId: this.view.id,
     };
   }

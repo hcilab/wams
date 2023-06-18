@@ -86,7 +86,7 @@ class Application {
      *
      * @type {module:server.Switchboard}
      */
-    this.switchboard = new Switchboard(this.workspace, this, this.messageHandler, this.namespace, settings);
+    this.switchboard = new Switchboard(this, this.messageHandler, this.namespace, settings);
   }
 
   /**
