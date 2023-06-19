@@ -33,6 +33,11 @@ We use browser windows to represent screens because browsers are extremely flexi
     - [Custom events](#custom-events)
     - [Interaction rights](#interaction-rights)
     - [Grouped items](#grouped-items)
+- [Contributing](#contributing)
+    - [Setup](#setup)
+    - [Workflow](#workflow)
+        - [Linting](#linting)
+    - [Deploying Documentation](#deploying-documentation)
 
 ## Installation
 
@@ -644,11 +649,11 @@ Groups can only be moved together- rotation and scaling are not supported.
 
 ---
 
-# Contribution
+## Contributing
 
 We welcome contribution to WAMS, please find details on how to setup your local development environment.
 
-## Setup
+### Setup
 
 WAMS is a Node.js projects, and with that requires that you have Node installed. We recommend using [ASDF](https://asdf-vm.com/) or [NVM](https://github.com/nvm-sh/nvm) as your Node Version Manager to install the correct version of Node.
 
@@ -672,9 +677,9 @@ npm install
 <!-- **Step #3:** Build the project -->
 <!-- TODO: Figure out how to build or test the project -->
 
-## Workflow
+### Workflow
 
-### Linting
+#### Linting
 
 The package.json file include a `lint` script that will run the linter via the CLI via
 
@@ -688,6 +693,15 @@ To fix linting errors, run
 npm run lint:fix
 ```
 
-#### Automatic Linting/Format On Save
+##### Automatic Linting/Format On Save
 
 To enable automatic linting and saving on save, you can download the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) VS Code extension. All other required settings are included in the `.vscode/settings.json` file.
+
+### Deploying Documentation
+
+The documentation is served from the branch `gh-pages`. This branch is built using a github action, which is triggered by pushes to the `deploy-docs` branch.
+
+When you want to have changes in the code reflected in the documentation:
+1. Test the documentation changes locally using `npm run build` then opening `docs/index.html` and browsing. There is no need to commit the docs folder.
+2. Open a PR and merge your changes into main.
+3. Merge main into `deploy-docs` and push the changes to github.
