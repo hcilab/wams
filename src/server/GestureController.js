@@ -1,6 +1,6 @@
 'use strict';
 
-const { Region, Pan, Rotate, Pinch, Swipe, Tap } = require('westures/index');
+const { Region, Pan, Rotate, Pinch, Swipe, Swivel, Tap } = require('westures/index');
 
 /**
  * The GestureController is in charge of processing server-side gestures for the
@@ -47,17 +47,35 @@ class GestureController {
   begin() {
     const handleGesture = this.messageHandler.handleGesture;
 
-    const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag', this.group));
+    const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag', this.group), {
+      disableKeys: ['ctrlKey'],
+    });
     const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate', this.group));
     const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group));
     const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group));
     const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group));
+    const swivel = new Swivel(this.group, this.processSwivel.bind(this), {
+      enableKeys: ['ctrlKey'],
+      dynamicPivot: true,
+    });
 
     this.region.addGesture(pan);
     this.region.addGesture(tap);
     this.region.addGesture(pinch);
     this.region.addGesture(rotate);
     this.region.addGesture(swipe);
+    this.region.addGesture(swivel);
+  }
+
+  /**
+   * Process a swivel event from the gesture library, to make it look like a
+   * regular rotate event.
+   *
+   * @param {string} event
+   */
+  processSwivel(event) {
+    event.centroid = event.pivot;
+    this.messageHandler.handleGesture('rotate', this.group, event);
   }
 
   /**
@@ -67,6 +85,15 @@ class GestureController {
    */
   process(event) {
     this.region.arbitrate(event);
+  }
+
+  /**
+   * Handle a keyboard event.
+   *
+   * @param {KeyboardEvent} event - The keyboard event.
+   */
+  handleKeyboardEvent(event) {
+    this.region.handleKeyboardEvent(event);
   }
 
   /**

@@ -119,6 +119,7 @@ class ServerController {
       // Gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
+      [Message.KEYBOARD]: this.keyboardEvent.bind(this),
 
       // For user-defined behavior
       [Message.DISPATCH]: (data) => {
@@ -223,7 +224,7 @@ class ServerController {
     event.x = devicePoint.x;
     event.y = devicePoint.y;
 
-    // Multi-device gestures should target the view group
+    // Gestures should target the view group
     event.target = this.view.group;
     event.view = this.view.group;
 
@@ -232,6 +233,17 @@ class ServerController {
     if (this.view.group.gestureController.hasNoInputs()) {
       this.view.group.releaseLockedItem();
     }
+  }
+
+  /**
+   * Forwards a keyboard event to the gesture controller.
+   *
+   * @param {KeyboardEvent} event - The event to forward.
+   */
+  keyboardEvent(event) {
+    event.target = this.view.group;
+    event.view = this.view.group;
+    this.view.group.gestureController.handleKeyboardEvent(event);
   }
 
   /**

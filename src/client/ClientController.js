@@ -143,6 +143,7 @@ class ClientController {
       // Gesture related
       [Message.POINTER]: NOP,
       [Message.BLUR]: NOP,
+      [Message.KEYBOARD]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -312,6 +313,21 @@ class ClientController {
     ['pointercancel', 'blur'].forEach((eventname) => {
       window.addEventListener(eventname, (event) => {
         this.socket.emit(Message.BLUR, {});
+      });
+    });
+
+    // Forward keyboard events
+    const keys = ['Alt', 'Control', 'Meta', 'Shift'];
+    ['keydown', 'keyup'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        if (keys.indexOf(event.key) < 0) {
+          // Only forward events for keys we care about
+          return;
+        }
+        // Extract only the properties we care about
+        const { type, key, altKey, ctrlKey, metaKey, shiftKey } = event;
+        const data = { type, key, altKey, ctrlKey, metaKey, shiftKey };
+        this.socket.emit(Message.KEYBOARD, data);
       });
     });
   }
