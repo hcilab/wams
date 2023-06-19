@@ -8,17 +8,14 @@
 const WAMS = require('..');
 const app = new WAMS.Application();
 
-function square(x, y, view) {
-  return WAMS.predefined.items.square(128, WAMS.colours[view.id % WAMS.colours.length], {
+function spawnSquare(event) {
+  const { x, y, view } = event;
+  app.spawn(WAMS.predefined.items.square(128, WAMS.colours[view.id % WAMS.colours.length], {
     x,
     y,
     scale: 1 / view.scale,
     rotation: view.rotation,
-  });
-}
-
-function spawnSquare(event) {
-  app.spawn(square(event.x, event.y, event.view));
+  }));
 }
 
 function handleConnect({ view }) {

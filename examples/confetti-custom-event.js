@@ -11,8 +11,6 @@ const WAMS = require('..');
 const path = require('path');
 const app = new WAMS.Application();
 
-function square(x, y, view, color) {}
-
 function spawnSquare(event, color) {
   const { x, y, view } = event;
   const item = app.spawn(
