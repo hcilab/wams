@@ -4,7 +4,7 @@ const { EventEmitter } = require('node:events');
 const { IdStamper, Message, View } = require('../shared.js');
 const { Interactable, Locker } = require('../mixins.js');
 
-const STAMPER = new IdStamper();
+const SERVER_VIEW_IDS = new IdStamper();
 
 /**
  * HACK to get around jsdoc bug that causes mixed methods and properties to be
@@ -68,7 +68,7 @@ class ServerView extends Locker(Interactable(View)) {
      * @instance
      * @memberof module:server.ServerView
      */
-    STAMPER.stampNewId(this);
+    SERVER_VIEW_IDS.stampNewId(this);
   }
 
   /**

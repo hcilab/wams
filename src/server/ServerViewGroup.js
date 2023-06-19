@@ -3,8 +3,10 @@
 const { EventEmitter } = require('node:events');
 const GestureController = require('./GestureController.js');
 const ServerView = require('./ServerView.js');
-const { removeById, View } = require('../shared.js');
+const { IdStamper, removeById, View } = require('../shared.js');
 const { Lockable, Transformable2D, Locker } = require('../mixins.js');
+
+const SERVER_VIEW_GROUP_IDS = new IdStamper();
 
 /**
  * HACK to get around jsdoc bug that causes mixed methods and properties to be
@@ -45,6 +47,17 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
      * @type {module:server.ServerView[]}
      */
     this.views = [];
+
+    /**
+     * Id to make the view groups uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerView
+     */
+    SERVER_VIEW_GROUP_IDS.stampNewId(this);
   }
 
   /**
