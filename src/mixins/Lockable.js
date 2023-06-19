@@ -60,11 +60,11 @@ const Lockable = (superclass) =>
      * @memberof module:mixins.Lockable
      */
     unlock() {
-      this[locked] = false;
       if (this[holder] && this[holder].lockedItem === this) {
         this[holder].clearLockedItem();
-        this[holder] = null;
       }
+      this[locked] = false;
+      this[holder] = null;
     }
   };
 

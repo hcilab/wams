@@ -3,8 +3,10 @@
 const { EventEmitter } = require('node:events');
 const GestureController = require('./GestureController.js');
 const ServerView = require('./ServerView.js');
-const { removeById, View } = require('../shared.js');
+const { IdStamper, removeById, View } = require('../shared.js');
 const { Lockable, Transformable2D, Locker } = require('../mixins.js');
+
+const SERVER_VIEW_GROUP_IDS = new IdStamper();
 
 /**
  * HACK to get around jsdoc bug that causes mixed methods and properties to be
@@ -19,7 +21,13 @@ const { Lockable, Transformable2D, Locker } = require('../mixins.js');
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
- * View, so that they can move together as one block.
+ * View, so that they can move together as one block. It is also responsible for
+ * interacting with the gesture handler.
+ *
+ * Each view always belongs to exactly one view group. The group is responsible
+ * for processing gestures for that view. In the case of multi-device gestures,
+ * the inputs to those gestures can come from many views, but are combined
+ * together into a single gesture response.
  *
  * @memberof module:server
  * @extends module:server.View
@@ -45,6 +53,17 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
      * @type {module:server.ServerView[]}
      */
     this.views = [];
+
+    /**
+     * Id to make the view groups uniquely identifiable.
+     *
+     * @name id
+     * @type {number}
+     * @constant
+     * @instance
+     * @memberof module:server.ServerView
+     */
+    SERVER_VIEW_GROUP_IDS.stampNewId(this);
   }
 
   /**
@@ -125,6 +144,53 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
   scaleBy(ds = 1, mx = this.x, my = this.y) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach((v) => v.scaleBy(ds, mx, my));
+  }
+
+  /*
+   * Clear the locked item. Shortcuts the releaseLockedItem() approach and just
+   * sets the locked item to null. Use with caution!
+   *
+   * @override
+   * @private
+   */
+  clearLockedItem() {
+    super.clearLockedItem();
+    this.views.forEach((v) => v.clearLockedItem());
+  }
+
+  /*
+   * Set the locked item. Use with caution!
+   *
+   * @override
+   * @private
+   *
+   * @param {module:mixins.Lockable} item - The item to lock down.
+   */
+  setLockedItem(item) {
+    super.setLockedItem(item);
+    this.views.forEach((v) => v.setLockedItem(item));
+  }
+
+  /*
+   * Lock this view group.
+   *
+   * @override
+   *
+   * @param {module:mixins.Locker} locker - The holder of the lock.
+   */
+  lock(locker) {
+    super.lock(locker);
+    this.views.forEach((v) => v.lock(locker));
+  }
+
+  /*
+   * Unlock this view group.
+   *
+   * @override
+   */
+  unlock() {
+    super.unlock();
+    this.views.forEach((v) => v.unlock());
   }
 }
 

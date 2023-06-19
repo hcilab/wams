@@ -11,6 +11,17 @@ const { Transformable2D } = require('../mixins.js');
  * @extends module:shared.View
  * @mixes module:mixins.Transformable2D
  */
-class Device extends Transformable2D(View) {}
+class Device extends Transformable2D(View) {
+  constructor(values = {}) {
+    super(values);
+
+    /**
+     * The view that this device is attached to.
+     *
+     * @type {module:server.ServerView}
+     */
+    this.view = null;
+  }
+}
 
 module.exports = Device;

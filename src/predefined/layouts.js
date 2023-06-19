@@ -19,7 +19,7 @@ const { constants } = require('../shared.js');
  *
  * @param {number} overlap
  */
-class Table {
+class TableLayout {
   TABLE = 0;
   BOTTOM = 1;
   LEFT = 2;
@@ -29,7 +29,7 @@ class Table {
   constructor(overlap) {
     if (overlap == undefined) {
       // or if overlap is null, since using == instead of ===
-      throw new Error('overlap must be defined for Table layout');
+      throw new Error('Overlap must be defined for TableLayout.');
     }
     this.overlap = overlap;
     this.table = null;
@@ -117,11 +117,11 @@ class Table {
  *
  * @param {number} overlap
  */
-class Line {
+class LineLayout {
   constructor(overlap) {
     if (overlap == undefined) {
       // or if overlap is null, since using == instead of ===
-      throw new Error('overlap must be defined for Line layout');
+      throw new Error('Overlap must be defined for LineLayout.');
     }
     this.overlap = overlap;
     this.views = [];
@@ -129,52 +129,53 @@ class Line {
   }
 
   layout(view, device) {
-    if (view.index > 0) {
-      if (this.views[view.index - 1] == null) {
-        setTimeout(this.layout.bind(this, view, device), 0);
-      } else {
-        const prev = this.views[view.index - 1];
-        const change = prev.transformPointChange(this.overlap, 0);
-        const anchor = prev.topRight.minus(change);
-        view.moveTo(anchor.x, anchor.y);
+    if (this.views.length > 0) {
+      const prev = this.views[this.views.length - 1];
+      const change = prev.transformPointChange(this.overlap, 0);
+      const anchor = prev.topRight.minus(change);
+      view.moveTo(anchor.x, anchor.y);
 
-        const side = this.deviceRights[view.index - 1] - this.overlap;
-        device.moveTo(side, 0);
-        this.deviceRights[view.index] = side + device.width;
-        this.views[view.index] = view;
-      }
+      const side = this.deviceRights[this.deviceRights.length - 1] - this.overlap;
+      device.moveTo(side, 0);
+      this.deviceRights.push(side + device.width);
+      this.views.push(view);
     } else {
       this.deviceRights[0] = device.width;
       this.views[0] = view;
     }
+    view.on('disconnected', () => {
+      const index = this.views.indexOf(view);
+      this.views.splice(index, 1);
+      this.deviceRights.splice(index, 1);
+    });
   }
 }
 
 /**
  * @deprecated
  * @param {number} overlap
- * @returns {Table}
+ * @returns {TableLayout}
  * @memberof module:predefined.layouts
  */
 function table(overlap) {
-  console.warn('WARNING: `table(overlap)` is deprecated, use `new Table(overlap)` instead.');
-  return new Table(overlap);
+  console.warn('WARNING: `table(overlap)` is deprecated, use `new TableLayout(overlap)` instead.');
+  return new TableLayout(overlap);
 }
 
 /**
  * @deprecated
  * @param {number} overlap
- * @returns {Line}
+ * @returns {LineLayout}
  * @memberof module:predefined.layouts
  */
 function line(overlap) {
-  console.warn('WARNING: `line(overlap)` is deprecated, use `new Line(overlap)` instead.');
-  return new Line(overlap);
+  console.warn('WARNING: `line(overlap)` is deprecated, use `new LineLayout(overlap)` instead.');
+  return new LineLayout(overlap);
 }
 
 module.exports = {
-  Line,
-  Table,
+  LineLayout,
+  TableLayout,
   line,
   table,
 };

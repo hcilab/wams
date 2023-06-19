@@ -37,7 +37,7 @@ function handleDrag({ x, y, dx, dy }) {
       rotation: Math.atan2(dx, dy),
     })
   );
-  // console.log('Line: { x: %s, y: %s, length: %s, rotation: %s }', line.x, line.y, length, line.rotation);
+  // console.log('LineLayout: { x: %s, y: %s, length: %s, rotation: %s }', line.x, line.y, length, line.rotation);
   setTimeout(() => app.removeItem(line), 3000);
 }
 

@@ -61,6 +61,7 @@ class ViewSpace {
       }
     }
     removeById(this.views, view);
+    view.emit('disconnected');
   }
 
   /**

@@ -67,6 +67,11 @@ class ServerController {
      */
     this.device = new Device();
 
+    // Set up the view and device to reference each other. This will be very
+    // useful for layouts, etc.
+    this.view.device = this.device;
+    this.device.view = this.view;
+
     /*
      * Automatically begin operations by registering Message listeners and
      * Informing the client on the current state of the model.
@@ -191,8 +196,6 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.target = this.view.group;
-    event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
 
@@ -206,6 +209,9 @@ class ServerController {
     event.clientY = viewPoint.y;
     event.x = viewPoint.x;
     event.y = viewPoint.y;
+    // Raw pointer events should directly target the view
+    event.target = this.view;
+    event.view = this.view;
     this.view.emit(event.type, event);
 
     if (this.application.settings.useMultiScreenGestures) {
@@ -216,6 +222,9 @@ class ServerController {
       event.clientY = devicePoint.y;
       event.x = devicePoint.x;
       event.y = devicePoint.y;
+      // Multi-device gestures should target the view group
+      event.target = this.view.group;
+      event.view = this.view.group;
       this.view.group.gestureController.process(event);
     }
   }

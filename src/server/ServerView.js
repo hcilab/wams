@@ -4,7 +4,7 @@ const { EventEmitter } = require('node:events');
 const { IdStamper, Message, View } = require('../shared.js');
 const { Interactable, Locker } = require('../mixins.js');
 
-const STAMPER = new IdStamper();
+const SERVER_VIEW_IDS = new IdStamper();
 
 /**
  * HACK to get around jsdoc bug that causes mixed methods and properties to be
@@ -17,7 +17,7 @@ const STAMPER = new IdStamper();
  */
 
 /**
- * The ServerView provides operations for the server to locate, move, and
+ * The ServerView models an attached client view in the browser.
  * rescale views.
  *
  * @memberof module:server
@@ -48,6 +48,13 @@ class ServerView extends Locker(Interactable(View)) {
     this.group = null;
 
     /**
+     * The device corresponding to the client's device's physical orientation.
+     *
+     * @type {module:server.Device}
+     */
+    this.device = null;
+
+    /**
      * A place for user to store view state.
      */
     this.state = {};
@@ -61,7 +68,7 @@ class ServerView extends Locker(Interactable(View)) {
      * @instance
      * @memberof module:server.ServerView
      */
-    STAMPER.stampNewId(this);
+    SERVER_VIEW_IDS.stampNewId(this);
   }
 
   /**
