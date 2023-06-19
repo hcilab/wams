@@ -21,7 +21,13 @@ const SERVER_VIEW_GROUP_IDS = new IdStamper();
 
 /**
  * The ServerViewGroup groups a number of ServerViews together into a single
- * View, so that they can move together as one block.
+ * View, so that they can move together as one block. It is also responsible for
+ * interacting with the gesture handler.
+ *
+ * Each view always belongs to exactly one view group. The group is responsible
+ * for processing gestures for that view. In the case of multi-device gestures,
+ * the inputs to those gestures can come from many views, but are combined
+ * together into a single gesture response.
  *
  * @memberof module:server
  * @extends module:server.View
