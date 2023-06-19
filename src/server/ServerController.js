@@ -196,8 +196,6 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.target = this.view.group;
-    event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
 
@@ -211,6 +209,8 @@ class ServerController {
     event.clientY = viewPoint.y;
     event.x = viewPoint.x;
     event.y = viewPoint.y;
+    event.target = this.view;
+    event.view = this.view;
     this.view.emit(event.type, event);
 
     if (this.application.settings.useMultiScreenGestures) {
@@ -221,6 +221,8 @@ class ServerController {
       event.clientY = devicePoint.y;
       event.x = devicePoint.x;
       event.y = devicePoint.y;
+      event.target = this.view.group;
+      event.view = this.view.group;
       this.view.group.gestureController.process(event);
     }
   }
