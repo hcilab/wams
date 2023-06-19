@@ -19,7 +19,7 @@ const { constants } = require('../shared.js');
  *
  * @param {number} overlap
  */
-class Table {
+class TableLayout {
   TABLE = 0;
   BOTTOM = 1;
   LEFT = 2;
@@ -29,7 +29,7 @@ class Table {
   constructor(overlap) {
     if (overlap == undefined) {
       // or if overlap is null, since using == instead of ===
-      throw new Error('overlap must be defined for Table layout');
+      throw new Error('Overlap must be defined for TableLayout.');
     }
     this.overlap = overlap;
     this.table = null;
@@ -117,11 +117,11 @@ class Table {
  *
  * @param {number} overlap
  */
-class Line {
+class LineLayout {
   constructor(overlap) {
     if (overlap == undefined) {
       // or if overlap is null, since using == instead of ===
-      throw new Error('overlap must be defined for Line layout');
+      throw new Error('Overlap must be defined for LineLayout.');
     }
     this.overlap = overlap;
     this.views = [];
@@ -153,28 +153,28 @@ class Line {
 /**
  * @deprecated
  * @param {number} overlap
- * @returns {Table}
+ * @returns {TableLayout}
  * @memberof module:predefined.layouts
  */
 function table(overlap) {
-  console.warn('WARNING: `table(overlap)` is deprecated, use `new Table(overlap)` instead.');
-  return new Table(overlap);
+  console.warn('WARNING: `table(overlap)` is deprecated, use `new TableLayout(overlap)` instead.');
+  return new TableLayout(overlap);
 }
 
 /**
  * @deprecated
  * @param {number} overlap
- * @returns {Line}
+ * @returns {LineLayout}
  * @memberof module:predefined.layouts
  */
 function line(overlap) {
-  console.warn('WARNING: `line(overlap)` is deprecated, use `new Line(overlap)` instead.');
-  return new Line(overlap);
+  console.warn('WARNING: `line(overlap)` is deprecated, use `new LineLayout(overlap)` instead.');
+  return new LineLayout(overlap);
 }
 
 module.exports = {
-  Line,
-  Table,
+  LineLayout,
+  TableLayout,
   line,
   table,
 };

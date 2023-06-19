@@ -198,7 +198,7 @@ function flipCard(event) {
   card.isFaceUp = !card.isFaceUp;
 }
 
-const table = new WAMS.predefined.layouts.Table(20);
+const table = new WAMS.predefined.layouts.TableLayout(20);
 app.on('connect', ({ view, device }) => table.layout(view, device));
 app.listen(9000);
 

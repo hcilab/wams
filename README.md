@@ -140,7 +140,7 @@ function spawnSquare() {
   greenSquare.on('drag', actions.drag);
 }
 
-const line = new layouts.Line(300); // 300px overlap betweens views
+const line = new layouts.LineLayout(300); // 300px overlap betweens views
 
 function handleConnect({ view, device }) {
   view.on('click', spawnSquare);
@@ -432,7 +432,7 @@ By default, every connected screen is positioned in the same location and can se
 
 There are currently two predefined layouts: `table` and `line`.
 
-**`Table`**
+**`TableLayout`**
 
 Places users around a table, with the given amount of overlap. The first user will be the "table", and their position when they join is stamped as the outline of the table. The next four users are positioned, facing inwards, around the four sides of the table.
 
@@ -451,7 +451,7 @@ app.on('connect', handleConnect);
 
 To see this layout in action, check out the `card-table.js` example.
 
-**`Line`**
+**`LineLayout`**
 
 Places users in a line, with the given amount of overlap. Best used with either multi-screen gestures or when users are unable to manipulate their views.
 
@@ -459,10 +459,10 @@ Places users in a line, with the given amount of overlap. Best used with either 
 // application config should include
 // "useMultiScreenGestures: true"
 
-const { Line } = WAMS.predefined.layouts;
+const { LineLayout } = WAMS.predefined.layouts;
 
 const overlap = 200; // 200px overlap between screens
-const line = new Line(overlap);
+const line = new LineLayout(overlap);
 
 function handleConnect({ view, device }) {  // note the {} brackets to destructure the event object
   line.layout(view, device);
