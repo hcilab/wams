@@ -17,7 +17,7 @@ const STAMPER = new IdStamper();
  */
 
 /**
- * The ServerView provides operations for the server to locate, move, and
+ * The ServerView models an attached client view in the browser.
  * rescale views.
  *
  * @memberof module:server
@@ -46,6 +46,13 @@ class ServerView extends Locker(Interactable(View)) {
      * @default null
      */
     this.group = null;
+
+    /**
+     * The device corresponding to the client's device's physical orientation.
+     *
+     * @type {module:server.Device}
+     */
+    this.device = null;
 
     /**
      * A place for user to store view state.

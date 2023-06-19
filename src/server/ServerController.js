@@ -67,6 +67,11 @@ class ServerController {
      */
     this.device = new Device();
 
+    // Set up the view and device to reference each other. This will be very
+    // useful for layouts, etc.
+    this.view.device = this.device;
+    this.device.view = this.view;
+
     /*
      * Automatically begin operations by registering Message listeners and
      * Informing the client on the current state of the model.
