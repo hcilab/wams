@@ -195,13 +195,27 @@ class ServerController {
     event.view = this.view;
     event.source = this.view.id;
     event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-    const { x, y } = this.device.transformPoint(event.clientX, event.clientY);
-    event.clientX = x;
-    event.clientY = y;
-    event.x = x;
-    event.y = y;
+
+    // Capture the original coordinates in the client's coordinate space.
+    const clientPoint = { x: event.clientX, y: event.clientY };
+
+    // For emitting pointer events on the view, we need the x/y coordinates to
+    // be in the workspace's coordinate space.
+    const viewPoint = this.view.transformPoint(clientPoint.x, clientPoint.y);
+    event.clientX = viewPoint.x;
+    event.clientY = viewPoint.y;
+    event.x = viewPoint.x;
+    event.y = viewPoint.y;
     this.view.emit(event.type, event);
+
     if (this.application.settings.useMultiScreenGestures) {
+      // For processing multi-device gestures, we need the x/y coordinates to be
+      // in the device's coordinate space.
+      const devicePoint = this.device.transformPoint(clientPoint.x, clientPoint.y);
+      event.clientX = devicePoint.x;
+      event.clientY = devicePoint.y;
+      event.x = devicePoint.x;
+      event.y = devicePoint.y;
       this.view.group.gestureController.process(event);
     }
   }
