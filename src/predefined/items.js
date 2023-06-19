@@ -58,11 +58,11 @@ function line(dx, dy, width = 1, colour = 'black', properties = {}) {
   sequence.moveTo(0, 0);
   sequence.lineTo(dx, dy);
   sequence.stroke();
-  return { hitbox, sequence, type: 'item' , ...properties };
+  return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
- * Generate a rectangular block item.
+ * Generate a rectangular block item centered on the x, y coordinates given in `properties`.
  *
  * @memberof module:predefined.items
  *
@@ -76,29 +76,24 @@ function line(dx, dy, width = 1, colour = 'black', properties = {}) {
  * the given width and height, filled in with the given colour.
  */
 function rectangle(width, height, colour = 'blue', properties = {}) {
-  const hitbox = new Rectangle(width, height, 0, 0);
+  const x = 0 - width / 2; // Relative -- WAMS handles positioning
+  const y = 0 - height / 2; // Relative -- WAMS handles positioning
+  const hitbox = new Rectangle(width, height, x, y);
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.strokeStyle = 'black';
   sequence.beginPath();
-  sequence.rect(
-    0, // x  -- WAMS handles positioning
-    0, // y  -- WAMS handles positioning
-    width,
-    height
-  );
+  sequence.rect(x, y, width, height);
   sequence.fill();
   sequence.stroke();
   return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
- * Generate a square block item.
+ * Generate a square block item centered on the x, y coordinates given in `properties`.
  *
  * @memberof module:predefined.items
  *
- * @param {number} x
- * @param {number} y
  * @param {number} length
  * @param {string} [colour='red'] - Fill colour for the square.
  * @param {Object} properties - Location and orientation options for the item.
@@ -107,8 +102,8 @@ function rectangle(width, height, colour = 'blue', properties = {}) {
  * @returns {Object} An object with the parameters for a square item with the
  * given side length, filled in with the given colour.
  */
-function square(x, y, length, colour = 'red', properties = {}) {
-  return rectangle(length, length, colour, { ...properties, x, y });
+function square(length, colour = 'red', properties = {}) {
+  return rectangle(length, length, colour, properties);
 }
 
 /**

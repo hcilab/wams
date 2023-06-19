@@ -11,32 +11,19 @@ const WAMS = require('..');
 const path = require('path');
 const app = new WAMS.Application();
 
-// create a custom square
-// with a random color
-// with a centered location
-// using CanvasSequence
-function square(x, y, view, color) {
-  const sequence = new WAMS.CanvasSequence();
+function square(x, y, view, color) {}
 
-  if (!color) sequence.fillStyle = WAMS.colours[view.id % WAMS.colours.length];
-  else sequence.fillStyle = color;
-  sequence.fillRect(-64, -64, 128, 128);
-  const hitbox = new WAMS.Rectangle(128, 128, -64, -64);
-
-  return {
-    x,
-    y,
-    hitbox,
-    sequence,
-    type: 'item',
-    scale: 1 / view.scale,
-    rotation: view.rotation,
-  };
-}
-
-function spawnSquare(x, y, view, color) {
-  const item = app.spawn(square(x, y, view, color));
-  // item.on('drag', WAMS.predefined.actions.drag);
+function spawnSquare(event, color) {
+  const { x, y, view } = event;
+  const item = app.spawn(
+    WAMS.predefined.items.square(128, color || WAMS.colours[view.id % WAMS.colours.length], {
+      x,
+      y,
+      scale: 1 / view.scale,
+      rotation: view.rotation,
+    })
+  );
+  item.on('drag', WAMS.predefined.actions.drag);
   return item;
 }
 
