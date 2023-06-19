@@ -38,12 +38,23 @@ const Locker = (superclass) =>
      * Clear the locked item. Shortcuts the releaseLockedItem() approach and just
      * sets the locked item to null. Use with caution!
      *
-     * Made available originally purely for use by the Lockable interface.
-     *
      * @memberof module:mixins.Locker
+     * @private
      */
     clearLockedItem() {
       this[lockedItem] = null;
+    }
+
+    /**
+     * Set the locked item. Use with caution!
+     *
+     * @memberof module:mixins.Locker
+     * @private
+     *
+     * @param {module:mixins.Lockable} item - The item to lock down.
+     */
+    setLockedItem(item) {
+      this[lockedItem] = item;
     }
 
     /**
@@ -52,13 +63,16 @@ const Locker = (superclass) =>
      * @memberof module:mixins.Locker
      *
      * @param {module:mixins.Lockable} item - The item to lock down.
+     * @returns {boolean} True if the lock was obtained, false otherwise.
      */
     obtainLockOnItem(item) {
-      if (!item.isLocked()) {
-        if (this[lockedItem]) this[lockedItem].unlock();
-        this[lockedItem] = item;
-        item.lock(this);
+      if (item.isLocked()) {
+        return false;
       }
+      if (this[lockedItem]) this[lockedItem].unlock();
+      item.lock(this);
+      this.setLockedItem(item);
+      return true;
     }
 
     /**
@@ -68,7 +82,7 @@ const Locker = (superclass) =>
      */
     releaseLockedItem() {
       if (this[lockedItem]) this[lockedItem].unlock();
-      this[lockedItem] = null;
+      this.clearLockedItem();
     }
   };
 

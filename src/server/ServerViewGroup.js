@@ -126,6 +126,31 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     super.scaleBy(ds, mx, my, 'divideBy');
     this.views.forEach((v) => v.scaleBy(ds, mx, my));
   }
+
+  /*
+   * Clear the locked item. Shortcuts the releaseLockedItem() approach and just
+   * sets the locked item to null. Use with caution!
+   *
+   * @override
+   * @private
+   */
+  clearLockedItem() {
+    super.clearLockedItem();
+    this.views.forEach((v) => v.clearLockedItem());
+  }
+
+  /*
+   * Set the locked item. Use with caution!
+   *
+   * @override
+   * @private
+   *
+   * @param {module:mixins.Lockable} item - The item to lock down.
+   */
+  setLockedItem(item) {
+    super.setLockedItem(item);
+    this.views.forEach((v) => v.setLockedItem(item));
+  }
 }
 
 Object.assign(ServerViewGroup.prototype, EventEmitter.prototype);
