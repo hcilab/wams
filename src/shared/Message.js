@@ -37,7 +37,6 @@ const Message = {
   /** @const */ CLICK: 'click',
   /** @const */ RESIZE: 'resize',
   /** @const */ SWIPE: 'swipe',
-  /** @const */ TRACK: 'track',
   /** @const */ TRANSFORM: 'transform',
 
   // Multi-device gesture related

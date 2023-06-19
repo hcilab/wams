@@ -142,7 +142,6 @@ class ClientController {
       [Message.CLICK]: NOP,
       [Message.RESIZE]: NOP,
       [Message.SWIPE]: NOP,
-      [Message.TRACK]: NOP,
       [Message.TRANSFORM]: NOP,
 
       // Multi-device gesture related
@@ -320,7 +319,6 @@ class ClientController {
         {
           swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
           tap: this.socket.emit.bind(this.socket, Message.CLICK),
-          track: this.socket.emit.bind(this.socket, Message.TRACK),
           transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
         },
         applySmoothing

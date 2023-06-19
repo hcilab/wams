@@ -23,7 +23,6 @@ const { NOP } = require('../shared.js');
  *    recognized.
  * @param {Function} [handlers.swipe=NOP]
  * @param {Function} [handlers.tap=NOP]
- * @param {Function} [handlers.track=NOP]
  * @param {Function} [handlers.transform=NOP]
  */
 class Interactor {
@@ -35,7 +34,6 @@ class Interactor {
      * @type {Object}
      * @property {Function} [swipe=NOP]
      * @property {Function} [tap=NOP]
-     * @property {Function} [track=NOP]
      * @property {Function} [transform=NOP]
      */
     this.handlers = { ...Interactor.DEFAULT_HANDLERS, ...handlers };
@@ -96,7 +94,6 @@ class Interactor {
       })
     );
     region.addGesture(new Westures.Tap(root, this.handlers.tap));
-    region.addGesture(new Westures.Track(root, this.handlers.track, { phases: ['start', 'end'] }));
   }
 
   _resetChanges() {
@@ -169,7 +166,6 @@ class Interactor {
 Interactor.DEFAULT_HANDLERS = Object.freeze({
   swipe: NOP,
   tap: NOP,
-  track: NOP,
   transform: NOP,
 });
 

@@ -118,7 +118,6 @@ class ServerController {
       [Message.SWIPE]: handleGesture.bind(messageHandler, 'swipe', this.view),
       [Message.TRANSFORM]: handleGesture.bind(messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
-      [Message.TRACK]: (data) => messageHandler.track(data, this.view),
 
       // Multi-device gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
@@ -196,22 +195,27 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.source = this.view.id;
-    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-
     // Capture the original coordinates in the client's coordinate space.
     const clientPoint = { x: event.clientX, y: event.clientY };
 
     // For emitting pointer events on the view, we need the x/y coordinates to
     // be in the workspace's coordinate space.
     const viewPoint = this.view.transformPoint(clientPoint.x, clientPoint.y);
+
+    if (this.view.group.gestureController.hasNoInputs() && this.view.lockedItem == null) {
+      this.application.workspace.obtainLock(viewPoint.x, viewPoint.y, this.view.group);
+    }
+
     event.clientX = viewPoint.x;
     event.clientY = viewPoint.y;
     event.x = viewPoint.x;
     event.y = viewPoint.y;
+    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
+
     // Raw pointer events should directly target the view
     event.target = this.view;
     event.view = this.view;
+
     this.view.emit(event.type, event);
 
     if (this.application.settings.useMultiScreenGestures) {
@@ -225,7 +229,12 @@ class ServerController {
       // Multi-device gestures should target the view group
       event.target = this.view.group;
       event.view = this.view.group;
+
       this.view.group.gestureController.process(event);
+    }
+
+    if (this.view.group.gestureController.hasNoInputs()) {
+      this.view.group.releaseLockedItem();
     }
   }
 

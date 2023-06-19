@@ -1,6 +1,6 @@
 'use strict';
 
-const { Region, Pan, Rotate, Pinch, Swipe, Tap, Track } = require('westures/index');
+const { Region, Pan, Rotate, Pinch, Swipe, Tap } = require('westures/index');
 
 /**
  * The GestureController is in charge of processing server-side gestures for the
@@ -52,16 +52,12 @@ class GestureController {
     const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group));
     const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group));
     const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group));
-    const track = new Track(this.group, (data) => this.messageHandler.track(data, this.group), {
-      phases: ['start', 'end'],
-    });
 
     this.region.addGesture(pan);
     this.region.addGesture(tap);
     this.region.addGesture(pinch);
     this.region.addGesture(rotate);
     this.region.addGesture(swipe);
-    this.region.addGesture(track);
   }
 
   /**
@@ -80,6 +76,16 @@ class GestureController {
    */
   clearOutView(id) {
     this.region.cancel({ type: 'blur' });
+  }
+
+  /**
+   * Whether there are no active inputs- that is, the gesture controller is at
+   * rest.
+   *
+   * @return {boolean} Whether there are active inputs.
+   */
+  hasNoInputs() {
+    return this.region.state.hasNoInputs();
   }
 }
 
