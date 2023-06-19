@@ -697,12 +697,11 @@ npm run lint:fix
 
 To enable automatic linting and saving on save, you can download the [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) VS Code extension. All other required settings are included in the `.vscode/settings.json` file.
 
-
 ### Deploying Documentation
 
 The documentation is served from the branch `gh-pages`. This branch is built using a github action, which is triggered by pushes to the `deploy-docs` branch.
 
 When you want to have changes in the code reflected in the documentation:
-1. Test the documentation changes locally using `npm run build` then opening `docs/index.html` and browsing.
+1. Test the documentation changes locally using `npm run build` then opening `docs/index.html` and browsing. There is no need to commit the docs folder.
 2. Open a PR and merge your changes into main.
 3. Merge main into `deploy-docs` and push the changes to github.
