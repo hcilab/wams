@@ -36,9 +36,12 @@ app.spawn(
   })
 );
 
+const lineLayout = new WAMS.predefined.layouts.LineLayout(5);
 const viewGroup = app.createViewGroup();
 viewGroup.scaleBy(1.7);
 viewGroup.on('drag', WAMS.predefined.actions.drag);
+viewGroup.on('pinch', WAMS.predefined.actions.pinch);
+viewGroup.on('rotate', WAMS.predefined.actions.rotate);
 
 function viewSetup({ view, device }) {
   if (view.index === 0) {
@@ -46,15 +49,17 @@ function viewSetup({ view, device }) {
   } else if (view.index === 1) {
     // With multi-device gestures, views are currently acted on as a group.
     view.group.on('drag', WAMS.predefined.actions.drag);
-    view.scaleBy(3.4);
+    // This only works because when views are created they are created with a
+    // new group, so we know we are not adding any other views to this group,
+    // and that we are not applying this scale multiple times to the same
+    // group, even if a view is disconnected and reconnected.
+    view.group.scaleBy(3.4);
     view.moveTo(1615, 2800);
   } else {
     view.scaleBy(1.7);
     // Connect all the rest of the views into one view group!
-    // - Multi-device gestures still won't work properly as the devices are
-    // layered on top of each other. The layouts currently don't support
-    // anything less than one group for all views/devices.
     viewGroup.add(view);
+    lineLayout.layout(view, device);
   }
 }
 
