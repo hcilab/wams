@@ -58,9 +58,7 @@ function line(dx, dy, width = 1, colour = 'black', properties = {}) {
   sequence.moveTo(0, 0);
   sequence.lineTo(dx, dy);
   sequence.stroke();
-  const type = 'item';
-
-  return { hitbox, sequence, type, ...properties };
+  return { hitbox, sequence, type: 'item' , ...properties };
 }
 
 /**
@@ -91,10 +89,7 @@ function rectangle(width, height, colour = 'blue', properties = {}) {
   );
   sequence.fill();
   sequence.stroke();
-
-  const type = 'item';
-
-  return { hitbox, sequence, type, ...properties };
+  return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
@@ -131,7 +126,6 @@ function square(x, y, length, colour = 'red', properties = {}) {
  */
 function circle(radius, colour = 'yellow', properties = {}) {
   const hitbox = new Circle(radius, 0, 0);
-
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.strokeStyle = 'black';
@@ -145,8 +139,7 @@ function circle(radius, colour = 'yellow', properties = {}) {
   );
   sequence.fill();
   sequence.stroke();
-
-  return { hitbox, sequence, ...properties };
+  return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
@@ -164,7 +157,6 @@ function circle(radius, colour = 'yellow', properties = {}) {
  */
 function oval(radiusX, radiusY, colour = 'yellow', properties = {}) {
   const hitbox = new Oval(radiusX, radiusY);
-
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.strokeStyle = 'black';
@@ -180,8 +172,7 @@ function oval(radiusX, radiusY, colour = 'yellow', properties = {}) {
   );
   sequence.fill();
   sequence.stroke();
-
-  return { hitbox, sequence, ...properties };
+  return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
@@ -200,9 +191,7 @@ function oval(radiusX, radiusY, colour = 'yellow', properties = {}) {
  */
 function polygon(points = [], colour = 'green', properties = {}) {
   if (points.length < 3) throw Error('Polygon must consist of at least 3 points');
-
   const hitbox = new Polygon2D(points);
-
   const sequence = new CanvasSequence();
   sequence.fillStyle = colour;
   sequence.strokeStyle = 'black';
@@ -212,10 +201,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
   sequence.closePath();
   sequence.fill();
   sequence.stroke();
-
-  const type = 'item';
-
-  return { ...properties, hitbox, sequence, type };
+  return { hitbox, sequence, type: 'item', ...properties };
 }
 
 /**
@@ -236,9 +222,7 @@ function polygon(points = [], colour = 'green', properties = {}) {
  */
 function element(x, y, width, height, properties = {}) {
   const hitbox = new Rectangle(width, height, x, y);
-  const type = 'item';
-
-  return { ...properties, hitbox, type };
+  return { hitbox, type: 'item/element', ...properties };
 }
 
 /**
@@ -256,16 +240,18 @@ function element(x, y, width, height, properties = {}) {
  * HTML content.
  */
 function html(html, width, height, properties = {}) {
-  const hitbox = new Rectangle(width, height);
   const baseattrs = properties.attributes || {};
-  const attributes = {
-    ...baseattrs,
-    innerHTML: html,
+  delete properties.attributes;
+  return {
+    hitbox: new Rectangle(width, height),
+    attributes: {
+      ...baseattrs,
+      innerHTML: html,
+    },
+    tagname: 'div',
+    type: 'item/element',
+    ...properties,
   };
-  const tagname = 'div';
-  const type = 'item/element';
-
-  return { ...properties, hitbox, attributes, tagname, type };
 }
 
 module.exports = {
