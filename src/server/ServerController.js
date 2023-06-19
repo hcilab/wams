@@ -209,6 +209,7 @@ class ServerController {
     event.clientY = viewPoint.y;
     event.x = viewPoint.x;
     event.y = viewPoint.y;
+    // Raw pointer events should directly target the view
     event.target = this.view;
     event.view = this.view;
     this.view.emit(event.type, event);
@@ -221,6 +222,7 @@ class ServerController {
       event.clientY = devicePoint.y;
       event.x = devicePoint.x;
       event.y = devicePoint.y;
+      // Multi-device gestures should target the view group
       event.target = this.view.group;
       event.view = this.view.group;
       this.view.group.gestureController.process(event);
