@@ -129,24 +129,25 @@ class LineLayout {
   }
 
   layout(view, device) {
-    if (view.index > 0) {
-      if (this.views[view.index - 1] == null) {
-        setTimeout(this.layout.bind(this, view, device), 0);
-      } else {
-        const prev = this.views[view.index - 1];
-        const change = prev.transformPointChange(this.overlap, 0);
-        const anchor = prev.topRight.minus(change);
-        view.moveTo(anchor.x, anchor.y);
+    if (this.views.length > 0) {
+      const prev = this.views[this.views.length - 1];
+      const change = prev.transformPointChange(this.overlap, 0);
+      const anchor = prev.topRight.minus(change);
+      view.moveTo(anchor.x, anchor.y);
 
-        const side = this.deviceRights[view.index - 1] - this.overlap;
-        device.moveTo(side, 0);
-        this.deviceRights[view.index] = side + device.width;
-        this.views[view.index] = view;
-      }
+      const side = this.deviceRights[this.deviceRights.length - 1] - this.overlap;
+      device.moveTo(side, 0);
+      this.deviceRights.push(side + device.width);
+      this.views.push(view);
     } else {
       this.deviceRights[0] = device.width;
       this.views[0] = view;
     }
+    view.on('disconnected', () => {
+      const index = this.views.indexOf(view);
+      this.views.splice(index, 1);
+      this.deviceRights.splice(index, 1);
+    });
   }
 }
 
