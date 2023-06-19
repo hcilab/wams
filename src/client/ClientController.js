@@ -3,7 +3,6 @@
 const { io } = require('socket.io-client');
 
 const { constants, Message, NOP } = require('../shared.js');
-const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
@@ -139,12 +138,9 @@ class ClientController {
       [Message.LAYOUT]: NOP,
 
       // User event related
-      [Message.CLICK]: NOP,
       [Message.RESIZE]: NOP,
-      [Message.SWIPE]: NOP,
-      [Message.TRANSFORM]: NOP,
 
-      // Multi-device gesture related
+      // Gesture related
       [Message.POINTER]: NOP,
       [Message.BLUR]: NOP,
 
@@ -260,8 +256,7 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title, useMultiScreenGestures } =
-      data.settings;
+    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
     document.title = title;
@@ -275,7 +270,7 @@ class ClientController {
       this.canvas.style.backgroundColor = color;
     }
     this.model.initialize(data);
-    this.setUpInteractor(useMultiScreenGestures, applySmoothing);
+    this.setUpInputForwarding();
 
     // Need to tell the model what the view looks like once setup is complete.
     this.socket.emit(Message.LAYOUT, this.view);
@@ -297,33 +292,6 @@ class ClientController {
       link.rel = 'stylesheet';
       document.head.appendChild(link);
     });
-  }
-
-  /**
-   * The Interactor is a level of abstraction between the ClientController and
-   * the gesture recognition library such that libraries can be swapped out
-   * more easily, if need be. At least in theory. All the ClientController
-   * needs to provide is handler functions for responding to the recognized
-   * gestures.
-   *
-   * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
-   * gestures.
-   * @param {boolean} [applySmoothing=true] Whether to apply smoothing to
-   * gestures.
-   */
-  setUpInteractor(useMultiScreenGestures = false, applySmoothing = true) {
-    this.setUpInputForwarding();
-    if (!useMultiScreenGestures) {
-      return new Interactor(
-        this.rootElement,
-        {
-          swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
-          tap: this.socket.emit.bind(this.socket, Message.CLICK),
-          transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
-        },
-        applySmoothing
-      );
-    }
   }
 
   /**

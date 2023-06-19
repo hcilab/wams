@@ -114,15 +114,13 @@ class ServerController {
       [Message.LAYOUT]: this.layout.bind(this),
 
       // User event related
-      [Message.CLICK]: handleGesture.bind(messageHandler, 'click', this.view),
-      [Message.SWIPE]: handleGesture.bind(messageHandler, 'swipe', this.view),
-      [Message.TRANSFORM]: handleGesture.bind(messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
 
-      // Multi-device gesture related
+      // Gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
 
+      // For user-defined behavior
       [Message.DISPATCH]: (data) => {
         this.application.emit(data.action, { ...data.payload, view: this.view });
       },
@@ -218,20 +216,18 @@ class ServerController {
 
     this.view.emit(event.type, event);
 
-    if (this.application.settings.useMultiScreenGestures) {
-      // For processing multi-device gestures, we need the x/y coordinates to be
-      // in the device's coordinate space.
-      const devicePoint = this.device.transformPoint(clientPoint.x, clientPoint.y);
-      event.clientX = devicePoint.x;
-      event.clientY = devicePoint.y;
-      event.x = devicePoint.x;
-      event.y = devicePoint.y;
-      // Multi-device gestures should target the view group
-      event.target = this.view.group;
-      event.view = this.view.group;
+    // For processing gestures, we need the x/y coordinates to be in the device's coordinate space.
+    const devicePoint = this.device.transformPoint(clientPoint.x, clientPoint.y);
+    event.clientX = devicePoint.x;
+    event.clientY = devicePoint.y;
+    event.x = devicePoint.x;
+    event.y = devicePoint.y;
 
-      this.view.group.gestureController.process(event);
-    }
+    // Multi-device gestures should target the view group
+    event.target = this.view.group;
+    event.view = this.view.group;
+
+    this.view.group.gestureController.process(event);
 
     if (this.view.group.gestureController.hasNoInputs()) {
       this.view.group.releaseLockedItem();
