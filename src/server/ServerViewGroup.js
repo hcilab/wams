@@ -151,6 +151,28 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
     super.setLockedItem(item);
     this.views.forEach((v) => v.setLockedItem(item));
   }
+
+  /*
+   * Lock this view group.
+   *
+   * @override
+   *
+   * @param {module:mixins.Locker} locker - The holder of the lock.
+   */
+  lock(locker) {
+    super.lock(locker);
+    this.views.forEach((v) => v.lock(locker));
+  }
+
+  /*
+   * Unlock this view group.
+   *
+   * @override
+   */
+  unlock() {
+    super.unlock();
+    this.views.forEach((v) => v.unlock());
+  }
 }
 
 Object.assign(ServerViewGroup.prototype, EventEmitter.prototype);
