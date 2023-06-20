@@ -37,11 +37,9 @@ class DrawingApp {
     this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
-
-    this.initListeners();
-    this.boundDraw = this.draw.bind(this);
     this.colors = {};
     this.widths = {};
+    this.boundDraw = this.draw.bind(this);
   }
 
   setColor({ color, view }) {
@@ -63,7 +61,6 @@ class DrawingApp {
     this.app.on('set-color', this.setColor.bind(this));
     this.app.on('set-width', this.setWidth.bind(this));
     this.app.on('connect', this.handleConnect.bind(this));
-    this.app.listen(9000);
   }
 
   draw(event) {
@@ -106,3 +103,5 @@ class DrawingApp {
 
 // eslint-disable-next-line
 const app = new DrawingApp();
+app.initListeners();
+app.app.listen(9000);
