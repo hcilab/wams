@@ -1,8 +1,9 @@
 /*
- * This is a simple example builds on the confetti.js example, which shows how users can interact with a shared set
- *  of items.
+ * This is a simple example builds on the confetti.js example, which shows how
+ *  users can interact with a shared set of items.
  *
- *  It demonstrates how an interaction effect (changing color during mouse down of a target item) can be achieved using custom events using a client script.
+ * It demonstrates how an interaction effect (changing colour during mouse down
+ *  of a target item) can be achieved using raw pointer events.
  */
 
 'use strict';
@@ -11,18 +12,8 @@ const WAMS = require('..');
 const path = require('path');
 const app = new WAMS.Application();
 
-function spawnSquare(event, color) {
-  const { x, y, view } = event;
-  const item = app.spawn(
-    WAMS.predefined.items.square(128, color || WAMS.colours[view.id % WAMS.colours.length], {
-      x,
-      y,
-      scale: 1 / view.scale,
-      rotation: view.rotation,
-    })
-  );
-  item.on('drag', WAMS.predefined.actions.drag);
-  return item;
+function spawnSquare(x, y, view, colour) {
+  return app.spawn(WAMS.predefined.items.square(128, colour, { x, y }));
 }
 
 const squares = {};
@@ -56,7 +47,8 @@ function release(event) {
   const item = squares[event.pointerId];
   if (item) {
     app.removeItem(item);
-    spawnSquare(event.x, event.y, event.view);
+    const colour = WAMS.colours[view.id % WAMS.colours.length];
+    spawnSquare(event.x, event.y, event.view, colour);
     delete squares[event.pointerId];
   }
 }
