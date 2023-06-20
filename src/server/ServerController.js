@@ -201,7 +201,11 @@ class ServerController {
     // be in the workspace's coordinate space.
     const viewPoint = this.view.transformPoint(clientPoint.x, clientPoint.y);
 
-    if (this.view.group.gestureController.hasNoInputs() && this.view.lockedItem == null) {
+    if (
+      event.type === 'pointerdown' &&
+      this.view.group.gestureController.hasNoInputs() &&
+      this.view.lockedItem == null
+    ) {
       this.application.workspace.obtainLock(viewPoint.x, viewPoint.y, this.view.group);
     }
 
