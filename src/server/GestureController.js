@@ -49,12 +49,22 @@ class GestureController {
 
     const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag', this.group), {
       disableKeys: ['ctrlKey'],
+      applySmoothing: false,
     });
-    const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate', this.group));
-    const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group));
-    const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group));
-    const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group));
+    const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate', this.group), {
+      applySmoothing: false,
+    });
+    const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group), {
+      applySmoothing: false,
+    });
+    const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group), {
+      applySmoothing: false,
+    });
+    const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group), {
+      applySmoothing: false,
+    });
     const swivel = new Swivel(this.group, this.processSwivel.bind(this), {
+      applySmoothing: false,
       enableKeys: ['ctrlKey'],
       dynamicPivot: true,
     });
