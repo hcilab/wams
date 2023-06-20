@@ -40,7 +40,7 @@ class DrawingApp {
 
     function chooseControlType(event) {
       const button = event.target.closest('button');
-      forEachEl(buttons, (el) => {
+      buttons.forEach((el) => {
         el.classList.remove('active');
       });
       button.classList.add('active');
@@ -67,7 +67,7 @@ class DrawingApp {
       colorPicker.classList.remove('show');
     });
 
-    forEachEl(colors, (el) => {
+    colors.forEach((el) => {
       addClickListener(el, (event) => {
         const color = event.target.dataset.color;
         colorPicker.classList.remove('show');
@@ -77,7 +77,7 @@ class DrawingApp {
       });
     });
 
-    forEachEl(widths, (el) => {
+    widths.forEach((el) => {
       addClickListener(el, (event) => {
         const width = event.target.dataset.widthname;
         widthPicker.classList.remove('show');
@@ -125,16 +125,6 @@ const CONTROLS = (color, colors, widths) => `
     </ul>
 </div>
 `;
-
-/**
- * Helper function to iterate over HTML elements.
- *
- * @param {NodeList} elements
- * @param {function} callback
- */
-function forEachEl(elements, callback) {
-  [].forEach.call(elements, callback);
-}
 
 /**
  * Helper function to attach a click and touch events to an element.
