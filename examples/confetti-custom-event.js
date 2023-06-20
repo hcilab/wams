@@ -34,40 +34,46 @@ function square(x, y, view, color) {
   };
 }
 
-function spawnSquare(event, color) {
-  const item = app.spawn(square(event.x, event.y, event.view, color));
-  item.on('drag', WAMS.predefined.actions.drag);
+function spawnSquare(x, y, view, color) {
+  const item = app.spawn(square(x, y, view, color));
+  // item.on('drag', WAMS.predefined.actions.drag);
   return item;
 }
 
+const squares = {};
+
 function handleConnect({ view }) {
-  view.on('pinch', WAMS.predefined.actions.pinch);
-  view.on('drag', WAMS.predefined.actions.drag);
-  view.on('rotate', WAMS.predefined.actions.rotate);
-  // view.on('click', spawnSquare);
   view.on('pointerdown', lock);
+  view.on('pointermove', move);
   view.on('pointerup', release);
 }
 
 function lock(event) {
   const item = app.workspace.findItemByCoordinates(event.x, event.y);
   if (item) {
-    event.x = item.x;
-    event.y = item.y;
-    app.workspace.removeItem(item);
+    if (Object.values(squares).includes(item)) {
+      return;
+    }
+    app.removeItem(item);
   }
-  const newItem = spawnSquare(event, '#FFBF00');
-  event.view.obtainLockOnItem(newItem);
+  const newItem = spawnSquare(event.x, event.y, event.view, '#FFBF00');
+  squares[event.pointerId] = newItem;
+}
+
+function move(event) {
+  const item = squares[event.pointerId];
+  if (item) {
+    item.moveTo(event.x, event.y);
+  }
 }
 
 function release(event) {
-  const item = event.view.lockedItem;
+  const item = squares[event.pointerId];
   if (item) {
-    event.x = item.x;
-    event.y = item.y;
-    app.workspace.removeItem(item);
+    app.removeItem(item);
+    spawnSquare(event.x, event.y, event.view);
+    delete squares[event.pointerId];
   }
-  spawnSquare(event);
 }
 
 app.on('connect', handleConnect);
