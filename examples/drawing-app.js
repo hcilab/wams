@@ -40,14 +40,16 @@ class DrawingApp {
 
     this.initListeners();
     this.boundDraw = this.draw.bind(this);
+    this.colors = {};
+    this.widths = {};
   }
 
   setColor({ color, view }) {
-    view.state.color = COLORS[color];
+    this.colors[view] = color;
   }
 
   setWidth({ width, view }) {
-    view.state.width = WIDTHS[width];
+    this.widths[view] = width;
   }
 
   initListeners() {
@@ -65,8 +67,8 @@ class DrawingApp {
   }
 
   draw(event) {
-    const color = event.view.state.color || 'black';
-    const width = event.view.state.width || 20;
+    const color = this.colors[event.view] || 'black';
+    const width = this.widths[event.view] || 20;
     const fromX = event.x - event.dx;
     const fromY = event.y - event.dy;
     const toX = event.x;
