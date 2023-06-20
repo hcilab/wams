@@ -5,38 +5,36 @@ document.querySelector('body').appendChild(root);
 
 class DrawingApp {
   constructor() {
-    this.colors = {};
-    this.widths = {};
-    this.states = ['pan', 'draw'];
-
+    this.colorMap = {};
+    this.widthMap = {};
     this.init();
   }
 
   init() {
-    WAMS.dispatch('init');
     WAMS.on('render-controls', ({ detail }) => {
-      const { color, listOfColors, listOfWidths } = detail;
-      this.colors = listOfColors;
-      this.widths = listOfWidths;
+      const { color, colorMap, widthMap } = detail;
+      this.colorMap = colorMap;
+      this.widthMap = widthMap;
       this.renderControls(color);
     });
+    WAMS.dispatch('init');
   }
 
   renderControls(colorName) {
-    root.innerHTML = CONTROLS(colorName, this.colors, this.widths);
+    root.innerHTML = CONTROLS(colorName, this.colorMap, this.widthMap);
     this.initControlsListeners();
   }
 
   initControlsListeners() {
     const buttons = document.querySelectorAll('button');
-    const panBtn = document.querySelector('#pan');
-    const drawBtn = document.querySelector('#draw');
-    const colorBtn = document.querySelector('#color');
-    const widthBtn = document.querySelector('#width');
+    const panButton = document.querySelector('#pan');
+    const drawButton = document.querySelector('#draw');
+    const colorButton = document.querySelector('#color');
+    const widthButton = document.querySelector('#width');
     const widthPicker = document.querySelector('#width-picker');
     const colorPicker = document.querySelector('#color-picker');
-    const colors = document.querySelectorAll('#color-picker > *');
-    const widths = document.querySelectorAll('#width-picker > *');
+    const colorElements = document.querySelectorAll('#color-picker > *');
+    const widthElements = document.querySelectorAll('#width-picker > *');
 
     function chooseControlType(event) {
       const button = event.target.closest('button');
@@ -49,36 +47,31 @@ class DrawingApp {
       WAMS.dispatch('set-control', { type });
     }
 
-    addClickListener(panBtn, (event) => {
-      chooseControlType(event);
-    });
+    addClickListener(panButton, chooseControlType);
+    addClickListener(drawButton, chooseControlType);
 
-    addClickListener(drawBtn, (event) => {
-      chooseControlType(event);
-    });
-
-    addClickListener(colorBtn, (event) => {
+    addClickListener(colorButton, (event) => {
       colorPicker.classList.toggle('show');
       widthPicker.classList.remove('show');
     });
 
-    addClickListener(widthBtn, (event) => {
+    addClickListener(widthButton, (event) => {
       widthPicker.classList.toggle('show');
       colorPicker.classList.remove('show');
     });
 
-    colors.forEach((el) => {
-      addClickListener(el, (event) => {
+    colorElements.forEach((element) => {
+      addClickListener(element, (event) => {
         const color = event.target.dataset.color;
         colorPicker.classList.remove('show');
-        colorBtn.classList = '';
-        colorBtn.classList.add(color);
+        colorButton.classList = '';
+        colorButton.classList.add(color);
         WAMS.dispatch('set-color', { color });
       });
     });
 
-    widths.forEach((el) => {
-      addClickListener(el, (event) => {
+    widthElements.forEach((element) => {
+      addClickListener(element, (event) => {
         const width = event.target.dataset.widthname;
         widthPicker.classList.remove('show');
         WAMS.dispatch('set-width', { width });
@@ -87,7 +80,7 @@ class DrawingApp {
   }
 }
 
-const CONTROLS = (color, colors, widths) => `
+const CONTROLS = (color, colorMap, widthMap) => `
 <div id="controls">
     <ul class="control-buttons">
         <button id="pan" class="active" data-type="pan">
@@ -105,7 +98,7 @@ const CONTROLS = (color, colors, widths) => `
             <div class="line line-thick"></div>
         </button>
         <div id="color-picker">
-            ${Object.keys(colors)
+            ${Object.keys(colorMap)
               .map(
                 (colorName) => `
                 <i class="fas fa-circle ${colorName}" data-color="${colorName}"></i>
@@ -114,10 +107,10 @@ const CONTROLS = (color, colors, widths) => `
               .join('')}
         </div>
         <div id="width-picker">
-            ${Object.keys(widths)
+            ${Object.keys(widthMap)
               .map(
                 (widthName) => `
-                <i class="fas fa-circle ${widthName}" data-widthName="${widthName}" data-widthValue="${widths[widthName]}" ></i>
+                <i class="fas fa-circle ${widthName}" data-widthName="${widthName}" data-widthValue="${widthMap[widthName]}" ></i>
             `
               )
               .join('')}

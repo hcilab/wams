@@ -9,7 +9,7 @@ const path = require('path');
 const { actions, items } = WAMS.predefined;
 const { CanvasSequence } = require('canvas-sequencer');
 
-const COLORS = {
+const COLOR_MAP = {
   red: '#D12C1F',
   orange: '#EF9135',
   yellow: '#FBEE4F',
@@ -19,7 +19,7 @@ const COLORS = {
   black: '#000',
 };
 
-const WIDTHS = {
+const WIDTH_MAP = {
   thin: 10,
   medium: 20,
   thick: 40,
@@ -37,24 +37,24 @@ class DrawingApp {
     this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
-    this.colors = {};
-    this.widths = {};
+    this.viewPencilColors = {};
+    this.viewPencilWidths = {};
     this.boundDraw = this.draw.bind(this);
   }
 
   setColor({ color, view }) {
-    this.colors[view] = color;
+    this.viewPencilColors[view] = COLOR_MAP[color];
   }
 
   setWidth({ width, view }) {
-    this.widths[view] = width;
+    this.viewPencilWidths[view] = WIDTH_MAP[width];
   }
 
   initListeners() {
     this.app.on('init', ({ view }) => {
       const color = this.initialColor;
       this.setColor({ color, view });
-      view.dispatch('render-controls', { color, listOfColors: COLORS, listOfWidths: WIDTHS });
+      view.dispatch('render-controls', { color, colorMap: COLOR_MAP, widthMap: WIDTH_MAP });
     });
 
     this.app.on('set-control', this.updateControlType.bind(this));
@@ -64,8 +64,8 @@ class DrawingApp {
   }
 
   draw(event) {
-    const color = this.colors[event.view] || 'black';
-    const width = this.widths[event.view] || 20;
+    const color = this.viewPencilColors[event.view] || 'black';
+    const width = this.viewPencilWidths[event.view] || 20;
     const fromX = event.x - event.dx;
     const fromY = event.y - event.dy;
     const toX = event.x;
