@@ -49,26 +49,26 @@ class DrawingApp {
       WAMS.dispatch('set-control', { type });
     }
 
-    addClickTouchListener(panBtn, (event) => {
+    addClickListener(panBtn, (event) => {
       chooseControlType(event);
     });
 
-    addClickTouchListener(drawBtn, (event) => {
+    addClickListener(drawBtn, (event) => {
       chooseControlType(event);
     });
 
-    addClickTouchListener(colorBtn, (event) => {
+    addClickListener(colorBtn, (event) => {
       colorPicker.classList.toggle('show');
       widthPicker.classList.remove('show');
     });
 
-    addClickTouchListener(widthBtn, (event) => {
+    addClickListener(widthBtn, (event) => {
       widthPicker.classList.toggle('show');
       colorPicker.classList.remove('show');
     });
 
     forEachEl(colors, (el) => {
-      addClickTouchListener(el, (event) => {
+      addClickListener(el, (event) => {
         const color = event.target.dataset.color;
         colorPicker.classList.remove('show');
         colorBtn.classList = '';
@@ -78,7 +78,7 @@ class DrawingApp {
     });
 
     forEachEl(widths, (el) => {
-      addClickTouchListener(el, (event) => {
+      addClickListener(el, (event) => {
         const width = event.target.dataset.widthname;
         widthPicker.classList.remove('show');
         WAMS.dispatch('set-width', { width });
@@ -142,12 +142,11 @@ function forEachEl(elements, callback) {
  * Natively, browsers on touch devices emulate click events, but
  * WAMS intercepts this emulation, hence the need for separate listeners.
  *
- * @param {HTMLElement} el
+ * @param {HTMLElement} element
  * @param {function} callback
  */
-function addClickTouchListener(el, callback) {
-  el.addEventListener('click', callback);
-  el.addEventListener('touch', callback);
+function addClickListener(element, callback) {
+  element.addEventListener('click', callback);
 }
 
 // eslint-disable-next-line
