@@ -13,7 +13,7 @@ const path = require('path');
 const app = new WAMS.Application();
 
 function spawnSquare(x, y, colour) {
-  return app.spawn(WAMS.predefined.items.square(128, colour, { x, y }));
+  return app.spawn(WAMS.predefined.items.square(128, colour, { x, y, lockZ: true }));
 }
 
 const squares = {};
@@ -24,33 +24,32 @@ function handleConnect({ view }) {
   view.on('pointerup', release);
 }
 
-function lock(event) {
-  const item = app.workspace.findItemByCoordinates(event.x, event.y);
+function lock({ x, y, pointerId }) {
+  const item = app.workspace.findItemByCoordinates(x, y);
   if (item) {
     if (Object.values(squares).includes(item)) {
       return;
     }
     app.removeItem(item);
   }
-  const newItem = spawnSquare(event.x, event.y, '#FFBF00');
-  squares[event.pointerId] = newItem;
+  const newItem = spawnSquare(x, y, '#FFBF00');
+  squares[pointerId] = newItem;
 }
 
-function move(event) {
-  const item = squares[event.pointerId];
+function move({ x, y, pointerId }) {
+  const item = squares[pointerId];
   if (item) {
-    item.moveTo(event.x, event.y);
+    item.moveTo(x, y);
   }
 }
 
-function release(event) {
-  const item = squares[event.pointerId];
-  const view = event.source;
+function release({ x, y, pointerId, view }) {
+  const item = squares[pointerId];
   if (item) {
     app.removeItem(item);
     const colour = WAMS.colours[view.id % WAMS.colours.length];
-    spawnSquare(event.x, event.y, colour);
-    delete squares[event.pointerId];
+    spawnSquare(x, y, colour);
+    delete squares[pointerId];
   }
 }
 
