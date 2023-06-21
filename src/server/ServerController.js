@@ -88,8 +88,6 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.attachSocketIoListeners]() {
-    const messageHandler = this.application.messageHandler;
-    const handleGesture = messageHandler.handleGesture;
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
