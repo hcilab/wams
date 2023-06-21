@@ -12,7 +12,7 @@ const WAMS = require('..');
 const path = require('path');
 const app = new WAMS.Application();
 
-function spawnSquare(x, y, view, colour) {
+function spawnSquare(x, y, colour) {
   return app.spawn(WAMS.predefined.items.square(128, colour, { x, y }));
 }
 
@@ -32,7 +32,7 @@ function lock(event) {
     }
     app.removeItem(item);
   }
-  const newItem = spawnSquare(event.x, event.y, event.view, '#FFBF00');
+  const newItem = spawnSquare(event.x, event.y, '#FFBF00');
   squares[event.pointerId] = newItem;
 }
 
@@ -45,10 +45,11 @@ function move(event) {
 
 function release(event) {
   const item = squares[event.pointerId];
+  const view = event.source;
   if (item) {
     app.removeItem(item);
     const colour = WAMS.colours[view.id % WAMS.colours.length];
-    spawnSquare(event.x, event.y, event.view, colour);
+    spawnSquare(event.x, event.y, colour);
     delete squares[event.pointerId];
   }
 }
