@@ -32,13 +32,13 @@ class MessageHandler {
    *
    * @param {string} gesture
    */
-  handleGesture(gesture, view, data) {
-    const target = view.lockedItem;
+  handleGesture(gesture, data) {
+    const { centroid, event } = data;
+    const { device, view, group } = event;
+    const target = group.lockedItem;
     if (target != null) {
-      const { centroid } = data;
       const { x, y } = view.transformPoint(centroid.x, centroid.y);
-      const event = { view, target, x, y };
-      this[gesture](event, data);
+      this[gesture]({ device, group, view, target, x, y }, data);
     }
   }
 
@@ -108,8 +108,9 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const d = event.view.transformPointChange(translation.x, translation.y);
-    event.target.emit('drag', { ...event, dx: d.x, dy: d.y });
+    const { device, view, target } = event;
+    const d = view.transformPointChange(translation.x, translation.y);
+    target.emit('drag', { ...event, dx: d.x, dy: d.y });
   }
 
   /**

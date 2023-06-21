@@ -47,20 +47,20 @@ class GestureController {
   begin() {
     const handleGesture = this.messageHandler.handleGesture;
 
-    const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag', this.group), {
+    const pan = new Pan(this.group, handleGesture.bind(this.messageHandler, 'drag'), {
       disableKeys: ['ctrlKey'],
       applySmoothing: false,
     });
-    const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate', this.group), {
+    const rotate = new Rotate(this.group, handleGesture.bind(this.messageHandler, 'rotate'), {
       applySmoothing: false,
     });
-    const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale', this.group), {
+    const pinch = new Pinch(this.group, handleGesture.bind(this.messageHandler, 'scale'), {
       applySmoothing: false,
     });
-    const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe', this.group), {
+    const swipe = new Swipe(this.group, handleGesture.bind(this.messageHandler, 'swipe'), {
       applySmoothing: false,
     });
-    const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click', this.group), {
+    const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click'), {
       applySmoothing: false,
     });
     const swivel = new Swivel(this.group, this.processSwivel.bind(this), {
@@ -85,7 +85,7 @@ class GestureController {
    */
   processSwivel(event) {
     event.centroid = event.pivot;
-    this.messageHandler.handleGesture('rotate', this.group, event);
+    this.messageHandler.handleGesture('rotate', event);
   }
 
   /**

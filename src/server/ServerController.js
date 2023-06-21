@@ -216,6 +216,8 @@ class ServerController {
     // Raw pointer events should directly target the view
     event.target = this.view;
     event.view = this.view;
+    event.group = this.view.group;
+    event.device = this.device;
 
     this.view.emit(event.type, event);
 
@@ -245,6 +247,8 @@ class ServerController {
   keyboardEvent(event) {
     event.target = this.view.group;
     event.view = this.view.group;
+    event.group = this.view.group;
+    event.device = this.device;
     this.view.group.gestureController.handleKeyboardEvent(event);
   }
 
