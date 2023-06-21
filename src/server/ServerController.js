@@ -165,6 +165,7 @@ class ServerController {
     this.application.emit('disconnect', {
       view: this.view,
       device: this.device,
+      group: this.view.group,
     });
     return true;
   }
@@ -182,6 +183,7 @@ class ServerController {
     this.application.emit('connect', {
       view: this.view,
       device: this.device,
+      group: this.view.group,
     });
     this.socket.broadcast.emit(Message.ADD_SHADOW, this.view);
     this.socket.emit(Message.UD_VIEW, this.view);

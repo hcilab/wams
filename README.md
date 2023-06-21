@@ -4,7 +4,7 @@
 
 WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
 
-WAMS abstracts away connection code, client and server architecture and related technology, to provide a simple, unified framework that allows focus to be placed on creating and defining new interactions rather than on pre-requisite communication code.
+WAMS abstracts away socket connections with clients as well as the model, interaction, and coordination logic, providing a simple, unified framework that allows focus to be placed on creating and defining new interactions rather than on pre-requisite communication code. It comes packaged with default server logic and HTML files so you can easily build canvas-first shared workspace applications, or you can provide your own server routines, allowing you to integrate WAMS into your existing web application!
 
 We use browser windows to represent screens because browsers are extremely flexible - they are cross-platform, already available on multiple devices and can fill screens (or be used to subdivide screens).
 
@@ -60,7 +60,7 @@ To try out the examples, go to `examples/` and run as follows:
 node examples/[EXAMPLE_FILENAME]
 ```
 
-## For example:
+For example:
 
 ```bash
 node examples/polygons.js
@@ -95,7 +95,7 @@ Now, create an **app.js** file. In this file, include WAMS and initialize the ap
 ```javascript
 const WAMS = require("wams");
 const app = new WAMS.Application();
-app.listen(3500); // this starts the app on port 3500, you can use any port
+app.listen(9000); // this starts the app on port 9000, you can use any port
 ```
 
 Now, you can run your first WAMS application by executing:
@@ -119,7 +119,7 @@ const { square } = WAMS.predefined.items;
 app.spawn(square(100, "green", { x: 200, y: 200 }));
 ```
 
-The first arguments describe the square. The last argument is an object that describes how the square should be oriented within the WAMS workspace. This code creates a green square on the canvas centered at coordinates `{ x: 200, y: 200 }` and a length of `100`.
+The first arguments describe the length and colour of the square. The last argument is an object that describes how the square should be oriented within the WAMS workspace. This code creates a green square on the canvas centered at coordinates `{ x: 200, y: 200 }` and a length of `100`.
 
 ### Hello world: Multi-Screen
 
@@ -149,7 +149,7 @@ function handleConnect({ view, device }) {
 
 app.on('connect', handleConnect);
 
-app.listen(3500);
+app.listen(9000);
 ```
 
 _Don't worry if the code doesn't make sense to you yet. The walkthrough will explain all the features used in it._
@@ -166,7 +166,7 @@ To test this on a single computer you could:
 
 ![Screenshot of first multiscreen app](./img/multiscreen.png)
 
-> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js`. (Currently broken).
+> To try a more complex multi-screen gestures example (gestures that span multiple screens), check out `examples/shared-polygons.js`.
 
 ### General Configuration of your app
 
@@ -176,15 +176,17 @@ Below is the full list of possible options with example values.
 
 ```javascript
 const app = new WAMS.Application({
-  backgroundImage: "./monaLisa", // background image of the app
-  color: "white", // background color of the app
   clientLimit: 2, // maximum number of devices that can connect to the app
-  clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
-  stylesheets: ["styles.css"], // css styles to include by the browser
   shadows: true, // show shadows of other devices
   status: true, // show information on current view, useful for debugging
+
+  // The following options can be accomplished directly through HTML and CSS,
+  // if you provide your own static files and server routine.
+  backgroundImage: "./monaLisa", // background image of the app
+  color: "white", // background color of the app
+  clientScripts: ["script.js"], // javascript scripts (relative paths or URLs) to include by the browser
+  stylesheets: ["styles.css"], // css styles to include by the browser
   title: "Awesome App", // page title
-  useMultiScreenGestures: true, // enable multi-screen gestures (currently broken)
 });
 ```
 
@@ -196,11 +198,14 @@ A WAMS app is made of **items**. There are several predefined items (see in the 
 
 - `rectangle`
 - `square`
+- `circle`
+- `oval`
+- `line`
 - `polygon`
 - `image`
 - `html`
 
-Most of the items (except `html`) are used on HTML **canvas**, which is the core of WAMS (i.e., in WAMS everything is drawn on HTML canvas, although for the most part, you do not need to know about this).
+Most of the items (except `html`) are rendered onto an HTML **canvas**, which is the core of WAMS (i.e., in WAMS everything is drawn on HTML canvas, although for the most part, you do not need to know about this).
 
 You have already seen `square` used in the Hello world example above. Now let's look at some other items.
 
@@ -231,13 +236,12 @@ Polygons are built using an array of relative points. For a random set of points
 For example:
 
 ```javascript
-const { randomPoints } = WAMS.predefined.utilities;
-const { polygon } = WAMS.predefined.items;
+const { items, utilities } = WAMS.predefined;
 
-const points = randomPoints(4);
+const points = utilities.randomPoints(4);
 
 app.spawn(
-  polygon(points, "green", {
+  items.polygon(points, "green", {
     x: 500,
     y: 100,
   })
@@ -246,7 +250,7 @@ app.spawn(
 
 ### Images
 
-To use images, you first need to set up a path to the [static directory](#static-resources).
+To use images, if you are using the default server provided by WAMS, you first need to set up a path to the [static directory](#static-resources).
 
 For this example, create an `images` directory in the app folder and use it as your static directory.
 
@@ -254,10 +258,9 @@ Put `monaLisa.jpg` from `examples/img` to the images folder.
 
 ```javascript
 const path = require("node:path");
-const app = WAMS.Application();
-app.addStaticDirectory(path.join(__dirname, "images"));
-
 const { image } = WAMS.predefined.items;
+
+app.addStaticDirectory(path.join(__dirname, "images"));
 app.spawn(
   image("monaLisa.jpg", {
     width: 200,
@@ -304,11 +307,9 @@ app.spawn(
 );
 ```
 
-> **Note** Rotation is done around the top left corner and is defined in radians (Pi = 180 deg)
+> **Note** Rotation is done around the (x, y) point provided and is defined in radians (Pi = 180 degrees)
 
 ### Interactivity
-
-> **Note** An item must have its coordinates, width and height defined to be interactive
 
 To make an item **draggable**, it's enough to attach the predefined drag action to the drag event:
 
@@ -328,6 +329,8 @@ Another cool interactive feature is **rotation**. To rotate an item, first add a
 ```js
 item.on('rotate', actions.rotate);
 ```
+
+Rotation using mouse + CTRL will pivot around whichever point on the item your cursor was at when you pressed the CTRL key.
 
 You can also listen to **swipe** events on items (hold the item, quickly move it and release). To do that, add a `swipe` handler.
 
@@ -354,9 +357,9 @@ _You can add event handlers to all WAMS items._
 
 ### Static resources
 
-Often times, you want to use images, run custom code in the browser, or add CSS stylesheets.
+Often times, you want to use images, run custom code in the browser, or add CSS stylesheets. If you're using your own server routine, you can ignore this section and serve static files the way you normally would.
 
-To do that, first **set up a path to the static directory:**
+If you want to do this with the default server implementation provided by WAMS, you first need to **set up a path to the static directory:**
 
 ```javascript
 const path = require("node:path");
@@ -374,8 +377,6 @@ const app = new WAMS.Application({
 });
 ```
 
-The scripts will be automatically loaded by the browsers.
-
 - To add CSS stylesheets:
 
 ```javascript
@@ -384,7 +385,7 @@ const app = new WAMS.Application({
 });
 ```
 
-The stylesheets will be automatically loaded by the browsers.
+WAMS will load these scripts and stylesheets in the browser window.
 
 ### Connections
 
@@ -421,16 +422,21 @@ And you can set up **event listeners** for the view itself, such as:
 - `rotate`
 - `pinch`
 - `click`
+- `swipe`
+- `disconnected`
+- `pointerdown`
+- `pointermove`
+- `pointerup`
 
 **`Device`** stores dimensions of the screen and its original position when connected.
 
-**`Group`** is a group of views and should be used instead of **View** _when multi-screen gestures are enabled_. (Multi-screen gestures are currently broken).
+**`Group`** is a collection of views that will have their inputs combined together into multi-device gestures! It is a good idea to use a non-overlapping layout for the devices and views in a group, and make sure that the devices and views are laid out similarly.
 
 ### Multi-Screen Layouts
 
 By default, every connected screen is positioned in the same location and can see the same objects. However, you can build more complex layouts by using `view`, `device` and `group` objects' methods and state, or use one of the out-of-box predefined layouts.
 
-There are currently two predefined layouts: `table` and `line`.
+There are currently two predefined layouts: `TableLayout` and `LineLayout`.
 
 **`TableLayout`**
 
@@ -456,12 +462,10 @@ To see this layout in action, check out the `card-table.js` example.
 Places users in a line, with the given amount of overlap. Best used with either multi-screen gestures or when users are unable to manipulate their views.
 
 ```js
-// application config should include
-// "useMultiScreenGestures: true"
-
 const { LineLayout } = WAMS.predefined.layouts;
 
 const overlap = 200; // 200px overlap between screens
+// If using multi-device gestures, it's usually best to use an overlap of 0.
 const line = new LineLayout(overlap);
 
 function handleConnect({ view, device }) {  // note the {} brackets to destructure the event object
@@ -505,7 +509,7 @@ function smileFace(args) {
 app.spawn(smileFace({ x: 400, y: 300 }));
 ```
 
-You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item. This can be a bit confusing, since the hitbox will always be given (x, y) values as if its item is located a (0, 0). Put another way, the hitbox doesn't need to know anything about how the item is positioned or oriented in the WAMS workspace:
+You can add interactivity to a custom item the same way as with predefined items. However, you first need to add a _hitbox_ to the item. This can be a bit confusing, since the hitbox will always be given (x, y) values as if its item is located at (0, 0). Put another way, the hitbox doesn't need to know anything about how the item is positioned or oriented in the WAMS workspace:
 
 ```javascript
 function interactableSmileFace(args) {
@@ -517,12 +521,12 @@ function interactableSmileFace(args) {
   return smileFace({ ...args, hitbox });
 }
 
-// The Circle doesn't need to know that we're creating the smiley at (900, 300) in the workspace
+// The Circle doesn't need to know that we're creating the smiley at (400, 200) in the workspace
 const item = app.spawn(interactableSmileFace({ x: 400, y: 200 }));
 item.on('drag', actions.drag);
 ```
 
-A hitbox can be made from `WAMS.Rectangle` or `WAMS.Polygon2D` or `WAMS.Circle`
+A hitbox can be made from `WAMS.Rectangle`, `WAMS.Polygon2D`, `WAMS.Circle`, `WAMS.Oval`, or `WAMS.RoundedLine`.
 
 `WAMS.Polygon2D` accepts an array of points – vertices of the resulting polygon.
 
@@ -534,7 +538,7 @@ Sometimes, you would like to tell devices to execute client-side code at a speci
 
 Let's say we would like to send a message from the client to the server. WAMS methods are exposed to the client via the global `WAMS` object.
 
-To **dispatch a server event**, use `WAMS.dispatch()` method:
+To **dispatch an event to the server**, use `WAMS.dispatch()` method:
 
 ```javascript
 // client.js
@@ -558,7 +562,7 @@ function handleMyMessage(data) {
 
 ##### From Server to Client
 
-To **dispatch a client event** from the server, use `app.dispatch()` method.
+To **dispatch an event to the client** from the server, use `app.dispatch()` method.
 
 ```javascript
 // app.js
@@ -681,16 +685,17 @@ npm install
 
 #### Linting
 
-The package.json file include a `lint` script that will run the linter via the CLI via
+The package.json file includes scripts to run the linter and formatter:
 
 ```bash
+# Check for errors
 npm run lint
-```
 
-To fix linting errors, run
-
-```bash
+# Fix linting errors that can be auto-fixed:
 npm run lint:fix
+
+# Auto-format code:
+npm run format
 ```
 
 ##### Automatic Linting/Format On Save

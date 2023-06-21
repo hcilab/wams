@@ -6,14 +6,7 @@ const { image } = WAMS.predefined.items;
 const TOTAL_WIDTH = 5650;
 const TOTAL_HEIGHT = 6053;
 
-const app = new WAMS.Application({
-  shadows: true,
-  /*
-   * Mult-screen gestures are currently incomplatible with targetting different
-   * drag events at different screens- all screens/views move together.
-   */
-  useMultiScreenGestures: true,
-});
+const app = new WAMS.Application({ shadows: true });
 app.addStaticDirectory(path.join(__dirname, 'img'));
 
 app.on('position', (data) => {
@@ -57,7 +50,9 @@ function viewSetup({ view, device }) {
     view.moveTo(1615, 2800);
   } else {
     view.scaleBy(1.7);
-    // Connect all the rest of the views into one view group!
+    // Connect all the rest of the views into one view group! This has the
+    // effect of making the views act as one view, including combining their
+    // inputs into multi-device gestures!
     viewGroup.add(view);
     lineLayout.layout(view, device);
   }
