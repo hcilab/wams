@@ -198,6 +198,11 @@ class ServerController {
     // For emitting pointer events on the view, we need the x/y coordinates to
     // be in the workspace's coordinate space.
     const viewPoint = this.view.transformPoint(clientPoint.x, clientPoint.y);
+    event.clientX = viewPoint.x;
+    event.clientY = viewPoint.y;
+    event.x = viewPoint.x;
+    event.y = viewPoint.y;
+    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
 
     if (
       event.type === 'pointerdown' &&
@@ -207,18 +212,12 @@ class ServerController {
       this.application.workspace.obtainLock(viewPoint.x, viewPoint.y, this.view.group);
     }
 
-    event.clientX = viewPoint.x;
-    event.clientY = viewPoint.y;
-    event.x = viewPoint.x;
-    event.y = viewPoint.y;
-    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-
-    // Raw pointer events should directly target the view
-    event.target = this.view;
+    event.target = this.view.group; // needed by gesture controller
     event.view = this.view;
     event.group = this.view.group;
     event.device = this.device;
 
+    // Emit raw pointer event
     this.view.emit(event.type, event);
 
     // For processing gestures, we need the x/y coordinates to be in the device's coordinate space.
@@ -228,10 +227,7 @@ class ServerController {
     event.x = devicePoint.x;
     event.y = devicePoint.y;
 
-    // Gestures should target the view group
-    event.target = this.view.group;
-    event.view = this.view.group;
-
+    // May triggered gesture events
     this.view.group.gestureController.process(event);
 
     if (this.view.group.gestureController.hasNoInputs()) {
