@@ -144,6 +144,7 @@ class ClientController {
       [Message.POINTER]: NOP,
       [Message.BLUR]: NOP,
       [Message.KEYBOARD]: NOP,
+      [Message.WHEEL]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -330,6 +331,21 @@ class ClientController {
         this.socket.emit(Message.KEYBOARD, data);
       });
     });
+
+    // Forward wheel events
+    window.addEventListener(
+      'wheel',
+      (event) => {
+        if (event.ctrlKey) {
+          event.preventDefault();
+          // Extract only the properties we care about
+          const { type, clientX, clientY, deltaY, deltaMode } = event;
+          const data = { type, clientX, clientY, deltaY, deltaMode };
+          this.socket.emit(Message.WHEEL, data);
+        }
+      },
+      { capture: true }
+    );
   }
 
   /**

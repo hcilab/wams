@@ -40,6 +40,7 @@ const Message = {
   /** @const */ POINTER: 'pointer',
   /** @const */ BLUR: 'blur',
   /** @const */ KEYBOARD: 'keyboard',
+  /** @const */ WHEEL: 'wheel',
 
   // Page event related
   /** @const */ IMG_LOAD: 'image-loaded',

@@ -118,6 +118,7 @@ class ServerController {
       [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
       [Message.KEYBOARD]: this.keyboardEvent.bind(this),
+      [Message.WHEEL]: this.wheelEvent.bind(this),
 
       // For user-defined behavior
       [Message.DISPATCH]: (data) => {
@@ -242,10 +243,25 @@ class ServerController {
    */
   keyboardEvent(event) {
     event.target = this.view.group;
-    event.view = this.view.group;
+    event.view = this.view;
     event.group = this.view.group;
     event.device = this.device;
     this.view.group.gestureController.handleKeyboardEvent(event);
+  }
+
+  /**
+   * Forwards a wheel event to the message handler as a pinch event.
+   *
+   * @param {WheelEvent} event - The event to forward.
+   */
+  wheelEvent(event) {
+    const { clientX, clientY } = event;
+    const target = this.view.group;
+    const view = this.view;
+    const group = this.view.group;
+    const device = this.device;
+    const scale = 1 - event.deltaY * 0.01;
+    this.application.messageHandler.scale({ x: clientX, y: clientY, target, view, group, device }, { scale });
   }
 
   /**
