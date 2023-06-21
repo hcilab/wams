@@ -24,7 +24,6 @@ const MessageHandler = require('./MessageHandler.js');
  * to gesture inputs on coarse pointer devices (e.g. touch screens).
  * @param {boolean} [settings.shadows=false] - Whether to show shadows of other views.
  * @param {boolean} [settings.status=false] - Whether to show debugging status information in the view.
- * @param {boolean} [settings.useMultiScreenGestures=false] - Whether to use server-side gestures.
  * @param {string} [settings.backgroundImage=undefined] - Optional background image for canvas.
  * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {string} [settings.clientScripts=undefined] - Optional extra javascript to load in client.
@@ -234,7 +233,6 @@ Application.DEFAULTS = Object.freeze({
   shadows: false,
   status: false,
   stylesheets: undefined,
-  useMultiScreenGestures: false,
 });
 
 module.exports = Application;

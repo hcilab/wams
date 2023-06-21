@@ -7,7 +7,6 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
-  useMultiScreenGestures: true, // enables multi-screen gestures
   shadows: true,
   status: true,
 });
@@ -45,6 +44,9 @@ viewGroup.on('drag', WAMS.predefined.actions.drag);
 
 const line = new WAMS.predefined.layouts.LineLayout(0);
 function handleConnect({ view, device }) {
+  // Connect all the rest of the views into one view group! This has the effect
+  // of making the views act as one view, including combining their inputs into
+  // multi-device gestures!
   viewGroup.add(view);
   line.layout(view, device);
 }
