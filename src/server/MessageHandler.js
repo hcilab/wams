@@ -37,7 +37,8 @@ class MessageHandler {
     const { device, view, group } = event;
     const target = group.lockedItem;
     if (target != null) {
-      const { x, y } = view.transformPoint(centroid.x, centroid.y);
+      const original = device.reversePoint(centroid.x, centroid.y);
+      const { x, y } = view.transformPoint(original.x, original.y);
       this[gesture]({ device, group, view, target, x, y }, data);
     }
   }
@@ -109,7 +110,8 @@ class MessageHandler {
    */
   drag(event, { translation }) {
     const { device, view, target } = event;
-    const d = view.transformPointChange(translation.x, translation.y);
+    const original = device.reversePointChange(translation.x, translation.y);
+    const d = view.transformPointChange(original.x, original.y);
     target.emit('drag', { ...event, dx: d.x, dy: d.y });
   }
 
