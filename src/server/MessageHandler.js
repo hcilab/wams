@@ -54,7 +54,7 @@ class MessageHandler {
     if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
       target.emit('click', event);
     } else {
-      const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
+      const target = this.workspace.findFreeItemByCoordinates(x, y) || event.group;
       target.emit('click', { ...event, target });
     }
   }
