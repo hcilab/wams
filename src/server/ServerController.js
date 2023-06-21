@@ -261,7 +261,8 @@ class ServerController {
     const group = this.view.group;
     const device = this.device;
     const scale = 1 - event.deltaY * 0.01;
-    this.application.messageHandler.scale({ x: clientX, y: clientY, target, view, group, device }, { scale });
+    const { x, y } = this.view.transformPoint(clientX, clientY);
+    this.application.messageHandler.scale({ x, y, target, view, group, device }, { scale });
   }
 
   /**
