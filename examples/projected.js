@@ -36,7 +36,7 @@ app.spawn(
   })
 );
 
-const lineLayout = new WAMS.predefined.layouts.LineLayout(5);
+const lineLayout = new WAMS.predefined.layouts.LineLayout(0);
 const viewGroup = app.createViewGroup();
 viewGroup.scaleBy(1.7);
 viewGroup.on('drag', WAMS.predefined.actions.drag);

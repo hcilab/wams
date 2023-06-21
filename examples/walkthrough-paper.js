@@ -19,7 +19,7 @@ function spawnSquare(event) {
 const viewGroup = app.createViewGroup();
 viewGroup.on('click', spawnSquare);
 
-const line = new LineLayout(200);
+const line = new LineLayout(0);
 function handleConnect({ view, device }) {
   viewGroup.add(view);
   line.layout(view, device);
