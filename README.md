@@ -116,10 +116,10 @@ Let's now make your first WAMS app do something. Add the following code just bef
 const { square } = WAMS.predefined.items;
 
 // spawn a square on the screen
-app.spawn(square(200, 200, 100, "green"));
+app.spawn(square(100, "green", { x: 200, y: 200 }));
 ```
 
-This code creates a green square on the canvas with coordinates `{ x: 200, y: 200 }` and a length of `100`.
+The first arguments describe the square. The last argument is an object that describes how the square should be oriented within the WAMS workspace. This code creates a green square on the canvas centered at coordinates `{ x: 200, y: 200 }` and a length of `100`.
 
 ### Hello world: Multi-Screen
 
@@ -136,7 +136,7 @@ const app = new WAMS.Application();
 const { actions, items, layouts } = WAMS.predefined;
 
 function spawnSquare() {
-  const greenSquare = app.spawn(items.square(200, 200, 100, "green"));
+  const greenSquare = app.spawn(items.square(100, "green", { x: 200, y: 200 }));
   greenSquare.on('drag', actions.drag);
 }
 
@@ -313,7 +313,7 @@ app.spawn(
 To make an item **draggable**, it's enough to attach the predefined drag action to the drag event:
 
 ```javascript
-const item = app.spawn(items.square(200, 200, 100, 'green'));
+const item = app.spawn(items.square(100, 'green', { x: 200, y: 200 }));
 item.on('drag', actions.drag);
 ```
 
@@ -635,9 +635,9 @@ items.push(
   )
 );
 
-items.push(app.spawn(square(100, 100, 200, "yellow")));
+items.push(app.spawn(square(200, "yellow", { x: 100, y: 100 })));
 
-items.push(app.spawn(square(150, 150, 200, "blue")));
+items.push(app.spawn(square(200, "blue", { x: 150, y: 150 })));
 
 const group = app.createItemGroup({ items });
 group.on('drag', actions.drag);

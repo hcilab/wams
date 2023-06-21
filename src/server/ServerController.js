@@ -88,8 +88,6 @@ class ServerController {
    * @memberof module:server.ServerController
    */
   [symbols.attachSocketIoListeners]() {
-    const messageHandler = this.application.messageHandler;
-    const handleGesture = messageHandler.handleGesture;
     const listeners = {
       // For the server to inform about changes to the model
       [Message.ADD_ELEMENT]: NOP,
@@ -114,16 +112,14 @@ class ServerController {
       [Message.LAYOUT]: this.layout.bind(this),
 
       // User event related
-      [Message.CLICK]: handleGesture.bind(messageHandler, 'click', this.view),
-      [Message.SWIPE]: handleGesture.bind(messageHandler, 'swipe', this.view),
-      [Message.TRANSFORM]: handleGesture.bind(messageHandler, 'transform', this.view),
       [Message.RESIZE]: this.resize.bind(this),
-      [Message.TRACK]: (data) => messageHandler.track(data, this.view),
 
-      // Multi-device gesture related
+      // Gesture related
       [Message.POINTER]: this.pointerEvent.bind(this),
       [Message.BLUR]: () => this.view.group.clearInputsFromView(this.view.id),
+      [Message.KEYBOARD]: this.keyboardEvent.bind(this),
 
+      // For user-defined behavior
       [Message.DISPATCH]: (data) => {
         this.application.emit(data.action, { ...data.payload, view: this.view });
       },
@@ -196,9 +192,6 @@ class ServerController {
    * @param {PointerEvent} event - The event to forward.
    */
   pointerEvent(event) {
-    event.source = this.view.id;
-    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
-
     // Capture the original coordinates in the client's coordinate space.
     const clientPoint = { x: event.clientX, y: event.clientY };
 
@@ -209,24 +202,50 @@ class ServerController {
     event.clientY = viewPoint.y;
     event.x = viewPoint.x;
     event.y = viewPoint.y;
-    // Raw pointer events should directly target the view
-    event.target = this.view;
+    event.pointerId = `${String(this.view.id)}-${event.pointerId}`;
+
+    if (
+      event.type === 'pointerdown' &&
+      this.view.group.gestureController.hasNoInputs() &&
+      this.view.lockedItem == null
+    ) {
+      this.application.workspace.obtainLock(viewPoint.x, viewPoint.y, this.view.group);
+    }
+
+    event.target = this.view.group; // needed by gesture controller
     event.view = this.view;
+    event.group = this.view.group;
+    event.device = this.device;
+
+    // Emit raw pointer event
     this.view.emit(event.type, event);
 
-    if (this.application.settings.useMultiScreenGestures) {
-      // For processing multi-device gestures, we need the x/y coordinates to be
-      // in the device's coordinate space.
-      const devicePoint = this.device.transformPoint(clientPoint.x, clientPoint.y);
-      event.clientX = devicePoint.x;
-      event.clientY = devicePoint.y;
-      event.x = devicePoint.x;
-      event.y = devicePoint.y;
-      // Multi-device gestures should target the view group
-      event.target = this.view.group;
-      event.view = this.view.group;
-      this.view.group.gestureController.process(event);
+    // For processing gestures, we need the x/y coordinates to be in the device's coordinate space.
+    const devicePoint = this.device.transformPoint(clientPoint.x, clientPoint.y);
+    event.clientX = devicePoint.x;
+    event.clientY = devicePoint.y;
+    event.x = devicePoint.x;
+    event.y = devicePoint.y;
+
+    // May triggered gesture events
+    this.view.group.gestureController.process(event);
+
+    if (this.view.group.gestureController.hasNoInputs()) {
+      this.view.group.releaseLockedItem();
     }
+  }
+
+  /**
+   * Forwards a keyboard event to the gesture controller.
+   *
+   * @param {KeyboardEvent} event - The event to forward.
+   */
+  keyboardEvent(event) {
+    event.target = this.view.group;
+    event.view = this.view.group;
+    event.group = this.view.group;
+    event.device = this.device;
+    this.view.group.gestureController.handleKeyboardEvent(event);
   }
 
   /**

@@ -34,15 +34,12 @@ const Message = {
   /** @const */ FULL: 'full',
 
   // User event related
-  /** @const */ CLICK: 'click',
   /** @const */ RESIZE: 'resize',
-  /** @const */ SWIPE: 'swipe',
-  /** @const */ TRACK: 'track',
-  /** @const */ TRANSFORM: 'transform',
 
-  // Multi-device gesture related
+  // Gesture related
   /** @const */ POINTER: 'pointer',
   /** @const */ BLUR: 'blur',
+  /** @const */ KEYBOARD: 'keyboard',
 
   // Page event related
   /** @const */ IMG_LOAD: 'image-loaded',

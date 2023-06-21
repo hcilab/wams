@@ -96,6 +96,20 @@ const Transformable2D = (sclass) =>
     }
 
     /**
+     * Reverses "transformPoint"
+     *
+     * @memberof module:mixins.Transformable2D
+     *
+     * @param {number} x - x coordinate to transform.
+     * @param {number} y - y coordinate to transform.
+     *
+     * @return {module:shared.Point2D} The transformed point.
+     */
+    reversePoint(x, y) {
+      return new Point2D(x, y).minus(this).multiplyBy(this.scale).rotate(this.rotation);
+    }
+
+    /**
      * Transforms a "change" point from the transformable space to the default
      * space. Very much like the 'transformPoint' function, except that it does
      * not apply translation.
@@ -109,6 +123,20 @@ const Transformable2D = (sclass) =>
      */
     transformPointChange(dx, dy) {
       return new Point2D(dx, dy).rotate(-this.rotation).divideBy(this.scale);
+    }
+
+    /**
+     * Reverses "transformPointChange"
+     *
+     * @memberof module:mixins.Transformable2D
+     *
+     * @param {number} dx - dx coordinate to transform.
+     * @param {number} dy - dy coordinate to transform.
+     *
+     * @return {module:shared.Point2D} The transformed point.
+     */
+    reversePointChange(dx, dy) {
+      return new Point2D(dx, dy).multiplyBy(this.scale).rotate(this.rotation);
     }
   };
 

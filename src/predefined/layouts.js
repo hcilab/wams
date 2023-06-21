@@ -130,10 +130,15 @@ class LineLayout {
 
   layout(view, device) {
     if (this.views.length > 0) {
+      // Challenge with the layout is to position the new view correctly in the
+      // workspace, but also mirror that position correctly in the device space,
+      // so that the relative position of the views matches the relative
+      // position of the devices.
       const prev = this.views[this.views.length - 1];
       const change = prev.transformPointChange(this.overlap, 0);
       const anchor = prev.topRight.minus(change);
       view.moveTo(anchor.x, anchor.y);
+      view.rotation = prev.rotation;
 
       const side = this.deviceRights[this.deviceRights.length - 1] - this.overlap;
       device.moveTo(side, 0);

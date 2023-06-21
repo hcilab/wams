@@ -3,7 +3,6 @@
 const { io } = require('socket.io-client');
 
 const { constants, Message, NOP } = require('../shared.js');
-const Interactor = require('./Interactor.js');
 
 // Symbols to identify these methods as intended only for internal use
 const symbols = Object.freeze({
@@ -139,15 +138,12 @@ class ClientController {
       [Message.LAYOUT]: NOP,
 
       // User event related
-      [Message.CLICK]: NOP,
       [Message.RESIZE]: NOP,
-      [Message.SWIPE]: NOP,
-      [Message.TRACK]: NOP,
-      [Message.TRANSFORM]: NOP,
 
-      // Multi-device gesture related
+      // Gesture related
       [Message.POINTER]: NOP,
       [Message.BLUR]: NOP,
+      [Message.KEYBOARD]: NOP,
 
       // TODO: This could be more... elegant...
       [Message.FULL]: () => {
@@ -261,8 +257,7 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title, useMultiScreenGestures } =
-      data.settings;
+    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
     if (clientScripts) this.loadClientScripts(clientScripts);
     if (stylesheets) this.loadStylesheets(stylesheets);
     document.title = title;
@@ -276,7 +271,7 @@ class ClientController {
       this.canvas.style.backgroundColor = color;
     }
     this.model.initialize(data);
-    this.setUpInteractor(useMultiScreenGestures, applySmoothing);
+    this.setUpInputForwarding();
 
     // Need to tell the model what the view looks like once setup is complete.
     this.socket.emit(Message.LAYOUT, this.view);
@@ -301,34 +296,6 @@ class ClientController {
   }
 
   /**
-   * The Interactor is a level of abstraction between the ClientController and
-   * the gesture recognition library such that libraries can be swapped out
-   * more easily, if need be. At least in theory. All the ClientController
-   * needs to provide is handler functions for responding to the recognized
-   * gestures.
-   *
-   * @param {boolean} [useMultiScreenGestures=false] Whether to use server-side
-   * gestures.
-   * @param {boolean} [applySmoothing=true] Whether to apply smoothing to
-   * gestures.
-   */
-  setUpInteractor(useMultiScreenGestures = false, applySmoothing = true) {
-    this.setUpInputForwarding();
-    if (!useMultiScreenGestures) {
-      return new Interactor(
-        this.rootElement,
-        {
-          swipe: this.socket.emit.bind(this.socket, Message.SWIPE),
-          tap: this.socket.emit.bind(this.socket, Message.CLICK),
-          track: this.socket.emit.bind(this.socket, Message.TRACK),
-          transform: this.socket.emit.bind(this.socket, Message.TRANSFORM),
-        },
-        applySmoothing
-      );
-    }
-  }
-
-  /**
    * Set up input event forwarding.
    */
   setUpInputForwarding() {
@@ -346,6 +313,21 @@ class ClientController {
     ['pointercancel', 'blur'].forEach((eventname) => {
       window.addEventListener(eventname, (event) => {
         this.socket.emit(Message.BLUR, {});
+      });
+    });
+
+    // Forward keyboard events
+    const keys = ['Alt', 'Control', 'Meta', 'Shift'];
+    ['keydown', 'keyup'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        if (keys.indexOf(event.key) < 0) {
+          // Only forward events for keys we care about
+          return;
+        }
+        // Extract only the properties we care about
+        const { type, key, altKey, ctrlKey, metaKey, shiftKey } = event;
+        const data = { type, key, altKey, ctrlKey, metaKey, shiftKey };
+        this.socket.emit(Message.KEYBOARD, data);
       });
     });
   }

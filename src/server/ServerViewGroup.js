@@ -196,4 +196,18 @@ class ServerViewGroup extends Locker(Lockable(Transformable2D(View))) {
 
 Object.assign(ServerViewGroup.prototype, EventEmitter.prototype);
 
+/*
+ * Emit an event on this view group and all its views.
+ *
+ * @private
+ * @override
+ *
+ * @param {string} event - The event to emit.
+ * @param {...*} args - The arguments to pass to the event.
+ */
+ServerViewGroup.prototype.emit = function (event, ...args) {
+  EventEmitter.prototype.emit.apply(this, arguments);
+  this.views.forEach((v) => v.emit(event, ...args));
+};
+
 module.exports = ServerViewGroup;

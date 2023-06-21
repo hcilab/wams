@@ -65,21 +65,23 @@ class WorkSpace {
    * @param {number} y - y coordinate at which to look for items.
    * @param {module:server.ServerView} view - View that will receive a lock on
    * the item/view.
+   * @return {module:server.ServerItem|module:server.ServerView|module:server.ServerViewGroup}
+   * The item that was locked.
    */
   obtainLock(x, y, view) {
-    const p = view.transformPoint(x, y);
-    const item = this.findFreeItemByCoordinates(p.x, p.y) || view;
+    const item = this.findFreeItemByCoordinates(x, y) || view;
     const itemClass = item.constructor.name;
     if (itemClass !== 'ServerView' && itemClass !== 'ServerViewGroup') {
-      if (!item.lockZ) this.raiseItem(item);
       if (this._canLock(item)) {
+        if (!item.lockZ) {
+          this.raiseItem(item);
+        }
         view.obtainLockOnItem(item);
-      } else {
-        view.obtainLockOnItem(view);
+        return item;
       }
-    } else {
-      view.obtainLockOnItem(view);
     }
+    view.obtainLockOnItem(view);
+    return view;
   }
 
   _canLock(item) {

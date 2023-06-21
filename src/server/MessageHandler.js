@@ -32,13 +32,14 @@ class MessageHandler {
    *
    * @param {string} gesture
    */
-  handleGesture(gesture, view, data) {
-    const target = view.lockedItem;
+  handleGesture(gesture, data) {
+    const { centroid, event } = data;
+    const { device, view, group } = event;
+    const target = group.lockedItem;
     if (target != null) {
-      const { centroid } = data;
-      const { x, y } = view.transformPoint(centroid.x, centroid.y);
-      const event = { view, target, x, y };
-      this[gesture](event, data);
+      const original = device.reversePoint(centroid.x, centroid.y);
+      const { x, y } = view.transformPoint(original.x, original.y);
+      this[gesture]({ device, group, view, target, x, y }, data);
     }
   }
 
@@ -53,28 +54,8 @@ class MessageHandler {
     if (typeof target.containsPoint === 'function' && target.containsPoint(x, y)) {
       target.emit('click', event);
     } else {
-      const target = this.workspace.findFreeItemByCoordinates(x, y) || event.view;
+      const target = this.workspace.findFreeItemByCoordinates(x, y) || event.group;
       target.emit('click', { ...event, target });
-    }
-  }
-
-  /**
-   * Performs locking and unlocking based on the phase and number of active
-   * points.
-   *
-   * @param {Object} data
-   * @param {module:shared.Point2D[]} data.active - Currently active contact
-   * points.
-   * @param {module:shared.Point2D} data.centroid - Centroid of active contact
-   * points.
-   * @param {string} data.phase - 'start', 'move', or 'end', the gesture phase.
-   * @param {module:server.ServerView} view - Origin of track request.
-   */
-  track({ active, centroid, phase }, view) {
-    if (phase === 'start' && view.lockedItem == null) {
-      this.workspace.obtainLock(centroid.x, centroid.y, view);
-    } else if (phase === 'end' && active.length === 0) {
-      view.releaseLockedItem();
     }
   }
 
@@ -128,8 +109,10 @@ class MessageHandler {
    * @param {module:shared.Point2D} change
    */
   drag(event, { translation }) {
-    const d = event.view.transformPointChange(translation.x, translation.y);
-    event.target.emit('drag', { ...event, dx: d.x, dy: d.y });
+    const { device, view, target } = event;
+    const original = device.reversePointChange(translation.x, translation.y);
+    const d = view.transformPointChange(original.x, original.y);
+    target.emit('drag', { ...event, dx: d.x, dy: d.y });
   }
 
   /**

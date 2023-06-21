@@ -29,7 +29,7 @@ function rectangle(x, y, view) {
 }
 
 function square(x, y, view) {
-  return WAMS.predefined.items.square(x, y, 50, WAMS.colours[view.id % WAMS.colours.length], properties(x, y, view));
+  return WAMS.predefined.items.square(50, WAMS.colours[view.id % WAMS.colours.length], properties(x, y, view));
 }
 
 function circle(x, y, view) {

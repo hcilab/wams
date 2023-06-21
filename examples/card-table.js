@@ -191,7 +191,6 @@ dealCards();
  * Allows cards to be flipped.
  */
 function flipCard(event) {
-  // if (event.view.index === 0) return
   const card = event.target;
   const imgsrc = card.isFaceUp ? cardBackImagePath : card.face;
   card.setImage(imgsrc);

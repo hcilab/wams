@@ -9,7 +9,7 @@ const { square } = WAMS.predefined.items;
 const { LineLayout } = WAMS.predefined.layouts;
 
 function spawnSquare(event) {
-  const item = app.spawn(square(event.x - 50, event.y - 50, 100, 'green'));
+  const item = app.spawn(square(100, 'green', { x: event.x, y: event.y }));
   item.on('drag', WAMS.predefined.actions.drag);
   item.on('rotate', WAMS.predefined.actions.rotate);
   item.on('pinch', WAMS.predefined.actions.pinch);
@@ -19,7 +19,7 @@ function spawnSquare(event) {
 const viewGroup = app.createViewGroup();
 viewGroup.on('click', spawnSquare);
 
-const line = new LineLayout(200);
+const line = new LineLayout(0);
 function handleConnect({ view, device }) {
   viewGroup.add(view);
   line.layout(view, device);
