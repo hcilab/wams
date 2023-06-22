@@ -220,7 +220,7 @@ class ClientController {
    * the new window size, and reports the change to the server so it can be
    * reflected in the model.
    */
-  resize() {
+  resizeWindow() {
     this.resizeCanvasToFillWindow();
     this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
@@ -286,7 +286,7 @@ class ClientController {
 
     if (maximizeCanvas) {
       this.resizeCanvasToFillWindow();
-      window.addEventListener('resize', this.resize.bind(this));
+      window.addEventListener('resize', this.resizeWindow.bind(this));
     } else {
       this.resizeCanvas();
       canvas.addEventListener('resize', this.resizeCanvas.bind(this));
