@@ -38,7 +38,7 @@ function handleDrag({ x, y, dx, dy }) {
     })
   );
   // console.log('LineLayout: { x: %s, y: %s, length: %s, rotation: %s }', line.x, line.y, length, line.rotation);
-  setTimeout(() => app.removeItem(line), 3000);
+  setTimeout(() => app.removeItem(line), 500);
 }
 
 function handleConnect({ view }) {
