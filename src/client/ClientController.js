@@ -327,7 +327,21 @@ class ClientController {
   setUpInputForwarding() {
     // Forward pointer events
     ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
-      window.addEventListener(eventname, (event) => {
+      this.canvas.addEventListener(eventname, (event) => {
+        if (eventname === 'pointerdown') {
+          try {
+            this.canvas.setPointerCapture(event.pointerId);
+          } catch (e) {
+            // NOP: Optional operation failed.
+          }
+        } else if (eventname === 'pointerup') {
+          try {
+            this.canvas.releasePointerCapture(event.pointerId);
+          } catch (e) {
+            // NOP: Optional operation failed.
+          }
+        }
+
         // Extract only the properties we care about
         const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
         const data = { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey };
@@ -337,7 +351,7 @@ class ClientController {
 
     // Forward blur and cancel events as "BLUR" messages
     ['pointercancel', 'blur'].forEach((eventname) => {
-      window.addEventListener(eventname, (event) => {
+      this.canvas.addEventListener(eventname, (event) => {
         // We do not care about properties of event, just that it happened.
         this.socket.emit(Message.BLUR, {});
       });
@@ -359,7 +373,7 @@ class ClientController {
     });
 
     // Forward wheel events
-    window.addEventListener(
+    this.canvas.addEventListener(
       'wheel',
       (event) => {
         if (event.ctrlKey) {
