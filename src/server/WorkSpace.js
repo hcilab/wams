@@ -85,19 +85,10 @@ class WorkSpace {
   }
 
   _canLock(item) {
-    const eventNames = item.eventNames();
-    return (
-      item.onclick ||
-      item.ondrag ||
-      item.onpinch ||
-      item.onrotate ||
-      item.onswipe ||
-      eventNames.includes('click') ||
-      eventNames.includes('drag') ||
-      eventNames.includes('pinch') ||
-      eventNames.includes('rotate') ||
-      eventNames.includes('swipe')
-    );
+    // Instead of choosing some arbitrary subset of events that allow locking,
+    // consider any item with any kind of event listeners as lockable. It's
+    // still automagical but less opinionated.
+    return item.eventNames().length > 0;
   }
 
   /**
