@@ -252,16 +252,22 @@ class ClientController {
    */
   initialize(data) {
     const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
-    if (clientScripts) this.loadClientScripts(clientScripts);
-    if (stylesheets) this.loadStylesheets(stylesheets);
-    document.title = title;
+    if (clientScripts) {
+      this.loadClientScripts(clientScripts);
+    }
+    if (stylesheets) {
+      this.loadStylesheets(stylesheets);
+    }
+    if (title) {
+      document.title = title;
+    }
 
     this.view.id = data.viewId;
 
     if (backgroundImage) {
       this.canvas.style.backgroundColor = 'transparent';
       document.body.style.backgroundImage = `url("${backgroundImage}")`;
-    } else {
+    } else if (color) {
       this.canvas.style.backgroundColor = color;
     }
     this.model.initialize(data);

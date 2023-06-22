@@ -180,7 +180,6 @@ class ClientModel {
     });
     this.view.config.shadows = data.settings.shadows;
     this.view.config.status = data.settings.status;
-    this.view.config.backgroundImage = data.settings.backgroundImage;
   }
 
   /**
