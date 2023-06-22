@@ -55,7 +55,7 @@ class Item {
        * @memberof module:shared.Item
        * @instance
        */
-      type: 'item/polygonal',
+      type: 'item',
 
       /**
        * Whether to raise item upon interaction or lock Z position instead.
@@ -109,7 +109,7 @@ class RectangularItem extends Item {
        */
       height: 300,
 
-      type: 'item/rectangular',
+      type: 'item',
       ...values, // Assigns additional attributes to the object
     });
   }
