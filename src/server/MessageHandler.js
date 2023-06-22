@@ -39,7 +39,7 @@ class MessageHandler {
     if (target != null) {
       const original = device.reversePoint(centroid.x, centroid.y);
       const { x, y } = view.transformPoint(original.x, original.y);
-      this[gesture]({ device, group, view, target, x, y }, data);
+      this[gesture]({ ...event, centroid: { x, y }, x, y, target }, data);
     }
   }
 
@@ -56,29 +56,6 @@ class MessageHandler {
     } else {
       const target = this.workspace.findFreeItemByCoordinates(x, y) || event.group;
       target.emit('click', { ...event, target });
-    }
-  }
-
-  /**
-   * Apply a transformation event, splitting it into rotate, scale, and
-   * move.
-   *
-   * @param {object} event
-   * @param {object} data
-   */
-  transform(event, data) {
-    const { delta } = data;
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'scale')) {
-      this.scale(event, delta);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'rotation')) {
-      this.rotate(event, delta);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'translation')) {
-      this.drag(event, delta);
     }
   }
 

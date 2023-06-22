@@ -63,7 +63,7 @@ class GestureController {
     const tap = new Tap(this.group, handleGesture.bind(this.messageHandler, 'click'), {
       applySmoothing: false,
     });
-    const swivel = new Swivel(this.group, this.processSwivel.bind(this), {
+    const swivel = new Swivel(this.group, this.handleSwivel.bind(this), {
       applySmoothing: false,
       enableKeys: ['ctrlKey'],
       dynamicPivot: true,
@@ -83,7 +83,7 @@ class GestureController {
    *
    * @param {string} event
    */
-  processSwivel(event) {
+  handleSwivel(event) {
     event.centroid = event.pivot;
     this.messageHandler.handleGesture('rotate', event);
   }

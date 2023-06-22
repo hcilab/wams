@@ -24,8 +24,6 @@ const { Hittable, Identifiable } = require('../mixins.js');
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
  * @param {Object} values - User-supplied data detailing the elements.
- * Properties on this object that line up with {@link module:shared.Element}
- * members will be stored. Any other properties will be ignored.
  */
 class ServerElement extends Identifiable(Hittable(WamsElement)) {
   constructor(namespace, values = {}) {
@@ -66,19 +64,6 @@ class ServerElement extends Identifiable(Hittable(WamsElement)) {
   setAttributes(attributes) {
     this.attributes = Object.assign(this.attributes, attributes);
     this.namespace.emit(Message.SET_ATTRS, { id: this.id, attributes });
-  }
-
-  /**
-   * Serialize the element as a JSON object.
-   *
-   * @returns {Object} The element as a JSON object.
-   * @override
-   */
-  toJSON() {
-    return {
-      ...super.toJSON(),
-      attributes: this.attributes,
-    };
   }
 }
 

@@ -17,7 +17,7 @@ describe('ServerItem', () => {
         y: 0,
         rotation: 0,
         scale: 1,
-        type: 'item/polygonal',
+        type: 'item',
         lockZ: false,
       });
     });
@@ -122,7 +122,7 @@ describe('ServerItem', () => {
           y: 59,
           rotation: 0,
           scale: 1,
-          type: 'item/polygonal',
+          type: 'item',
         });
       });
     });
@@ -159,7 +159,7 @@ describe('ServerItem', () => {
           y: 59,
           rotation: 0,
           scale: 1,
-          type: 'item/polygonal',
+          type: 'item',
         });
       });
       test('Has no effect if parameters left out', () => {
@@ -195,7 +195,7 @@ describe('ServerItem', () => {
           y: 9,
           rotation: 0,
           scale: 1,
-          type: 'item/polygonal',
+          type: 'item',
         });
       });
     });

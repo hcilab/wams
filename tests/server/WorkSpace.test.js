@@ -32,7 +32,7 @@ describe('WorkSpace', () => {
           y: 0,
           rotation: 0,
           scale: 1,
-          type: 'item/polygonal',
+          type: 'item',
           lockZ: false,
         });
       });
