@@ -232,6 +232,8 @@ class ClientController {
     const height = domrect.height;
     this.canvas.width = width * this.dpr;
     this.canvas.height = height * this.dpr;
+    this.canvas.style.width = `${width}px`;
+    this.canvas.style.height = `${height}px`;
     this.view.resize(width, height);
     this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
