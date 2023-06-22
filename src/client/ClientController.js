@@ -233,6 +233,7 @@ class ClientController {
     this.canvas.width = width * this.dpr;
     this.canvas.height = height * this.dpr;
     this.view.resize(width, height);
+    this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
   }
 
