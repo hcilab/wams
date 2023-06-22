@@ -42,9 +42,8 @@ class ServerItem extends Identifiable(Hittable(Item)) {
      * Sequence of canvas instructions to be run on the client
      *
      * @type {CanvasSequence}
-     * @default undefined
      */
-    this.sequence = undefined;
+    this.sequence = values.sequence;
   }
 
   /*
