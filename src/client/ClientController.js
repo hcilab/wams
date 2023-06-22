@@ -252,6 +252,7 @@ class ClientController {
    */
   initialize(data) {
     const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
+
     if (clientScripts) {
       this.loadClientScripts(clientScripts);
     }
@@ -262,14 +263,14 @@ class ClientController {
       document.title = title;
     }
 
-    this.view.id = data.viewId;
-
     if (backgroundImage) {
       this.canvas.style.backgroundColor = 'transparent';
       document.body.style.backgroundImage = `url("${backgroundImage}")`;
     } else if (color) {
       this.canvas.style.backgroundColor = color;
     }
+
+    this.view.id = data.viewId;
     this.model.initialize(data);
     this.setUpInputForwarding();
 
@@ -312,6 +313,7 @@ class ClientController {
     // Forward blur and cancel events as "BLUR" messages
     ['pointercancel', 'blur'].forEach((eventname) => {
       window.addEventListener(eventname, (event) => {
+        // We do not care about properties of event, just that it happened.
         this.socket.emit(Message.BLUR, {});
       });
     });
