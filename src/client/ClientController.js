@@ -87,13 +87,6 @@ class ClientController {
      * @type {function}
      */
     this.render_fn = this[symbols.render].bind(this);
-
-    /*
-     * For proper function, we need to make sure that the canvas is as large as
-     * it can be at all times, and that at all times we know how big the canvas
-     * is.
-     */
-    this.resizeCanvasToFillWindow();
   }
 
   /**
@@ -150,9 +143,6 @@ class ClientController {
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
     this.socket.onAny(this.scheduleRender.bind(this));
-
-    // Keep the view size up to date.
-    window.addEventListener('resize', this.resize.bind(this), false);
 
     /*
      * As no automatic draw loop is used, (there are no animations), need to
@@ -216,6 +206,16 @@ class ClientController {
     this.view.draw();
   }
 
+  resizeCanvas() {
+    const domrect = this.canvas.getBoundingClientRect();
+    const width = domrect.width;
+    const height = domrect.height;
+    this.canvas.width = width;
+    this.canvas.height = height;
+    this.view.resize(width, height);
+    this.view.draw();
+  }
+
   /**
    * Stretches the canvas to fit the available window space, and updates the
    * view accordingly.
@@ -251,7 +251,7 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
+    const { applySmoothing, backgroundImage, clientScripts, color, maximizeCanvas, stylesheets, title } = data.settings;
 
     if (clientScripts) {
       this.loadClientScripts(clientScripts);
@@ -268,6 +268,14 @@ class ClientController {
       document.body.style.backgroundImage = `url("${backgroundImage}")`;
     } else if (color) {
       this.canvas.style.backgroundColor = color;
+    }
+
+    if (maximizeCanvas) {
+      this.resizeCanvasToFillWindow();
+      window.addEventListener('resize', this.resize.bind(this));
+    } else {
+      this.resizeCanvas();
+      canvas.addEventListener('resize', this.resizeCanvas.bind(this));
     }
 
     this.view.id = data.viewId;

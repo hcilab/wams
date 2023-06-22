@@ -150,9 +150,18 @@ class ClientView extends View {
    * Fill all available space in the window.
    */
   resizeToFillWindow(dpr, iOS) {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    if (!iOS) this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.resize(window.innerWidth, window.innerHeight, dpr, iOS);
+  }
+
+  /**
+   * Fill the given width and height.
+   */
+  resize(width, height, dpr, iOS) {
+    this.width = width;
+    this.height = height;
+    if (!iOS) {
+      this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
   }
 }
 

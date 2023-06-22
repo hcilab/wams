@@ -230,6 +230,7 @@ Application.DEFAULTS = Object.freeze({
   clientLimit: 10,
   clientScripts: undefined,
   color: '#dad1e3',
+  maximizeCanvas: true,
   shadows: false,
   status: false,
   stylesheets: undefined,
