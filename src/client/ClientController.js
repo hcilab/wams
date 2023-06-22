@@ -345,6 +345,9 @@ class ClientController {
         // Extract only the properties we care about
         const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
         const data = { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey };
+        const domrect = this.canvas.getBoundingClientRect();
+        data.clientX -= domrect.left;
+        data.clientY -= domrect.top;
         this.socket.emit(Message.POINTER, data);
       });
     });
