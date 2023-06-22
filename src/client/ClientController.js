@@ -368,7 +368,7 @@ class ClientController {
           this.socket.emit(Message.WHEEL, data);
         }
       },
-      { capture: true }
+      { passive: false }
     );
   }
 
