@@ -60,29 +60,6 @@ class MessageHandler {
   }
 
   /**
-   * Apply a transformation event, splitting it into rotate, scale, and
-   * move.
-   *
-   * @param {object} event
-   * @param {object} data
-   */
-  transform(event, data) {
-    const { delta } = data;
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'scale')) {
-      this.scale(event, delta);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'rotation')) {
-      this.rotate(event, delta);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(delta, 'translation')) {
-      this.drag(event, delta);
-    }
-  }
-
-  /**
    * Apply a scale event
    *
    * @param {object} event
