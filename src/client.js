@@ -52,7 +52,7 @@ function run() {
 
   const root = document.querySelector('#root');
   if (!root) throw Error('No root element was found on the page.');
-  const canvas = document.querySelector('canvas');
+  const canvas = document.querySelector('canvas#wams');
   if (!canvas) throw Error('No canvas element was found on the page.');
 
   const context = canvas.getContext('2d');
