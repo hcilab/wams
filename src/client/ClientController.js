@@ -230,8 +230,8 @@ class ClientController {
     const domrect = this.canvas.getBoundingClientRect();
     const width = domrect.width;
     const height = domrect.height;
-    this.canvas.width = width;
-    this.canvas.height = height;
+    this.canvas.width = width * this.dpr;
+    this.canvas.height = height * this.dpr;
     this.view.resize(width, height);
     this.view.draw();
   }
