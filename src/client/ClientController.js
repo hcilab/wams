@@ -25,14 +25,7 @@ const symbols = Object.freeze({
  * server's model.
  */
 class ClientController {
-  constructor(root, canvas, view, model) {
-    /**
-     * Root element where WAMS canvas and HTML elements are located.
-     *
-     * @type {Element}
-     */
-    this.rootElement = root;
-
+  constructor(canvas, view, model) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only

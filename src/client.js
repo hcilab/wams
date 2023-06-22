@@ -59,7 +59,7 @@ function run() {
 
   const model = new ClientModel(root);
   const view = new ClientView(context);
-  const controller = new ClientController(root, canvas, view, model);
+  const controller = new ClientController(canvas, view, model);
   window.WAMS = new ClientApplication(controller);
 
   model.view = view;
