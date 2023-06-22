@@ -23,9 +23,11 @@ const symbols = Object.freeze({
  * duties.
  * @param {module:client.ClientModel} model - The client-side copy of the
  * server's model.
+ * @param {boolean} iOS - Whether the client is running on an iOS device.
+ * @param {number} dpr - The device pixel ratio of the client.
  */
 class ClientController {
-  constructor(canvas, view, model) {
+  constructor(canvas, view, model, iOS, dpr) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only
@@ -34,6 +36,24 @@ class ClientController {
      * @type {HTMLCanvasElement}
      */
     this.canvas = canvas;
+
+    /**
+     * Whether the client is running on an iOS device.
+     *
+     * @type {boolean}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent}
+     * @see {@link https://stackoverflow.com/questions/9038625/detect-if-device-is-ios}
+     */
+    this.iOS = iOS;
+
+    /**
+     * The device pixel ratio of the client.
+     *
+     * @type {number}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio}
+     * @see {@link https://stackoverflow.com/questions/16383503/window-devicepixelratio-does-not-work-in-ie-10-mobile}
+     */
+    this.dpr = dpr;
 
     /**
      * From socket.io, the socket provides a channel of communication with the
@@ -219,21 +239,15 @@ class ClientController {
   /**
    * Stretches the canvas to fit the available window space, and updates the
    * view accordingly.
-   *
-   * Note: Scaling to account for device pixel ratio is disabled for iOS
-   * as a workaround for a bug with Safari and Chrome, where `context.setTransform`
-   * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
-    const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
-    const dpr = iOS ? 1 : window.devicePixelRatio || 1;
     const w = window.innerWidth;
     const h = window.innerHeight;
-    this.canvas.width = w * dpr;
-    this.canvas.height = h * dpr;
+    this.canvas.width = w * this.dpr;
+    this.canvas.height = h * this.dpr;
     this.canvas.style.width = `${w}px`;
     this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow(dpr, iOS);
+    this.view.resizeToFillWindow();
   }
 
   /**

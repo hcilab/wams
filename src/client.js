@@ -57,9 +57,15 @@ function run() {
 
   const context = canvas.getContext('2d');
 
+  // Note: Scaling to account for device pixel ratio is disabled for iOS as a
+  // workaround for a bug with Safari and Chrome, where `context.setTransform`
+  // would make the page unresponsive.
+  const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
+  const dpr = iOS ? 1 : window.devicePixelRatio || 1;
+
   const model = new ClientModel(root);
-  const view = new ClientView(context);
-  const controller = new ClientController(canvas, view, model);
+  const view = new ClientView(context, iOS, dpr);
+  const controller = new ClientController(canvas, view, model, iOS, dpr);
   window.WAMS = new ClientApplication(controller);
 
   model.view = view;
