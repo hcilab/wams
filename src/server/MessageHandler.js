@@ -39,7 +39,7 @@ class MessageHandler {
     if (target != null) {
       const original = device.reversePoint(centroid.x, centroid.y);
       const { x, y } = view.transformPoint(original.x, original.y);
-      this[gesture]({ device, group, view, target, x, y }, data);
+      this[gesture]({ ...event, centroid: { x, y }, x, y, target }, data);
     }
   }
 
