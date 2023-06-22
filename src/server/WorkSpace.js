@@ -87,10 +87,12 @@ class WorkSpace {
   _canLock(item) {
     const eventNames = item.eventNames();
     return (
+      item.onclick ||
       item.ondrag ||
       item.onpinch ||
       item.onrotate ||
       item.onswipe ||
+      eventNames.includes('click') ||
       eventNames.includes('drag') ||
       eventNames.includes('pinch') ||
       eventNames.includes('rotate') ||
