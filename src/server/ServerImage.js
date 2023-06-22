@@ -23,9 +23,7 @@ const { Hittable, Identifiable } = require('../mixins.js');
  * @extends __ServerImage
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
- * @param {Object} values - User-supplied data detailing the image. Properties
- * on this object that line up with {@link module:shared.Image} members will be
- * stored. Any other properties will be ignored.
+ * @param {Object} values - User-supplied data detailing the image.
  */
 class ServerImage extends Identifiable(Hittable(WamsImage)) {
   constructor(namespace, values = {}) {
@@ -54,19 +52,6 @@ class ServerImage extends Identifiable(Hittable(WamsImage)) {
   setImage(path) {
     this.src = path;
     this.namespace.emit(Message.SET_IMAGE, { id: this.id, src: path });
-  }
-
-  /**
-   * Serialize the image as a JSON object.
-   *
-   * @returns {Object} The image as a JSON object.
-   * @override
-   */
-  toJSON() {
-    return {
-      ...super.toJSON(),
-      src: this.src,
-    };
   }
 }
 

@@ -6,6 +6,7 @@
  *
  * @class Item
  * @memberof module:shared
+ * @param {Object} values - User-supplied data detailing the item.
  */
 class Item {
   constructor(values = {}) {
@@ -88,6 +89,46 @@ class Item {
   }
 }
 
+class CanvasItem extends Item {
+  constructor(values = {}) {
+    super({
+      /**
+       * @name sequence
+       * @type {CanvasSequence}
+       * @default undefined
+       * @memberof module:shared.CanvasItem
+       * @instance
+       */
+      sequence: undefined,
+
+      type: 'item',
+      ...values, // Assigns additional attributes to the object
+    });
+  }
+
+  /**
+   * Serialize the item as a JSON object.
+   *
+   * @returns {Object} The item as a JSON object.
+   * @override
+   */
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      sequence: this.sequence,
+    };
+  }
+}
+
+/**
+ * This RectangularItem class provides a common interface between the client and
+ * the server by which the RectangularItems can interact safely.
+ *
+ * @class RectangularItem
+ * @extends module:shared.Item
+ * @memberof module:shared
+ * @param {Object} values - User-supplied data detailing the item.
+ */
 class RectangularItem extends Item {
   constructor(values = {}) {
     super({
@@ -132,7 +173,9 @@ class RectangularItem extends Item {
  * server by which the elements interact safely.
  *
  * @class WamsElement
+ * @extends module:shared.RectangularItem
  * @memberof module:shared
+ * @param {Object} values - User-supplied data detailing the item.
  */
 class WamsElement extends RectangularItem {
   constructor(values = {}) {
@@ -148,6 +191,26 @@ class WamsElement extends RectangularItem {
        */
       tagname: 'div',
 
+      /**
+       * Additional attributes to set on the DOM element.
+       *
+       * @name attributes
+       * @type {object}
+       * @default {}
+       * @memberof module:shared.WamsElement
+       * @instance
+       * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes}
+       * @example
+       * {
+       *  class: 'my-class',
+       *  id: 'my-id',
+       *  style: 'background-color: red;',
+       *  ...
+       *  // Any other attribute you want to set on the element
+       * }
+       */
+      attributes: {},
+
       type: 'item/element',
       ...values, // Assigns additional attributes to the object
     });
@@ -160,6 +223,7 @@ class WamsElement extends RectangularItem {
     return {
       ...super.toJSON(),
       tagname: this.tagname,
+      attributes: this.attributes,
     };
   }
 }
@@ -169,14 +233,40 @@ class WamsElement extends RectangularItem {
  * server by which the images can interact safely.
  *
  * @class WamsImage
+ * @extends module:shared.RectangularItem
  * @memberof module:shared
+ * @param {Object} values - User-supplied data detailing the item.
  */
 class WamsImage extends RectangularItem {
   constructor(values = {}) {
     super({
+      /**
+       * Source of the image.
+       *
+       * @name src
+       * @type {string}
+       * @default ''
+       * @memberof module:shared.WamsImage
+       * @instance
+       */
+      src: '',
+
       type: 'item/image',
       ...values, // Assigns additional attributes to the object
     });
+  }
+
+  /**
+   * Serialize the image as a JSON object.
+   *
+   * @returns {Object} The image as a JSON object.
+   * @override
+   */
+  toJSON() {
+    return {
+      ...super.toJSON(),
+      src: this.src,
+    };
   }
 }
 
@@ -186,6 +276,8 @@ class WamsImage extends RectangularItem {
  *
  * @class View
  * @memberof module:shared
+ * @extends module:shared.RectangularItem
+ * @param {Object} values - User-supplied data detailing the item.
  */
 class View extends RectangularItem {
   constructor(values = {}) {
@@ -222,6 +314,7 @@ class View extends RectangularItem {
 }
 
 module.exports = {
+  CanvasItem,
   Item,
   View,
   WamsElement,

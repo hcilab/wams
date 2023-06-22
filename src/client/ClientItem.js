@@ -1,17 +1,17 @@
 'use strict';
 
-const { Item } = require('../shared.js');
+const { CanvasItem } = require('../shared.js');
 const { CanvasSequence } = require('canvas-sequencer');
 
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
  *
- * @extends module:shared.Item
+ * @extends module:shared.CanvasItem
  * @memberof module:client
  *
- * @param {module:shared.Item} data - The data from the server describing this item.
+ * @param {module:shared.CanvasItem} data - The data from the server describing this item.
  */
-class ClientItem extends Item {
+class ClientItem extends CanvasItem {
   constructor(data) {
     super(data);
 

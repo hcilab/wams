@@ -1,7 +1,7 @@
 'use strict';
 
 const { EventEmitter } = require('node:events');
-const { Item, Message } = require('../shared.js');
+const { CanvasItem, Message } = require('../shared.js');
 const { Hittable, Identifiable } = require('../mixins.js');
 
 /**
@@ -19,15 +19,13 @@ const { Hittable, Identifiable } = require('../mixins.js');
  * around.
  *
  * @memberof module:server
- * @extends module:shared.Item
+ * @extends module:shared.CanvasItem
  * @extends __ServerItem
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.
- * @param {Object} values - User-supplied data detailing the item. Properties on
- * this object that line up with {@link module:shared.Item} members will be
- * stored. Any other properties will be ignored.
+ * @param {Object} values - User-supplied data detailing the item.
  */
-class ServerItem extends Identifiable(Hittable(Item)) {
+class ServerItem extends Identifiable(Hittable(CanvasItem)) {
   constructor(namespace, values = {}) {
     super(values);
 
@@ -37,13 +35,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
      * @type {Namespace}
      */
     this.namespace = namespace;
-
-    /**
-     * Sequence of canvas instructions to be run on the client
-     *
-     * @type {CanvasSequence}
-     */
-    this.sequence = values.sequence;
   }
 
   /*
@@ -62,19 +53,6 @@ class ServerItem extends Identifiable(Hittable(Item)) {
   setSequence(sequence) {
     this.sequence = sequence;
     this.namespace.emit(Message.SET_RENDER, { id: this.id, sequence });
-  }
-
-  /**
-   * Serialize the item as a JSON object.
-   *
-   * @returns {Object} The item as a JSON object.
-   * @override
-   */
-  toJSON() {
-    return {
-      ...super.toJSON(),
-      sequence: this.sequence,
-    };
   }
 }
 
