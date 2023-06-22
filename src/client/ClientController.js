@@ -290,7 +290,7 @@ class ClientController {
       window.addEventListener('resize', this.resizeWindow.bind(this));
     } else {
       this.resizeCanvas();
-      canvas.addEventListener('resize', this.resizeCanvas.bind(this));
+      this.canvas.addEventListener('resize', this.resizeCanvas.bind(this));
     }
 
     this.view.id = data.viewId;
