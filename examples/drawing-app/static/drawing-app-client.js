@@ -7,7 +7,6 @@ class DrawingApp {
   constructor() {
     this.colorMap = {};
     this.widthMap = {};
-    this.init();
   }
 
   init() {
@@ -133,4 +132,8 @@ function addClickListener(element, callback) {
 }
 
 // eslint-disable-next-line
-const app = new DrawingApp();
+let app = null;
+document.addEventListener('wams-ready', () => {
+  const app = new DrawingApp();
+  app.init();
+});
