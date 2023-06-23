@@ -142,6 +142,7 @@ class ClientController {
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: this.initialize.bind(this),
       [Message.LAYOUT]: NOP,
+      [Message.READY]: this.ready.bind(this),
 
       // User event related
       [Message.RESIZE]: NOP,
@@ -189,6 +190,13 @@ class ClientController {
     this[symbols.attachSocketIoListeners]();
     window.requestAnimationFrame(this.render_fn);
     this.socket.connect();
+  }
+
+  /**
+   * Announce that the client is ready to send and receive messages from the server.
+   */
+  ready() {
+    document.dispatchEvent(new CustomEvent('wams-ready'));
   }
 
   /**
