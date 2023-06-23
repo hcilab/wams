@@ -150,7 +150,7 @@ class ClientView extends View {
    * @memberof module:client.ClientView
    */
   [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.context.clearRect(0, 0, this.width, this.height);
   }
 
   /**
