@@ -30,21 +30,21 @@ class DrawingApp {
       WAMS.dispatch('set-control', { type });
     }
 
-    addClickListener(panButton, chooseControlType);
-    addClickListener(drawButton, chooseControlType);
+    panButton.addEventListener('click', chooseControlType);
+    drawButton.addEventListener('click', chooseControlType);
 
-    addClickListener(colorButton, (event) => {
+    colorButton.addEventListener('click', (event) => {
       colorPicker.classList.toggle('show');
       widthPicker.classList.remove('show');
     });
 
-    addClickListener(widthButton, (event) => {
+    widthButton.addEventListener('click', (event) => {
       widthPicker.classList.toggle('show');
       colorPicker.classList.remove('show');
     });
 
     colorElements.forEach((element) => {
-      addClickListener(element, (event) => {
+      element.addEventListener('click', (event) => {
         const color = event.target.dataset.color;
         colorPicker.classList.remove('show');
         colorButton.classList = '';
@@ -54,26 +54,13 @@ class DrawingApp {
     });
 
     widthElements.forEach((element) => {
-      addClickListener(element, (event) => {
+      element.addEventListener('click', (event) => {
         const width = event.target.dataset.widthname;
         widthPicker.classList.remove('show');
         WAMS.dispatch('set-width', { width });
       });
     });
   }
-}
-
-/**
- * Helper function to attach a click and touch events to an element.
- *
- * Natively, browsers on touch devices emulate click events, but
- * WAMS intercepts this emulation, hence the need for separate listeners.
- *
- * @param {HTMLElement} element
- * @param {function} callback
- */
-function addClickListener(element, callback) {
-  element.addEventListener('click', callback);
 }
 
 // eslint-disable-next-line
