@@ -1,7 +1,4 @@
 /* global WAMS */
-const root = document.createElement('div');
-root.id = 'root';
-document.querySelector('body').appendChild(root);
 
 class DrawingApp {
   constructor() {
