@@ -43,7 +43,6 @@ class DrawingApp {
       this.router
     );
 
-    this.initialColor = 'red';
     this.viewPencilColors = {};
     this.viewPencilWidths = {};
     this.boundDraw = this.draw.bind(this);
@@ -58,12 +57,6 @@ class DrawingApp {
   }
 
   initListeners() {
-    this.wamsApp.on('init', ({ view }) => {
-      const color = this.initialColor;
-      this.setColor({ color, view });
-      view.dispatch('render-controls', { color, colorMap: COLOR_MAP, widthMap: WIDTH_MAP });
-    });
-
     this.wamsApp.on('set-control', this.updateControlType.bind(this));
     this.wamsApp.on('set-color', this.setColor.bind(this));
     this.wamsApp.on('set-width', this.setWidth.bind(this));
@@ -105,6 +98,8 @@ class DrawingApp {
   handleConnect({ view }) {
     view.on('drag', actions.drag);
     view.on('pinch', actions.pinch);
+    this.setColor({ color: 'red', view });
+    this.setWidth({ width: 'medium', view });
   }
 }
 

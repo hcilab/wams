@@ -5,22 +5,6 @@ document.querySelector('body').appendChild(root);
 
 class DrawingApp {
   constructor() {
-    this.colorMap = {};
-    this.widthMap = {};
-  }
-
-  init() {
-    WAMS.on('render-controls', ({ detail }) => {
-      const { color, colorMap, widthMap } = detail;
-      this.colorMap = colorMap;
-      this.widthMap = widthMap;
-      this.renderControls(color);
-    });
-    WAMS.dispatch('init');
-  }
-
-  renderControls(colorName) {
-    root.innerHTML = CONTROLS(colorName, this.colorMap, this.widthMap);
     this.initControlsListeners();
   }
 
@@ -79,45 +63,6 @@ class DrawingApp {
   }
 }
 
-const CONTROLS = (color, colorMap, widthMap) => `
-<div id="controls">
-    <ul class="control-buttons">
-        <button id="pan" class="active" data-type="pan">
-            <i class="far fa-hand-paper"></i>
-        </button>
-        <button id="draw" data-type="draw">
-            <i class="fas fa-pencil-alt"></i>
-        </button>
-        <button id="color" class="${color}" data-type="color">
-            <i class="fas fa-circle"></i>
-        </button>
-        <button id="width" class="${color}" data-type="color">
-            <div class="line line-thin"></div>
-            <div class="line line-medium"></div>
-            <div class="line line-thick"></div>
-        </button>
-        <div id="color-picker">
-            ${Object.keys(colorMap)
-              .map(
-                (colorName) => `
-                <i class="fas fa-circle ${colorName}" data-color="${colorName}"></i>
-            `
-              )
-              .join('')}
-        </div>
-        <div id="width-picker">
-            ${Object.keys(widthMap)
-              .map(
-                (widthName) => `
-                <i class="fas fa-circle ${widthName}" data-widthName="${widthName}" data-widthValue="${widthMap[widthName]}" ></i>
-            `
-              )
-              .join('')}
-        </div>
-    </ul>
-</div>
-`;
-
 /**
  * Helper function to attach a click and touch events to an element.
  *
@@ -134,6 +79,5 @@ function addClickListener(element, callback) {
 // eslint-disable-next-line
 let app = null;
 document.addEventListener('wams-ready', () => {
-  const app = new DrawingApp();
-  app.init();
+  app = new DrawingApp();
 });
