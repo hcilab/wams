@@ -48,8 +48,6 @@ class ClientApplication {
 }
 
 function run() {
-  document.addEventListener('contextmenu', (e) => e.preventDefault());
-
   const root = document.querySelector('#root');
   if (!root) throw Error('No root element was found on the page.');
   const canvas = document.querySelector('canvas#wams');
