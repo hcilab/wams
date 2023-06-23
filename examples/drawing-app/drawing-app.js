@@ -35,13 +35,13 @@ class DrawingApp {
     this.router.use(express.static(path.join(__dirname, '..', '..', 'dist')));
     this.router.use(express.static(path.join(__dirname, 'static')));
 
-    this.wamsApp = new WAMS.Application({
-      applySmoothing: false,
-      color: 'white',
-      clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
-      stylesheets: ['./drawing-app-client.css'],
-      title: 'Collaborative Drawing',
-    });
+    this.wamsApp = new WAMS.Application(
+      {
+        applySmoothing: false,
+        maximizeCanvas: false,
+      },
+      this.router
+    );
 
     this.initialColor = 'red';
     this.viewPencilColors = {};

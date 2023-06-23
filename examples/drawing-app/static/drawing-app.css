@@ -16,6 +16,11 @@ button {
   outline: none;
 }
 
+canvas#wams {
+  background-color: whitesmoke;
+  border: 1em inset tan;
+}
+
 #controls {
   position: fixed;
   background-color: var(--color-one);
