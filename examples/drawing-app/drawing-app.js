@@ -87,10 +87,12 @@ class DrawingApp {
     if (type === 'pan') {
       view.on('drag', actions.drag);
       view.on('pinch', actions.pinch);
+      view.on('rotate', actions.rotate);
       view.off('drag', this.boundDraw);
     } else {
       view.off('drag', actions.drag);
       view.off('pinch', actions.pinch);
+      view.off('rotate', actions.rotate);
       view.on('drag', this.boundDraw);
     }
   }
@@ -98,6 +100,7 @@ class DrawingApp {
   handleConnect({ view }) {
     view.on('drag', actions.drag);
     view.on('pinch', actions.pinch);
+    view.on('rotate', actions.rotate);
     this.setColor({ color: 'red', view });
     this.setWidth({ width: 'medium', view });
   }
