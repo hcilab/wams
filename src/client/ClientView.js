@@ -133,7 +133,7 @@ class ClientView extends View {
     const tx = 20;
 
     this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.context.font = '18px Georgia';
     messages.forEach((m) => {
       this.context.fillText(m, tx, ty);
