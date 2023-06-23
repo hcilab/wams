@@ -354,8 +354,9 @@ class ClientController {
         const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
         const data = { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey };
         const domrect = this.canvas.getBoundingClientRect();
-        data.clientX -= domrect.left;
-        data.clientY -= domrect.top;
+        const styles = window.getComputedStyle(this.canvas);
+        data.clientX -= domrect.left + parseInt(styles.paddingLeft, 10) + parseInt(styles.borderLeftWidth, 10);
+        data.clientY -= domrect.top + parseInt(styles.paddingTop, 10) + parseInt(styles.borderTopWidth, 10);
         this.socket.emit(Message.POINTER, data);
       });
     });
