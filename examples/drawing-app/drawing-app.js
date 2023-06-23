@@ -109,6 +109,6 @@ class DrawingApp {
 }
 
 // eslint-disable-next-line
-const app = new DrawingApp();
-app.initListeners();
-routing.listen(app.wamsApp.httpServer, 'localhost', 9000);
+const drawingApp = new DrawingApp();
+drawingApp.initListeners();
+routing.listen(drawingApp.wamsApp.httpServer, 'localhost', 9000);
