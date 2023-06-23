@@ -260,15 +260,6 @@ class ClientModel {
   updateView(data) {
     Object.assign(this.view, data);
   }
-
-  /**
-   * Dispatch custom DOM event to trigger user defined action
-   *
-   * @param {object} event - event data, contains `action` and `payload`
-   */
-  dispatch(event) {
-    document.dispatchEvent(new CustomEvent(event.action, { detail: event.payload }));
-  }
 }
 
 module.exports = ClientModel;

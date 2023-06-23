@@ -206,13 +206,13 @@ class ClientController {
   }
 
   /**
-   * @param {object} data
+   * @param {object} event
    */
-  handleCustomEvent(data) {
-    if (this.eventListeners.indexOf(data.action) < 0) {
-      this.eventQueue.push(data);
+  handleCustomEvent(event) {
+    if (this.eventListeners.indexOf(event.action) < 0) {
+      this.eventQueue.push(event);
     }
-    this.model.dispatch(data);
+    document.dispatchEvent(new CustomEvent(event.action, { detail: event.payload }));
   }
 
   /**
