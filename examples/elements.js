@@ -6,7 +6,7 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({ title: 'Elements | WAMS', color: '#dad1e3' });
 
 function element(x, y, view) {
   return WAMS.predefined.items.html('<button onclick="alert(\'You panicked :(\')">dont panic</button>', 300, 50, {

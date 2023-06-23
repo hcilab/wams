@@ -31,6 +31,7 @@ const Message = {
   // Connection establishment related (disconnect, initial setup)
   /** @const */ INITIALIZE: 'initialize',
   /** @const */ LAYOUT: 'layout',
+  /** @const */ READY: 'ready',
   /** @const */ FULL: 'full',
 
   // User event related

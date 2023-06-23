@@ -3,7 +3,10 @@
  **/
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({
+  color: '#dad1e3',
+  title: 'Videos | WAMS',
+});
 
 const WIDTH = 560;
 const HEIGHT = 365;

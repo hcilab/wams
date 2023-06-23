@@ -110,6 +110,7 @@ class ServerController {
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: NOP,
       [Message.LAYOUT]: this.layout.bind(this),
+      [Message.READY]: NOP,
 
       // User event related
       [Message.RESIZE]: this.resize.bind(this),
@@ -187,6 +188,7 @@ class ServerController {
     });
     this.socket.broadcast.emit(Message.ADD_SHADOW, this.view);
     this.socket.emit(Message.UD_VIEW, this.view);
+    this.socket.emit(Message.READY);
   }
 
   /**

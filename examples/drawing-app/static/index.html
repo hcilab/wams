@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="user-scalable=no,
+                 width=device-width,
+                 initial-scale=1,
+                 maximum-scale=1"
+    />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <link href="drawing-app.css" rel="stylesheet" type="text/css" />
+    <title>Collaborative Drawing | WAMS: Workspaces Across Multiple Surfaces</title>
+  </head>
+
+  <body>
+    <div id="root">
+      <canvas id="wams" width="600" height="400"> </canvas>
+      <div id="controls">
+        <ul class="control-buttons">
+          <button id="pan" class="active tool" data-type="pan">
+            <span class="far fa-hand-paper"></span>
+          </button>
+          <button id="draw" class="tool" data-type="draw">
+            <span class="fas fa-pencil-alt"></span>
+          </button>
+          <button id="color" class="red" data-type="color">
+            <span class="fas fa-circle"></span>
+          </button>
+          <button id="width" class="medium" data-type="color">
+            <div class="line line-thin"></div>
+            <div class="line line-medium"></div>
+            <div class="line line-thick"></div>
+          </button>
+          <div id="color-picker">
+            <span class="fas fa-circle red" data-color="red"></span>
+            <span class="fas fa-circle orange" data-color="orange"></span>
+            <span class="fas fa-circle yellow" data-color="yellow"></span>
+            <span class="fas fa-circle green" data-color="green"></span>
+            <span class="fas fa-circle blue" data-color="blue"></span>
+            <span class="fas fa-circle grey" data-color="grey"></span>
+            <span class="fas fa-circle black" data-color="black"></span>
+          </div>
+          <div id="width-picker">
+            <span class="fas fa-circle thin" data-widthName="thin" data-widthValue="10"></span>
+            <span class="fas fa-circle medium" data-widthName="medium" data-widthValue="20"></span>
+            <span class="fas fa-circle thick" data-widthName="thick" data-widthValue="40"></span>
+          </div>
+        </ul>
+      </div>
+    </div>
+    <script src="https://kit.fontawesome.com/3cc3d78fde.js"></script>
+    <script src="client.js"></script>
+    <script src="drawing-app-client.js"></script>
+  </body>
+</html>

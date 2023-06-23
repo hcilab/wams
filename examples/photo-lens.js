@@ -12,6 +12,7 @@ const { image } = WAMS.predefined.items;
 const app = new WAMS.Application({
   shadows: true,
   color: 'white',
+  title: 'Photo Lens | WAMS',
 });
 app.addStaticDirectory(path.join(__dirname, 'img'));
 

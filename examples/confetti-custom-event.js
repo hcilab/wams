@@ -10,7 +10,7 @@
 
 const WAMS = require('..');
 const path = require('path');
-const app = new WAMS.Application();
+const app = new WAMS.Application({ title: 'Confetti | WAMS', color: '#dad1e3' });
 
 function spawnSquare(x, y, colour) {
   return app.spawn(WAMS.predefined.items.square(128, colour, { x, y, lockZ: true }));

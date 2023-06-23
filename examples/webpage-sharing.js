@@ -1,5 +1,8 @@
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({
+  color: '#dad1e3',
+  title: 'Webpage Sharing | WAMS',
+});
 const { html } = WAMS.predefined.items;
 
 const OVERLAP = 100;

@@ -31,9 +31,11 @@ const DEFAULT_CONFIG = Object.freeze({
  *
  * @param {CanvasRenderingContext2D} context - The canvas context in which to
  * render the model.
+ * @param {boolean} iOS - Whether the client is running on an iOS device.
+ * @param {number} dpr - The device pixel ratio of the client.
  */
 class ClientView extends View {
-  constructor(context) {
+  constructor(context, iOS, dpr) {
     super(ClientView.DEFAULTS);
 
     /**
@@ -43,6 +45,24 @@ class ClientView extends View {
      * @type {CanvasRenderingContext2D}
      */
     this.context = context;
+
+    /**
+     * Whether the client is running on an iOS device.
+     *
+     * @type {boolean}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent}
+     * @see {@link https://stackoverflow.com/questions/9038625/detect-if-device-is-ios}
+     */
+    this.iOS = iOS;
+
+    /**
+     * The device pixel ratio of the client.
+     *
+     * @type {number}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio}
+     * @see {@link https://stackoverflow.com/questions/16383503/window-devicepixelratio-does-not-work-in-ie-10-mobile}
+     */
+    this.dpr = dpr;
 
     /**
      * The model holds the information about items and shadows that need
@@ -113,7 +133,7 @@ class ClientView extends View {
     const tx = 20;
 
     this.context.save();
-    this.context.setTransform(1, 0, 0, 1, 0, 0);
+    this.context.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     this.context.font = '18px Georgia';
     messages.forEach((m) => {
       this.context.fillText(m, tx, ty);
@@ -130,7 +150,7 @@ class ClientView extends View {
    * @memberof module:client.ClientView
    */
   [symbols.wipe]() {
-    this.context.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    this.context.clearRect(0, 0, this.width, this.height);
   }
 
   /**
@@ -149,10 +169,19 @@ class ClientView extends View {
   /**
    * Fill all available space in the window.
    */
-  resizeToFillWindow(dpr, iOS) {
-    this.width = window.innerWidth;
-    this.height = window.innerHeight;
-    if (!iOS) this.context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  resizeToFillWindow() {
+    this.resize(window.innerWidth, window.innerHeight);
+  }
+
+  /**
+   * Fill the given width and height.
+   */
+  resize(width, height) {
+    this.width = width;
+    this.height = height;
+    if (!this.iOS) {
+      this.context.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    }
   }
 }
 

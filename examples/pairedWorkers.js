@@ -9,7 +9,11 @@ const path = require('path');
 const WAMS = require('..');
 const { image } = WAMS.predefined.items;
 
-const app = new WAMS.Application({ clientLimit: 2 });
+const app = new WAMS.Application({
+  clientLimit: 2,
+  color: 'dad1e3',
+  title: 'Paired Workers | WAMS',
+});
 app.addStaticDirectory(path.join(__dirname, 'img'));
 
 const scream = app.spawn(

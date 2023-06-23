@@ -7,6 +7,8 @@
 
 const WAMS = require('..');
 const app = new WAMS.Application({
+  color: '#dad1e3',
+  title: 'Polygons | WAMS',
   shadows: true,
   status: true,
 });

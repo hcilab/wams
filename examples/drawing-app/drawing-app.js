@@ -4,10 +4,13 @@
  * and draw on it with different colors and line widths.
  */
 
-const WAMS = require('..');
+const express = require('express');
 const path = require('path');
-const { actions, items } = WAMS.predefined;
+
+// Normally this would be `require('wams')`, but here we'll use the local version
+const WAMS = require('../..');
 const { CanvasSequence } = require('canvas-sequencer');
+const { actions, items, routing } = WAMS.predefined;
 
 const COLOR_MAP = {
   red: '#D12C1F',
@@ -27,16 +30,19 @@ const WIDTH_MAP = {
 
 class DrawingApp {
   constructor() {
-    this.app = new WAMS.Application({
-      applySmoothing: false,
-      color: 'white',
-      clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
-      stylesheets: ['./drawing-app.css'],
-      title: 'Collaborative Drawing',
-    });
-    this.app.addStaticDirectory(path.join(__dirname, 'client'));
+    this.router = express();
+    // Route to WAMS client build
+    this.router.use(express.static(path.join(__dirname, '..', '..', 'dist')));
+    this.router.use(express.static(path.join(__dirname, 'static')));
 
-    this.initialColor = 'red';
+    this.wamsApp = new WAMS.Application(
+      {
+        applySmoothing: false,
+        maximizeCanvas: false,
+      },
+      this.router
+    );
+
     this.viewPencilColors = {};
     this.viewPencilWidths = {};
     this.boundDraw = this.draw.bind(this);
@@ -51,16 +57,10 @@ class DrawingApp {
   }
 
   initListeners() {
-    this.app.on('init', ({ view }) => {
-      const color = this.initialColor;
-      this.setColor({ color, view });
-      view.dispatch('render-controls', { color, colorMap: COLOR_MAP, widthMap: WIDTH_MAP });
-    });
-
-    this.app.on('set-control', this.updateControlType.bind(this));
-    this.app.on('set-color', this.setColor.bind(this));
-    this.app.on('set-width', this.setWidth.bind(this));
-    this.app.on('connect', this.handleConnect.bind(this));
+    this.wamsApp.on('set-control', this.updateControlType.bind(this));
+    this.wamsApp.on('set-color', this.setColor.bind(this));
+    this.wamsApp.on('set-width', this.setWidth.bind(this));
+    this.wamsApp.on('connect', this.handleConnect.bind(this));
   }
 
   draw(event) {
@@ -70,7 +70,7 @@ class DrawingApp {
     const fromY = event.y - event.dy;
     const toX = event.x;
     const toY = event.y;
-    this.app.workspace.spawnItem(
+    this.wamsApp.workspace.spawnItem(
       items.line(
         toX - fromX, // X length of line
         toY - fromY, // Y length of line
@@ -87,10 +87,12 @@ class DrawingApp {
     if (type === 'pan') {
       view.on('drag', actions.drag);
       view.on('pinch', actions.pinch);
+      view.on('rotate', actions.rotate);
       view.off('drag', this.boundDraw);
     } else {
       view.off('drag', actions.drag);
       view.off('pinch', actions.pinch);
+      view.off('rotate', actions.rotate);
       view.on('drag', this.boundDraw);
     }
   }
@@ -98,10 +100,13 @@ class DrawingApp {
   handleConnect({ view }) {
     view.on('drag', actions.drag);
     view.on('pinch', actions.pinch);
+    view.on('rotate', actions.rotate);
+    this.setColor({ color: 'red', view });
+    this.setWidth({ width: 'medium', view });
   }
 }
 
 // eslint-disable-next-line
-const app = new DrawingApp();
-app.initListeners();
-app.app.listen(9000);
+const drawingApp = new DrawingApp();
+drawingApp.initListeners();
+routing.listen(drawingApp.wamsApp.httpServer, 'localhost', 9000);

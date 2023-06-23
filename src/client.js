@@ -48,18 +48,22 @@ class ClientApplication {
 }
 
 function run() {
-  document.addEventListener('contextmenu', (e) => e.preventDefault());
-
   const root = document.querySelector('#root');
   if (!root) throw Error('No root element was found on the page.');
-  const canvas = document.querySelector('canvas');
+  const canvas = document.querySelector('canvas#wams');
   if (!canvas) throw Error('No canvas element was found on the page.');
 
   const context = canvas.getContext('2d');
 
+  // Note: Scaling to account for device pixel ratio is disabled for iOS as a
+  // workaround for a bug with Safari and Chrome, where `context.setTransform`
+  // would make the page unresponsive.
+  const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
+  const dpr = iOS ? 1 : window.devicePixelRatio || 1;
+
   const model = new ClientModel(root);
-  const view = new ClientView(context);
-  const controller = new ClientController(root, canvas, view, model);
+  const view = new ClientView(context, iOS, dpr);
+  const controller = new ClientController(canvas, view, model, iOS, dpr);
   window.WAMS = new ClientApplication(controller);
 
   model.view = view;

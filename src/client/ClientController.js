@@ -23,16 +23,11 @@ const symbols = Object.freeze({
  * duties.
  * @param {module:client.ClientModel} model - The client-side copy of the
  * server's model.
+ * @param {boolean} iOS - Whether the client is running on an iOS device.
+ * @param {number} dpr - The device pixel ratio of the client.
  */
 class ClientController {
-  constructor(root, canvas, view, model) {
-    /**
-     * Root element where WAMS canvas and HTML elements are located.
-     *
-     * @type {Element}
-     */
-    this.rootElement = root;
-
+  constructor(canvas, view, model, iOS, dpr) {
     /**
      * The HTMLCanvasElement object is stored by the ClientController so that it
      * is able to respond to user events triggered on the canvas. The view only
@@ -41,6 +36,24 @@ class ClientController {
      * @type {HTMLCanvasElement}
      */
     this.canvas = canvas;
+
+    /**
+     * Whether the client is running on an iOS device.
+     *
+     * @type {boolean}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent}
+     * @see {@link https://stackoverflow.com/questions/9038625/detect-if-device-is-ios}
+     */
+    this.iOS = iOS;
+
+    /**
+     * The device pixel ratio of the client.
+     *
+     * @type {number}
+     * @see {@link https://developer.mozilla.org/en-US/docs/Web/API/Window/devicePixelRatio}
+     * @see {@link https://stackoverflow.com/questions/16383503/window-devicepixelratio-does-not-work-in-ie-10-mobile}
+     */
+    this.dpr = dpr;
 
     /**
      * From socket.io, the socket provides a channel of communication with the
@@ -94,13 +107,6 @@ class ClientController {
      * @type {function}
      */
     this.render_fn = this[symbols.render].bind(this);
-
-    /*
-     * For proper function, we need to make sure that the canvas is as large as
-     * it can be at all times, and that at all times we know how big the canvas
-     * is.
-     */
-    this.resizeCanvasToFillWindow();
   }
 
   /**
@@ -136,6 +142,7 @@ class ClientController {
       // Connection establishment related (disconnect, initial setup)
       [Message.INITIALIZE]: this.initialize.bind(this),
       [Message.LAYOUT]: NOP,
+      [Message.READY]: this.ready.bind(this),
 
       // User event related
       [Message.RESIZE]: NOP,
@@ -157,9 +164,6 @@ class ClientController {
 
     Object.entries(listeners).forEach(([p, v]) => this.socket.on(p, v));
     this.socket.onAny(this.scheduleRender.bind(this));
-
-    // Keep the view size up to date.
-    window.addEventListener('resize', this.resize.bind(this), false);
 
     /*
      * As no automatic draw loop is used, (there are no animations), need to
@@ -189,6 +193,13 @@ class ClientController {
   }
 
   /**
+   * Announce that the client is ready to send and receive messages from the server.
+   */
+  ready() {
+    document.dispatchEvent(new CustomEvent('wams-ready'));
+  }
+
+  /**
    * Renders a frame.
    *
    * @alias [@@render]
@@ -203,13 +214,13 @@ class ClientController {
   }
 
   /**
-   * @param {object} data
+   * @param {object} event
    */
-  handleCustomEvent(data) {
-    if (this.eventListeners.indexOf(data.action) < 0) {
-      this.eventQueue.push(data);
+  handleCustomEvent(event) {
+    if (this.eventListeners.indexOf(event.action) < 0) {
+      this.eventQueue.push(event);
     }
-    this.model.dispatch(data);
+    document.dispatchEvent(new CustomEvent(event.action, { detail: event.payload }));
   }
 
   /**
@@ -217,8 +228,21 @@ class ClientController {
    * the new window size, and reports the change to the server so it can be
    * reflected in the model.
    */
-  resize() {
+  resizeWindow() {
     this.resizeCanvasToFillWindow();
+    this.socket.emit(Message.RESIZE, this.view);
+    this.view.draw();
+  }
+
+  resizeCanvas() {
+    const domrect = this.canvas.getBoundingClientRect();
+    const width = domrect.width;
+    const height = domrect.height;
+    this.canvas.width = width * this.dpr;
+    this.canvas.height = height * this.dpr;
+    this.canvas.style.width = `${width}px`;
+    this.canvas.style.height = `${height}px`;
+    this.view.resize(width, height);
     this.socket.emit(Message.RESIZE, this.view);
     this.view.draw();
   }
@@ -226,21 +250,15 @@ class ClientController {
   /**
    * Stretches the canvas to fit the available window space, and updates the
    * view accordingly.
-   *
-   * Note: Scaling to account for device pixel ratio is disabled for iOS
-   * as a workaround for a bug with Safari and Chrome, where `context.setTransform`
-   * would make the page unresponsive.
    */
   resizeCanvasToFillWindow() {
-    const iOS = /iPad|iPhone|iPod|Apple/.test(window.navigator.platform);
-    const dpr = iOS ? 1 : window.devicePixelRatio || 1;
-    const w = window.innerWidth;
-    const h = window.innerHeight;
-    this.canvas.width = w * dpr;
-    this.canvas.height = h * dpr;
-    this.canvas.style.width = `${w}px`;
-    this.canvas.style.height = `${h}px`;
-    this.view.resizeToFillWindow(dpr, iOS);
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    this.canvas.width = width * this.dpr;
+    this.canvas.height = height * this.dpr;
+    this.canvas.style.width = `${width}px`;
+    this.canvas.style.height = `${height}px`;
+    this.view.resizeToFillWindow();
   }
 
   /**
@@ -258,19 +276,34 @@ class ClientController {
    * this data to the view so that it can correctly render the model.
    */
   initialize(data) {
-    const { applySmoothing, backgroundImage, clientScripts, color, stylesheets, title } = data.settings;
-    if (clientScripts) this.loadClientScripts(clientScripts);
-    if (stylesheets) this.loadStylesheets(stylesheets);
-    document.title = title;
+    const { applySmoothing, backgroundImage, clientScripts, color, maximizeCanvas, stylesheets, title } = data.settings;
 
-    this.view.id = data.viewId;
+    if (clientScripts) {
+      this.loadClientScripts(clientScripts);
+    }
+    if (stylesheets) {
+      this.loadStylesheets(stylesheets);
+    }
+    if (title) {
+      document.title = title;
+    }
 
     if (backgroundImage) {
       this.canvas.style.backgroundColor = 'transparent';
       document.body.style.backgroundImage = `url("${backgroundImage}")`;
-    } else {
+    } else if (color) {
       this.canvas.style.backgroundColor = color;
     }
+
+    if (maximizeCanvas) {
+      this.resizeCanvasToFillWindow();
+      window.addEventListener('resize', this.resizeWindow.bind(this));
+    } else {
+      this.resizeCanvas();
+      this.canvas.addEventListener('resize', this.resizeCanvas.bind(this));
+    }
+
+    this.view.id = data.viewId;
     this.model.initialize(data);
     this.setUpInputForwarding();
 
@@ -302,17 +335,36 @@ class ClientController {
   setUpInputForwarding() {
     // Forward pointer events
     ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
-      window.addEventListener(eventname, (event) => {
+      this.canvas.addEventListener(eventname, (event) => {
+        if (eventname === 'pointerdown') {
+          try {
+            this.canvas.setPointerCapture(event.pointerId);
+          } catch (e) {
+            // NOP: Optional operation failed.
+          }
+        } else if (eventname === 'pointerup') {
+          try {
+            this.canvas.releasePointerCapture(event.pointerId);
+          } catch (e) {
+            // NOP: Optional operation failed.
+          }
+        }
+
         // Extract only the properties we care about
         const { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey } = event;
         const data = { type, pointerId, clientX, clientY, target, altKey, ctrlKey, metaKey, shiftKey };
+        const domrect = this.canvas.getBoundingClientRect();
+        const styles = window.getComputedStyle(this.canvas);
+        data.clientX -= domrect.left + parseInt(styles.paddingLeft, 10) + parseInt(styles.borderLeftWidth, 10);
+        data.clientY -= domrect.top + parseInt(styles.paddingTop, 10) + parseInt(styles.borderTopWidth, 10);
         this.socket.emit(Message.POINTER, data);
       });
     });
 
     // Forward blur and cancel events as "BLUR" messages
-    ['pointercancel', 'blur'].forEach((eventname) => {
-      window.addEventListener(eventname, (event) => {
+    ['pointercancel', 'blur', 'contextmenu'].forEach((eventname) => {
+      this.canvas.addEventListener(eventname, (event) => {
+        // We do not care about properties of event, just that it happened.
         this.socket.emit(Message.BLUR, {});
       });
     });
@@ -333,7 +385,7 @@ class ClientController {
     });
 
     // Forward wheel events
-    window.addEventListener(
+    this.canvas.addEventListener(
       'wheel',
       (event) => {
         if (event.ctrlKey) {
@@ -344,7 +396,7 @@ class ClientController {
           this.socket.emit(Message.WHEEL, data);
         }
       },
-      { capture: true }
+      { passive: false }
     );
   }
 
