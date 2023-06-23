@@ -9,7 +9,7 @@ class DrawingApp {
   }
 
   initControlsListeners() {
-    const buttons = document.querySelectorAll('button');
+    const buttons = document.querySelectorAll('.control-buttons > button.tool');
     const panButton = document.querySelector('#pan');
     const drawButton = document.querySelector('#draw');
     const colorButton = document.querySelector('#color');
