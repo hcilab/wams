@@ -43,7 +43,7 @@ function oval(x, y, view) {
 function polygon(x, y, view) {
   return WAMS.predefined.items.polygon(
     WAMS.predefined.utilities.randomPoints(7), // random coordinates
-    WAMS.colours[view.id % WAMS.colours.length], // random color
+    WAMS.colours[view.id % WAMS.colours.length], // colour based on view id
     properties(x, y, view)
   );
 }
