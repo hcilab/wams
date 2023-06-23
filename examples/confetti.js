@@ -6,7 +6,7 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({ title: 'Confetti | WAMS', color: '#dad1e3' });
 
 function spawnSquare(event) {
   const { x, y, view } = event;

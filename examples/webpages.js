@@ -6,7 +6,10 @@
 'use strict';
 
 const WAMS = require('..');
-const app = new WAMS.Application();
+const app = new WAMS.Application({
+  color: '#dad1e3',
+  title: 'Webpages | WAMS',
+});
 const { html } = WAMS.predefined.items;
 
 // function that returns input html wrapped with a top bar

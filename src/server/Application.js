@@ -28,7 +28,7 @@ const MessageHandler = require('./MessageHandler.js');
  * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {string} [settings.clientScripts=undefined] - Optional extra javascript to load in client.
  * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
- * @param {string} [settings.color='gray'] Background color for the workspace.
+ * @param {string} [settings.color=undefined] Background color for the workspace.
  * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
  * @param {number} [clientLimit=10] - The number of active clients that are allowed
  * Not recommended. Prefer defining your own HTML, CSS, server, and routing.
@@ -229,7 +229,7 @@ Application.DEFAULTS = Object.freeze({
   backgroundImage: undefined,
   clientLimit: 10,
   clientScripts: undefined,
-  color: '#dad1e3',
+  color: undefined,
   maximizeCanvas: true,
   shadows: false,
   status: false,

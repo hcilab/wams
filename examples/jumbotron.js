@@ -12,6 +12,7 @@ const { image } = WAMS.predefined.items;
 const app = new WAMS.Application({
   color: 'black',
   clientLimit: 1000,
+  title: 'Jumbotron | WAMS',
 });
 app.addStaticDirectory(path.join(__dirname, 'img'));
 

@@ -9,6 +9,7 @@ const deepSpace = { x: 99999, y: 99999 };
 const app = new WAMS.Application({
   color: '#f4f4f4',
   shadows: true,
+  title: 'Pick n Drop | WAMS',
 });
 app.addStaticDirectory(path.join(__dirname, 'img'));
 
