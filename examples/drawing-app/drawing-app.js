@@ -4,10 +4,13 @@
  * and draw on it with different colors and line widths.
  */
 
-const WAMS = require('..');
+const express = require('express');
 const path = require('path');
-const { actions, items } = WAMS.predefined;
+
+// Normally this would be `require('wams')`, but here we'll use the local version
+const WAMS = require('../..');
 const { CanvasSequence } = require('canvas-sequencer');
+const { actions, items, routing } = WAMS.predefined;
 
 const COLOR_MAP = {
   red: '#D12C1F',
@@ -27,14 +30,18 @@ const WIDTH_MAP = {
 
 class DrawingApp {
   constructor() {
+    this.router = express();
+    // Route to WAMS client build
+    this.router.use(express.static(path.join(__dirname, '..', '..', 'dist')));
+    this.router.use(express.static(path.join(__dirname, 'static')));
+
     this.app = new WAMS.Application({
       applySmoothing: false,
       color: 'white',
       clientScripts: ['https://kit.fontawesome.com/3cc3d78fde.js', 'drawing-app.js'],
-      stylesheets: ['./drawing-app.css'],
+      stylesheets: ['./drawing-app-client.css'],
       title: 'Collaborative Drawing',
     });
-    this.app.addStaticDirectory(path.join(__dirname, 'client'));
 
     this.initialColor = 'red';
     this.viewPencilColors = {};
@@ -104,4 +111,4 @@ class DrawingApp {
 // eslint-disable-next-line
 const app = new DrawingApp();
 app.initListeners();
-app.app.listen(9000);
+routing.listen(app.httpServer, 'localhost', 9000);
