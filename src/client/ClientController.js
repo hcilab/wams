@@ -353,7 +353,7 @@ class ClientController {
     });
 
     // Forward blur and cancel events as "BLUR" messages
-    ['pointercancel', 'blur'].forEach((eventname) => {
+    ['pointercancel', 'blur', 'contextmenu'].forEach((eventname) => {
       this.canvas.addEventListener(eventname, (event) => {
         // We do not care about properties of event, just that it happened.
         this.socket.emit(Message.BLUR, {});
