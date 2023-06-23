@@ -12,10 +12,12 @@ sequenceDiagram
     cc ->> sc : transmit pointer event with (clientX, clientY)
     sc ->> sv : transform (clientX, clientY) to view coordinates
     sv ->> sc : (viewX, viewY)
-    alt if event is pointerdown and view has no locked item
+
+    alt if event is pointerdown and the view has no locked item
         sc ->> ws : obtain item lock, possibly on the view group
         ws ->> sv : set locked item
     end
+
     sc ->> user : emit pointer event with (viewX, viewY)
     sc ->> dv : transform (clientX, clientY) to device coordinates
     dv ->> sc : (deviceX, deviceY)
@@ -26,4 +28,8 @@ sequenceDiagram
     mh ->> sv : transform (clientCentroidX, clientCentroidY) to workspace coordinates
     sv ->> mh : (viewCentroidX, viewCentroidY)
     mh ->> user : emit gesture event with (viewCentroidX, viewCentroidY)
+
+    alt if event is pointerup and there are no inputs remaining in the device group
+        sc ->> sv : release locked item
+    end
 ```
