@@ -259,12 +259,15 @@ class ServerController {
    * @param {WheelEvent} event - The event to forward.
    */
   wheelEvent(event) {
-    const { clientX, clientY, spinY } = event;
+    const { clientX, clientY, deltaY, spinY } = event;
     const target = this.view.group;
     const view = this.view;
     const group = this.view.group;
     const device = this.device;
-    const scale = 1 - spinY * 0.1;
+    let use = Math.abs(spinY) < Math.abs(deltaY) ? spinY : deltaY;
+    use = isFinite(use) ? use : Math.sign(deltaY);
+    const scale = 1 - use * 0.1;
+    console.log({ deltaY, spinY, use, scale });
     const { x, y } = this.view.transformPoint(clientX, clientY);
     this.application.messageHandler.scale({ x, y, target, view, group, device }, { scale });
   }

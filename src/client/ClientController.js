@@ -387,13 +387,13 @@ class ClientController {
 
     // Forward wheel events
     this.canvas.addEventListener(
-      normalizeWheel.getEventType(),
+      'wheel',
       (event) => {
         if (event.ctrlKey) {
           event.preventDefault();
-          const { clientX, clientY } = event;
+          const { clientX, clientY, deltaY } = event;
           const { spinY } = normalizeWheel(event);
-          const data = { clientX, clientY, spinY };
+          const data = { clientX, clientY, deltaY, spinY };
           this.socket.emit(Message.WHEEL, data);
         }
       },
