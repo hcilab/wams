@@ -1,6 +1,7 @@
 'use strict';
 
 const { io } = require('socket.io-client');
+const normalizeWheel = require('normalize-wheel');
 
 const { constants, Message, NOP } = require('../shared.js');
 
@@ -386,13 +387,13 @@ class ClientController {
 
     // Forward wheel events
     this.canvas.addEventListener(
-      'wheel',
+      normalizeWheel.getEventType(),
       (event) => {
         if (event.ctrlKey) {
           event.preventDefault();
-          // Extract only the properties we care about
-          const { type, clientX, clientY, deltaY, deltaMode } = event;
-          const data = { type, clientX, clientY, deltaY, deltaMode };
+          const { clientX, clientY } = event;
+          const { spinY } = normalizeWheel(event);
+          const data = { clientX, clientY, spinY };
           this.socket.emit(Message.WHEEL, data);
         }
       },
