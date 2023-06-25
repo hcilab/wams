@@ -3,6 +3,10 @@
   --color-two: #97ccf6;
 }
 
+html {
+  background-color: antiquewhite;
+}
+
 ul {
   list-style: none;
   padding: 0;
