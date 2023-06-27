@@ -396,8 +396,10 @@ class ClientController {
           event.preventDefault();
           const { clientX, clientY, deltaY } = event;
           const { spinY } = normalizeWheel(event);
-          const data = { clientX, clientY, deltaY, spinY };
-          this.socket.emit(Message.WHEEL, data);
+          if (isFinite(spinY) && isFinite(deltaY)) {
+            const data = { clientX, clientY, deltaY, spinY };
+            this.socket.emit(Message.WHEEL, data);
+          }
         }
       },
       { passive: false }

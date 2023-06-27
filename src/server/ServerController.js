@@ -264,9 +264,8 @@ class ServerController {
     const view = this.view;
     const group = this.view.group;
     const device = this.device;
-    let use = Math.abs(spinY) < Math.abs(deltaY) ? spinY : deltaY;
-    use = isFinite(use) ? use : Math.sign(deltaY);
-    const scale = 1 - use * 0.1;
+    let scaleChange = Math.abs(spinY) < Math.abs(deltaY) ? spinY : deltaY;
+    const scale = 1 - scaleChange * 0.1;
     const { x, y } = this.view.transformPoint(clientX, clientY);
     this.application.messageHandler.scale({ x, y, target, view, group, device }, { scale });
   }
