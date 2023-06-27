@@ -1,6 +1,7 @@
 'use strict';
 
 const { io } = require('socket.io-client');
+const normalizeWheel = require('normalize-wheel');
 
 const { constants, Message, NOP } = require('../shared.js');
 
@@ -333,6 +334,9 @@ class ClientController {
    * Set up input event forwarding.
    */
   setUpInputForwarding() {
+    // Prevent default gestures from the browser
+    this.canvas.style.touchAction = 'none';
+
     // Forward pointer events
     ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
       this.canvas.addEventListener(eventname, (event) => {
@@ -390,10 +394,12 @@ class ClientController {
       (event) => {
         if (event.ctrlKey) {
           event.preventDefault();
-          // Extract only the properties we care about
-          const { type, clientX, clientY, deltaY, deltaMode } = event;
-          const data = { type, clientX, clientY, deltaY, deltaMode };
-          this.socket.emit(Message.WHEEL, data);
+          const { clientX, clientY, deltaY } = event;
+          const { spinY } = normalizeWheel(event);
+          if (isFinite(spinY) && isFinite(deltaY)) {
+            const data = { clientX, clientY, deltaY, spinY };
+            this.socket.emit(Message.WHEEL, data);
+          }
         }
       },
       { passive: false }
