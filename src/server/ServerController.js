@@ -265,7 +265,7 @@ class ServerController {
     const group = this.view.group;
     const device = this.device;
     let scaleChange = Math.abs(spinY) < Math.abs(deltaY) ? spinY : deltaY;
-    const scale = 1 - scaleChange * 0.1;
+    const scale = Math.max(Math.min(1 - scaleChange * 0.1, 1.1), 0.9);
     const { x, y } = this.view.transformPoint(clientX, clientY);
     this.application.messageHandler.scale({ x, y, target, view, group, device }, { scale });
   }
