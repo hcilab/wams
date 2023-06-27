@@ -12,6 +12,7 @@ const REQUIRED_DATA = Object.freeze(['viewId', 'items', 'views']);
  * The ClientModel is a client-side copy of those aspects of the model that are
  * necessary for rendering the view for the user.
  *
+ * @private
  * @memberof module:client
  */
 class ClientModel {

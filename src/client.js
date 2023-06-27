@@ -1,7 +1,3 @@
-/*
- * WAMS code to be executed in the client browser.
- */
-
 /**
  * This file defines the entry point for the client side of a WAMS application.
  *
@@ -12,6 +8,7 @@
  * style = "max-height: 200px;"
  * >
  *
+ * @ignore
  * @module client
  */
 

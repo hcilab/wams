@@ -16,6 +16,7 @@ const symbols = Object.freeze({
  * messages based on user interaction with the canvas and receives messages from
  * the server detailing changes to post to the view.
  *
+ * @private
  * @memberof module:client
  *
  * @param {HTMLCanvasElement} canvas - The underlying CanvasElement object, (not

@@ -35,8 +35,9 @@ function createImage(src) {
 /**
  * The ClientImage class exposes the draw() funcitonality of wams items.
  *
- * @extends module:shared.WamsImage
+ * @private
  * @memberof module:client
+ * @extends module:shared.WamsImage
  *
  * @param {module:shared.Item} data - The data from the server describing this item.
  */

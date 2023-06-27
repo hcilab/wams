@@ -6,6 +6,7 @@ const { Region, Pan, Rotate, Pinch, Swipe, Swivel, Tap } = require('westures/ind
  * The GestureController is in charge of processing server-side gestures for the
  * purpose of enabling multi-device gestures.
  *
+ * @private
  * @memberof module:server
  *
  * @param {module:server.MessageHandler} messageHandler - For responding to

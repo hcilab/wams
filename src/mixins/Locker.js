@@ -5,6 +5,7 @@ const lockedItem = Symbol('lockedItem');
 /**
  * The Locker mixin allows a class to obtain and release a lock on an item.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

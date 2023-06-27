@@ -7,6 +7,7 @@ const { Transformable2D } = require('../mixins.js');
  * A Device keeps track of the physical position of a device connected to an
  * application.
  *
+ * @private
  * @memberof module:server
  * @extends module:shared.View
  * @mixes module:mixins.Transformable2D

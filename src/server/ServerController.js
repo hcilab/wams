@@ -13,6 +13,7 @@ const symbols = Object.freeze({
  * A ServerController maintains a socket.io connection between a client and the
  * server. It tracks a view associated with the client.
  *
+ * @private
  * @memberof module:server
  *
  * @param {number} index - The index of this ServerController in the workspace,

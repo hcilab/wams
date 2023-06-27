@@ -8,6 +8,7 @@
  * style = "max-height: 260px;"
  * >
  *
+ * @private
  * @module server
  */
 

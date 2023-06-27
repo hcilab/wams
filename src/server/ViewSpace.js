@@ -7,6 +7,7 @@ const ServerView = require('./ServerView');
 /**
  * The ViewSpace keeps track of views and view groups.
  *
+ * @private
  * @memberof module:server
  *
  * @param {module:server.MessageHandler} messageHandler - The message handler for

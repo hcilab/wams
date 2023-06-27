@@ -38,6 +38,7 @@ const Interactable = require('./Interactable.js');
  * The purpose of the Hittable mixin is simply to provide functionality for
  * interacting with the 'hitbox' property.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

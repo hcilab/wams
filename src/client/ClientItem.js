@@ -6,8 +6,9 @@ const { CanvasSequence } = require('canvas-sequencer');
 /**
  * The ClientItem class exposes the draw() funcitonality of wams items.
  *
- * @extends module:shared.CanvasItem
+ * @private
  * @memberof module:client
+ * @extends module:shared.CanvasItem
  *
  * @param {module:shared.CanvasItem} data - The data from the server describing this item.
  */

@@ -15,6 +15,7 @@ const symbols = Object.freeze({
  * is ensure that the publication will not be sent until all transformations
  * relating to an event have been applied.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin
