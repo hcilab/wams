@@ -334,6 +334,9 @@ class ClientController {
    * Set up input event forwarding.
    */
   setUpInputForwarding() {
+    // Prevent default gestures from the browser
+    this.canvas.style.touchAction = 'none';
+
     // Forward pointer events
     ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
       this.canvas.addEventListener(eventname, (event) => {
