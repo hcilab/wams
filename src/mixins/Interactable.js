@@ -8,6 +8,7 @@ const Transformable2D = require('./Transformable2D.js');
  * This mixin combines the Transformable2D, Lockable, and Publishable mixins to
  * produce an object that can be interacted with by a WAMS application.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

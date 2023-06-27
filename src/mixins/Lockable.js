@@ -7,6 +7,7 @@ const holder = Symbol.for('holder');
  * The Lockable mixin allows a class to enable itself to be locked and unlocked,
  * with the default being unlocked.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

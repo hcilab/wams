@@ -73,6 +73,12 @@ class TableLayout {
     device.rotateBy(-constants.ROTATE_90);
   }
 
+  /**
+   * Apply the layout to a newly connected view and its device.
+   *
+   * @param {module:server.ServerView} view
+   * @param {module:server.Device} device
+   */
   layout(view, device) {
     const index = view.index > 0 ? (view.index % 4) + 1 : 0;
     console.log('INDEX', index);
@@ -128,6 +134,12 @@ class LineLayout {
     this.deviceRights = [];
   }
 
+  /**
+   * Apply the layout to a newly connected view and its device.
+   *
+   * @param {module:server.ServerView} view
+   * @param {module:server.Device} device
+   */
   layout(view, device) {
     if (this.views.length > 0) {
       // Challenge with the layout is to position the new view correctly in the
@@ -157,6 +169,7 @@ class LineLayout {
 }
 
 /**
+ * @private
  * @deprecated
  * @param {number} overlap
  * @returns {TableLayout}
@@ -168,6 +181,7 @@ function table(overlap) {
 }
 
 /**
+ * @private
  * @deprecated
  * @param {number} overlap
  * @returns {LineLayout}

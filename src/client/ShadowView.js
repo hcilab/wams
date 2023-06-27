@@ -19,8 +19,9 @@ const symbols = Object.freeze({
  * The ShadowView class exposes a simple draw() function which renders a shadowy
  * outline of the view onto the canvas.
  *
- * @extends module:shared.View
+ * @private
  * @memberof module:client
+ * @extends module:shared.View
  *
  * @param {module:shared.View} values - server-provided data describing this
  * view.

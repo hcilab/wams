@@ -10,6 +10,7 @@ const ServerItem = require('./ServerItem.js');
  * The WorkSpace keeps track of items, and can handle events on those items
  * which allow them to be interacted with.
  *
+ * @private
  * @memberof module:server
  *
  * @param {Namespace} namespace - Socket.io namespace for publishing changes.

@@ -4,6 +4,7 @@
  * The MessageHandler logs listeners that are attached by the user and receives
  * messages from clients, which it then uses to call the appropriate listener.
  *
+ * @private
  * @memberof module:server
  *
  * @param {module:server.Application} application - The WAMS application for

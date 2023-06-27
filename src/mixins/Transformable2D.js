@@ -6,6 +6,7 @@ const { Point2D } = require('../shared.js');
  * This mixin provides 2D transformation operations for classes with 'x', 'y',
  * 'scale' and 'rotation' properties.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

@@ -35,6 +35,7 @@ function getUniqueId(previous) {
  * IdStamper.cloneId(danger, obj.id); // Will work. 'danger' & 'obj' are
  *                                    // now both using the same Id.
  *
+ * @private
  * @memberof module:shared
  */
 class IdStamper {

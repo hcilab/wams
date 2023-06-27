@@ -3,6 +3,7 @@
 /**
  * Enum of the various message types.
  *
+ * @private
  * @name Message
  * @enum {string}
  * @readonly

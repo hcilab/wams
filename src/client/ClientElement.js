@@ -5,8 +5,9 @@ const { Point2D, WamsElement } = require('../shared.js');
 /**
  * The ClientElement class exposes the draw() funcitonality of wams elements.
  *
- * @extends module:shared.WamsElement
+ * @private
  * @memberof module:client
+ * @extends module:shared.WamsElement
  *
  * @param {module:shared.WamsElement} data - The data from the server describing this item.
  */

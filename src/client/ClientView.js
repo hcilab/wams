@@ -26,8 +26,9 @@ const DEFAULT_CONFIG = Object.freeze({
  * track of its own position, scale, and orientation, as well as those values
  * for all items and all other views (which will be represented with outlines).
  *
- * @extends module:shared.View
+ * @private
  * @memberof module:client
+ * @extends module:shared.View
  *
  * @param {CanvasRenderingContext2D} context - The canvas context in which to
  * render the model.

@@ -7,6 +7,7 @@ const STAMPER = new IdStamper();
  * Labels each instantiated object with a unique, immutable ID. All classes that
  * use this mixin will share the same pool of IDs.
  *
+ * @private
  * @memberof module:mixins
  *
  * @mixin

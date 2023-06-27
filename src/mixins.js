@@ -1,5 +1,6 @@
 /**
- * Mixins used by the WAMS project.
+ * Mixins used by the WAMS project. These provide much of the functionality for
+ * manipulating items and views.
  *
  * <br>
  * <img
@@ -9,11 +10,10 @@
  * >
  * <p>
  *
- * @see For a rundown on the mixin pattern I use: {@link
+ * @see For a rundown on the mixin pattern used: {@link
  * http://justinfagnani.com/2015/12/21/real-mixins-with-javascript-classes/}.
- * Note that I actually like the base syntax, and prefer not to add another
- * dependency by requiring the module implemented by the author of that article.
  *
+ * @private
  * @module mixins
  */
 

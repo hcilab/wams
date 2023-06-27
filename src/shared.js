@@ -9,6 +9,7 @@
  * style = "max-height: 250px;"
  * >
  *
+ * @private
  * @module shared
  */
 

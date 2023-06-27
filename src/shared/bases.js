@@ -4,7 +4,7 @@
  * This Item class provides a common interface between the client and the server
  * by which the Items can interact safely.
  *
- * @class Item
+ * @private
  * @memberof module:shared
  * @param {Object} values - User-supplied data detailing the item.
  */
@@ -89,6 +89,15 @@ class Item {
   }
 }
 
+/**
+ * This CanvasItem class provides a common interface between the client and the
+ * server by which items that are defined by sequences of canvas instructions
+ * can be rendered safely.
+ *
+ * @private
+ * @memberof module:shared
+ * @param {Object} values - User-supplied data detailing the item.
+ */
 class CanvasItem extends Item {
   constructor(values = {}) {
     super({
@@ -124,7 +133,7 @@ class CanvasItem extends Item {
  * This RectangularItem class provides a common interface between the client and
  * the server by which the RectangularItems can interact safely.
  *
- * @class RectangularItem
+ * @private
  * @extends module:shared.Item
  * @memberof module:shared
  * @param {Object} values - User-supplied data detailing the item.
@@ -172,7 +181,7 @@ class RectangularItem extends Item {
  * This WamsElement class provides a common interface between the client and the
  * server by which the elements interact safely.
  *
- * @class WamsElement
+ * @private
  * @extends module:shared.RectangularItem
  * @memberof module:shared
  * @param {Object} values - User-supplied data detailing the item.
@@ -232,7 +241,7 @@ class WamsElement extends RectangularItem {
  * This WamsImage class provides a common interface between the client and the
  * server by which the images can interact safely.
  *
- * @class WamsImage
+ * @private
  * @extends module:shared.RectangularItem
  * @memberof module:shared
  * @param {Object} values - User-supplied data detailing the item.
@@ -274,7 +283,7 @@ class WamsImage extends RectangularItem {
  * This View class provides a common interface between the client and
  * the server by which the Views can interact safely.
  *
- * @class View
+ * @private
  * @memberof module:shared
  * @extends module:shared.RectangularItem
  * @param {Object} values - User-supplied data detailing the item.

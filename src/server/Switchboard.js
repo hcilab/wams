@@ -49,6 +49,7 @@ function logConnection(id, status) {
  * server establishment, and establishing connections when new clients connect
  * to the server.
  *
+ * @private
  * @memberof module:server
  *
  * @param {module:server.Application} application - The WAMS application for
