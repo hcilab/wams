@@ -109,11 +109,10 @@ class DrawingApp {
 function constrainedZoom(event) {
   const targetScale = event.target.scale;
   const deltaScale = event.scale;
-  if ((deltaScale > 1 && targetScale < 3) || (deltaScale < 1 && targetScale > 0.10)) {
+  if ((deltaScale > 1 && targetScale < 3) || (deltaScale < 1 && targetScale > 0.1)) {
     actions.pinch(event);
   }
 }
-
 
 // eslint-disable-next-line
 const drawingApp = new DrawingApp();
