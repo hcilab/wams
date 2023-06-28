@@ -6,7 +6,7 @@ const app = new WAMS.Application({
   status: true,
 });
 
-const { action, items, layouts } = WAMS.predefined;
+const { actions, items, layouts } = WAMS.predefined;
 
 function spawnSquare(event) {
   const item = app.spawn(items.square(100, 'green', { x: event.x, y: event.y }));
