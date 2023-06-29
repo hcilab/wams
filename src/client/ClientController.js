@@ -335,21 +335,39 @@ class ClientController {
    * Set up input event forwarding.
    */
   setUpInputForwarding() {
+    // Forward keyboard events
+    const keys = ['Alt', 'Control', 'Meta', 'Shift'];
+    ['keydown', 'keyup'].forEach((eventname) => {
+      window.addEventListener(eventname, (event) => {
+        if (keys.indexOf(event.key) < 0) {
+          // Only forward events for keys we care about
+          return;
+        }
+        // Extract only the properties we care about
+        const { type, key, altKey, ctrlKey, metaKey, shiftKey } = event;
+        const data = { type, key, altKey, ctrlKey, metaKey, shiftKey };
+        this.socket.emit(Message.KEYBOARD, data);
+      });
+    });
+    this.forwardInputsFromElement(this.canvas);
+  }
+
+  forwardInputsFromElement(element) {
     // Prevent default gestures from the browser
-    this.canvas.style.touchAction = 'none';
+    element.style.touchAction = 'none';
 
     // Forward pointer events
     ['pointerdown', 'pointermove', 'pointerup'].forEach((eventname) => {
-      this.canvas.addEventListener(eventname, (event) => {
+      element.addEventListener(eventname, (event) => {
         if (eventname === 'pointerdown') {
           try {
-            this.canvas.setPointerCapture(event.pointerId);
+            element.setPointerCapture(event.pointerId);
           } catch (e) {
             // NOP: Optional operation failed.
           }
         } else if (eventname === 'pointerup') {
           try {
-            this.canvas.releasePointerCapture(event.pointerId);
+            element.releasePointerCapture(event.pointerId);
           } catch (e) {
             // NOP: Optional operation failed.
           }
@@ -368,29 +386,14 @@ class ClientController {
 
     // Forward blur and cancel events as "BLUR" messages
     ['pointercancel', 'blur', 'contextmenu'].forEach((eventname) => {
-      this.canvas.addEventListener(eventname, (event) => {
+      element.addEventListener(eventname, (event) => {
         // We do not care about properties of event, just that it happened.
         this.socket.emit(Message.BLUR, {});
       });
     });
 
-    // Forward keyboard events
-    const keys = ['Alt', 'Control', 'Meta', 'Shift'];
-    ['keydown', 'keyup'].forEach((eventname) => {
-      window.addEventListener(eventname, (event) => {
-        if (keys.indexOf(event.key) < 0) {
-          // Only forward events for keys we care about
-          return;
-        }
-        // Extract only the properties we care about
-        const { type, key, altKey, ctrlKey, metaKey, shiftKey } = event;
-        const data = { type, key, altKey, ctrlKey, metaKey, shiftKey };
-        this.socket.emit(Message.KEYBOARD, data);
-      });
-    });
-
     // Forward wheel events
-    this.canvas.addEventListener(
+    element.addEventListener(
       'wheel',
       (event) => {
         if (event.ctrlKey) {

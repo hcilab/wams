@@ -55,6 +55,13 @@ class ClientModel {
      * @type {module:client.ClientView}
      */
     this.view = null;
+
+    /**
+     * The controller for this user.
+     *
+     * @type {module:client.ClientController}
+     */
+    this.controller = null;
   }
 
   /**
@@ -73,7 +80,9 @@ class ClientModel {
    * @param {module:shared.WamsElement} values - State of the new Element
    */
   addElement(values) {
-    this._addItem(new ClientElement(values));
+    const wamsElement = new ClientElement(values);
+    this.controller.forwardInputsFromElement(wamsElement.element);
+    this._addItem(wamsElement);
   }
 
   /**
