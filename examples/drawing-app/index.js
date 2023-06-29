@@ -117,4 +117,4 @@ function constrainedZoom(event) {
 // eslint-disable-next-line
 const drawingApp = new DrawingApp();
 drawingApp.initListeners();
-routing.listen(drawingApp.wamsApp.httpServer, 'localhost', 9000);
+routing.listen(drawingApp.wamsApp.httpServer);

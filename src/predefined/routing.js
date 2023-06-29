@@ -67,7 +67,7 @@ function addStaticDirectory(router, staticDir) {
  * @param {string} [host='localhost'] - The host to listen on.
  * @param {number} [port=9000] - The port to listen on.
  */
-function listen(server, host = 'localhost', port = 9000) {
+function listen(server, host = '0.0.0.0', port = 9000) {
   server.listen(port, host, () => {
     const formatAddress = (_host, port) => `http://${_host}:${port}`;
     const { address, port } = server.address();
