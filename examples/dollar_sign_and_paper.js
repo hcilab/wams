@@ -18,10 +18,10 @@ const app = new WAMS.Application({
 });
 app.addStaticDirectory(path.join(__dirname, 'client'));
 
-function handleConnect({ view }) {
-  view.on('pinch', WAMS.predefined.actions.pinch);
-  view.on('drag', WAMS.predefined.actions.drag);
-  view.on('rotate', WAMS.predefined.actions.rotate);
-}
-app.on('connect', handleConnect);
+// function handleConnect({ view }) {
+//   view.on('pinch', WAMS.predefined.actions.pinch);
+//   view.on('drag', WAMS.predefined.actions.drag);
+//   view.on('rotate', WAMS.predefined.actions.rotate);
+// }
+// app.on('connect', handleConnect);
 app.listen(9000);

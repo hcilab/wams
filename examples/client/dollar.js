@@ -75,7 +75,7 @@ function onLoadEvent() {
   _points = [];
   _r = new DollarRecognizer();
 
-  const canvas = document.getElementById('main');
+  const canvas = document.getElementById('wams');
   _g = canvas.getContext('2d');
   _g.fillStyle = 'rgb(0,0,225)';
   _g.strokeStyle = 'rgb(0,0,225)';

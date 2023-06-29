@@ -4,7 +4,7 @@ paperRun = function (shape, centroid) {
   if (!paperInit) {
     //paper.install(window);
     // Get a reference to the canvas object
-    var canvas = document.getElementById('main');
+    var canvas = document.getElementById('wams');
 
     // Create an empty project and a view for the canvas:
     paper.setup(canvas);
