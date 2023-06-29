@@ -66,14 +66,6 @@ For example:
 node examples/polygons.js
 ```
 
-## Live Demo
-
-* (Currently broken)
-
-The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view.
-
-To check out the code of the live demo, see `examples/video-player.js`
-
 ## Walkthrough
 
 This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://wams-js.github.io/wams/).
