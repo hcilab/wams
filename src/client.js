@@ -61,6 +61,7 @@ function run() {
   const model = new ClientModel(root);
   const view = new ClientView(context, iOS, dpr);
   const controller = new ClientController(canvas, view, model, iOS, dpr);
+  model.controller = controller;
   window.WAMS = new ClientApplication(controller);
 
   model.view = view;
