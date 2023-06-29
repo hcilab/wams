@@ -45,7 +45,10 @@ class DrawingApp {
 
     this.viewPencilColors = {};
     this.viewPencilWidths = {};
-    this.boundDraw = this.draw.bind(this);
+    this.previousEvents = {};
+    this.boundDown = this.down.bind(this);
+    this.boundMove = this.move.bind(this);
+    this.boundUp = this.up.bind(this);
   }
 
   setColor({ color, view }) {
@@ -63,11 +66,31 @@ class DrawingApp {
     this.wamsApp.on('connect', this.handleConnect.bind(this));
   }
 
+  down(event) {
+    this.previousEvents[event.pointerId] = { ...event };
+    this.draw(event);
+  }
+
+  move(event) {
+    if (this.previousEvents[event.pointerId]) {
+      this.draw(event);
+    }
+  }
+
+  up(event) {
+    if (this.previousEvents[event.pointerId]) {
+      this.draw(event);
+    }
+    delete this.previousEvents[event.pointerId];
+  }
+
   draw(event) {
     const color = this.viewPencilColors[event.view] || 'black';
     const width = this.viewPencilWidths[event.view] || 20;
-    const fromX = event.x - event.dx;
-    const fromY = event.y - event.dy;
+    const previous = this.previousEvents[event.pointerId];
+    this.previousEvents[event.pointerId] = { ...event };
+    const fromX = previous.x;
+    const fromY = previous.y;
     const toX = event.x;
     const toY = event.y;
     this.wamsApp.workspace.spawnItem(
@@ -88,12 +111,17 @@ class DrawingApp {
       view.on('drag', actions.drag);
       view.on('pinch', constrainedZoom);
       view.on('rotate', actions.rotate);
-      view.off('drag', this.boundDraw);
+      // view.off('drag', this.boundDraw);
+      view.off('pointerdown', this.boundDown);
+      view.off('pointermove', this.boundMove);
+      view.off('pointerup', this.boundUp);
     } else {
       view.off('drag', actions.drag);
       view.off('pinch', constrainedZoom);
       view.off('rotate', actions.rotate);
-      view.on('drag', this.boundDraw);
+      view.on('pointerdown', this.boundDown);
+      view.on('pointermove', this.boundMove);
+      view.on('pointerup', this.boundUp);
     }
   }
 
