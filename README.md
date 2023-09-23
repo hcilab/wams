@@ -1,6 +1,6 @@
 # WAMS: Workspaces Across Multiple Surfaces
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/hcilab/wams/maintainability)
+[![Maintainability](https://api.codeclimate.com/v1/badges/025f89d6de0c6677d142/maintainability)](https://codeclimate.com/github/wams-js/wams/maintainability)
 
 WAMS is a Web API that makes creating Multi-Screen applications easy. Multi-screen applications are ones where multiple devices (and their screens) can be used together in flexible ways allowing objects to be easily moved between screens or interactions, like gestures, to span multiple screens.
 
@@ -45,12 +45,12 @@ You will need to install [node.js and npm](https://docs.npmjs.com/downloading-an
 
 Then you can install this repo directly as a node module. For example, to install the stable `hello-world-test` release:
 ```bash
-npm install hcilab/wams#hello-world-test
+npm install wams-js/wams#hello-world-test
 ```
 
 ## Getting started
 
-The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://hcilab.github.io/wams/) and the [examples](#examples). ~For a taste on how WAMS works, check the [live demo section](#live-demo).~ (The live demo is currently broken).
+The easiest way to get started is to follow the [Walkthrough](#walkthrough) tutorial below. More advanced users might want to check the [code documentation](https://wams-js.github.io/wams/) and the [examples](#examples). ~For a taste on how WAMS works, check the [live demo section](#live-demo).~ (The live demo is currently broken).
 
 ## Examples
 
@@ -66,17 +66,9 @@ For example:
 node examples/polygons.js
 ```
 
-## Live Demo
-
-* (Currently broken)
-
-The [live demo](https://wams-player-demo.herokuapp.com/) is an example of a video-player with a distributed user interface. First, the player controls are displayed on the screen with the video. Go to the url with a second device or browser, and as a second view is connected, the controls are automatically moved to that view.
-
-To check out the code of the live demo, see `examples/video-player.js`
-
 ## Walkthrough
 
-This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://hcilab.github.io/wams/).
+This walkthrough is a friendly guide on how to use most WAMS features. For more details, see [code documentation](https://wams-js.github.io/wams/).
 
 > **Note** The examples on this page use ES2015 (ES6) JavaScript syntax like `const` variables and object destructuring. If you are not familiar with ES2015 features, you can [read](https://webapplog.com/es6/) about them first.
 
@@ -87,7 +79,7 @@ First, let's set up a new directory for our demo application, and install WAMS i
 ```bash
 mkdir demo
 cd demo
-npm install hcilab/wams#hello-world-test
+npm install wams-js/wams#hello-world-test
 ```
 
 Now, create an **app.js** file. In this file, include WAMS and initialize the application:
@@ -194,7 +186,7 @@ You can substitute `const app = new Wams.Application();` in your code with the c
 
 ### Basics
 
-A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://hcilab.github.io/wams/module-predefined.items.html)):
+A WAMS app is made of **items**. There are several predefined items (see in the [code documentation](https://wams-js.github.io/wams/module-predefined.items.html)):
 
 - `rectangle`
 - `square`
@@ -231,7 +223,7 @@ app.spawn(
 );
 ```
 
-Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://hcilab.github.io/wams/module-predefined.utilities.html#.randomPoints)).
+Polygons are built using an array of relative points. For a random set of points, you can use `randomPoints` method from `Wams.predefined.utilities` (see in [code documentation](https://wams-js.github.io/wams/module-predefined.utilities.html#.randomPoints)).
 
 For example:
 
@@ -625,7 +617,7 @@ function flipCard(event) {
 
 ### Grouped items
 
-Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createItemGroup` method (see in the [code documentation](https://hcilab.github.io/wams/module-server.Application.html#createItemGroup)):
+Sometimes you would like to spawn several items and then move or drag them together. To do that easily, you can use the `createItemGroup` method (see in the [code documentation](https://wams-js.github.io/wams/module-server.Application.html#createItemGroup)):
 
 ```javascript
 const items = [];
